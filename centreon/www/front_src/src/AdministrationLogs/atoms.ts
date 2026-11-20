@@ -1,6 +1,6 @@
 import { atom } from 'jotai';
 
-import { type Filters, Period } from './models';
+import { type ActivityLog, type Filters, Period } from './models';
 
 export const defaultFilters: Filters = {
   actions: [],
@@ -27,8 +27,12 @@ export interface SelectedTarget {
 
 export const selectedTargetAtom = atom<SelectedTarget | null>(null);
 
-// The listing and the history panel can show the same log: each one keeps its
-// own expanded rows
-export const expandedLogIdsAtom = atom<Array<number>>([]);
+// The log whose detail is shown in the side panel. The side panel shows either
+// a log or the history of an object, never both
+export const selectedLogAtom = atom<ActivityLog | null>(null);
+
+// The log the history was opened from, to go back to its detail. Null when
+// the history was opened from the listing
+export const historyOriginLogAtom = atom<ActivityLog | null>(null);
 
 export const historyExpandedLogIdsAtom = atom<Array<number>>([]);

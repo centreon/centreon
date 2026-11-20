@@ -1,15 +1,13 @@
 import { type PrimitiveAtom, useAtom } from 'jotai';
 import { equals, reject } from 'ramda';
 
-import { expandedLogIdsAtom } from './atoms';
-
 interface UseExpandedLogs {
   isExpanded: (id: number) => boolean;
   toggle: (id: number) => void;
 }
 
 export const useExpandedLogs = (
-  atom: PrimitiveAtom<Array<number>> = expandedLogIdsAtom
+  atom: PrimitiveAtom<Array<number>>
 ): UseExpandedLogs => {
   const [expandedLogIds, setExpandedLogIds] = useAtom(atom);
 

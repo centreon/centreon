@@ -8,13 +8,14 @@ import { useMemo } from 'react';
 import { filtersAtom } from './atoms';
 import { type Filters, Period } from './models';
 
-const presetDurations: Partial<Record<Period, [number, dayjs.ManipulateType]>> =
-  {
-    [Period.LastHour]: [1, 'hour'],
-    [Period.Last24Hours]: [24, 'hour'],
-    [Period.Last7Days]: [7, 'day'],
-    [Period.Last30Days]: [30, 'day']
-  };
+export const presetDurations: Partial<
+  Record<Period, [number, dayjs.ManipulateType]>
+> = {
+  [Period.LastHour]: [1, 'hour'],
+  [Period.Last24Hours]: [24, 'hour'],
+  [Period.Last7Days]: [7, 'day'],
+  [Period.Last30Days]: [30, 'day']
+};
 
 // Presets are resolved when the filters change, so the bounds stay the same
 // while the next pages are loaded

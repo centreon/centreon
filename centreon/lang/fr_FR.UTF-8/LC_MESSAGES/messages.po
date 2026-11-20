@@ -24708,3 +24708,66 @@ msgstr "« Aucun » ne peut pas être combiné avec d'autres options. Passez cet
 #: centreon/www/install/front_translate.php
 msgid "When services inherit contacts and contact groups only from their host, their own contacts and contact groups are removed. Only those you have access to are affected."
 msgstr "Lorsque les services héritent uniquement des contacts et groupes de contacts de leur hôte, leurs propres contacts et groupes de contacts sont supprimés. Seuls ceux auxquels vous avez accès sont concernés."
+
+msgid "Track the configuration changes made on your platform."
+msgstr "Suivez les modifications de configuration effectuées sur votre plateforme."
+
+msgid "Search by object name"
+msgstr "Rechercher par nom d'objet"
+
+msgid "Object type"
+msgstr "Type d'objet"
+
+msgid "All dates"
+msgstr "Toutes les dates"
+
+msgid "Custom period"
+msgstr "Période personnalisée"
+
+msgid "System"
+msgstr "Système"
+
+msgid "Changes"
+msgstr "Modifications"
+
+msgid "Show changes"
+msgstr "Afficher les modifications"
+
+msgid "Hide changes"
+msgstr "Masquer les modifications"
+
+msgid "Field"
+msgstr "Champ"
+
+msgid "Could not read the change history."
+msgstr "Impossible de lire l'historique des modifications."
+
+msgid "Loading more…"
+msgstr "Chargement…"
+
+msgid "End of history"
+msgstr "Fin de l'historique"
+
+msgid "Filter by {{value}}"
+msgstr "Filtrer sur {{value}}"
+
+msgid "Beginning of history"
+msgstr "Début de l'historique"
+
+msgid "Open the configuration"
+msgstr "Ouvrir la configuration"
+
+msgid "on {{names}}"
+msgstr "sur {{names}}"
+
+msgid "on host group {{names}}"
+msgstr "sur le groupe d'hôtes {{names}}"
+
+msgid "Linked resource has changed"
+msgstr "La ressource liée a changé"
+
+msgid "Mass change"
+msgstr "Modification de masse"
+
+msgid "SNMP trap"
+msgstr "Trap SNMP"

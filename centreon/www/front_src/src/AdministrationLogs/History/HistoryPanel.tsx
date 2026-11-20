@@ -1,27 +1,34 @@
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { Box, Typography, useTheme } from '@mui/material';
 
 import { IconButton, Panel, useInfiniteScrollListing } from '@centreon/ui';
 
-import { equals, head, isEmpty } from 'ramda';
+import { useAtomValue } from 'jotai';
+import { head } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 
 import { activityLogsDecoder } from '../api/decoders';
 import { activityLogsEndpoint } from '../api/endpoints';
-import { historyPageAtom, type SelectedTarget } from '../atoms';
-import type { ActivityLog } from '../models';
 import {
+  historyOriginLogAtom,
+  historyPageAtom,
+  type SelectedTarget
+} from '../atoms';
+import type { ActivityLog } from '../models';
+import { minPanelWidth } from '../SidePanel/constants';
+import { useSidePanelStyles } from '../SidePanel/SidePanel.styles';
+import {
+  labelBackToLogDetail,
   labelClose,
-  labelLinkedResourceChanged,
-  labelOnHost,
-  labelOnHostGroup,
   labelOpenConfiguration,
   labelTargetTypes
 } from '../translatedLabels';
+import { useSelectedLog } from '../useSelectedLog';
 import { useSelectedTarget } from '../useSelectedTarget';
+import { useTargetParentLabel } from '../useTargetParentLabel';
 import { getConfigurationPath } from '../utils';
-import { useHistoryPanelStyles } from './HistoryPanel.styles';
 import Timeline from './Timeline';
 
 interface HeaderProps {
@@ -30,15 +37,27 @@ interface HeaderProps {
 }
 
 // Same layout as the header of the configuration panel: the name as title,
-// the actions as icons on the right
+// the actions as icons on the right. A back arrow leads to the log detail the
+// history was opened from
 const Header = ({ target, latestEvent }: HeaderProps): JSX.Element => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const originLog = useAtomValue(historyOriginLogAtom);
+  const { select: selectLog } = useSelectedLog();
 
   const configurationPath = getConfigurationPath(target);
 
   return (
     <Box className="flex min-w-0 items-center gap-2 py-1">
+      {originLog && (
+        <IconButton
+          ariaLabel={t(labelBackToLogDetail)}
+          onClick={() => selectLog(originLog)}
+          title={t(labelBackToLogDetail)}
+        >
+          <ArrowBackIcon fontSize="small" />
+        </IconButton>
+      )}
       {/* The most recent event carries the current name of the object */}
       <Typography className="truncate" variant="h6">
         {latestEvent?.target.name ?? '…'}
@@ -60,25 +79,9 @@ const Header = ({ target, latestEvent }: HeaderProps): JSX.Element => {
 
 const Subtitle = ({ target, latestEvent }: HeaderProps): JSX.Element => {
   const { t } = useTranslation();
+  const getParentLabel = useTargetParentLabel();
 
-  const parent = latestEvent?.target.parent;
-
-  const getParentLabel = (): string | null => {
-    if (!equals(target.type, 'Service') || !latestEvent) {
-      return null;
-    }
-
-    if (!parent || isEmpty(parent.names)) {
-      return t(labelLinkedResourceChanged);
-    }
-
-    return t(
-      equals(parent.type, 'HostGroup') ? labelOnHostGroup : labelOnHost,
-      { names: parent.names.join(', ') }
-    );
-  };
-
-  const parentLabel = getParentLabel();
+  const parentLabel = latestEvent ? getParentLabel(latestEvent.target) : null;
 
   return (
     <Typography className="pt-3 text-text-secondary" variant="body2">
@@ -87,9 +90,6 @@ const Subtitle = ({ target, latestEvent }: HeaderProps): JSX.Element => {
     </Typography>
   );
 };
-
-export const minPanelWidth = 480;
-export const maxPanelWidth = 900;
 
 interface Props {
   onResize: (width: number) => void;
@@ -102,7 +102,7 @@ interface Props {
 const HistoryPanel = ({ target, onResize, width }: Props): JSX.Element => {
   const { t } = useTranslation();
   const theme = useTheme();
-  const { classes } = useHistoryPanelStyles();
+  const { classes } = useSidePanelStyles();
   const { close } = useSelectedTarget();
 
   const { elements, elementRef, hasNextPage, isLoading } =

@@ -1,35 +1,14 @@
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import CheckIcon from '@mui/icons-material/Check';
-import {
-  Divider,
-  ListItemIcon,
-  ListItemText,
-  MenuItem,
-  MenuList,
-  Popover,
-  Typography
-} from '@mui/material';
-
-import {
-  PickersStartEndDateDirection,
-  SimpleCustomTimePeriod,
-  TextField,
-  useLocaleDateTimeFormat
-} from '@centreon/ui';
-import { Button } from '@centreon/ui/components';
+import { SelectField, SimpleCustomTimePeriod } from '@centreon/ui';
 
 import dayjs from 'dayjs';
 import { useAtom, useSetAtom } from 'jotai';
-import { equals, isNil } from 'ramda';
-import { type MouseEvent, useState } from 'react';
+import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { filtersAtom, pageAtom } from '../atoms';
 import { Period } from '../models';
 import {
   labelAllDates,
-  labelApply,
   labelCustomPeriod,
   labelLast7Days,
   labelLast24Hours,
@@ -37,58 +16,58 @@ import {
   labelLastHour,
   labelPeriod
 } from '../translatedLabels';
+import { presetDurations } from '../useActivityLogsQueryParameters';
 
-const presetLabels: Record<Exclude<Period, Period.Custom>, string> = {
-  [Period.All]: labelAllDates,
-  [Period.LastHour]: labelLastHour,
-  [Period.Last24Hours]: labelLast24Hours,
-  [Period.Last7Days]: labelLast7Days,
-  [Period.Last30Days]: labelLast30Days
+const options = [
+  { id: Period.All, name: labelAllDates },
+  { id: Period.LastHour, name: labelLastHour },
+  { id: Period.Last24Hours, name: labelLast24Hours },
+  { id: Period.Last7Days, name: labelLast7Days },
+  { id: Period.Last30Days, name: labelLast30Days },
+  { id: Period.Custom, name: labelCustomPeriod }
+];
+
+const toMinute = (date: Date): Date => dayjs(date).startOf('minute').toDate();
+
+// The custom range starts from the preset it replaces ("All dates": the last 24 hours)
+const getInitialCustomRange = (period: Period): { from: Date; to: Date } => {
+  const [amount, unit] = presetDurations[period] ?? [1, 'day'];
+  const now = new Date();
+
+  return {
+    from: toMinute(dayjs(now).subtract(amount, unit).toDate()),
+    to: toMinute(now)
+  };
 };
 
-interface DateRange {
-  from: Date;
-  to: Date;
-}
-
-const ClockAdornment = (): JSX.Element => (
-  <AccessTimeIcon className="text-text-secondary" fontSize="small" />
-);
-
-// A read-only field with the same look and height as the search bar. It shows
-// the preset or the custom range, and opens the presets and the custom pickers
+// A preset selector; "Custom period" shows the start and end pickers next to it,
+// applied as soon as a date changes (as in the BA Timeline)
 const PeriodFilter = (): JSX.Element => {
   const { t } = useTranslation();
-  const { format } = useLocaleDateTimeFormat();
 
   const [filters, setFilters] = useAtom(filtersAtom);
   const setPage = useSetAtom(pageAtom);
 
-  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-  const [customRange, setCustomRange] = useState<DateRange | null>(null);
+  const translatedOptions = options.map(({ id, name }) => ({
+    id,
+    name: t(name)
+  }));
 
-  const formatShortDate = (date: Date): string =>
-    format({ date, formatString: 'L LT' });
+  const changePeriod = (event: { target: { value: unknown } }): void => {
+    const period = event.target.value as Period;
 
-  const fieldValue =
-    equals(filters.period, Period.Custom) && filters.from && filters.to
-      ? `${formatShortDate(filters.from)} → ${formatShortDate(filters.to)}`
-      : t(presetLabels[filters.period as Exclude<Period, Period.Custom>]);
+    if (equals(period, filters.period)) {
+      return;
+    }
 
-  const open = (event: MouseEvent<HTMLElement>): void => {
-    setCustomRange({
-      from: filters.from ?? dayjs().subtract(1, 'day').toDate(),
-      to: filters.to ?? new Date()
-    });
-    setAnchorEl(event.currentTarget);
-  };
-
-  const close = (): void => setAnchorEl(null);
-
-  const selectPreset = (period: Period): void => {
     setPage(1);
-    setFilters((current) => ({ ...current, from: null, period, to: null }));
-    close();
+    setFilters((current) => ({
+      ...current,
+      ...(equals(period, Period.Custom)
+        ? getInitialCustomRange(current.period)
+        : { from: null, to: null }),
+      period
+    }));
   };
 
   const changeCustomDate = ({
@@ -97,89 +76,43 @@ const PeriodFilter = (): JSX.Element => {
   }: {
     date: Date;
     property: string;
-  }): void =>
-    setCustomRange((current) =>
-      current
-        ? { ...current, [equals(property, 'start') ? 'from' : 'to']: date }
-        : current
-    );
+  }): void => {
+    const isStart = equals(property, 'start');
+    const from = isStart ? toMinute(date) : filters.from;
+    const to = isStart ? filters.to : toMinute(date);
 
-  const applyCustomRange = (): void => {
-    if (isNil(customRange)) {
+    if (from && to && !dayjs(to).isAfter(from)) {
       return;
     }
 
     setPage(1);
-    setFilters((current) => ({
-      ...current,
-      ...customRange,
-      period: Period.Custom
-    }));
-    close();
+    setFilters((current) => ({ ...current, from, to }));
   };
 
+  const isCustom = equals(filters.period, Period.Custom);
+
   return (
-    <>
-      <TextField
+    <div className="flex flex-row items-center gap-2">
+      <SelectField
         ariaLabel={t(labelPeriod)}
-        className="w-[300px] max-w-full cursor-pointer"
+        className="min-w-[180px]"
         dataTestId={labelPeriod}
-        EndAdornment={<ArrowDropDownIcon className="text-text-secondary" />}
-        onClick={open}
-        StartAdornment={ClockAdornment}
-        textFieldSlotsAndSlotProps={{
-          slotProps: {
-            htmlInput: { className: 'cursor-pointer', readOnly: true }
-          }
-        }}
-        title={t(labelPeriod)}
-        value={fieldValue}
+        onChange={changePeriod}
+        options={translatedOptions}
+        selectedOptionId={filters.period}
+        size="small"
       />
-      <Popover
-        anchorEl={anchorEl}
-        anchorOrigin={{ horizontal: 'left', vertical: 'bottom' }}
-        onClose={close}
-        open={!isNil(anchorEl)}
-        slotProps={{ paper: { className: 'mt-2 w-[300px]' } }}
-      >
-        <MenuList dense>
-          {Object.entries(presetLabels).map(([period, label]) => (
-            <MenuItem
-              key={period}
-              onClick={() => selectPreset(period as Period)}
-              selected={equals(filters.period, period)}
-            >
-              <ListItemIcon>
-                {equals(filters.period, period) && (
-                  <CheckIcon fontSize="small" />
-                )}
-              </ListItemIcon>
-              <ListItemText>{t(label)}</ListItemText>
-            </MenuItem>
-          ))}
-        </MenuList>
-        <Divider />
-        <div className="flex flex-col gap-2 p-3">
-          <Typography className="font-bold" variant="body2">
-            {t(labelCustomPeriod)}
-          </Typography>
-          {customRange && (
-            <SimpleCustomTimePeriod
-              changeDate={changeCustomDate}
-              className="p-0"
-              direction={PickersStartEndDateDirection.column}
-              endDate={customRange.to}
-              startDate={customRange.from}
-            />
-          )}
-          <div className="flex justify-end">
-            <Button onClick={applyCustomRange} size="small">
-              {t(labelApply)}
-            </Button>
-          </div>
-        </div>
-      </Popover>
-    </>
+      {isCustom && filters.from && filters.to && (
+        <SimpleCustomTimePeriod
+          changeDate={changeCustomDate}
+          className="p-0"
+          endDate={filters.to}
+          rangeEndDate={{ max: new Date(), min: filters.from }}
+          rangeStartDate={{ max: filters.to }}
+          startDate={filters.from}
+        />
+      )}
+    </div>
   );
 };
 

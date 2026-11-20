@@ -25,7 +25,7 @@ const FilterableValue = ({
     <ButtonBase
       className={`min-w-0 justify-start rounded-sm text-left hover:underline focus-visible:underline ${className}`}
       onClick={(event) => {
-        // The row click expands the changes
+        // The row click opens the log detail
         event.stopPropagation();
         onFilter();
       }}

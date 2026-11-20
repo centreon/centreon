@@ -1,4 +1,6 @@
 export const labelLogs = 'Logs';
+export const labelLogsDescription =
+  'Track the configuration changes made on your platform.';
 export const labelSearchObjectName = 'Search by object name';
 export const labelFilters = 'Filters';
 export const labelUser = 'User';
@@ -13,7 +15,6 @@ export const labelLast24Hours = 'Last 24 hours';
 export const labelLast7Days = 'Last 7 days';
 export const labelLast30Days = 'Last 30 days';
 export const labelCustomPeriod = 'Custom period';
-export const labelApply = 'Apply';
 export const labelClear = 'Clear';
 export const labelSearch = 'Search';
 export const labelDate = 'Date';
@@ -41,6 +42,14 @@ export const labelNoResultFound = 'No results found';
 export const labelOnHost = 'on {{names}}';
 export const labelOnHostGroup = 'on host group {{names}}';
 export const labelLinkedResourceChanged = 'Linked resource has changed';
+export const labelLogId = 'Log ID';
+export const labelPreviousLog = 'Previous log (↑ or k)';
+export const labelNextLog = 'Next log (↓ or j)';
+export const labelBackToLogDetail = 'Back to the log detail';
+export const labelViewFullHistory = 'View the full history of this object';
+export const labelFilterFields = 'Filter fields';
+export const labelFieldCount = '{{visible}} of {{count}} fields';
+export const labelNoFieldMatches = 'No field matches the filter.';
 
 export const labelAdded = 'Added';
 export const labelChanged = 'Changed';

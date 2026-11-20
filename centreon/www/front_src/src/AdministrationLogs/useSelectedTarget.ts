@@ -5,10 +5,13 @@ import { useSearchParams } from 'react-router';
 
 import {
   historyExpandedLogIdsAtom,
+  historyOriginLogAtom,
   historyPageAtom,
   type SelectedTarget,
+  selectedLogAtom,
   selectedTargetAtom
 } from './atoms';
+import type { ActivityLog } from './models';
 
 const searchParameterName = 'object';
 
@@ -21,7 +24,8 @@ const parseTarget = (value: string | null): SelectedTarget | null => {
 interface UseSelectedTarget {
   close: () => void;
   isSelected: (target: SelectedTarget) => boolean;
-  select: (target: SelectedTarget) => void;
+  // `from` is the log whose detail the history replaces, to go back to it
+  select: (target: SelectedTarget, from?: ActivityLog) => void;
   selectedTarget: SelectedTarget | null;
 }
 
@@ -31,14 +35,22 @@ export const useSelectedTarget = (): UseSelectedTarget => {
   const [selectedTarget, setSelectedTarget] = useAtom(selectedTargetAtom);
   const setHistoryPage = useSetAtom(historyPageAtom);
   const setExpandedLogIds = useSetAtom(historyExpandedLogIdsAtom);
+  const setSelectedLog = useSetAtom(selectedLogAtom);
+  const setOriginLog = useSetAtom(historyOriginLogAtom);
 
-  const select = (target: SelectedTarget): void => {
+  const select = (target: SelectedTarget, from?: ActivityLog): void => {
     setHistoryPage(1);
     setExpandedLogIds([]);
-    setSelectedTarget(target);
+    setOriginLog(from ?? null);
+    // The history takes the place of the log detail in the side panel
+    setSelectedLog(null);
+    setSelectedTarget({ id: target.id, type: target.type });
   };
 
-  const close = (): void => setSelectedTarget(null);
+  const close = (): void => {
+    setOriginLog(null);
+    setSelectedTarget(null);
+  };
 
   const isSelected = (target: SelectedTarget): boolean =>
     equals(selectedTarget?.id, target.id) &&

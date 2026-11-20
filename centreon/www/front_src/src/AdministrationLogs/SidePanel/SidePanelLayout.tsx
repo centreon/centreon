@@ -4,18 +4,23 @@ import { useState } from 'react';
 
 import useAvailableWidth from '../../Configuration/ConfigurationBase/Panel/useAvailableWidth';
 import type { SelectedTarget } from '../atoms';
-import HistoryPanel, { maxPanelWidth } from './HistoryPanel';
-
-const defaultPanelWidth = 560;
+import HistoryPanel from '../History/HistoryPanel';
+import LogDetailPanel from '../LogDetail/LogDetailPanel';
+import type { ActivityLog } from '../models';
+import { defaultPanelWidth, maxPanelWidth } from './constants';
 
 interface Props {
+  log: ActivityLog | null;
+  rows: Array<ActivityLog>;
   target: SelectedTarget | null;
 }
 
 // Same placement as the configuration panel (ConfigurationBase/PanelLayout):
 // over the page, flush right, from the top of the page to its bottom. The layer
 // lets the pointer through, so the listing underneath stays usable.
-const HistoryPanelLayout = ({ target }: Props): JSX.Element => {
+// It holds either the detail of a log or the history of an object; the width
+// dragged by the user is kept when going from one to the other.
+const SidePanelLayout = ({ log, rows, target }: Props): JSX.Element => {
   const [draggedWidth, setDraggedWidth] = useState<number | null>(null);
   const { ref, availableWidth } = useAvailableWidth();
 
@@ -26,12 +31,40 @@ const HistoryPanelLayout = ({ target }: Props): JSX.Element => {
     availableWidth || preferredWidth
   );
 
+  const getPanel = (): JSX.Element | null => {
+    if (log) {
+      return (
+        <LogDetailPanel
+          log={log}
+          onResize={setDraggedWidth}
+          rows={rows}
+          width={panelWidth}
+        />
+      );
+    }
+
+    if (target) {
+      return (
+        <HistoryPanel
+          key={`${target.type}:${target.id}`}
+          onResize={setDraggedWidth}
+          target={target}
+          width={panelWidth}
+        />
+      );
+    }
+
+    return null;
+  };
+
+  const panel = getPanel();
+
   return (
     <Box
       ref={ref}
       sx={{ inset: 0, pointerEvents: 'none', position: 'absolute' }}
     >
-      {target && (
+      {panel && (
         <Box
           sx={{
             bottom: 0,
@@ -42,16 +75,11 @@ const HistoryPanelLayout = ({ target }: Props): JSX.Element => {
             zIndex: 10
           }}
         >
-          <HistoryPanel
-            key={`${target.type}:${target.id}`}
-            onResize={setDraggedWidth}
-            target={target}
-            width={panelWidth}
-          />
+          {panel}
         </Box>
       )}
     </Box>
   );
 };
 
-export default HistoryPanelLayout;
+export default SidePanelLayout;

@@ -6,23 +6,12 @@ import { type PrimitiveAtom, useAtom, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
 import { dateSortOrderAtom } from '../atoms';
-import ChangesTable from '../Changes/ChangesTable';
-import { Action, type ActivityLog } from '../models';
+import type { ActivityLog } from '../models';
 import { labelEndOfHistory, labelNoResultFound } from '../translatedLabels';
-import { useExpandedLogs } from '../useExpandedLogs';
+import { useSelectedLog } from '../useSelectedLog';
 import { useSelectedTarget } from '../useSelectedTarget';
 import DayHeader, { useDayKey } from './DayHeader';
 import { useColumns } from './useColumns';
-
-// Left accent of the expanded changes, in the color of the action chip
-const actionBorderClassNames: Record<Action, string> = {
-  [Action.Add]: 'border-l-success-main',
-  [Action.Delete]: 'border-l-error-main',
-  [Action.Disable]: 'border-l-error-main',
-  [Action.Enable]: 'border-l-success-main',
-  [Action.MassChange]: 'border-l-warning-main',
-  [Action.Update]: 'border-l-warning-main'
-};
 
 interface Props {
   actions?: JSX.Element;
@@ -54,12 +43,9 @@ const Listing = ({
   const theme = useTheme();
 
   const columns = useColumns();
-  const { isSelected } = useSelectedTarget();
+  const { isSelected: isSelectedTarget } = useSelectedTarget();
+  const { isSelected: isSelectedLog, select: selectLog } = useSelectedLog();
   const getDayKey = useDayKey();
-  const { isExpanded, toggle } = useExpandedLogs();
-
-  // Shared by the expanded row and its changes, so they read as one block
-  const expandedBackgroundColor = alpha(theme.palette.primary.main, 0.04);
 
   return (
     <ListingComponent<ActivityLog>
@@ -79,17 +65,6 @@ const Listing = ({
         </div>
       }
       columns={columns}
-      expandableRow={{
-        isExpanded: ({ id }) => isExpanded(id),
-        render: ({ action, id }) => (
-          <div
-            className={`border-0 border-b border-l-4 border-solid border-b-divider py-3 pr-4 pl-11 ${actionBorderClassNames[action]}`}
-            style={{ backgroundColor: expandedBackgroundColor }}
-          >
-            <ChangesTable logId={id} />
-          </div>
-        )
-      }}
       groupHeader={{
         getKey: ({ date }) => getDayKey(date),
         render: ({ date }) => <DayHeader date={date} />
@@ -97,20 +72,21 @@ const Listing = ({
       labelNoResultFound={t(labelNoResultFound)}
       limit={30}
       loading={isLoading}
-      onRowClick={({ id, hasChanges }) => hasChanges && toggle(id)}
+      onRowClick={selectLog}
       onSort={sortByDate}
       paginated={false}
       rowColorConditions={[
         {
-          color: expandedBackgroundColor,
-          condition: (row) => isExpanded((row as unknown as ActivityLog).id),
-          name: 'expanded'
+          // The log open in the side panel. The first matching condition wins
+          color: alpha(theme.palette.primary.main, 0.16),
+          condition: (row) => isSelectedLog((row as unknown as ActivityLog).id),
+          name: 'selected-log'
         },
         {
           // The rows of the object whose history is open in the side panel
-          color: alpha(theme.palette.primary.main, 0.1),
+          color: alpha(theme.palette.primary.main, 0.08),
           condition: (row) =>
-            isSelected((row as unknown as ActivityLog).target),
+            isSelectedTarget((row as unknown as ActivityLog).target),
           name: 'selected-object'
         }
       ]}

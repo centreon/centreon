@@ -12,7 +12,6 @@ import {
 import ActionColumn from './Columns/ActionColumn';
 import AuthorColumn from './Columns/AuthorColumn';
 import DateColumn from './Columns/DateColumn';
-import ExpandColumn from './Columns/ExpandColumn';
 import ObjectColumn from './Columns/ObjectColumn';
 import TypeColumn from './Columns/TypeColumn';
 
@@ -37,14 +36,6 @@ export const useColumns = (): Array<Column> => {
   ];
 
   return [
-    {
-      Component: ExpandColumn,
-      clickable: true,
-      id: 'expand',
-      label: '',
-      type: ColumnType.component,
-      width: '40px'
-    },
     {
       Component: DateColumn,
       id: 'date',

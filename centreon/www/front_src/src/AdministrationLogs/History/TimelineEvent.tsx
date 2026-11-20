@@ -96,7 +96,7 @@ const TimelineEvent = ({ event, isLast }: Props): JSX.Element => {
         ) : (
           summary
         )}
-        {expanded && <ChangesTable logId={id} />}
+        {expanded && <ChangesTable action={action} logId={id} />}
       </div>
     </li>
   );

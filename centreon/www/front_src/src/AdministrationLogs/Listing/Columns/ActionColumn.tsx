@@ -21,7 +21,7 @@ const ActionColumn = ({ row }: ComponentColumnProps): JSX.Element => {
       clickable
       label={label}
       onClick={(event) => {
-        // The row click expands the changes
+        // The row click opens the log detail
         event.stopPropagation();
         addFilter('actions', { id: action, name: label });
       }}
