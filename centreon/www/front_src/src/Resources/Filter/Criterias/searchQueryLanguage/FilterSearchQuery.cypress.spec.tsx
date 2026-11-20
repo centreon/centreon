@@ -8,7 +8,7 @@ const search =
   'type:host,service state:unhandled status:ok,up status_type:soft host_group:Linux-Servers monitoring_server:Central host_category:Linux h.name:centreon parent_name:Centreon name:Service';
 
 const builtSearch =
-  'type:host,service state:unhandled status:ok,up status_type:soft host_group:Linux-Servers monitoring_server:Central host_category:Linux parent_name:Centreon name:Service h.name:centreon';
+  'type:host,service state:unhandled status:ok,up status_type:soft host_group:Linux-Servers monitoring_server:Central host_category:Linux parent_name:Centreon name:Service "h.name:centreon"';
 
 const parsedSearch = [
   {
@@ -140,6 +140,115 @@ describe('build', () => {
     const result = build(parsedSearch);
 
     expect(result).to.be.equal(builtSearch);
+  });
+});
+
+/**
+ * Tests for colon-in-service-name support.
+ * @see https://github.com/centreon/centreon/issues/9331
+ */
+describe('parse - services with colons in name (#9331)', () => {
+  it('parses a quoted service name containing a colon as literal search text', () => {
+    const result = parse({ search: '"DB: Backup"' });
+    const searchCriteria = result.find(({ name }) => name === 'search');
+
+    expect(searchCriteria).to.deep.include({
+      name: 'search',
+      object_type: null,
+      type: 'text',
+      value: 'DB: Backup'
+    });
+  });
+
+  it('parses a quoted service name with colons alongside valid criteria', () => {
+    const result = parse({
+      search: 'type:service "HTTP: API Check" status:ok'
+    });
+
+    const searchCriteria = result.find(({ name }) => name === 'search');
+    expect(searchCriteria).to.deep.include({
+      name: 'search',
+      type: 'text',
+      value: 'HTTP: API Check'
+    });
+
+    const typeCriteria = result.find(({ name }) => name === 'resource_types');
+    expect(typeCriteria).to.not.be.undefined;
+
+    const statusCriteria = result.find(({ name }) => name === 'statuses');
+    expect(statusCriteria).to.not.be.undefined;
+  });
+
+  it('treats an unquoted colon-containing token as raw search when prefix is not a valid criteria', () => {
+    const result = parse({ search: 'DB:Backup' });
+    const searchCriteria = result.find(({ name }) => name === 'search');
+
+    expect(searchCriteria).to.deep.include({
+      name: 'search',
+      type: 'text',
+      value: 'DB:Backup'
+    });
+  });
+
+  it('handles multiple quoted segments', () => {
+    const result = parse({
+      search: '"Disk: Usage" "CPU: Load"'
+    });
+    const searchCriteria = result.find(({ name }) => name === 'search');
+
+    expect(searchCriteria).to.deep.include({
+      name: 'search',
+      type: 'text',
+      value: 'Disk: Usage CPU: Load'
+    });
+  });
+});
+
+describe('build - services with colons in name (#9331)', () => {
+  it('wraps search text containing a colon in quotes', () => {
+    const criteriasWithColonSearch = [
+      ...parsedSearch.filter(({ name }) => name !== 'search'),
+      {
+        name: 'search',
+        object_type: null,
+        type: 'text',
+        value: 'DB: Backup'
+      }
+    ];
+
+    const result = build(criteriasWithColonSearch);
+
+    expect(result).to.include('"DB: Backup"');
+  });
+
+  it('does not wrap search text without colons in quotes', () => {
+    const criteriasWithNormalSearch = [
+      ...parsedSearch.filter(({ name }) => name !== 'search'),
+      {
+        name: 'search',
+        object_type: null,
+        type: 'text',
+        value: 'myservice'
+      }
+    ];
+
+    const result = build(criteriasWithNormalSearch);
+
+    expect(result).not.to.include('"myservice"');
+    expect(result).to.include('myservice');
+  });
+
+  it('round-trips: build then parse preserves search text with colons', () => {
+    const original = 'type:service "DB: Backup"';
+    const parsed = parse({ search: original });
+    const rebuilt = build(parsed);
+    const reParsed = parse({ search: rebuilt });
+
+    const originalSearch = parsed.find(({ name }) => name === 'search');
+    const roundTripSearch = reParsed.find(({ name }) => name === 'search');
+
+    expect(roundTripSearch?.value).to.equal(originalSearch?.value);
+    expect(roundTripSearch?.value).to.equal('DB: Backup');
   });
 });
 
