@@ -29,7 +29,6 @@ require {
 	type httpd_log_t;
 	type httpd_sys_content_t;
 	type httpd_sys_rw_content_t;
-	type unreserved_port_t;
 	type system_cronjob_t;
 	type unconfined_t;
 }
@@ -43,6 +42,10 @@ files_type(centreon_config_t)
 
 type centreon_var_run_t;
 files_pid_file(centreon_var_run_t)
+
+# tcp/9042 is labelled by the package postinstall (semanage port)
+type centreon_php_fpm_port_t;
+corenet_port(centreon_php_fpm_port_t)
 
 ########################################
 #
@@ -94,9 +97,8 @@ allow httpd_t centreon_web_t:file { create getattr open read rename setattr writ
 allow httpd_t centreon_var_lib_t:dir { add_name create read remove_name rename rmdir write };
 allow httpd_t centreon_var_lib_t:file { append create getattr setattr lock open read rename setattr unlink write };
 
-# allowed php-fpm use the port 9042
-allow httpd_t unreserved_port_t:tcp_socket name_bind;
-allow httpd_t unreserved_port_t:tcp_socket name_connect;
+# php-fpm (httpd_t) listens on 127.0.0.1:9042, Apache connects to it
+allow httpd_t centreon_php_fpm_port_t:tcp_socket { name_bind name_connect };
 
 #============= systemd_logind_t ==============
 allow systemd_logind_t httpd_t:dbus send_msg;
