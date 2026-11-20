@@ -6637,7 +6637,7 @@ paths:
           description: 'Host template updated'
           links: {}
         '400':
-          description: 'The host template is locked, or a field the host template does not have'
+          description: 'The host template is locked'
           content:
             application/ld+json:
               schema:
@@ -16567,7 +16567,6 @@ components:
             - 'null'
     HostTemplate.PatchHostTemplateInput.jsonMergePatch:
       type: object
-      additionalProperties: false
       properties:
         name:
           maxLength: 200
@@ -16641,23 +16640,21 @@ components:
               type: 'null'
     PatchHostTemplateCheckOptionsInput:
       type: object
-      additionalProperties: false
       properties:
         command_id:
           minimum: 0
           exclusiveMinimum: 0
-          description: 'null removes the command and its arguments'
+          description: 'null removes the command; the arguments stay for the command of the parents'
           type:
             - integer
             - 'null'
         args:
-          description: 'an empty list clears them; they require a check command'
+          description: 'an empty list clears them; kept without a check command'
           type: array
           items:
             type: string
     PatchHostTemplateNotificationsInput:
       type: object
-      additionalProperties: false
       properties:
         enabled:
           enum:

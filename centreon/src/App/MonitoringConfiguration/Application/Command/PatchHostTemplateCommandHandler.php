@@ -36,7 +36,6 @@ use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\MonitoringConfiguration\Domain\Event\HostTemplateUpdated;
 use App\MonitoringConfiguration\Domain\Event\HostTemplateVaultPurgeRequested;
-use App\MonitoringConfiguration\Domain\Exception\CheckArgumentsRequireACommandException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\VaultWriteFailedException;
@@ -85,7 +84,6 @@ final readonly class PatchHostTemplateCommandHandler
 
         $this->assertReferencesExist($command);
         $this->assertNameIsAvailable($template, $command);
-        $this->assertArgumentsHaveACheckCommand($template, $command);
 
         $changed = $template->with(
             name: $command->name,
@@ -190,24 +188,6 @@ final readonly class PatchHostTemplateCommandHandler
             && $this->repository->isNameUsedByHostOrTemplate($command->name, $template->id())
         ) {
             throw HostTemplateAlreadyExistsException::forName($command->name->value);
-        }
-    }
-
-    /**
-     * Arguments sent on their own apply to the command the template already has.
-     */
-    private function assertArgumentsHaveACheckCommand(HostTemplate $template, PatchHostTemplateCommand $command): void
-    {
-        if (! $command->checkOptions instanceof CheckOptionsChanges || ! is_array($command->checkOptions->args) || $command->checkOptions->args === []) {
-            return;
-        }
-
-        $commandId = $command->checkOptions->checkCommandId instanceof NoValue
-            ? $template->checkOptions->checkCommandId
-            : $command->checkOptions->checkCommandId;
-
-        if (! $commandId instanceof CommandId) {
-            throw new CheckArgumentsRequireACommandException();
         }
     }
 

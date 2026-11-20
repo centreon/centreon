@@ -31,6 +31,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\SnmpVersionEnum;
 use App\MonitoringConfiguration\Infrastructure\Validator\AccessibleHostSeverity;
 use App\MonitoringConfiguration\Infrastructure\Validator\ExistingTimezone;
 use App\Shared\Domain\Logging\Attribute\Sensitive;
+use App\Shared\Domain\VaultInterface;
 use App\Shared\Infrastructure\ApiPlatform\RequestPayload;
 use App\Shared\Infrastructure\Validator\Constraints\NotNullWhenProvided;
 use App\Shared\Infrastructure\Validator\Constraints\WhenPlatform;
@@ -74,6 +75,12 @@ final readonly class PatchHostTemplateInput
         #[WhenVault(forVault: false, constraints: [
             new Assert\Length(max: SnmpCommunity::MAX_LENGTH, normalizer: 'trim'),
         ])]
+        #[Assert\Regex(
+            pattern: '/^' . VaultInterface::VAULT_PATH_PREFIX . '/',
+            match: false,
+            message: 'The SNMP community cannot be a vault reference.',
+            normalizer: 'trim',
+        )]
         #[Assert\Regex(pattern: self::CONTROL_CHARACTERS, message: 'This value must not contain control characters.', match: false)]
         #[Sensitive]
         public ?string $snmpCommunity = null,

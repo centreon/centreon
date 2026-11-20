@@ -31,8 +31,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 final readonly class PatchHostTemplateCheckOptionsInput
 {
     /**
-     * @param ?int $commandId null removes the command and its arguments
-     * @param list<string> $args an empty list clears them; they require a check command
+     * @param ?int $commandId null removes the command; the arguments stay for the command of the parents
+     * @param list<string> $args an empty list clears them; kept without a check command
      */
     public function __construct(
         #[Assert\Sequentially([new Assert\Positive(), new CheckCommandType()])]
