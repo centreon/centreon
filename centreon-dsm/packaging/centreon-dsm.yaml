@@ -21,10 +21,14 @@ overrides:
     depends:
       - centreon-dsm-client = ${VERSION}-${RELEASE}${DIST}
       - centreon-dsm-server = ${VERSION}-${RELEASE}${DIST}
+    recommends:
+      - logrotate
   deb:
     depends:
       - "centreon-dsm-client (= ${VERSION}-${RELEASE}${DIST})"
       - "centreon-dsm-server (= ${VERSION}-${RELEASE}${DIST})"
+    recommends:
+      - logrotate
 
 rpm:
   summary: Centreon-dsm add-on for Centreon
