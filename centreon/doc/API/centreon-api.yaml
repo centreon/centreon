@@ -159,6 +159,12 @@ tags:
   -
     name: HostAddressResolution
     description: "Resource 'HostAddressResolution' operations."
+  -
+    name: AiAssistance
+    description: "Resource 'AiAssistance' operations."
+  -
+    name: AiProvider
+    description: "Resource 'AiProvider' operations."
 security:
   -
     Token: []
@@ -7076,6 +7082,856 @@ paths:
             type: string
           style: simple
           explode: false
+  /api/ai/alert-correlation:
+    post:
+      operationId: api_aialert-correlation_post
+      tags:
+        - AiAssistance
+      responses:
+        '409':
+          description: 'No default AI provider is configured'
+        '502':
+          description: 'The AI provider could not be reached or rejected the request'
+        '200':
+          description: 'AiAssistance resource created'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/CorrelateAlertsResource.jsonld'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CorrelateAlertsResource'
+          links: {}
+        '400':
+          description: 'Invalid input'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+        '422':
+          description: 'An error occurred'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+          links: {}
+      summary: 'Correlate several alerts to surface a likely common cause'
+      description: 'Analyze a set of non-OK resources selected in the listing and produce a Markdown analysis (likely root cause, grouping, suggested next steps) instead of treating each alert in isolation. The facts of the selected resources are sent to the default AI provider.'
+      parameters: []
+      requestBody:
+        description: 'The new AiAssistance resource'
+        content:
+          application/ld+json:
+            schema:
+              $ref: '#/components/schemas/CorrelateAlertsResource.CorrelateAlertsInput'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CorrelateAlertsResource.CorrelateAlertsInput'
+        required: true
+  /api/ai/availability:
+    get:
+      operationId: api_aiavailability_get
+      tags:
+        - AiAssistance
+      responses:
+        '200':
+          description: 'AiAssistance resource'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/AiAssistance.jsonld'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AiAssistance'
+        '404':
+          description: 'Not found'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+      summary: 'Get the AI features availability'
+      description: 'AI features are available when an AI provider is enabled and its spend limit is not reached. The frontend hides the AI features when no provider is enabled, and disables them when the budget is exhausted.'
+      parameters: []
+  /api/ai/graph-explanation:
+    post:
+      operationId: api_aigraph-explanation_post
+      tags:
+        - AiAssistance
+      responses:
+        '409':
+          description: 'No default AI provider is configured'
+        '502':
+          description: 'The AI provider could not be reached or rejected the request'
+        '200':
+          description: 'AiAssistance resource created'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/ExplainGraphResource.jsonld'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExplainGraphResource'
+          links: {}
+        '400':
+          description: 'Invalid input'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+        '422':
+          description: 'An error occurred'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+          links: {}
+      summary: 'Explain a performance graph'
+      description: 'Produce a plain-text explanation of a performance graph (what the metrics show over the displayed window, whether it looks healthy, where it is heading, suggested next steps) from the metric summary displayed in the details panel. The explanation is produced by the default AI provider: the provided figures are sent to it.'
+      parameters: []
+      requestBody:
+        description: 'The new AiAssistance resource'
+        content:
+          application/ld+json:
+            schema:
+              $ref: '#/components/schemas/ExplainGraphResource.ExplainGraphInput'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExplainGraphResource.ExplainGraphInput'
+        required: true
+  /api/ai/incident-summary:
+    post:
+      operationId: api_aiincident-summary_post
+      tags:
+        - AiAssistance
+      responses:
+        '409':
+          description: 'No default AI provider is configured'
+        '502':
+          description: 'The AI provider could not be reached or rejected the request'
+        '200':
+          description: 'AiAssistance resource created'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/SummarizeIncidentResource.jsonld'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SummarizeIncidentResource'
+          links: {}
+        '400':
+          description: 'Invalid input'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+        '422':
+          description: 'An error occurred'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+          links: {}
+      summary: 'Summarize an incident from the resource timeline'
+      description: 'Produce a plain-text incident summary (overview, timeline of significant moments, current state) from the current state of a resource and its recent timeline events, suitable for a ticket or a shift handover. The summary is produced by the default AI provider: the provided data is sent to it.'
+      parameters: []
+      requestBody:
+        description: 'The new AiAssistance resource'
+        content:
+          application/ld+json:
+            schema:
+              $ref: '#/components/schemas/SummarizeIncidentResource.SummarizeIncidentInput'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SummarizeIncidentResource.SummarizeIncidentInput'
+        required: true
+  /api/ai/resource-explanation:
+    post:
+      operationId: api_airesource-explanation_post
+      tags:
+        - AiAssistance
+      responses:
+        '409':
+          description: 'No default AI provider is configured'
+        '502':
+          description: 'The AI provider could not be reached or rejected the request'
+        '200':
+          description: 'AiAssistance resource created'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/ExplainResourceResource.jsonld'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExplainResourceResource'
+          links: {}
+        '400':
+          description: 'Invalid input'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+        '422':
+          description: 'An error occurred'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+          links: {}
+      summary: 'Explain the state of a monitored resource'
+      description: 'Produce a plain-text explanation of a resource state (what the check output means, probable causes, suggested next steps) from the facts displayed in the details panel. The explanation is produced by the default AI provider: the provided facts are sent to it.'
+      parameters: []
+      requestBody:
+        description: 'The new AiAssistance resource'
+        content:
+          application/ld+json:
+            schema:
+              $ref: '#/components/schemas/ExplainResourceResource.ExplainResourceInput'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExplainResourceResource.ExplainResourceInput'
+        required: true
+  /api/ai/resource-filter:
+    post:
+      operationId: api_airesource-filter_post
+      tags:
+        - AiAssistance
+      responses:
+        '409':
+          description: 'No default AI provider is configured'
+        '502':
+          description: 'The AI provider could not be reached or rejected the request'
+        '200':
+          description: 'AiAssistance resource created'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/TranslateResourceFilterResource.jsonld'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TranslateResourceFilterResource'
+          links: {}
+        '400':
+          description: 'Invalid input'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+        '422':
+          description: 'An error occurred'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+          links: {}
+      summary: 'Route a natural-language request on the Resources Status page'
+      description: 'Classify a natural-language request as a "filter" (a description to turn into a search expression) or an "explain" (a question to analyse), and resolve the resource set an explain is about (the displayed set, or a derived filter). Produced by the default AI provider.'
+      parameters: []
+      requestBody:
+        description: 'The new AiAssistance resource'
+        content:
+          application/ld+json:
+            schema:
+              $ref: '#/components/schemas/TranslateResourceFilterResource.TranslateResourceFilterInput'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TranslateResourceFilterResource.TranslateResourceFilterInput'
+        required: true
+  /api/administration/ai-providers:
+    get:
+      operationId: api_administrationai-providers_get_collection
+      tags:
+        - AiProvider
+      responses:
+        '403':
+          description: 'You are not allowed to access AI provider configurations'
+        '200':
+          description: 'AiProvider collection'
+          content:
+            application/ld+json:
+              schema:
+                type: object
+                description: 'ListAiProviderResource.jsonld collection.'
+                allOf:
+                  - { $ref: '#/components/schemas/HydraCollectionBaseSchema' }
+                  - { type: object, required: [member], properties: { member: { type: array, items: { $ref: '#/components/schemas/ListAiProviderResource.jsonld' } } } }
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ListAiProviderResource'
+      summary: 'List the AI provider configurations'
+      description: 'List the AI provider configurations'
+      parameters:
+        -
+          name: name
+          in: query
+          description: 'Filter by name, e.g. ?name[lk]=anthropic (partial match) or ?name[eq]=Anthropic production (exact match)'
+          required: false
+          deprecated: false
+          schema:
+            type: object
+          style: form
+          explode: true
+        -
+          name: type
+          in: query
+          description: 'Filter by provider type. Multiple values can be provided using type[]=anthropic&type[]=mistral'
+          required: false
+          deprecated: false
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - anthropic
+                - openai
+                - mistral
+                - google
+                - bedrock
+                - openai_compatible
+          style: form
+          explode: true
+        -
+          name: is_activated
+          in: query
+          description: 'Filter by enabled state'
+          required: false
+          deprecated: false
+          schema:
+            type: boolean
+          style: form
+          explode: true
+        -
+          name: sort
+          in: query
+          description: 'Sort by field and direction, e.g. ?sort[name]=ASC'
+          required: false
+          deprecated: false
+          schema:
+            type: object
+          style: form
+          explode: true
+        -
+          name: page
+          in: query
+          description: 'The collection page number'
+          required: false
+          deprecated: false
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+          style: form
+          explode: true
+        -
+          name: itemsPerPage
+          in: query
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
+          required: false
+          deprecated: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+          style: form
+          explode: true
+    post:
+      operationId: api_administrationai-providers_post
+      tags:
+        - AiProvider
+      responses:
+        '409':
+          description: 'An AI provider configuration with this name already exists'
+        '403':
+          description: 'You are not allowed to create AI provider configurations'
+        '422':
+          description: 'An endpoint URL is required for this provider type'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+          links: {}
+        '201':
+          description: 'AiProvider resource created'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/CreateAiProviderResource.jsonld'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateAiProviderResource'
+          links: {}
+        '400':
+          description: 'Invalid input'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+      summary: 'Create an AI provider configuration'
+      description: 'Create an AI provider configuration. The first configuration is automatically enabled, and at most one provider is enabled at a time: creating an enabled provider disables the currently enabled one. The endpoint URL is only used for OpenAI-compatible providers, where it is required.'
+      parameters: []
+      requestBody:
+        description: 'The new AiProvider resource'
+        content:
+          application/ld+json:
+            schema:
+              $ref: '#/components/schemas/CreateAiProviderResource'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAiProviderResource'
+        required: true
+  /api/administration/ai-providers/discover-models:
+    post:
+      operationId: api_administrationai-providersdiscover-models_post
+      tags:
+        - AiProvider
+      responses:
+        '403':
+          description: 'You are not allowed to configure AI providers'
+        '422':
+          description: 'An endpoint URL is required for this provider type'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+          links: {}
+        '502':
+          description: 'The provider could not be reached'
+        '200':
+          description: 'AiProvider resource created'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/DiscoverModelsResource.jsonld'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiscoverModelsResource'
+          links: {}
+        '400':
+          description: 'Invalid input'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+      summary: 'List the models a provider exposes, before saving it'
+      description: 'Query the provider for the models it exposes, using the configuration entered in the form (type, endpoint and token), without saving it. The typed token is used; when omitted while editing, the stored token of the given provider is used. Same trust level as the test-connection endpoint.'
+      parameters: []
+      requestBody:
+        description: 'The new AiProvider resource'
+        content:
+          application/ld+json:
+            schema:
+              $ref: '#/components/schemas/DiscoverModelsResource.DiscoverModelsInput'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DiscoverModelsResource.DiscoverModelsInput'
+        required: true
+  /api/administration/ai-providers/model-prices:
+    post:
+      operationId: api_administrationai-providersmodel-prices_post
+      tags:
+        - AiProvider
+      responses:
+        '403':
+          description: 'You are not allowed to configure AI providers'
+        '502':
+          description: 'The price catalog could not be fetched'
+        '200':
+          description: 'AiProvider resource created'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/ModelPricesResource.jsonld'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelPricesResource'
+          links: {}
+        '400':
+          description: 'Invalid input'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+        '422':
+          description: 'An error occurred'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+          links: {}
+      summary: 'Look up published model prices to prefill the form'
+      description: 'Fetch the per-1M-token prices of the given models from the LiteLLM community price catalog (downloaded from github.com through the platform proxy). Prices are in USD; a model that is not found returns null prices. This is a convenience to prefill the form: the values stay editable.'
+      parameters: []
+      requestBody:
+        description: 'The new AiProvider resource'
+        content:
+          application/ld+json:
+            schema:
+              $ref: '#/components/schemas/ModelPricesResource.ModelPricesInput'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModelPricesResource.ModelPricesInput'
+        required: true
+  /api/administration/ai-providers/test-connection:
+    post:
+      operationId: api_administrationai-providerstest-connection_post
+      tags:
+        - AiProvider
+      responses:
+        '403':
+          description: 'You are not allowed to test AI provider configurations'
+        '422':
+          description: 'An endpoint URL is required for this provider type'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+          links: {}
+        '200':
+          description: 'AiProvider resource created'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/TestConnectionResource.jsonld'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestConnectionResource'
+          links: {}
+        '400':
+          description: 'Invalid input'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+      summary: 'Test an AI provider configuration before saving it'
+      description: 'Send a minimal completion request to verify the configuration entered in the form (endpoint, token and model), without saving it. The typed token is used; when omitted while editing, the stored token of the given provider is used. The outcome is reported in the response body. The provider still bills this minimal request, but it is not metered against the configured spend limit.'
+      parameters: []
+      requestBody:
+        description: 'The new AiProvider resource'
+        content:
+          application/ld+json:
+            schema:
+              $ref: '#/components/schemas/TestConnectionResource.TestConnectionInput'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestConnectionResource.TestConnectionInput'
+        required: true
+  '/api/administration/ai-providers/{id}':
+    get:
+      operationId: api_administrationai-providers_id_get
+      tags:
+        - AiProvider
+      responses:
+        '404':
+          description: 'AI provider configuration not found'
+        '403':
+          description: 'You are not allowed to access AI provider configurations'
+        '200':
+          description: 'AiProvider resource'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/AiProvider.jsonld'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AiProvider'
+      summary: 'Get an AI provider configuration'
+      description: 'Get an AI provider configuration'
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'AiProvider identifier'
+          required: true
+          deprecated: false
+          schema:
+            type: string
+          style: simple
+          explode: false
+    delete:
+      operationId: api_administrationai-providers_id_delete
+      tags:
+        - AiProvider
+      responses:
+        '404':
+          description: 'AI provider configuration not found'
+        '403':
+          description: 'You are not allowed to delete AI provider configurations'
+        '204':
+          description: 'AiProvider resource deleted'
+      summary: 'Delete an AI provider configuration'
+      description: 'Delete an AI provider configuration. Deleting the enabled provider turns AI features off.'
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'AiProvider identifier'
+          required: true
+          deprecated: false
+          schema:
+            type: string
+          style: simple
+          explode: false
+    patch:
+      operationId: api_administrationai-providers_id_patch
+      tags:
+        - AiProvider
+      responses:
+        '404':
+          description: 'AI provider configuration not found'
+        '403':
+          description: 'You are not allowed to update AI provider configurations'
+        '409':
+          description: 'An AI provider configuration with this name already exists'
+        '200':
+          description: 'AiProvider resource updated'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/AiProvider.jsonld'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AiProvider'
+          links: {}
+        '400':
+          description: 'Invalid input'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+        '422':
+          description: 'An error occurred'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+          links: {}
+      summary: 'Update an AI provider configuration'
+      description: 'Update an AI provider configuration. The provider type can not be changed. Omitting the api_token field keeps the current token. At most one provider is enabled: enabling a provider disables the currently enabled one, and disabling the enabled provider turns AI features off.'
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'AiProvider identifier'
+          required: true
+          deprecated: false
+          schema:
+            type: string
+          style: simple
+          explode: false
+      requestBody:
+        description: 'The updated AiProvider resource'
+        content:
+          application/merge-patch+json:
+            schema:
+              $ref: '#/components/schemas/AiProvider.jsonMergePatch'
+        required: true
+  '/api/administration/ai-providers/{id}/test':
+    post:
+      operationId: api_administrationai-providers_idtest_post
+      tags:
+        - AiProvider
+      responses:
+        '404':
+          description: 'AI provider configuration not found'
+        '403':
+          description: 'You are not allowed to test AI provider configurations'
+        '200':
+          description: 'AiProvider resource created'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/TestAiProviderResource.jsonld'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestAiProviderResource'
+          links: {}
+        '400':
+          description: 'Invalid input'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+        '422':
+          description: 'An error occurred'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+          links: {}
+      summary: 'Test an AI provider configuration'
+      description: 'Send a minimal completion request to the provider to verify the endpoint, the API token and the model. The outcome of the test is reported in the response body: a failing provider does not make the request itself fail.'
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'AiProvider identifier'
+          required: true
+          deprecated: false
+          schema:
+            type: string
+          style: simple
+          explode: false
+      requestBody:
+        description: 'The new AiProvider resource'
+        content:
+          application/ld+json:
+            schema:
+              $ref: '#/components/schemas/TestAiProviderResource.TestAiProviderInput'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestAiProviderResource.TestAiProviderInput'
+        required: true
 components:
   securitySchemes:
     Token:
@@ -16104,3 +16960,1418 @@ components:
           type:
             - integer
             - 'null'
+    AiAssistance:
+      type: object
+      properties:
+        is_available:
+          description: 'Whether AI features are available'
+          type: boolean
+        reason:
+          description: "Why AI features are unavailable: 'no_provider' (no enabled provider) or 'budget_exhausted' (the enabled provider reached its spend limit). Null when available."
+          type:
+            - string
+            - 'null'
+          enum:
+            - no_provider
+            - budget_exhausted
+            - null
+    AiAssistance.jsonld:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            is_available:
+              description: 'Whether AI features are available'
+              type: boolean
+            reason:
+              description: "Why AI features are unavailable: 'no_provider' (no enabled provider) or 'budget_exhausted' (the enabled provider reached its spend limit). Null when available."
+              type:
+                - string
+                - 'null'
+              enum:
+                - no_provider
+                - budget_exhausted
+                - null
+    AiProvider:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          minLength: 1
+          maxLength: 255
+          description: 'Name of the AI provider configuration'
+          type: string
+          example: 'Anthropic production'
+        type:
+          description: 'Type of the AI provider. The type can not be changed after creation.'
+          type: string
+          example: anthropic
+          enum:
+            - anthropic
+            - openai
+            - mistral
+            - google
+            - bedrock
+            - openai_compatible
+        endpoint_url:
+          minLength: 1
+          maxLength: 2048
+          format: uri
+          description: 'Base URL of the AI provider API. Only customizable for OpenAI-compatible providers; for the other provider types the official endpoint is enforced and any provided value is ignored.'
+          externalDocs:
+            url: 'https://schema.org/url'
+          type: string
+          example: 'https://api.anthropic.com'
+        default_model:
+          minLength: 1
+          maxLength: 255
+          description: 'Model used by AI features for this provider'
+          type: string
+          example: claude-sonnet-5-5
+        fast_model:
+          minLength: 1
+          maxLength: 255
+          description: 'Model used by AI features requesting the fast tier. Defaults to the default model when not set.'
+          type:
+            - string
+            - 'null'
+          example: claude-haiku-5-5
+        description:
+          minLength: 1
+          maxLength: 65535
+          description: 'Description of the AI provider configuration'
+          type:
+            - string
+            - 'null'
+        is_activated:
+          description: 'Whether this provider is enabled. At most one provider is enabled at a time, and it is the one used by AI features: enabling a provider disables the currently enabled one. When no provider is enabled, AI features are unavailable.'
+          type: boolean
+        api_token:
+          minLength: 1
+          maxLength: 4096
+          pattern: '^(((?!^secret::).)*)$'
+          writeOnly: true
+          description: 'API token used to authenticate against the AI provider. This field is write-only: it is never returned by the API. Omit it to keep the current token.'
+          type:
+            - string
+            - 'null'
+          example: sk-...
+        currency:
+          minLength: 3
+          maxLength: 3
+          description: 'ISO 4217 currency of the prices and spend limits. Required when any price or limit is set.'
+          type:
+            - string
+            - 'null'
+          example: USD
+        price_default_input:
+          minimum: 0
+          description: 'Price per 1M input tokens for the default model tier'
+          type:
+            - number
+            - 'null'
+        price_default_output:
+          minimum: 0
+          description: 'Price per 1M output tokens for the default model tier'
+          type:
+            - number
+            - 'null'
+        price_fast_input:
+          minimum: 0
+          description: 'Price per 1M input tokens for the fast model tier'
+          type:
+            - number
+            - 'null'
+        price_fast_output:
+          minimum: 0
+          description: 'Price per 1M output tokens for the fast model tier'
+          type:
+            - number
+            - 'null'
+        limit_daily:
+          minimum: 0
+          exclusiveMinimum: 0
+          description: 'Daily spend limit in the configured currency. Requires prices to be set.'
+          type:
+            - number
+            - 'null'
+        limit_monthly:
+          minimum: 0
+          exclusiveMinimum: 0
+          description: 'Monthly spend limit in the configured currency. Requires prices to be set.'
+          type:
+            - number
+            - 'null'
+    AiProvider.jsonMergePatch:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          minLength: 1
+          maxLength: 255
+          description: 'Name of the AI provider configuration'
+          type: string
+          example: 'Anthropic production'
+        type:
+          description: 'Type of the AI provider. The type can not be changed after creation.'
+          type: string
+          example: anthropic
+          enum:
+            - anthropic
+            - openai
+            - mistral
+            - google
+            - bedrock
+            - openai_compatible
+        endpoint_url:
+          minLength: 1
+          maxLength: 2048
+          format: uri
+          description: 'Base URL of the AI provider API. Only customizable for OpenAI-compatible providers; for the other provider types the official endpoint is enforced and any provided value is ignored.'
+          externalDocs:
+            url: 'https://schema.org/url'
+          type: string
+          example: 'https://api.anthropic.com'
+        default_model:
+          minLength: 1
+          maxLength: 255
+          description: 'Model used by AI features for this provider'
+          type: string
+          example: claude-sonnet-5-5
+        fast_model:
+          minLength: 1
+          maxLength: 255
+          description: 'Model used by AI features requesting the fast tier. Defaults to the default model when not set.'
+          type:
+            - string
+            - 'null'
+          example: claude-haiku-5-5
+        description:
+          minLength: 1
+          maxLength: 65535
+          description: 'Description of the AI provider configuration'
+          type:
+            - string
+            - 'null'
+        is_activated:
+          description: 'Whether this provider is enabled. At most one provider is enabled at a time, and it is the one used by AI features: enabling a provider disables the currently enabled one. When no provider is enabled, AI features are unavailable.'
+          type: boolean
+        api_token:
+          minLength: 1
+          maxLength: 4096
+          pattern: '^(((?!^secret::).)*)$'
+          writeOnly: true
+          description: 'API token used to authenticate against the AI provider. This field is write-only: it is never returned by the API. Omit it to keep the current token.'
+          type:
+            - string
+            - 'null'
+          example: sk-...
+        currency:
+          minLength: 3
+          maxLength: 3
+          description: 'ISO 4217 currency of the prices and spend limits. Required when any price or limit is set.'
+          type:
+            - string
+            - 'null'
+          example: USD
+        price_default_input:
+          minimum: 0
+          description: 'Price per 1M input tokens for the default model tier'
+          type:
+            - number
+            - 'null'
+        price_default_output:
+          minimum: 0
+          description: 'Price per 1M output tokens for the default model tier'
+          type:
+            - number
+            - 'null'
+        price_fast_input:
+          minimum: 0
+          description: 'Price per 1M input tokens for the fast model tier'
+          type:
+            - number
+            - 'null'
+        price_fast_output:
+          minimum: 0
+          description: 'Price per 1M output tokens for the fast model tier'
+          type:
+            - number
+            - 'null'
+        limit_daily:
+          minimum: 0
+          exclusiveMinimum: 0
+          description: 'Daily spend limit in the configured currency. Requires prices to be set.'
+          type:
+            - number
+            - 'null'
+        limit_monthly:
+          minimum: 0
+          exclusiveMinimum: 0
+          description: 'Monthly spend limit in the configured currency. Requires prices to be set.'
+          type:
+            - number
+            - 'null'
+    AiProvider.jsonld:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              minLength: 1
+              maxLength: 255
+              description: 'Name of the AI provider configuration'
+              type: string
+              example: 'Anthropic production'
+            type:
+              description: 'Type of the AI provider. The type can not be changed after creation.'
+              type: string
+              example: anthropic
+              enum:
+                - anthropic
+                - openai
+                - mistral
+                - google
+                - bedrock
+                - openai_compatible
+            endpoint_url:
+              minLength: 1
+              maxLength: 2048
+              format: uri
+              description: 'Base URL of the AI provider API. Only customizable for OpenAI-compatible providers; for the other provider types the official endpoint is enforced and any provided value is ignored.'
+              externalDocs:
+                url: 'https://schema.org/url'
+              type: string
+              example: 'https://api.anthropic.com'
+            default_model:
+              minLength: 1
+              maxLength: 255
+              description: 'Model used by AI features for this provider'
+              type: string
+              example: claude-sonnet-5-5
+            fast_model:
+              minLength: 1
+              maxLength: 255
+              description: 'Model used by AI features requesting the fast tier. Defaults to the default model when not set.'
+              type:
+                - string
+                - 'null'
+              example: claude-haiku-5-5
+            description:
+              minLength: 1
+              maxLength: 65535
+              description: 'Description of the AI provider configuration'
+              type:
+                - string
+                - 'null'
+            is_activated:
+              description: 'Whether this provider is enabled. At most one provider is enabled at a time, and it is the one used by AI features: enabling a provider disables the currently enabled one. When no provider is enabled, AI features are unavailable.'
+              type: boolean
+            api_token:
+              minLength: 1
+              maxLength: 4096
+              pattern: '^(((?!^secret::).)*)$'
+              writeOnly: true
+              description: 'API token used to authenticate against the AI provider. This field is write-only: it is never returned by the API. Omit it to keep the current token.'
+              type:
+                - string
+                - 'null'
+              example: sk-...
+            currency:
+              minLength: 3
+              maxLength: 3
+              description: 'ISO 4217 currency of the prices and spend limits. Required when any price or limit is set.'
+              type:
+                - string
+                - 'null'
+              example: USD
+            price_default_input:
+              minimum: 0
+              description: 'Price per 1M input tokens for the default model tier'
+              type:
+                - number
+                - 'null'
+            price_default_output:
+              minimum: 0
+              description: 'Price per 1M output tokens for the default model tier'
+              type:
+                - number
+                - 'null'
+            price_fast_input:
+              minimum: 0
+              description: 'Price per 1M input tokens for the fast model tier'
+              type:
+                - number
+                - 'null'
+            price_fast_output:
+              minimum: 0
+              description: 'Price per 1M output tokens for the fast model tier'
+              type:
+                - number
+                - 'null'
+            limit_daily:
+              minimum: 0
+              exclusiveMinimum: 0
+              description: 'Daily spend limit in the configured currency. Requires prices to be set.'
+              type:
+                - number
+                - 'null'
+            limit_monthly:
+              minimum: 0
+              exclusiveMinimum: 0
+              description: 'Monthly spend limit in the configured currency. Requires prices to be set.'
+              type:
+                - number
+                - 'null'
+    CorrelateAlertsResource:
+      type: object
+      properties:
+        analysis:
+          description: 'Markdown analysis of the selected alerts'
+          type: string
+        model:
+          description: 'Model that produced the analysis'
+          type: string
+          example: claude-sonnet-4-6
+    CorrelateAlertsResource.CorrelateAlertsInput:
+      type: object
+      properties:
+        resources:
+          minItems: 2
+          maxItems: 50
+          description: 'The selected resources to correlate (at least two)'
+          type: array
+          items:
+            $ref: '#/components/schemas/CorrelatedResourceInput'
+    CorrelateAlertsResource.jsonld:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            analysis:
+              description: 'Markdown analysis of the selected alerts'
+              type: string
+            model:
+              description: 'Model that produced the analysis'
+              type: string
+              example: claude-sonnet-4-6
+    CorrelatedResourceInput:
+      type: object
+      properties:
+        name:
+          minLength: 1
+          maxLength: 255
+          type: string
+          example: Ping
+        resource_type:
+          minLength: 1
+          maxLength: 50
+          type: string
+          example: service
+        status:
+          minLength: 1
+          maxLength: 50
+          type: string
+          example: CRITICAL
+        parent_name:
+          maxLength: 255
+          description: 'Name of the parent host, for services'
+          type:
+            - string
+            - 'null'
+        information:
+          maxLength: 10000
+          description: 'Latest check output'
+          type:
+            - string
+            - 'null'
+        duration:
+          maxLength: 255
+          type:
+            - string
+            - 'null'
+          example: '2h 31m'
+        tries:
+          maxLength: 50
+          type:
+            - string
+            - 'null'
+          example: '3/3 (Hard)'
+        is_acknowledged:
+          description: 'Whether the resource is acknowledged'
+          type: boolean
+        is_in_downtime:
+          description: 'Whether the resource is in downtime'
+          type: boolean
+    CreateAiProviderResource:
+      type: object
+      properties:
+        name:
+          minLength: 1
+          maxLength: 255
+          description: 'Name of the AI provider configuration'
+          type: string
+          example: 'Anthropic production'
+        type:
+          enum:
+            - anthropic
+            - openai
+            - mistral
+            - google
+            - bedrock
+            - openai_compatible
+          description: 'Type of the AI provider'
+          type: string
+          example: anthropic
+        api_token:
+          minLength: 1
+          maxLength: 4096
+          pattern: '^(((?!^secret::).)*)$'
+          description: 'API token used to authenticate against the AI provider. This field is write-only: it is never returned by the API.'
+          type: string
+          example: sk-...
+        default_model:
+          minLength: 1
+          maxLength: 255
+          description: 'Model used by AI features for this provider'
+          type: string
+          example: claude-sonnet-5-5
+        endpoint_url:
+          minLength: 1
+          maxLength: 2048
+          format: uri
+          description: 'Base URL of the AI provider API. Only used for OpenAI-compatible providers, where it is required; for the other provider types the official endpoint is enforced and any provided value is ignored.'
+          externalDocs:
+            url: 'https://schema.org/url'
+          type:
+            - string
+            - 'null'
+          example: 'https://api.anthropic.com'
+        fast_model:
+          minLength: 1
+          maxLength: 255
+          description: 'Model used by AI features requesting the fast tier. Defaults to the default model when not set.'
+          type:
+            - string
+            - 'null'
+          example: claude-haiku-5-5
+        description:
+          minLength: 1
+          maxLength: 65535
+          description: 'Description of the AI provider configuration'
+          type:
+            - string
+            - 'null'
+        is_activated:
+          description: 'Whether this provider is enabled on creation. At most one provider is enabled at a time: enabling this one disables the currently enabled one. The first created configuration is always enabled.'
+          type: boolean
+        currency:
+          minLength: 3
+          maxLength: 3
+          description: 'ISO 4217 currency of the prices and spend limits. Required when any price or limit is set.'
+          type:
+            - string
+            - 'null'
+          example: USD
+        price_default_input:
+          minimum: 0
+          description: 'Price per 1M input tokens for the default model tier'
+          type:
+            - number
+            - 'null'
+        price_default_output:
+          minimum: 0
+          description: 'Price per 1M output tokens for the default model tier'
+          type:
+            - number
+            - 'null'
+        price_fast_input:
+          minimum: 0
+          description: 'Price per 1M input tokens for the fast model tier'
+          type:
+            - number
+            - 'null'
+        price_fast_output:
+          minimum: 0
+          description: 'Price per 1M output tokens for the fast model tier'
+          type:
+            - number
+            - 'null'
+        limit_daily:
+          minimum: 0
+          exclusiveMinimum: 0
+          description: 'Daily spend limit in the configured currency. Requires prices to be set.'
+          type:
+            - number
+            - 'null'
+        limit_monthly:
+          minimum: 0
+          exclusiveMinimum: 0
+          description: 'Monthly spend limit in the configured currency. Requires prices to be set.'
+          type:
+            - number
+            - 'null'
+    CreateAiProviderResource.jsonld:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            name:
+              minLength: 1
+              maxLength: 255
+              description: 'Name of the AI provider configuration'
+              type: string
+              example: 'Anthropic production'
+            type:
+              enum:
+                - anthropic
+                - openai
+                - mistral
+                - google
+                - bedrock
+                - openai_compatible
+              description: 'Type of the AI provider'
+              type: string
+              example: anthropic
+            api_token:
+              minLength: 1
+              maxLength: 4096
+              pattern: '^(((?!^secret::).)*)$'
+              description: 'API token used to authenticate against the AI provider. This field is write-only: it is never returned by the API.'
+              type: string
+              example: sk-...
+            default_model:
+              minLength: 1
+              maxLength: 255
+              description: 'Model used by AI features for this provider'
+              type: string
+              example: claude-sonnet-5-5
+            endpoint_url:
+              minLength: 1
+              maxLength: 2048
+              format: uri
+              description: 'Base URL of the AI provider API. Only used for OpenAI-compatible providers, where it is required; for the other provider types the official endpoint is enforced and any provided value is ignored.'
+              externalDocs:
+                url: 'https://schema.org/url'
+              type:
+                - string
+                - 'null'
+              example: 'https://api.anthropic.com'
+            fast_model:
+              minLength: 1
+              maxLength: 255
+              description: 'Model used by AI features requesting the fast tier. Defaults to the default model when not set.'
+              type:
+                - string
+                - 'null'
+              example: claude-haiku-5-5
+            description:
+              minLength: 1
+              maxLength: 65535
+              description: 'Description of the AI provider configuration'
+              type:
+                - string
+                - 'null'
+            is_activated:
+              description: 'Whether this provider is enabled on creation. At most one provider is enabled at a time: enabling this one disables the currently enabled one. The first created configuration is always enabled.'
+              type: boolean
+            currency:
+              minLength: 3
+              maxLength: 3
+              description: 'ISO 4217 currency of the prices and spend limits. Required when any price or limit is set.'
+              type:
+                - string
+                - 'null'
+              example: USD
+            price_default_input:
+              minimum: 0
+              description: 'Price per 1M input tokens for the default model tier'
+              type:
+                - number
+                - 'null'
+            price_default_output:
+              minimum: 0
+              description: 'Price per 1M output tokens for the default model tier'
+              type:
+                - number
+                - 'null'
+            price_fast_input:
+              minimum: 0
+              description: 'Price per 1M input tokens for the fast model tier'
+              type:
+                - number
+                - 'null'
+            price_fast_output:
+              minimum: 0
+              description: 'Price per 1M output tokens for the fast model tier'
+              type:
+                - number
+                - 'null'
+            limit_daily:
+              minimum: 0
+              exclusiveMinimum: 0
+              description: 'Daily spend limit in the configured currency. Requires prices to be set.'
+              type:
+                - number
+                - 'null'
+            limit_monthly:
+              minimum: 0
+              exclusiveMinimum: 0
+              description: 'Monthly spend limit in the configured currency. Requires prices to be set.'
+              type:
+                - number
+                - 'null'
+    DiscoverModelsResource:
+      type: object
+      properties:
+        models:
+          description: 'Model identifiers the provider exposes'
+          type: array
+          items:
+            type: string
+          example:
+            - claude-haiku-5-5
+            - claude-sonnet-5-5
+    DiscoverModelsResource.DiscoverModelsInput:
+      type: object
+      properties:
+        type:
+          minLength: 1
+          maxLength: 50
+          description: 'Type of the AI provider'
+          type: string
+          example: anthropic
+        api_token:
+          minLength: 1
+          maxLength: 4096
+          pattern: '^(((?!^secret::).)*)$'
+          description: 'API token to use; omit while editing to use the stored token'
+          type:
+            - string
+            - 'null'
+        endpoint_url:
+          minLength: 1
+          maxLength: 2048
+          description: 'Endpoint URL; only used for OpenAI-compatible and Bedrock providers'
+          type:
+            - string
+            - 'null'
+        provider_id:
+          description: 'Id of the provider being edited, to reuse its stored token'
+          type:
+            - integer
+            - 'null'
+    DiscoverModelsResource.jsonld:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            models:
+              description: 'Model identifiers the provider exposes'
+              type: array
+              items:
+                type: string
+              example:
+                - claude-haiku-5-5
+                - claude-sonnet-5-5
+    ExplainGraphResource:
+      type: object
+      properties:
+        explanation:
+          description: 'Plain-text explanation of the performance graph'
+          type: string
+        model:
+          description: 'Model that produced the explanation'
+          type: string
+          example: claude-sonnet-4-6
+    ExplainGraphResource.ExplainGraphInput:
+      type: object
+      properties:
+        name:
+          minLength: 1
+          maxLength: 255
+          description: 'Name of the resource'
+          type: string
+          example: Ping
+        resource_type:
+          minLength: 1
+          maxLength: 50
+          description: 'Type of the resource'
+          type: string
+          example: service
+        metrics:
+          minItems: 1
+          maxItems: 50
+          description: 'The graph metrics summarised over the displayed window'
+          type: array
+          items:
+            $ref: '#/components/schemas/GraphMetricInput'
+        parent_name:
+          maxLength: 255
+          description: 'Name of the parent host, for services'
+          type:
+            - string
+            - 'null'
+          example: db-server-01
+        time_range:
+          maxLength: 255
+          description: 'Human-readable label of the displayed time window'
+          type:
+            - string
+            - 'null'
+          example: '2026-06-14 13:00 → 2026-06-15 13:00'
+        performance_data:
+          maxLength: 10000
+          description: 'Latest performance data, carrying thresholds'
+          type:
+            - string
+            - 'null'
+    ExplainGraphResource.jsonld:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            explanation:
+              description: 'Plain-text explanation of the performance graph'
+              type: string
+            model:
+              description: 'Model that produced the explanation'
+              type: string
+              example: claude-sonnet-4-6
+    ExplainResourceResource:
+      type: object
+      properties:
+        explanation:
+          description: 'Plain-text explanation of the resource state'
+          type: string
+        model:
+          description: 'Model that produced the explanation'
+          type: string
+          example: claude-sonnet-4-6
+    ExplainResourceResource.ExplainResourceInput:
+      type: object
+      properties:
+        name:
+          minLength: 1
+          maxLength: 255
+          description: 'Name of the resource'
+          type: string
+          example: Ping
+        resource_type:
+          minLength: 1
+          maxLength: 50
+          description: 'Type of the resource'
+          type: string
+          example: service
+        status:
+          minLength: 1
+          maxLength: 50
+          description: 'Current status of the resource'
+          type: string
+          example: CRITICAL
+        information:
+          maxLength: 10000
+          description: 'Latest check output'
+          type:
+            - string
+            - 'null'
+        command_line:
+          maxLength: 10000
+          description: 'Check command line'
+          type:
+            - string
+            - 'null'
+        performance_data:
+          maxLength: 10000
+          description: 'Latest performance data'
+          type:
+            - string
+            - 'null'
+        duration:
+          maxLength: 255
+          description: 'Time spent in the current status'
+          type:
+            - string
+            - 'null'
+          example: '2h 31m'
+        tries:
+          maxLength: 50
+          description: 'Current check attempt, as displayed'
+          type:
+            - string
+            - 'null'
+          example: '3/3 (Hard)'
+        parent_name:
+          maxLength: 255
+          description: 'Name of the parent host, for services'
+          type:
+            - string
+            - 'null'
+          example: db-server-01
+    ExplainResourceResource.jsonld:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            explanation:
+              description: 'Plain-text explanation of the resource state'
+              type: string
+            model:
+              description: 'Model that produced the explanation'
+              type: string
+              example: claude-sonnet-4-6
+    GraphMetricInput:
+      type: object
+      properties:
+        name:
+          minLength: 1
+          maxLength: 255
+          type: string
+          example: 'Round-Trip-Time Average (ms)'
+        unit:
+          maxLength: 50
+          type:
+            - string
+            - 'null'
+          example: ms
+        minimum:
+          description: 'Minimum value over the displayed window'
+          type:
+            - number
+            - 'null'
+        maximum:
+          description: 'Maximum value over the displayed window'
+          type:
+            - number
+            - 'null'
+        average:
+          description: 'Average value over the displayed window'
+          type:
+            - number
+            - 'null'
+        current:
+          description: 'Most recent value in the displayed window'
+          type:
+            - number
+            - 'null'
+    IncidentEventInput:
+      type: object
+      properties:
+        date:
+          minLength: 1
+          maxLength: 64
+          description: 'Date of the event, as displayed'
+          type: string
+          example: '2026-06-12T10:24:00+02:00'
+        type:
+          minLength: 1
+          maxLength: 64
+          description: 'Type of the event'
+          type: string
+          example: acknowledgement
+        content:
+          maxLength: 2000
+          description: 'Content or output of the event'
+          type:
+            - string
+            - 'null'
+        author:
+          maxLength: 255
+          description: 'Author of the event, when user-generated'
+          type:
+            - string
+            - 'null'
+        status:
+          maxLength: 50
+          description: 'Status of the resource after the event, for status changes'
+          type:
+            - string
+            - 'null'
+          example: CRITICAL
+    ListAiProviderResource:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          description: 'Name of the AI provider configuration'
+          type: string
+          example: 'Anthropic production'
+        type:
+          description: 'Type of the AI provider'
+          type: string
+          example: anthropic
+          enum:
+            - anthropic
+            - openai
+            - mistral
+            - google
+            - bedrock
+            - openai_compatible
+        endpoint_url:
+          description: 'Base URL of the AI provider API'
+          type: string
+          example: 'https://api.anthropic.com'
+        default_model:
+          description: 'Model used by AI features for this provider'
+          type: string
+          example: claude-sonnet-5-5
+        fast_model:
+          description: 'Model used by AI features requesting the fast tier'
+          type:
+            - string
+            - 'null'
+          example: claude-haiku-5-5
+        description:
+          description: 'Description of the AI provider configuration'
+          type:
+            - string
+            - 'null'
+        is_activated:
+          description: 'Whether this provider is enabled (the enabled provider is the one used by AI features)'
+          type: boolean
+        currency:
+          description: 'ISO 4217 currency of the prices and spend limits'
+          type:
+            - string
+            - 'null'
+        limit_daily:
+          description: 'Daily spend limit in the configured currency'
+          type:
+            - number
+            - 'null'
+        limit_monthly:
+          description: 'Monthly spend limit in the configured currency'
+          type:
+            - number
+            - 'null'
+        used_daily:
+          description: 'Spend in the current day window, in the configured currency'
+          type:
+            - number
+            - 'null'
+        used_monthly:
+          description: 'Spend in the current month window, in the configured currency'
+          type:
+            - number
+            - 'null'
+    ListAiProviderResource.jsonld:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              description: 'Name of the AI provider configuration'
+              type: string
+              example: 'Anthropic production'
+            type:
+              description: 'Type of the AI provider'
+              type: string
+              example: anthropic
+              enum:
+                - anthropic
+                - openai
+                - mistral
+                - google
+                - bedrock
+                - openai_compatible
+            endpoint_url:
+              description: 'Base URL of the AI provider API'
+              type: string
+              example: 'https://api.anthropic.com'
+            default_model:
+              description: 'Model used by AI features for this provider'
+              type: string
+              example: claude-sonnet-5-5
+            fast_model:
+              description: 'Model used by AI features requesting the fast tier'
+              type:
+                - string
+                - 'null'
+              example: claude-haiku-5-5
+            description:
+              description: 'Description of the AI provider configuration'
+              type:
+                - string
+                - 'null'
+            is_activated:
+              description: 'Whether this provider is enabled (the enabled provider is the one used by AI features)'
+              type: boolean
+            currency:
+              description: 'ISO 4217 currency of the prices and spend limits'
+              type:
+                - string
+                - 'null'
+            limit_daily:
+              description: 'Daily spend limit in the configured currency'
+              type:
+                - number
+                - 'null'
+            limit_monthly:
+              description: 'Monthly spend limit in the configured currency'
+              type:
+                - number
+                - 'null'
+            used_daily:
+              description: 'Spend in the current day window, in the configured currency'
+              type:
+                - number
+                - 'null'
+            used_monthly:
+              description: 'Spend in the current month window, in the configured currency'
+              type:
+                - number
+                - 'null'
+    ModelPricesResource:
+      type: object
+      properties:
+        default_model_input:
+          description: 'Default model price per 1M input tokens (USD), null when not found'
+          type:
+            - number
+            - 'null'
+        default_model_output:
+          description: 'Default model price per 1M output tokens (USD), null when not found'
+          type:
+            - number
+            - 'null'
+        fast_model_input:
+          description: 'Fast model price per 1M input tokens (USD), null when not found'
+          type:
+            - number
+            - 'null'
+        fast_model_output:
+          description: 'Fast model price per 1M output tokens (USD), null when not found'
+          type:
+            - number
+            - 'null'
+    ModelPricesResource.ModelPricesInput:
+      type: object
+      properties:
+        type:
+          minLength: 1
+          maxLength: 50
+          description: 'Provider type, to resolve the catalog provider-prefixed keys'
+          type: string
+          example: mistral
+        default_model:
+          minLength: 1
+          maxLength: 255
+          description: 'Default model name to look up'
+          type: string
+          example: gpt-4o
+        fast_model:
+          minLength: 1
+          maxLength: 255
+          description: 'Fast model name to look up'
+          type:
+            - string
+            - 'null'
+          example: gpt-4o-mini
+    ModelPricesResource.jsonld:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            default_model_input:
+              description: 'Default model price per 1M input tokens (USD), null when not found'
+              type:
+                - number
+                - 'null'
+            default_model_output:
+              description: 'Default model price per 1M output tokens (USD), null when not found'
+              type:
+                - number
+                - 'null'
+            fast_model_input:
+              description: 'Fast model price per 1M input tokens (USD), null when not found'
+              type:
+                - number
+                - 'null'
+            fast_model_output:
+              description: 'Fast model price per 1M output tokens (USD), null when not found'
+              type:
+                - number
+                - 'null'
+    SummarizeIncidentResource:
+      type: object
+      properties:
+        summary:
+          description: 'Plain-text incident summary'
+          type: string
+        model:
+          description: 'Model that produced the summary'
+          type: string
+          example: claude-sonnet-4-6
+    SummarizeIncidentResource.SummarizeIncidentInput:
+      type: object
+      properties:
+        name:
+          minLength: 1
+          maxLength: 255
+          description: 'Name of the resource'
+          type: string
+          example: Ping
+        resource_type:
+          minLength: 1
+          maxLength: 50
+          description: 'Type of the resource'
+          type: string
+          example: service
+        status:
+          minLength: 1
+          maxLength: 50
+          description: 'Current status of the resource'
+          type: string
+          example: CRITICAL
+        events:
+          minItems: 1
+          maxItems: 100
+          description: 'Timeline events of the incident, oldest first'
+          type: array
+          items:
+            $ref: '#/components/schemas/IncidentEventInput'
+        information:
+          maxLength: 10000
+          description: 'Latest check output'
+          type:
+            - string
+            - 'null'
+        duration:
+          maxLength: 255
+          description: 'Time spent in the current status'
+          type:
+            - string
+            - 'null'
+          example: '2h 31m'
+        parent_name:
+          maxLength: 255
+          description: 'Name of the parent host, for services'
+          type:
+            - string
+            - 'null'
+          example: db-server-01
+        since:
+          maxLength: 64
+          description: 'Start of the event window, as displayed'
+          type:
+            - string
+            - 'null'
+          example: '2026-06-11T10:24:00+02:00'
+        is_truncated:
+          description: 'Whether more events existed in the window than provided'
+          type: boolean
+    SummarizeIncidentResource.jsonld:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            summary:
+              description: 'Plain-text incident summary'
+              type: string
+            model:
+              description: 'Model that produced the summary'
+              type: string
+              example: claude-sonnet-4-6
+    TestAiProviderResource:
+      type: object
+      properties:
+        success:
+          description: 'Whether the test request succeeded'
+          type: boolean
+        message:
+          description: 'Error message when the test failed'
+          type:
+            - string
+            - 'null'
+        model:
+          description: 'Model that answered the test request'
+          type:
+            - string
+            - 'null'
+          example: claude-sonnet-5-5
+    TestAiProviderResource.TestAiProviderInput:
+      type: object
+      properties:
+        model:
+          minLength: 1
+          maxLength: 255
+          description: 'Model to use for the test. Defaults to the default model of the configuration.'
+          type:
+            - string
+            - 'null'
+          example: claude-sonnet-5-5
+    TestAiProviderResource.jsonld:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            success:
+              description: 'Whether the test request succeeded'
+              type: boolean
+            message:
+              description: 'Error message when the test failed'
+              type:
+                - string
+                - 'null'
+            model:
+              description: 'Model that answered the test request'
+              type:
+                - string
+                - 'null'
+              example: claude-sonnet-5-5
+    TestConnectionResource:
+      type: object
+      properties:
+        success:
+          description: 'Whether the test request succeeded'
+          type: boolean
+        message:
+          description: 'Error message when the test failed'
+          type:
+            - string
+            - 'null'
+        model:
+          description: 'Model that answered the test request'
+          type:
+            - string
+            - 'null'
+          example: claude-sonnet-5-5
+    TestConnectionResource.TestConnectionInput:
+      type: object
+      properties:
+        type:
+          minLength: 1
+          maxLength: 50
+          description: 'Type of the AI provider'
+          type: string
+          example: anthropic
+        default_model:
+          minLength: 1
+          maxLength: 255
+          description: 'Model to use for the test'
+          type: string
+          example: claude-sonnet-5-5
+        api_token:
+          minLength: 1
+          maxLength: 4096
+          pattern: '^(((?!^secret::).)*)$'
+          description: 'API token to test; omit while editing to test the stored token'
+          type:
+            - string
+            - 'null'
+        endpoint_url:
+          minLength: 1
+          maxLength: 2048
+          description: 'Endpoint URL; only used for OpenAI-compatible providers'
+          type:
+            - string
+            - 'null'
+        provider_id:
+          description: 'Id of the provider being edited, to reuse its stored token'
+          type:
+            - integer
+            - 'null'
+    TestConnectionResource.jsonld:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            success:
+              description: 'Whether the test request succeeded'
+              type: boolean
+            message:
+              description: 'Error message when the test failed'
+              type:
+                - string
+                - 'null'
+            model:
+              description: 'Model that answered the test request'
+              type:
+                - string
+                - 'null'
+              example: claude-sonnet-5-5
+    TranslateResourceFilterResource:
+      type: object
+      properties:
+        intent:
+          description: 'What the user wants: "filter" (list a set), "explain" (analyse), or "unsupported" (request unrelated to the monitored resources)'
+          type: string
+          example: filter
+        query:
+          description: 'Search expression in the Resources Status query language. For a filter intent, the filter to apply (empty when none could be derived); for an explain intent with scope "query", the set to explain'
+          type: string
+          example: 'type:service status:critical state:unhandled'
+        scope:
+          description: 'For an explain intent: "current" (the displayed set) or "query". Null for a filter intent'
+          type:
+            - string
+            - 'null'
+          example: current
+    TranslateResourceFilterResource.TranslateResourceFilterInput:
+      type: object
+      properties:
+        prompt:
+          minLength: 1
+          maxLength: 2000
+          description: 'Natural-language request: a description of resources to filter, or a question to analyse'
+          type: string
+          example: 'critical services not yet handled'
+        current_filter:
+          maxLength: 2000
+          description: 'The search expression currently applied to the listing, used to decide whether a question is about the displayed resources'
+          type:
+            - string
+            - 'null'
+          example: 'type:service status:critical'
+    TranslateResourceFilterResource.jsonld:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            intent:
+              description: 'What the user wants: "filter" (list a set), "explain" (analyse), or "unsupported" (request unrelated to the monitored resources)'
+              type: string
+              example: filter
+            query:
+              description: 'Search expression in the Resources Status query language. For a filter intent, the filter to apply (empty when none could be derived); for an explain intent with scope "query", the set to explain'
+              type: string
+              example: 'type:service status:critical state:unhandled'
+            scope:
+              description: 'For an explain intent: "current" (the displayed set) or "query". Null for a filter intent'
+              type:
+                - string
+                - 'null'
+              example: current
