@@ -21,12 +21,25 @@
 
 declare(strict_types=1);
 
-namespace App\Upgrade\Application;
+namespace StrayFile\Migrations;
 
-interface CacheClearer
+use App\Upgrade\Infrastructure\Migration\DmlMigration;
+use Doctrine\DBAL\Schema\Schema;
+
+// Not named Version<timestamp>.php: Doctrine would never find it.
+final class AddNotesColumn extends DmlMigration
 {
-    /**
-     * Clear the application cache.
-     */
-    public function clear(): void;
+    public function getDescription(): string
+    {
+        return 'Adds the notes';
+    }
+
+    public function up(Schema $schema): void
+    {
+        $this->addSql('SELECT 1');
+    }
+
+    public function revert(Schema $schema): void
+    {
+    }
 }
