@@ -180,6 +180,9 @@ jobs:
       upgrade_test_paths: |
         "centreon/www/install/**"
         "centreon/migrations/**"
+        "centreon/src/App/Upgrade/**"
+        "centreon/config.new/packages/centreon.yaml"
+        "centreon/config.new/services/upgrade.php"
         "centreon/packaging/**"
         "centreon/tests/e2e/features/Platform-upgrade-update/**"
       translation_paths: |

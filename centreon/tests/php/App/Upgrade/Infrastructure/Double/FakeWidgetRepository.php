@@ -29,8 +29,13 @@ final class FakeWidgetRepository implements WidgetRepository
 {
     public int $updates = 0;
 
+    public ?\Throwable $failure = null;
+
     public function updateAll(): void
     {
         ++$this->updates;
+        if ($this->failure instanceof \Throwable) {
+            throw $this->failure;
+        }
     }
 }
