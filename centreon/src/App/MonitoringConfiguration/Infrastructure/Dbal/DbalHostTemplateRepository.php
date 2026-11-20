@@ -35,7 +35,6 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
-use App\MonitoringConfiguration\Domain\Aggregate\NotificationOptionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateNotFoundException;
@@ -1073,21 +1072,9 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
      */
     private function notificationColumns(?Notifications $notifications): array
     {
-        $options = array_map(
-            static fn (NotificationOptionEnum $option): string => match ($option) {
-                NotificationOptionEnum::Down => 'd',
-                NotificationOptionEnum::Unreachable => 'u',
-                NotificationOptionEnum::Recovery => 'r',
-                NotificationOptionEnum::Flapping => 'f',
-                NotificationOptionEnum::DowntimeScheduled => 's',
-                NotificationOptionEnum::None => 'n',
-            },
-            $notifications->options ?? [],
-        );
-
         return [
             'host_notifications_enabled' => $this->triStateToColumn($notifications->enabled ?? TriStateEnum::UseDefault),
-            'host_notification_options' => $options === [] ? null : implode(',', $options),
+            'host_notification_options' => NotificationsTransformer::options($notifications->options ?? []),
             'host_notification_interval' => $notifications?->interval,
             'timeperiod_tp_id2' => $notifications?->periodId?->value,
             'host_first_notification_delay' => $notifications?->firstDelay,
