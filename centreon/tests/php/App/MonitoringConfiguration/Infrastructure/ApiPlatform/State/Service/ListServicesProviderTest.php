@@ -249,7 +249,7 @@ final class ListServicesProviderTest extends ApiTestCase
         $this->request('GET', self::BASE_ENDPOINT, ['query' => ['itemsPerPage' => '0']]);
 
         self::assertResponseStatusCodeSame(400);
-        self::assertJsonEquals(['code' => 0, 'message' => 'itemsPerPage must be a positive integer.']);
+        self::assertJsonEquals(['code' => 400, 'message' => 'itemsPerPage must be a positive integer.']);
     }
 
     /**

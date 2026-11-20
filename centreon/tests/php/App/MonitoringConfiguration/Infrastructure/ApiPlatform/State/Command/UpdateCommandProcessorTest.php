@@ -174,7 +174,7 @@ final class UpdateCommandProcessorTest extends ApiTestCase
         self::assertResponseStatusCodeSame(404);
         self::assertJsonContains([
             'message' => 'Resource not found.',
-            'code' => 0,
+            'code' => 404,
         ]);
     }
 
