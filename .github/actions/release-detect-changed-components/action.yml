@@ -45,3 +45,4 @@ runs:
         name: component-commit-lists
         path: artifacts
         retention-days: 1
+        overwrite: true

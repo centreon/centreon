@@ -21,15 +21,16 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Aggregate\Option;
+namespace App\Shared\Domain\Repository;
 
-use Webmozart\Assert\Assert;
+use App\Shared\Domain\Aggregate\Option\Option;
+use App\Shared\Domain\Aggregate\Option\OptionName;
+use App\Shared\Domain\Exception\OptionDoesNotExistException;
 
-final readonly class OptionValue
+interface OptionRepository
 {
-    public function __construct(
-        public string $value,
-    ) {
-        Assert::lengthBetween($value, 1, 255);
-    }
+    /**
+     * @throws OptionDoesNotExistException
+     */
+    public function getByName(OptionName $name): Option;
 }

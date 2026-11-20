@@ -30,6 +30,7 @@ use App\MonitoringConfiguration\Domain\Repository\Criteria\GraphTemplateCriteria
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalGraphTemplateRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\GraphTemplateTransformer;
 use App\Shared\Domain\Collection;
+use App\Shared\Domain\Repository\Pagination;
 use App\Shared\Domain\Repository\Paginator;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -99,7 +100,7 @@ final class DbalGraphTemplateRepositoryTest extends KernelTestCase
 
         // page 2 @ 1 item/page proves the OFFSET arithmetic (a page-1 request cannot)
         $result = $this->repository->findAll(
-            (new GraphTemplateCriteria())->withName("pg-{$this->tag}-")->withPagination(2, 1)
+            (new GraphTemplateCriteria())->withName("pg-{$this->tag}-")->withPagination(new Pagination(2, 1))
         );
 
         self::assertInstanceOf(Paginator::class, $result);

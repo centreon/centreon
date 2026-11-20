@@ -26,22 +26,28 @@ namespace App\Shared\Domain\Repository;
 use Webmozart\Assert\Assert;
 
 /**
- * Immutable pagination request: a 1-based page and a strictly positive page size.
+ * Immutable pagination request: a 1-based page and a page size of at most
+ * {@see self::MAX_ITEMS_PER_PAGE} items.
  *
  * The zero-based {@see self::getOffset()} is what a repository feeds to a
  * SQL {@code LIMIT ... OFFSET ...} clause.
  */
 final readonly class Pagination
 {
+    /** Matches the largest page size offered by the UI listings. */
+    public const MAX_ITEMS_PER_PAGE = 100;
+
     /**
-     * @throws \InvalidArgumentException when $page or $itemsPerPage is not a positive integer
+     * @throws \InvalidArgumentException when $page is not a positive integer, $itemsPerPage is out of
+     *                                   [1, MAX_ITEMS_PER_PAGE], or the offset would overflow an int
      */
     public function __construct(
         public int $page,
         public int $itemsPerPage,
     ) {
         Assert::positiveInteger($page, 'Page must be a positive integer, got %s.');
-        Assert::positiveInteger($itemsPerPage, 'Items per page must be a positive integer, got %s.');
+        Assert::range($itemsPerPage, 1, self::MAX_ITEMS_PER_PAGE, 'Items per page must be between %2$s and %3$s, got %s.');
+        Assert::lessThanEq($page - 1, intdiv(PHP_INT_MAX, $itemsPerPage), sprintf('Page %d is too large.', $page));
     }
 
     /**
