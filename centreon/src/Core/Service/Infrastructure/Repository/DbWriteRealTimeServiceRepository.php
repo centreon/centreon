@@ -25,11 +25,14 @@ namespace Core\Service\Infrastructure\Repository;
 
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Core\Common\Infrastructure\Repository\AclFingerprintInvalidationTrait;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\Service\Application\Repository\WriteRealTimeServiceRepositoryInterface;
 
 class DbWriteRealTimeServiceRepository extends AbstractRepositoryRDB implements WriteRealTimeServiceRepositoryInterface
 {
+    use AclFingerprintInvalidationTrait;
+
     /**
      * @param DatabaseConnection $db
      */
@@ -68,5 +71,7 @@ class DbWriteRealTimeServiceRepository extends AbstractRepositoryRDB implements 
         $statement->bindValue(':service_id', $serviceId, \PDO::PARAM_INT);
 
         $statement->execute();
+
+        $this->invalidateAclFingerprints(array_values($accessGroupIds));
     }
 }

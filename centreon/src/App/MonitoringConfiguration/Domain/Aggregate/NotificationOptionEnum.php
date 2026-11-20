@@ -24,23 +24,18 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Aggregate;
 
 /**
- * The host state transitions that trigger a notification.
- *
- * Deliberately not backed: neither the API contract strings nor the engine's single-letter
- * storage format (`d`, `u`, `r`, `f`, `s`, `n`) belong to the domain. Both mappings live in the
- * infrastructure — {@see \App\MonitoringConfiguration\Infrastructure\ApiPlatform\EnumResolver\NotificationOptionEnumResolver}
- * for the wire format, {@see \App\MonitoringConfiguration\Infrastructure\Dbal\NotificationsTransformer}
- * for storage.
+ * The host state transitions that trigger a notification. The engine's letters are mapped in
+ * {@see \App\MonitoringConfiguration\Infrastructure\Dbal\NotificationsTransformer}.
  *
  * {@see self::None} is exclusive: it means "notify on nothing" and cannot be combined with any
  * other case (enforced by {@see Notifications}).
  */
-enum NotificationOptionEnum
+enum NotificationOptionEnum: string
 {
-    case Down;
-    case Unreachable;
-    case Recovery;
-    case Flapping;
-    case DowntimeScheduled;
-    case None;
+    case Down = 'down';
+    case Unreachable = 'unreachable';
+    case Recovery = 'recovery';
+    case Flapping = 'flapping';
+    case DowntimeScheduled = 'downtime_scheduled';
+    case None = 'none';
 }

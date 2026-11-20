@@ -19,6 +19,10 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ConnectionInterface;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+
 /**
  * Init functions
  */
@@ -60,6 +64,21 @@ function removeLock(int $appId): void
         $stmt->execute();
     } catch (PDOException $e) {
         programExit("Error can't unlock the process in the cron_operation table.");
+    }
+}
+
+/**
+ * Removes the lock of this run after an error. Never exits nor throws, so that the caller reports the original error.
+ */
+function releaseLockAfterError(ConnectionInterface $db, int $appId): void
+{
+    try {
+        $db->executeStatement(
+            "UPDATE cron_operation SET running = '0' WHERE id = :appId",
+            QueryParameters::create([QueryParameter::int('appId', $appId)])
+        );
+    } catch (Throwable) {
+        // The lock stays: the next run finds it stale and removes it.
     }
 }
 

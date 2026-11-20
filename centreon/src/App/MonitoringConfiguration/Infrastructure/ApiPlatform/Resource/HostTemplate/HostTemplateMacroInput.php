@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTe
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroParentEnum;
+use App\MonitoringConfiguration\Infrastructure\Validator\ReservedMacroName;
 use App\Shared\Domain\Logging\Attribute\Sensitive;
 use App\Shared\Domain\VaultInterface;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -38,11 +39,11 @@ final readonly class HostTemplateMacroInput
         #[Assert\Sequentially([
             new Assert\NotBlank(normalizer: 'trim'),
             new Assert\Length(max: HostMacroName::MAX_STORAGE_LENGTH - 7, normalizer: 'trim'),
+            new ReservedMacroName(),
         ])]
         public string $name,
 
-        // Null keeps the stored value of a password macro. No password is ever echoed back, so a
-        // client has no legitimate vault reference to send.
+        // Null keeps a stored password; a vault reference is refused, none is ever echoed back.
         #[Sensitive]
         #[Assert\Length(max: HostMacro::MAX_VALUE_LENGTH)]
         #[Assert\Regex(

@@ -30,11 +30,9 @@ use App\ActivityLogging\Domain\Aggregate\Target;
 use App\ActivityLogging\Domain\Aggregate\TargetId;
 use App\ActivityLogging\Domain\Aggregate\TargetName;
 use App\ActivityLogging\Domain\Aggregate\TargetTypeEnum;
-use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\DataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\ExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
-use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationOptionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\SchedulingOptions;
@@ -71,8 +69,9 @@ final readonly class HostTemplateActivityLogFactory implements ActivityLogFactor
 
     /**
      * The host log keys and storage formats (an unset value is an empty string, a tri-state 0, 1 or 2),
-     * without the host-only ones. Relations and macros are not logged; the SNMP community is logged as
-     * stored, the `secret::` reference once vaulted.
+     * without the host-only ones; absent notifications give no key. Relations (parents, categories,
+     * linked service templates, contacts, contact groups) and macros are not logged; the SNMP community
+     * is logged as stored, the `secret::` reference once vaulted.
      *
      * @return array<string, string>
      */
@@ -170,14 +169,6 @@ final readonly class HostTemplateActivityLogFactory implements ActivityLogFactor
             'host_recovery_notification_delay' => (string) $notifications->recoveryDelay,
             'contact_additive_inheritance' => $notifications->contactAdditiveInheritance ? '1' : '0',
             'cg_additive_inheritance' => $notifications->contactGroupAdditiveInheritance ? '1' : '0',
-            'host_cs' => implode(',', array_map(
-                static fn (NotificationContactId $id): int => $id->value,
-                $notifications->contactIds->toArray(),
-            )),
-            'host_cgs' => implode(',', array_map(
-                static fn (ContactGroupId $id): int => $id->value,
-                $notifications->contactGroupIds->toArray(),
-            )),
         ];
     }
 

@@ -48,7 +48,7 @@ final class FsEngineSecretsRepositoryTest extends TestCase
         file_put_contents($this->tempFile, json_encode([
             'app_secret' => 'my-app-secret',
             'salt' => 'my-salt',
-        ]));
+        ], flags: JSON_THROW_ON_ERROR));
 
         $repository = new FsEngineSecretsRepository($this->tempFile);
 
@@ -60,7 +60,7 @@ final class FsEngineSecretsRepositoryTest extends TestCase
         file_put_contents($this->tempFile, json_encode([
             'app_secret' => 'my-app-secret',
             'salt' => 'my-salt',
-        ]));
+        ], flags: JSON_THROW_ON_ERROR));
 
         $repository = new FsEngineSecretsRepository($this->tempFile);
 
@@ -79,7 +79,7 @@ final class FsEngineSecretsRepositoryTest extends TestCase
 
     public function testThrowsWhenAppSecretKeyIsMissing(): void
     {
-        file_put_contents($this->tempFile, json_encode(['salt' => 'my-salt']));
+        file_put_contents($this->tempFile, json_encode(['salt' => 'my-salt'], flags: JSON_THROW_ON_ERROR));
 
         $repository = new FsEngineSecretsRepository($this->tempFile);
 
@@ -89,7 +89,7 @@ final class FsEngineSecretsRepositoryTest extends TestCase
 
     public function testThrowsWhenSaltKeyIsMissing(): void
     {
-        file_put_contents($this->tempFile, json_encode(['app_secret' => 'my-app-secret']));
+        file_put_contents($this->tempFile, json_encode(['app_secret' => 'my-app-secret'], flags: JSON_THROW_ON_ERROR));
 
         $repository = new FsEngineSecretsRepository($this->tempFile);
 
@@ -99,7 +99,7 @@ final class FsEngineSecretsRepositoryTest extends TestCase
 
     public function testThrowsWhenAppSecretIsNotAString(): void
     {
-        file_put_contents($this->tempFile, json_encode(['app_secret' => 42, 'salt' => 'my-salt']));
+        file_put_contents($this->tempFile, json_encode(['app_secret' => 42, 'salt' => 'my-salt'], flags: JSON_THROW_ON_ERROR));
 
         $repository = new FsEngineSecretsRepository($this->tempFile);
 
@@ -109,7 +109,7 @@ final class FsEngineSecretsRepositoryTest extends TestCase
 
     public function testThrowsWhenFileContainsJsonArray(): void
     {
-        file_put_contents($this->tempFile, json_encode(['my-app-secret', 'my-salt']));
+        file_put_contents($this->tempFile, json_encode(['my-app-secret', 'my-salt'], flags: JSON_THROW_ON_ERROR));
 
         $repository = new FsEngineSecretsRepository($this->tempFile);
 

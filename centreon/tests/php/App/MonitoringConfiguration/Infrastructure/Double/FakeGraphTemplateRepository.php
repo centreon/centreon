@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
 
 use App\MonitoringConfiguration\Domain\Aggregate\GraphTemplate\GraphTemplate;
+use App\MonitoringConfiguration\Domain\Aggregate\GraphTemplate\GraphTemplateName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\GraphTemplateCriteria;
 use App\MonitoringConfiguration\Domain\Repository\GraphTemplateRepository;
 use App\Shared\Domain\Collection;
@@ -36,6 +37,9 @@ final class FakeGraphTemplateRepository implements GraphTemplateRepository
     /** @var \IteratorAggregate<int, GraphTemplate>&\Countable */
     public \IteratorAggregate&\Countable $result;
 
+    /** @var array<int, string> names indexed by graph template id, what findNamesByIds() knows */
+    public array $names = [];
+
     public function __construct()
     {
         $this->result = new Collection([], GraphTemplate::class);
@@ -46,5 +50,17 @@ final class FakeGraphTemplateRepository implements GraphTemplateRepository
         $this->receivedCriteria = $criteria;
 
         return $this->result;
+    }
+
+    public function findNamesByIds(Collection $ids): Collection
+    {
+        $names = [];
+        foreach ($ids as $id) {
+            if (isset($this->names[$id->value])) {
+                $names[$id->value] = new GraphTemplateName($this->names[$id->value]);
+            }
+        }
+
+        return new Collection($names, GraphTemplateName::class);
     }
 }

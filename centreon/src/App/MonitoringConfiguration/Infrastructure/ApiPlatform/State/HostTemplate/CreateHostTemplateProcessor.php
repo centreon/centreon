@@ -42,13 +42,13 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationOptionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\SchedulingOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\EnumResolver\NotificationOptionEnumResolver;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\CreateHostTemplateCheckOptionsInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\CreateHostTemplateDataProcessingInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\CreateHostTemplateExtendedInformationsInput;
@@ -120,7 +120,7 @@ final readonly class CreateHostTemplateProcessor implements ProcessorInterface
                 passiveCheckEnabled: $data->schedulingOptions->passiveCheckEnabled ?? TriStateEnum::UseDefault,
             ),
             dataProcessing: $this->buildDataProcessing($data->dataProcessing ?? new CreateHostTemplateDataProcessingInput()),
-            // Built even when absent, on premise: the columns are written either way.
+            // Built even when absent on premise, so the activity log records the default notification fields.
             notifications: $this->isCloudPlatform ? null : $this->buildNotifications($data->notifications ?? new CreateHostTemplateNotificationsInput()),
         );
 
@@ -182,7 +182,7 @@ final readonly class CreateHostTemplateProcessor implements ProcessorInterface
             contactIds: $this->toIdCollection($input->contacts, NotificationContactId::class),
             contactGroupIds: $this->toIdCollection($input->contactGroups, ContactGroupId::class),
             options: array_values(array_unique(
-                array_map(NotificationOptionEnumResolver::toDomain(...), $input->options),
+                array_map(NotificationOptionEnum::from(...), $input->options),
                 SORT_REGULAR,
             )),
             interval: $input->interval,

@@ -24,6 +24,8 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Domain\Aggregate\Service;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
+use App\MonitoringConfiguration\Domain\Exception\InvalidServiceNameException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class ServiceNameTest extends TestCase
@@ -62,5 +64,64 @@ final class ServiceNameTest extends TestCase
         $name = new ServiceName(str_repeat('é', 200));
 
         self::assertSame(200, mb_strlen($name->value));
+    }
+
+    #[DataProvider('userInputProvider')]
+    public function testItNormalizesAUserInput(string $input, string $expectedName): void
+    {
+        self::assertSame($expectedName, ServiceName::fromUserInput($input)->value);
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function userInputProvider(): iterable
+    {
+        yield 'inner and outer runs of spaces' => ['  a  b ', 'a b'];
+
+        yield '200 characters' => [str_repeat('a', 200), str_repeat('a', 200)];
+
+        yield '200 multibyte characters' => [str_repeat('é', 200), str_repeat('é', 200)];
+
+        yield '200 characters once collapsed' => [str_repeat('a', 198) . '   b', str_repeat('a', 198) . ' b'];
+    }
+
+    #[DataProvider('invalidUserInputProvider')]
+    public function testItRefusesAnInvalidUserInput(string $input, string $expectedReason): void
+    {
+        try {
+            ServiceName::fromUserInput($input);
+            self::fail('The name must be refused.');
+        } catch (InvalidServiceNameException $exception) {
+            self::assertSame($expectedReason, $exception->reason);
+        }
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function invalidUserInputProvider(): iterable
+    {
+        yield 'empty' => ['', 'is empty'];
+
+        yield 'whitespace only' => [" \t\n ", 'is empty'];
+
+        yield '201 characters' => [str_repeat('a', 201), 'is longer than 200 characters'];
+        foreach (mb_str_split('~!$%^&*"|\'<>?,()=') as $character) {
+            yield "forbidden {$character}" => ["Pi{$character}ng", 'contains a forbidden character (~ ! $ % ^ & * " | \' < > ? , ( ) =)'];
+        }
+
+        yield 'single inner tab' => ["Pi\tng", 'contains a control character'];
+
+        // Collapsed into one space, it would pass: the check runs on the raw value.
+        yield 'run of tabs' => ["a\t\tb", 'contains a control character'];
+
+        yield 'trailing line break' => ["Ping\n", 'contains a control character'];
+
+        yield 'form feed at an end' => [" \fPing", 'contains a control character'];
+
+        yield 'inner null byte' => ["Pi\0ng", 'contains a control character'];
+
+        yield 'delete character' => ["Ping\x7F", 'contains a control character'];
     }
 }

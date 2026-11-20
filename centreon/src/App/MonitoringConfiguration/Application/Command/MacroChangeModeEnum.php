@@ -25,7 +25,7 @@ namespace App\MonitoringConfiguration\Application\Command;
 
 enum MacroChangeModeEnum
 {
-    /** The macros given are the host's own macros: the other ones are removed. */
+    /** The macros given are the own macros: the other ones are removed. */
     case Replace;
 
     /** The macros given are written, the other ones are kept. */

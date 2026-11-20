@@ -26,13 +26,19 @@ import HostTemplates from '..';
 import {
   getDuplicateHostTemplateEndpoint,
   getHostTemplateEndpoint,
+  getHostTemplateMacrosEndpoint,
+  hostTemplateFormCommandsEndpoint,
+  hostTemplateFormHostTemplatesEndpoint,
   hostTemplatesListEndpoint
 } from '../api/endpoints';
 import { getDefaultValues, useFormInputs } from '../Form';
 import {
   emptyListingResponse,
+  getFormCommandsResponse,
+  getFormParentTemplatesResponse,
   getHostTemplateResponse,
-  getListingResponse
+  getListingResponse,
+  getTemplateMacrosResponses
 } from './utils';
 
 interface Props {
@@ -114,6 +120,37 @@ const initialize = ({
       method: Method.GET,
       path: `**${getHostTemplateEndpoint({ id })}`,
       response: getHostTemplateResponse(id)
+    });
+  });
+
+  interceptAPIRequest({
+    alias: 'getFormCommands',
+    method: Method.GET,
+    path: `**${hostTemplateFormCommandsEndpoint}?**`,
+    response: getFormCommandsResponse()
+  });
+
+  interceptAPIRequest({
+    alias: 'getFormParentTemplates',
+    method: Method.GET,
+    path: `**${hostTemplateFormHostTemplatesEndpoint}?**`,
+    response: getFormParentTemplatesResponse()
+  });
+  // Declared after the one above, so it answers first when the query matches.
+  interceptAPIRequest({
+    alias: 'getFormParentTemplatesExcluding1',
+    method: Method.GET,
+    path: `**${hostTemplateFormHostTemplatesEndpoint}?**`,
+    query: { name: 'exclude_template_id', value: '1' },
+    response: getFormParentTemplatesResponse(1)
+  });
+
+  Object.entries(getTemplateMacrosResponses()).forEach(([id, response]) => {
+    interceptAPIRequest({
+      alias: `getTemplateMacros${id}`,
+      method: Method.GET,
+      path: `**${getHostTemplateMacrosEndpoint({ id: Number(id) })}`,
+      response
     });
   });
 
@@ -203,14 +240,16 @@ export const initializeFormLayout = ({
   });
 
   return render(
-    <SnackbarProvider>
-      <QueryClientProvider client={queryClient}>
-        {/* The panel content's own classes (`ConfigurationBase/Panel`). */}
-        <div className={`@container px-5 ${panelWidthClassNames[width]}`}>
-          <FormLayout {...props} />
-        </div>
-      </QueryClientProvider>
-    </SnackbarProvider>
+    <Router>
+      <SnackbarProvider>
+        <QueryClientProvider client={queryClient}>
+          {/* The panel content's own classes (`ConfigurationBase/Panel`). */}
+          <div className={`@container px-5 ${panelWidthClassNames[width]}`}>
+            <FormLayout {...props} />
+          </div>
+        </QueryClientProvider>
+      </SnackbarProvider>
+    </Router>
   );
 };
 

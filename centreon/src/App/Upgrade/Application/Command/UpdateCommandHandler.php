@@ -24,11 +24,11 @@ declare(strict_types=1);
 namespace App\Upgrade\Application\Command;
 
 use App\Shared\Application\Command\AsCommandHandler;
-use App\Upgrade\Application\CacheClearer;
-use App\Upgrade\Application\DbmsVersionValidator;
-use App\Upgrade\Application\EngineContextWriter;
-use App\Upgrade\Application\UpdateLocker;
-use App\Upgrade\Application\UpgradeLogger;
+use App\Upgrade\Application\CacheClearerInterface;
+use App\Upgrade\Application\DbmsVersionValidatorInterface;
+use App\Upgrade\Application\EngineContextWriterInterface;
+use App\Upgrade\Application\UpdateLockerInterface;
+use App\Upgrade\Application\UpgradeLoggerInterface;
 use App\Upgrade\Domain\Repository\ModuleRepository;
 use App\Upgrade\Domain\Repository\UpdateRepository;
 use App\Upgrade\Domain\Repository\UpdateScriptFinder;
@@ -40,13 +40,13 @@ final readonly class UpdateCommandHandler
     public function __construct(
         private UpdateRepository $updateRepository,
         private UpdateScriptFinder $updateScriptFinder,
-        private UpdateLocker $updateLocker,
-        private DbmsVersionValidator $dbmsVersionValidator,
+        private UpdateLockerInterface $updateLocker,
+        private DbmsVersionValidatorInterface $dbmsVersionValidator,
         private ModuleRepository $moduleRepository,
         private WidgetRepository $widgetRepository,
-        private EngineContextWriter $engineContextWriter,
-        private CacheClearer $cacheClearer,
-        private UpgradeLogger $logger,
+        private EngineContextWriterInterface $engineContextWriter,
+        private CacheClearerInterface $cacheClearer,
+        private UpgradeLoggerInterface $logger,
     ) {
     }
 

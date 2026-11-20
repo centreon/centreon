@@ -21,9 +21,6 @@
 
 namespace CentreonRemote\Application\Webservice;
 
-/**
- * @OA\Tag(name="centreon_remote_server", description="")
- */
 class CentreonRemoteServer extends CentreonWebServiceAbstract
 {
     /**
@@ -37,70 +34,6 @@ class CentreonRemoteServer extends CentreonWebServiceAbstract
     }
 
     /**
-     * @OA\Post(
-     *   path="/external.php?object=centreon_remote_server&action=addToWaitList",
-     *   description="Add remote Centreon instance in waiting list",
-     *   tags={"centreon_remote_server"},
-     *
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="object",
-     *
-     *       @OA\Schema(
-     *          type="string",
-     *          enum={"centreon_remote_server"},
-     *          default="centreon_remote_server"
-     *       ),
-     *       description="the name of the API object class",
-     *       required=true
-     *   ),
-     *
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="action",
-     *
-     *       @OA\Schema(
-     *          type="string",
-     *          enum={"addToWaitList"},
-     *          default="addToWaitList"
-     *       ),
-     *       description="the name of the action in the API class",
-     *       required=true
-     *   ),
-     *
-     *   @OA\RequestBody(
-     *       required=true,
-     *
-     *       @OA\JsonContent(
-     *          required={
-     *              "app_key",
-     *              "version"
-     *          },
-     *
-     *          @OA\Property(
-     *              property="app_key",
-     *              type="string",
-     *              description="the unique app key of the Centreon instance"
-     *          ),
-     *          @OA\Property(
-     *              property="version",
-     *              type="string",
-     *              description="the app version Centreon instance"
-     *          )
-     *       )
-     *   ),
-     *
-     *   @OA\Response(
-     *       response=200,
-     *       description="Empty string",
-     *
-     *       @OA\JsonContent(
-     *
-     *          @OA\Property(type="string")
-     *       )
-     *   )
-     * )
-     *
      * Add remote Centreon instance in waiting list
      *
      * @throws \RestBadRequestException

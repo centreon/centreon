@@ -34,6 +34,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceCheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
@@ -224,7 +225,7 @@ final class DeleteHostCommandHandlerTest extends TestCase
             hostId: $hostId,
             hostActivated: $hostActivated,
             hostPollerId: new PollerId(1),
-            macros: $macros,
+            checkOptions: new ServiceCheckOptions(null, [], $macros),
         );
     }
 }

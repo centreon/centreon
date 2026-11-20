@@ -63,7 +63,7 @@ final readonly class CreateHostTemplateExtendedInformationsInput
 
         #[Assert\Sequentially([
             new Assert\NotBlank(allowNull: true, normalizer: 'trim'),
-            new Assert\Length(max: ExtendedInformations::MAX_COMMENT_LENGTH, normalizer: 'trim'),
+            new Assert\Length(max: ExtendedInformations::MAX_COMMENT_LENGTH, normalizer: 'trim', countUnit: Assert\Length::COUNT_BYTES),
         ])]
         #[WhenPlatform(forCloud: true, constraints: [
             new Assert\Blank(message: 'This field is not available on a Cloud platform.'),

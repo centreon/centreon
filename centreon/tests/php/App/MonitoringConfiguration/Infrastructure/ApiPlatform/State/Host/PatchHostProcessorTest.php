@@ -950,7 +950,7 @@ final class PatchHostProcessorTest extends ApiTestCase
         foreach ($requests as $position => [$body, $expected]) {
             $this->request('PATCH', self::BASE_ENDPOINT . '/' . $hostId, self::PATCH_HEADERS + ['json' => $body]);
 
-            self::assertResponseStatusCodeSame(204, sprintf('request %d: %s', $position + 1, json_encode($body)));
+            self::assertResponseStatusCodeSame(204, sprintf('request %d: %s', $position + 1, json_encode($body, flags: JSON_THROW_ON_ERROR)));
             /** @var HostRepository $repository */
             $repository = self::getContainer()->get(HostRepository::class);
             $host = $repository->findOne(new HostId($hostId), TestActingUsers::unrestricted());
