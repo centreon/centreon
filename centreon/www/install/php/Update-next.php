@@ -52,6 +52,20 @@ $createAclFingerprintTable = function () use ($pearDBO, &$errorMessage, $version
     );
 };
 
+$removeAboutTopology = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to remove the About page from the menu';
+    LoggerUpgrade::create()->info($version, 'Removing the About page from the menu');
+
+    // The About page is now reachable by every user from the user menu, so it no longer needs a menu entry
+    // nor an ACL; its access group relations are removed by the ON DELETE CASCADE constraint.
+    $pearDB->delete(
+        <<<'SQL'
+            DELETE FROM `topology`
+            WHERE `topology_page` = 506
+            SQL
+    );
+};
+
 try {
     LoggerUpgrade::create()->info($version, "Starting upgrade script for version {$version}");
 
@@ -69,6 +83,7 @@ try {
     }
 
     // TODO add your function calls to update the configuration database data here
+    $removeAboutTopology();
 
     $errorMessage = 'Unable to commit the configuration database transaction';
     $pearDB->commitTransaction();

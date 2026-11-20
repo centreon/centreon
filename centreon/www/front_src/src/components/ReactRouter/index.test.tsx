@@ -26,6 +26,7 @@ import ReactRouter from '.';
 Object.assign(global, { TextDecoder, TextEncoder });
 
 const labelResourceStatus = 'Resource Status page';
+const labelAboutPage = 'About page';
 
 jest.mock('../../Resources', () => {
   const Resources = (): JSX.Element => <p>{labelResourceStatus}</p>;
@@ -33,6 +34,15 @@ jest.mock('../../Resources', () => {
   return {
     __esModule: true,
     default: Resources
+  };
+});
+
+jest.mock('../../About/About', () => {
+  const About = (): JSX.Element => <p>{labelAboutPage}</p>;
+
+  return {
+    __esModule: true,
+    default: About
   };
 });
 
@@ -97,5 +107,15 @@ describe('React Router', () => {
     expect(
       screen.getByText('You are not allowed to see this page')
     ).toBeInTheDocument();
+  });
+
+  it('displays the about page even when the user has no allowed page', async () => {
+    window.history.pushState({}, '', '/administration/about');
+
+    renderReactRouter(retrievedNavigationWithAnEmptySet);
+
+    await waitFor(() => {
+      expect(screen.getByText(labelAboutPage)).toBeInTheDocument();
+    });
   });
 });

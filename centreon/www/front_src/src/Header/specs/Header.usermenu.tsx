@@ -1,4 +1,5 @@
 import {
+  labelAbout,
   labelCopyAutologinLink,
   labelEditProfile,
   labelFullscreen,
@@ -96,6 +97,19 @@ export default (): void => {
         .then(() => {
           expect(navigates).to.have.been.calledWith('/main.php?p=50104&o=c');
         });
+    });
+
+    it('links to the about page and closes the menu when the item is clicked', () => {
+      initialize();
+
+      cy.get('[data-cy=userIcon]').click();
+      cy.contains(labelAbout)
+        .closest('a')
+        .should('have.attr', 'href', '/administration/about');
+
+      cy.contains(labelAbout).click();
+
+      cy.contains(labelAbout).should('not.exist');
     });
 
     it('closes the menu when the user icon is clicked once again', () => {

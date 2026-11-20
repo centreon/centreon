@@ -36,7 +36,7 @@ import {
   useState
 } from 'react';
 import { useTranslation, withTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
+import { Link as RouterLink, useNavigate } from 'react-router';
 import { makeStyles } from 'tss-react/mui';
 
 import useNavigation from '../../Navigation/useNavigation';
@@ -45,6 +45,7 @@ import { userEndpoint } from '../api/endpoints';
 import Clock from '../Clock';
 import SwitchMode from './SwitchThemeMode';
 import {
+  labelAbout,
   labelCopyAutologinLink,
   labelEditProfile,
   labelFullscreen,
@@ -461,6 +462,21 @@ const UserMenu = ({ headerRef }: Props): JSX.Element => {
                       </ListItemButton>
                     </ListItem>
                   )}
+                  <ListItem className={classes.listItem}>
+                    <ListItemButton
+                      className={cx(classes.listItemButton, 'pl-7')}
+                      component={RouterLink}
+                      data-testid="user-menu-about"
+                      onClick={closeUserMenu}
+                      to={routeMap.about}
+                    >
+                      <ListItemText
+                        primaryTypographyProps={primaryTypographyProps}
+                      >
+                        {t(labelAbout)}
+                      </ListItemText>
+                    </ListItemButton>
+                  </ListItem>
                   {data.autologinkey && (
                     <ListItem className={classes.listItem}>
                       <ListItemButton
