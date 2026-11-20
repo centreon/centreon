@@ -26,6 +26,7 @@ namespace Tests\App\MonitoringConfiguration\Domain\Aggregate;
 use App\MonitoringConfiguration\Domain\Aggregate\ExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\GeoCoordinates;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class ExtendedInformationsTest extends TestCase
@@ -126,6 +127,38 @@ final class ExtendedInformationsTest extends TestCase
     public function testItAcceptsAnAltIconExactly200CharactersLong(): void
     {
         self::assertSame(200, mb_strlen((string) new ExtendedInformations(altIcon: str_repeat('a', 200))->altIcon));
+    }
+
+    /**
+     * @return array<string, array{string}>
+     */
+    public static function singleLineFieldProvider(): array
+    {
+        return [
+            'note URL' => ['noteUrl'],
+            'note' => ['note'],
+            'action URL' => ['actionUrl'],
+            'alternative icon text' => ['altIcon'],
+        ];
+    }
+
+    #[DataProvider('singleLineFieldProvider')]
+    public function testItReplacesControlCharactersWithASpaceInASingleLineField(string $field): void
+    {
+        self::assertSame('first second', new ExtendedInformations(...[$field => "\tfirst\r\n\x01second\n"])->{$field});
+    }
+
+    #[DataProvider('singleLineFieldProvider')]
+    public function testWithKeepsAStoredSingleLineFieldOnASingleLine(string $field): void
+    {
+        $stored = new ExtendedInformations(...[$field => "first\nsecond"]);
+
+        self::assertSame('first second', $stored->with(comment: 'updated')->{$field});
+    }
+
+    public function testItAcceptsACommentSpanningSeveralLines(): void
+    {
+        self::assertSame("first line\nsecond line", new ExtendedInformations(comment: "first line\nsecond line")->comment);
     }
 
     public function testWithKeepsEveryValueWhenNothingIsProvided(): void

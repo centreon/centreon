@@ -3,6 +3,7 @@ import type { TFunction } from 'i18next';
 import {
   schedulingColumns,
   stackedColumns,
+  threeColumnsFromWide,
   twoColumnsFromNarrow,
   twoColumnsFromWide
 } from '../../ResourceForm/grid';
@@ -13,8 +14,11 @@ import {
   type PlacedSection,
   placeBlocks as placeLayoutBlocks
 } from '../../ResourceForm/layout';
+import { labelNotifications } from '../../ResourceForm/translatedLabels';
 import {
+  labelAdvanced,
   labelGeneralInformation,
+  labelMonitoringEngine,
   labelMonitoringEngineSchedulingOptions,
   labelRelations,
   labelSchedulingOptions,
@@ -50,8 +54,8 @@ export const layout: Array<LayoutSection> = [
     label: labelRelations,
     nodes: [
       {
-        // The service groups and traps in the left column. The right one
-        // stays empty until what classifies the service is placed there.
+        // The service groups and traps on the left, the classification of
+        // the service on the right.
         className: twoColumnsFromNarrow,
         columnSeparator: true,
         columns: [
@@ -59,6 +63,12 @@ export const layout: Array<LayoutSection> = [
             className: stackedColumns,
             columns: ['groups', 'snmpTraps'],
             name: 'relations-groups'
+          },
+          {
+            // The right column: what classifies the service.
+            className: stackedColumns,
+            columns: ['categories', 'severity', 'graphTemplate'],
+            name: 'relations-classification'
           }
         ],
         name: 'relations-layout'
@@ -69,6 +79,13 @@ export const layout: Array<LayoutSection> = [
     label: labelMonitoringEngineSchedulingOptions,
     nodes: [
       {
+        // Note, note URL, icon and alt icon | action URL and coordinates.
+        className: twoColumnsFromNarrow,
+        columns: ['notesAndIcons', 'actionUrlAndGeoCoordinates'],
+        name: 'monitoring-engine',
+        title: labelMonitoringEngine
+      },
+      {
         // The check numbers, then the Yes / No / Default buttons, which a
         // cloud platform leaves out.
         className: schedulingColumns,
@@ -77,6 +94,51 @@ export const layout: Array<LayoutSection> = [
         name: 'scheduling-options',
         title: labelSchedulingOptions
       }
+    ]
+  },
+  {
+    // Absent on cloud, where no notification block is available.
+    label: labelNotifications,
+    nodes: [
+      {
+        className: twoColumnsFromWide,
+        columnSeparator: true,
+        columns: [
+          'notificationRecipients',
+          {
+            className: stackedColumns,
+            columns: ['notifyOn', 'notificationDelays'],
+            name: 'notifications-when'
+          }
+        ],
+        name: 'notifications-layout'
+      }
+    ]
+  },
+  {
+    label: labelAdvanced,
+    nodes: [
+      {
+        // Auto-remediation | freshness and acknowledgement | flapping: the
+        // cloud keeps the first two only.
+        className: (count) =>
+          count === 3 ? threeColumnsFromWide : twoColumnsFromWide,
+        columnSeparator: true,
+        columns: [
+          'eventHandler',
+          {
+            className: stackedColumns,
+            columns: ['freshness', 'acknowledgmentTimeout'],
+            name: 'freshness-layout'
+          },
+          'flapping'
+        ],
+        name: 'advanced-layout'
+      },
+      // Not in the design, on-premise only: below, full width.
+      'obsessRetainAndStalking',
+      // Full width, under the other advanced fields.
+      'comment'
     ]
   }
 ];

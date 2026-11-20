@@ -62,4 +62,9 @@ final class HostNameTest extends TestCase
 
         new HostName(str_repeat('a', 201));
     }
+
+    public function testItReplacesControlCharactersWithASpace(): void
+    {
+        self::assertSame('my-host_other', new HostName("\tmy-host\r\n\x01other\n")->value);
+    }
 }

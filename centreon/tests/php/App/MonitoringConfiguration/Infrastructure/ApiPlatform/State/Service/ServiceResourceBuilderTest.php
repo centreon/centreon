@@ -81,6 +81,7 @@ use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -167,7 +168,10 @@ final class ServiceResourceBuilderTest extends TestCase
         self::assertSame([self::HOST_ID, 'central'], [$resource->host->id, $resource->host->name]);
         self::assertSame([20, 'generic-service'], [$resource->template?->id, $resource->template?->name]);
 
-        self::assertSame([30, 'check-ping'], [$resource->checkOptions->command?->id, $resource->checkOptions->command?->name]);
+        self::assertSame(
+            [30, 'check-ping', false],
+            [$resource->checkOptions->command?->id, $resource->checkOptions->command?->name, $resource->checkOptions->command?->isCentreonMonitoringAgent],
+        );
         self::assertSame(['80', '90'], $resource->checkOptions->args);
 
         $engine = $resource->monitoringEngine;
@@ -214,6 +218,36 @@ final class ServiceResourceBuilderTest extends TestCase
             static fn (object $trap): array => [$trap->id, $trap->name, $trap->vendor],
             $resource->traps,
         ));
+    }
+
+    #[DataProvider('checkCommands')]
+    public function testItTellsWhetherTheCheckCommandIsACentreonMonitoringAgentOne(
+        string $name,
+        bool $isFromMonitoringConnector,
+        bool $expected,
+    ): void {
+        $this->commands->commands[30] = $this->command(30, $name, '$USER1$/check', $isFromMonitoringConnector);
+
+        $resource = $this->builder()->build(
+            $this->service(checkOptions: new ServiceCheckOptions(new CommandId(30))),
+            TestActingUsers::unrestricted(),
+        );
+
+        self::assertSame($expected, $resource->checkOptions->command?->isCentreonMonitoringAgent);
+    }
+
+    /**
+     * @return iterable<string, array{string, bool, bool}>
+     */
+    public static function checkCommands(): iterable
+    {
+        yield 'a connector command named after the agent' => ['OS-Linux-Centreon-Monitoring-Agent-Probe', true, true];
+
+        yield 'a connector command with the CMA marker' => ['OS-Windows-CMA-Cpu', true, true];
+
+        yield 'a connector command of another kind' => ['OS-Linux-SNMP-Cpu', true, false];
+
+        yield 'a user command with the CMA marker' => ['my-CMA-check', false, false];
     }
 
     public function testAServiceWithoutOwnValuesLeavesThemUnset(): void
@@ -572,7 +606,7 @@ final class ServiceResourceBuilderTest extends TestCase
         );
     }
 
-    private function command(int $id, string $name, string $line): Command
+    private function command(int $id, string $name, string $line, bool $isFromMonitoringConnector = false): Command
     {
         return new Command(
             new CommandId($id),
@@ -581,7 +615,7 @@ final class ServiceResourceBuilderTest extends TestCase
             new CommandLine($line),
             isShellEnabled: false,
             isActivated: true,
-            isFromMonitoringConnector: false,
+            isFromMonitoringConnector: $isFromMonitoringConnector,
             connector: null,
             comment: null,
         );

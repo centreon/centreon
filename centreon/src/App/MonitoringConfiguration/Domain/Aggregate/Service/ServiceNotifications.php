@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Domain\Aggregate\Service;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
+use App\Security\Domain\Aggregate\AccessScope;
 use App\Shared\Domain\Aggregate\AggregateRootId;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
@@ -118,6 +119,81 @@ final readonly class ServiceNotifications
     }
 
     /**
+     * Additive inheritance off, for a platform whose inheritance_mode disables it.
+     */
+    public function withoutAdditiveInheritance(): self
+    {
+        return new self(
+            enabled: $this->enabled,
+            contactIds: $this->contactIds,
+            contactGroupIds: $this->contactGroupIds,
+            options: $this->options,
+            interval: $this->interval,
+            periodId: $this->periodId,
+            firstDelay: $this->firstDelay,
+            recoveryDelay: $this->recoveryDelay,
+            contactAdditiveInheritance: false,
+            contactGroupAdditiveInheritance: false,
+            useOnlyContactsFromHost: $this->useOnlyContactsFromHost,
+        );
+    }
+
+    /**
+     * Clears the contacts and contact groups the scopes allow, and forces additive inheritance off; the hidden ones
+     * stay linked.
+     *
+     * @param AccessScope<NotificationContactId> $contactScope
+     * @param AccessScope<ContactGroupId> $contactGroupScope
+     */
+    public function withHostContactsOnly(AccessScope $contactScope, AccessScope $contactGroupScope): self
+    {
+        return new self(
+            enabled: $this->enabled,
+            contactIds: new Collection(
+                array_values(array_filter(
+                    $this->contactIds->toArray(),
+                    static fn (NotificationContactId $id): bool => ! $contactScope->allows($id),
+                )),
+                NotificationContactId::class,
+            ),
+            contactGroupIds: new Collection(
+                array_values(array_filter(
+                    $this->contactGroupIds->toArray(),
+                    static fn (ContactGroupId $id): bool => ! $contactGroupScope->allows($id),
+                )),
+                ContactGroupId::class,
+            ),
+            options: $this->options,
+            interval: $this->interval,
+            periodId: $this->periodId,
+            firstDelay: $this->firstDelay,
+            recoveryDelay: $this->recoveryDelay,
+            contactAdditiveInheritance: false,
+            contactGroupAdditiveInheritance: false,
+            useOnlyContactsFromHost: true,
+        );
+    }
+
+    /**
+     * The contacts and the contact groups are compared as sets: they are relations of the service, whose order
+     * means nothing.
+     */
+    public function equals(self $other): bool
+    {
+        return $this->enabled === $other->enabled
+            && $this->options === $other->options
+            && $this->interval === $other->interval
+            && $this->periodId?->value === $other->periodId?->value
+            && $this->firstDelay === $other->firstDelay
+            && $this->recoveryDelay === $other->recoveryDelay
+            && $this->contactAdditiveInheritance === $other->contactAdditiveInheritance
+            && $this->contactGroupAdditiveInheritance === $other->contactGroupAdditiveInheritance
+            && $this->useOnlyContactsFromHost === $other->useOnlyContactsFromHost
+            && $this->sortedIdValues($this->contactIds) === $this->sortedIdValues($other->contactIds)
+            && $this->sortedIdValues($this->contactGroupIds) === $this->sortedIdValues($other->contactGroupIds);
+    }
+
+    /**
      * @template T of AggregateRootId
      *
      * @param Collection<T> $ids
@@ -133,5 +209,20 @@ final readonly class ServiceNotifications
         }
 
         return new Collection(array_values($uniqueIds), $className);
+    }
+
+    /**
+     * @template T of AggregateRootId
+     *
+     * @param Collection<T> $ids
+     *
+     * @return list<int>
+     */
+    private function sortedIdValues(Collection $ids): array
+    {
+        $values = array_values(array_map(static fn (AggregateRootId $id): int => $id->value, $ids->toArray()));
+        sort($values);
+
+        return $values;
     }
 }

@@ -1,11 +1,14 @@
 # ADR-NNNN: [Decision stated as an imperative]
 
-- **Status:** Proposed | Accepted | Superseded by ADR-NNNN
+- **Status:** Accepted | Replaces ADR-NNNN | Replaced by ADR-NNNN
 - **Date:** YYYY-MM-DD
+- **Scope:** APIP | Core | Legacy
 
 ## Context
 
 [The problem, the current practice and why it is not settled. Then the alternatives weighed and why each lost.]
+
+Settled in [#NNNN](https://github.com/centreon/centreon/pull/NNNN).
 
 ## Decision
 

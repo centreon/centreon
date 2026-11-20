@@ -872,7 +872,7 @@ function set_required_prerequisite() {
 		set_centreon_repos
 		IFS=', ' read -r -a array_apt <<<"$CENTREON_REPO"
 		for _repo in "${array_apt[@]}"; do
-		    if (( $(version_int) < $(version_int 25.10) )); then
+		    if [[ $(version_int) < $(version_int 25.10) && $_repo == "$version-stable" ]]; then
 			    echo "deb https://packages.centreon.com/$repo_prefix-standard-$_repo/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/centreon-$_repo.list
 			else
 				echo "deb https://packages.centreon.com/$apt_standard_repo/ $(lsb_release -sc)-$_repo main" | tee /etc/apt/sources.list.d/centreon-$_repo.list
@@ -1762,7 +1762,8 @@ function install_central() {
 		if (( $(version_int) >= $(version_int 24.10) && $(version_int) <= $(version_int 24.12) )); then
 			$PKG_MGR install -y $CENTREON_DBMS_PKG centreon || _install_rc=$?
 		else
-			$PKG_MGR install -y --no-install-recommends $CENTREON_DBMS_PKG centreon || _install_rc=$?
+			# logrotate is only recommended (removable on its own), so ask for it by name
+			$PKG_MGR install -y --no-install-recommends $CENTREON_DBMS_PKG centreon logrotate || _install_rc=$?
 		fi
 
 		if [ "$_install_rc" -ne 0 ]; then
@@ -1841,7 +1842,8 @@ function install_poller() {
 		if (( $(version_int) >= $(version_int 24.10) && $(version_int) <= $(version_int 24.12) )); then
 			$PKG_MGR install -y $CENTREON_DBMS_PKG centreon-poller || _install_rc=$?
 		else
-			$PKG_MGR install -y --no-install-recommends $CENTREON_DBMS_PKG centreon-poller || _install_rc=$?
+			# logrotate is only recommended (removable on its own), so ask for it by name
+			$PKG_MGR install -y --no-install-recommends $CENTREON_DBMS_PKG centreon-poller logrotate || _install_rc=$?
 		fi
 
 		if [ "$_install_rc" -ne 0 ]; then
@@ -2253,6 +2255,9 @@ install)
 	fi
 
 	if [ "$topology" == "central" ] && [ "$wizard_autoplay" == "true" ]; then
+		# Services started during the package install never read the conf.pm and gorgone
+		# files the wizard wrote; restart the centreon target (cbd, centengine, gorgoned, centreontrapd).
+		restart_centreon_process
 		if [[ "$tls" == "enabled" ]]; then
 			log "INFO" "Log in to Centreon web interface via the URL: https://$central_ip/centreon"
 		else

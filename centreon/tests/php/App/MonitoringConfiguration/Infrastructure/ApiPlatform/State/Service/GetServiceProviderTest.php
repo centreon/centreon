@@ -174,7 +174,7 @@ final class GetServiceProviderTest extends ApiTestCase
                 'host' => $named($hostId, $this->tag . '-central'),
                 'template' => $named($templateId, 'generic'),
                 'check_options' => [
-                    'command' => $named($checkCommandId, $this->tag . '-check'),
+                    'command' => [...$named($checkCommandId, $this->tag . '-check'), 'is_centreon_monitoring_agent' => false],
                     'args' => ['80'],
                     'macros' => [
                         ['id' => $plainMacroId, 'name' => 'PLAIN', 'value' => 'value', 'is_password' => false],

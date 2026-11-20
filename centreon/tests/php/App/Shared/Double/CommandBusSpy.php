@@ -39,6 +39,9 @@ final class CommandBusSpy implements CommandBus
 
     public mixed $result = null;
 
+    /** @var (\Closure(object): bool)|null fails only the commands it accepts */
+    public ?\Closure $failsFor = null;
+
     public function execute(object $command): mixed
     {
         $this->executed[] = $command;
@@ -47,7 +50,7 @@ final class CommandBusSpy implements CommandBus
             throw $this->exception;
         }
 
-        if ($this->throws) {
+        if ($this->throws || ($this->failsFor instanceof \Closure && ($this->failsFor)($command))) {
             throw new \RuntimeException('The command failed.');
         }
 

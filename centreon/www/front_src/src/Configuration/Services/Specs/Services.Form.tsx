@@ -1,18 +1,25 @@
+import { type MockInstance, rs } from '@rstest/core';
 import { interceptRequest, Method, waitForRequest } from '@test-setup/api';
 import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { HttpResponse } from 'msw';
 
 import { panelDataTestIds } from '../../ConfigurationBase/Panel/dataTestIds';
+import { labelResourceUpdated } from '../../ConfigurationBase/translatedLabels';
 import { labelRequired } from '../../ResourceForm/translatedLabels';
 import { labelNameContainsForbiddenCharacters } from '../translatedLabels';
 import initialize from './initialize';
+import {
+  openedNotificationsPayload,
+  untouchedNotificationsPayload
+} from './utils';
 
 interface RequestBody {
   activated?: boolean;
   check_options?: unknown;
   host_id?: number | null;
   name?: string;
+  notifications?: unknown;
 }
 
 const initializeListing = async (
@@ -82,6 +89,16 @@ const getFieldError = (element: HTMLElement, message: string) =>
   within(element.closest('.MuiFormControl-root') as HTMLElement).findByText(
     message
   );
+
+const getPatchContentType = (
+  fetchSpy: MockInstance<typeof fetch>
+): string | null => {
+  const [, init] =
+    fetchSpy.mock.calls.find(([, options]) => options?.method === 'PATCH') ??
+    [];
+
+  return new Headers(init?.headers).get('Content-Type');
+};
 
 const getRequestBody = async (alias: string): Promise<RequestBody> => {
   const { request } = await waitForRequest(alias);
@@ -180,15 +197,21 @@ export default () => {
 
       await save();
 
-      // The other sections send their own keys, which their specs check.
-      expect(await getRequestBody('@createService')).toMatchObject({
+      // The other sections' keys are their own specs'; the notifications
+      // here, as never touched.
+      const body = await getRequestBody('@createService');
+
+      expect(body).toMatchObject({
         check_options: { args: [], command_id: 8, macros: [] },
         host_id: 11,
         name: 'cpu load'
       });
+      expect(body.notifications).toEqual(untouchedNotificationsPayload);
     });
 
     it('updates a service with the whole form', async () => {
+      const fetchSpy = rs.spyOn(window, 'fetch');
+
       await openService();
 
       const name = await getInput('service-form-name');
@@ -199,10 +222,14 @@ export default () => {
 
       await save();
 
-      const { request } = await waitForRequest('@updateService0');
+      const { request } = await waitForRequest('@patchService0');
 
-      expect(request.method).toBe('PUT');
-      // The whole service is replaced, its activation included.
+      expect(request.method).toBe('PATCH');
+      expect(getPatchContentType(fetchSpy)).toBe(
+        'application/merge-patch+json'
+      );
+      // The other sections' keys are their own specs'; the notifications here,
+      // as opened.
       expect(request.body).toMatchObject({
         activated: true,
         check_options: {
@@ -228,6 +255,15 @@ export default () => {
         host_id: 10,
         name: 'cpu load'
       });
+      expect((request.body as RequestBody).notifications).toEqual(
+        openedNotificationsPayload
+      );
+      expect(
+        await screen.findByText(labelResourceUpdated('Service'))
+      ).toBeInTheDocument();
+      await waitFor(() => expect(getSaveButton()).not.toBeInTheDocument());
+
+      fetchSpy.mockRestore();
     });
 
     it('keeps the activation the panel switch set when the service is saved', async () => {
@@ -251,7 +287,7 @@ export default () => {
 
       await save();
 
-      expect(await getRequestBody('@updateService0')).toMatchObject({
+      expect(await getRequestBody('@patchService0')).toMatchObject({
         activated: false,
         host_id: 10,
         name: 'cpu load'
@@ -325,6 +361,150 @@ export default () => {
       expect(
         await getFieldError(name, labelNameContainsForbiddenCharacters)
       ).toBeVisible();
+    });
+  });
+
+  // Every key of the body, so that a key a block should not send, or sends
+  // misnamed, fails here.
+  describe('Whole payload: ', () => {
+    it('creates a service from its required fields only, every other key on its default', async () => {
+      await initializeListing();
+      await openCreationForm();
+
+      await userEvent.type(await getInput('service-form-name'), 'cpu load');
+      await pickOption('service-form-host', 'host B');
+      // Brings the check command a service needs.
+      await pickOption('service-form-template', 'generic-active-service');
+
+      await save();
+
+      const { request } = await waitForRequest('@createService');
+
+      expect(request.method).toBe('POST');
+      expect(request.body).toEqual({
+        advanced: {
+          acknowledgment_timeout: null,
+          check_freshness: 'use_default',
+          comment: null,
+          event_handler_args: [],
+          event_handler_command_id: null,
+          event_handler_enabled: 'use_default',
+          flap_detection_enabled: 'use_default',
+          freshness_threshold: null,
+          high_flap_threshold: null,
+          low_flap_threshold: null,
+          obsess_over_service: 'use_default',
+          retain_non_status_information: 'use_default',
+          retain_status_information: 'use_default',
+          stalking_options: []
+        },
+        category_ids: [],
+        check_options: { args: [], command_id: null, macros: [] },
+        graph_template_id: null,
+        host_id: 11,
+        monitoring_engine: {
+          action_url: null,
+          active_check_enabled: 'use_default',
+          alt_icon: null,
+          check_timeperiod_id: null,
+          geo_coordinates: null,
+          icon_id: null,
+          is_volatile: 'use_default',
+          max_check_attempts: null,
+          normal_check_interval: null,
+          note: null,
+          note_url: null,
+          passive_check_enabled: 'use_default',
+          retry_check_interval: null
+        },
+        name: 'cpu load',
+        notifications: untouchedNotificationsPayload,
+        service_group_ids: [],
+        service_template_id: 30,
+        severity_id: null,
+        trap_ids: []
+      });
+    });
+
+    // The save button waits for a change: the name is the only one.
+    it('updates a service with every key as it opened, the renamed name aside', async () => {
+      await openService();
+
+      const name = await getInput('service-form-name');
+
+      await waitFor(() => expect(name).toHaveValue('cpu'));
+      await userEvent.clear(name);
+      await userEvent.type(name, 'cpu load');
+
+      await save();
+
+      const { request } = await waitForRequest('@patchService0');
+
+      expect(request.method).toBe('PATCH');
+      expect(request.body).toEqual({
+        activated: true,
+        advanced: {
+          acknowledgment_timeout: 15,
+          check_freshness: 'true',
+          comment: 'Checked by the web team',
+          event_handler_args: ['80', 'graceful'],
+          event_handler_command_id: 7,
+          event_handler_enabled: 'false',
+          flap_detection_enabled: 'true',
+          freshness_threshold: 120,
+          high_flap_threshold: 50,
+          low_flap_threshold: null,
+          obsess_over_service: 'false',
+          retain_non_status_information: 'use_default',
+          retain_status_information: 'true',
+          stalking_options: ['warning', 'critical']
+        },
+        category_ids: [3],
+        // The macro inherited from the template is not the service's own.
+        check_options: {
+          args: ['80', '90'],
+          command_id: 9,
+          macros: [
+            {
+              id: 1,
+              is_password: false,
+              name: 'WARNING',
+              parent: null,
+              value: '80'
+            },
+            {
+              id: 2,
+              is_password: true,
+              name: 'API_TOKEN',
+              parent: null,
+              value: null
+            }
+          ]
+        },
+        graph_template_id: 7,
+        host_id: 10,
+        monitoring_engine: {
+          action_url: 'https://example.com/actions/cpu',
+          active_check_enabled: 'false',
+          alt_icon: null,
+          check_timeperiod_id: 21,
+          geo_coordinates: '48.8566,2.3522',
+          icon_id: 12,
+          is_volatile: 'true',
+          max_check_attempts: 3,
+          normal_check_interval: 5,
+          note: 'CPU load',
+          note_url: null,
+          passive_check_enabled: 'use_default',
+          retry_check_interval: null
+        },
+        name: 'cpu load',
+        notifications: openedNotificationsPayload,
+        service_group_ids: [1],
+        service_template_id: 30,
+        severity_id: 1,
+        trap_ids: [21]
+      });
     });
   });
 };

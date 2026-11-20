@@ -27,6 +27,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\GraphTemplate\GraphTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostState;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
@@ -49,6 +50,8 @@ use App\Shared\Domain\Aggregate\AclScopedInterface;
 use App\Shared\Domain\Aggregate\PollerScopedInterface;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
+use App\Shared\Domain\Exception\MissingIdException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Tests\App\Shared\Double\FakeVault;
 
@@ -203,6 +206,323 @@ final class ServiceTest extends TestCase
         $service = $this->service(macros: [$macro]);
 
         self::assertNull($service->getVaultUuid($vault));
+    }
+
+    public function testItIsChangedThroughItsBusinessMethods(): void
+    {
+        $service = $this->persistedService();
+
+        $service->rename(new ServiceName('other-check'));
+        $service->moveToHost(new HostId(5), new HostState(false, new PollerId(9)));
+        $service->changeTemplate(null);
+        $service->changeGraphTemplate(new GraphTemplateId(8));
+        $service->changeRelations(null, new Collection([], ServiceGroupId::class), new Collection([], ServiceCategoryId::class), new Collection([new TrapId(13)], TrapId::class));
+
+        self::assertSame(
+            ['other-check', 5, false, 9, null, 8, null, [], [], [13], 42],
+            [
+                $service->name->value,
+                $service->hostId->value,
+                $service->hostActivated,
+                $service->hostPollerId?->value,
+                $service->templateId,
+                $service->graphTemplateId?->value,
+                $service->severityId,
+                $service->serviceGroupIds->toArray(),
+                $service->categoryIds->toArray(),
+                array_map(static fn (TrapId $id): int => $id->value, $service->trapIds->toArray()),
+                $service->id()->value,
+            ],
+        );
+    }
+
+    public function testEachSectionIsReplacedAsAWhole(): void
+    {
+        $service = $this->persistedService();
+        $checkOptions = new ServiceCheckOptions(null, ['443']);
+        $schedulingOptions = new ServiceSchedulingOptions(maxCheckAttempts: 2);
+        $dataProcessing = new ServiceDataProcessing(acknowledgmentTimeout: 5);
+        $extendedInformations = new ServiceExtendedInformations(note: 'a note');
+
+        $service->changeCheckOptions($checkOptions);
+        $service->changeSchedulingOptions($schedulingOptions);
+        $service->changeNotifications(null);
+        $service->changeDataProcessing($dataProcessing);
+        $service->changeExtendedInformations($extendedInformations);
+
+        self::assertSame(
+            [$checkOptions, $schedulingOptions, null, $dataProcessing, $extendedInformations],
+            [$service->checkOptions, $service->schedulingOptions, $service->notifications, $service->dataProcessing, $service->extendedInformations],
+        );
+    }
+
+    public function testDuplicateCarriesEveryFieldToTheNewHost(): void
+    {
+        $source = $this->persistedService();
+        $source->disable();
+
+        $checkOptions = new ServiceCheckOptions(new CommandId(2), ['80'], [$this->passwordMacro('TOKEN', 'new-ref')]);
+
+        $copy = $source->duplicate(new HostId(9), $checkOptions);
+
+        // Supplied by the caller: the host of the copy and the re-minted secrets.
+        self::assertSame(9, $copy->hostId->value);
+        self::assertSame($checkOptions, $copy->checkOptions);
+
+        // Carried over verbatim: the host copy has the source host's activation and poller.
+        self::assertSame([true, 3, false], [$copy->hostActivated, $copy->hostPollerId?->value, $copy->activated]);
+        self::assertSame($source->name, $copy->name);
+        self::assertSame($source->templateId, $copy->templateId);
+        self::assertSame($source->schedulingOptions, $copy->schedulingOptions);
+        self::assertSame($source->notifications, $copy->notifications);
+        self::assertSame($source->dataProcessing, $copy->dataProcessing);
+        self::assertSame($source->extendedInformations, $copy->extendedInformations);
+        self::assertSame($source->graphTemplateId, $copy->graphTemplateId);
+        self::assertSame($source->severityId, $copy->severityId);
+        self::assertSame($source->serviceGroupIds, $copy->serviceGroupIds);
+        self::assertSame($source->categoryIds, $copy->categoryIds);
+        self::assertSame($source->trapIds, $copy->trapIds);
+    }
+
+    public function testADuplicateHasNoIdUntilItIsPersisted(): void
+    {
+        $copy = $this->persistedService()->duplicate(new HostId(9), new ServiceCheckOptions(null));
+
+        $this->expectException(MissingIdException::class);
+        $copy->id();
+    }
+
+    public function testSameConfigurationIgnoresTheActivationAndTheStateOfTheHost(): void
+    {
+        $original = $this->persistedService();
+
+        self::assertTrue($original->hasSameConfigurationAs(
+            $this->changed($original, static function (Service $service): void {
+                $service->disable();
+                $service->moveToHost($service->hostId, new HostState(false, new PollerId(9)));
+            }),
+        ));
+    }
+
+    #[DataProvider('configurationChangeProvider')]
+    public function testSameConfigurationDetectsAChangeOfEachField(string $field): void
+    {
+        $original = $this->persistedService();
+
+        $changed = match ($field) {
+            'name' => $this->changed($original, static fn (Service $service) => $service->rename(new ServiceName('other-check'))),
+            'host' => $this->changed($original, static fn (Service $service) => $service->moveToHost(new HostId(5), new HostState(true, new PollerId(3)))),
+            'template' => $this->changed($original, static fn (Service $service) => $service->changeTemplate(new ServiceTemplateId(8))),
+            'no template' => $this->changed($original, static fn (Service $service) => $service->changeTemplate(null)),
+            'check options' => $this->changed($original, static fn (Service $service) => $service->changeCheckOptions(new ServiceCheckOptions(new CommandId(2), ['443']))),
+            'scheduling options' => $this->changed($original, static fn (Service $service) => $service->changeSchedulingOptions(new ServiceSchedulingOptions(normalCheckInterval: 6, retryCheckInterval: 1))),
+            'notifications' => $this->changed($original, fn (Service $service) => $service->changeNotifications($this->notifications(interval: 5))),
+            'no notifications' => $this->changed($original, static fn (Service $service) => $service->changeNotifications(null)),
+            'contacts' => $this->changed($original, fn (Service $service) => $service->changeNotifications($this->notifications(contactIds: [21, 22]))),
+            'data processing' => $this->changed($original, static fn (Service $service) => $service->changeDataProcessing(new ServiceDataProcessing(obsessOverService: TriStateEnum::True))),
+            'extended information' => $this->changed($original, static fn (Service $service) => $service->changeExtendedInformations(new ServiceExtendedInformations(iconId: new MediaId(9)))),
+            'no extended information' => $this->changed($original, static fn (Service $service) => $service->changeExtendedInformations(null)),
+            'graph template' => $this->changed($original, static fn (Service $service) => $service->changeGraphTemplate(new GraphTemplateId(5))),
+            default => self::fail("Unknown field {$field}"),
+        };
+
+        self::assertFalse($original->hasSameConfigurationAs($changed));
+        self::assertFalse($changed->hasSameConfigurationAs($original));
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function configurationChangeProvider(): iterable
+    {
+        foreach (['name', 'host', 'template', 'no template', 'check options', 'scheduling options', 'notifications', 'no notifications', 'contacts', 'data processing', 'extended information', 'no extended information', 'graph template'] as $field) {
+            yield $field => [$field];
+        }
+    }
+
+    public function testSameConfigurationTreatsEqualSubObjectsAsTheSame(): void
+    {
+        $original = $this->persistedService();
+
+        $copy = $this->changed($original, function (Service $service): void {
+            $service->changeCheckOptions(new ServiceCheckOptions(new CommandId(2), ['80']));
+            $service->changeSchedulingOptions(new ServiceSchedulingOptions(normalCheckInterval: 5, retryCheckInterval: 1));
+            $service->changeNotifications($this->notifications());
+            $service->changeDataProcessing(new ServiceDataProcessing(obsessOverService: TriStateEnum::False));
+            $service->changeExtendedInformations(new ServiceExtendedInformations(iconId: new MediaId(8)));
+        });
+        $withoutNotifications = static fn (Service $service) => $service->changeNotifications(null);
+
+        self::assertTrue($original->hasSameConfigurationAs($copy));
+        self::assertTrue($this->changed($original, $withoutNotifications)->hasSameConfigurationAs($this->changed($original, $withoutNotifications)));
+    }
+
+    #[DataProvider('relationProvider')]
+    public function testSameConfigurationIgnoresTheRelations(string $relation): void
+    {
+        $original = $this->persistedService();
+
+        self::assertTrue($original->hasSameConfigurationAs($this->withOtherRelation($original, $relation)));
+    }
+
+    #[DataProvider('relationProvider')]
+    public function testSameRelationsDetectsARelationChange(string $relation): void
+    {
+        $original = $this->persistedService();
+
+        self::assertFalse($original->hasSameRelationsAs($this->withOtherRelation($original, $relation)));
+        self::assertFalse($this->withOtherRelation($original, $relation)->hasSameRelationsAs($original));
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function relationProvider(): iterable
+    {
+        foreach (['service groups', 'categories', 'severity', 'no severity', 'traps'] as $relation) {
+            yield $relation => [$relation];
+        }
+    }
+
+    public function testSameRelationsComparesTheSets(): void
+    {
+        $groups = static fn (int ...$ids): \Closure => static fn (Service $service) => $service->changeRelations(
+            $service->severityId,
+            new Collection(array_map(static fn (int $id): ServiceGroupId => new ServiceGroupId($id), $ids), ServiceGroupId::class),
+            $service->categoryIds,
+            $service->trapIds,
+        );
+        $service = $this->changed($this->persistedService(), $groups(1, 2));
+
+        self::assertTrue($service->hasSameRelationsAs($this->changed($service, $groups(2, 1, 2))));
+    }
+
+    public function testASaveDroppingEverySecretReleasesTheVaultEntry(): void
+    {
+        $vault = $this->vaultKnowing('uuid-1');
+        $before = $this->service(id: 42, macros: [$this->passwordMacro('TOKEN', $this->ref('uuid-1', 'TOKEN'))]);
+
+        self::assertTrue($this->service(id: 42)->releasesVaultEntryOf($before, $vault));
+    }
+
+    public function testAnyRemainingReferenceToTheEntryKeepsIt(): void
+    {
+        $vault = $this->vaultKnowing('uuid-1');
+        $before = $this->service(id: 42, macros: [
+            $this->passwordMacro('TOKEN', $this->ref('uuid-1', 'TOKEN')),
+            $this->passwordMacro('OTHER', $this->ref('uuid-1', 'OTHER')),
+        ]);
+
+        // The first macro is gone, but the second still points to the entry.
+        $after = $this->service(id: 42, macros: [$this->passwordMacro('OTHER', $this->ref('uuid-1', 'OTHER'))]);
+
+        self::assertFalse($after->releasesVaultEntryOf($before, $vault));
+    }
+
+    public function testAReferenceToAnotherEntryDoesNotKeepTheOldOne(): void
+    {
+        $vault = $this->vaultKnowing('uuid-1', 'uuid-2');
+        $before = $this->service(id: 42, macros: [$this->passwordMacro('TOKEN', $this->ref('uuid-1', 'TOKEN'))]);
+        $after = $this->service(id: 42, macros: [$this->passwordMacro('OTHER', $this->ref('uuid-2', 'OTHER'))]);
+
+        self::assertTrue($after->releasesVaultEntryOf($before, $vault));
+    }
+
+    public function testAServiceThatHadNoEntryReleasesNothing(): void
+    {
+        $vault = $this->vaultKnowing('uuid-1');
+
+        self::assertFalse($this->service(id: 42)->releasesVaultEntryOf($this->service(id: 42), $vault));
+    }
+
+    public function testANonPasswordMacroLookingLikeAReferenceDoesNotKeepTheEntry(): void
+    {
+        $vault = $this->vaultKnowing('uuid-1');
+        $before = $this->service(id: 42, macros: [$this->passwordMacro('TOKEN', $this->ref('uuid-1', 'TOKEN'))]);
+        $after = $this->service(id: 42, macros: [new ServiceMacro(new ServiceMacroName('TOKEN'), $this->ref('uuid-1', 'TOKEN'), isPassword: false)]);
+
+        self::assertTrue($after->releasesVaultEntryOf($before, $vault));
+    }
+
+    /**
+     * @param \Closure(Service): void $change
+     */
+    private function changed(Service $service, \Closure $change): Service
+    {
+        $copy = clone $service;
+        $change($copy);
+
+        return $copy;
+    }
+
+    private function withOtherRelation(Service $service, string $relation): Service
+    {
+        return match ($relation) {
+            'service groups' => $this->changed($service, static fn (Service $copy) => $copy->changeRelations($copy->severityId, new Collection([new ServiceGroupId(10), new ServiceGroupId(14)], ServiceGroupId::class), $copy->categoryIds, $copy->trapIds)),
+            'categories' => $this->changed($service, static fn (Service $copy) => $copy->changeRelations($copy->severityId, $copy->serviceGroupIds, new Collection([], ServiceCategoryId::class), $copy->trapIds)),
+            'severity' => $this->changed($service, static fn (Service $copy) => $copy->changeRelations(new ServiceSeverityId(15), $copy->serviceGroupIds, $copy->categoryIds, $copy->trapIds)),
+            'no severity' => $this->changed($service, static fn (Service $copy) => $copy->changeRelations(null, $copy->serviceGroupIds, $copy->categoryIds, $copy->trapIds)),
+            'traps' => $this->changed($service, static fn (Service $copy) => $copy->changeRelations($copy->severityId, $copy->serviceGroupIds, $copy->categoryIds, new Collection([new TrapId(16)], TrapId::class))),
+            default => self::fail("Unknown relation {$relation}"),
+        };
+    }
+
+    private function persistedService(): Service
+    {
+        return new Service(
+            id: new ServiceId(42),
+            name: new ServiceName('web-check'),
+            hostId: new HostId(1),
+            hostActivated: true,
+            hostPollerId: new PollerId(3),
+            activated: true,
+            templateId: new ServiceTemplateId(7),
+            checkOptions: new ServiceCheckOptions(new CommandId(2), ['80']),
+            schedulingOptions: new ServiceSchedulingOptions(normalCheckInterval: 5, retryCheckInterval: 1),
+            notifications: $this->notifications(),
+            dataProcessing: new ServiceDataProcessing(obsessOverService: TriStateEnum::False),
+            extendedInformations: new ServiceExtendedInformations(iconId: new MediaId(8)),
+            graphTemplateId: new GraphTemplateId(4),
+            severityId: new ServiceSeverityId(6),
+            serviceGroupIds: new Collection([new ServiceGroupId(10)], ServiceGroupId::class),
+            categoryIds: new Collection([new ServiceCategoryId(11)], ServiceCategoryId::class),
+            trapIds: new Collection([new TrapId(12)], TrapId::class),
+        );
+    }
+
+    /**
+     * @param list<int> $contactIds
+     */
+    private function notifications(?int $interval = null, array $contactIds = [21]): ServiceNotifications
+    {
+        return new ServiceNotifications(
+            TriStateEnum::True,
+            new Collection(array_map(static fn (int $id): NotificationContactId => new NotificationContactId($id), $contactIds), NotificationContactId::class),
+            new Collection([new ContactGroupId(31)], ContactGroupId::class),
+            interval: $interval,
+        );
+    }
+
+    private function ref(string $uuid, string $name): string
+    {
+        return "secret::vault::monitoring/services/{$uuid}::_SERVICE{$name}";
+    }
+
+    private function vaultKnowing(string ...$uuids): FakeVault
+    {
+        $vault = new FakeVault();
+        foreach ($uuids as $uuid) {
+            foreach (['TOKEN', 'OTHER'] as $name) {
+                $vault->extractedUuids[$this->ref($uuid, $name)] = $uuid;
+            }
+        }
+
+        return $vault;
+    }
+
+    private function passwordMacro(string $name, string $value): ServiceMacro
+    {
+        return new ServiceMacro(new ServiceMacroName($name), $value, isPassword: true);
     }
 
     /**

@@ -2,6 +2,7 @@ import { SnackbarProvider } from '@centreon/ui';
 import {
   defaultLimitPerPageAtom,
   intervalLengthAtom,
+  isAdditiveInheritanceEnabledAtom,
   type PlatformFeatures,
   platformFeaturesAtom,
   type UserPermissions,
@@ -22,10 +23,15 @@ import Services from '..';
 import {
   getDuplicateServiceEndpoint,
   getServiceEndpoint,
-  getServiceTemplateMacrosEndpoint,
   serviceFormCommandsEndpoint,
+  serviceFormContactGroupsEndpoint,
+  serviceFormContactsEndpoint,
+  serviceFormGraphTemplatesEndpoint,
   serviceFormHostsEndpoint,
+  serviceFormMediasEndpoint,
+  serviceFormServiceCategoriesEndpoint,
   serviceFormServiceGroupsEndpoint,
+  serviceFormServiceSeveritiesEndpoint,
   serviceFormTimePeriodsEndpoint,
   serviceFormTrapsEndpoint,
   servicesListEndpoint,
@@ -33,22 +39,37 @@ import {
 } from '../api/endpoints';
 import {
   emptyListingResponse,
+  getContactGroupsResponse,
+  getContactsResponse,
+  getGraphTemplatesResponse,
   getListingResponse,
+  getServiceCategoriesResponse,
   getServiceFormCommandsResponse,
   getServiceFormHostsResponse,
   getServiceFormTimePeriodsResponse,
   getServiceGroupsResponse,
+  getServiceMediasResponse,
   getServiceResponse,
+  getServiceSeveritiesResponse,
   getServiceTemplateMacrosResponse,
   getServiceTemplatesResponse,
   getTrapsResponse
 } from './utils';
 
+// The services a partial update can reach, each under `patchService<id>`.
+export const patchableServiceIds = [0, 1, 2, 5];
+
 interface Props {
   isEmpty?: boolean;
   hasWriteAccess?: boolean;
   intervalLength?: number;
+  // The platform's vertical inheritance mode, which reads the additive
+  // inheritance of the notification recipients.
+  isAdditiveInheritanceEnabled?: boolean;
   isCloudPlatform?: boolean;
+  listingResponse?: object;
+  // The services whose partial update the API refuses.
+  patchFails?: Array<number>;
   // Opens the page on a deep link, such as `?mode=edit&id=0`.
   searchParams?: string;
 }
@@ -57,7 +78,10 @@ const initialize = ({
   isEmpty = false,
   hasWriteAccess = true,
   intervalLength = 60,
+  isAdditiveInheritanceEnabled = false,
   isCloudPlatform = false,
+  listingResponse = getListingResponse(),
+  patchFails = [],
   searchParams = ''
 }: Props = {}): RenderResult => {
   i18next.use(initReactI18next).init({
@@ -81,12 +105,13 @@ const initialize = ({
   store.set(intervalLengthAtom, intervalLength);
   store.set(defaultLimitPerPageAtom, 10);
   store.set(platformFeaturesAtom, { isCloudPlatform } as PlatformFeatures);
+  store.set(isAdditiveInheritanceEnabledAtom, isAdditiveInheritanceEnabled);
 
   interceptAPIRequest({
     alias: 'getAllServices',
     method: Method.GET,
     path: `**${servicesListEndpoint}?**`,
-    response: isEmpty ? emptyListingResponse : getListingResponse()
+    response: isEmpty ? emptyListingResponse : listingResponse
   });
 
   interceptAPIRequest({
@@ -113,6 +138,37 @@ const initialize = ({
     response: getServiceFormHostsResponse()
   });
 
+  // The extended info selectors.
+  [
+    {
+      alias: 'getFormGraphTemplates',
+      path: serviceFormGraphTemplatesEndpoint,
+      response: getGraphTemplatesResponse()
+    },
+    {
+      alias: 'getFormServiceCategories',
+      path: serviceFormServiceCategoriesEndpoint,
+      response: getServiceCategoriesResponse()
+    },
+    {
+      alias: 'getFormServiceSeverities',
+      path: serviceFormServiceSeveritiesEndpoint,
+      response: getServiceSeveritiesResponse()
+    },
+    {
+      alias: 'getFormMedias',
+      path: serviceFormMediasEndpoint,
+      response: getServiceMediasResponse()
+    }
+  ].forEach(({ alias, path, response }) => {
+    interceptAPIRequest({
+      alias,
+      method: Method.GET,
+      path: `**${path}?**`,
+      response
+    });
+  });
+
   interceptAPIRequest({
     alias: 'getServiceFormTimePeriods',
     method: Method.GET,
@@ -127,11 +183,11 @@ const initialize = ({
     response: getServiceFormCommandsResponse()
   });
 
-  // For when the template field (F03) can pick template 30.
+  // Literal, so the spec pins the route instead of echoing the builder.
   interceptAPIRequest({
     alias: 'getTemplateMacros30',
     method: Method.GET,
-    path: `**${getServiceTemplateMacrosEndpoint({ id: 30 })}`,
+    path: '**/configuration/services/service_templates/30/macros',
     response: getServiceTemplateMacrosResponse()
   });
 
@@ -156,27 +212,42 @@ const initialize = ({
     response: { id: 12, name: 'new service' }
   });
 
-  [0, 1].forEach((id) => {
-    interceptAPIRequest({
-      alias: `updateService${id}`,
-      method: Method.PUT,
-      path: `**${getServiceEndpoint({ id })}`,
-      response: {}
-    });
+  interceptAPIRequest({
+    alias: 'getFormContacts',
+    method: Method.GET,
+    path: `**${serviceFormContactsEndpoint}?**`,
+    response: getContactsResponse()
   });
 
-  // Enable and disable are a partial update of the service, one request each.
-  [0, 1, 2].forEach((id) => {
+  interceptAPIRequest({
+    alias: 'getFormContactGroups',
+    method: Method.GET,
+    path: `**${serviceFormContactGroupsEndpoint}?**`,
+    response: getContactGroupsResponse()
+  });
+
+  // Save, enable, disable and mass change are a partial update of the service,
+  // one request each.
+  patchableServiceIds.forEach((id) => {
+    const fails = patchFails.includes(id);
+
     interceptRequest(
       Method.PATCH,
       `**${getServiceEndpoint({ id })}`,
-      () => HttpResponse.json({}),
+      () =>
+        fails
+          ? HttpResponse.json(
+              { code: 422, message: 'Refused' },
+              { status: 422 }
+            )
+          : new HttpResponse(null, { status: 204 }),
       `patchService${id}`
     );
   });
 
-  // Every write names one service, so each row has its own intercept.
-  [0, 2].forEach((id) => {
+  // Every write names one service, so each row has its own intercept. 5 is
+  // the service of the shared listing.
+  [0, 2, 5].forEach((id) => {
     interceptAPIRequest({
       alias: `deleteService${id}`,
       method: Method.DELETE,
@@ -202,7 +273,7 @@ const initialize = ({
       <SnackbarProvider>
         <QueryClientProvider client={queryClient}>
           <Provider store={store}>
-            <div style={{ height: '100vh' }}>
+            <div className="h-screen">
               <Services />
             </div>
           </Provider>

@@ -25,6 +25,7 @@ namespace App\MonitoringConfiguration\Domain\Aggregate\Service;
 
 use App\MonitoringConfiguration\Domain\Aggregate\GraphTemplate\GraphTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostState;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceGroup\ServiceGroupId;
@@ -33,6 +34,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplate
 use App\MonitoringConfiguration\Domain\Aggregate\Trap\TrapId;
 use App\Shared\Domain\Aggregate\AclScopedInterface;
 use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\Shared\Domain\Aggregate\AggregateRootId;
 use App\Shared\Domain\Aggregate\PollerScopedInterface;
 use App\Shared\Domain\Aggregate\VaultScopedInterface;
 use App\Shared\Domain\Collection;
@@ -55,23 +57,22 @@ final class Service extends AggregateRoot implements AclScopedInterface, PollerS
      */
     public function __construct(
         ?ServiceId $id,
-        public readonly ServiceName $name,
-        public readonly HostId $hostId,
-        public readonly bool $hostActivated,
-        public readonly ?PollerId $hostPollerId,
-        // Mutable (the other fields are readonly) so enable()/disable() can toggle it.
+        public ServiceName $name,
+        public HostId $hostId,
+        public bool $hostActivated,
+        public ?PollerId $hostPollerId,
         public bool $activated = true,
-        public readonly ?ServiceTemplateId $templateId = null,
-        public readonly ServiceCheckOptions $checkOptions = new ServiceCheckOptions(null),
-        public readonly ServiceSchedulingOptions $schedulingOptions = new ServiceSchedulingOptions(),
-        public readonly ?ServiceNotifications $notifications = null,
-        public readonly ServiceDataProcessing $dataProcessing = new ServiceDataProcessing(),
-        public readonly ?ServiceExtendedInformations $extendedInformations = null,
-        public readonly ?GraphTemplateId $graphTemplateId = null,
-        public readonly ?ServiceSeverityId $severityId = null,
-        public readonly Collection $serviceGroupIds = new Collection([], ServiceGroupId::class),
-        public readonly Collection $categoryIds = new Collection([], ServiceCategoryId::class),
-        public readonly Collection $trapIds = new Collection([], TrapId::class),
+        public ?ServiceTemplateId $templateId = null,
+        public ServiceCheckOptions $checkOptions = new ServiceCheckOptions(null),
+        public ServiceSchedulingOptions $schedulingOptions = new ServiceSchedulingOptions(),
+        public ?ServiceNotifications $notifications = null,
+        public ServiceDataProcessing $dataProcessing = new ServiceDataProcessing(),
+        public ?ServiceExtendedInformations $extendedInformations = null,
+        public ?GraphTemplateId $graphTemplateId = null,
+        public ?ServiceSeverityId $severityId = null,
+        public Collection $serviceGroupIds = new Collection([], ServiceGroupId::class),
+        public Collection $categoryIds = new Collection([], ServiceCategoryId::class),
+        public Collection $trapIds = new Collection([], TrapId::class),
     ) {
         parent::__construct($id);
     }
@@ -112,5 +113,175 @@ final class Service extends AggregateRoot implements AclScopedInterface, PollerS
         }
 
         return null;
+    }
+
+    public function rename(ServiceName $name): void
+    {
+        $this->name = $name;
+    }
+
+    public function moveToHost(HostId $hostId, HostState $host): void
+    {
+        $this->hostId = $hostId;
+        $this->hostActivated = $host->activated;
+        $this->hostPollerId = $host->pollerId;
+    }
+
+    public function changeTemplate(?ServiceTemplateId $templateId): void
+    {
+        $this->templateId = $templateId;
+    }
+
+    public function changeCheckOptions(ServiceCheckOptions $checkOptions): void
+    {
+        $this->checkOptions = $checkOptions;
+    }
+
+    public function changeSchedulingOptions(ServiceSchedulingOptions $schedulingOptions): void
+    {
+        $this->schedulingOptions = $schedulingOptions;
+    }
+
+    public function changeNotifications(?ServiceNotifications $notifications): void
+    {
+        $this->notifications = $notifications;
+    }
+
+    public function changeDataProcessing(ServiceDataProcessing $dataProcessing): void
+    {
+        $this->dataProcessing = $dataProcessing;
+    }
+
+    public function changeExtendedInformations(?ServiceExtendedInformations $extendedInformations): void
+    {
+        $this->extendedInformations = $extendedInformations;
+    }
+
+    public function changeGraphTemplate(?GraphTemplateId $graphTemplateId): void
+    {
+        $this->graphTemplateId = $graphTemplateId;
+    }
+
+    /**
+     * The relations {@see hasSameRelationsAs()} compares, changed together.
+     *
+     * @param Collection<ServiceGroupId> $serviceGroupIds
+     * @param Collection<ServiceCategoryId> $categoryIds
+     * @param Collection<TrapId> $trapIds
+     */
+    public function changeRelations(
+        ?ServiceSeverityId $severityId,
+        Collection $serviceGroupIds,
+        Collection $categoryIds,
+        Collection $trapIds,
+    ): void {
+        $this->severityId = $severityId;
+        $this->serviceGroupIds = $serviceGroupIds;
+        $this->categoryIds = $categoryIds;
+        $this->trapIds = $trapIds;
+    }
+
+    /**
+     * Builds a copy of this service attached to $hostId, with no id until it is persisted.
+     *
+     * Every other field is carried over verbatim, the state of its host included: the host copy has the source
+     * host's activation and poller. The check options are supplied by the caller, because re-minting a vaulted
+     * secret into the copy's own vault entry needs the vault (infrastructure), which the aggregate must not reach.
+     */
+    public function duplicate(HostId $hostId, ServiceCheckOptions $checkOptions): self
+    {
+        return new self(
+            id: null,
+            name: $this->name,
+            hostId: $hostId,
+            hostActivated: $this->hostActivated,
+            hostPollerId: $this->hostPollerId,
+            activated: $this->activated,
+            templateId: $this->templateId,
+            checkOptions: $checkOptions,
+            schedulingOptions: $this->schedulingOptions,
+            notifications: $this->notifications,
+            dataProcessing: $this->dataProcessing,
+            extendedInformations: $this->extendedInformations,
+            graphTemplateId: $this->graphTemplateId,
+            severityId: $this->severityId,
+            serviceGroupIds: $this->serviceGroupIds,
+            categoryIds: $this->categoryIds,
+            trapIds: $this->trapIds,
+        );
+    }
+
+    /**
+     * Every field the activity log records, contacts and contact groups included (through
+     * ServiceNotifications::equals()), the host among them: everything but the activation, the state of the host
+     * as loaded, and the relations, which {@see hasSameRelationsAs()} compares.
+     */
+    public function hasSameConfigurationAs(self $other): bool
+    {
+        return $this->name->value === $other->name->value
+            && $this->hostId->value === $other->hostId->value
+            && $this->templateId?->value === $other->templateId?->value
+            && $this->graphTemplateId?->value === $other->graphTemplateId?->value
+            && $this->checkOptions->equals($other->checkOptions)
+            && $this->schedulingOptions->equals($other->schedulingOptions)
+            && $this->dataProcessing->equals($other->dataProcessing)
+            && $this->hasSameNotificationsAs($other->notifications)
+            && $this->hasSameExtendedInformationsAs($other->extendedInformations);
+    }
+
+    /**
+     * The relations left out of {@see hasSameConfigurationAs()}, none of which the activity log records: service
+     * groups, categories and traps compared as sets, and the severity.
+     */
+    public function hasSameRelationsAs(self $other): bool
+    {
+        return $this->severityId?->value === $other->severityId?->value
+            && $this->sortedIdValues($this->serviceGroupIds) === $this->sortedIdValues($other->serviceGroupIds)
+            && $this->sortedIdValues($this->categoryIds) === $this->sortedIdValues($other->categoryIds)
+            && $this->sortedIdValues($this->trapIds) === $this->sortedIdValues($other->trapIds);
+    }
+
+    /**
+     * Whether $before's vault entry is no longer referenced by any password macro of this service.
+     */
+    public function releasesVaultEntryOf(self $before, VaultInterface $vault): bool
+    {
+        $uuid = $before->getVaultUuid($vault);
+
+        return $uuid !== null && ! array_any(
+            $this->checkOptions->macros,
+            static fn (ServiceMacro $macro): bool => $macro->isPassword
+                && $vault->isVaultPath($macro->value)
+                && $vault->extractUuid($macro->value) === $uuid,
+        );
+    }
+
+    private function hasSameNotificationsAs(?ServiceNotifications $other): bool
+    {
+        return $this->notifications instanceof ServiceNotifications && $other instanceof ServiceNotifications
+            ? $this->notifications->equals($other)
+            : $this->notifications === $other;
+    }
+
+    private function hasSameExtendedInformationsAs(?ServiceExtendedInformations $other): bool
+    {
+        return $this->extendedInformations instanceof ServiceExtendedInformations && $other instanceof ServiceExtendedInformations
+            ? $this->extendedInformations->equals($other)
+            : $this->extendedInformations === $other;
+    }
+
+    /**
+     * @template T of AggregateRootId
+     *
+     * @param Collection<T> $ids
+     *
+     * @return list<int> without duplicates
+     */
+    private function sortedIdValues(Collection $ids): array
+    {
+        $values = array_values(array_unique(array_map(static fn (AggregateRootId $id): int => $id->value, $ids->toArray())));
+        sort($values);
+
+        return $values;
     }
 }

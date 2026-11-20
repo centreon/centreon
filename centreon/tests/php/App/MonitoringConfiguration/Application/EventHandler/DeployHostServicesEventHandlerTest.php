@@ -23,14 +23,15 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Application\EventHandler;
 
-use App\MonitoringConfiguration\Application\Command\DeployHostServicesCommand;
+use App\MonitoringConfiguration\Application\Command\DeployHostServicesFromTemplatesCommand;
 use App\MonitoringConfiguration\Application\EventHandler\DeployHostServicesEventHandler;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Event\HostServicesDeploymentRequested;
-use App\Security\Domain\Aggregate\UserId;
+use App\Security\Domain\Aggregate\ActingUser;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Tests\App\Security\Infrastructure\Double\TestActingUsers;
 use Tests\App\Shared\Double\CommandBusSpy;
 
 final class DeployHostServicesEventHandlerTest extends TestCase
@@ -48,17 +49,18 @@ final class DeployHostServicesEventHandlerTest extends TestCase
         $this->handler = new DeployHostServicesEventHandler($this->commandBus, $this->logger);
     }
 
-    public function testItDeploysTheServicesOfTheRequestedHost(): void
+    public function testItDeploysTheServicesOfTheHostTemplatesForTheActingUser(): void
     {
         $this->logger->expects(self::never())->method('error');
+        $actor = TestActingUsers::unrestricted(7);
 
-        ($this->handler)(new HostServicesDeploymentRequested(new HostId(12), new UserId(7)));
+        ($this->handler)($this->event($actor));
 
         self::assertCount(1, $this->commandBus->executed);
         $command = $this->commandBus->executed[0];
-        self::assertInstanceOf(DeployHostServicesCommand::class, $command);
+        self::assertInstanceOf(DeployHostServicesFromTemplatesCommand::class, $command);
         self::assertSame(12, $command->hostId->value);
-        self::assertSame(7, $command->requestedBy->value);
+        self::assertSame($actor, $command->actor);
     }
 
     /**
@@ -70,7 +72,7 @@ final class DeployHostServicesEventHandlerTest extends TestCase
         $this->commandBus->throws = true;
         $this->logger->method('error')->willThrowException(new \RuntimeException('The logger failed.'));
 
-        ($this->handler)(new HostServicesDeploymentRequested(new HostId(12), new UserId(7)));
+        ($this->handler)($this->event());
 
         self::assertCount(1, $this->commandBus->executed);
     }
@@ -80,13 +82,18 @@ final class DeployHostServicesEventHandlerTest extends TestCase
         $this->commandBus->throws = true;
         $this->logger->expects(self::once())
             ->method('error')
-            ->with(self::isString(), self::callback(
+            ->with('Unable to deploy the services of the host templates', self::callback(
                 static fn (array $context): bool => $context['host_id'] === 12
                     && $context['exception'] instanceof \Throwable,
             ));
 
-        ($this->handler)(new HostServicesDeploymentRequested(new HostId(12), new UserId(7)));
+        ($this->handler)($this->event());
 
         self::assertCount(1, $this->commandBus->executed);
+    }
+
+    private function event(?ActingUser $actor = null): HostServicesDeploymentRequested
+    {
+        return new HostServicesDeploymentRequested(new HostId(12), $actor ?? TestActingUsers::unrestricted(7));
     }
 }
