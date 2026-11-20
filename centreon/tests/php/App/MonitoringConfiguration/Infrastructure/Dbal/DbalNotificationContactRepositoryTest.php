@@ -32,6 +32,7 @@ use App\Security\Domain\Service\AccessScopeResolver;
 use App\Security\Infrastructure\Dbal\DbalAccessGroupRepository;
 use App\Security\Infrastructure\Dbal\DbalResourceAccessRepository;
 use App\Shared\Domain\Collection;
+use App\Shared\Domain\Repository\Pagination;
 use App\Shared\Domain\Repository\Paginator;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -131,7 +132,7 @@ final class DbalNotificationContactRepositoryTest extends KernelTestCase
         // scope to our own rows via the name filter so pre-seeded contacts cannot skew the total.
         // page 2 @ 1 item/page proves the OFFSET arithmetic (a page-1 request cannot).
         $result = $this->repository->findAll(
-            NotificationContactCriteria::unscoped()->withName("pg-{$this->tag}-")->withPagination(2, 1)
+            NotificationContactCriteria::unscoped()->withName("pg-{$this->tag}-")->withPagination(new Pagination(2, 1))
         );
 
         self::assertInstanceOf(Paginator::class, $result);
@@ -200,7 +201,7 @@ final class DbalNotificationContactRepositoryTest extends KernelTestCase
         $actorId = $this->createActor();
 
         $result = $this->repository->findAll(
-            NotificationContactCriteria::forActor(TestActingUsers::restricted($actorId))->withPagination(1, 10)
+            NotificationContactCriteria::forActor(TestActingUsers::restricted($actorId))->withPagination(new Pagination(1, 10))
         );
 
         self::assertInstanceOf(
