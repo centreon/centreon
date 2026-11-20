@@ -468,7 +468,6 @@ const UserMenu = ({ headerRef }: Props): JSX.Element => {
                     </ListItem>
                   )}
                   <ListItem className={classes.listItem}>
-                    {/* Text only until a pictogram is chosen: the left padding keeps it aligned with the iconed items. */}
                     <ListItemButton
                       className={cx(classes.listItemButton, 'pl-7')}
                       data-testid="user-menu-about"
