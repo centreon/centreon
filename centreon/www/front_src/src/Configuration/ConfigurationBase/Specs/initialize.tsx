@@ -1,6 +1,7 @@
 import { capitalize } from '@mui/material';
 
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
+import { defaultLimitPerPageAtom } from '@centreon/ui-context';
 
 import i18next from 'i18next';
 import { atom, createStore, Provider } from 'jotai';
@@ -173,6 +174,8 @@ const initialize = ({
   // Always set: the store is new for each test but localStorage is not, so a
   // width one test drags to would otherwise open the next one.
   store.set(panelWidthAtom, panelWidth ?? null);
+  // The platform default page size, which listings wait for.
+  store.set(defaultLimitPerPageAtom, 10);
 
   cy.mount({
     Component: (

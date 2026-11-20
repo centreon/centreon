@@ -38,6 +38,7 @@ import ExclusiveCheckboxGroup from './ExclusiveCheckboxGroup';
 import FieldsTable from './FieldsTable/FieldsTable';
 import File from './File';
 import Grid from './Grid';
+import IconSelector from './IconSelector';
 import List from './List/List';
 import LoadingSkeleton from './LoadingSkeleton';
 import {
@@ -92,6 +93,10 @@ export const getInput = cond<
   [
     equals(InputType.SegmentedButtons) as (b: InputType) => boolean,
     always(SegmentedButtons)
+  ],
+  [
+    equals(InputType.IconSelector) as (b: InputType) => boolean,
+    always(IconSelector)
   ],
   [equals(InputType.List) as (b: InputType) => boolean, always(List)],
   [equals(InputType.File) as (b: InputType) => boolean, always(File)],

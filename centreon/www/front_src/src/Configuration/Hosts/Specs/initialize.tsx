@@ -1,5 +1,6 @@
 import { Form, SnackbarProvider } from '@centreon/ui';
 import {
+  defaultLimitPerPageAtom,
   isAdditiveInheritanceEnabledAtom,
   type PlatformFeatures,
   platformFeaturesAtom,
@@ -18,6 +19,13 @@ import { initReactI18next } from 'react-i18next';
 import { BrowserRouter as Router } from 'react-router';
 import { object } from 'yup';
 
+import {
+  limitAtom,
+  sortFieldAtom,
+  sortOrderAtom,
+  sortsByListingAtom
+} from '../../ConfigurationBase/Listing/atoms';
+import { ResourceType } from '../../models';
 import Hosts from '..';
 import {
   getDeployServicesEndpoint,
@@ -80,6 +88,19 @@ interface Props {
   resolveDelay?: number;
   // The hosts whose partial update is refused.
   patchFails?: Array<number>;
+  // The sort another listing left in the shared atoms.
+  previousSort?: { field: string; order: 'asc' | 'desc' };
+  // The sort the hosts listing was left on earlier in the session.
+  savedSort?: { field: string; order: 'asc' | 'desc' };
+  // The platform's default page size; `null` while the platform parameters
+  // are not known yet.
+  defaultLimitPerPage?: number | null;
+  // A page size the user already picked in a listing this session.
+  userLimit?: number;
+}
+
+interface InitializeResult extends RenderResult {
+  store: ReturnType<typeof createStore>;
 }
 
 // What the selector answers a user it does not grant.
@@ -106,8 +127,12 @@ const initialize = ({
   hasDefaultPoller = true,
   pollersDelay,
   resolveDelay,
-  patchFails = []
-}: Props = {}): RenderResult => {
+  patchFails = [],
+  defaultLimitPerPage = 10,
+  userLimit,
+  previousSort,
+  savedSort
+}: Props = {}): InitializeResult => {
   i18next.use(initReactI18next).init({
     lng: 'en',
     resources: {}
@@ -125,6 +150,17 @@ const initialize = ({
 
   store.set(platformFeaturesAtom, { isCloudPlatform } as PlatformFeatures);
   store.set(isAdditiveInheritanceEnabledAtom, isAdditiveInheritanceEnabled);
+  store.set(defaultLimitPerPageAtom, defaultLimitPerPage);
+  store.set(limitAtom, userLimit);
+
+  if (previousSort) {
+    store.set(sortFieldAtom, previousSort.field);
+    store.set(sortOrderAtom, previousSort.order);
+  }
+
+  if (savedSort) {
+    store.set(sortsByListingAtom, { [ResourceType.Host]: savedSort });
+  }
 
   interceptAPIRequest({
     alias: 'getHost',
@@ -374,7 +410,7 @@ const initialize = ({
     defaultOptions: { queries: { gcTime: 0, retry: false } }
   });
 
-  return render(
+  const renderResult = render(
     <Router>
       <SnackbarProvider>
         <QueryClientProvider client={queryClient}>
@@ -387,6 +423,8 @@ const initialize = ({
       </SnackbarProvider>
     </Router>
   );
+
+  return { ...renderResult, store };
 };
 
 interface FormLayoutProps {

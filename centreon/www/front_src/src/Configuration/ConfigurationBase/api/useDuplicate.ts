@@ -15,8 +15,18 @@ interface UseDuplicateProps {
     ids: Array<number>;
     nbDuplicates?: number;
   }) => Promise<object | ResponseError>;
+  duplicateWithNameMutation: ({
+    id,
+    name
+  }: {
+    id: number;
+    name: string;
+  }) => Promise<object | ResponseError>;
   isMutating: boolean;
 }
+
+// The statuses of a refused name: taken (409) or invalid (422).
+export const nameErrorStatuses = [409, 422];
 
 const useDuplicate = (): UseDuplicateProps => {
   const configuration = useAtomValue(configurationAtom);
@@ -31,11 +41,21 @@ const useDuplicate = (): UseDuplicateProps => {
 
   const writeBaseEndpoint = configuration?.api?.writeBaseEndpoint;
 
+  const getEndpoint = duplicatesEachByItself
+    ? (endpoint as ({ id }: { id: number }) => string)
+    : () => endpoint as string;
+
   const { isMutating, mutateAsync } = useMutationQuery({
     baseEndpoint: writeBaseEndpoint,
-    getEndpoint: duplicatesEachByItself
-      ? (endpoint as ({ id }: { id: number }) => string)
-      : () => endpoint as string,
+    getEndpoint,
+    method: Method.POST
+  });
+
+  // Its own instance, so the bypass leaves the selection's feedback as is.
+  const { mutateAsync: mutateWithName } = useMutationQuery({
+    baseEndpoint: writeBaseEndpoint,
+    getEndpoint,
+    httpCodesBypassErrorSnackbar: nameErrorStatuses,
     method: Method.POST
   });
 
@@ -65,8 +85,20 @@ const useDuplicate = (): UseDuplicateProps => {
     }).then(invalidateListing);
   };
 
+  const duplicateWithNameMutation = ({
+    id,
+    name
+  }: {
+    id: number;
+    name: string;
+  }) =>
+    mutateWithName({ _meta: { id }, payload: { name } }).then(
+      invalidateListing
+    );
+
   return {
     duplicateMutation,
+    duplicateWithNameMutation,
     isMutating
   };
 };
