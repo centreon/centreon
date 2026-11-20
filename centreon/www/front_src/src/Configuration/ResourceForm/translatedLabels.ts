@@ -105,7 +105,11 @@ export const labelComments = 'Comments';
 // A severity option, as the legacy select shows it.
 export const labelSeverityWithLevel = '{{name}} ({{level}})';
 
-// Mass change
+// Mass change: the update modes are named after what they do to each list.
 export const labelUpdateMode = 'Update mode';
-export const labelIncremental = 'Incremental';
-export const labelReplacement = 'Replacement';
+export const labelIncremental = 'Add';
+export const labelReplacement = 'Replace';
+export const labelRemoval = 'Delete';
+// Wording to confirm with UX.
+export const labelHostRecipientsReplaceOwn =
+  'When services inherit contacts and contact groups only from their host, their own contacts and contact groups are removed. Only those you have access to are affected.';

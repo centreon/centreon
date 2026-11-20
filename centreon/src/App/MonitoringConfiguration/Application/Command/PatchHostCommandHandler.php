@@ -132,7 +132,7 @@ final readonly class PatchHostCommandHandler
         }
 
         if ($command->deployServicesFromTemplates && count($updatedHost->templateIds) > 0) {
-            $this->eventBus->fire(new HostServicesDeploymentRequested($updatedHost->id(), $command->actor->userId));
+            $this->eventBus->fire(new HostServicesDeploymentRequested($updatedHost->id(), $command->actor));
         }
 
         return $updatedHost;

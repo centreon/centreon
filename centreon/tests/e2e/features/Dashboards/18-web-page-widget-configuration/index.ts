@@ -7,7 +7,27 @@ import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-a
 
 const validUrl = 'https://docs.centreon.com/fr/';
 const invalidUrl = 'http://docss.Centreon.com/fr/';
-const iframeContent = 'Bienvenue dans la Documentation Centreon !';
+const webPageIframe = 'iframe[data-testid="Webpage Display"]';
+
+// Checks that the iframe points to the configured URL and that its page has
+// loaded, without depending on the content of the external page. The iframe is
+// re-queried on every retry so a re-render cannot leave a detached element.
+const checkWebPageIsLoaded = (index = 0): void => {
+  cy.get(webPageIframe)
+    .eq(index)
+    .should('be.visible')
+    .and('have.attr', 'src', validUrl);
+  cy.get(webPageIframe)
+    .eq(index)
+    .should(($iframe) => {
+      const body = $iframe[0].contentDocument?.body;
+
+      expect(body, 'iframe body').to.exist;
+      expect(body?.childElementCount, 'iframe body children').to.be.greaterThan(
+        0
+      );
+    });
+};
 
 before(() => {
   cy.intercept({
@@ -101,16 +121,7 @@ Then('configuration properties for the web page widget are displayed', () => {
 
 When('the dashboard administrator adds a valid URL', () => {
   cy.getByLabel({ label: 'URL' }).type(validUrl);
-  cy.get('iframe[data-testid="Webpage Display"]')
-    .should('be.visible')
-    .and('have.attr', 'src', validUrl);
-  cy.get('iframe')
-    .its('0.contentDocument.body')
-    .should('not.be.empty')
-    .then(cy.wrap)
-
-    .find('h1')
-    .should('exist');
+  checkWebPageIsLoaded();
 });
 
 When('the user saves the web page widget', () => {
@@ -118,13 +129,7 @@ When('the user saves the web page widget', () => {
 });
 
 Then("the web page widget is added in the dashboard's layout", () => {
-  cy.get('iframe')
-    .its('0.contentDocument.body')
-    .should('not.be.empty')
-    .then(cy.wrap)
-    .find('h1')
-    .should('exist')
-    .and('have.text', iframeContent);
+  checkWebPageIsLoaded();
 });
 
 Given('a dashboard having a configured web page widget', () => {
@@ -145,14 +150,8 @@ When('the dashboard administrator user duplicates the web page widget', () => {
 });
 
 Then('a second web page widget is displayed on the dashboard', () => {
-  cy.get('iframe')
-    .eq(1)
-    .its('0.contentDocument.body')
-    .should('not.be.empty')
-    .then(cy.wrap)
-    .find('h1')
-    .should('exist')
-    .and('have.text', iframeContent);
+  cy.get(webPageIframe).should('have.length', 2);
+  checkWebPageIsLoaded(1);
 });
 
 Given('a dashboard featuring two web page widgets', () => {

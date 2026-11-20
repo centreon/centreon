@@ -1527,6 +1527,7 @@ class CentreonACL
                             }
                         }
                     }
+                    $this->invalidateAclFingerprints((int) $data['id']);
                 } elseif (isset($data['type']) && $data['type'] == 'SERVICE'
                     && ($data['action'] == 'ADD' || $data['action'] == 'DUP')
                 ) {
@@ -1567,6 +1568,7 @@ class CentreonACL
                                 $statement->execute();
                             }
                         }
+                        $this->invalidateAclFingerprints((int) $host_id, (int) $data['id']);
                     }
                 }
             }
@@ -2364,6 +2366,49 @@ class CentreonACL
         foreach ($scs as $copyId => $originalId) {
             CentreonDBInstance::getDbCentreonInstance()->query(sprintf($sql, $tb, $copyId, $tb, $originalId));
         }
+    }
+
+    /**
+     * cron/centAcl.php skips an access group whose fingerprint still matches the rows it computes for it. The rows
+     * written by updateACL(), outside the cron, remove the fingerprint of the groups that got them, so that their next
+     * recompute compares their rows instead of skipping them.
+     *
+     * @param int $hostId host that got rows
+     * @param int|null $serviceId service of this host that got rows, null for the host and its services
+     */
+    private function invalidateAclFingerprints(int $hostId, ?int $serviceId = null): void
+    {
+        $storageDb = CentreonDBInstance::getDbCentreonStorageInstance();
+        if ($serviceId === null) {
+            $groupIds = $storageDb->fetchFirstColumn(
+                'SELECT DISTINCT group_id FROM centreon_acl WHERE host_id = :hostId',
+                QueryParameters::create([QueryParameter::int('hostId', $hostId)])
+            );
+        } else {
+            // With the host id, the lookup uses the (host_id, service_id, group_id) index.
+            $groupIds = $storageDb->fetchFirstColumn(
+                'SELECT DISTINCT group_id FROM centreon_acl WHERE host_id = :hostId AND service_id = :serviceId',
+                QueryParameters::create([
+                    QueryParameter::int('hostId', $hostId),
+                    QueryParameter::int('serviceId', $serviceId),
+                ])
+            );
+        }
+        if ($groupIds === []) {
+            return;
+        }
+
+        // Deleted by id, after a plain read: the delete locks no centreon_acl row, so it never waits for the cron.
+        $parameters = [];
+        $placeholders = [];
+        foreach (array_values($groupIds) as $index => $groupId) {
+            $parameters[] = QueryParameter::int("groupId{$index}", (int) $groupId);
+            $placeholders[] = ":groupId{$index}";
+        }
+        $storageDb->executeStatement(
+            'DELETE FROM centreon_acl_checksum WHERE group_id IN (' . implode(', ', $placeholders) . ')',
+            QueryParameters::create($parameters)
+        );
     }
 
     /**

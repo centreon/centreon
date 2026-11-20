@@ -75,6 +75,22 @@ final class PaginationTest extends TestCase
         yield 'zero items per page' => [1, 0];
 
         yield 'negative items per page' => [1, -5];
+
+        yield 'items per page above the maximum' => [1, Pagination::MAX_ITEMS_PER_PAGE + 1];
+
+        yield 'offset overflowing an int' => [PHP_INT_MAX, 2];
+    }
+
+    public function testAcceptsTheMaximumItemsPerPage(): void
+    {
+        self::assertSame(100, (new Pagination(1, Pagination::MAX_ITEMS_PER_PAGE))->itemsPerPage);
+    }
+
+    public function testAcceptsTheLastPageWhoseOffsetFitsAnInt(): void
+    {
+        $page = intdiv(PHP_INT_MAX, 100) + 1;
+
+        self::assertSame(($page - 1) * 100, (new Pagination($page, 100))->getOffset());
     }
 
     #[\PHPUnit\Framework\Attributes\DataProvider('outOfBoundsProvider')]

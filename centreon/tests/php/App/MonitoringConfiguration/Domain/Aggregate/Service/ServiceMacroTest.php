@@ -219,4 +219,23 @@ final class ServiceMacroTest extends TestCase
             [$macro->name->value, $macro->value, $macro->isPassword, $macro->description, $macro->id?->value, $macro->parent],
         );
     }
+
+    public function testCopyWithoutIdentityDropsTheId(): void
+    {
+        $macro = (new ServiceMacro(new ServiceMacroName('foo'), 'bar', isPassword: true, description: 'dropped', id: new ServiceMacroId(3)))
+            ->copyWithoutIdentity();
+
+        self::assertSame(
+            ['FOO', 'bar', true, null, null, null],
+            [$macro->name->value, $macro->value, $macro->isPassword, $macro->description, $macro->id, $macro->parent],
+        );
+    }
+
+    public function testCopyWithoutIdentityTakesANewValue(): void
+    {
+        $macro = (new ServiceMacro(new ServiceMacroName('foo'), 'bar', isPassword: true, id: new ServiceMacroId(3)))
+            ->copyWithoutIdentity('new-ref');
+
+        self::assertSame(['FOO', 'new-ref', true, null], [$macro->name->value, $macro->value, $macro->isPassword, $macro->id]);
+    }
 }

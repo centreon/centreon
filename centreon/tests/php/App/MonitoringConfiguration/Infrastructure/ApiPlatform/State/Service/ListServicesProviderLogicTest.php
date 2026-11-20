@@ -56,6 +56,7 @@ use App\Security\Domain\Aggregate\UserId;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\SortDirectionEnum;
+use App\Shared\Infrastructure\ApiPlatform\State\PaginationResolver;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -67,6 +68,7 @@ use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostTemplateRepo
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeMediaRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceTemplateRepository;
+use Tests\App\Shared\Double\FakeOptionRepository;
 use Webmozart\Assert\Assert;
 
 /**
@@ -158,11 +160,11 @@ final class ListServicesProviderLogicTest extends TestCase
 
         yield 'scalar sort' => [['sort' => 'name'], 'The "sort" parameter must use the "sort[field]=asc|desc" format.'];
 
-        yield 'zero itemsPerPage' => [['itemsPerPage' => '0'], 'itemsPerPage must be a positive integer.'];
+        yield 'zero itemsPerPage' => [['itemsPerPage' => '0'], 'The "itemsPerPage" parameter must be a positive integer.'];
 
-        yield 'empty itemsPerPage' => [['itemsPerPage' => ''], 'itemsPerPage must be a positive integer.'];
+        yield 'empty itemsPerPage' => [['itemsPerPage' => ''], 'The "itemsPerPage" parameter must be a positive integer.'];
 
-        yield 'non-numeric itemsPerPage' => [['itemsPerPage' => 'abc'], 'itemsPerPage must be a positive integer.'];
+        yield 'non-numeric itemsPerPage' => [['itemsPerPage' => 'abc'], 'The "itemsPerPage" parameter must be a positive integer.'];
     }
 
     /**
@@ -356,7 +358,7 @@ final class ListServicesProviderLogicTest extends TestCase
             $this->serviceTemplateRepository,
             $this->mediaRepository,
             new MediaUrlGenerator('/img/media/', $requestStack),
-            new Pagination(['client_items_per_page' => true]),
+            new PaginationResolver(new Pagination(['client_items_per_page' => true]), new FakeOptionRepository(), fallbackItemsPerPage: 30),
             $security,
         );
     }

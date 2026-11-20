@@ -27,6 +27,7 @@ on:
       - ".github/scripts/centreon-trapd-docker-boot-test.sh"
       - ".github/scripts/centreon-trapd-docker-config-wiring-test.sh"
       - ".github/scripts/lib/centreon-trapd-common.sh"
+      - ".github/scripts/test/ci.sh"
       - ".version"
       - ".version.centreon-web"
       - "centreon/**"
@@ -43,6 +44,7 @@ on:
       - ".github/scripts/centreon-trapd-docker-boot-test.sh"
       - ".github/scripts/centreon-trapd-docker-config-wiring-test.sh"
       - ".github/scripts/lib/centreon-trapd-common.sh"
+      - ".github/scripts/test/ci.sh"
       - ".version"
       - ".version.centreon-web"
       - "centreon/**"
@@ -149,12 +151,14 @@ jobs:
         "!centreon/**/__snapshots__/**"
         "!centreon/**/__mocks__/**"
       backend_test_paths: |
+        ".github/scripts/test/ci.sh"
         "centreon/.php-cs-fixer*"
         "centreon/castor.php"
         "centreon/codingstyle.xml"
         "centreon/phpstan.*"
         "centreon/phpunit*.xml"
         "centreon/rector.*"
+        "centreon/tests/acl/**"
         "centreon/tests/php/**"
       frontend_test_paths: |
         "centreon/cypress.config.ts"
@@ -690,6 +694,13 @@ jobs:
       - name: Run Core integration tests
         run: composer run test:core
         working-directory: centreon
+
+      - name: Check ACL computation on dataset S
+        # After the PHPUnit suites: their bootstrap created the schema, and they leave no ACL data behind.
+        # See centreon/tests/acl/README.md.
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: .github/scripts/test/ci.sh
 
       - name: Display application logs
         if: failure()

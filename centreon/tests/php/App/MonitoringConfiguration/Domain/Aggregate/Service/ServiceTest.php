@@ -50,6 +50,7 @@ use App\Shared\Domain\Aggregate\AclScopedInterface;
 use App\Shared\Domain\Aggregate\PollerScopedInterface;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
+use App\Shared\Domain\Exception\MissingIdException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Tests\App\Shared\Double\FakeVault;
@@ -253,6 +254,42 @@ final class ServiceTest extends TestCase
             [$checkOptions, $schedulingOptions, null, $dataProcessing, $extendedInformations],
             [$service->checkOptions, $service->schedulingOptions, $service->notifications, $service->dataProcessing, $service->extendedInformations],
         );
+    }
+
+    public function testDuplicateCarriesEveryFieldToTheNewHost(): void
+    {
+        $source = $this->persistedService();
+        $source->disable();
+
+        $checkOptions = new ServiceCheckOptions(new CommandId(2), ['80'], [$this->passwordMacro('TOKEN', 'new-ref')]);
+
+        $copy = $source->duplicate(new HostId(9), $checkOptions);
+
+        // Supplied by the caller: the host of the copy and the re-minted secrets.
+        self::assertSame(9, $copy->hostId->value);
+        self::assertSame($checkOptions, $copy->checkOptions);
+
+        // Carried over verbatim: the host copy has the source host's activation and poller.
+        self::assertSame([true, 3, false], [$copy->hostActivated, $copy->hostPollerId?->value, $copy->activated]);
+        self::assertSame($source->name, $copy->name);
+        self::assertSame($source->templateId, $copy->templateId);
+        self::assertSame($source->schedulingOptions, $copy->schedulingOptions);
+        self::assertSame($source->notifications, $copy->notifications);
+        self::assertSame($source->dataProcessing, $copy->dataProcessing);
+        self::assertSame($source->extendedInformations, $copy->extendedInformations);
+        self::assertSame($source->graphTemplateId, $copy->graphTemplateId);
+        self::assertSame($source->severityId, $copy->severityId);
+        self::assertSame($source->serviceGroupIds, $copy->serviceGroupIds);
+        self::assertSame($source->categoryIds, $copy->categoryIds);
+        self::assertSame($source->trapIds, $copy->trapIds);
+    }
+
+    public function testADuplicateHasNoIdUntilItIsPersisted(): void
+    {
+        $copy = $this->persistedService()->duplicate(new HostId(9), new ServiceCheckOptions(null));
+
+        $this->expectException(MissingIdException::class);
+        $copy->id();
     }
 
     public function testSameConfigurationIgnoresTheActivationAndTheStateOfTheHost(): void
