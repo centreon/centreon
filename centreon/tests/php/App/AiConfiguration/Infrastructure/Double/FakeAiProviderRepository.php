@@ -83,7 +83,6 @@ final class FakeAiProviderRepository implements AiProviderRepository
         $id = $this->nextId++;
 
         $reflection = new \ReflectionProperty(AggregateRoot::class, 'id');
-        $reflection->setAccessible(true);
         $reflection->setValue($aiProvider, new AiProviderId($id));
 
         $this->aiProviders[$id] = $aiProvider;
