@@ -62,7 +62,7 @@ spec:
             # (Docker's default range): every pod IP (10.42.0.0/16 on k3s) gets
             # a 401, which breaks fpm's node-sync call and the config-delivery
             # Job. Pod IPs are ephemeral, so the allowlist is replaced by the
-            # NetworkPolicy in networkpolicy.yaml (8085 from fpm and
+            # NetworkPolicy in networkpolicy.yaml (8085 from fpm, cron and
             # config-delivery only).
             - { name: GORGONE__GORGONE__MODULES__HTTPSERVER__ALLOWED_HOSTS__ENABLED, value: "false" }
             # ...but the API itself requires the centreon-gorgone service

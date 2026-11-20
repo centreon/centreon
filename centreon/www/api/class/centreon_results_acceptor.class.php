@@ -40,7 +40,7 @@ class CentreonResultsAcceptor extends CentreonConfigurationObjects
     protected $pollers;
 
     /** @var int */
-    protected $pipeOpened = 0;
+    protected $bufferStarted = 0;
 
     /** @var CentreonDB */
     protected $pearDBC;
@@ -84,8 +84,8 @@ class CentreonResultsAcceptor extends CentreonConfigurationObjects
                         ['host', 'service', 'status', 'updatetime', 'output', 'perfdata']
                     );
                 }
-                if ($this->pipeOpened == 0) {
-                    $this->openPipe();
+                if ($this->bufferStarted == 0) {
+                    $this->startBuffer();
                 }
                 foreach ($this->arguments['results'] as $data) {
                     if (! isset($this->hostServices[$data['host']])
@@ -124,7 +124,7 @@ class CentreonResultsAcceptor extends CentreonConfigurationObjects
                         );
                     }
                 }
-                $this->closePipe();
+                $this->flushBuffer();
             }
 
             return ['success' => true];
@@ -202,13 +202,14 @@ class CentreonResultsAcceptor extends CentreonConfigurationObjects
     }
 
     /**
-     * @throws RestBadRequestException
+     * Start buffering the commands sent to Gorgone
+     *
      * @return void
      */
-    private function openPipe(): void
+    private function startBuffer(): void
     {
         $this->commands = [];
-        $this->pipeOpened = 1;
+        $this->bufferStarted = 1;
     }
 
     /**
@@ -217,9 +218,9 @@ class CentreonResultsAcceptor extends CentreonConfigurationObjects
      * @throws RestBadRequestException
      * @return void
      */
-    private function closePipe(): void
+    private function flushBuffer(): void
     {
-        $this->pipeOpened = 0;
+        $this->bufferStarted = 0;
         try {
             Centreon\Infrastructure\Gorgone\LegacyCommandSender::create()->sendLines($this->commands);
         } catch (Centreon\Infrastructure\Gorgone\LegacyCommandException $e) {
@@ -235,10 +236,10 @@ class CentreonResultsAcceptor extends CentreonConfigurationObjects
      * @throws RestBadRequestException
      * @return void
      */
-    private function writeInPipe($string): void
+    private function bufferCommand($string): void
     {
-        if ($this->pipeOpened == 0) {
-            throw new RestBadRequestException("Can't write results because pipe is closed");
+        if ($this->bufferStarted == 0) {
+            throw new RestBadRequestException("Can't write results because the command buffer is not started");
         }
 
         if ($string != '') {
@@ -261,12 +262,12 @@ class CentreonResultsAcceptor extends CentreonConfigurationObjects
             // Services update
             $command = $data['host'] . ';' . $data['service'] . ';' . $data['status'] . ';'
                 . $data['output'] . '|' . $data['perfdata'];
-            $this->writeInPipe('EXTERNALCMD:' . $this->pollerHosts['name'][$data['host']]
+            $this->bufferCommand('EXTERNALCMD:' . $this->pollerHosts['name'][$data['host']]
                 . ':[' . $data['updatetime'] . '] PROCESS_HOST_CHECK_RESULT;' . $command);
         } else {
             // Host Update
             $command = $data['host'] . ';' . $data['status'] . ';' . $data['output'] . '|' . $data['perfdata'];
-            $this->writeInPipe('EXTERNALCMD:' . $this->pollerHosts['name'][$data['host']]
+            $this->bufferCommand('EXTERNALCMD:' . $this->pollerHosts['name'][$data['host']]
                 . ':[' . $data['updatetime'] . '] PROCESS_SERVICE_CHECK_RESULT;' . $command);
         }
     }

@@ -29,7 +29,7 @@ if (! $centreon->user->admin && $centreon->user->access->checkAction('generate_t
     return null;
 }
 
-// Commands are sent to Gorgone through its API
+// Commands are sent to Gorgone: through its HTTP API for containerized pollers, the centcore files otherwise
 $legacyCommandSender = Centreon\Infrastructure\Gorgone\LegacyCommandSender::create();
 
 // Get Poller List

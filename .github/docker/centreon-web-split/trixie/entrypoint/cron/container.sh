@@ -24,31 +24,17 @@ MYSQL_DB_STORAGE="${MYSQL_DB_STORAGE:-centreon_storage}"
 printf 'date.timezone = %s\n' "${PHP_TIMEZONE:-UTC}" \
   > "$(php -r 'echo PHP_CONFIG_FILE_SCAN_DIR;')/99-timezone.ini"
 
-# Same as fpm's own 12-install.sh: the CI/dev MariaDB runs with --skip-ssl,
-# but PDO's mysql driver (and the plain `mysql` CLI) defaults to requiring
-# TLS — without this, every job fails with a misleading "Access denied"
-# rather than a clear SSL error (confirmed directly: the raw `mysql` CLI
-# gives the real "SSL is required" message, PDO swallows it into a generic
-# access-denied exception).
 # With DATABASE_SSL_ENABLED=1 (a server requiring TLS, e.g. AWS RDS MariaDB
-# 11.8): TLS instead, as fpm's 12-install.sh writes it.
-mkdir -p /etc/mysql/conf.d
-rm -f /etc/mysql/conf.d/client-no-ssl.cnf /etc/mysql/conf.d/client-tls.cnf
+# 11.8): the PHP jobs read the TLS settings from $_ENV (DatabaseTLSResolver).
+# The cron/*.php scripts load config/centreon.config.php only, never Dotenv,
+# so .env.local.php (below, for the scripts booting the kernel) does not
+# reach them: put the environment itself in $_ENV, which this PHP's default
+# variables_order (GPCS) leaves out. su keeps it for the job's user. No
+# /etc/mysql/conf.d/*.cnf needed here: PHP's pdo_mysql/mysqli are built
+# against mysqlnd (confirmed in the Dockerfile's module list), which never
+# reads option files, and this image ships no mysql/mariadb client binary
+# either (see centreon-backup.pl's removal below).
 if [ "${DATABASE_SSL_ENABLED:-0}" = "1" ]; then
-  {
-    printf '[client]\nssl\n'
-    [ -n "${DATABASE_CA_PATH:-}" ] && printf 'ssl-ca=%s\n' "$DATABASE_CA_PATH"
-    if [ "${DATABASE_VERIFY_SERVER_CERT:-0}" = "1" ]; then
-      printf 'ssl-verify-server-cert\n'
-    else
-      printf 'disable-ssl-verify-server-cert\n'
-    fi
-  } > /etc/mysql/conf.d/client-tls.cnf
-  # The PHP jobs read the TLS settings from $_ENV (DatabaseTLSResolver). The
-  # cron/*.php scripts load config/centreon.config.php only, never Dotenv, so
-  # .env.local.php (below, for the scripts booting the kernel) does not reach
-  # them: put the environment itself in $_ENV, which this PHP's default
-  # variables_order (GPCS) leaves out. su keeps it for the job's user.
   printf 'variables_order = "EGPCS"\n' > "$(php -r 'echo PHP_CONFIG_FILE_SCAN_DIR;')/99-env.ini"
   php -r '
     $file = "/usr/share/centreon/.env.local.php";
@@ -62,8 +48,6 @@ if [ "${DATABASE_SSL_ENABLED:-0}" = "1" ]; then
     file_put_contents($file, "<?php\n\nreturn " . var_export($env, true) . ";\n");
   '
   chown www-data:www-data /usr/share/centreon/.env.local.php
-else
-  printf '[client]\nskip-ssl\n' > /etc/mysql/conf.d/client-no-ssl.cnf
 fi
 
 DB_JSON=/usr/share/centreon/www/install/tmp/database.json

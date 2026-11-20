@@ -26,7 +26,8 @@ use Centreon\Infrastructure\Gorgone\LegacyCommandException;
 use Centreon\Infrastructure\Gorgone\LegacyCommandSender;
 
 /**
- * Sends the remote server commands (STARTWORKER, SENDEXPORTFILE) to Gorgone through its API.
+ * Sends the remote server commands (STARTWORKER, SENDEXPORTFILE) to Gorgone through LegacyCommandSender:
+ * its HTTP API for containerized pollers, the centcore files otherwise.
  */
 class CentcoreCommandService
 {
@@ -36,7 +37,7 @@ class CentcoreCommandService
 
     /**
      * @param Command $command
-     * @return bool true if the command has been accepted by Gorgone
+     * @return bool true if the command has been handed over to Gorgone
      */
     public function sendCommand(Command $command)
     {
