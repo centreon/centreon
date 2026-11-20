@@ -5,9 +5,32 @@ import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import webPageWidget from '../../../fixtures/dashboards/creation/widgets/dashboardWithWebPageWidget.json';
 import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 
-const validUrl = 'https://docs.centreon.com/fr/';
+// The .test top-level domain never resolves: the page only exists through the
+// stub below, so the test does not depend on any real website.
+const validUrl = 'https://web-page-widget.e2e.test/';
 const invalidUrl = 'http://docss.Centreon.com/fr/';
-const iframeContent = 'Bienvenue dans la Documentation Centreon !';
+const iframeContent = 'Web page widget e2e content';
+
+const stubWebPage = (): void => {
+  cy.intercept(
+    { method: 'GET', url: /^https:\/\/web-page-widget\.e2e\.test\// },
+    {
+      body: `<!doctype html><html><body><h1>${iframeContent}</h1></body></html>`,
+      headers: { 'content-type': 'text/html' },
+      statusCode: 200
+    }
+  ).as('getWebPage');
+};
+
+// No .then(cy.wrap): keeping a query chain lets Cypress requery the iframe
+// when it reloads, instead of failing on a detached element.
+const webPageTitle = (iframeIndex = 0): Cypress.Chainable =>
+  cy
+    .get('iframe')
+    .eq(iframeIndex)
+    .its('0.contentDocument.body')
+    .should('not.be.empty')
+    .find('h1');
 
 before(() => {
   cy.intercept({
@@ -51,6 +74,7 @@ beforeEach(() => {
     method: 'GET',
     url: /\/centreon\/api\/latest\/monitoring\/resources.*$/
   }).as('resourceRequest');
+  stubWebPage();
   cy.loginByTypeOfUser({
     jsonName: dashboardAdministratorUser.login,
     loginViaApi: false
@@ -104,13 +128,7 @@ When('the dashboard administrator adds a valid URL', () => {
   cy.get('iframe[data-testid="Webpage Display"]')
     .should('be.visible')
     .and('have.attr', 'src', validUrl);
-  cy.get('iframe')
-    .its('0.contentDocument.body')
-    .should('not.be.empty')
-    .then(cy.wrap)
-
-    .find('h1')
-    .should('exist');
+  webPageTitle().should('exist');
 });
 
 When('the user saves the web page widget', () => {
@@ -118,13 +136,7 @@ When('the user saves the web page widget', () => {
 });
 
 Then("the web page widget is added in the dashboard's layout", () => {
-  cy.get('iframe')
-    .its('0.contentDocument.body')
-    .should('not.be.empty')
-    .then(cy.wrap)
-    .find('h1')
-    .should('exist')
-    .and('have.text', iframeContent);
+  webPageTitle().should('have.text', iframeContent);
 });
 
 Given('a dashboard having a configured web page widget', () => {
@@ -145,14 +157,7 @@ When('the dashboard administrator user duplicates the web page widget', () => {
 });
 
 Then('a second web page widget is displayed on the dashboard', () => {
-  cy.get('iframe')
-    .eq(1)
-    .its('0.contentDocument.body')
-    .should('not.be.empty')
-    .then(cy.wrap)
-    .find('h1')
-    .should('exist')
-    .and('have.text', iframeContent);
+  webPageTitle(1).should('have.text', iframeContent);
 });
 
 Given('a dashboard featuring two web page widgets', () => {
