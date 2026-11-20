@@ -1,0 +1,138 @@
+# Local dev/test stack for the split httpd/php-fpm centreon-web images
+# (Pilier 1 — see trixie/README.md). Builds both images from source and
+# wires them to a real MariaDB, reproducing the manual smoke test that
+# validated a real login end to end.
+#
+# Usage (from the repository root):
+#   docker compose -f .github/docker/centreon-web-split/docker-compose.yml up --build
+#
+# Then open http://localhost:18080/centreon/ (trailing slash — see the
+# HTTPD_SERVER_NAME note below) and log in with admin / Centreon!2021.
+#
+# If you change HTTPD_PORT, also override HTTPD_SERVER_NAME to match — with
+# UseCanonicalName On, Apache rebuilds self-referential URLs (including the
+# automatic /centreon -> /centreon/ redirect) from HTTPD_SERVER_NAME, not
+# from the Host header the browser actually sent.
+services:
+  db:
+    image: "${MYSQL_IMAGE:-bitnamilegacy/mariadb:11.8}"
+    env_file:
+      - ../.env
+    environment:
+      MARIADB_EXTRA_FLAGS: "--skip-ssl --skip-name-resolve"
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c '</dev/tcp/127.0.0.1/3306 && sleep 3 && </dev/tcp/127.0.0.1/3306'"]
+      interval: 5s
+      timeout: 15s
+      retries: 20
+
+  fpm:
+    build:
+      context: ../../..
+      dockerfile: .github/docker/centreon-web-split/trixie/Dockerfile
+      target: fpm
+    env_file:
+      - ../.env
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      RUN_INSTALL: "true"
+      MYSQL_HOST: db
+      CENTREON_INTERNAL_API_BASE_URL: "http://httpd:80"
+      CENTREON_DATASET: "${CENTREON_DATASET:-0}"
+      # Opt-in overrides, both unset/off by default — same fixture-default
+      # behavior as before (admin / Centreon!2021, no forced password
+      # change) unless explicitly set. See 12-install.sh for the full story.
+      ADMIN_PASSWORD: "${ADMIN_PASSWORD:-}"
+      ADMIN_PASSWORD_EXPIRED: "${ADMIN_PASSWORD_EXPIRED:-false}"
+      # Resolved into centreon.ini at container start (01-config.sh) — the
+      # image itself defaults to UTC (Dockerfile), this dev stack keeps the
+      # value it always had rather than silently changing behavior.
+      PHP_TIMEZONE: "${PHP_TIMEZONE:-Europe/Paris}"
+      # Fixed dev secret, not regenerated on every recreate (neither .env*
+      # nor engine-context.json are persisted — a random secret would drift
+      # on every `up --force-recreate fpm`, invalidating sessions and
+      # orphaning anything already encrypted in the DB under the previous
+      # secret, since the db service *is* kept across an fpm-only recreate).
+      # Dev/test value only, override with your own via `APP_SECRET=...`.
+      APP_SECRET: "${APP_SECRET:-9cd3e2ccf822916ec8fc5379f8abdaf277860415454f9b91c0913392d4b41f92}"
+      SALT: "${SALT:-84e9107f78239bdab2751c3321023a32c3716ed0724a4a8b13de8e7aed8d319d}"
+    volumes:
+      # Generic application state (Symfony cache, /var/lib/centreon) kept
+      # across a recreate. Ownership is fixed natively at build time in the
+      # Dockerfile (chown centreon:centreon, chmod 775).
+      - centreon-cache:/var/cache/centreon
+      - centreon-varlib:/var/lib/centreon
+      # PHP's own session store (session.save_handler=files, session.save_path
+      # in centreon-pool.conf) — without this, every fpm recreate silently
+      # logs every user out: the DB-side `session` table only tracks whether
+      # a session id is still valid (CentreonSession::checkSession()), it
+      # never holds the actual $_SESSION content ($_SESSION['centreon'], the
+      # hydrated contact object) — that lives only in these files. A plain
+      # `docker compose restart fpm` already survives this (container
+      # filesystem untouched), only a recreate needed the volume.
+      - centreon-sessions:/var/lib/php/sessions
+    healthcheck:
+      test: ["CMD-SHELL", "test -f /tmp/docker.ready"]
+      interval: 5s
+      timeout: 5s
+      retries: 60
+
+  httpd:
+    build:
+      context: ../../..
+      dockerfile: .github/docker/centreon-web-split/trixie/Dockerfile
+      target: httpd
+    depends_on:
+      fpm:
+        condition: service_healthy
+    ports:
+      - "${HTTPD_PORT:-18080}:80"
+    environment:
+      PHP_FPM_UPSTREAM: "fpm:9000"
+      HTTPD_SERVER_NAME: "${HTTPD_SERVER_NAME:-localhost:18080}"
+    healthcheck:
+      test: ["CMD-SHELL", "test -f /tmp/docker.ready"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  # Scheduled jobs a real RPM/DEB install gets via /etc/cron.d/{centreon,
+  # centstorage} (CentACL, downtime start/stop, token/storage purge,
+  # partitioning, reporting, backup) — never ported to this split image
+  # before now. Dedicated container, not folded into fpm: 3 of the 10 jobs
+  # are Perl, and a persistent scheduler inside fpm would multiply per fpm
+  # replica if that image is ever scaled (same reasoning INSTALL_DB_STEPS
+  # exists for the install step). Deliberately no shared volume with fpm —
+  # see trixie/entrypoint/cron/container.sh for why that would be a real
+  # regression risk (fpm's own "already installed" guard on
+  # /etc/centreon/centreon.conf.php). No depends_on fpm either: a job
+  # firing before fpm's own install has finished just gets a harmless DB
+  # error, logged, retried on its own next scheduled run — same
+  # self-healing philosophy as the rest of this stack's config delivery.
+  centreon-cron:
+    build:
+      context: ../../..
+      dockerfile: .github/docker/centreon-web-split/trixie/Dockerfile
+      target: cron
+    # MYSQL_PASSWORD already reaches this container via env_file (same
+    # ../.env as fpm) — no separate wiring needed for that one.
+    env_file:
+      - ../.env
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      MYSQL_HOST: db
+      # Must match fpm's own PHP_TIMEZONE exactly (same expression/default):
+      # centreon-partitioning.php reads partition boundaries fpm created
+      # using fpm's timezone — a mismatch (e.g. this left at the image's UTC
+      # default while fpm runs Europe/Paris) makes the day boundary disagree
+      # by one, failing with "Duplicate partition name pXXXXXXXX".
+      PHP_TIMEZONE: "${PHP_TIMEZONE:-Europe/Paris}"
+
+volumes:
+  centreon-cache:
+  centreon-varlib:
+  centreon-sessions:
