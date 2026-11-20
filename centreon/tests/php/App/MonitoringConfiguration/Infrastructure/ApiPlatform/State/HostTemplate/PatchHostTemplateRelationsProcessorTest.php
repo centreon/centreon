@@ -520,7 +520,7 @@ final class PatchHostTemplateRelationsProcessorTest extends ApiTestCase
         self::assertSame([], $this->macros($id));
     }
 
-    public function testAReservedMacroNameIsAccepted(): void
+    public function testAReservedMacroNameIsRefused(): void
     {
         if ($this->connection->fetchOne('SELECT 1 FROM nagios_macro WHERE macro_name = ?', ['$_HOSTSNMPCOMMUNITY$']) === false) {
             $this->connection->insert('nagios_macro', ['macro_name' => '$_HOSTSNMPCOMMUNITY$']);
@@ -530,8 +530,8 @@ final class PatchHostTemplateRelationsProcessorTest extends ApiTestCase
 
         $this->patch($id, ['check_options' => ['macros_to_upsert' => [['name' => 'SNMPCOMMUNITY', 'value' => 'x']]]]);
 
-        self::assertResponseStatusCodeSame(204);
-        self::assertSame(['$_HOSTSNMPCOMMUNITY$' => 'x'], $this->macros($id));
+        self::assertResponseStatusCodeSame(422);
+        self::assertSame([], $this->macros($id));
     }
 
     public function testAReplacementKeepsTheCategoriesARestrictedUserCannotSee(): void
