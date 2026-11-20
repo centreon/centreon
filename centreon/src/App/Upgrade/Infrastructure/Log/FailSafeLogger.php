@@ -56,7 +56,7 @@ final class FailSafeLogger extends AbstractLogger
                 $exception->getMessage(),
                 is_string($level) ? $level : get_debug_type($level),
                 $message,
-                $keys === [] ? '' : ' ' . json_encode($keys),
+                $keys === [] ? '' : ' ' . json_encode($keys, flags: JSON_PARTIAL_OUTPUT_ON_ERROR | JSON_THROW_ON_ERROR),
                 // With its trace and previous exceptions.
                 $original instanceof \Throwable ? "\n" . $original : '',
             ));

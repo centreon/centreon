@@ -78,4 +78,16 @@ final class FailSafeLoggerTest extends TestCase
         self::assertStringContainsString('LogicException: Migration failed in ' . __FILE__, $errorLog);
         self::assertStringContainsString('Next', $errorLog);
     }
+
+    public function testKeepsTheLineWhenAContextValueCannotBeEncoded(): void
+    {
+        $channel = new UnwritableLogger(new \UnexpectedValueException('Permission denied'));
+
+        (new FailSafeLogger($channel))->error('Step failed', ['step' => "\xB1", 'version' => '26.12.0']);
+
+        self::assertStringContainsString(
+            'Upgrade log unavailable (Permission denied): [error] Step failed {"step":null,"version":"26.12.0"}',
+            (string) file_get_contents($this->errorLog),
+        );
+    }
 }
