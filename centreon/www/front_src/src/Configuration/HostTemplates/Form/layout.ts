@@ -19,6 +19,7 @@ import {
   labelHostDetails,
   labelHostMonitoringProperties,
   labelMonitoringEngineSchedulingOptions,
+  labelNotifications,
   labelRelations,
   labelSchedulingOptions
 } from '../translatedLabels';
@@ -100,6 +101,24 @@ export const layout: Array<LayoutSection> = [
         name: 'monitoring-layout'
       }
     ]
+  },
+  {
+    label: labelNotifications,
+    nodes: [
+      {
+        className: twoColumnsFromWide,
+        columnSeparator: true,
+        columns: [
+          'notificationRecipients',
+          {
+            className: stackedColumns,
+            columns: ['notifyOn', 'notificationDelays'],
+            name: 'notifications-when'
+          }
+        ],
+        name: 'notifications-layout'
+      }
+    ]
   }
 ];
 
@@ -108,7 +127,8 @@ export const getPlacedBlockIds = (
   nodes: Array<LayoutNode> = layout.flatMap((section) => section.nodes)
 ): Array<BlockId> => getLayoutBlockIds(nodes);
 
-// The sections the form shows, those left without any input aside.
+// The sections the form shows, those left without any input aside: a cloud
+// platform has no notification.
 export const placeBlocks = ({
   blocks,
   t
