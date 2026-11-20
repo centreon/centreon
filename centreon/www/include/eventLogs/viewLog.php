@@ -210,7 +210,7 @@ if (! $getInputs['engine']) {
     $form->addElement(
         'button',
         'graph',
-        _('Apply period'),
+        _('Run query'),
         ['onclick' => 'apply_period()', 'class' => 'btc bt_success']
     );
 } else {
@@ -297,10 +297,35 @@ if (! $getInputs['engine']) {
      * Selecting chosen Host, Service, HG and/or SG
      */
     function apply_period() {
+        // A click can reach the disabled button (forced or synthetic click).
+        if (searchRunning) {
+            return;
+        }
         var openid = getArgsForHost();
         const args = openid[0];
+        if (window.history.pushState) {
+            window.history.pushState("", "", "main.php?p=20301" + openid[1]);
+        }
         document.getElementById('openid').innerHTML = args;
+        // A new search starts from the first page.
+        _num = 1;
         logs(args, '', '');
+    }
+
+    /*
+     * A search on Event Logs can be expensive. Changing a filter does not run it:
+     * only the "Run query" button does. The button is disabled while a search runs,
+     * and enabled again when it ends, even on error, so the list can be refreshed.
+     */
+    var searchRunning = false;
+
+    function setSearchRunning(running) {
+        searchRunning = running;
+        if (_engine == 0) {
+            jQuery('#div1 [name=graph]').prop('disabled', running);
+            // A page size changed during a search would not reload the list.
+            jQuery('#logView4xml select[name=l]').prop('disabled', running);
+        }
     }
 
     function apply_period_engine() {
@@ -314,10 +339,16 @@ if (! $getInputs['engine']) {
     }
 
     var _num = 0;
+    // Query string of the displayed list, without the page and the page size.
+    var lastSearchParams = '';
 
+    // The other pages and page sizes keep the filters of the displayed list.
     function log_4_host_page(id, formu, num) {
+        if (searchRunning) {
+            return;
+        }
         _num = num;
-        logs(id, formu, '');
+        loadLogsPage(lastSearchParams);
     }
 
     function log_4_engine_page(id, formu, num) {
@@ -478,6 +509,27 @@ if (! $getInputs['engine']) {
         }
     }
 
+    // Loads a page of the list for these filters. They become the filters of the
+    // displayed list only once it renders, so a failed search keeps the previous ones.
+    function loadLogsPage(searchParams) {
+        setSearchRunning(true);
+        var proc = new Transformation();
+        proc.setXml('./include/eventLogs/xml/data.php?' + searchParams + '&num=' + _num + '&limit=' + _limit);
+        proc.setXslt("./include/eventLogs/xsl/log.xsl");
+        proc.setCallback(function(t){
+            lastSearchParams = searchParams;
+            formatDateMoment(t);
+            proc = null;
+            setSearchRunning(false);
+        });
+        // xslt.js is cached by browsers: after an upgrade, an older copy without
+        // setErrorCallback can still be loaded.
+        if (typeof proc.setErrorCallback === 'function') {
+            proc.setErrorCallback(function(){proc = null; setSearchRunning(false);});
+        }
+        proc.transform("logView4xml");
+    }
+
     function logs(id, formu, type) {
         opid = id;
         if (jQuery("#output") !== "undefined") {
@@ -500,16 +552,14 @@ if (! $getInputs['engine']) {
         if (document.formu2 && document.formu2.search_H) _search_H = document.formu2.search_H.checked;
         if (document.formu2 && document.formu2.search_S) _search_S = document.formu2.search_S.checked;
 
-        var proc = new Transformation();
-        var _addrXSL = "./include/eventLogs/xsl/log.xsl";
-
         if (!type) {
-            var _addr = './include/eventLogs/xml/data.php?output=' + _output + '&oh=' + _oh + '&warning=' + _warning +
+            // Filters of the new search. The other pages and the exports keep those of the displayed list.
+            var searchParams = 'output=' + _output + '&oh=' + _oh + '&warning=' + _warning +
                 '&unknown=' + _unknown + '&critical=' + _critical + '&ok=' + _ok + '&unreachable=' + _unreachable +
-                '&down=' + _down + '&up=' + _up + '&num=' + _num + '&error=' + _error + '&alert=' + _alert +
+                '&down=' + _down + '&up=' + _up + '&error=' + _error + '&alert=' + _alert +
                 '&notification=' + _notification + '&search_H=' + _search_H + '&search_S=' + _search_S +
                 '&period=' + period + '&StartDate=' + StartDate + '&EndDate=' + EndDate + '&StartTime=' + StartTime +
-                '&EndTime=' + EndTime + '&limit=' + _limit + '&id=' + id
+                '&EndTime=' + EndTime + '&id=' + id
                 <?php
                 if (isset($search) && $search) {
                     echo ' + &search_host=' . $search;
@@ -518,47 +568,14 @@ if (isset($search_service) && $search_service) {
     echo ' + &search_service=' . $search_service;
 }
 ?>;
-
-            proc.setXml(_addr)
-            proc.setXslt(_addrXSL)
-            proc.setCallback(function(t){formatDateMoment(t); proc = null;});
-            proc.transform("logView4xml");
+            loadLogsPage(searchParams);
         } else {
-            var openid = document.getElementById('openid').innerHTML;
             if (_engine == 0) {
+                // The export buttons are part of the list, so a search has always run before.
                 if (type == 'CSV') {
-                    var _addr = './include/eventLogs/export/data.php?output=' + _output + '&oh=' + _oh +
-                        '&warning=' + _warning + '&unknown=' + _unknown + '&critical=' + _critical +
-                        '&ok=' + _ok + '&unreachable=' + _unreachable + '&down=' + _down + '&up=' + _up +
-                        '&num=' + _num + '&error=' + _error + '&alert=' + _alert + '&notification=' + _notification +
-                        '&search_H=' + _search_H + '&search_S=' + _search_S + '&period=' + period +
-                        '&StartDate=' + StartDate + '&EndDate=' + EndDate + '&StartTime=' + StartTime +
-                        '&EndTime=' + EndTime + '&limit=' + _limit + '&id=' + openid
-                        <?php
-        if (isset($search) && $search) {
-            echo ' + &search_host=' . $search;
-        }
-if (isset($search_service) && $search_service) {
-    echo ' + &search_service=' . $search_service;
-}
-?> +'&export=1';
+                    var _addr = './include/eventLogs/export/data.php?' + lastSearchParams + '&export=1';
                 } else if (type == 'XML') {
-                    var _addr = './include/eventLogs/xml/data.php?output=' + _output + '&oh=' + _oh +
-                        '&warning=' + _warning + '&unknown=' + _unknown + '&critical=' + _critical +
-                        '&ok=' + _ok + '&unreachable=' + _unreachable + '&down=' + _down + '&up=' + _up +
-                        '&num=' + _num + '&error=' + _error + '&alert=' + _alert + '&notification=' + _notification +
-                        '&search_H=' + _search_H + '&search_S=' + _search_S + '&period=' + period +
-                        '&StartDate=' + StartDate + '&EndDate=' + EndDate + '&StartTime=' + StartTime +
-                        '&EndTime=' + EndTime + '&limit=' + _limit + '&id=' + openid
-                        <?php
-if (isset($search) && $search) {
-    echo ' + &search_host=' . $search;
-    echo '&search_host=' . $search;
-}
-if (isset($search_service) && $search_service) {
-    echo ' + &search_service=' . $search_service;
-}
-?> +'&export=1';
+                    var _addr = './include/eventLogs/xml/data.php?' + lastSearchParams + '&export=1';
                 }
             } else {
                 var poller_value = jQuery("#poller_filter").val();
@@ -728,20 +745,6 @@ if (isset($search_service) && $search_service) {
                 };
             }
 
-            jQuery("#service_group_filter, #host_filter, #service_filter, #host_group_filter").change(
-                function (event, infos) {
-                    var argArray = getArgsForHost();
-                    args = argArray[0];
-                    urlargs = argArray[1];
-                    if (typeof infos !== "undefined" && infos.origin === "select2defaultinit") {
-                        return false;
-                    }
-                    if (window.history.pushState) {
-                        window.history.pushState("", "", "main.php?p=20301" + urlargs);
-                    }
-                    document.getElementById('openid').innerHTML = args;
-                    logs(args, '', false);
-                });
 
             //setServiceGroup
             jQuery("#setHostGroup").click(function () {
@@ -820,10 +823,8 @@ if (isset($search_service) && $search_service) {
 
             jQuery("#output").keypress(function (event) {
                 if (event.which == 13) {
-                    var argArray = getArgsForHost();
-                    args = argArray[0];
-                    urlargs = argArray[1];
-                    logs(args, '', false);
+                    // Only the "Run query" button runs the search. Enter would submit
+                    // the form and reload the page.
                     event.preventDefault();
                 }
             });

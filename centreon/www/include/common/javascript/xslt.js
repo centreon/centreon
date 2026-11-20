@@ -210,6 +210,24 @@ function Transformation() {
         callback = c;
         return this;
     }
+
+    /*
+     * Called instead of the callback when the transformation fails: an HTTP
+     * error, an invalid XML response, or an error during the XSLT transformation.
+     */
+    var errorCallback = null;
+
+    /**
+     * Sets the function called when the transformation fails
+     *
+     * @param c the error callback function
+     * @return this
+     * @type Transformation
+     */
+    this.setErrorCallback = function(c) {
+        errorCallback = c;
+        return this;
+    }
 	
 	/**
      * Returns the target Element.
@@ -258,9 +276,34 @@ function Transformation() {
              }
         }
 
+        var fail = function() {
+            transformed = true;
+            if (typeof _clear == 'function') {
+                _clear("centreonMsg");
+            }
+            if (errorCallback) {
+                errorCallback(t);
+                errorCallback = null;
+            }
+        }
+
         var change = function() {
+            if (transformed || xmlRequest == null || xsltRequest == null) {
+                return;
+            }
+            // Same rules as the success check below: both requests need an HTTP 200
+            // and a body. A server error can still send a valid XML document.
+            var xmlFailed = xmlRequest.readyState == 4
+                && (xmlRequest.status != 200 || !xmlRequest.responseXML);
+            var xsltFailed = xsltRequest.readyState == 4
+                && (xsltRequest.status != 200 || !xsltRequest.responseText);
+            if (xmlFailed || xsltFailed) {
+                fail();
+                return;
+            }
             if (
                 xmlRequest.readyState == 4
+                && xmlRequest.status == 200
                 && xmlRequest.responseXML
                 && xsltRequest.status == 200
                 && xsltRequest.readyState == 4
@@ -272,23 +315,29 @@ function Transformation() {
                 xsltDoc = xsltRequest.responseXML;
                 xmlDoc = xmlRequest.responseXML;
                 var targetNode = document.getElementById(target);
-                if (window.ActiveXObject || document.hasOwnProperty.call(window, "ActiveXObject")) {
-                    document.getElementById(target).innerHTML = xmlDoc.transformNode(xsltDoc);
-                } else {
-                    var resultDoc;
-                    var processor = new XSLTProcessor();
-                    if (targetNode) {
-                        // remove child nodes from DOM
-                        while (targetNode.firstChild) {
-                            targetNode.removeChild(targetNode.firstChild);
+                try {
+                    if (window.ActiveXObject || document.hasOwnProperty.call(window, "ActiveXObject")) {
+                        document.getElementById(target).innerHTML = xmlDoc.transformNode(xsltDoc);
+                    } else {
+                        var resultDoc;
+                        var processor = new XSLTProcessor();
+                        if (targetNode) {
+                            // remove child nodes from DOM
+                            while (targetNode.firstChild) {
+                                targetNode.removeChild(targetNode.firstChild);
+                            }
+                            targetNode.innerHTML = '';
                         }
-                        targetNode.innerHTML = '';
+                        processor.importStylesheet(xsltDoc);
+                        resultDoc = processor.transformToFragment(xmlDoc, document);
+                        targetNode.appendChild(resultDoc);
+                        resultDoc = null;
+                        processor = null;
                     }
-                    processor.importStylesheet(xsltDoc);
-                    resultDoc = processor.transformToFragment(xmlDoc, document);
-                    targetNode.appendChild(resultDoc);
-                    resultDoc = null;
-                    processor = null;
+                } catch (error) {
+                    // For example, a browser without XSLTProcessor. Keep the error in the console.
+                    fail();
+                    throw error;
                 }
                 if (callback) {
                     callback(t);
