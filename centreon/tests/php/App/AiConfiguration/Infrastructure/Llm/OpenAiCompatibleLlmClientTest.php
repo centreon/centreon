@@ -65,7 +65,7 @@ final class OpenAiCompatibleLlmClientTest extends TestCase
 
         /** @var array{normalized_headers: array<string, array<string>>, body: string} $capturedOptions */
         /** @var array{model: string, max_tokens: int, system?: string, messages: array<array<string, string>>} $body */
-        $body = json_decode($capturedOptions['body'], true);
+        $body = json_decode($capturedOptions['body'], true, flags: JSON_THROW_ON_ERROR);
         self::assertSame('mistral-small-latest', $body['model']);
         self::assertSame(16, $body['max_tokens']);
         // the system prompt is prepended as a system message
@@ -84,9 +84,10 @@ final class OpenAiCompatibleLlmClientTest extends TestCase
 
     public function testUsesTheConfiguredMaxTokensField(): void
     {
-        $capturedBody = null;
+        $capturedBody = '';
         $httpClient = new MockHttpClient(
             function (string $method, string $url, array $options) use (&$capturedBody): MockResponse {
+                \assert(is_string($options['body']));
                 $capturedBody = $options['body'];
 
                 return new MockResponse(json_encode([
@@ -109,7 +110,7 @@ final class OpenAiCompatibleLlmClientTest extends TestCase
         $client->complete($this->createRequest());
 
         /** @var array{max_completion_tokens?: int, max_tokens?: int} $body */
-        $body = json_decode((string) $capturedBody, true);
+        $body = json_decode($capturedBody, true, 512, \JSON_THROW_ON_ERROR);
         self::assertArrayHasKey('max_completion_tokens', $body);
         self::assertArrayNotHasKey('max_tokens', $body);
     }
