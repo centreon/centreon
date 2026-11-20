@@ -28,6 +28,7 @@ jobs:
   backend-lint:
     needs: [dependency-scan]
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     permissions:
       contents: read
     steps:
@@ -63,6 +64,7 @@ jobs:
   backend-unit-test:
     needs: [dependency-scan]
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     permissions:
       contents: read
     steps:
@@ -86,3 +88,4 @@ jobs:
       - name: 🧪 PHPUnit tests
         working-directory: php-tools
         run: composer test
+        shell: bash
