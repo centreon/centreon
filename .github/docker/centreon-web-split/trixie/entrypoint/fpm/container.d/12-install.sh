@@ -234,6 +234,20 @@ su www-data -s /bin/bash -c "php runPendingUpdates.php"
 echo "Installing baked-in modules (Autodiscovery, License Manager, IT Edition, PP Manager)..."
 su www-data -s /bin/bash -c "php installBakedModules.php"
 
+# Container-topology adaptations of the Centreon database. Run on every
+# install/upgrade run (fresh install AND an already-installed database, e.g.
+# one migrated from a VM), so they must stay idempotent. They only touch
+# Central's own rows: its nagios_server row and the broker configs attached
+# to it, never remote pollers'.
+#
+# Broker configs are found by role, never by config_id (1/2/3 only hold on a
+# fresh insertBaseConf, a VM database with any history can differ):
+#   master = Central's daemon config with a unified_sql output
+#   module = Central's non-daemon config (cbmod, loaded by centengine)
+#   rrd    = Central's other daemon config with an rrd output
+#            (central-rrd-master, merged into the master below)
+CENTRAL_ID="${CENTRAL_POLLER_ID:-1}"
+
 # createDbUser.php grants the web user from the connecting host's IP only
 # (the install pod's), so every other fpm pod is refused ("Access denied for
 # user 'centreon'@'%'", seen on a migrated 25.10 database). CREATE first: on
@@ -245,6 +259,168 @@ echo "Granting the Centreon DB user from any host..."
 mysql -h"${MYSQL_HOST}" -uroot -e "
   CREATE USER IF NOT EXISTS '${DB_USER}'@'%' IDENTIFIED BY '${DB_PASSWORD}';
   GRANT ALL ON *.* TO '${DB_USER}'@'%' WITH GRANT OPTION"
+
+# Password of the centreon-gorgone service account (the user gorgone logs in
+# to the Centreon API with). The install derives it from gorgone's own
+# 31-centreon-api.yaml (getGorgoneApiCredentialMacros()), which fpm cannot
+# read in a split topology: it stays EMPTY and gorgone ends up using admin.
+# Set on every run when provided (the caller's secret is the reference,
+# rotation works, a migrated database gets it too). bcrypt hashes contain
+# `$`: passed through PDO parameters, never interpolated in shell.
+# Port of docker-web-split 8b5ee8e39a.
+if [ -n "${GORGONE_API_PASSWORD:-}" ]; then
+  echo "Setting the centreon-gorgone service account password..."
+  GORGONE_API_PASSWORD="$GORGONE_API_PASSWORD" php -r '
+    // Database TLS as DatabaseTLSResolver applies it (this block runs
+    // outside the web, without Dotenv).
+    $options = [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION];
+    if (getenv("DATABASE_SSL_ENABLED") === "1") {
+      $options[PDO::MYSQL_ATTR_SSL_CA] = getenv("DATABASE_CA_PATH") ?: "";
+      $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = getenv("DATABASE_VERIFY_SERVER_CERT") === "1";
+    }
+    $pdo = new PDO(
+      "mysql:host=" . getenv("MYSQL_HOST") . ";dbname=" . getenv("MYSQL_DB_CONFIGURATION"),
+      "root", getenv("MYSQL_ROOT_PASSWORD"),
+      $options
+    );
+    $stmt = $pdo->prepare(
+      "UPDATE contact_password SET password = :hash WHERE contact_id = " .
+      "(SELECT contact_id FROM contact WHERE contact_alias = \"centreon-gorgone\")"
+    );
+    $stmt->execute([":hash" => password_hash(getenv("GORGONE_API_PASSWORD"), PASSWORD_BCRYPT)]);
+    echo "  rows updated: " . $stmt->rowCount() . PHP_EOL;
+    // The same service account authenticates the web against gorgone-central
+    // HTTP API when GORGONE_API_USERNAME is given (Kubernetes: gorgone runs
+    // with httpserver auth enabled). Read by ConfigurationLoader (basic auth).
+    $user = getenv("GORGONE_API_USERNAME");
+    if ($user !== false && $user !== "") {
+      $pdo->exec("DELETE FROM options WHERE `key` IN (\"gorgone_api_username\", \"gorgone_api_password\")");
+      $ins = $pdo->prepare("INSERT INTO options (`key`, `value`) VALUES (:k, :v)");
+      $ins->execute([":k" => "gorgone_api_username", ":v" => $user]);
+      $ins->execute([":k" => "gorgone_api_password", ":v" => getenv("GORGONE_API_PASSWORD")]);
+      echo "  web -> gorgone API credentials set (" . $user . ")" . PHP_EOL;
+    } else {
+      // Say what was NOT done: with only the password, gorgone accepts the
+      // account but the web never learns it, and every web -> gorgone call
+      // answers 401 with nothing pointing back here.
+      fwrite(STDERR, "  WARNING: GORGONE_API_USERNAME is not set: web -> gorgone API credentials (options gorgone_api_username/password) NOT set." . PHP_EOL);
+      fwrite(STDERR, "  WARNING: if gorgone-central requires API authentication, every web -> gorgone call will get HTTP 401." . PHP_EOL);
+    }
+  '
+fi
+
+# Central's nagios_server row stays localhost=1 (it IS the Central: the web
+# and the modules find it that way) and is marked poller_type='docker': its
+# engine and gorgone run in other containers, so gorgone-central registers it
+# as a pullwss node (type 4, port 8087) instead of treating it as itself, and
+# the web delivers its configuration through gorgone. localhost is forced
+# back to 1 for databases set up by earlier images (localhost=0). Must run
+# after insertBaseConf.php on a fresh install: it does, this block runs after
+# the install branch.
+echo "Marking Central as a containerized poller (poller_type=docker, pullwss)..."
+mysql -h"${MYSQL_HOST}" -uroot "${MYSQL_DB_CONFIGURATION}" -e "
+  UPDATE nagios_server
+     SET localhost = '1', poller_type = 'docker',
+         gorgone_communication_type = '4', gorgone_port = '8087'
+   WHERE id = ${CENTRAL_ID}"
+
+# options.gorgone_api_address ships '127.0.0.1' (co-located gorgone on a VM):
+# triggerGorgoneNodesSyncIfPullwss() (configServers/DB-Func.php) uses it to
+# tell gorgone-central to resync its nodes whenever a poller is saved.
+echo "Pointing gorgone_api_address at gorgone-central..."
+mysql -h"${MYSQL_HOST}" -uroot "${MYSQL_DB_CONFIGURATION}" -e \
+  "UPDATE options SET value = 'gorgone-central' WHERE \`key\` = 'gorgone_api_address'"
+
+# Broker configs of Central:
+# - master's unified_sql db_host: a migrated database keeps the old DB host.
+# - cbmod's output host ships localhost (co-located broker on a VM).
+# - RRD: merge central-rrd-master into the master (a type=rrd output writing
+#   /var/lib/centreon/{metrics,status} directly) instead of the default
+#   BBDO forward to localhost:5670 + a separate rrd process. Insert only if
+#   the master has no rrd output yet; delete the 5670 forward and the
+#   rrd-master config only if present. Field list taken from a working,
+#   UI-created RRD output (blockId is UI bookkeeping, excluded from the
+#   generated JSON).
+echo "Adapting Central's broker configuration (db_host, cbmod output, RRD merge)..."
+mysql -h"${MYSQL_HOST}" -uroot "${MYSQL_DB_CONFIGURATION}" -e "
+  SET @master = (
+    SELECT b.config_id FROM cfg_centreonbroker b
+      JOIN cfg_centreonbroker_info i ON i.config_id = b.config_id
+     WHERE b.ns_nagios_server = ${CENTRAL_ID} AND b.daemon = '1'
+       AND i.config_group = 'output' AND i.config_key = 'type' AND i.config_value = 'unified_sql'
+     LIMIT 1);
+  SET @module = (
+    SELECT config_id FROM cfg_centreonbroker
+     WHERE ns_nagios_server = ${CENTRAL_ID} AND daemon = '0'
+     LIMIT 1);
+  SET @rrdcfg = (
+    SELECT b.config_id FROM cfg_centreonbroker b
+      JOIN cfg_centreonbroker_info i ON i.config_id = b.config_id
+     WHERE b.ns_nagios_server = ${CENTRAL_ID} AND b.daemon = '1' AND b.config_id <> @master
+       AND i.config_group = 'output' AND i.config_key = 'type' AND i.config_value = 'rrd'
+     LIMIT 1);
+
+  UPDATE cfg_centreonbroker_info SET config_value = '${MYSQL_HOST}'
+   WHERE config_id = @master AND config_key = 'db_host';
+  UPDATE cfg_centreonbroker_info SET config_value = 'centreon-broker'
+   WHERE config_id = @module AND config_group = 'output' AND config_key = 'host';
+  -- cbmod's cache_directory (where it saves its in-memory queue on a clean
+  -- stop, and overflows it to disk) only when the caller provides a
+  -- persistent path: the default /var/lib/centreon-engine holds image files,
+  -- no volume can be mounted there.
+  UPDATE cfg_centreonbroker SET cache_directory = '${CBMOD_CACHE_DIRECTORY:-}'
+   WHERE config_id = @module AND '${CBMOD_CACHE_DIRECTORY:-}' <> '';
+  -- Same for the master broker: its queue while the database is down
+  -- (default /var/lib/centreon-broker holds the image's entrypoint).
+  UPDATE cfg_centreonbroker SET cache_directory = '${BROKER_CACHE_DIRECTORY:-}'
+   WHERE config_id = @master AND '${BROKER_CACHE_DIRECTORY:-}' <> '';
+
+  SET @fwd_gid = (
+    SELECT config_group_id FROM cfg_centreonbroker_info
+     WHERE config_id = @master AND config_group = 'output'
+       AND config_key = 'port' AND config_value = '5670'
+     LIMIT 1);
+  DELETE FROM cfg_centreonbroker_info
+   WHERE config_id = @master AND config_group = 'output' AND config_group_id = @fwd_gid;
+  DELETE FROM cfg_centreonbroker_info WHERE config_id = @rrdcfg;
+  DELETE FROM cfg_centreonbroker WHERE config_id = @rrdcfg;
+
+  SET @has_rrd = (
+    SELECT COUNT(*) FROM cfg_centreonbroker_info
+     WHERE config_id = @master AND config_group = 'output'
+       AND config_key = 'type' AND config_value = 'rrd');
+  SET @new_gid = (
+    SELECT COALESCE(MAX(config_group_id), 0) + 1 FROM cfg_centreonbroker_info
+     WHERE config_id = @master AND config_group = 'output');
+  INSERT INTO cfg_centreonbroker_info (config_id, config_key, config_value, config_group, config_group_id)
+  SELECT @master, k, v, 'output', @new_gid FROM (
+              SELECT 'name' AS k, 'central-broker-master-rrd' AS v
+    UNION ALL SELECT 'type', 'rrd'
+    UNION ALL SELECT 'metrics_path', '/var/lib/centreon/metrics/'
+    UNION ALL SELECT 'status_path', '/var/lib/centreon/status/'
+    UNION ALL SELECT 'write_metrics', 'yes'
+    UNION ALL SELECT 'write_status', 'yes'
+    UNION ALL SELECT 'store_in_data_bin', 'yes'
+    UNION ALL SELECT 'insert_in_index_data', '1'
+    UNION ALL SELECT 'rrd_cached', ''
+    UNION ALL SELECT 'rrd_cached_option', 'disable'
+    UNION ALL SELECT 'blockId', '1_13'
+  ) AS rrd_fields
+  WHERE @master IS NOT NULL AND @has_rrd = 0;
+"
+
+# Central's engine logs straight to the container's stdout instead of a file
+# on its volume that the engine image tails (and that grows for the pod's
+# whole life). The image skips its tail for /dev/std*. An empty log_file
+# would not do: the generator drops empty fields and engine falls back to its
+# compiled default file. Only the package default is replaced, a path chosen
+# in the UI is kept. Engine never rotates it: the generator does not write
+# max_log_file_size, which stays 0 (a rotation would rename /dev/stdout).
+echo "Sending Central's engine log to stdout..."
+mysql -h"${MYSQL_HOST}" -uroot "${MYSQL_DB_CONFIGURATION}" -e "
+  UPDATE cfg_nagios SET log_file = '/dev/stdout'
+   WHERE nagios_server_id = ${CENTRAL_ID}
+     AND log_file = '/var/log/centreon-engine/centengine.log'"
 fi
 
 echo "Generating Centreon cache..."

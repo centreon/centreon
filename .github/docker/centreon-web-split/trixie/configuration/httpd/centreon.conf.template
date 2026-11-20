@@ -10,10 +10,11 @@
 #   - RewriteCond install-gate removed on purpose: T9 will own automated
 #     install, this vhost no longer redirects to www/install/install.php
 #
-# ${HTTPD_SERVER_NAME} and ${PHP_FPM_UPSTREAM} are substituted at container
-# start by entrypoint/httpd/container.d/10-config.sh (envsubst, restricted to
-# these variables — do not widen that substitution list, this file also
-# contains literal Apache regex backreferences like $1 that must survive it).
+# ${HTTPD_SERVER_NAME}, ${PHP_FPM_UPSTREAM} and ${GORGONE_WSS_UPSTREAM} are
+# substituted at container start by entrypoint/httpd/container.d/10-config.sh
+# (envsubst, restricted to these three variables — do not widen that
+# substitution list, this file also contains literal Apache regex
+# backreferences like $1 that must survive it).
 #
 Define base_uri "/centreon"
 Define install_dir "/usr/share/centreon"
@@ -34,6 +35,19 @@ ServerTokens Prod
     Alias ${base_uri} ${install_dir}/www/
 
     AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json
+
+    <IfModule mod_proxy_wstunnel.c>
+        # gorgone has multiple communication modes, one of them is websocket
+        # (pullwss). Terminating it here means gorgone never has to manage its
+        # own TLS certificate — auth stays entirely inside gorgone (a shared
+        # token, or a Centreon API token if it contains ':'), this is not an
+        # authentication layer. ${GORGONE_WSS_UPSTREAM} is the central
+        # gorgone's proxy.httpserver address:port (NOT the top-level
+        # httpserver REST API module — a separate listener), deployment-
+        # specific like ${PHP_FPM_UPSTREAM}, never a literal localhost.
+        ProxyPass "${base_uri}/gorgone/pullwss/websocket"  "ws://${GORGONE_WSS_UPSTREAM}/"
+        ProxyPassReverse "${base_uri}/gorgone/pullwss/websocket"  "ws://${GORGONE_WSS_UPSTREAM}/"
+    </IfModule>
 
     <LocationMatch ^\${base_uri}/?(?!api/(?![^/]+\.php(?:/|$)))(.*\.php(/.*)?)$>
         ProxyPassMatch "fcgi://${PHP_FPM_UPSTREAM}${install_dir}/www/$1"
