@@ -360,12 +360,22 @@ final class GetHostTemplateProviderTest extends ApiTestCase
 
     public function testATemplateBreakingTheHostInvariantsCannotBeRead(): void
     {
-        $id = $this->insertTemplate('legacy', ['command_command_id_arg1' => '!-w!80']);
+        $id = $this->insertTemplate('legacy', ['host_max_check_attempts' => 0]);
         $this->login();
 
         $this->request('GET', $this->uri($id), self::JSON);
 
         self::assertResponseStatusCodeSame(500);
+    }
+
+    public function testCheckArgumentsWithoutACheckCommandAreRead(): void
+    {
+        $id = $this->insertTemplate('args', ['command_command_id_arg1' => '!-w!80']);
+        $this->login();
+
+        $body = $this->request('GET', $this->uri($id), self::JSON)->toArray();
+
+        self::assertSame(['args' => ['-w', '80'], 'macros' => []], $body['check_options']);
     }
 
     public function testALockedTemplateReadsAsLocked(): void

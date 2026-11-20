@@ -292,14 +292,13 @@ final class CreateHostTemplateProcessorTest extends ApiTestCase
      * @param array<string, mixed> $body
      */
     #[DataProvider('provideRemovedKeys')]
-    public function testAKeyTheTemplateDoesNotHaveIsABadRequest(array $body): void
+    public function testAKeyTheTemplateDoesNotHaveIsIgnored(array $body): void
     {
         $this->login();
 
-        $this->request('POST', self::URI, ['json' => $body + ['name' => "tpl-{$this->tag}", 'alias' => 'alias']]);
+        $id = $this->create($body + ['name' => "tpl-{$this->tag}", 'alias' => 'alias']);
 
-        self::assertResponseStatusCodeSame(400);
-        self::assertFalse($this->connection->fetchOne('SELECT 1 FROM host WHERE host_name = ?', ["tpl-{$this->tag}"]));
+        self::assertSame('0', $this->connection->fetchOne('SELECT host_register FROM host WHERE host_id = ?', [$id]));
     }
 
     /**
@@ -429,8 +428,6 @@ final class CreateHostTemplateProcessorTest extends ApiTestCase
 
         yield 'notification interval 2147483648' => [['notifications' => ['interval' => 2147483648]], 'notifications.interval'];
 
-        yield 'arguments without a check command' => [['check_options' => ['command_id' => null, 'args' => ['-w', '80']]], 'check_options.args'];
-
         yield 'an argument with the delimiter' => [['check_options' => ['args' => ['a!b']]], 'check_options.args[0]'];
 
         yield 'an argument with an escape token' => [['check_options' => ['args' => ['a#BR#b']]], 'check_options.args[0]'];
@@ -461,6 +458,11 @@ final class CreateHostTemplateProcessorTest extends ApiTestCase
 
         yield 'an snmp community that is a vault reference' => [
             ['snmp_community' => 'secret::vault::monitoring/hosts/x::_HOSTSNMPCOMMUNITY'],
+            'snmp_community',
+        ];
+
+        yield 'an snmp community that is a vault reference after a space' => [
+            ['snmp_community' => ' secret::vault::monitoring/hosts/x::_HOSTSNMPCOMMUNITY'],
             'snmp_community',
         ];
 
@@ -782,6 +784,18 @@ final class CreateHostTemplateProcessorTest extends ApiTestCase
         );
         self::assertSame($severityId, $this->asInt($this->connection->fetchOne('SELECT hostcategories_hc_id FROM hostcategories_relation WHERE host_host_id = ?', [$id])));
         self::assertSame($contactGroupId, $this->asInt($this->connection->fetchOne('SELECT contactgroup_cg_id FROM contactgroup_host_relation WHERE host_host_id = ?', [$id])));
+    }
+
+    public function testArgumentsWithoutACheckCommandAreStoredForTheCommandOfTheParents(): void
+    {
+        $this->login();
+
+        $id = $this->create(['name' => "args-{$this->tag}", 'alias' => 'alias', 'check_options' => ['command_id' => null, 'args' => ['-w', '80']]]);
+
+        self::assertSame(
+            ['command_command_id' => null, 'command_command_id_arg1' => '!-w!80'],
+            $this->connection->fetchAssociative('SELECT command_command_id, command_command_id_arg1 FROM host WHERE host_id = ?', [$id]),
+        );
     }
 
     /**

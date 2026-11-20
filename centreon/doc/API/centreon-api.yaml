@@ -5452,19 +5452,6 @@ paths:
       tags:
         - HostTemplate
       responses:
-        '400':
-          description: 'A field the host template does not have'
-          content:
-            application/ld+json:
-              schema:
-                $ref: '#/components/schemas/Error.jsonld'
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Error'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          links: {}
         '401':
           description: 'Authentication required'
         '403':
@@ -5495,6 +5482,19 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HostTemplate'
+          links: {}
+        '400':
+          description: 'Invalid input'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
           links: {}
       summary: 'Create a host template'
       description: 'Create a host template'
@@ -16228,7 +16228,6 @@ components:
             - 'null'
     CreateHostTemplateCheckOptionsInput:
       type: object
-      additionalProperties: false
       properties:
         command_id:
           minimum: 0
@@ -16237,7 +16236,7 @@ components:
             - integer
             - 'null'
         args:
-          description: 'require a check command'
+          description: 'kept without a check command: they apply to the command the parents set'
           type: array
           items:
             type: string
@@ -16247,7 +16246,6 @@ components:
             $ref: '#/components/schemas/HostTemplateMacroInput'
     CreateHostTemplateDataProcessingInput:
       type: object
-      additionalProperties: false
       properties:
         check_freshness:
           type:
@@ -16312,7 +16310,6 @@ components:
             type: string
     CreateHostTemplateExtendedInformationsInput:
       type: object
-      additionalProperties: false
       properties:
         note_url:
           maxLength: 2048
@@ -16347,7 +16344,6 @@ components:
             - 'null'
     CreateHostTemplateNotificationsInput:
       type: object
-      additionalProperties: false
       properties:
         enabled:
           enum:
@@ -16407,7 +16403,6 @@ components:
           type: boolean
     CreateHostTemplateSchedulingOptionsInput:
       type: object
-      additionalProperties: false
       properties:
         check_timeperiod_id:
           minimum: 0
@@ -16453,7 +16448,6 @@ components:
             - null
     HostTemplate.CreateHostTemplateInput:
       type: object
-      additionalProperties: false
       required:
         - name
         - alias
@@ -16544,7 +16538,6 @@ components:
               type: 'null'
     HostTemplateMacroInput:
       type: object
-      additionalProperties: false
       required:
         - name
       properties:

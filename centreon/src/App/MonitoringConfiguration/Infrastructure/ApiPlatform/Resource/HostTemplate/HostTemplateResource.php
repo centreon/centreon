@@ -143,11 +143,9 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\Pa
             itemUriTemplate: '/configuration/host_templates/{id}',
             input: CreateHostTemplateInput::class,
             processor: CreateHostTemplateProcessor::class,
-            denormalizationContext: ['allow_extra_attributes' => false],
             openapi: new Model\Operation(
                 summary: 'Create a host template',
                 responses: [
-                    400 => new Model\Response('A field the host template does not have'),
                     401 => new Model\Response('Authentication required'),
                     403 => new Model\Response('You are not allowed to create host templates'),
                     409 => new Model\Response('A host or host template already uses this name'),
