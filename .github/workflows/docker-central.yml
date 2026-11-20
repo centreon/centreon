@@ -1,0 +1,446 @@
+name: docker-central
+
+# Builds, tests and publishes the split central images (httpd / fpm / cron,
+# .github/docker/centreon-web-split) to the internal registry.
+#
+# PoC (epic MON-213806): Harbor only, no ghcr/Pulp promotion yet. On pull
+# requests the build only runs when the PR carries the `build-docker-central`
+# label, so ordinary web PRs touching centreon/** do not pay for it.
+#
+# Cross-repository inputs (centreon-collect perl-libs, autodiscovery module,
+# gorgone/broker/engine images for the smoke test) are pinned in
+# .github/docker/centreon-web-split/trixie/dependencies.env.
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled]
+    paths:
+      - ".github/workflows/docker-central.yml"
+      - ".github/docker/centreon-web-split/**"
+      - ".github/docker/centreon-web/trixie/configuration/**"
+      - ".github/scripts/centreon-central-docker-*.sh"
+      - ".dockerignore"
+      - ".version"
+      - ".version.centreon-web"
+      - "centreon/**"
+  push:
+    branches:
+      - develop
+      - dev-[2-9][0-9].[0-9][0-9].x
+    paths:
+      - ".github/workflows/docker-central.yml"
+      - ".github/docker/centreon-web-split/**"
+      - ".github/docker/centreon-web/trixie/configuration/**"
+      - ".github/scripts/centreon-central-docker-*.sh"
+      - ".dockerignore"
+      - ".version"
+      - ".version.centreon-web"
+      - "centreon/**"
+
+permissions:
+  contents: read
+
+env:
+  SPLIT_DIR: .github/docker/centreon-web-split
+  IMAGE_PREFIX: centreon-web-split
+  OPERATING_SYSTEM: trixie
+
+jobs:
+  get-environment:
+    # Pull requests: labelled with build-docker-central, not from a fork (the
+    # images are pushed by digest to the internal registry). A `labeled` event
+    # for another label must not start (and cancel) a build.
+    if: |
+      github.event_name != 'pull_request' || (
+        github.event.pull_request.head.repo.fork != true &&
+        contains(github.event.pull_request.labels.*.name, 'build-docker-central') &&
+        (github.event.action != 'labeled' || github.event.label.name == 'build-docker-central')
+      )
+    permissions:
+      contents: read
+      pull-requests: write
+    uses: ./.github/workflows/get-environment.yml
+    with:
+      version_file: centreon/www/install/insertBaseConf.sql
+
+  prepare:
+    needs: [get-environment]
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability != 'stable'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+      additional_tag: ${{ steps.tag.outputs.additional_tag }}
+      collect_ref: ${{ steps.deps.outputs.collect_ref }}
+      gorgone_tag: ${{ steps.deps.outputs.gorgone_tag }}
+      broker_tag: ${{ steps.deps.outputs.broker_tag }}
+      engine_tag: ${{ steps.deps.outputs.engine_tag }}
+      autodisco_tag: ${{ steps.deps.outputs.autodisco_tag }}
+      trapd_tag: ${{ steps.deps.outputs.trapd_tag }}
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/docker/centreon-web-split/trixie/dependencies.env
+          sparse-checkout-cone-mode: false
+
+      - name: Compute Docker tag
+        id: tag
+        env:
+          RAW_REF: ${{ github.head_ref || github.ref_name }}
+          MAJOR_VERSION: ${{ needs.get-environment.outputs.major_version }}
+        run: |
+          # Same scheme as the centreon-trapd and centreon-collect images.
+          if [[ "$RAW_REF" == "develop" ]]; then
+            echo "tag=develop-${MAJOR_VERSION}" >> "$GITHUB_OUTPUT"
+            echo "additional_tag=develop" >> "$GITHUB_OUTPUT"
+          elif [[ "$RAW_REF" =~ ^dev-[0-9]+\.[0-9]+\.x$ ]]; then
+            echo "tag=${MAJOR_VERSION}" >> "$GITHUB_OUTPUT"
+            echo "additional_tag=" >> "$GITHUB_OUTPUT"
+          else
+            docker_tag=$(printf '%s' "$RAW_REF" | sed -E 's#[^[:alnum:]_.-]+#-#g; s#^[.-]+##; s#-+#-#g' | cut -c1-128)
+            if [[ -z "$docker_tag" ]]; then
+              echo "::error::Unable to derive a valid Docker tag from ref '$RAW_REF'"
+              exit 1
+            fi
+            echo "tag=${docker_tag}" >> "$GITHUB_OUTPUT"
+            echo "additional_tag=" >> "$GITHUB_OUTPUT"
+          fi
+        shell: bash
+
+      - name: Read cross-repository dependencies
+        id: deps
+        run: |
+          # Parsed, never sourced: only KEY=value lines with a safe value.
+          file="${SPLIT_DIR}/trixie/dependencies.env"
+          for key in COLLECT_REF GORGONE_TAG BROKER_TAG ENGINE_TAG AUTODISCO_TAG TRAPD_TAG; do
+            value=$(sed -nE "s/^${key}=([A-Za-z0-9._-]+)\$/\1/p" "$file" | tail -1)
+            if [[ -z "$value" ]]; then
+              echo "::error file=${file}::missing or invalid ${key}"
+              exit 1
+            fi
+            echo "${key,,}=${value}" >> "$GITHUB_OUTPUT"
+            echo "${key}=${value}"
+          done
+        shell: bash
+
+  dockerize:
+    needs: [get-environment, prepare]
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [httpd, fpm, cron]
+        arch: [amd64, arm64]
+        include:
+          - arch: amd64
+            runner: ubuntu-24.04
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+    name: dockerize ${{ matrix.target }} (${{ matrix.arch }})
+    env:
+      IMAGE: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-split-${{ matrix.target }}-trixie
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Checkout centreon-collect (perl-libs build context)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: centreon/centreon-collect
+          ref: ${{ needs.prepare.outputs.collect_ref }}
+          path: centreon-collect
+          persist-credentials: false
+          sparse-checkout: perl-libs/lib
+
+      - name: Get centreon-collect revision
+        id: collect-revision
+        run: echo "sha=$(git -C centreon-collect rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+        shell: bash
+
+      - name: Login to registry
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          username: ${{ secrets.HARBOR_CENTREON_PUSH_USERNAME }}
+          password: ${{ secrets.HARBOR_CENTREON_PUSH_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+
+      - name: Compute build date
+        id: build-date
+        run: echo "date=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_OUTPUT"
+        shell: bash
+
+      # Native build per architecture, pushed by digest; the manifest list is
+      # assembled by merge-manifests. The AUTODISCO_IMAGE build-arg and the
+      # perl-libs build context are always passed: a Dockerfile revision that
+      # does not use them yet ignores them.
+      - name: Docker build and push by digest
+        id: build
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        env:
+          DOCKER_BUILD_CHECKS_ANNOTATIONS: false
+          DOCKER_BUILD_SUMMARY: false
+          DOCKER_BUILD_RECORD_UPLOAD: false
+        with:
+          context: .
+          file: ${{ env.SPLIT_DIR }}/trixie/Dockerfile
+          target: ${{ matrix.target }}
+          platforms: linux/${{ matrix.arch }}
+          build-contexts: |
+            perl-libs=centreon-collect/perl-libs/lib
+          build-args: |
+            AUTODISCO_IMAGE=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-autodisco-trixie:${{ needs.prepare.outputs.autodisco_tag }}
+            BUILD_DATE=${{ steps.build-date.outputs.date }}
+            BUILD_VERSION=${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }}-${{ needs.get-environment.outputs.release }}
+            GIT_REVISION=${{ github.event.pull_request.head.sha || github.sha }}
+            PACKAGE_SOURCES=centreon@${{ github.event.pull_request.head.sha || github.sha }} + centreon-collect@${{ steps.collect-revision.outputs.sha }}
+          pull: true
+          provenance: false
+          sbom: false
+          outputs: type=image,name=${{ env.IMAGE }},push-by-digest=true,name-canonical=true,push=true
+          cache-from: type=registry,ref=${{ env.IMAGE }}:buildcache-${{ matrix.arch }}
+          cache-to: type=registry,ref=${{ env.IMAGE }}:buildcache-${{ matrix.arch }},mode=max,image-manifest=true,oci-mediatypes=true,ignore-error=true
+
+      - name: Export digest
+        env:
+          DIGEST: ${{ steps.build.outputs.digest }}
+        run: |
+          mkdir -p /tmp/digests
+          touch "/tmp/digests/${DIGEST#sha256:}"
+        shell: bash
+
+      - name: Upload digest
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: central-digest-${{ matrix.target }}-${{ matrix.arch }}
+          path: /tmp/digests/*
+          retention-days: 1
+          if-no-files-found: error
+
+  merge-manifests:
+    needs: [prepare, dockerize]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [httpd, fpm, cron]
+    name: merge manifests ${{ matrix.target }}
+    env:
+      IMAGE: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-split-${{ matrix.target }}-trixie
+    steps:
+      - name: Download digests
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: central-digest-${{ matrix.target }}-*
+          path: /tmp/digests
+          merge-multiple: true
+
+      - name: Login to registry
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          username: ${{ secrets.HARBOR_CENTREON_PUSH_USERNAME }}
+          password: ${{ secrets.HARBOR_CENTREON_PUSH_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+
+      - name: Create multi-arch manifest
+        working-directory: /tmp/digests
+        env:
+          TAG: ${{ needs.prepare.outputs.tag }}
+          ADDITIONAL_TAG: ${{ needs.prepare.outputs.additional_tag }}
+        run: |
+          tags=(--tag "${IMAGE}:${TAG}")
+          [[ -n "$ADDITIONAL_TAG" ]] && tags+=(--tag "${IMAGE}:${ADDITIONAL_TAG}")
+          sources=()
+          for digest in *; do sources+=("${IMAGE}@sha256:${digest}"); done
+          if (( ${#sources[@]} != 2 )); then
+            echo "::error::expected 2 platform digests, got ${#sources[@]}"
+            exit 1
+          fi
+          docker buildx imagetools create "${tags[@]}" "${sources[@]}"
+          docker buildx imagetools inspect "${IMAGE}:${TAG}"
+        shell: bash
+
+  boot-test:
+    needs: [prepare, merge-manifests]
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [httpd, fpm, cron]
+        arch: [amd64, arm64]
+        include:
+          - arch: amd64
+            runner: ubuntu-24.04
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+    name: boot test ${{ matrix.target }} (${{ matrix.arch }})
+    env:
+      IMAGE: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-split-${{ matrix.target }}-trixie:${{ needs.prepare.outputs.tag }}
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/scripts
+          sparse-checkout-cone-mode: false
+
+      - name: Login to registry
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
+          password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
+
+      - name: Pull image
+        run: docker pull --platform "linux/${{ matrix.arch }}" "$IMAGE"
+        shell: bash
+
+      - name: Run boot test
+        env:
+          ROLE: ${{ matrix.target }}
+          PLATFORM: linux/${{ matrix.arch }}
+          SUMMARY_FRAGMENT_FILE: /tmp/summary-fragment.md
+        run: ./.github/scripts/centreon-central-docker-boot-test.sh
+        shell: bash
+
+      - name: Publish summary fragment
+        if: always()
+        run: '[ -f /tmp/summary-fragment.md ] && cat /tmp/summary-fragment.md >> "$GITHUB_STEP_SUMMARY" || true'
+        shell: bash
+
+      - name: Upload log on failure
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: central-boot-test-${{ matrix.target }}-${{ matrix.arch }}
+          path: /tmp/centreon-central-boot-test.log
+          retention-days: 7
+
+  compose-smoke:
+    needs: [prepare, merge-manifests]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    name: compose smoke test
+    env:
+      REGISTRY: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+      TAG: ${{ needs.prepare.outputs.tag }}
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Login to registry
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
+          password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
+
+      - name: Run compose smoke test
+        env:
+          IMAGE_TEMPLATE: ${{ env.REGISTRY }}/centreon-web-split-{target}-trixie:${{ env.TAG }}
+          GORGONE_IMAGE: ${{ env.REGISTRY }}/centreon-gorgone-trixie:${{ needs.prepare.outputs.gorgone_tag }}
+          BROKER_IMAGE: ${{ env.REGISTRY }}/centreon-broker-trixie:${{ needs.prepare.outputs.broker_tag }}
+          ENGINE_IMAGE: ${{ env.REGISTRY }}/centreon-engine-trixie:${{ needs.prepare.outputs.engine_tag }}
+          TRAPD_IMAGE: ${{ env.REGISTRY }}/centreon-trapd-trixie:${{ needs.prepare.outputs.trapd_tag }}
+          SUMMARY_FILE: ${{ github.step_summary }}
+        run: ./.github/scripts/centreon-central-docker-compose-smoke.sh
+        shell: bash
+
+      - name: Upload compose logs
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: central-compose-smoke-logs
+          path: /tmp/centreon-central-smoke
+          retention-days: 7
+          if-no-files-found: ignore
+
+  trivy:
+    # Informational CVE scan + SBOM, same as centreon-trapd: never blocks.
+    needs: [prepare, merge-manifests]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [httpd, fpm, cron]
+    name: trivy ${{ matrix.target }}
+    env:
+      IMAGE: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-split-${{ matrix.target }}-trixie:${{ needs.prepare.outputs.tag }}
+    steps:
+      - name: Login to registry
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
+          password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
+
+      - name: Run Trivy CVE scan (informational)
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          scan-type: image
+          image-ref: ${{ env.IMAGE }}
+          severity: UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL
+          ignore-unfixed: true
+          format: json
+          output: cve-report-${{ matrix.target }}.json
+          exit-code: '0'
+
+      - name: Write CVE summary
+        env:
+          REPORT: cve-report-${{ matrix.target }}.json
+          TARGET: ${{ matrix.target }}
+        run: |
+          count_sev() {
+            jq --arg sev "$1" '[.Results[]?.Vulnerabilities[]?] | group_by(.VulnerabilityID) | map(.[0]) | map(select(.Severity==$sev)) | length' "$REPORT"
+          }
+          {
+            echo "### Trivy CVE scan — centreon-web-split-${TARGET}-trixie"
+            echo
+            echo "_ignore-unfixed: true — fixable CVEs only._"
+            echo
+            echo "\`${IMAGE}\`"
+            echo
+            echo "| CRITICAL | HIGH | MEDIUM | LOW | UNKNOWN |"
+            echo "| --- | --- | --- | --- | --- |"
+            echo "| $(count_sev CRITICAL) | $(count_sev HIGH) | $(count_sev MEDIUM) | $(count_sev LOW) | $(count_sev UNKNOWN) |"
+            echo
+          } >> "$GITHUB_STEP_SUMMARY"
+        shell: bash
+
+      - name: Generate SBOM (CycloneDX)
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          scan-type: image
+          image-ref: ${{ env.IMAGE }}
+          format: cyclonedx
+          output: sbom-${{ matrix.target }}-cyclonedx.json
+
+      - name: Upload CVE report and SBOM
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: central-cve-sbom-${{ matrix.target }}
+          path: |
+            cve-report-*.json
+            sbom-*.json
+          retention-days: 30
