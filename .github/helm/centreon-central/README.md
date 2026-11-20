@@ -245,7 +245,7 @@ enforces them, k3s does):
 | `<release>-gorgone-central` | 8085 from fpm, cron + config-delivery Job, 8087 from httpd |
 | `<release>-fpm` | 9000 from httpd |
 | `<release>-broker` | 5669 from anywhere (pollers), 51001 (cbd gRPC) from the Central poller pod only, 42217 from fpm (rrdcached) |
-| `<release>-db` (bundled DB only) | 3306 from fpm, install, config-delivery, cron, gorgone-central, broker, autodiscovery-worker |
+| `<release>-db` (bundled DB only) | `database.port` (3306) from fpm, install, config-delivery, cron, gorgone-central, broker, autodiscovery-worker |
 | `<release>-valkey` (`valkey.enabled`) | 6379 from fpm |
 | `<release>-pollers` | 4317 (`otelFrom`), 162/udp when traps (`trapsFrom`) |
 
@@ -311,7 +311,8 @@ config delivery run again, and the broker pod restarts with the sidecar.
 | `<release>-central-engine-otel` | 4317 | `centralPoller.otel.service.type` (LoadBalancer for agents outside the cluster) | CMA agents |
 | `<release>-central-snmptrap`, `<release>-poller-<name>-snmptrap` | 162/udp | `centralPoller.traps.service.type` (with traps; LoadBalancer for devices outside the cluster) | SNMP devices |
 | poller pods (engine gRPC) | 50155 | never (NetworkPolicy `<release>-pollers`: only 4317 reachable, from `networkPolicy.pollers.otelFrom`) | gorgone in the same pod |
-| `db` | 3306 | never | install, config-delivery, fpm, cron, autodiscovery worker, gorgone-central, broker |
+| `<release>-central-poller-hl`, `<release>-poller-<name>` | 50155 | never (headless: governing Services of the poller StatefulSets, pod DNS only) | none (pollers dial out) |
+| `db` | `database.port` (3306) | never | install, config-delivery, fpm, cron, autodiscovery worker, gorgone-central, broker |
 
 The Ingress routes `host/` to httpd: UI, API and the pullwss websocket of
 pollers outside the cluster (`/centreon/gorgone/pullwss/websocket`). With
@@ -342,7 +343,7 @@ kubectl --context k3d-centreon-helm -n ingress-nginx port-forward svc/ingress-ng
 ## Migrating an existing (VM) database
 
 Point the chart at the existing database (`database.bundled=false`,
-`database.externalHost`). The install Job sees the schema, runs the pending
+`database.externalHost`, `database.port` if not 3306). The install Job sees the schema, runs the pending
 updates, registers the baked-in modules, then applies the container-topology
 adaptations, on every run and idempotently:
 

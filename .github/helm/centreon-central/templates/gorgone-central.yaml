@@ -49,9 +49,9 @@ spec:
             # GORGONE__ segments must be all uppercase (load_env_config
             # silently drops mixed-case overrides).
             - name: GORGONE__CENTREON__DATABASE__DB_CONFIGURATION__DSN
-              value: {{ printf "mysql:host=%s;dbname=%s%s" (include "centreon-central.dbHost" .) .Values.database.configurationDb (include "centreon-central.dbTlsDsn" .) | quote }}
+              value: {{ printf "mysql:host=%s;port=%s;dbname=%s%s" (include "centreon-central.dbHost" .) (include "centreon-central.dbPort" .) .Values.database.configurationDb (include "centreon-central.dbTlsDsn" .) | quote }}
             - name: GORGONE__CENTREON__DATABASE__DB_REALTIME__DSN
-              value: {{ printf "mysql:host=%s;dbname=%s%s" (include "centreon-central.dbHost" .) .Values.database.storageDb (include "centreon-central.dbTlsDsn" .) | quote }}
+              value: {{ printf "mysql:host=%s;port=%s;dbname=%s%s" (include "centreon-central.dbHost" .) (include "centreon-central.dbPort" .) .Values.database.storageDb (include "centreon-central.dbTlsDsn" .) | quote }}
             # The image writes centreon/centreon into 30-centreon.yaml
             # (10-create-config.sh): override with the release's DB user.
             - { name: GORGONE__CENTREON__DATABASE__DB_CONFIGURATION__USERNAME, value: centreon }

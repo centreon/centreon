@@ -63,6 +63,7 @@ spec:
               args: ["su", "-s", "/bin/sh", {{ $job.user | quote }}, "-c", {{ $job.command | quote }}]
               env:
                 - { name: MYSQL_HOST, value: {{ include "centreon-central.dbHost" $ | quote }} }
+                - { name: MYSQL_PORT, value: {{ include "centreon-central.dbPort" $ | quote }} }
                 - { name: MYSQL_DB_CONFIGURATION, value: {{ $.Values.database.configurationDb | quote }} }
                 - { name: MYSQL_DB_STORAGE, value: {{ $.Values.database.storageDb | quote }} }
                 {{- include "centreon-central.secretEnv" (dict "ctx" $ "name" "APP_SECRET" "key" "APP_SECRET") | nindent 16 }}

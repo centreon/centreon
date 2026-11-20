@@ -30,6 +30,10 @@ app.kubernetes.io/component: {{ .component }}
 {{- if .Values.database.bundled -}}db{{- else -}}{{ required "database.externalHost is required when database.bundled=false" .Values.database.externalHost }}{{- end -}}
 {{- end -}}
 
+{{- define "centreon-central.dbPort" -}}
+{{- .Values.database.port | default 3306 | int -}}
+{{- end -}}
+
 {{/* env var from the shared Secret: (dict "ctx" $ "name" "ENV" "key" "KEY") */}}
 {{- define "centreon-central.secretEnv" -}}
 - name: {{ .name }}
@@ -107,7 +111,7 @@ externalTrafficPolicy: {{ .externalTrafficPolicy }}
   command: ["/bin/sh", "-c"]
   args:
     - |
-      until [ "$(mysql {{ include "centreon-central.dbCliTls" $ }} -N -s -h"$MYSQL_HOST" -u"$MYSQL_USER" "$MYSQL_DB_CONFIGURATION" \
+      until [ "$(mysql {{ include "centreon-central.dbCliTls" $ }} -N -s -h"$MYSQL_HOST" -P"$MYSQL_PORT" -u"$MYSQL_USER" "$MYSQL_DB_CONFIGURATION" \
           -e "SELECT value FROM options WHERE \`key\` = 'helm_install_id'" 2>/dev/null)" = "$INSTALL_ID" ]; do
         echo "Waiting for install $INSTALL_ID..."
         sleep 5
@@ -115,6 +119,7 @@ externalTrafficPolicy: {{ .externalTrafficPolicy }}
       echo "Install $INSTALL_ID done."
   env:
     - { name: MYSQL_HOST, value: {{ include "centreon-central.dbHost" $ | quote }} }
+    - { name: MYSQL_PORT, value: {{ include "centreon-central.dbPort" $ | quote }} }
     - { name: MYSQL_DB_CONFIGURATION, value: {{ $.Values.database.configurationDb | quote }} }
     - { name: MYSQL_USER, value: {{ .user | quote }} }
     - { name: INSTALL_ID, value: {{ include "centreon-central.installId" $ | quote }} }
@@ -138,6 +143,7 @@ externalTrafficPolicy: {{ .externalTrafficPolicy }}
 {{- define "centreon-central.fpmInstallEnv" -}}
 - { name: RUN_INSTALL, value: "true" }
 - { name: MYSQL_HOST, value: {{ include "centreon-central.dbHost" . | quote }} }
+- { name: MYSQL_PORT, value: {{ include "centreon-central.dbPort" . | quote }} }
 - { name: MYSQL_DB_CONFIGURATION, value: {{ .Values.database.configurationDb | quote }} }
 - { name: MYSQL_DB_STORAGE, value: {{ .Values.database.storageDb | quote }} }
 {{ include "centreon-central.secretEnv" (dict "ctx" . "name" "MYSQL_ROOT_PASSWORD" "key" "MYSQL_ROOT_PASSWORD") }}

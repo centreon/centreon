@@ -176,7 +176,7 @@ spec:
               - { key: app.kubernetes.io/instance, operator: In, values: [{{ .Release.Name | quote }}] }
               - { key: app.kubernetes.io/component, operator: In, values: [fpm, install, config-delivery, cron, gorgone-central, broker, autodiscovery-worker] }
       ports:
-        - { port: 3306, protocol: TCP }
+        - { port: {{ include "centreon-central.dbPort" . }}, protocol: TCP }
 {{- end }}
 {{- end }}
 
