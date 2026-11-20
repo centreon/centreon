@@ -3969,19 +3969,19 @@ paths:
           schema:
             type: integer
             default: 1
+            minimum: 1
           style: form
           explode: true
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
             type: integer
-            default: 30
-            minimum: 0
-            maximum: 30
+            minimum: 1
+            maximum: 100
           style: form
           explode: true
     post:
@@ -4321,19 +4321,19 @@ paths:
           schema:
             type: integer
             default: 1
+            minimum: 1
           style: form
           explode: true
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
             type: integer
-            default: 30
-            minimum: 0
-            maximum: 30
+            minimum: 1
+            maximum: 100
           style: form
           explode: true
   '/api/configuration/connectors/{id}':
@@ -4460,19 +4460,19 @@ paths:
           schema:
             type: integer
             default: 1
+            minimum: 1
           style: form
           explode: true
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
             type: integer
-            default: 30
-            minimum: 0
-            maximum: 30
+            minimum: 1
+            maximum: 100
           style: form
           explode: true
   '/api/configuration/plugins/{plugin_name}':
@@ -4530,7 +4530,7 @@ paths:
                 type: object
                 description: 'Plugins.jsonld collection.'
                 allOf:
-                  - { $ref: '#/components/schemas/HydraCollectionBaseSchema' }
+                  - { $ref: '#/components/schemas/HydraCollectionBaseSchemaNoPagination' }
                   - { type: object, required: [member], properties: { member: { type: array, items: { $ref: '#/components/schemas/Plugins.jsonld' } } } }
             application/json:
               schema:
@@ -4539,31 +4539,7 @@ paths:
                   $ref: '#/components/schemas/Plugins'
       summary: 'Retrieves the collection of Plugins resources.'
       description: 'Retrieves the collection of Plugins resources.'
-      parameters:
-        -
-          name: page
-          in: query
-          description: 'The collection page number'
-          required: false
-          deprecated: false
-          schema:
-            type: integer
-            default: 1
-          style: form
-          explode: true
-        -
-          name: itemsPerPage
-          in: query
-          description: 'The number of items per page'
-          required: false
-          deprecated: false
-          schema:
-            type: integer
-            default: 30
-            minimum: 0
-            maximum: 30
-          style: form
-          explode: true
+      parameters: []
   /api/configuration/pollers:
     post:
       operationId: api_configurationpollers_post
@@ -4691,19 +4667,19 @@ paths:
           schema:
             type: integer
             default: 1
+            minimum: 1
           style: form
           explode: true
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
             type: integer
-            default: 30
-            minimum: 0
-            maximum: 30
+            minimum: 1
+            maximum: 100
           style: form
           explode: true
   '/api/configuration/pollers/installation-command/{id}':
@@ -4877,19 +4853,19 @@ paths:
           schema:
             type: integer
             default: 1
+            minimum: 1
           style: form
           explode: true
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
             type: integer
-            default: 30
-            minimum: 0
-            maximum: 30
+            minimum: 1
+            maximum: 100
           style: form
           explode: true
   /api/platform/updates:
@@ -5048,19 +5024,19 @@ paths:
           schema:
             type: integer
             default: 1
+            minimum: 1
           style: form
           explode: true
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
             type: integer
-            default: 30
-            minimum: 0
-            maximum: 30
+            minimum: 1
+            maximum: 100
           style: form
           explode: true
   /api/configuration/host_templates:
@@ -5155,18 +5131,18 @@ paths:
           schema:
             type: integer
             default: 1
+            minimum: 1
           style: form
           explode: true
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
             type: integer
-            default: 30
-            minimum: 0
+            minimum: 1
             maximum: 100
           style: form
           explode: true
@@ -5226,19 +5202,19 @@ paths:
           schema:
             type: integer
             default: 1
+            minimum: 1
           style: form
           explode: true
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
             type: integer
-            default: 30
-            minimum: 0
-            maximum: 30
+            minimum: 1
+            maximum: 100
           style: form
           explode: true
   /api/configuration/hosts:
@@ -5368,19 +5344,19 @@ paths:
           schema:
             type: integer
             default: 1
+            minimum: 1
           style: form
           explode: true
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
             type: integer
-            default: 30
-            minimum: 0
-            maximum: 30
+            minimum: 1
+            maximum: 100
           style: form
           explode: true
     post:
@@ -5510,19 +5486,19 @@ paths:
           schema:
             type: integer
             default: 1
+            minimum: 1
           style: form
           explode: true
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
             type: integer
-            default: 30
-            minimum: 0
-            maximum: 30
+            minimum: 1
+            maximum: 100
           style: form
           explode: true
   /api/configuration/contacts:
@@ -5581,19 +5557,19 @@ paths:
           schema:
             type: integer
             default: 1
+            minimum: 1
           style: form
           explode: true
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
             type: integer
-            default: 30
-            minimum: 0
-            maximum: 30
+            minimum: 1
+            maximum: 100
           style: form
           explode: true
   /api/configuration/medias:
@@ -5652,19 +5628,19 @@ paths:
           schema:
             type: integer
             default: 1
+            minimum: 1
           style: form
           explode: true
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
             type: integer
-            default: 30
-            minimum: 0
-            maximum: 30
+            minimum: 1
+            maximum: 100
           style: form
           explode: true
   /api/configuration/timeperiods:
@@ -5723,19 +5699,19 @@ paths:
           schema:
             type: integer
             default: 1
+            minimum: 1
           style: form
           explode: true
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
             type: integer
-            default: 30
-            minimum: 0
-            maximum: 30
+            minimum: 1
+            maximum: 100
           style: form
           explode: true
   /api/configuration/host_severities:
@@ -5794,19 +5770,19 @@ paths:
           schema:
             type: integer
             default: 1
+            minimum: 1
           style: form
           explode: true
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
             type: integer
-            default: 30
-            minimum: 0
-            maximum: 30
+            minimum: 1
+            maximum: 100
           style: form
           explode: true
   /api/configuration/hosts/_resolve:
@@ -5914,19 +5890,19 @@ paths:
           schema:
             type: integer
             default: 1
+            minimum: 1
           style: form
           explode: true
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
             type: integer
-            default: 30
-            minimum: 0
-            maximum: 30
+            minimum: 1
+            maximum: 100
           style: form
           explode: true
   '/api/configuration/hosts/{id}':
@@ -6504,19 +6480,19 @@ paths:
           schema:
             type: integer
             default: 1
+            minimum: 1
           style: form
           explode: true
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
             type: integer
-            default: 30
-            minimum: 0
-            maximum: 30
+            minimum: 1
+            maximum: 100
           style: form
           explode: true
     post:

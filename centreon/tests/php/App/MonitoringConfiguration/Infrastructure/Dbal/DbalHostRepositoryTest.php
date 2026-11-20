@@ -62,6 +62,7 @@ use App\Security\Infrastructure\Dbal\DbalResourceAccessRepository;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
+use App\Shared\Domain\Repository\Pagination;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -240,7 +241,7 @@ final class DbalHostRepositoryTest extends KernelTestCase
             $this->createHost('host-' . $hostNumber, $pollerId);
         }
 
-        $result = $this->repository->findAll(HostCriteria::unscoped()->withPagination(1, 2));
+        $result = $this->repository->findAll(HostCriteria::unscoped()->withPagination(new Pagination(1, 2)));
 
         self::assertInstanceOf(InMemoryPaginator::class, $result);
         self::assertSame(3, $result->getTotalItems());
@@ -259,7 +260,7 @@ final class DbalHostRepositoryTest extends KernelTestCase
 
         self::assertCount(0, iterator_to_array($this->repository->findAll($criteria)));
 
-        $paginated = $this->repository->findAll($criteria->withPagination(1, 10));
+        $paginated = $this->repository->findAll($criteria->withPagination(new Pagination(1, 10)));
         self::assertInstanceOf(InMemoryPaginator::class, $paginated, 'Pagination metadata must survive an empty ACL result.');
         self::assertSame(0, $paginated->getTotalItems());
         self::assertCount(0, iterator_to_array($paginated));

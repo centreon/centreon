@@ -34,6 +34,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     operations: [
         new GetCollection(
             uriTemplate: '/configuration/plugins',
+            paginationEnabled: false,
             provider: ListPluginsProvider::class,
         ),
     ],
