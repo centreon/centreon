@@ -291,16 +291,19 @@ function Transformation() {
             if (transformed || xmlRequest == null || xsltRequest == null) {
                 return;
             }
-            // Same rules as the success check below: the XML only needs to parse,
-            // the XSLT also needs an HTTP 200.
-            var xmlFailed = xmlRequest.readyState == 4 && !xmlRequest.responseXML;
-            var xsltFailed = xsltRequest.readyState == 4 && xsltRequest.status != 200;
+            // Same rules as the success check below: both requests need an HTTP 200
+            // and a body. A server error can still send a valid XML document.
+            var xmlFailed = xmlRequest.readyState == 4
+                && (xmlRequest.status != 200 || !xmlRequest.responseXML);
+            var xsltFailed = xsltRequest.readyState == 4
+                && (xsltRequest.status != 200 || !xsltRequest.responseText);
             if (xmlFailed || xsltFailed) {
                 fail();
                 return;
             }
             if (
                 xmlRequest.readyState == 4
+                && xmlRequest.status == 200
                 && xmlRequest.responseXML
                 && xsltRequest.status == 200
                 && xsltRequest.readyState == 4

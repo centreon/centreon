@@ -709,6 +709,8 @@ try {
         'Error while fetching logs',
         $e->getContext()
     );
+    // Without it, the page would show the failed search as a search without results.
+    http_response_code(500);
 }
 
 // Render XML output
