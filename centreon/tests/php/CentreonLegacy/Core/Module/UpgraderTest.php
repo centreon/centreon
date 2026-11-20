@@ -26,7 +26,11 @@ use Centreon\Test\Mock\DependencyInjector\ConfigurationDBProvider;
 use Centreon\Test\Mock\DependencyInjector\FilesystemProvider;
 use Centreon\Test\Mock\DependencyInjector\FinderProvider;
 use Centreon\Test\Mock\DependencyInjector\ServiceContainer;
+use CentreonLegacy\Core\Cache\CacheClearer;
+use CentreonLegacy\Core\Migration\MigrationLauncher;
+use CentreonLegacy\ServiceProvider;
 use Pimple\Psr11\Container;
+use Tests\CentreonLegacy\Core\Module\InMemoryOptionsDB;
 
 class UpgraderTest extends \PHPUnit\Framework\TestCase
 {
@@ -37,39 +41,6 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
     private $information;
 
     private $utils;
-
-    private static $originalProcessClass;
-
-    /**
-     * Create a hacky Process class for the test
-     */
-    public static function setUpBeforeClass(): void
-    {
-        // Save the real Process if it is already loaded
-        if (class_exists(\Symfony\Component\Process\Process::class, false)) {
-            self::$originalProcessClass = new \ReflectionClass(\Symfony\Component\Process\Process::class);
-        }
-
-        // HACK: create a fake Process in the Symfony namespace
-        eval('
-        namespace Symfony\Component\Process;
-        class Process {
-            public function __construct(array $cmd) {}
-            public function setWorkingDirectory($dir) {}
-            public function run() {}
-            public function isSuccessful() { return true; }
-        }');
-    }
-
-    /**
-     * Delete mock and restore origin class.
-     */
-    public static function tearDownAfterClass(): void
-    {
-        if (self::$originalProcessClass !== null) {
-            self::$originalProcessClass = null;
-        }
-    }
 
     public function setUp(): void
     {
@@ -82,25 +53,25 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
             ->onlyMethods(['getInstalledInformation', 'getModulePath', 'getConfiguration'])
             ->getMock();
 
-        $installedInformation = ['name' => 'MyModule', 'rname' => 'MyModule', 'mod_release' => '1.0.0', 'is_removeable' => 1, 'infos' => 'my module for unit test', 'author' => 'unit test', 'svc_tools' => null, 'host_tools' => null];
+        $installedInformation = ['name' => 'my-module', 'rname' => 'my-module', 'mod_release' => '1.0.0', 'is_removeable' => 1, 'infos' => 'my module for unit test', 'author' => 'unit test', 'svc_tools' => null, 'host_tools' => null];
         $this->information->expects($this->any())
             ->method('getInstalledInformation')
             ->willReturn($installedInformation);
 
-        $configuration = ['name' => 'MyModule', 'rname' => 'MyModule', 'mod_release' => '1.0.1', 'is_removeable' => 1, 'infos' => 'my module for unit test', 'author' => 'unit test', 'svc_tools' => null, 'host_tools' => null];
+        $configuration = ['name' => 'my-module', 'rname' => 'my-module', 'mod_release' => '1.0.1', 'is_removeable' => 1, 'infos' => 'my module for unit test', 'author' => 'unit test', 'svc_tools' => null, 'host_tools' => null];
         $this->information->expects($this->any())
             ->method('getConfiguration')
             ->willReturn($configuration);
 
         $this->information->expects($this->any())
             ->method('getModulePath')
-            ->willReturn('/MyModule/');
+            ->willReturn('/my-module/');
 
         $this->utils = $this->getMockBuilder(\CentreonLegacy\Core\Utils\Utils::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['requireConfiguration', 'executeSqlFile', 'executePhpFile'])
             ->getMock();
-        $upgradeConfiguration = ['MyModule' => ['name' => 'MyModule', 'rname' => 'MyModule', 'release_from' => '1.0.0', 'release_to' => '1.0.1', 'infos' => 'my module for unit test', 'author' => 'unit test']];
+        $upgradeConfiguration = ['my-module' => ['name' => 'my-module', 'rname' => 'my-module', 'release_from' => '1.0.0', 'release_to' => '1.0.1', 'infos' => 'my module for unit test', 'author' => 'unit test']];
         $this->utils->expects($this->any())
             ->method('requireConfiguration')
             ->willReturn($upgradeConfiguration);
@@ -118,12 +89,6 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
 
     public function testUpgrader(): void
     {
-        // HACK:this is done to prevent an error in code execution that says
-        // the constant is not defined while using the Symfony proccess setWorkingDir method
-        if (! defined('_CENTREON_PATH_')) {
-            define('_CENTREON_PATH_', getcwd());
-        }
-
         $filesystem = $this->getMockBuilder(\Symfony\Component\Filesystem\Filesystem::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['exists'])
@@ -171,14 +136,472 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
 
         $this->container->registerProvider(new ConfigurationDBProvider($this->db));
 
-        $upgrader = new Upgrader(new Container($this->container), $this->information, 'MyModule', $this->utils, 1);
+        $migrationLauncher = $this->createMock(MigrationLauncher::class);
+        $migrationLauncher->expects($this->once())
+            ->method('migrate')
+            ->with('my-module');
+        $this->container[ServiceProvider::CENTREON_LEGACY_MIGRATION_LAUNCHER] = $migrationLauncher;
+
+        // Not suspended: the upgrade clears the caches itself.
+        $cacheClearer = $this->createMock(CacheClearer::class);
+        $cacheClearer->expects($this->once())->method('clear');
+        $this->container[ServiceProvider::CENTREON_LEGACY_CACHE_CLEARER] = $cacheClearer;
+
+        $upgrader = new Upgrader(new Container($this->container), $this->information, 'my-module', $this->utils, 1);
         $id = $upgrader->upgrade();
 
         $this->assertEquals($id, 1);
     }
 
+    public function testUpgradesAModuleShippingDoctrineMigrationsOnly(): void
+    {
+        $filesystem = $this->createMock(\Symfony\Component\Filesystem\Filesystem::class);
+        $filesystem->method('exists')->willReturnCallback(static fn (string $file): bool => ! str_ends_with($file, '/upgrade/'));
+        $this->container->registerProvider(new FilesystemProvider($filesystem));
+
+        // Finder::in() throws on a missing directory.
+        $finder = $this->createMock(\Symfony\Component\Finder\Finder::class);
+        $finder->expects($this->never())->method('in');
+        $this->container->registerProvider(new FinderProvider($finder));
+
+        $this->db->addResultSet(
+            'UPDATE modules_informations '
+            . 'SET `name` = :name , `rname` = :rname , `is_removeable` = :is_removeable , '
+            . '`infos` = :infos , `author` = :author , '
+            . '`svc_tools` = :svc_tools , `host_tools` = :host_tools WHERE id = :id',
+            []
+        );
+        $this->db->addResultSet('UPDATE modules_informations SET `mod_release` = :mod_release WHERE id = :id', []);
+        $this->container->registerProvider(new ConfigurationDBProvider($this->db));
+
+        $migrationLauncher = $this->createMock(MigrationLauncher::class);
+        $migrationLauncher->expects($this->once())->method('migrate')->with('my-module');
+        $this->container[ServiceProvider::CENTREON_LEGACY_MIGRATION_LAUNCHER] = $migrationLauncher;
+        $this->container[ServiceProvider::CENTREON_LEGACY_CACHE_CLEARER] = $this->createMock(CacheClearer::class);
+
+        $upgrader = new Upgrader(new Container($this->container), $this->information, 'my-module', $this->utils, 1);
+
+        $this->assertEquals(1, $upgrader->upgrade());
+    }
+
+    public function testRecordsAVersionOnlyOnceItsScriptsSucceeded(): void
+    {
+        $journal = new \ArrayObject();
+
+        $filesystem = $this->createMock(\Symfony\Component\Filesystem\Filesystem::class);
+        $filesystem->method('exists')->willReturn(true);
+        $this->container->registerProvider(new FilesystemProvider($filesystem));
+
+        $finder = $this->createMock(\Symfony\Component\Finder\Finder::class);
+        $finder->method('directories')->willReturn($finder);
+        $finder->method('depth')->willReturn($finder);
+        $finder->method('in')->willReturn($finder);
+        $finder->method('getIterator')->willReturn(new \ArrayIterator([new \SplFileInfo('1.0.1')]));
+        $this->container->registerProvider(new FinderProvider($finder));
+
+        $this->utils->method('executeSqlFile')->willReturnCallback(static function (string $file) use ($journal): void {
+            $journal[] = 'script:' . basename($file);
+        });
+        $this->utils->method('executePhpFile')->willReturnCallback(static function (string $file) use ($journal): void {
+            $journal[] = 'script:' . basename($file);
+        });
+
+        $this->db->addResultSet(
+            'UPDATE modules_informations '
+            . 'SET `name` = :name , `rname` = :rname , `is_removeable` = :is_removeable , '
+            . '`infos` = :infos , `author` = :author , '
+            . '`svc_tools` = :svc_tools , `host_tools` = :host_tools WHERE id = :id',
+            []
+        );
+        $this->db->addResultSet(
+            'UPDATE modules_informations SET `mod_release` = :mod_release WHERE id = :id',
+            [],
+            null,
+            static function (array $params) use ($journal): void {
+                $journal[] = 'version:' . $params[':mod_release'];
+            }
+        );
+        $this->container->registerProvider(new ConfigurationDBProvider($this->db));
+        $this->container[ServiceProvider::CENTREON_LEGACY_MIGRATION_LAUNCHER] = $this->createMock(MigrationLauncher::class);
+        $this->container[ServiceProvider::CENTREON_LEGACY_CACHE_CLEARER] = $this->createMock(CacheClearer::class);
+        $this->container[ServiceProvider::CENTREON_LEGACY_MODULE_UPGRADE_PROGRESS] = $progress = new UpgradeProgress(new InMemoryOptionsDB());
+
+        (new Upgrader(new Container($this->container), $this->information, 'my-module', $this->utils, 1))->upgrade();
+
+        $this->assertSame(
+            ['script:upgrade.pre.php', 'script:upgrade.sql', 'script:upgrade.php', 'version:1.0.1'],
+            $journal->getArrayCopy(),
+            'Already at the version of the code: not recorded twice',
+        );
+        $this->assertSame(['pre' => false, 'sql' => 0, 'checksum' => ''], $progress->get('my-module', '1.0.1'), 'The progress is forgotten once the version is recorded');
+    }
+
+    public function testIgnoresTheUpgradesBeyondTheVersionOfTheCode(): void
+    {
+        // 1.0.2 is a pre-release next to a conf.php still at 1.0.1: it would run again once released.
+        $this->assertSame(
+            ['script:upgrade.pre.php', 'script:upgrade.sql', 'script:upgrade.php', 'version:1.0.1'],
+            $this->upgradeJournal(['1.0.1', '1.0.2'], '1.0.0'),
+        );
+    }
+
+    public function testNeverRecordsAVersionOlderThanTheInstalledOne(): void
+    {
+        // A package rollback: recording 1.0.1 would replay the upgrades up to 2.1.0 on the next upgrade.
+        $this->assertSame([], $this->upgradeJournal([], '2.1.0'));
+    }
+
+    public function testResumesAFailedVersionWhereItStopped(): void
+    {
+        $filesystem = $this->createMock(\Symfony\Component\Filesystem\Filesystem::class);
+        $filesystem->method('exists')->willReturn(true);
+        $this->container->registerProvider(new FilesystemProvider($filesystem));
+
+        $finder = $this->createMock(\Symfony\Component\Finder\Finder::class);
+        $finder->method('directories')->willReturn($finder);
+        $finder->method('depth')->willReturn($finder);
+        $finder->method('in')->willReturn($finder);
+        $finder->method('getIterator')->willReturn(new \ArrayIterator([new \SplFileInfo('1.0.1')]));
+        $this->container->registerProvider(new FinderProvider($finder));
+
+        $this->db->addResultSet(
+            'UPDATE modules_informations '
+            . 'SET `name` = :name , `rname` = :rname , `is_removeable` = :is_removeable , '
+            . '`infos` = :infos , `author` = :author , '
+            . '`svc_tools` = :svc_tools , `host_tools` = :host_tools WHERE id = :id',
+            []
+        );
+        $versions = [];
+        $this->db->addResultSet(
+            'UPDATE modules_informations SET `mod_release` = :mod_release WHERE id = :id',
+            [],
+            null,
+            static function (array $params) use (&$versions): void {
+                $versions[] = $params[':mod_release'];
+            }
+        );
+        $this->container->registerProvider(new ConfigurationDBProvider($this->db));
+        $this->container[ServiceProvider::CENTREON_LEGACY_MIGRATION_LAUNCHER] = $this->createMock(MigrationLauncher::class);
+        $this->container[ServiceProvider::CENTREON_LEGACY_CACHE_CLEARER] = $this->createMock(CacheClearer::class);
+        $this->container[ServiceProvider::CENTREON_LEGACY_MODULE_UPGRADE_PROGRESS] = $progress = new UpgradeProgress(new InMemoryOptionsDB());
+
+        // First attempt: the pre-upgrade script passes, then the second SQL query fails.
+        $phpScripts = [];
+        $this->utils->method('executePhpFile')->willReturnCallback(static function (string $file) use (&$phpScripts): void {
+            $phpScripts[] = basename($file);
+        });
+        $sqlAttempts = [];
+        $this->utils->method('executeSqlFile')->willReturnCallback(
+            static function (string $file, array $macros, bool $monitoring, int $skipped, callable $onQueryExecuted) use (&$sqlAttempts): void {
+                $sqlAttempts[] = $skipped;
+                if (count($sqlAttempts) === 1) {
+                    $onQueryExecuted(1);
+
+                    throw new \Exception('Duplicate column name');
+                }
+                $onQueryExecuted(2);
+            }
+        );
+        $upgrader = new Upgrader(new Container($this->container), $this->information, 'my-module', $this->utils, 1);
+
+        try {
+            $upgrader->upgrade();
+            $this->fail('The SQL failure must propagate');
+        } catch (\Exception $exception) {
+            $this->assertSame('Duplicate column name', $exception->getMessage());
+        }
+        $this->assertSame([], $versions, 'A failed version is not recorded');
+        $this->assertSame(['pre' => true, 'sql' => 1, 'checksum' => ''], $progress->get('my-module', '1.0.1'));
+
+        // Second attempt: resumes after the first query, without replaying the pre-upgrade script.
+        $upgrader->upgrade();
+
+        $this->assertSame(['upgrade.pre.php', 'upgrade.php'], $phpScripts);
+        $this->assertSame([0, 1], $sqlAttempts);
+        $this->assertSame(['1.0.1'], $versions);
+        $this->assertSame(['pre' => false, 'sql' => 0, 'checksum' => ''], $progress->get('my-module', '1.0.1'));
+    }
+
+    public function testRestartsTheSqlOfAVersionWhoseUpgradeSqlChanged(): void
+    {
+        $filesystem = $this->createMock(\Symfony\Component\Filesystem\Filesystem::class);
+        $filesystem->method('exists')->willReturn(true);
+        $this->container->registerProvider(new FilesystemProvider($filesystem));
+
+        $finder = $this->createMock(\Symfony\Component\Finder\Finder::class);
+        $finder->method('directories')->willReturn($finder);
+        $finder->method('depth')->willReturn($finder);
+        $finder->method('in')->willReturn($finder);
+        $finder->method('getIterator')->willReturn(new \ArrayIterator([new \SplFileInfo('1.0.1')]));
+        $this->container->registerProvider(new FinderProvider($finder));
+
+        $this->db->addResultSet(
+            'UPDATE modules_informations '
+            . 'SET `name` = :name , `rname` = :rname , `is_removeable` = :is_removeable , '
+            . '`infos` = :infos , `author` = :author , '
+            . '`svc_tools` = :svc_tools , `host_tools` = :host_tools WHERE id = :id',
+            []
+        );
+        $this->db->addResultSet('UPDATE modules_informations SET `mod_release` = :mod_release WHERE id = :id', []);
+        $this->container->registerProvider(new ConfigurationDBProvider($this->db));
+        $this->container[ServiceProvider::CENTREON_LEGACY_MIGRATION_LAUNCHER] = $this->createMock(MigrationLauncher::class);
+        $this->container[ServiceProvider::CENTREON_LEGACY_CACHE_CLEARER] = $this->createMock(CacheClearer::class);
+        $this->container[ServiceProvider::CENTREON_LEGACY_MODULE_UPGRADE_PROGRESS] = $progress = new UpgradeProgress(new InMemoryOptionsDB());
+
+        // A previous attempt stopped after the first query of an upgrade.sql that was fixed since.
+        $progress->save('my-module', '1.0.1', ['pre' => true, 'sql' => 1, 'checksum' => 'checksum of the previous upgrade.sql']);
+        $phpScripts = [];
+        $this->utils->method('executePhpFile')->willReturnCallback(static function (string $file) use (&$phpScripts): void {
+            $phpScripts[] = basename($file);
+        });
+        $skippedQueries = [];
+        $this->utils->method('executeSqlFile')->willReturnCallback(
+            static function (string $file, array $macros, bool $monitoring, int $skipped) use (&$skippedQueries): void {
+                $skippedQueries[] = $skipped;
+            }
+        );
+
+        (new Upgrader(new Container($this->container), $this->information, 'my-module', $this->utils, 1))->upgrade();
+
+        $this->assertSame([0], $skippedQueries, 'The fixed upgrade.sql restarts from its first query');
+        $this->assertSame(['upgrade.php'], $phpScripts, 'The pre-upgrade script that passed is not replayed');
+    }
+
+    public function testReplaysOnlyTheFinalScriptWhenItFailed(): void
+    {
+        $filesystem = $this->createMock(\Symfony\Component\Filesystem\Filesystem::class);
+        $filesystem->method('exists')->willReturn(true);
+        $this->container->registerProvider(new FilesystemProvider($filesystem));
+        $finder = $this->createMock(\Symfony\Component\Finder\Finder::class);
+        $finder->method('directories')->willReturn($finder);
+        $finder->method('depth')->willReturn($finder);
+        $finder->method('in')->willReturn($finder);
+        $finder->method('getIterator')->willReturnCallback(static fn (): \ArrayIterator => new \ArrayIterator([new \SplFileInfo('1.0.1')]));
+        $this->container->registerProvider(new FinderProvider($finder));
+        $this->db->addResultSet(
+            'UPDATE modules_informations '
+            . 'SET `name` = :name , `rname` = :rname , `is_removeable` = :is_removeable , '
+            . '`infos` = :infos , `author` = :author , '
+            . '`svc_tools` = :svc_tools , `host_tools` = :host_tools WHERE id = :id',
+            []
+        );
+        $this->db->addResultSet('UPDATE modules_informations SET `mod_release` = :mod_release WHERE id = :id', []);
+        $this->container->registerProvider(new ConfigurationDBProvider($this->db));
+        $this->container[ServiceProvider::CENTREON_LEGACY_MIGRATION_LAUNCHER] = $this->createMock(MigrationLauncher::class);
+        $this->container[ServiceProvider::CENTREON_LEGACY_CACHE_CLEARER] = $this->createMock(CacheClearer::class);
+        $this->container[ServiceProvider::CENTREON_LEGACY_MODULE_UPGRADE_PROGRESS] = new UpgradeProgress(new InMemoryOptionsDB());
+
+        // First attempt: the pre-upgrade script and both queries pass, then upgrade.php fails.
+        $phpScripts = [];
+        $this->utils->method('executePhpFile')->willReturnCallback(static function (string $file) use (&$phpScripts): void {
+            $phpScripts[] = basename($file);
+            if ($phpScripts === ['upgrade.pre.php', 'upgrade.php']) {
+                throw new \Exception('upgrade.php failed');
+            }
+        });
+        $skippedQueries = [];
+        $this->utils->method('executeSqlFile')->willReturnCallback(
+            static function (string $file, array $macros, bool $monitoring, int $skipped, callable $onQueryExecuted) use (&$skippedQueries): void {
+                $skippedQueries[] = $skipped;
+                for ($query = $skipped + 1; $query <= 2; ++$query) {
+                    $onQueryExecuted($query);
+                }
+            }
+        );
+        $upgrader = new Upgrader(new Container($this->container), $this->information, 'my-module', $this->utils, 1);
+
+        try {
+            $upgrader->upgrade();
+            $this->fail('The upgrade.php failure must propagate');
+        } catch (\Exception $exception) {
+            $this->assertSame('upgrade.php failed', $exception->getMessage());
+        }
+        $upgrader->upgrade();
+
+        $this->assertSame(['upgrade.pre.php', 'upgrade.php', 'upgrade.php'], $phpScripts, 'upgrade.php is the only step replayed whole');
+        $this->assertSame([0, 2], $skippedQueries, 'The queries that passed are skipped');
+    }
+
+    public function testResumesOnlyTheUpgradeSqlItStartedFrom(): void
+    {
+        $modulePath = sys_get_temp_dir() . '/' . uniqid('module_', true);
+        $sqlFile = $modulePath . '/upgrade/1.0.1/sql/upgrade.sql';
+        (new \Symfony\Component\Filesystem\Filesystem())->dumpFile($sqlFile, "SELECT 1;\nSELECT 2;\n");
+
+        $filesystem = $this->createMock(\Symfony\Component\Filesystem\Filesystem::class);
+        $filesystem->method('exists')->willReturn(true);
+        $this->container->registerProvider(new FilesystemProvider($filesystem));
+        $finder = $this->createMock(\Symfony\Component\Finder\Finder::class);
+        $finder->method('directories')->willReturn($finder);
+        $finder->method('depth')->willReturn($finder);
+        $finder->method('in')->willReturn($finder);
+        $finder->method('getIterator')->willReturnCallback(static fn (): \ArrayIterator => new \ArrayIterator([new \SplFileInfo('1.0.1')]));
+        $this->container->registerProvider(new FinderProvider($finder));
+        $this->db->addResultSet(
+            'UPDATE modules_informations '
+            . 'SET `name` = :name , `rname` = :rname , `is_removeable` = :is_removeable , '
+            . '`infos` = :infos , `author` = :author , '
+            . '`svc_tools` = :svc_tools , `host_tools` = :host_tools WHERE id = :id',
+            []
+        );
+        $this->db->addResultSet('UPDATE modules_informations SET `mod_release` = :mod_release WHERE id = :id', []);
+        $this->container->registerProvider(new ConfigurationDBProvider($this->db));
+        $this->container[ServiceProvider::CENTREON_LEGACY_MIGRATION_LAUNCHER] = $this->createMock(MigrationLauncher::class);
+        $this->container[ServiceProvider::CENTREON_LEGACY_CACHE_CLEARER] = $this->createMock(CacheClearer::class);
+        $this->container[ServiceProvider::CENTREON_LEGACY_MODULE_UPGRADE_PROGRESS] = $progress = new UpgradeProgress(new InMemoryOptionsDB());
+
+        $utils = $this->getMockBuilder(\CentreonLegacy\Core\Utils\Utils::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['requireConfiguration', 'executeSqlFile', 'executePhpFile', 'buildPath'])
+            ->getMock();
+        $utils->method('buildPath')->willReturn($modulePath);
+        $utils->method('requireConfiguration')->willReturn(['my-module' => ['release_from' => '1.0.0', 'release_to' => '1.0.1']]);
+        $skippedQueries = [];
+        // Every attempt runs the first query it was not told to skip, then fails.
+        $utils->method('executeSqlFile')->willReturnCallback(
+            static function (string $file, array $macros, bool $monitoring, int $skipped, callable $onQueryExecuted) use (&$skippedQueries): void {
+                $skippedQueries[] = $skipped;
+                $onQueryExecuted($skipped + 1);
+
+                throw new \Exception('upgrade.sql failed');
+            }
+        );
+        $upgrade = fn () => (new Upgrader(new Container($this->container), $this->information, 'my-module', $utils, 1))->upgrade();
+
+        try {
+            foreach (['first attempt', 'same upgrade.sql', 'fixed upgrade.sql'] as $attempt) {
+                if ($attempt === 'fixed upgrade.sql') {
+                    file_put_contents($sqlFile, "SELECT 1;\nSELECT 3;\n");
+                }
+
+                try {
+                    $upgrade();
+                    $this->fail('The upgrade.sql fails on every attempt');
+                } catch (\Exception $exception) {
+                    $this->assertSame('upgrade.sql failed', $exception->getMessage());
+                }
+                $this->assertSame(md5_file($sqlFile), $progress->get('my-module', '1.0.1')['checksum'], $attempt);
+            }
+        } finally {
+            (new \Symfony\Component\Filesystem\Filesystem())->remove($modulePath);
+        }
+
+        $this->assertSame([0, 1, 0], $skippedQueries, 'The same upgrade.sql resumes, a fixed one restarts');
+    }
+
+    public function testAFailingModuleMigrationLeavesTheModuleVersionUnrecorded(): void
+    {
+        $filesystem = $this->createMock(\Symfony\Component\Filesystem\Filesystem::class);
+        $filesystem->method('exists')->willReturnCallback(static fn (string $file): bool => ! str_ends_with($file, '/upgrade/'));
+        $this->container->registerProvider(new FilesystemProvider($filesystem));
+        $this->container->registerProvider(new FinderProvider($this->createMock(\Symfony\Component\Finder\Finder::class)));
+        $this->db->addResultSet(
+            'UPDATE modules_informations '
+            . 'SET `name` = :name , `rname` = :rname , `is_removeable` = :is_removeable , '
+            . '`infos` = :infos , `author` = :author , '
+            . '`svc_tools` = :svc_tools , `host_tools` = :host_tools WHERE id = :id',
+            []
+        );
+        $versions = [];
+        $this->db->addResultSet(
+            'UPDATE modules_informations SET `mod_release` = :mod_release WHERE id = :id',
+            [],
+            null,
+            static function (array $params) use (&$versions): void {
+                $versions[] = $params[':mod_release'];
+            }
+        );
+        $this->container->registerProvider(new ConfigurationDBProvider($this->db));
+        $migrationLauncher = $this->createMock(MigrationLauncher::class);
+        $migrationLauncher->method('migrate')->willThrowException(new \RuntimeException('Version20260101000001 failed'));
+        $this->container[ServiceProvider::CENTREON_LEGACY_MIGRATION_LAUNCHER] = $migrationLauncher;
+        $cacheClearer = $this->createMock(CacheClearer::class);
+        $cacheClearer->expects($this->never())->method('clear');
+        $this->container[ServiceProvider::CENTREON_LEGACY_CACHE_CLEARER] = $cacheClearer;
+
+        try {
+            (new Upgrader(new Container($this->container), $this->information, 'my-module', $this->utils, 1))->upgrade();
+            $this->fail('The migration failure must be reported');
+        } catch (\RuntimeException $exception) {
+            $this->assertSame('Version20260101000001 failed', $exception->getMessage());
+        }
+
+        $this->assertSame([], $versions, 'The next update resumes the pending migrations of this version');
+    }
+
+    public function testRefusesAModuleShippingMigrationsUnderAnUnsupportedNameBeforeAnyScript(): void
+    {
+        $filesystem = $this->createMock(\Symfony\Component\Filesystem\Filesystem::class);
+        $filesystem->method('exists')->willReturn(true);
+        $this->container->registerProvider(new FilesystemProvider($filesystem));
+        // No query registered: updating the module would throw.
+        $this->container->registerProvider(new ConfigurationDBProvider($this->db));
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('The module "centreon_foo" ships migrations');
+
+        (new Upgrader(new Container($this->container), $this->information, 'centreon_foo', $this->utils, 1))->upgrade();
+    }
+
     public function mockExists($file)
     {
         return ! (preg_match('/install\.pre\.php/', $file));
+    }
+
+    /**
+     * @param list<string> $upgradeDirectories
+     *
+     * @return list<string> the scripts run and the versions recorded
+     */
+    private function upgradeJournal(array $upgradeDirectories, string $installedVersion): array
+    {
+        $journal = new \ArrayObject();
+
+        $filesystem = $this->createMock(\Symfony\Component\Filesystem\Filesystem::class);
+        $filesystem->method('exists')->willReturn(true);
+        $this->container->registerProvider(new FilesystemProvider($filesystem));
+
+        $finder = $this->createMock(\Symfony\Component\Finder\Finder::class);
+        $finder->method('directories')->willReturn($finder);
+        $finder->method('depth')->willReturn($finder);
+        $finder->method('in')->willReturn($finder);
+        $finder->method('getIterator')->willReturn(new \ArrayIterator(array_map(static fn (string $directory): \SplFileInfo => new \SplFileInfo($directory), $upgradeDirectories)));
+        $this->container->registerProvider(new FinderProvider($finder));
+
+        $this->utils->method('executeSqlFile')->willReturnCallback(static function (string $file) use ($journal): void {
+            $journal[] = 'script:' . basename($file);
+        });
+        $this->utils->method('executePhpFile')->willReturnCallback(static function (string $file) use ($journal): void {
+            $journal[] = 'script:' . basename($file);
+        });
+
+        $this->db->addResultSet(
+            'UPDATE modules_informations '
+            . 'SET `name` = :name , `rname` = :rname , `is_removeable` = :is_removeable , '
+            . '`infos` = :infos , `author` = :author , '
+            . '`svc_tools` = :svc_tools , `host_tools` = :host_tools WHERE id = :id',
+            []
+        );
+        $this->db->addResultSet(
+            'UPDATE modules_informations SET `mod_release` = :mod_release WHERE id = :id',
+            [],
+            null,
+            static function (array $params) use ($journal): void {
+                $journal[] = 'version:' . $params[':mod_release'];
+            }
+        );
+        $this->container->registerProvider(new ConfigurationDBProvider($this->db));
+        $this->container[ServiceProvider::CENTREON_LEGACY_MIGRATION_LAUNCHER] = $this->createMock(MigrationLauncher::class);
+        $this->container[ServiceProvider::CENTREON_LEGACY_CACHE_CLEARER] = $this->createMock(CacheClearer::class);
+        $this->container[ServiceProvider::CENTREON_LEGACY_MODULE_UPGRADE_PROGRESS] = new UpgradeProgress(new InMemoryOptionsDB());
+
+        $information = $this->createMock(Information::class);
+        $information->method('getInstalledInformation')->willReturn(['name' => 'my-module', 'mod_release' => $installedVersion]);
+        $information->method('getConfiguration')->willReturn(['name' => 'my-module', 'rname' => 'my-module', 'mod_release' => '1.0.1', 'is_removeable' => 1, 'infos' => '', 'author' => '', 'svc_tools' => null, 'host_tools' => null]);
+        $information->method('getModulePath')->willReturn('/my-module/');
+
+        (new Upgrader(new Container($this->container), $information, 'my-module', $this->utils, 1))->upgrade();
+
+        return $journal->getArrayCopy();
     }
 }

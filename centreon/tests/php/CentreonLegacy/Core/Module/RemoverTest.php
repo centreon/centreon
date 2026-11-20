@@ -25,6 +25,7 @@ use Centreon\Test\Mock\CentreonDB;
 use Centreon\Test\Mock\DependencyInjector\ConfigurationDBProvider;
 use Centreon\Test\Mock\DependencyInjector\FilesystemProvider;
 use Centreon\Test\Mock\DependencyInjector\ServiceContainer;
+use CentreonLegacy\ServiceProvider;
 use Pimple\Psr11\Container;
 
 class RemoverTest extends \PHPUnit\Framework\TestCase
@@ -75,15 +76,97 @@ class RemoverTest extends \PHPUnit\Framework\TestCase
             ->willReturn(true);
         $this->container->registerProvider(new FilesystemProvider($filesystem));
 
+        $this->db = new class () extends CentreonDB {
+            public array $executedQueries = [];
+
+            public function query($queryString, $parameters = null, ...$parametersArgs): \Centreon\Test\Mock\CentreonDBStatement|false
+            {
+                $this->executedQueries[] = $queryString;
+
+                return parent::query($queryString, $parameters, ...$parametersArgs);
+            }
+        };
         $this->db->addResultSet(
             'DELETE FROM modules_informations WHERE id = :id ',
             []
         );
+        $this->db->addResultSet(
+            'DROP TABLE IF EXISTS `doctrine_migration_versions_my_module`',
+            []
+        );
         $this->container->registerProvider(new ConfigurationDBProvider($this->db));
 
-        $remover = new Remover(new Container($this->container), $this->information, 'MyModule', $this->utils);
+        $progress = $this->createMock(UpgradeProgress::class);
+        $progress->expects($this->once())->method('clear')->with('my-module');
+        $this->container[ServiceProvider::CENTREON_LEGACY_MODULE_UPGRADE_PROGRESS] = $progress;
+
+        $remover = new Remover(new Container($this->container), $this->information, 'my-module', $this->utils);
         $removed = $remover->remove();
 
         $this->assertEquals($removed, true);
+        $this->assertSame(['DROP TABLE IF EXISTS `doctrine_migration_versions_my_module`'], $this->db->executedQueries);
+    }
+
+    public function testAFailedUninstallationKeepsTheMigrationHistory(): void
+    {
+        // The module stays installed: dropping its metadata table would make every migration look pending.
+        $filesystem = $this->createMock(\Symfony\Component\Filesystem\Filesystem::class);
+        $filesystem->method('exists')->willReturn(true);
+        $this->container->registerProvider(new FilesystemProvider($filesystem));
+        // No DROP TABLE registered: running one would throw.
+        $this->container->registerProvider(new ConfigurationDBProvider($this->db));
+        $progress = $this->createMock(UpgradeProgress::class);
+        $progress->expects($this->never())->method('clear');
+        $this->container[ServiceProvider::CENTREON_LEGACY_MODULE_UPGRADE_PROGRESS] = $progress;
+        $this->utils->method('executePhpFile')->willReturnCallback(static function (string $file): void {
+            if (str_ends_with($file, '/php/uninstall.php')) {
+                throw new \RuntimeException('uninstall.php failed');
+            }
+        });
+
+        $this->expectExceptionMessage('uninstall.php failed');
+
+        (new Remover(new Container($this->container), $this->information, 'my-module', $this->utils))->remove();
+    }
+
+    public function testAModuleWhoseHistoryCannotBeForgottenStaysInstalled(): void
+    {
+        // Reinstalled with its history, it would skip its migrations.
+        $filesystem = $this->createMock(\Symfony\Component\Filesystem\Filesystem::class);
+        $filesystem->method('exists')->willReturn(true);
+        $this->container->registerProvider(new FilesystemProvider($filesystem));
+        $this->db = new class () extends CentreonDB {
+            public array $executedQueries = [];
+
+            public function query($queryString, $parameters = null, ...$parametersArgs): \Centreon\Test\Mock\CentreonDBStatement|false
+            {
+                $this->executedQueries[] = $queryString;
+
+                throw new \RuntimeException('Lock wait timeout exceeded');
+            }
+        };
+        // No DELETE registered: removing the row would throw another error.
+        $this->container->registerProvider(new ConfigurationDBProvider($this->db));
+        $this->container[ServiceProvider::CENTREON_LEGACY_MODULE_UPGRADE_PROGRESS] = $this->createMock(UpgradeProgress::class);
+
+        $this->expectExceptionMessage('Lock wait timeout exceeded');
+
+        (new Remover(new Container($this->container), $this->information, 'my-module', $this->utils))->remove();
+    }
+
+    public function testRemoveLeavesTheTablesOfUnsupportedModuleNamesAlone(): void
+    {
+        $filesystem = $this->createMock(\Symfony\Component\Filesystem\Filesystem::class);
+        $filesystem->method('exists')->willReturn(true);
+        $this->container->registerProvider(new FilesystemProvider($filesystem));
+        // No DROP TABLE registered: running one would throw.
+        $this->db->addResultSet('DELETE FROM modules_informations WHERE id = :id ', []);
+        $this->container->registerProvider(new ConfigurationDBProvider($this->db));
+
+        $this->container[ServiceProvider::CENTREON_LEGACY_MODULE_UPGRADE_PROGRESS] = $this->createMock(UpgradeProgress::class);
+
+        $remover = new Remover(new Container($this->container), $this->information, 'my.module', $this->utils);
+
+        $this->assertTrue($remover->remove());
     }
 }

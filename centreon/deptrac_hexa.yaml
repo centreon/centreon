@@ -47,6 +47,9 @@ parameters:
               - { type: classNameRegex, value: '#^Adaptation\\(?!Log\\)#' } # Adaptation\Log has its own AdaptationLog layer
               - { type: classNameRegex, value: '#^Centreon*\\#' }
               - { type: classNameRegex, value: '#^CentreonDB#' } # legacy global classes
+              - { type: classNameRegex, value: '#^CentreonLegacy\\#' }
+              - { type: classNameRegex, value: '#^CentreonModule\\#' }
+              - { type: classNameRegex, value: '#^Pimple\\#' } # the legacy service container
               - { type: classNameRegex, value: '#^Core\\#' }
               - { type: classNameRegex, value: '#^EventSubscriber\\#' }
               - { type: classNameRegex, value: '#^Security\\#' }
@@ -81,3 +84,14 @@ parameters:
         App\Upgrade\Infrastructure\Legacy\LegacyConnectionFactory:
             - CentreonDB
             - Adaptation\Database\Connection\Model\ConnectionConfig
+        App\Upgrade\Infrastructure\Legacy\LegacyCacheClearer:
+            - Pimple\Container
+            - CentreonLegacy\Core\Cache\CacheClearer
+            - CentreonLegacy\ServiceProvider
+        App\Upgrade\Infrastructure\Legacy\LegacyModuleRepository:
+            - Pimple\Container
+            - CentreonLegacy\Core\Cache\CacheClearer
+            - CentreonLegacy\ServiceProvider
+            - CentreonModule\Infrastructure\Service\CentreonModuleService
+            - CentreonModule\Infrastructure\Source\ModuleSource
+            - CentreonModule\ServiceProvider

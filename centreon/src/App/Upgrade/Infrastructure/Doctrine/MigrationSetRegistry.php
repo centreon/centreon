@@ -50,7 +50,7 @@ final readonly class MigrationSetRegistry
                 'default',
                 $this->moduleNamespace($set->module),
                 $this->modulesDir . '/' . $set->module . '/migrations',
-                $this->table($set),
+                self::table($set),
             );
         }
 
@@ -59,13 +59,13 @@ final readonly class MigrationSetRegistry
                 'realtime',
                 'Centreon\Migrations\Realtime',
                 $this->projectDir . '/migrations/realtime',
-                $this->table($set),
+                self::table($set),
             ),
             WebMigrationSetEnum::Configuration => new MigrationSetConfiguration(
                 'default',
                 'Centreon\Migrations\Configuration',
                 $this->projectDir . '/migrations/configuration',
-                $this->table($set),
+                self::table($set),
             ),
             null => throw new \LogicException(sprintf('The %s is neither a module nor a Centreon Web set.', $set->label())),
         };
@@ -90,6 +90,14 @@ final readonly class MigrationSetRegistry
     public function ignored(): array
     {
         return $this->scan()[1];
+    }
+
+    /**
+     * Each Centreon Web set has its own table in its database, each module a suffixed one.
+     */
+    public static function table(MigrationSet $set): string
+    {
+        return $set->module === null ? self::WEB_TABLE : self::WEB_TABLE . '_' . str_replace('-', '_', $set->module);
     }
 
     /**
@@ -151,13 +159,5 @@ final readonly class MigrationSetRegistry
     private function moduleNamespace(string $module): string
     {
         return str_replace('-', '', ucwords($module, '-')) . '\Migrations';
-    }
-
-    /**
-     * Each Centreon Web set has its own table in its database, each module a suffixed one.
-     */
-    private function table(MigrationSet $set): string
-    {
-        return $set->module === null ? self::WEB_TABLE : self::WEB_TABLE . '_' . str_replace('-', '_', $set->module);
     }
 }

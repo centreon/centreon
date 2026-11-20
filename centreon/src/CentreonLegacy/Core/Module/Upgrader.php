@@ -23,10 +23,9 @@ declare(strict_types=1);
 
 namespace CentreonLegacy\Core\Module;
 
+use CentreonLegacy\ServiceProvider;
 use CentreonLog;
 use Symfony\Component\Finder\Finder;
-use Symfony\Component\Process\Exception\ProcessFailedException;
-use Symfony\Component\Process\Process;
 
 class Upgrader extends Module
 {
@@ -35,6 +34,7 @@ class Upgrader extends Module
      */
     public function upgrade()
     {
+        $this->assertMigrationsCanRun();
         $this->upgradeModuleConfiguration();
 
         $moduleInstalledInformation = $this->informationObj->getInstalledInformation($this->moduleName);
@@ -42,15 +42,18 @@ class Upgrader extends Module
         // Process all directories within the /upgrade/ path.
         // Entry name should be a version.
         $upgradesPath = $this->getModulePath($this->moduleName) . '/upgrade/';
-        /** @var Finder $upgrades */
-        $upgrades = $this->services->get('finder');
-        $upgrades
-            ->directories()
-            ->depth('== 0')
-            ->in($upgradesPath);
         $orderedUpgrades = [];
-        foreach ($upgrades as $upgrade) {
-            $orderedUpgrades[] = $upgrade->getBasename();
+        // Absent from a module shipping doctrine migrations only.
+        if ($this->services->get('filesystem')->exists($upgradesPath)) {
+            /** @var Finder $upgrades */
+            $upgrades = $this->services->get('finder');
+            $upgrades
+                ->directories()
+                ->depth('== 0')
+                ->in($upgradesPath);
+            foreach ($upgrades as $upgrade) {
+                $orderedUpgrades[] = $upgrade->getBasename();
+            }
         }
         usort($orderedUpgrades, 'version_compare');
         foreach ($orderedUpgrades as $upgradeName) {
@@ -63,6 +66,11 @@ class Upgrader extends Module
                 continue;
             }
 
+            // Beyond the code version (a pre-release, a forgotten conf.php bump): it would run again once released.
+            if (version_compare($upgradeName, $this->moduleConfiguration['mod_release']) > 0) {
+                break;
+            }
+
             CentreonLog::create()->info(
                 CentreonLog::TYPE_UPGRADE,
                 sprintf('Starting upgrade process for %s module', $moduleInstalledInformation['name']),
@@ -72,33 +80,25 @@ class Upgrader extends Module
                 ]
             );
 
+            $this->upgradeVersionScripts($upgradePath, $upgradeName);
+
+            // Recorded once its scripts passed: a failed version is resumed, not skipped.
             $this->upgradeVersion($upgradeName);
             $moduleInstalledInformation['mod_release'] = $upgradeName;
-
-            $this->upgradePhpFiles($upgradePath, true);
-            $this->upgradeSqlFiles($upgradePath);
-            $this->upgradePhpFiles($upgradePath, false);
+            $this->services->get(ServiceProvider::CENTREON_LEGACY_MODULE_UPGRADE_PROGRESS)->clear($this->moduleName);
         }
 
-        // finally, upgrade to current version
-        $this->upgradeVersion($this->moduleConfiguration['mod_release']);
+        $this->migrate();
+
+        // Finally, the version of the code. Never an older one: a package rollback would replay the upgrades in between.
+        if (version_compare($this->moduleConfiguration['mod_release'], $moduleInstalledInformation['mod_release']) > 0) {
+            $this->upgradeVersion($this->moduleConfiguration['mod_release']);
+        }
 
         // Clearing symfony cache to properly enable API routes.
-        $this->clearCache();
+        $this->services->get(ServiceProvider::CENTREON_LEGACY_CACHE_CLEARER)->clear();
 
         return $this->moduleId;
-    }
-
-    private function clearCache(): void
-    {
-        $process = new Process(['php', 'bin/console', 'cache:clear']);
-        $process->setWorkingDirectory(_CENTREON_PATH_);
-
-        $process->run();
-
-        if (! $process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-        }
     }
 
     /**
@@ -163,17 +163,49 @@ class Upgrader extends Module
     }
 
     /**
+     * Resumes a failed attempt: upgrade.php, run last, is the only step replayed whole.
+     */
+    private function upgradeVersionScripts(string $path, string $version): void
+    {
+        /** @var UpgradeProgress $progress */
+        $progress = $this->services->get(ServiceProvider::CENTREON_LEGACY_MODULE_UPGRADE_PROGRESS);
+        $state = $progress->get($this->moduleName, $version);
+        // A fixed upgrade.sql restarts: the previous query count no longer applies.
+        $sqlFile = $path . '/sql/upgrade.sql';
+        $checksum = is_file($sqlFile) ? (string) md5_file($sqlFile) : '';
+        if ($state['checksum'] !== $checksum) {
+            $state['sql'] = 0;
+            $state['checksum'] = $checksum;
+        }
+
+        if (! $state['pre']) {
+            $this->upgradePhpFiles($path, true);
+            $state['pre'] = true;
+            $progress->save($this->moduleName, $version, $state);
+        }
+
+        // After each query, not only on a failing one: a web timeout or a killed process would otherwise replay them.
+        $this->upgradeSqlFiles($path, $state['sql'], function (int $executedQueries) use ($progress, $version, &$state): void {
+            $state['sql'] = $executedQueries;
+            $progress->save($this->moduleName, $version, $state);
+        });
+
+        $this->upgradePhpFiles($path, false);
+    }
+
+    /**
      * @param string $path
+     * @param callable(int): void|null $onQueryExecuted
      *
      * @return bool
      */
-    private function upgradeSqlFiles($path)
+    private function upgradeSqlFiles($path, int $skippedQueries = 0, ?callable $onQueryExecuted = null)
     {
         $installed = false;
 
         $sqlFile = $path . '/sql/upgrade.sql';
         if ($this->services->get('filesystem')->exists($sqlFile)) {
-            $this->utils->executeSqlFile($sqlFile);
+            $this->utils->executeSqlFile($sqlFile, [], false, $skippedQueries, $onQueryExecuted);
             $installed = true;
         }
 
