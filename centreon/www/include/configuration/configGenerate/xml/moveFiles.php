@@ -178,6 +178,8 @@ try {
     $vmwareConfigurationService = $container->get(VmwareConfigurationService::class);
 
     $tab_server = [];
+    /** @var array<int, string> $containerizedPollers poller names, by id */
+    $containerizedPollers = [];
     $tabs = $centreon->user->access->getPollerAclConf(['fields' => ['name', 'id', 'localhost'], 'order' => ['name'], 'conditions' => ['ns_activate' => '1'], 'keys' => ['id']]);
 
     foreach ($tabs as $tab) {
@@ -257,14 +259,8 @@ try {
             $listVmWareFile = glob($vmWareConfigPath . $host['id'] . '/*.json', GLOB_BRACE);
             if ($legacyCommandSender->isContainerized((int) $host['id'])) {
                 // Configuration files are embedded in the request: Gorgone does not share the cache directory.
-                // The call returns once Gorgone has confirmed the delivery, and throws otherwise.
-                $legacyCommandSender->sendConfigurationFiles((int) $host['id']);
-                $vmwareConfigurationService->restartIfConfigurationChanged((int) $host['id'], false);
-                if (! isset($msg_restart[$host['id']])) {
-                    $msg_restart[$host['id']] = '';
-                }
-                $msg_restart[$host['id']] .= _('<br><b>Centreon : </b>All configuration has been sent to '
-                    . $host['name'] . ' by Gorgone.');
+                // Sent below to every containerized poller at once.
+                $containerizedPollers[(int) $host['id']] = $host['name'];
             } elseif (isset($host['localhost']) && $host['localhost'] == 1) {
                 // Check if monitoring engine's configuration directory existss
                 $dbResult = $pearDB->query("
@@ -390,6 +386,24 @@ try {
             }
         }
     }
+
+    // MON-214479: the containerized pollers are delivered at once, not one after the other. A poller which is
+    // not delivered (not connected, failure, no confirmation in time) does not stop the others.
+    if ($containerizedPollers !== []) {
+        $deliveries = [];
+        foreach (array_keys($containerizedPollers) as $pollerId) {
+            $deliveries[$pollerId] = static fn () => $legacyCommandSender->sendConfigurationFiles($pollerId);
+        }
+        $failures = $legacyCommandSender->deliverToPollers($deliveries);
+        // VMware is restarted once its configuration has been delivered
+        foreach (array_keys(array_diff_key($containerizedPollers, $failures)) as $pollerId) {
+            $vmwareConfigurationService->restartIfConfigurationChanged($pollerId, false);
+        }
+        if ($failures !== []) {
+            throw LegacyCommandSender::combineFailures($failures, $containerizedPollers, count($containerizedPollers));
+        }
+    }
+
     $xml->startElement('response');
     $xml->writeElement('status', $okMsg);
     $xml->writeElement('statuscode', STATUS_OK);
