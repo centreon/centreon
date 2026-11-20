@@ -92,6 +92,39 @@ export default (): void =>
         cy.makeSnapshot();
       });
 
+      it('names the status and the counts in each counter tooltip', () => {
+        initialize();
+        getElements();
+
+        cy.get('@criticalCounter').children().first().trigger('mouseover');
+        cy.contains(
+          '[role="tooltip"]',
+          'Critical — 34 unhandled out of 43'
+        ).should('be.visible');
+
+        cy.get('@warningCounter').children().first().trigger('mouseover');
+        cy.contains(
+          '[role="tooltip"]',
+          'Warning — 34 unhandled out of 43'
+        ).should('be.visible');
+
+        cy.get('@unknownCounter').children().first().trigger('mouseover');
+        cy.contains(
+          '[role="tooltip"]',
+          'Unknown — 34 unhandled out of 43'
+        ).should('be.visible');
+
+        cy.get('@okCounter').children().first().trigger('mouseover');
+        cy.contains('[role="tooltip"]', 'OK — 12134 in total').should(
+          'be.visible'
+        );
+
+        cy.get('@pendingCounter').children().first().trigger('mouseover');
+        cy.contains('[role="tooltip"]', 'Pending — 1000000 in total').should(
+          'be.visible'
+        );
+      });
+
       it('redirects on click on the counter', () => {
         const serviceStubs = {
           critical: { unhandled: '12' },
