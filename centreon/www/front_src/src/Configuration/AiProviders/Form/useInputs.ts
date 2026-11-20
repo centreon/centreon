@@ -1,14 +1,11 @@
 import { Group, InputProps, InputType } from '@centreon/ui';
 
-import { useAtomValue } from 'jotai';
 import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { formStateAtom } from '../../ConfigurationBase/atoms';
 import { AiProviderType } from '../models';
 import {
   labelApiToken,
-  labelApiTokenHint,
   labelAwsRegion,
   labelConnection,
   labelCurrency,
@@ -30,6 +27,7 @@ import {
   labelSpendLimits,
   labelType
 } from '../translatedLabels';
+import ApiTokenField from './ApiTokenField';
 import CurrencyChangeWarning from './CurrencyChangeWarning';
 import CurrencyField from './CurrencyField';
 import FetchModelsButton from './FetchModelsButton';
@@ -56,9 +54,6 @@ export const useInputs = (): {
   inputs: Array<InputProps>;
 } => {
   const { t } = useTranslation();
-
-  const { mode } = useAtomValue(formStateAtom);
-  const isEditing = equals(mode, 'edit');
 
   return {
     groups: [
@@ -158,17 +153,15 @@ export const useInputs = (): {
         type: InputType.Custom
       },
       {
+        // ApiTokenField masks the stored token in edit mode (see its note).
+        // required stays true so the Form keeps this field above the optional
+        // ones in the Connection group.
+        custom: { Component: ApiTokenField },
         fieldName: 'apiToken',
         group: t(labelConnection),
         label: t(labelApiToken),
-        // also required while editing: leaving it empty keeps the current
-        // token (see the placeholder), and the Form component would move
-        // a non-required field below the required ones
         required: true,
-        text: {
-          placeholder: isEditing ? t(labelApiTokenHint) : undefined
-        },
-        type: InputType.Password
+        type: InputType.Custom
       },
       {
         custom: { Component: TestConnectionButton },

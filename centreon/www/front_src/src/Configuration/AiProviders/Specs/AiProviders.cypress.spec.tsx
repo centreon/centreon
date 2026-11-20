@@ -372,7 +372,10 @@ describe('AiProviders', () => {
         .eq(1)
         .should('have.value', 'Anthropic production');
 
-      cy.findAllByTestId(labelApiToken).eq(1).should('have.value', '');
+      // the stored token is masked and locked, signalling it is configured
+      // without exposing it
+      cy.findAllByTestId(labelApiToken).eq(1).should('have.value', '********');
+      cy.findAllByTestId(labelApiToken).eq(1).should('be.disabled');
 
       cy.findAllByTestId(labelName).eq(1).type('{selectall}Anthropic renamed');
 

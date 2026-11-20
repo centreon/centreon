@@ -9,8 +9,6 @@ export const labelType = 'Type';
 export const labelTypePlaceholder = 'Select a provider type';
 export const labelEndpointUrl = 'Endpoint URL';
 export const labelApiToken = 'API token';
-export const labelApiTokenHint =
-  'The token is write-only: leave the field empty to keep the current token.';
 export const labelDefaultModel = 'Default model';
 export const labelDefaultModelPlaceholder =
   'e.g. claude-sonnet-5-5, mistral-large-latest, gpt-6.2-sol';
