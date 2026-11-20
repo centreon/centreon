@@ -133,12 +133,21 @@ interface HostTemplateRepository
      */
     public function findOne(HostTemplateId $id): ?HostTemplate;
 
-    public function isNameUsedByHostOrTemplate(HostTemplateName $name): bool;
+    /**
+     * @param ?HostTemplateId $excluding the template being renamed, whose own name does not count
+     */
+    public function isNameUsedByHostOrTemplate(HostTemplateName $name, ?HostTemplateId $excluding = null): bool;
 
     /**
      * Persists a new template, active and unlocked, with its relations and macros, and gives it its id.
      */
     public function add(HostTemplate $hostTemplate): void;
+
+    /**
+     * Saves the template's own fields, its extended information and its severity; never its activation,
+     * its lock, its relations or its macros.
+     */
+    public function update(HostTemplate $hostTemplate): void;
 
     /**
      * Persists $copy (name, SNMP community, re-minted password macros) and copies everything else from $sourceId.
