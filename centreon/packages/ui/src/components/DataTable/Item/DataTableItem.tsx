@@ -52,7 +52,32 @@ const DataTableItem = forwardRef(
         ref={ref as RefObject<HTMLDivElement>}
         variant="outlined"
       >
-        <ActionArea aria-label="view" onClick={() => onClick?.()}>
+        <MuiCardContent className={classes.cardContent}>
+          <div className={classes.cardContentText}>
+            <MuiTypography
+              className={classes.title}
+              fontWeight={500}
+              variant="h6"
+            >
+              {title}
+            </MuiTypography>
+            {description && (
+              <MuiTypography className={classes.description}>
+                {description}
+              </MuiTypography>
+            )}
+          </div>
+          {hasActions && (
+            <MuiCardActions className={classes.cardActions}>
+              {Actions}
+            </MuiCardActions>
+          )}
+        </MuiCardContent>
+        <ActionArea
+          aria-label="view"
+          className={classes.thumbnailArea}
+          onClick={() => onClick?.()}
+        >
           {thumbnail && (
             <img
               alt={`thumbnail-${title}-${description}`}
@@ -62,23 +87,7 @@ const DataTableItem = forwardRef(
               src={thumbnail}
             />
           )}
-          <MuiCardContent className={classes.cardContent}>
-            <MuiTypography fontWeight={500} variant="h5">
-              {title}
-            </MuiTypography>
-            {description && (
-              <MuiTypography className={classes.description}>
-                {description}
-              </MuiTypography>
-            )}
-          </MuiCardContent>
         </ActionArea>
-        {hasActions && (
-          <MuiCardActions className={classes.cardActions}>
-            <span />
-            <span>{Actions}</span>
-          </MuiCardActions>
-        )}
       </MuiCard>
     );
   }

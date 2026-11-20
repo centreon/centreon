@@ -12,20 +12,10 @@ export const useStyles = makeStyles()((theme) => ({
   thumbnailFallbackIcon: {
     backgroundColor: theme.palette.background.default,
     borderRadius: '50%',
+    bottom: theme.spacing(1),
     height: theme.spacing(3),
     position: 'absolute',
     right: theme.spacing(1),
-    top: theme.spacing(1),
     width: theme.spacing(3)
-  },
-  warning: {
-    color: theme.palette.action.disabled,
-    fontSize: theme.typography.body1.fontSize,
-    fontWeight: theme.typography.h6.fontWeight
-  },
-  warningContainer: {
-    display: 'flex',
-    gap: theme.spacing(0.5),
-    margin: theme.spacing(2, 0)
   }
 }));
