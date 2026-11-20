@@ -792,14 +792,14 @@ RUN rm -rf /usr/share/centreon/www/static
 # centreon-backup.pl is not supported (no MariaDB client, no mysqldump): back
 # up the database and the volumes instead.
 #############################################
-FROM debian:trixie-slim AS cron
+# Centreon Perl modules (centreon-collect perl-libs/lib), for the Perl jobs
+# (eventReportBuilder/dashboardBuilder: centreon::script::*). Intentionally
+# empty: replaced by --build-context perl-libs=<centreon-collect>/perl-libs/lib,
+# same convention as the centreon-trapd image. No package fallback, so the
+# build fails instead of mixing in Perl modules from another collect branch.
+FROM scratch AS perl-libs
 
-ARG CENTREON_APT_SUITE=trixie-26.10-unstable
-# eventReportBuilder/dashboardBuilder depend on `centreon::script::*` Perl
-# modules (package centreon-perl-libs, not vendored in this monorepo — same
-# apt-unstable repo as the T0 modules above). Pinned like every other
-# fetched package in this file.
-ARG CENTREON_PERL_LIBS_VERSION=26.10.0-1788868894.bf9287e+deb13u1
+FROM debian:trixie-slim AS cron
 
 # Same UID/GID setup as fpm (volume/ownership consistency) — only `centreon`
 # is actually needed here (these jobs never touch engine/broker/gorgone
@@ -821,15 +821,15 @@ EOF
 # Perl jobs' lock relies on it, see container.sh for the stale-lock release a
 # container needs (same PID on every run).
 #
-# centreon-perl-libs-common (pulled in by centreon-perl-libs) declares
-# libcrypt-openssl-aes-perl/libnet-curl-perl, which do not exist anywhere in
+# The Perl modules come from the perl-libs stage; their runtime dependencies
+# are the Depends of the centreon-perl-libs and centreon-perl-libs-common
+# .deb packages (centreon-collect perl-libs/packaging). Two of them,
+# libcrypt-openssl-aes-perl/libnet-curl-perl, do not exist anywhere in
 # Debian trixie's own repos — confirmed directly (`apt-get install
 # --dry-run` fails even with contrib/non-free/non-free-firmware all
-# enabled): a real gap in Centreon's own .deb packaging, not this image's.
-# Both are, however, published on packages.centreon.com/plugins/apt-stable
-# (same repo centreon-plugins itself depends on for its own SNMP/crypto
-# features) — confirmed by probing that repo directly before trusting it,
-# same key as the apt-unstable repo above. Added as a second source rather
+# enabled). Both are, however, published on
+# packages.centreon.com/plugins/apt-stable (same repo centreon-plugins itself
+# depends on for its own SNMP/crypto features). Added as a source rather
 # than worked around via CPAN (would need a full gcc/make/libssl-dev/
 # libcurl4-openssl-dev toolchain for 2 of 10, secondary, reporting-only
 # jobs — not worth the extra surface for this).
@@ -847,17 +847,28 @@ apt-get install -y --no-install-recommends \
     php8.4-readline php8.4-opcache \
     cron curl ca-certificates gnupg
 curl -sfL https://apt-key.centreon.com/ | gpg --dearmor > /etc/apt/trusted.gpg.d/centreon.gpg
-echo "deb https://packages.centreon.com/standard/apt-unstable/ ${CENTREON_APT_SUITE} main" \
-  > /etc/apt/sources.list.d/centreon-unstable.list
 echo "deb https://packages.centreon.com/plugins/apt-stable/ trixie main" \
   > /etc/apt/sources.list.d/centreon-plugins-stable.list
 apt-get update
 apt-get install -y --no-install-recommends \
-  "centreon-perl-libs=${CENTREON_PERL_LIBS_VERSION}" \
+  libconfig-inifiles-perl libcrypt-des-perl libcrypt-openssl-aes-perl \
+  libcrypt-urandom-perl libdigest-hmac-perl libgd-perl libjson-xs-perl \
+  libnet-curl-perl librrds-perl \
   libdbi-perl libdbd-mysql-perl libfile-which-perl
 apt-get remove -y --purge curl gnupg
 apt-get autoremove -y
 rm -rf /var/lib/apt/lists/* /tmp/*
+EOF
+
+# Same layout as the centreon-perl-libs{,-common} packages (Debian's vendor
+# Perl directory). Build-time check: the modules the Perl jobs load, and
+# their dependencies, resolve.
+COPY --from=perl-libs --link centreon/ /usr/share/perl5/centreon/
+RUN bash -e <<'EOF'
+for module in centreon::script::eventReportBuilder centreon::script::dashboardBuilder \
+    centreon::common::db centreon::reporting::CentreonHost; do
+  perl -e "require $module" || { echo "Perl module $module does not load" >&2; exit 1; }
+done
 EOF
 
 # Real bug found only by actually waiting for a scheduled run, not by the
