@@ -25,7 +25,6 @@ namespace Centreon\Infrastructure\ServiceConfiguration;
 
 use Centreon\Domain\Entity\EntityCreator;
 use Centreon\Domain\HostConfiguration\Host;
-use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Domain\ServiceConfiguration\HostTemplateService;
 use Centreon\Domain\ServiceConfiguration\Interfaces\ServiceConfigurationRepositoryInterface;
 use Centreon\Domain\ServiceConfiguration\Service;
@@ -33,7 +32,6 @@ use Centreon\Domain\ServiceConfiguration\ServiceMacro;
 use Centreon\Infrastructure\AccessControlList\AccessControlListRepositoryTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
-use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 
 /**
  * @todo Add ACL control
@@ -44,16 +42,9 @@ class ServiceConfigurationRepositoryRDB extends AbstractRepositoryDRB implements
 {
     use AccessControlListRepositoryTrait;
 
-    /** @var SqlRequestParametersTranslator */
-    private $sqlRequestTranslator;
-
-    public function __construct(DatabaseConnection $db, SqlRequestParametersTranslator $sqlRequestTranslator)
+    public function __construct(DatabaseConnection $db)
     {
         $this->db = $db;
-        $this->sqlRequestTranslator = $sqlRequestTranslator;
-        $this->sqlRequestTranslator
-            ->getRequestParameters()
-            ->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
     }
 
     /**
