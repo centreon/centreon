@@ -31,9 +31,6 @@ function write_command($cmd, $poller)
 
     $str = null;
 
-    // Destination is centcore pipe path
-    $destination = defined('_CENTREON_VARLIB_') ? _CENTREON_VARLIB_ . '/centcore.cmd' : '/var/lib/centreon/centcore.cmd';
-
     $cmd = str_replace('`', '&#96;', $cmd);
     $cmd = str_replace("\n", '<br>', $cmd);
     $informations = preg_split("/\;/", $key);
@@ -43,9 +40,15 @@ function write_command($cmd, $poller)
     }
     setlocale(LC_CTYPE, 'en_US.UTF-8');
 
-    $str = 'echo ' . escapeshellarg("EXTERNALCMD:{$poller}:[" . time() . ']' . $cmd) . ' >> ' . $destination;
+    // Same return values as the former passthru() call: null on success, false on failure
+    try {
+        Centreon\Infrastructure\Gorgone\LegacyCommandSender::create()
+            ->sendLines(["EXTERNALCMD:{$poller}:[" . time() . ']' . $cmd]);
+    } catch (Centreon\Infrastructure\Gorgone\LegacyCommandException) {
+        return false;
+    }
 
-    return passthru($str);
+    return null;
 }
 
 function send_cmd($cmd, $poller = null)

@@ -114,15 +114,13 @@ class CentreonExternalCommand
     }
 
     /**
-     * Write command in Nagios or Centcore Pipe.
+     * Send the commands to Gorgone.
      *
      * @return int
      */
     public function write()
     {
         global $centreon;
-
-        $varlib = ! defined('_CENTREON_VARLIB_') ? '/var/lib/centreon' : _CENTREON_VARLIB_;
 
         $str_remote = '';
         $return_remote = 0;
@@ -138,8 +136,11 @@ class CentreonExternalCommand
             if ($this->debug) {
                 echo "COMMAND BEFORE SEND: {$str_remote}";
             }
-            $result = file_put_contents($varlib . '/centcore/' . microtime(true) . '-externalcommand.cmd', $str_remote, FILE_APPEND);
-            $return_remote = ($result !== false) ? 0 : 1;
+            try {
+                Centreon\Infrastructure\Gorgone\LegacyCommandSender::create()->sendLines($str_remote);
+            } catch (Centreon\Infrastructure\Gorgone\LegacyCommandException) {
+                $return_remote = 1;
+            }
         }
 
         $this->cmdTab = [];

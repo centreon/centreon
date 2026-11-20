@@ -23,6 +23,7 @@
 define('_DELAY_', '600'); // Default 10 minutes
 
 require_once realpath(__DIR__ . '/../config/centreon.config.php');
+require_once realpath(__DIR__ . '/../config/bootstrap.php');
 require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
 require_once _CENTREON_PATH_ . '/www/class/centreonDowntime.Broker.class.php';
 
@@ -40,7 +41,7 @@ $ext_cmd_del['svc'] = ['[%u] DEL_SVC_DOWNTIME;%u'];
 
 // Connector to centreon DB
 $pearDB = new CentreonDB();
-$downtimeObj = new CentreonDowntimeBroker($pearDB, _CENTREON_VARLIB_);
+$downtimeObj = new CentreonDowntimeBroker($pearDB);
 
 // Get approaching downtimes
 $downtimes = $downtimeObj->getApproachingDowntimes(_DELAY_);

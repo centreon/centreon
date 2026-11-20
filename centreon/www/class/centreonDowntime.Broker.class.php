@@ -45,11 +45,10 @@ class CentreonDowntimeBroker extends CentreonDowntime
      * CentreonDowntimeBroker constructor
      *
      * @param CentreonDb $pearDB
-     * @param string $varlib
      */
-    public function __construct($pearDB, $varlib = null)
+    public function __construct($pearDB)
     {
-        parent::__construct($pearDB, $varlib);
+        parent::__construct($pearDB);
         $this->dbb = new CentreonDB('centstorage');
         $this->initPeriods();
     }
@@ -408,7 +407,7 @@ class CentreonDowntimeBroker extends CentreonDowntime
     }
 
     /**
-     * Send external command to nagios or centcore
+     * Queue an external command, sent to Gorgone by sendCommands()
      *
      * @param int $host_id The host id for command
      * @param string $cmd The command to send
@@ -443,15 +442,15 @@ class CentreonDowntimeBroker extends CentreonDowntime
     }
 
     /**
-     * Send all commands
+     * Send all commands to Gorgone
      *
+     * @throws Centreon\Infrastructure\Gorgone\LegacyCommandException
      * @return void
      */
     public function sendCommands(): void
     {
-        $remoteCommands = implode(PHP_EOL, $this->remoteCommands);
-        if ($remoteCommands) {
-            file_put_contents($this->remoteCmdDir . '/' . time() . '-downtimes', $remoteCommands, FILE_APPEND);
+        if ($this->remoteCommands !== []) {
+            Centreon\Infrastructure\Gorgone\LegacyCommandSender::create()->sendLines($this->remoteCommands, '-downtimes');
         }
     }
 
