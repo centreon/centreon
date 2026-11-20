@@ -71,7 +71,7 @@ $filterAllowedDowntimes = static function (array $selectedDowntimes) use ($downt
 
     if (count($allowedDowntimes) !== count($selectedDowntimes)) {
         $aclRefusedMessage = _(
-            "Some recurrent downtimes were not processed because you don't have access to all of their resources"
+            "Some recurring downtimes were not processed because you don't have access to all of their resources"
         );
     }
 
