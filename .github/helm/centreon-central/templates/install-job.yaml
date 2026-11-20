@@ -38,12 +38,13 @@ template:
           - /bin/sh
           - -ec
           - |
-            mysql {{ include "centreon-central.dbCliTls" . }} -h"$MYSQL_HOST" -P"$MYSQL_PORT" -uroot "$MYSQL_DB_CONFIGURATION" -e \
+            mysql {{ include "centreon-central.dbCliTls" . }} -h"$MYSQL_HOST" -P"$MYSQL_PORT" -u"${MYSQL_ROOT_USER:-root}" "$MYSQL_DB_CONFIGURATION" -e \
               "DELETE FROM options WHERE \`key\` = 'helm_install_id'; INSERT INTO options (\`key\`, \`value\`) VALUES ('helm_install_id', '$INSTALL_ID')"
             echo "Install {{ $installId }} recorded."
         env:
           {{- include "centreon-central.fpmInstallEnv" . | nindent 10 }}
           - { name: INSTALL_DB_STEPS, value: "true" }
+          {{- include "centreon-central.tzEnv" . | nindent 10 }}
           - { name: INSTALL_ID, value: {{ $installId | quote }} }
           {{- include "centreon-central.secretEnv" (dict "ctx" . "name" "MYSQL_PWD" "key" "MYSQL_ROOT_PASSWORD") | nindent 10 }}
         {{- with .Values.install.resources }}

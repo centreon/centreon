@@ -57,6 +57,14 @@ class Service extends AbstractService
     private $done_cache = 0;
 
     /**
+     * Hosts of the batch the poller-wide cache (generateServiceCacheByPollerCache)
+     * is scoped to (MON-214629). Set by Host before processing each batch.
+     *
+     * @var int[]
+     */
+    private array $currentBatchHostIds = [];
+
+    /**
      * @return void
      */
     public function use_cache(): void
@@ -173,6 +181,7 @@ class Service extends AbstractService
             $hostId . '.' . $serviceId
         );
         $this->addGeneratedServices($hostId, $serviceId);
+        $this->serviceDescriptionsById[$serviceId] = $this->service_cache[$serviceId]['service_description'];
         $this->clean($this->service_cache[$serviceId]);
 
         return $this->service_cache[$serviceId]['service_description'];
@@ -232,7 +241,25 @@ class Service extends AbstractService
             $this->done_cache = 0;
         }
         $this->generated_services = [];
+        $this->serviceDescriptionsById = [];
+        $this->currentBatchHostIds = [];
         parent::reset();
+    }
+
+    /**
+     * Scope the lazily-built poller-wide cache to the next batch of hosts
+     * (MON-214629). Cross-batch state that must span the whole poller —
+     * generated_services (index_data), exported (de-dup) — is left alone.
+     *
+     * @param int[] $hostIds
+     *
+     * @return void
+     */
+    public function prepareForNextHostBatch(array $hostIds): void
+    {
+        $this->service_cache = [];
+        $this->done_cache = 0;
+        $this->currentBatchHostIds = $hostIds;
     }
 
     /**
@@ -379,18 +406,38 @@ class Service extends AbstractService
     }
 
     /**
+     * MON-214629: scoped to the current host batch (host_service_relation.host_host_id
+     * IN (...)) instead of the whole poller, so the cache stays bounded by
+     * batch size rather than by poller size. Only covers DIRECT host-service
+     * links, same as before: hostgroup-linked services (host_host_id IS NULL
+     * on their relation row) were never part of this bulk load — they already
+     * went through the single-row fallback (getServiceFromId, $byHg == 1
+     * always forces it), unaffected by this change.
+     *
+     * @param int[] $hostIds
+     *
      * @throws PDOException
      * @return void
      */
-    private function generateServiceCacheByPollerCache(): void
+    private function generateServiceCacheByPollerCache(array $hostIds): void
     {
-        $query = "SELECT {$this->attributes_select} FROM ns_host_relation, host_service_relation, service "
+        if ($hostIds === []) {
+            return;
+        }
+
+        $placeholders = [];
+        foreach ($hostIds as $index => $hostId) {
+            $placeholders[':host_' . $index] = $hostId;
+        }
+
+        $query = "SELECT {$this->attributes_select} FROM host_service_relation, service "
             . 'LEFT JOIN extended_service_information ON extended_service_information.service_service_id = '
-            . 'service.service_id WHERE ns_host_relation.nagios_server_id = :server_id '
-            . 'AND ns_host_relation.host_host_id = host_service_relation.host_host_id '
+            . 'service.service_id WHERE host_service_relation.host_host_id IN (' . implode(',', array_keys($placeholders)) . ') '
             . "AND host_service_relation.service_service_id = service.service_id AND service_activate = '1'";
         $stmt = $this->backend_instance->db->prepare($query);
-        $stmt->bindParam(':server_id', $this->poller_id, PDO::PARAM_INT);
+        foreach ($placeholders as $placeholder => $hostId) {
+            $stmt->bindValue($placeholder, $hostId, PDO::PARAM_INT);
+        }
         $stmt->execute();
 
         while (($value = $stmt->fetch(PDO::FETCH_ASSOC))) {
@@ -688,7 +735,7 @@ class Service extends AbstractService
             return;
         }
         if ($this->use_cache_poller == 1) {
-            $this->generateServiceCacheByPollerCache();
+            $this->generateServiceCacheByPollerCache($this->currentBatchHostIds);
         } else {
             $this->generateServiceCache();
         }

@@ -1,4 +1,8 @@
-{{- $all := list (dict "vols" .Values.persistence.shared "mode" .Values.persistence.sharedAccessMode "class" (.Values.persistence.sharedStorageClass | default .Values.persistence.storageClass)) (dict "vols" .Values.persistence.local "mode" "ReadWriteOnce" "class" .Values.persistence.storageClass) }}
+{{- $local := deepCopy .Values.persistence.local }}
+{{- if include "centreon-central.rrdcachedJournalPvc" . }}
+{{- $_ := set $local "rrdcachedJournal" (dict "size" .Values.rrdcached.journal.size "storageClass" .Values.rrdcached.journal.storageClass) }}
+{{- end }}
+{{- $all := list (dict "vols" .Values.persistence.shared "mode" .Values.persistence.sharedAccessMode "class" (.Values.persistence.sharedStorageClass | default .Values.persistence.storageClass)) (dict "vols" $local "mode" "ReadWriteOnce" "class" .Values.persistence.storageClass) }}
 {{- range $set := $all }}
 {{- range $key, $vol := $set.vols }}
 ---
@@ -17,7 +21,7 @@ metadata:
 spec:
   accessModes:
     - {{ $set.mode }}
-  {{- with $set.class }}
+  {{- with ($vol.storageClass | default $set.class) }}
   storageClassName: {{ . | quote }}
   {{- end }}
   resources:
