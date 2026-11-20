@@ -25,6 +25,10 @@ beforeEach(() => {
   cy.startContainers();
   cy.intercept({
     method: 'GET',
+    url: INTERCEPTORS.api.navigation_list
+  }).as('getNavigationList');
+  cy.intercept({
+    method: 'GET',
     url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
   cy.intercept(
