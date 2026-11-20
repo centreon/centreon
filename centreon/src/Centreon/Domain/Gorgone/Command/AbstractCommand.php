@@ -23,11 +23,13 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\Gorgone\Command;
 
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 use Centreon\Domain\Gorgone\Interfaces\CommandInterface;
 
 abstract class AbstractCommand
 {
     /** @var string token of the command assigned by the Gorgone server */
+    #[Sensitive]
     private $token;
 
     /** @var int Poller id */

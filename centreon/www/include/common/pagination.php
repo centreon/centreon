@@ -35,6 +35,12 @@ $type = $type ? '&type=' . $type : '';
 $o = $_GET['o'] ?? null;
 $option = $o !== null ? "&o={$o}" : '';
 
+// Keep the index_id filter across pages (e.g. a service's metrics in Administration > Parameters > Data)
+$indexId = filter_var($_GET['index_id'] ?? null, FILTER_VALIDATE_INT);
+if ($indexId !== false) {
+    $option .= '&index_id=' . $indexId;
+}
+
 // saving current pagination filter value and current displayed page
 $centreon->historyPage[$url] = $num;
 $centreon->historyLastUrl = $url;
@@ -237,7 +243,7 @@ $tpl->assign('rowsDisplayed', $rowsDisplayed);
             document.forms['form'].elements['limit'].value = _this;
             _l[0].value = _this;
             _l[1].value = _this;
-            window.history.replaceState('', '', '?p=<?= $p . $type . $option; ?>');
+            window.history.replaceState('', '', '?p=' + <?= json_encode($p . $type . $option, JSON_THROW_ON_ERROR); ?>);
         }
     </script>
 <?php

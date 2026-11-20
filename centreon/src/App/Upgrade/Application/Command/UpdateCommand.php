@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace App\Upgrade\Application\Command;
 
-final readonly class UpdateCommand
+use App\Shared\Application\Command\NonTransactionalCommand;
+
+final readonly class UpdateCommand implements NonTransactionalCommand
 {
 }

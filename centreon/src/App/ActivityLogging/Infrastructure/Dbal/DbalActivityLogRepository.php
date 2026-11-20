@@ -46,14 +46,21 @@ final readonly class DbalActivityLogRepository extends DbalRepository implements
     private const DETAIL_TABLE_NAME = 'log_action_modification';
     private const TARGET_TYPE_VALUE_MAP = [
         TargetTypeEnum::AiProvider->value => 'ai_provider',
-        TargetTypeEnum::Command->value => 'commands',
+        TargetTypeEnum::Command->value => 'command',
+        TargetTypeEnum::Host->value => 'host',
+        // host templates share the host object type
+        TargetTypeEnum::HostTemplate->value => 'host',
         TargetTypeEnum::Poller->value => 'poller',
+        TargetTypeEnum::Service->value => 'service',
         TargetTypeEnum::ServiceCategory->value => 'servicecategories',
     ];
     private const ACTION_VALUE_MAP = [
         ActionEnum::Add->value => 'a',
         ActionEnum::Update->value => 'c',
         ActionEnum::Delete->value => 'd',
+        ActionEnum::Enable->value => 'enable',
+        ActionEnum::Disable->value => 'disable',
+        ActionEnum::MassChange->value => 'mc',
     ];
 
     public function __construct(
@@ -213,8 +220,9 @@ final readonly class DbalActivityLogRepository extends DbalRepository implements
 
         $row = $rows[0];
 
-        $targetType = array_flip(self::TARGET_TYPE_VALUE_MAP)[$row['object_type']] ?? null;
-        if ($targetType === null) {
+        // a stored 'host' row cannot tell a host from a template: the first match, Host, wins
+        $targetType = array_search($row['object_type'], self::TARGET_TYPE_VALUE_MAP, true);
+        if ($targetType === false) {
             throw new \RuntimeException(sprintf('There is no "%s" associated to "%s", try to updated %s::TARGET_TYPE_VALUE_MAP.', TargetTypeEnum::class, $row['object_type'], self::class));
         }
 

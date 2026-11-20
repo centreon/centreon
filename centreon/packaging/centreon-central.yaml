@@ -17,6 +17,9 @@ vendor: "Centreon"
 homepage: "https://www.centreon.com"
 license: "Apache-2.0"
 
+scripts:
+  postinstall: ./scripts/centreon-central-postinstall.sh
+
 overrides:
   rpm:
     depends:
@@ -24,6 +27,8 @@ overrides:
       - centreon-web = ${VERSION}-${RELEASE}${DIST}
       - centreon-broker-cbd >= ${MAJOR_VERSION}
       - centreon-broker-cbd < ${NEXT_MAJOR_VERSION}
+      - centreon-gorgone-centreon-config >= ${MAJOR_VERSION}
+      - centreon-gorgone-centreon-config < ${NEXT_MAJOR_VERSION}
       - centreon-license-manager >= ${MAJOR_VERSION}
       - centreon-license-manager < ${NEXT_MAJOR_VERSION}
       - centreon-pp-manager >= ${MAJOR_VERSION}
@@ -46,6 +51,8 @@ overrides:
       - centreon-web (= ${VERSION}-${RELEASE}${DIST})
       - "centreon-broker-cbd (>= ${MAJOR_VERSION}~)"
       - "centreon-broker-cbd (<< ${NEXT_MAJOR_VERSION}~)"
+      - "centreon-gorgone-centreon-config (>= ${MAJOR_VERSION}~)"
+      - "centreon-gorgone-centreon-config (<< ${NEXT_MAJOR_VERSION}~)"
       - "centreon-license-manager (>= ${MAJOR_VERSION}~)"
       - "centreon-license-manager (<< ${NEXT_MAJOR_VERSION}~)"
       - "centreon-pp-manager (>= ${MAJOR_VERSION}~)"

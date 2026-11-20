@@ -29,6 +29,7 @@ use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\Model\ConnectionConfig;
 use Adaptation\Database\Connection\Trait\ConnectionTrait;
+use App\Shared\Infrastructure\Database\DatabaseTLSResolver;
 use Centreon\Domain\Log\Logger;
 use Core\Common\Domain\Exception\UnexpectedValueException;
 use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
@@ -85,6 +86,10 @@ final class DbalConnectionAdapter implements ConnectionInterface
             'driver' => $connectionConfig->getDriver()->value,
         ];
 
+        $tlsOptions = DatabaseTLSResolver::getTLSOptions();
+        if ($tlsOptions !== []) {
+            $dbalConnectionConfig['driverOptions'] = $tlsOptions;
+        }
         try {
             $dbalConnection = DoctrineDbalDriverManager::getConnection($dbalConnectionConfig);
             $dbalConnectionAdapter = new self($dbalConnection, $connectionConfig);

@@ -62,6 +62,8 @@ runs:
         use_rest_api: 'true'
         files: |
           ${{ inputs.module_name }}/**
+        files_ignore: |
+          **/*.snap.png
 
     - name: Normalize changed files
       id: changes

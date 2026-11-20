@@ -1,7 +1,6 @@
 // @ts-nocheck
 // TODO: re-enable type-check after fixing this file
 import { Divider, Typography } from '@mui/material';
-import { Variant } from '@mui/material/styles/createTypography';
 
 import { Group, InputProps, InputType } from '@centreon/ui';
 
@@ -32,26 +31,18 @@ const useFormInputs = (): UseFormInputsState => {
   const { t } = useTranslation();
   const { classes } = useFormInputStyles();
 
-  const titleAttributes = {
-    classes: { root: classes.titleGroup },
-    variant: 'subtitle1' as Variant
-  };
-
   const groups: Array<Group> = [
     {
       name: t(labelRuleProperies),
-      order: 1,
-      titleAttributes
+      order: 1
     },
     {
       name: t(labelAddResourceDatasets),
-      order: 2,
-      titleAttributes
+      order: 2
     },
     {
       name: t(labelContactsAndContactGroups),
-      order: 3,
-      titleAttributes
+      order: 3
     }
   ];
 
@@ -69,7 +60,7 @@ const useFormInputs = (): UseFormInputsState => {
                 {
                   custom: {
                     Component: () => (
-                      <Typography className={classes.titleGroup}>
+                      <Typography className="text-base font-bold">
                         {t(labelRuleProperies)}
                       </Typography>
                     )
@@ -151,7 +142,7 @@ const useFormInputs = (): UseFormInputsState => {
                                   classes.contactsAndContactGroupsDivider
                                 }
                               />
-                              <Typography className={classes.titleGroup}>
+                              <Typography className="text-base font-bold">
                                 {t(labelContactsAndContactGroups)}
                               </Typography>
                             </div>

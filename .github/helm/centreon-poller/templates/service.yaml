@@ -1,0 +1,90 @@
+{{- $fullname := include "centreon-poller.fullname" . -}}
+# Governing Service of the StatefulSet.
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $fullname }}
+  labels:
+    {{- include "centreon-poller.labels" . | nindent 4 }}
+spec:
+  clusterIP: None
+  publishNotReadyAddresses: true
+  selector:
+    {{- include "centreon-poller.selectorLabels" . | nindent 4 }}
+  ports:
+    - { name: otel, port: 4317, targetPort: otel }
+{{- with .Values.engine.otel.service }}
+{{- if .enabled }}
+---
+# CMA agents dial this endpoint; with encryption=full the certificate must
+# match the FQDN they use (engine.otel.tls). Not tied to readiness: the
+# engine keeps collecting while it restarts or while the central is
+# unreachable.
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $fullname }}-otel
+  labels:
+    {{- include "centreon-poller.labels" $ | nindent 4 }}
+  {{- with .annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .type | default "ClusterIP" }}
+  publishNotReadyAddresses: true
+  {{- if and (eq (.type | default "ClusterIP") "LoadBalancer") .loadBalancerSourceRanges }}
+  loadBalancerSourceRanges:
+    {{- toYaml .loadBalancerSourceRanges | nindent 4 }}
+  {{- end }}
+  {{- if and (ne (.type | default "ClusterIP") "ClusterIP") .externalTrafficPolicy }}
+  externalTrafficPolicy: {{ .externalTrafficPolicy }}
+  {{- end }}
+  selector:
+    {{- include "centreon-poller.selectorLabels" $ | nindent 4 }}
+  ports:
+    - name: otel
+      port: {{ .port }}
+      targetPort: otel
+      {{- if and (eq (.type | default "ClusterIP") "NodePort") .nodePort }}
+      nodePort: {{ .nodePort }}
+      {{- end }}
+{{- end }}
+{{- end }}
+{{- with .Values.traps }}
+{{- if .enabled }}
+---
+# SNMP traps from the monitored devices. centreontrapd identifies the sender
+# by source IP: externalTrafficPolicy Local keeps it (Cluster SNATs it).
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $fullname }}-snmptrap
+  labels:
+    {{- include "centreon-poller.labels" $ | nindent 4 }}
+  {{- with .service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .service.type | default "LoadBalancer" }}
+  publishNotReadyAddresses: true
+  {{- if and (eq (.service.type | default "LoadBalancer") "LoadBalancer") .service.loadBalancerSourceRanges }}
+  loadBalancerSourceRanges:
+    {{- toYaml .service.loadBalancerSourceRanges | nindent 4 }}
+  {{- end }}
+  {{- if and (ne (.service.type | default "LoadBalancer") "ClusterIP") .service.externalTrafficPolicy }}
+  externalTrafficPolicy: {{ .service.externalTrafficPolicy }}
+  {{- end }}
+  selector:
+    {{- include "centreon-poller.selectorLabels" $ | nindent 4 }}
+  ports:
+    - name: snmptrap
+      protocol: UDP
+      port: {{ .service.port }}
+      targetPort: snmptrap
+      {{- if and (eq (.service.type | default "LoadBalancer") "NodePort") .service.nodePort }}
+      nodePort: {{ .service.nodePort }}
+      {{- end }}
+{{- end }}
+{{- end }}

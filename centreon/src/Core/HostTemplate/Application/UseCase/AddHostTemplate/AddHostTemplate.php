@@ -35,6 +35,7 @@ use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Command\Application\Exception\CommandException;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
+use Core\Command\Domain\Model\Command;
 use Core\Command\Domain\Model\CommandType;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
 use Core\CommandMacro\Domain\Model\CommandMacro;
@@ -42,6 +43,7 @@ use Core\CommandMacro\Domain\Model\CommandMacroType;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Application\UseCase\VaultTrait;
+use Core\Common\Application\VaultEligibilityService;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Host\Application\InheritanceManager;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
@@ -79,6 +81,7 @@ final class AddHostTemplate
         private readonly WriteVaultRepositoryInterface $writeVaultRepository,
         private readonly ReadVaultRepositoryInterface $readVaultRepository,
         private readonly ReadCommandRepositoryInterface $readCommandRepository,
+        private readonly VaultEligibilityService $vaultEligibilityService,
     ) {
         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::HOST_VAULT_PATH);
     }
@@ -129,6 +132,7 @@ final class AddHostTemplate
             $presenter->presentResponse(
                 match ($ex->getCode()) {
                     HostTemplateException::CODE_CONFLICT => new ConflictResponse($ex),
+                    HostTemplateException::CODE_INVALID_ARGUMENT => new InvalidArgumentResponse($ex),
                     default => new ErrorResponse($ex),
                 }
             );
@@ -160,6 +164,7 @@ final class AddHostTemplate
         $this->validation->assertIsValidCommand($request->checkCommandId, CommandType::Check, 'checkCommandId');
         $this->validation->assertIsValidCommand($request->eventHandlerCommandId, null, 'eventHandlerCommandId');
         $this->validation->assertIsValidIcon($request->iconId);
+        $this->validation->assertAreLicensedTemplates(array_unique($request->templates));
 
         if ($request->checkCommandId !== null) {
             $command = $this->readCommandRepository->findById($request->checkCommandId);
@@ -168,7 +173,7 @@ final class AddHostTemplate
             }
             if ($command->isCentreonMonitoringAgentCommand()) {
                 $request->freshnessChecked = 1;
-                $request->freshnessThreshold = 120;
+                $request->freshnessThreshold = Command::CENTREON_MONITORING_AGENT_FRESHNESS_THRESHOLD;
             }
         }
 
@@ -177,7 +182,7 @@ final class AddHostTemplate
             ? (int) ($inheritanceMode[0])->getValue()
             : 0;
 
-        if ($this->writeVaultRepository->isVaultConfigured() === true && $request->snmpCommunity !== '') {
+        if ($this->vaultEligibilityService->shouldUseVault() && $request->snmpCommunity !== '') {
             $vaultPaths = $this->writeVaultRepository->upsert(
                 null,
                 [VaultConfiguration::HOST_SNMP_COMMUNITY_KEY => $request->snmpCommunity]
@@ -310,7 +315,7 @@ final class AddHostTemplate
                 );
             }
 
-            if ($this->writeVaultRepository->isVaultConfigured() === true && $macro->isPassword() === true) {
+            if ($this->vaultEligibilityService->shouldUseVault() && $macro->isPassword() === true) {
                 $vaultPaths = $this->writeVaultRepository->upsert(
                     $this->uuid ?? null,
                     ['_HOST' . $macro->getName() => $macro->getValue()],
@@ -369,7 +374,7 @@ final class AddHostTemplate
         }
 
         return [
-            $this->writeVaultRepository->isVaultConfigured()
+            $this->vaultEligibilityService->shouldUseVault()
                 ? $this->retrieveMacrosVaultValues($inheritedMacros)
                 : $inheritedMacros,
             $commandMacros,

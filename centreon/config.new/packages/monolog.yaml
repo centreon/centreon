@@ -7,6 +7,7 @@ monolog:
         - password
         - upgrade
         - plugin-pack-manager
+        - poller-install
 
     # Declared at top level so integration tests resolve the service in any env.
     handlers:
@@ -27,15 +28,16 @@ monolog:
                 - "!token"
                 - "!password"
                 - "!plugin-pack-manager"
+                - "!poller-install"
                 - "!upgrade"
             bubble: false
         web_file:
             type: stream
             path: "%kernel.logs_dir%/%kernel.environment%.web.log"
             level: debug
-            # Rotation is handled by logrotate on production hosts
-            # (cf. MON-151077). Do NOT use `rotating_file` here —
-            # the two would fight over filename / suffix.
+            # Group-writable: console commands run by group members (e.g. centreon-broker) append to it too.
+            file_permission: 0664
+            # Rotation handled by logrotate; do NOT use `rotating_file` (fights over the filename suffix).
             formatter: monolog.formatter.line
 
 when@dev:
@@ -59,6 +61,7 @@ when@dev:
                     - "!token"
                     - "!password"
                     - "!plugin-pack-manager"
+                    - "!poller-install"
                     - "!upgrade"
                 bubble: false
             web_file:
@@ -66,6 +69,7 @@ when@dev:
                 path: "%kernel.logs_dir%/%kernel.environment%.web.log"
                 max_files: 14
                 level: debug
+                file_permission: 0664
                 formatter: monolog.formatter.line
             console:
                 type: console
@@ -106,11 +110,19 @@ when@dev:
                 path: "%kernel.logs_dir%/%kernel.environment%.upgrade.log"
                 max_files: 14
                 level: debug
+                file_permission: 0664
                 formatter: monolog.formatter.line
             plugin-pack-manager:
                 type: rotating_file
                 channels: [plugin-pack-manager]
                 path: "%kernel.logs_dir%/%kernel.environment%.plugin-pack-manager.log"
+                max_files: 14
+                level: debug
+                formatter: monolog.formatter.line
+            poller-install:
+                type: rotating_file
+                channels: [poller-install]
+                path: "%kernel.logs_dir%/%kernel.environment%.poller-install.log"
                 max_files: 14
                 level: debug
                 formatter: monolog.formatter.line
@@ -137,13 +149,11 @@ when@prod:
             console:
                 type: console
                 process_psr_3_messages: false
-                channels: ["!event", "!doctrine", "!deprecation"]
+                channels: ["!event", "!doctrine", "!deprecation", "!upgrade"]
                 formatter: monolog.formatter.line
             deprecation:
-                type: stream
+                type: 'null'
                 channels: [deprecation]
-                path: "%kernel.logs_dir%/%kernel.environment%.deprecations.log"
-                formatter: monolog.formatter.line
             authentication:
                 type: stream
                 channels: [authentication]
@@ -167,10 +177,17 @@ when@prod:
                 channels: [upgrade]
                 path: "%kernel.logs_dir%/%kernel.environment%.upgrade.log"
                 level: info
+                file_permission: 0664
                 formatter: monolog.formatter.line
             plugin-pack-manager:
                 type: stream
                 channels: [plugin-pack-manager]
                 path: "%kernel.logs_dir%/%kernel.environment%.plugin-pack-manager.log"
+                level: info
+                formatter: monolog.formatter.line
+            poller-install:
+                type: stream
+                channels: [poller-install]
+                path: "%kernel.logs_dir%/%kernel.environment%.poller-install.log"
                 level: info
                 formatter: monolog.formatter.line

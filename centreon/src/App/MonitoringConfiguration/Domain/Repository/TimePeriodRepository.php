@@ -1,0 +1,50 @@
+<?php
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
+declare(strict_types=1);
+
+namespace App\MonitoringConfiguration\Domain\Repository;
+
+use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriod;
+use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
+use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodName;
+use App\MonitoringConfiguration\Domain\Repository\Criteria\TimePeriodCriteria;
+use App\Shared\Domain\Collection;
+
+interface TimePeriodRepository
+{
+    public function existsOne(TimePeriodId $id): bool;
+
+    /**
+     * Every requested id's name, for bulk display purposes (e.g. a sibling aggregate that only
+     * references a time period by id). An id absent from the result no longer exists.
+     *
+     * @param Collection<TimePeriodId> $ids
+     *
+     * @return Collection<TimePeriodName> indexed by time period id
+     */
+    public function findNamesByIds(Collection $ids): Collection;
+
+    /**
+     * @return \IteratorAggregate<int, TimePeriod>&\Countable
+     */
+    public function findAll(?TimePeriodCriteria $criteria = null): \IteratorAggregate&\Countable;
+}

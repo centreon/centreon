@@ -39,6 +39,7 @@ use Core\CommandMacro\Domain\Model\CommandMacro;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Application\VaultEligibilityService;
 use Core\Common\Domain\YesNoDefault;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
@@ -89,6 +90,7 @@ beforeEach(closure: function (): void {
         $this->writeVaultRepository = $this->createMock(WriteVaultRepositoryInterface::class),
         $this->readVaultRepository = $this->createMock(ReadVaultRepositoryInterface::class),
         $this->readCommandRepository = $this->createMock(ReadCommandRepositoryInterface::class),
+        $this->vaultEligibilityService = $this->createMock(VaultEligibilityService::class),
     );
 });
 
@@ -652,8 +654,8 @@ it('should load command macros from an inherited template command when the servi
         ->with($serviceTemplateId)
         ->willReturn($serviceTemplate);
 
-    $this->writeVaultRepository
-        ->method('isVaultConfigured')
+    $this->vaultEligibilityService
+        ->method('shouldUseVault')
         ->willReturn(false);
 
     $this->storageEngine

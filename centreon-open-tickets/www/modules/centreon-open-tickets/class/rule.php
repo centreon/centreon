@@ -627,7 +627,7 @@ class Centreon_OpenTickets_Rule
                             ])
                         );
 
-                        $duplicatedRuleId = $this->_db->lastInsertId('mod_open_tickets_rule');
+                        $duplicatedRuleId = $this->_db->lastInsertId();
 
                         // Get form values from initial rule
                         $ruleFormValues = $this->_db->fetchAllAssociative(

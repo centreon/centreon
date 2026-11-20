@@ -1,6 +1,7 @@
 import { Column, Group, InputProps, Method } from '@centreon/ui';
 
 import type { PrimitiveAtom } from 'jotai';
+import type { ComponentType } from 'react';
 import type { JsonDecoder } from 'ts.data.json';
 import { ObjectSchema } from 'yup';
 
@@ -18,7 +19,8 @@ export enum ResourceType {
   ServiceGroup = 'service group',
   AdditionalConfiguration = 'additional configuration',
   Command = 'command',
-  AiProvider = 'AI provider'
+  AiProvider = 'AI provider',
+  HostTemplate = 'host template'
 }
 
 export interface Form {
@@ -26,6 +28,19 @@ export interface Form {
   groups: Array<Group>;
   validationSchema: ObjectSchema<object>;
   defaultValues: object;
+  // Opt-in: what the panel shows when it edits a selection at once. The
+  // adapter receives the form values and returns the body sent to each row.
+  massChange?: MassChangeForm;
+}
+
+export interface MassChangeForm {
+  adapter: (values: Record<string, unknown>) => object;
+  defaultValues: object;
+  // A consequence the confirmation must spell out, given what was typed.
+  getConfirmationWarning?: (values: Record<string, unknown>) => string | null;
+  groups: Array<Group>;
+  inputs: Array<InputProps>;
+  validationSchema: ObjectSchema<object>;
 }
 
 export type Filters = {
@@ -33,6 +48,23 @@ export type Filters = {
   enabeld?: boolean;
   disabled?: boolean;
 } & Record<string, string | boolean>;
+
+// An inline action a module adds to the row. Unlike the shared duplicate and
+// delete icons, its visibility is entirely the module's call.
+export interface RowAction {
+  Icon: ComponentType<{ className?: string }>;
+  dataTestId: (row: ResourceRow) => string;
+  isVisible?: (row: ResourceRow) => boolean;
+  label: string;
+  onClick: (row: ResourceRow) => void;
+}
+
+export interface MassiveAction {
+  Icon: ComponentType;
+  dataTestId: string;
+  label: string;
+  onClick: (rows: Array<ResourceRow>) => void;
+}
 
 export interface Actions {
   delete?: (row?: ResourceRow) => boolean;
@@ -47,8 +79,20 @@ export interface Actions {
         disable?: boolean;
       };
   edit?: boolean;
+  // Whether an opened resource can be changed; every one by default.
+  editable?: (resource: ResourceRow) => boolean;
+  // Whether a row can be checked, select-all included; every row by default.
+  selectable?: (row: ResourceRow) => boolean;
   viewDetails?: boolean;
+  rowActions?: Array<RowAction>;
+  massiveActions?: Array<MassiveAction>;
+  // Keep the per-row cells on screen without write access and let each decide
+  // what it shows. Modules gating on write access alone leave this off.
+  rowActionsWithoutWriteAccess?: boolean;
 }
+
+// Theme spacing units, or `full` to match the search field's width.
+export type FiltersPanelWidth = number | 'full';
 
 export interface ConfigurationBase<TFilters> {
   resourceType: ResourceType;
@@ -61,6 +105,7 @@ export interface ConfigurationBase<TFilters> {
   actions?: Actions;
   labels: {
     title: string;
+    description?: string;
     welcomePage: {
       title: string;
       description?: string;
@@ -78,6 +123,15 @@ export interface ConfigurationBase<TFilters> {
     label: string;
     link: string;
   }>;
+  filtersPanelWidth?: FiltersPanelWidth;
+  // Where the create/edit form opens. Modal by default.
+  formVariant?: 'modal' | 'panel';
+  // Width the panel opens at; the user can resize it from there.
+  formPanelWidth?: number;
+  // The column the listing opens sorted on, when it is not `name`.
+  defaultSortField?: string;
+  // What tells two listing rows apart, when `id` alone does not.
+  getRowId?: (row: ResourceRow) => number | string;
 }
 
 export enum FieldType {
@@ -85,6 +139,7 @@ export enum FieldType {
   Status = 'status',
   MultiAutocomplete = 'multiAutocomplete',
   MultiConnectedAutocomplete = 'multiConnectedAutocomplete',
+  SingleConnectedAutocomplete = 'singleConnectedAutocomplete',
   Checkbox = 'Checkbox',
   Checkboxes = 'Checkboxes'
 }
@@ -94,15 +149,26 @@ export interface Endpoints {
   getOne?: ({ id }: { id: number | string }) => string;
   deleteOne?: ({ id }: { id: number | string }) => string;
   delete?: string;
-  duplicate?: string;
-  enable?: (params?: { id: number | string }) => string;
-  disable?: (params?: { id: number | string }) => string;
+  duplicate?: string | (({ id }: { id: number | string }) => string);
+  enable?: (() => string) | ((params: { id: number | string }) => string);
+  disable?: (() => string) | ((params: { id: number | string }) => string);
   create?: string;
   update?: ({ id }: { id: number | string }) => string;
 }
 
 export interface APIType {
   endpoints: Endpoints | null;
+  // Override the default `./api/latest` of `customFetch`: `baseEndpoint` for
+  // the listing, `writeBaseEndpoint` for the mutations. Separate because a
+  // module can have the two on different prefixes while an API migrates.
+  baseEndpoint?: string;
+  writeBaseEndpoint?: string;
+  // The field a PATCH-based enable/disable sets, when an endpoint does not
+  // spell it the way the older migrated listings do.
+  activationField?: string;
+  // The status column sorts on `activationField` unless the endpoint cannot
+  // sort on it.
+  isActivationSortable?: boolean;
   decoders?: {
     getOne?: JsonDecoder.Decoder<unknown>;
     getAll?: JsonDecoder.Decoder<unknown>;
@@ -111,10 +177,15 @@ export interface APIType {
   apiFormat?: 'Standard' | 'JSON-LD';
   methods?: {
     update?: Method;
+    // The mass change's own write, when the edit replaces the record: a
+    // selection only sends what changed. Falls back to `update`.
+    massUpdate?: Method;
     enable?: Method;
     disable?: Method;
   };
   isSingleDuplicate?: boolean;
+  // Row duplicate asks the copy's name and POSTs `{ name }`; needs a per-id `duplicate` endpoint.
+  isDuplicateWithName?: boolean;
 }
 
 export interface FilterConfiguration {
@@ -123,6 +194,16 @@ export interface FilterConfiguration {
   fieldType: FieldType;
   options?: Array<{ id: number | string; name: string }>;
   getEndpoint?: (parameters: Record<string, unknown>) => string;
+  // Overrides the default `./api/latest` of `customFetch`. API Platform routes
+  // are only aliased under that prefix when allowlisted, so most need `./api`.
+  baseEndpoint?: string;
+  // The autocomplete reads `{ result, meta }`; a Hydra selector needs a decoder
+  // built with `apiFormat: 'JSON-LD'` to get there.
+  decoder?: JsonDecoder.Decoder<unknown>;
+  // A checkbox sends `fieldName=true` when checked. A filter whose parameter
+  // reads the other way round names it here instead: it is then sent as `true`
+  // when the box is unchecked, and left out when checked.
+  uncheckedQueryParameter?: string;
 }
 
 export interface Configuration {
@@ -132,4 +213,5 @@ export interface Configuration {
   filtersInitialValues: Filters;
   defaultSelectedColumnIds: Array<string>;
   actions?: Actions;
+  filtersPanelWidth?: FiltersPanelWidth;
 }

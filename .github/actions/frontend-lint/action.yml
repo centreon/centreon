@@ -44,9 +44,10 @@ runs:
           --config.trustPolicy=no-downgrade \
           --config.minimumReleaseAge=2880 \
           --config.blockExoticSubdeps=true
-      working-directory: ${{ inputs.frontend_directory }}
+      working-directory: ${{ env.FRONTEND_DIRECTORY }}
       shell: bash
       env:
+        FRONTEND_DIRECTORY: ${{ inputs.frontend_directory }}
         CYPRESS_INSTALL_BINARY: "0"
         PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
         PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
@@ -56,7 +57,7 @@ runs:
       with:
         working-dir: ${{ inputs.frontend_directory }}
         token: ${{ inputs.pat }}
-        version: 2.3.11
+        version: 2.5.14
 
     - uses: mongolyy/reviewdog-action-biome@58f27dce74f1f648943d3a88de554385727ce11b # v2.11.1
       with:
@@ -65,4 +66,4 @@ runs:
         reporter: github-pr-check
         filter_mode: nofilter
         fail_level: error
-        biome_flags: ${{ inputs.lint_path }}
+        biome_flags: --diagnostic-level=warn ${{ inputs.lint_path }}

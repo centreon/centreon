@@ -21,18 +21,23 @@
 
 namespace CentreonRemote\Application\Webservice;
 
+use App\Kernel;
+use App\Shared\Domain\Assert\Assert as CentreonAssert;
 use Centreon\Domain\Entity\Task;
+use Centreon\Domain\Gorgone\Command\NodesSync;
+use Centreon\Domain\Gorgone\Interfaces\GorgoneServiceInterface;
 use Centreon\Domain\PlatformTopology\Model\PlatformPending;
+use CentreonLog;
 use CentreonRemote\Application\Validator\WizardConfigurationRequestValidator;
+use CentreonRemote\Domain\Resources\RemoteConfig\NagiosServer;
 use CentreonRemote\Domain\Service\ConfigurationWizard\{
     PollerConnectionConfigurationService,
     RemoteConnectionConfigurationService
 };
 use CentreonRemote\Domain\Value\ServerWizardIdentity;
+use Throwable;
+use Webmozart\Assert\InvalidArgumentException;
 
-/**
- * @OA\Tag(name="centreon_configuration_remote", description="")
- */
 class CentreonConfigurationRemote extends CentreonWebServiceAbstract
 {
     /**
@@ -46,50 +51,6 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
     }
 
     /**
-     * @OA\Post(
-     *   path="/internal.php?object=centreon_configuration_remote&action=getWaitList",
-     *   description="Get remotes servers waitlist",
-     *   tags={"centreon_configuration_remote"},
-     *   security={{"Session": {}}},
-     *
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="object",
-     *
-     *       @OA\Schema(
-     *          type="string",
-     *          enum={"centreon_configuration_remote"},
-     *          default="centreon_configuration_remote"
-     *       ),
-     *       description="the name of the API object class",
-     *       required=true
-     *   ),
-     *
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="action",
-     *
-     *       @OA\Schema(
-     *          type="string",
-     *          enum={"getWaitList"},
-     *          default="getWaitList"
-     *       ),
-     *       description="the name of the action in the API class",
-     *       required=true
-     *   ),
-     *
-     *   @OA\Response(
-     *       response=200,
-     *       description="JSON with the IPs inside the waitlist",
-     *
-     *       @OA\JsonContent(
-     *
-     *          @OA\Property(property="ip", type="string"),
-     *          @OA\Property(property="version", type="string")
-     *      )
-     *   )
-     * )
-     *
      * Get remotes servers waitlist
      *
      * @return array<int, array<mixed>>
@@ -120,51 +81,6 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
     }
 
     /**
-     * @OA\Get(
-     *   path="/internal.php?object=centreon_configuration_remote&action=list",
-     *   description="Get list with connected remotes",
-     *   tags={"centreon_configuration_remote"},
-     *   security={{"Session": {}}},
-     *
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="object",
-     *
-     *       @OA\Schema(
-     *          type="string",
-     *          enum={"centreon_configuration_remote"},
-     *          default="centreon_configuration_remote"
-     *       ),
-     *       description="the name of the API object class",
-     *       required=true
-     *   ),
-     *
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="action",
-     *
-     *       @OA\Schema(
-     *          type="string",
-     *          enum={"getRemotesList"},
-     *          default="getRemotesList"
-     *       ),
-     *       description="the name of the action in the API class",
-     *       required=true
-     *   ),
-     *
-     *   @OA\Response(
-     *       response=200,
-     *       description="JSON with the IPs of connected remotes",
-     *
-     *       @OA\JsonContent(
-     *
-     *          @OA\Property(property="id", type="string"),
-     *          @OA\Property(property="ip", type="string"),
-     *          @OA\Property(property="name", type="string")
-     *       )
-     *   )
-     * )
-     *
      * Get list with connected remotes
      *
      * @return array<int, array<mixed>>
@@ -183,51 +99,6 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
     }
 
     /**
-     * @OA\Post(
-     *   path="/internal.php?object=centreon_configuration_remote&action=getRemotesList",
-     *   description="Get list with connected remotes",
-     *   tags={"centreon_configuration_remote"},
-     *   security={{"Session": {}}},
-     *
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="object",
-     *
-     *       @OA\Schema(
-     *          type="string",
-     *          enum={"centreon_configuration_remote"},
-     *          default="centreon_configuration_remote"
-     *       ),
-     *       description="the name of the API object class",
-     *       required=true
-     *   ),
-     *
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="action",
-     *
-     *       @OA\Schema(
-     *          type="string",
-     *          enum={"getRemotesList"},
-     *          default="getRemotesList"
-     *       ),
-     *       description="the name of the action in the API class",
-     *       required=true
-     *   ),
-     *
-     *   @OA\Response(
-     *       response=200,
-     *       description="JSON with the IPs of connected remotes",
-     *
-     *       @OA\JsonContent(
-     *
-     *          @OA\Property(property="id", type="string"),
-     *          @OA\Property(property="ip", type="string"),
-     *          @OA\Property(property="name", type="string")
-     *       )
-     *   )
-     * )
-     *
      * Get list with connected remotes
      *
      * @return array<int, array<mixed>>
@@ -245,129 +116,6 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
     }
 
     /**
-     * @OA\Post(
-     *   path="/internal.php?object=centreon_configuration_remote&action=linkCentreonRemoteServer",
-     *   description="Link centreon remote server",
-     *   tags={"centreon_configuration_remote"},
-     *   security={{"Session": {}}},
-     *
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="object",
-     *
-     *       @OA\Schema(
-     *          type="string",
-     *          enum={"centreon_configuration_remote"},
-     *          default="centreon_configuration_remote"
-     *       ),
-     *       description="the name of the API object class",
-     *       required=true
-     *   ),
-     *
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="action",
-     *
-     *       @OA\Schema(
-     *          type="string",
-     *          enum={"linkCentreonRemoteServer"},
-     *          default="linkCentreonRemoteServer"
-     *       ),
-     *       description="the name of the action in the API class",
-     *       required=true
-     *   ),
-     *
-     *   @OA\RequestBody(
-     *       required=true,
-     *
-     *       @OA\JsonContent(
-     *          required={
-     *              "manage_broker_configuration",
-     *              "server_ip",
-     *              "centreon_central_ip",
-     *              "server_name"
-     *          },
-     *
-     *          @OA\Property(
-     *              property="manage_broker_configuration",
-     *              type="string",
-     *              description="if broker configuration of poller should be managed"
-     *          ),
-     *          @OA\Property(
-     *              property="server_ip",
-     *              type="string",
-     *              description="the remote server ip address"
-     *          ),
-     *          @OA\Property(
-     *              property="centreon_central_ip",
-     *              type="string",
-     *              description="the centreon central ip address"
-     *          ),
-     *          @OA\Property(
-     *              property="server_name",
-     *              type="string",
-     *              description="the remote centreon instance name"
-     *          ),
-     *          @OA\Property(
-     *              property="open_broker_flow",
-     *              type="string",
-     *              description="if the connection should be made with open broker flow"
-     *          ),
-     *          @OA\Property(
-     *              property="db_user",
-     *              type="string",
-     *              description="database username"
-     *          ),
-     *          @OA\Property(
-     *              property="db_password",
-     *              type="string",
-     *              description="database password"
-     *          ),
-     *          @OA\Property(
-     *               property="db_host",
-     *               type="string",
-     *               description="database host"
-     *           ),
-     *          @OA\Property(
-     *              property="server_type",
-     *              type="string",
-     *              description="type of server - remote or poller"
-     *          ),
-     *          @OA\Property(
-     *              property="centreon_folder",
-     *              type="string",
-     *              description="path to the centreon web folder on the remote machine"
-     *          ),
-     *          @OA\Property(
-     *              property="linked_pollers",
-     *              type="string",
-     *              description="pollers to link with the new remote"
-     *          ),
-     *          @OA\Property(
-     *              property="linked_remote_master",
-     *              type="string",
-     *              description="remote to manage the new poller"
-     *          ),
-     *          @OA\Property(
-     *              property="linked_remote_slaves",
-     *              type="string",
-     *              description="additional remotes which receive data from the new poller"
-     *          )
-     *       )
-     *   ),
-     *
-     *   @OA\Response(
-     *       response=200,
-     *       description="JSON",
-     *
-     *       @OA\JsonContent(
-     *
-     *          @OA\Property(property="success", type="boolean"),
-     *          @OA\Property(property="task_id", type="integer")
-     *       )
-     *   )
-     * )
-     *
      * Link centreon remote server
      *
      * @throws \RestBadRequestException
@@ -410,11 +158,9 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
         $serverIP = parse_url($this->arguments['server_ip'], PHP_URL_HOST) ?: $this->arguments['server_ip'];
         $serverName = substr($this->arguments['server_name'], 0, 40);
 
-        // Check IPv6, IPv4 and FQDN format
-        if (
-            ! filter_var($serverIP, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)
-            && ! filter_var($serverIP, FILTER_VALIDATE_IP)
-        ) {
+        try {
+            CentreonAssert::ipOrHostname($serverIP);
+        } catch (InvalidArgumentException) {
             return ['error' => true, 'message' => 'Invalid IP address'];
         }
         $dbAdapter = $this->getDi()['centreon.db-manager']->getAdapter('configuration_db');
@@ -450,6 +196,11 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
         $serverConfigurationService->setServerIp($serverIP);
         $serverConfigurationService->setName($serverName);
         $serverConfigurationService->setOnePeerRetention($openBrokerFlow);
+
+        if (! $isRemoteConnection && ($this->arguments['gorgone_pull_wss'] ?? false) === true) {
+            $serverConfigurationService->setGorgoneCommunicationType(NagiosServer::PULLWSS);
+            $serverConfigurationService->setGorgonePort(NagiosServer::PULLWSS_GORGONE_PORT);
+        }
 
         // set linked pollers
         $pollerConfigurationBridge->collectDataFromRequest();
@@ -531,6 +282,7 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
                 'server_name' => $serverName,
                 'nagios_id' => $serverId,
                 'address' => $serverIP,
+                'central_address' => $this->arguments['centreon_central_ip'],
                 'children_pollers' => $pollers ?? null,
             ]);
             // if it is poller wizard and poller is linked to another poller/remote server (instead of central)
@@ -546,6 +298,7 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
                 'server_name' => $serverName,
                 'nagios_id' => $serverId,
                 'address' => $serverIP,
+                'central_address' => $this->arguments['centreon_central_ip'],
                 'parent' => $parentPoller->getId(),
             ]);
         } else {
@@ -554,7 +307,24 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
                 'server_name' => $serverName,
                 'nagios_id' => $serverId,
                 'address' => $serverIP,
+                'central_address' => $this->arguments['centreon_central_ip'],
             ]);
+        }
+
+        if (! $isRemoteConnection && ($this->arguments['gorgone_pull_wss'] ?? false) === true) {
+            try {
+                Kernel::createForWeb()
+                    ->getContainer()
+                    ->get(GorgoneServiceInterface::class)
+                    ->send(new NodesSync());
+            } catch (Throwable $exception) {
+                CentreonLog::create()->warning(
+                    CentreonLog::TYPE_BUSINESS_LOG,
+                    'Failed to trigger Gorgone nodes sync',
+                    ['source' => 'poller_wizard', 'poller_id' => $serverId],
+                    $exception,
+                );
+            }
         }
 
         // Update session to reload ACL
@@ -726,22 +496,25 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
             $statement = $this->pearDB->prepare(
                 "UPDATE `platform_topology` SET
                 `name` = :name,
+                `central_address` = :centralAddress,
                 parent_id = :parentId,
                 server_id = :nagiosId,
                 pending = '0'
                 WHERE id = :topologyId"
             );
             $statement->bindValue(':name', $topologyInformation['server_name'], \PDO::PARAM_STR);
+            $statement->bindValue(':centralAddress', $topologyInformation['central_address'], \PDO::PARAM_STR);
             $statement->bindValue(':parentId', (int) $parent['id'], \PDO::PARAM_INT);
             $statement->bindValue(':nagiosId', $topologyInformation['nagios_id'], \PDO::PARAM_INT);
             $statement->bindValue(':topologyId', (int) $server['id'], \PDO::PARAM_INT);
             $statement->execute();
         } else {
             $statement = $this->pearDB->prepare(
-                "INSERT INTO `platform_topology` (`address`,`name`,`type`,`parent_id`,`server_id`, `pending`)
-                VALUES (:address, :name, :type, :parentId, :serverId, '0')"
+                "INSERT INTO `platform_topology` (`address`,`central_address`,`name`,`type`,`parent_id`,`server_id`, `pending`)
+                VALUES (:address, :centralAddress, :name, :type, :parentId, :serverId, '0')"
             );
             $statement->bindValue(':address', $topologyInformation['address'], \PDO::PARAM_STR);
+            $statement->bindValue(':centralAddress', $topologyInformation['central_address'], \PDO::PARAM_STR);
             $statement->bindValue(':name', $topologyInformation['server_name'], \PDO::PARAM_STR);
             $statement->bindValue(':type', $topologyInformation['type'], \PDO::PARAM_STR);
             $statement->bindValue(':parentId', (int) $parent['id'], \PDO::PARAM_INT);

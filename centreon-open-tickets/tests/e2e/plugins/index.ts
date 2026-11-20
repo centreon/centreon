@@ -1,8 +1,3 @@
-/* eslint-disable default-param-last */
-/* eslint-disable global-require */
-/* eslint-disable @typescript-eslint/no-var-requires */
-/* eslint-disable no-param-reassign */
-
 import { execSync } from 'child_process';
 import Docker from 'dockerode';
 import { addCucumberPreprocessorPlugin } from '@badeball/cypress-cucumber-preprocessor';

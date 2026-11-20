@@ -33,6 +33,7 @@ use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Host\Domain\Model\Host;
 use Core\HostSeverity\Application\Repository\ReadHostSeverityRepositoryInterface;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
+use Core\HostTemplate\Application\UnlicensedHostTemplatesFinder;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
 use Core\MonitoringServer\Model\MonitoringServer;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
@@ -66,6 +67,7 @@ class PartialUpdateHostValidation
         private readonly ReadTimezoneRepositoryInterface $readTimezoneRepository,
         private readonly ReadCommandRepositoryInterface $readCommandRepository,
         private readonly InheritanceManager $inheritanceManager,
+        private readonly UnlicensedHostTemplatesFinder $unlicensedHostTemplatesFinder,
         public array $accessGroups = [],
     ) {
     }
@@ -256,6 +258,24 @@ class PartialUpdateHostValidation
             || $this->inheritanceManager->isValidInheritanceTree($hostId, $templateIds) === false
         ) {
             throw HostException::circularTemplateInheritance();
+        }
+    }
+
+    /**
+     * Assert the license allows the templates the host is given: once the host limit is reached, the templates
+     * coming from the paid Monitoring Connectors can no longer be added.
+     *
+     * @param int[] $templateIds
+     * @param int[] $currentTemplateIds the templates the host already has
+     *
+     * @throws HostException
+     * @throws \Throwable
+     */
+    public function assertAreLicensedTemplates(array $templateIds, array $currentTemplateIds = []): void
+    {
+        $unlicensedIds = $this->unlicensedHostTemplatesFinder->findAmongAdded($templateIds, $currentTemplateIds);
+        if ($unlicensedIds !== []) {
+            throw HostException::templatesNotLicensed($unlicensedIds);
         }
     }
 }

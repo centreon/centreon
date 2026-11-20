@@ -21,6 +21,7 @@ interface Props<TFilters> {
   filtersAtom: PrimitiveAtom<TFilters>;
   data;
   selectedColumnIdsAtom: PrimitiveAtom<Array<string>>;
+  getRowId?: (row) => number | string;
 }
 
 const Listing = <TFilters,>({
@@ -31,7 +32,8 @@ const Listing = <TFilters,>({
   data,
   selectedColumnIdsAtom,
   filtersAtom,
-  filtersAtomKey
+  filtersAtomKey,
+  getRowId
 }: Props<TFilters>): JSX.Element => {
   const [selectedRows, setSelectedRows] = useAtom(selectedRowsAtom);
 
@@ -53,7 +55,7 @@ const Listing = <TFilters,>({
     sortf,
     sorto,
     selectedColumnIds,
-    openEditModal,
+    openEditForm,
     disableRowCondition
   } = useListing({ selectedColumnIdsAtom });
 
@@ -73,10 +75,14 @@ const Listing = <TFilters,>({
         sortable: true
       }}
       columns={
-        hasWriteAccess ? [...columns, ...availableStaticColumns] : columns
+        hasWriteAccess || actions?.rowActionsWithoutWriteAccess
+          ? [...columns, ...availableStaticColumns]
+          : columns
       }
       currentPage={(page || 1) - 1}
+      disableRowCheckCondition={(row) => !(actions?.selectable?.(row) ?? true)}
       disableRowCondition={disableRowCondition}
+      getId={getRowId}
       limit={limit}
       loading={isLoading}
       memoProps={[
@@ -90,7 +96,7 @@ const Listing = <TFilters,>({
       onLimitChange={setLimit}
       onPaginate={changePage}
       onResetColumns={resetColumns}
-      onRowClick={openEditModal}
+      onRowClick={openEditForm}
       onSelectColumns={selectColumns}
       onSelectRows={setSelectedRows}
       onSort={changeSort}

@@ -30,6 +30,7 @@ use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\ServiceTemplate\Application\UseCase\AddServiceTemplate\AddServiceTemplatePresenterInterface;
 use Core\ServiceTemplate\Application\UseCase\AddServiceTemplate\AddServiceTemplateResponse;
 use Core\ServiceTemplate\Application\UseCase\AddServiceTemplate\MacroDto;
+use Core\ServiceTemplate\Infrastructure\Model\YesNoDefaultConverter;
 
 class AddServiceTemplateSaasPresenter extends AbstractPresenter implements AddServiceTemplatePresenterInterface
 {
@@ -62,6 +63,8 @@ class AddServiceTemplateSaasPresenter extends AbstractPresenter implements AddSe
                         'action_url' => $response->actionUrl,
                         'icon_id' => $response->iconId,
                         'severity_id' => $response->severityId,
+                        'freshness_checked' => YesNoDefaultConverter::toInt($response->checkFreshness),
+                        'freshness_threshold' => $response->freshnessThreshold,
                         'host_templates' => $response->hostTemplateIds,
                         'is_locked' => $response->isLocked,
                         'categories' => array_map(fn ($category): array => [

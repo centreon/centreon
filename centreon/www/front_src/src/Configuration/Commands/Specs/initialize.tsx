@@ -1,5 +1,8 @@
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
-import { userPermissionsAtom } from '@centreon/ui-context';
+import {
+  defaultLimitPerPageAtom,
+  userPermissionsAtom
+} from '@centreon/ui-context';
 
 import i18next from 'i18next';
 import { createStore, Provider } from 'jotai';
@@ -29,6 +32,9 @@ const initialize = (): void => {
     manage_miscellaneous_commands: true,
     manage_notification_commands: true
   });
+
+  // The platform default page size, which listings wait for.
+  store.set(defaultLimitPerPageAtom, 10);
 
   cy.fixture('Commands/listCommands.json').then((commands) => {
     cy.interceptAPIRequest({

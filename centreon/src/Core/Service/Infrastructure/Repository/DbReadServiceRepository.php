@@ -174,7 +174,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
     /**
      * @inheritDoc
      */
-    public function existsByAccessGroups(int $serviceId, array $accessGroups): bool
+    public function existsByAccessGroups(int $serviceId, array $accessGroups, ?int $hostId = null): bool
     {
         if ($accessGroups === []) {
             $this->debug('Access groups array empty');
@@ -200,6 +200,8 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
                 AND scr.sc_id IN ({$subRequest})
                 SQL;
 
+        $hostFilter = $hostId === null ? '' : 'AND acl.`host_id` = :host_id';
+
         $statement = $this->db->prepare($this->translateDbName(
             <<<SQL
                 SELECT 1
@@ -207,13 +209,17 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
                 LEFT JOIN `:db`.`service_categories_relation` scr
                     ON scr.`service_service_id` = s.`service_id`
                 JOIN `:dbstg`.`centreon_acl` acl
+                    ON s.`service_id` = acl.`service_id`
                 WHERE acl.`group_id` IN ({$bindParamsAsString})
+                    {$hostFilter}
                     AND s.`service_id` = :service_id
-                    AND s.`service_register` = '1'
                     {$categoryAcls}
                 SQL
         ));
         $statement->bindValue(':service_id', $serviceId, \PDO::PARAM_INT);
+        if ($hostId !== null) {
+            $statement->bindValue(':host_id', $hostId, \PDO::PARAM_INT);
+        }
         foreach ($bindValuesArray as $bindParam => $bindValue) {
             $statement->bindValue($bindParam, $bindValue, \PDO::PARAM_INT);
         }
@@ -427,6 +433,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
                     AND host.host_register = '1'
                 WHERE service.service_id = :id
                     AND service.service_register = '1'
+                    AND hsr.host_host_id IS NOT NULL
                 GROUP BY
                     service.service_id,
                     esi.esi_action_url,
@@ -864,50 +871,41 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
         }
         $statement->execute();
 
-        $allInheritances = [];
+        // Index inheritances by child ID once, so that walking the template chain of each
+        // service is a lookup instead of a scan of the whole list (O(N) instead of O(N²)).
+        // A service has at most one parent template, so there is one inheritance per child.
+        $inheritanceByChildId = [];
         while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
             /** @var array{child_id: int, parent_id: int} $row */
-            $allInheritances[] = new ServiceInheritance(
-                (int) $row['parent_id'],
-                (int) $row['child_id']
-            );
+            $childId = (int) $row['child_id'];
+            $inheritanceByChildId[$childId] = new ServiceInheritance((int) $row['parent_id'], $childId);
         }
 
         $result = [];
         foreach ($serviceIds as $serviceId) {
-            $result[$serviceId] = $this->filterInheritancesForService($serviceId, $allInheritances);
+            $result[$serviceId] = $this->filterInheritancesForService($serviceId, $inheritanceByChildId);
         }
 
         return $result;
     }
 
     /**
-     * Filter the global inheritance list to get only those relevant to a specific service.
+     * Walk up the template chain of a service (a service has at most one parent template).
      *
      * @param int $serviceId
-     * @param ServiceInheritance[] $allInheritances
+     * @param array<int, ServiceInheritance> $inheritanceByChildId Inheritance indexed by child ID
      *
      * @return ServiceInheritance[]
      */
-    private function filterInheritancesForService(int $serviceId, array $allInheritances): array
+    private function filterInheritancesForService(int $serviceId, array $inheritanceByChildId): array
     {
         $relevant = [];
-        $idsToProcess = [$serviceId];
-        $processed = [];
-
-        while (! empty($idsToProcess)) {
-            $currentId = array_shift($idsToProcess);
-            if (isset($processed[$currentId])) {
-                continue;
-            }
-            $processed[$currentId] = true;
-
-            foreach ($allInheritances as $inheritance) {
-                if ($inheritance->getChildId() === $currentId) {
-                    $relevant[] = $inheritance;
-                    $idsToProcess[] = $inheritance->getParentId();
-                }
-            }
+        $visited = [];
+        $currentId = $serviceId;
+        while (isset($inheritanceByChildId[$currentId]) && ! isset($visited[$currentId])) {
+            $visited[$currentId] = true;
+            $relevant[] = $inheritanceByChildId[$currentId];
+            $currentId = $inheritanceByChildId[$currentId]->getParentId();
         }
 
         return $relevant;
@@ -1037,6 +1035,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
             ->appendWhere(
                 <<<'SQL'
                     WHERE service.service_register = '1'
+                        AND hsr.host_host_id IS NOT NULL
                     SQL
             )
             ->appendGroupBy(

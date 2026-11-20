@@ -4,7 +4,7 @@ Feature: Editing dashboard properties
   I need to edit the properties of a dashboard
   In order to set parameters that will prescribe the behavior of this dashboard
 
-  @TEST_MON-22168
+  @MON-22168
   Scenario: Update a dashboard in the dashboards library
     Given a user with update rights on a dashboard featured in the dashboards library
     When the user selects the properties of the dashboard
@@ -14,7 +14,7 @@ Feature: Editing dashboard properties
     When the user saves the dashboard with its new values
     Then the dashboard is listed in the dashboards library with its new name and description
 
-  @TEST_MON-22166
+  @MON-22166
   Scenario: Cancel an update form
     Given a user with dashboard update rights who is about to update a dashboard with new values
     When the user leaves the update form without saving
@@ -22,7 +22,7 @@ Feature: Editing dashboard properties
     When the user opens the form to update the dashboard for the second time
     Then the information the user filled in the first update form has not been saved
 
-  @TEST_MON-22167
+  @MON-22167
   Scenario: Empty a dashboard's name field
     Given a user with dashboard update rights in a dashboard update form
     When the user sets an empty name for this dashboard
@@ -30,7 +30,7 @@ Feature: Editing dashboard properties
     When the user enters a new name for this dashboard
     Then the user can now save the dashboard
 
-  @TEST_MON-22165
+  @MON-22165
   Scenario: Empty a dashboard's description field
     Given a user with dashboard update rights in the update form of a dashboard with description
     When the user sets an empty description for this dashboard

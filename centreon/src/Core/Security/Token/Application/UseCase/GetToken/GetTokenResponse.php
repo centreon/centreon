@@ -23,13 +23,16 @@ declare(strict_types=1);
 
 namespace Core\Security\Token\Application\UseCase\GetToken;
 
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 use Core\Application\Common\UseCase\StandardResponseInterface;
 use Core\Security\Token\Domain\Model\Token;
 
 final class GetTokenResponse implements StandardResponseInterface
 {
     public function __construct(
+        #[Sensitive]
         public Token $token,
+        #[Sensitive]
         public string $tokenString,
     ) {
     }

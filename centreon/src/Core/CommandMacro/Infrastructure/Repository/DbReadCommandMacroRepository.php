@@ -70,7 +70,7 @@ class DbReadCommandMacroRepository extends AbstractRepositoryRDB implements Read
             /** @var array{
              *    command_command_id:int,
              *    command_macro_name:string,
-             *    command_macro_desciption:string,
+             *    command_macro_desciption:string|null,
              *    command_macro_type:string
              * } $result */
             $macros[] = $this->createCommandMacroFromArray($result);
@@ -83,7 +83,7 @@ class DbReadCommandMacroRepository extends AbstractRepositoryRDB implements Read
      * @param array{
      *    command_command_id:int,
      *    command_macro_name:string,
-     *    command_macro_desciption:string,
+     *    command_macro_desciption:string|null,
      *    command_macro_type: string
      * } $data
      *
@@ -96,7 +96,7 @@ class DbReadCommandMacroRepository extends AbstractRepositoryRDB implements Read
             CommandMacroType::from($data['command_macro_type']),
             $data['command_macro_name'],
         );
-        $macro->setDescription($data['command_macro_desciption']);
+        $macro->setDescription($data['command_macro_desciption'] ?? '');
 
         return $macro;
     }

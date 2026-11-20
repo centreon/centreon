@@ -5,8 +5,9 @@ properties:
     description: "Resource access rule name"
     example: "Rule for viewers"
   description:
-    type: string
-    nullable: true
+    type:
+      - string
+      - 'null'
     description: "Short description of the rule"
     example: "Rule dedicated for users with limited rights"
   is_enabled:

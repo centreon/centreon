@@ -1,5 +1,6 @@
 includes:
     - ../php-tools/phpstan/config/common.neon
+    - phpstan.new.baseline.neon
 
 parameters:
 
@@ -22,6 +23,7 @@ parameters:
 
     paths:
         - config.new
+        - migrations
         - src/Adaptation
         - src/App
 

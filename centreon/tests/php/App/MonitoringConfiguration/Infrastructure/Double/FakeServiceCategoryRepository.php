@@ -26,13 +26,29 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategory;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryName;
+use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceCategoryCriteria;
 use App\MonitoringConfiguration\Domain\Repository\ServiceCategoryRepository;
 use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\Shared\Domain\Collection;
 
 final class FakeServiceCategoryRepository implements ServiceCategoryRepository
 {
     /** @var array<int, ServiceCategory> */
     public array $serviceCategories = [];
+
+    /** the criteria received by the last findAll() call */
+    public ?ServiceCategoryCriteria $receivedCriteria = null;
+
+    /** @var \IteratorAggregate<int, ServiceCategory>&\Countable what findAll() returns */
+    public \IteratorAggregate&\Countable $result;
+
+    /** @var array<int, string> names indexed by service category id, what findNamesByIds() knows */
+    public array $names = [];
+
+    public function __construct()
+    {
+        $this->result = new Collection([], ServiceCategory::class);
+    }
 
     public function add(ServiceCategory $serviceCategory): void
     {
@@ -56,5 +72,24 @@ final class FakeServiceCategoryRepository implements ServiceCategoryRepository
         }
 
         return null;
+    }
+
+    public function findAll(ServiceCategoryCriteria $criteria): \IteratorAggregate&\Countable
+    {
+        $this->receivedCriteria = $criteria;
+
+        return $this->result;
+    }
+
+    public function findNamesByIds(Collection $ids): Collection
+    {
+        $names = [];
+        foreach ($ids as $id) {
+            if (isset($this->names[$id->value])) {
+                $names[$id->value] = new ServiceCategoryName($this->names[$id->value]);
+            }
+        }
+
+        return new Collection($names, ServiceCategoryName::class);
     }
 }

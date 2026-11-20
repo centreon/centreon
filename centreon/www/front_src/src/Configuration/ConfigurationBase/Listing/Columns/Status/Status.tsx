@@ -14,6 +14,7 @@ import {
   labelEnableDisable,
   labelEnabled
 } from '../../../translatedLabels';
+import { listingDataTestIds } from '../../dataTestIds';
 import useStyles from './Status.styles';
 import useStatus from './useStatus';
 
@@ -26,7 +27,15 @@ const Status = ({ row }: ComponentColumnProps): JSX.Element => {
   const configuration = useAtomValue(configurationAtom);
   const actions = configuration?.actions;
 
-  if (!actions?.enableDisable?.(row)) {
+  if (!actions?.enableDisable) {
+    return;
+  }
+
+  const canChange = actions.enableDisable(row);
+
+  // Without the opt-in a refused row renders nothing rather than a disabled
+  // toggle: commands uses a per-row predicate and expects the toggle gone.
+  if (!canChange && !actions.rowActionsWithoutWriteAccess) {
     return;
   }
 
@@ -37,8 +46,8 @@ const Status = ({ row }: ComponentColumnProps): JSX.Element => {
         checked={checked}
         className={classes.switch}
         color="primary"
-        data-testid={`${labelEnableDisable}_${row.id}`}
-        disabled={isMutating}
+        data-testid={listingDataTestIds.row.enableDisable(row.id)}
+        disabled={isMutating || !canChange}
         onClick={change}
         size="small"
       />

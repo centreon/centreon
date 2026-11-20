@@ -25,6 +25,7 @@ namespace Tests\Core\Common\Infrastructure\Validator\Constraints;
 
 use Core\Common\Infrastructure\Validator\Constraints\NandFields;
 use Core\Common\Infrastructure\Validator\Constraints\NandFieldsValidator;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Validator\ConstraintValidatorInterface;
 use Symfony\Component\Validator\Test\ConstraintValidatorTestCase;
 
@@ -35,9 +36,7 @@ final class NandFieldsValidatorTest extends ConstraintValidatorTestCase
 {
     public const PROPERTIES = ['firstProperty', 'secondProperty'];
 
-    /**
-     * @dataProvider validDataProvider
-     */
+    #[DataProvider('validDataProvider')]
     public function testValidData(object $object): void
     {
         $constraint = new NandFields(properties: self::PROPERTIES);
@@ -46,9 +45,7 @@ final class NandFieldsValidatorTest extends ConstraintValidatorTestCase
         $this->assertNoViolation();
     }
 
-    /**
-     * @dataProvider invalidDataProvider
-     */
+    #[DataProvider('invalidDataProvider')]
     public function testInvalidData(object $object): void
     {
         $constraint = new NandFields(properties: self::PROPERTIES);

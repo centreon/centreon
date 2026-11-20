@@ -85,12 +85,7 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
         $doubleBaseUri = '';
         if (! empty($parameters['base_uri'])) {
             $doubleBaseUri = $parameters['base_uri'] . '/' . $parameters['base_uri'];
-            $doubleBaseUri = preg_replace('/(?<!:)(\/{2,})/', '$2/', $doubleBaseUri);
-
-            if ($doubleBaseUri === null) {
-                throw new \Exception('Error occured during regular expression search and replace.');
-            }
-
+            $doubleBaseUri = $this->cleanPrefixUrl($doubleBaseUri);
             $parameters['base_uri'] .= '/';
         }
 
@@ -107,30 +102,26 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
             $context->setScheme($_SERVER['REQUEST_SCHEME']);
         }
 
-        if ($_SERVER['SERVER_NAME'] !== 'localhost') {
-            $context->setHost($_SERVER['SERVER_NAME']);
-        }
-
         $generatedRoute = $this->router->generate($name, $parameters, $referenceType);
+        $generatedRoute = $this->cleanPrefixUrl($generatedRoute);
 
-        // remove double slashes
-        $generatedRoute = preg_replace('/(?<!:)(\/{2,})/', '$2/', $generatedRoute);
-
-        if ($generatedRoute === null) {
-            throw new \Exception('Error occured during regular expression search and replace.');
+        // Anchored to path start or right after the authority so a short-name host
+        // matching the base path (https://centreon/centreon/...) is not consumed.
+        if ($doubleBaseUri !== '') {
+            $singleBaseUri = $parameters['base_uri'];
+            $generatedRoute = preg_replace_callback(
+                '#(^|://[^/]*)' . preg_quote($doubleBaseUri, '#') . '#',
+                static fn (array $matches): string => $matches[1] . $singleBaseUri,
+                $generatedRoute,
+                1
+            );
+            if ($generatedRoute === null) {
+                throw new \RuntimeException('Error occurred during regular expression search and replace.');
+            }
         }
 
-        // remove double identical prefixes due to progressive migration
-        $generatedRoute = str_replace($doubleBaseUri, $parameters['base_uri'], $generatedRoute);
-
         // remove double slashes
-        $generatedRoute = preg_replace('/(?<!:)(\/{2,})/', '$2/', $generatedRoute);
-
-        if ($generatedRoute === null) {
-            throw new \Exception('Error occured during regular expression search and replace.');
-        }
-
-        return $generatedRoute;
+        return $this->cleanPrefixUrl($generatedRoute);
     }
 
     /**
@@ -243,5 +234,22 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
             $context->setScheme($originalScheme);
             $context->setHttpPort($originalHttpPort);
         }
+    }
+
+    /**
+     * @param string $url
+     *
+     * @throws \RuntimeException
+     *
+     * @return string
+     */
+    private function cleanPrefixUrl(string $url): string
+    {
+        $result = preg_replace('/(?<!:)\.?(\/+)/', '/', $url);
+        if ($result === null) {
+            throw new \RuntimeException('Error occurred during regular expression search and replace.');
+        }
+
+        return $result;
     }
 }

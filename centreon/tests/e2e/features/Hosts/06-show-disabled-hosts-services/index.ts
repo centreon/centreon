@@ -51,7 +51,13 @@ Given('a host with configured services', () => {
 Given('the host is disabled', () => {
   cy.visit(PAGES.configuration.hostsLegacy);
   cy.wait('@getTimeZone');
-  cy.getIframeBody().find('img[alt="Disabled"]').eq(1).click();
+  // Disable the fixture host's own row: a positional eq(1) picks whichever row
+  // the listing happens to render second, so a dataset change would disable the
+  // wrong host while the assertions keep reading this one.
+  cy.getIframeBody()
+    .contains('tr', services.serviceOk.host)
+    .find('img[alt="Disabled"]')
+    .click();
   cy.exportConfig();
 });
 

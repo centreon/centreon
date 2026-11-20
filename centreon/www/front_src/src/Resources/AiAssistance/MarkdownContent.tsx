@@ -1,5 +1,6 @@
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import type { CSSObject } from 'tss-react';
 import { makeStyles } from 'tss-react/mui';
 
 const useStyles = makeStyles()((theme) => ({
@@ -20,7 +21,7 @@ const useStyles = makeStyles()((theme) => ({
       padding: theme.spacing(0, 0.5)
     },
     '& h1, & h2, & h3, & h4, & h5, & h6': {
-      ...theme.typography.subtitle2,
+      ...(theme.typography.subtitle2 as CSSObject),
       fontWeight: theme.typography.fontWeightBold,
       margin: theme.spacing(1.5, 0, 0.5)
     },
@@ -41,7 +42,9 @@ const useStyles = makeStyles()((theme) => ({
       margin: theme.spacing(0.5, 0),
       paddingLeft: theme.spacing(2.5)
     },
-    ...theme.typography.body2,
+    // MUI's TypographyStyle carries a @font-face type tss-react's CSSObject
+    // rejects; the cast keeps the plain style properties we actually spread
+    ...(theme.typography.body2 as CSSObject),
     color: theme.palette.text.primary
   }
 }));

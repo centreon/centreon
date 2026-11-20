@@ -59,8 +59,22 @@ class CentreonMonitoringPoller extends CentreonConfigurationObjects
 
         if (! $centreon->user->admin) {
             $acl = new CentreonACL($centreon->user->user_id, $centreon->user->admin);
-            $queryPoller .= 'AND instances.instance_id IN ('
-                . $acl->getPollerString('ID', $this->pearDBMonitoring) . ') ';
+            // getPollerString('ID') returns nagios_server.id (config) values; translate them
+            // to the Snowflake UIDs (nagios_server.uid) that match instances.instance_id.
+            // Legacy pollers unaware of the Snowflake UID still report nagios_server.id as
+            // instance_id, so keep the id in the allowlist as a fallback for mixed-version platforms.
+            $aclPollerIds = $acl->getPollerString('ID', $this->pearDBMonitoring);
+            $runtimeIds = [];
+            if ($aclPollerIds !== '') {
+                $uidResult = $this->pearDB->query(
+                    'SELECT id, uid FROM nagios_server WHERE id IN (' . $aclPollerIds . ')'
+                );
+                while ($uidRow = $uidResult->fetchRow()) {
+                    $runtimeIds[] = $uidRow['uid'];
+                    $runtimeIds[] = $uidRow['id'];
+                }
+            }
+            $queryPoller .= 'AND instances.instance_id IN (' . ($runtimeIds === [] ? '0' : implode(',', $runtimeIds)) . ') ';
         }
 
         $queryPoller .= ' ORDER BY name ';
@@ -92,7 +106,9 @@ class CentreonMonitoringPoller extends CentreonConfigurationObjects
 
         $pollerList = [];
         while ($data = $stmt->fetch()) {
-            $pollerList[] = ['id' => $data['instance_id'], 'text' => $data['name']];
+            // instance_id is sent as a string: Snowflake UIDs exceed Number.MAX_SAFE_INTEGER and would be
+            // rounded by JSON.parse, so the selected poller would no longer match any instance
+            $pollerList[] = ['id' => (string) $data['instance_id'], 'text' => $data['name']];
         }
 
         return ['items' => $pollerList, 'total' => (int) $this->pearDBMonitoring->numberRows()];

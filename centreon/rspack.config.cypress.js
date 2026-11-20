@@ -37,9 +37,6 @@ module.exports = merge(getBaseConfiguration(true), getDevConfiguration(), {
   plugins: devServerPlugins,
   resolve: {
     alias: {
-      '@centreon/ui/fonts': path.resolve(
-        './node_modules/@centreon/ui/public/fonts'
-      ),
       '@mui/material': path.resolve('./node_modules/@mui/material'),
       'centreon-widgets': path.resolve('www', 'widgets', 'src'),
       dayjs: path.resolve('./node_modules/dayjs')

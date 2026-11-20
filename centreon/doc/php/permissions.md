@@ -29,7 +29,7 @@ The permission stack is a four-link chain:
 │  Credential::isPermissionGranted(Permission)                        │
 ├─────────────────────────────────────────────────────────────────────┤
 │  Infrastructure / Dbal                                              │
-│  DbalCredentialTransformer                                          │
+│  CredentialTransformer                                              │
 │  (legacy ACL → Domain Permission mapping)                           │
 ├─────────────────────────────────────────────────────────────────────┤
 │  Infrastructure / Security                                          │
@@ -49,7 +49,7 @@ The `Credential` aggregate (`src/App/Security/Domain/Aggregate/Credential.php`) 
 - **`roles`** — `Collection<Role>`: Symfony roles (e.g. `ROLE_HOST_CHECK`).
 - **`permissions`** — `Collection<Permission>`: business-facing permissions (e.g. `can_read_command_checks`).
 
-Permissions are populated at authentication time by `DbalCredentialTransformer`, then evaluated by the Voters.
+Permissions are populated at authentication time by `CredentialTransformer`, then evaluated by the Voters.
 
 ```php
 // Domain-side check
@@ -116,7 +116,7 @@ enum CommandActionEnum: string
 
 ## 3. Step 2 — Map legacy permissions in the Transformer
 
-`src/App/Security/Infrastructure/Dbal/DbalCredentialTransformer.php` bridges the legacy ACL tables and the Domain permissions.
+`src/App/Security/Infrastructure/Dbal/CredentialTransformer.php` bridges the legacy ACL tables and the Domain permissions.
 
 ### Two maps to feed
 
@@ -482,7 +482,7 @@ A user with no `acl_resources` rows has access to **every** poller (default beha
 | `src/App/Security/Domain/Repository/CredentialRepository.php` | Credential loading interface |
 | `src/App/Security/Domain/Repository/ResourceAccessRepository.php` | Resource-access loading interface |
 | `src/App/Security/Infrastructure/Dbal/DbalCredentialRepository.php` | SQL loader (topology rules, action rules) |
-| `src/App/Security/Infrastructure/Dbal/DbalCredentialTransformer.php` | Legacy → Domain mapping (both maps) |
+| `src/App/Security/Infrastructure/Dbal/CredentialTransformer.php` | Legacy → Domain mapping (both maps) |
 | `src/App/Security/Infrastructure/Security/CredentialUser.php` | Credential → Symfony `UserInterface` adapter |
 | `src/App/Security/Infrastructure/Security/TokenAuthenticator.php` | API token authenticator |
 | `src/App/Security/Infrastructure/Security/SessionAuthenticator.php` | Session authenticator |

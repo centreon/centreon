@@ -23,6 +23,10 @@ declare(strict_types=1);
 
 namespace App\Upgrade\Domain\Repository;
 
+/**
+ * Individual upgrade operations. Sequencing and per-step logging are owned by the caller
+ * (UpdateCommandHandler), which brackets each operation; this repository only runs them.
+ */
 interface UpdateRepository
 {
     /**
@@ -31,12 +35,42 @@ interface UpdateRepository
     public function findCurrentVersion(): ?string;
 
     /**
-     * Run all update scripts (SQL + PHP) for the given version and record it in DB.
+     * Run the monitoring (centstorage) SQL update file for the given version, if present.
      */
-    public function runUpdate(string $version): void;
+    public function runMonitoringSql(string $version): void;
 
     /**
-     * Run post-update actions: backup and remove the install directory.
+     * Run the PHP update script for the given version, if present.
      */
-    public function runPostUpdate(string $currentVersion): void;
+    public function runScript(string $version): void;
+
+    /**
+     * Run the configuration (centreon) SQL update file for the given version, if present.
+     */
+    public function runConfigurationSql(string $version): void;
+
+    /**
+     * Run the PHP post-update script for the given version, if present.
+     */
+    public function runPostScript(string $version): void;
+
+    /**
+     * Record the given version as the current installed version.
+     */
+    public function updateVersionInformation(string $version): void;
+
+    /**
+     * Whether the install directory still exists (post-update is skipped otherwise).
+     */
+    public function installDirectoryExists(): bool;
+
+    /**
+     * Back up the install directory before it is removed.
+     */
+    public function backupInstallDirectory(string $currentVersion): void;
+
+    /**
+     * Remove the install directory.
+     */
+    public function removeInstallDirectory(): void;
 }

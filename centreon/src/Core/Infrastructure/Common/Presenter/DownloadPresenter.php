@@ -43,7 +43,7 @@ class DownloadPresenter implements PresenterFormatterInterface
         $headers['Content-Type'] = 'application/force-download';
         $headers['Content-Disposition'] = 'attachment; filename="' . $filename . '"';
 
-        return $this->formatter->format($data->performanceMetrics, $headers);
+        return $this->formatter->format($data->performanceMetrics ?? [], $headers);
     }
 
     /**

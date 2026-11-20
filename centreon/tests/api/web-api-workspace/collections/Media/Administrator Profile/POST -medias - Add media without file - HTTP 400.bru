@@ -11,8 +11,10 @@ post {
 }
 
 
-assert {
-  res.status: eq 500
+tests {
+  test("Add media without file returns a client error (intended 400, currently 500 - known PHP bug)", function () {
+    expect(res.status).to.be.oneOf([400, 500]);
+  });
 }
 
 settings {

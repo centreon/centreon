@@ -1,0 +1,44 @@
+meta {
+  name: Poller_Configuration
+}
+
+auth {
+  mode: apikey
+}
+
+auth:apikey {
+  key: X-AUTH-TOKEN
+  value: {{authToken}}
+  placement: header
+}
+
+docs {
+  # Poller Configuration
+
+  Functional API tests for the poller configuration endpoints
+  (`POST /configuration/pollers` and
+  `GET /configuration/pollers/installation-command/{id}`).
+
+  ## Prerequisites
+
+  - **A valid poller token named `poller-default`** (type `poller`, not
+    revoked, not expired) must exist. This token is seeded by the base
+    Centreon installation (`insertBaseConf.php`), so it is present on any
+    standard platform — the tests reference it via the `PollerTokenName`
+    collection variable and do not create it.
+  - The `create_edit_poller_cfg` ACL action must be granted to the
+    administrator test profile. This is provided by the API test dataset
+    (`fixtures/imports/permissions/aclactionperms.csv`) and requires an
+    ACL reload to take effect.
+
+  ## Profiles
+
+  - **Administrator profile** — `user_administrator` (non-super-admin,
+    authorized through the `create_edit_poller_cfg` ACL): create VM and
+    Docker pollers, retrieve installation commands, and cover the
+    404 / 400 error cases. Created pollers are cleaned up through a
+    dedicated super-admin session because CLAPI `INSTANCE` deletion
+    requires a super-administrator.
+  - **Unprivileged Profile** — a user without the ACL: every poller
+    endpoint is denied (403).
+}

@@ -106,16 +106,18 @@ class VmWareV6WriteVaultAccRepository implements WriteVaultAccRepositoryInterfac
 
         /** @var _VmWareV6Parameters $parameters */
         $parameters = $acc->getParameters()->getData();
-        $vaultPath = null;
+        $uuids = [];
         foreach ($parameters['vcenters'] as $vcenter) {
-            if (str_starts_with($vcenter['password'], VaultConfiguration::VAULT_PATH_PATTERN) === true) {
-                $vaultPath = $vcenter['password'];
-
-                break;
+            if (str_starts_with($vcenter['password'], VaultConfiguration::VAULT_PATH_PATTERN) === false) {
+                continue;
+            }
+            $uuid = $this->getUuidFromPath($vcenter['password']);
+            if ($uuid !== null) {
+                $uuids[$uuid] = true;
             }
         }
 
-        if ($vaultPath !== null && null !== $uuid = $this->getUuidFromPath($vaultPath)) {
+        foreach (array_keys($uuids) as $uuid) {
             $this->writeVaultRepository->delete($uuid);
         }
     }

@@ -24,10 +24,11 @@ declare(strict_types=1);
 namespace App\Upgrade\Application\Command;
 
 use App\Shared\Application\Command\AsCommandHandler;
-use App\Upgrade\Application\CacheClearer;
-use App\Upgrade\Application\DbmsVersionValidator;
-use App\Upgrade\Application\EngineContextWriter;
-use App\Upgrade\Application\UpdateLocker;
+use App\Upgrade\Application\CacheClearerInterface;
+use App\Upgrade\Application\DbmsVersionValidatorInterface;
+use App\Upgrade\Application\EngineContextWriterInterface;
+use App\Upgrade\Application\UpdateLockerInterface;
+use App\Upgrade\Application\UpgradeLoggerInterface;
 use App\Upgrade\Domain\Repository\ModuleRepository;
 use App\Upgrade\Domain\Repository\UpdateRepository;
 use App\Upgrade\Domain\Repository\UpdateScriptFinder;
@@ -39,44 +40,97 @@ final readonly class UpdateCommandHandler
     public function __construct(
         private UpdateRepository $updateRepository,
         private UpdateScriptFinder $updateScriptFinder,
-        private UpdateLocker $updateLocker,
-        private DbmsVersionValidator $dbmsVersionValidator,
+        private UpdateLockerInterface $updateLocker,
+        private DbmsVersionValidatorInterface $dbmsVersionValidator,
         private ModuleRepository $moduleRepository,
         private WidgetRepository $widgetRepository,
-        private EngineContextWriter $engineContextWriter,
-        private CacheClearer $cacheClearer,
+        private EngineContextWriterInterface $engineContextWriter,
+        private CacheClearerInterface $cacheClearer,
+        private UpgradeLoggerInterface $logger,
     ) {
     }
 
+    /**
+     * @throws \RuntimeException when another update is already in progress or the current version cannot be read
+     * @throws \Throwable any failure thrown by validation, the repositories or the cache clearer (re-thrown after the lock is released and the failure is logged)
+     */
     public function __invoke(UpdateCommand $command): void
     {
-        $this->dbmsVersionValidator->validateOrFail();
-        if (! $this->updateLocker->lock()) {
-            throw new \RuntimeException('An update is already in progress');
-        }
+        $startedAt = microtime(true);
+        $currentVersion = null;
+        $targetVersion = null;
+        $startEmitted = false;
+
         try {
-            $currentVersion = $this->updateRepository->findCurrentVersion();
+            $this->dbmsVersionValidator->validateOrFail();
 
-            if ($currentVersion === null) {
-                throw new \RuntimeException('Cannot retrieve the current platform version');
+            if (! $this->updateLocker->lock()) {
+                throw new \RuntimeException('An update is already in progress');
             }
 
-            $availableUpdates = $this->updateScriptFinder->findOrderedAvailableUpdates($currentVersion);
+            try {
+                $currentVersion = $this->updateRepository->findCurrentVersion();
+                if ($currentVersion === null || trim($currentVersion) === '') {
+                    throw new \RuntimeException('Cannot retrieve the current platform version');
+                }
 
-            foreach ($availableUpdates as $version) {
-                $this->updateRepository->runUpdate($version);
+                $availableUpdates = $this->updateScriptFinder->findOrderedAvailableUpdates($currentVersion);
+                $targetVersion = $availableUpdates === [] ? $currentVersion : end($availableUpdates);
+
+                $this->logger->start($currentVersion, $targetVersion);
+                $startEmitted = true;
+
+                // The handler owns step sequencing and logging; the repository only runs each operation.
+                foreach ($availableUpdates as $version) {
+                    $this->runStep($version, 'monitoring_sql', fn () => $this->updateRepository->runMonitoringSql($version));
+                    $this->runStep($version, 'php_script', fn () => $this->updateRepository->runScript($version));
+                    $this->runStep($version, 'configuration_sql', fn () => $this->updateRepository->runConfigurationSql($version));
+                    $this->runStep($version, 'php_post_script', fn () => $this->updateRepository->runPostScript($version));
+                    $this->runStep($version, 'update_version_information', fn () => $this->updateRepository->updateVersionInformation($version));
+                }
+
+                if ($this->updateRepository->installDirectoryExists()) {
+                    $this->runStep($currentVersion, 'backup_install_directory', fn () => $this->updateRepository->backupInstallDirectory($currentVersion));
+                    $this->runStep($currentVersion, 'remove_install_directory', fn () => $this->updateRepository->removeInstallDirectory());
+                }
+
+                $this->runStep($currentVersion, 'modules_update', fn () => $this->moduleRepository->updateAll());
+                $this->runStep($currentVersion, 'widgets_update', fn () => $this->widgetRepository->updateAll());
+                $this->runStep($currentVersion, 'engine_context', fn () => $this->engineContextWriter->writeIfMissing());
+                $this->runStep($currentVersion, 'cache_clear', fn () => $this->cacheClearer->clear());
+
+                $durationMs = (int) ((microtime(true) - $startedAt) * 1000);
+                $this->logger->success($currentVersion, $targetVersion, $durationMs);
+            } finally {
+                $this->updateLocker->unlock();
+            }
+        } catch (\Throwable $exception) {
+            if ($startEmitted) {
+                // The lifecycle is open: close it with a balanced upgrade.failure.
+                $this->logger->failure($currentVersion, $targetVersion, $exception->getMessage(), $exception);
+            } else {
+                // The failure happened before start() (validation / lock / version read), so there is no
+                // start to balance: emit a standalone upgrade.error instead of a dangling failure, keeping
+                // the attempt visible in the upgrade channel.
+                $this->logger->error($currentVersion ?? 'unknown', $exception->getMessage(), $exception);
             }
 
-            // Must always run whether there are updates or not.
-            $this->updateRepository->runPostUpdate($currentVersion);
-
-            $this->moduleRepository->updateAll();
-            $this->widgetRepository->updateAll();
-
-            $this->engineContextWriter->writeIfMissing();
-            $this->cacheClearer->clear();
-        } finally {
-            $this->updateLocker->unlock();
+            throw $exception;
         }
+    }
+
+    private function runStep(string $version, string $step, callable $action): void
+    {
+        $this->logger->step($version, $step, "Starting step '{$step}'");
+        $startedAt = microtime(true);
+        try {
+            $action();
+        } catch (\Throwable $exception) {
+            $this->logger->stepFailure($version, $step, $exception->getMessage(), $exception);
+
+            throw $exception;
+        }
+        $durationMs = (int) ((microtime(true) - $startedAt) * 1000);
+        $this->logger->stepCompleted($version, $step, $durationMs, "Step '{$step}' completed in {$durationMs}ms");
     }
 }

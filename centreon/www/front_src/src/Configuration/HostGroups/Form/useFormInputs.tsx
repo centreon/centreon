@@ -7,6 +7,7 @@ import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
 import {
+  getListImagesSearchEndpoint,
   hostListEndpoint,
   resourceAccessRulesEndpoint
 } from '../api/endpoints';
@@ -18,12 +19,11 @@ import {
   labelGeneralInformation,
   labelGeographicCoordinates,
   labelGroupMembers,
+  labelIcon,
   labelName,
   labelResourceAccessRule,
   labelSelectHosts
 } from '../translatedLabels';
-import { useFormStyles } from './Form.styles';
-import IconFiled from './IconFilled';
 
 interface FormInputsState {
   inputs: Array<InputProps>;
@@ -32,40 +32,31 @@ interface FormInputsState {
 
 const useFormInputs = ({ canEdit }: { canEdit: boolean }): FormInputsState => {
   const { t } = useTranslation();
-  const { classes } = useFormStyles();
 
   const platformFeatures = useAtomValue(platformFeaturesAtom);
   const isCloudPlatform = platformFeatures?.isCloudPlatform;
-
-  const titleAttributes = {
-    classes: { root: classes.titleGroup },
-    variant: 'subtitle1'
-  };
 
   const groups = [
     {
       isDividerHidden: true,
       name: t(labelGeneralInformation),
-      order: 1,
-      titleAttributes
+      order: 1
     },
     {
       isDividerHidden: true,
       name: t(labelGroupMembers),
-      order: 2,
-      titleAttributes
+      order: 2
     },
     ...(isCloudPlatform
       ? [
           {
             isDividerHidden: true,
             name: t(labelResourceAccessRule),
-            order: 3,
-            titleAttributes
+            order: 3
           }
         ]
       : []),
-    { name: t(labelAdditionalInformation), order: 4, titleAttributes }
+    { name: t(labelAdditionalInformation), order: 4 }
   ];
 
   const inputs = [
@@ -134,9 +125,11 @@ const useFormInputs = ({ canEdit }: { canEdit: boolean }): FormInputsState => {
             type: InputType.Text
           },
           {
-            custom: { Component: IconFiled },
-            disabled: !canEdit,
-            type: InputType.Custom
+            fieldName: 'icon',
+            getDisabled: () => !canEdit,
+            iconSelector: { getEndpoint: getListImagesSearchEndpoint },
+            label: t(labelIcon),
+            type: InputType.IconSelector
           }
         ]
       },

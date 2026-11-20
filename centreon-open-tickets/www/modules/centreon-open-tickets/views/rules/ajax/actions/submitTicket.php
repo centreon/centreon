@@ -416,7 +416,7 @@ $centreon_provider->setUniqId($get_information['form']['uniqId']);
 require_once $centreon_path . 'www/class/centreonDuration.class.php';
 
 $selected_values = explode(',', $get_information['form']['selection']);
-$db_storage = new CentreonDBManager('centstorage');
+$db_storage = new CentreonDB('centstorage');
 
 $selected = $rule->loadSelection(
     $db_storage,

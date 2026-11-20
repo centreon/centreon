@@ -1,0 +1,342 @@
+<?php
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
+declare(strict_types=1);
+
+namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
+
+use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostState;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
+use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
+use App\MonitoringConfiguration\Domain\Repository\HostRepository;
+use App\Security\Domain\Aggregate\ActingUser;
+use App\Security\Domain\Service\AccessScopeResolver;
+use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\Shared\Domain\Collection;
+use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
+
+final class FakeHostRepository implements HostRepository
+{
+    /** @var array<int, HostState> by host id, hosts only {@see findState()} knows: their aggregate cannot load */
+    public array $states = [];
+
+    /** @var array<int, Host> */
+    public array $hosts = [];
+
+    /**
+     * When true, {@see isNameUsedByHostOrTemplate()} reports every name as taken, letting a test
+     * exercise the exhausted-suffix path without seeding hundreds of hosts.
+     */
+    public bool $forceNameUsed = false;
+
+    /** @var list<array{id: int, activated: bool}> */
+    public array $activationUpdates = [];
+
+    /** @var list<Host> */
+    public array $updatedHosts = [];
+
+    /** Thrown by update(), to simulate a failure after the vault was written. */
+    public ?\Throwable $updateThrows = null;
+
+    /** @var list<Host> */
+    public array $relationsReplacedHosts = [];
+
+    /** @var list<Host> */
+    public array $macrosReplacedHosts = [];
+
+    /** @var list<list<int>> the host ids asked to {@see findNamesByIds()}, one list per call */
+    public array $receivedNameHostIds = [];
+
+    /** @var list<list<int>> the host ids asked to {@see findIconIdsByIds()}, one list per call */
+    public array $receivedIconHostIds = [];
+
+    /** @var array<int, list<int>> host id => every levelled category it is linked to, in read order; unset, the stored host's severity */
+    public array $storedSeverityIds = [];
+
+    private readonly AccessScopeResolver $accessScopes;
+
+    /**
+     * Host id to its parents, mirroring `host_hostparent_relation`, which the real repository
+     * writes from both sides: a host created with children becomes their parent in the graph.
+     *
+     * @var array<int, list<int>>
+     */
+    private array $parentIds = [];
+
+    /**
+     * The ACL of {@see findOne()}, as for the real repository: a restricted actor only reaches the hosts
+     * listed in its `accessibleHostIds`.
+     */
+    public function __construct(
+        public readonly FakeResourceAccessRepository $resourceAccess = new FakeResourceAccessRepository(),
+    ) {
+        $this->accessScopes = new AccessScopeResolver($resourceAccess);
+    }
+
+    /**
+     * Store a host under a fixed id, so a test can target it by a known id.
+     */
+    public function seed(Host $host, int $id): Host
+    {
+        $reflection = new \ReflectionProperty(AggregateRoot::class, 'id');
+        $reflection->setAccessible(true);
+        $reflection->setValue($host, new HostId($id));
+
+        $this->hosts[$id] = $host;
+        $this->indexParentEdges($id, $host);
+
+        return $host;
+    }
+
+    public function add(Host $host): void
+    {
+        do {
+            $id = mt_rand();
+        } while (isset($this->hosts[$id]));
+
+        $reflection = new \ReflectionProperty(AggregateRoot::class, 'id');
+        $reflection->setAccessible(true);
+        $reflection->setValue($host, new HostId($id));
+
+        $this->hosts[$id] = $host;
+        $this->indexParentEdges($id, $host);
+    }
+
+    /**
+     * Returns null (like the real repository) for a host outside a restricted actor's scope, so the ACL not-found path is exercised
+     * at the handler layer.
+     */
+    public function findOne(HostId $id, ActingUser $actor): ?Host
+    {
+        $host = $this->hosts[$id->value] ?? null;
+        if ($host === null) {
+            return null;
+        }
+
+        if (! $this->accessScopes->hosts($actor, new Collection([$id], HostId::class))->allows($id)) {
+            return null;
+        }
+
+        if (! isset($this->storedSeverityIds[$id->value])) {
+            return $host;
+        }
+
+        $stored = $this->storedSeverityIds[$id->value];
+        $severityId = $stored === [] ? null : new HostSeverityId($stored[0]);
+
+        return $severityId?->value === $host->severityId?->value ? $host : $host->with(severityId: $severityId);
+    }
+
+    public function findState(HostId $id, ActingUser $actor): ?HostState
+    {
+        if (! $this->accessScopes->hosts($actor, new Collection([$id], HostId::class))->allows($id)) {
+            return null;
+        }
+
+        if (isset($this->states[$id->value])) {
+            return $this->states[$id->value];
+        }
+
+        $host = $this->hosts[$id->value] ?? null;
+
+        return $host instanceof Host ? new HostState($host->activated, $host->pollerId) : null;
+    }
+
+    public function findMacros(HostId $id): Collection
+    {
+        return new Collection($this->hosts[$id->value]->checkOptions->macros ?? [], HostMacro::class);
+    }
+
+    public function hasExtraSeverities(HostId $id, ?HostSeverityId $kept): bool
+    {
+        return array_diff($this->storedSeverityIds[$id->value] ?? [], [$kept?->value]) !== [];
+    }
+
+    public function remove(Host $host): void
+    {
+        unset($this->hosts[$host->id()->value]);
+    }
+
+    public function updateActivationStatus(HostId $id, bool $activated): void
+    {
+        $this->activationUpdates[] = ['id' => $id->value, 'activated' => $activated];
+
+        if (isset($this->hosts[$id->value])) {
+            $activated ? $this->hosts[$id->value]->enable() : $this->hosts[$id->value]->disable();
+        }
+    }
+
+    public function update(Host $host): void
+    {
+        if ($this->updateThrows instanceof \Throwable) {
+            throw $this->updateThrows;
+        }
+
+        if (! isset($this->hosts[$host->id()->value])) {
+            return;
+        }
+
+        $this->updatedHosts[] = $host;
+        $this->hosts[$host->id()->value] = $host;
+        // The write leaves the single severity of the host.
+        unset($this->storedSeverityIds[$host->id()->value]);
+    }
+
+    public function replaceRelations(Host $host): void
+    {
+        $this->replaceRelationsAndMacros($host);
+    }
+
+    public function replaceRelationsAndMacros(Host $host): void
+    {
+        $id = $host->id()->value;
+        if (! isset($this->hosts[$id])) {
+            return;
+        }
+
+        $this->relationsReplacedHosts[] = $host;
+        $this->hosts[$id] = $host;
+
+        // Rebuild this host's edges in the ancestor map (full replace, like the real one).
+        unset($this->parentIds[$id]);
+        foreach ($this->parentIds as $child => $parents) {
+            $this->parentIds[$child] = array_values(array_filter($parents, static fn (int $parent): bool => $parent !== $id));
+        }
+        foreach ($host->parentHostIds as $parentId) {
+            $this->parentIds[$id][] = $parentId->value;
+        }
+        foreach ($host->childHostIds as $childId) {
+            $this->parentIds[$childId->value][] = $id;
+        }
+    }
+
+    public function replaceMacros(Host $host): void
+    {
+        $id = $host->id()->value;
+        if (! isset($this->hosts[$id])) {
+            return;
+        }
+
+        $this->macrosReplacedHosts[] = $host;
+        $this->hosts[$id] = $host;
+    }
+
+    public function isNameUsedByHostOrTemplate(HostName $name, ?HostId $excludingHostId = null): bool
+    {
+        if ($this->forceNameUsed) {
+            return true;
+        }
+
+        foreach ($this->hosts as $host) {
+            if ($host->id()->value !== $excludingHostId?->value && strcasecmp($host->name->value, $name->value) === 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function findAll(HostCriteria $criteria): \IteratorAggregate&\Countable
+    {
+        return new Collection(array_values($this->hosts), Host::class);
+    }
+
+    public function findNamesByIds(Collection $ids): Collection
+    {
+        $this->receivedNameHostIds[] = array_values(array_map(static fn (HostId $id): int => $id->value, $ids->toArray()));
+        $names = [];
+        foreach ($ids as $id) {
+            if (isset($this->hosts[$id->value])) {
+                $names[$id->value] = $this->hosts[$id->value]->name;
+            }
+        }
+
+        return new Collection($names, HostName::class);
+    }
+
+    public function findIconIdsByIds(Collection $ids): Collection
+    {
+        $this->receivedIconHostIds[] = array_values(array_map(static fn (HostId $id): int => $id->value, $ids->toArray()));
+        $iconIds = [];
+        foreach ($ids as $id) {
+            $iconId = ($this->hosts[$id->value] ?? null)?->extendedInformations?->iconId;
+            if ($iconId !== null) {
+                $iconIds[$id->value] = $iconId;
+            }
+        }
+
+        return new Collection($iconIds, MediaId::class);
+    }
+
+    public function findAncestorIds(Collection $ids, ?HostId $excludingHostId = null): Collection
+    {
+        $exclude = $excludingHostId?->value;
+        $seen = [];
+        $queue = array_map(static fn (HostId $id): int => $id->value, $ids->toArray());
+
+        while ($queue !== []) {
+            $current = array_shift($queue);
+            if (isset($seen[$current])) {
+                continue;
+            }
+            $seen[$current] = true;
+
+            // Drop every edge touching the excluded host: where it is the child (skip its outgoing
+            // traversal) and where it is a parent (never queue it).
+            if ($current === $exclude) {
+                continue;
+            }
+
+            foreach ($this->parentIds[$current] ?? [] as $parentId) {
+                if ($parentId === $exclude) {
+                    continue;
+                }
+                $queue[] = $parentId;
+            }
+        }
+
+        return new Collection(
+            array_map(static fn (int $id): HostId => new HostId($id), array_keys($seen)),
+            HostId::class,
+        );
+    }
+
+    public function countAll(): int
+    {
+        return \count($this->hosts);
+    }
+
+    private function indexParentEdges(int $id, Host $host): void
+    {
+        foreach ($host->parentHostIds as $parentId) {
+            $this->parentIds[$id][] = $parentId->value;
+        }
+
+        foreach ($host->childHostIds as $childId) {
+            $this->parentIds[$childId->value][] = $id;
+        }
+    }
+}

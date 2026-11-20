@@ -38,20 +38,40 @@ $gorgonePassword = generatePassword();
 
 $host = $parameters['address'] ?: 'localhost';
 
-// escape double quotes and backslashes
-$needle = ['\\', '"'];
-$escape = ['\\\\', '\"'];
-$password = str_replace($needle, $escape, $parameters['db_password']);
+/*
+ * User-provided values are written into single-quoted PHP/Perl literals and
+ * double-quoted YAML literals: escape them for their literal context.
+ */
 
-$macroReplacements = [
+// Escape a value for a single-quoted PHP or Perl string literal.
+$escapeSingleQuoted = static fn (string $value): string => str_replace(
+    ['\\', "'"],
+    ['\\\\', "\\'"],
+    $value
+);
+
+// Escape a value for a double-quoted YAML string literal.
+$escapeDoubleQuoted = static fn (string $value): string => str_replace(
+    ['\\', '"'],
+    ['\\\\', '\"'],
+    $value
+);
+
+// Macros whose values are user-provided (directly or indirectly).
+$userMacros = [
     '--ADDRESS--' => $host,
     '--DBUSER--' => $parameters['db_user'],
-    '--DBPASS--' => $password,
+    '--DBPASS--' => $parameters['db_password'],
     '--CONFDB--' => $parameters['db_configuration'],
     '--STORAGEDB--' => $parameters['db_storage'],
+    '--DBPORT--' => $parameters['port'],
+    '--ENGINE_COMMAND--' => $engine['monitoring_var_lib'] . '/rw/centengine.cmd',
+];
+
+// Macros with trusted, server-side values (paths, constants).
+$trustedMacros = [
     '--CENTREONDIR--' => $configuration['centreon_dir'],
     '--CENTREON_CACHEDIR--' => $configuration['centreon_cachedir'],
-    '--DBPORT--' => $parameters['port'],
     '--INSTANCEMODE--' => 'central',
     '--CENTREON_VARLIB--' => $configuration['centreon_varlib'],
     // specific additional mandatory parameters used by Gorgone.d in a full ZMQ mode
@@ -61,10 +81,21 @@ $macroReplacements = [
     '--SSLMODE--' => 'false',
     '--CENTREON_TRAPDIR--' => '/etc/snmp/centreon_traps',
     '--GORGONE_VARLIB--' => '/var/lib/centreon-gorgone',
-    '--ENGINE_COMMAND--' => $engine['monitoring_var_lib'] . '/rw/centengine.cmd',
     '@GORGONE_USER@' => 'centreon-gorgone',
     '@GORGONE_PASSWORD@' => $gorgonePassword,
 ];
+
+// Replacement set for single-quoted literal files (centreon.conf.php, conf.pm).
+$singleQuotedReplacements = array_merge(
+    array_map($escapeSingleQuoted, $userMacros),
+    $trustedMacros
+);
+
+// Replacement set for double-quoted literal files (YAML).
+$doubleQuotedReplacements = array_merge(
+    array_map($escapeDoubleQuoted, $userMacros),
+    $trustedMacros
+);
 
 $centreonEtcPath = rtrim($configuration['centreon_etc'], '/');
 
@@ -73,7 +104,7 @@ $centreonEtcPath = rtrim($configuration['centreon_etc'], '/');
  */
 $centreonConfFile = $centreonEtcPath . '/centreon.conf.php';
 $contents = file_get_contents('../../var/configFileTemplate');
-$contents = str_replace(array_keys($macroReplacements), array_values($macroReplacements), $contents);
+$contents = strtr($contents, $singleQuotedReplacements);
 file_put_contents($centreonConfFile, $contents);
 chmod($centreonConfFile, 0640);
 
@@ -82,7 +113,7 @@ chmod($centreonConfFile, 0640);
  */
 $centreonConfPmFile = $centreonEtcPath . '/conf.pm';
 $contents = file_get_contents('../../var/configFilePmTemplate');
-$contents = str_replace(array_keys($macroReplacements), array_values($macroReplacements), $contents);
+$contents = strtr($contents, $singleQuotedReplacements);
 file_put_contents($centreonConfPmFile, $contents);
 
 /**
@@ -90,7 +121,7 @@ file_put_contents($centreonConfPmFile, $contents);
  */
 $gorgoneDatabaseFile = $centreonEtcPath . '/config.d/10-database.yaml';
 $contents = file_get_contents('../../var/databaseTemplate.yaml');
-$contents = str_replace(array_keys($macroReplacements), array_values($macroReplacements), $contents);
+$contents = strtr($contents, $doubleQuotedReplacements);
 $oldMask = umask(0137);
 file_put_contents($gorgoneDatabaseFile, $contents);
 umask($oldMask);
@@ -102,11 +133,7 @@ $apiConfigurationFile = $centreonEtcPath . '/../centreon-gorgone/config.d/31-cen
 if (file_exists($apiConfigurationFile) && is_writable($apiConfigurationFile)) {
     file_put_contents(
         $apiConfigurationFile,
-        str_replace(
-            array_keys($macroReplacements),
-            array_values($macroReplacements),
-            file_get_contents($apiConfigurationFile)
-        ),
+        strtr(file_get_contents($apiConfigurationFile), $doubleQuotedReplacements),
     );
 }
 
@@ -116,7 +143,7 @@ if (file_exists($apiConfigurationFile) && is_writable($apiConfigurationFile)) {
 $gorgoneCoreFileForCentral = $centreonEtcPath . '/../centreon-gorgone/config.d/40-gorgoned.yaml';
 if (is_writable(dirname($gorgoneCoreFileForCentral))) {
     $contents = file_get_contents('../../var/gorgone/gorgoneCentralTemplate.yaml');
-    $contents = str_replace(array_keys($macroReplacements), array_values($macroReplacements), $contents);
+    $contents = strtr($contents, $doubleQuotedReplacements);
     file_put_contents($gorgoneCoreFileForCentral, $contents);
 }
 

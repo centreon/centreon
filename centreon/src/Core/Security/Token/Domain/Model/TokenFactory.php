@@ -26,7 +26,6 @@ namespace Core\Security\Token\Domain\Model;
 use Core\Common\Domain\TrimmedString;
 use DateTimeImmutable;
 use DateTimeInterface;
-use Respect\Validation\Exceptions\DateTimeException;
 
 /**
  * @phpstan-type _ApiToken array{
@@ -116,7 +115,6 @@ final class TokenFactory
      * @param TokenTypeEnum $type
      * @param _Token $data
      *
-     * @throws DateTimeException
      * @return ApiToken|JwtToken|PollerToken
      */
     public static function create(
@@ -177,7 +175,6 @@ final class TokenFactory
      * @param TokenTypeEnum $type
      * @param _NewToken $data
      *
-     * @throws DateTimeException
      * @return NewApiToken|NewJwtToken|NewPollerToken
      */
     public static function createNew(TokenTypeEnum $type, array $data): NewToken

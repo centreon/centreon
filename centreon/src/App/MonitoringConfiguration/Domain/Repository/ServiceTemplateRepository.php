@@ -1,0 +1,107 @@
+<?php
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
+declare(strict_types=1);
+
+namespace App\MonitoringConfiguration\Domain\Repository;
+
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceCheckIntervals;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplate;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateName;
+use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceTemplateCriteria;
+use App\Shared\Domain\Collection;
+
+interface ServiceTemplateRepository
+{
+    /**
+     * Service templates only (never services), ordered by id.
+     *
+     * @return \IteratorAggregate<int, ServiceTemplate>&\Countable
+     */
+    public function findAll(?ServiceTemplateCriteria $criteria = null): \IteratorAggregate&\Countable;
+
+    /**
+     * The service templates of the Monitoring Connectors, and every template inheriting from them.
+     * Empty when the plugin pack manager module, which provides the Monitoring Connectors, is not
+     * installed.
+     *
+     * @param list<string> $excludedConnectorSlugs the Monitoring Connectors whose templates are left out
+     *
+     * @return Collection<ServiceTemplateId>
+     */
+    public function findMonitoringConnectorTemplateIds(array $excludedConnectorSlugs): Collection;
+
+    /**
+     * Service templates only. A missing id, such as a service's dangling template reference, is absent.
+     *
+     * @param Collection<ServiceTemplateId> $ids
+     *
+     * @return Collection<ServiceTemplateName> indexed by template id
+     */
+    public function findNamesByIds(Collection $ids): Collection;
+
+    /**
+     * Each service's icon inherited from its template chain: the first icon found walking up the whole chain,
+     * a level without extended information or whose image sits in no folder being skipped. The service's own
+     * icon is ignored. A service with no inherited icon is absent from the result.
+     *
+     * @param Collection<ServiceId> $serviceIds
+     *
+     * @return Collection<MediaId> indexed by service id
+     */
+    public function findInheritedIconIds(Collection $serviceIds): Collection;
+
+    /**
+     * Each service's check intervals inherited from its template chain, field by field: the first stored value
+     * of at least 1 walking up the chain (below 1 counts as unset). The service's own values are ignored.
+     *
+     * @param Collection<ServiceId> $serviceIds
+     *
+     * @return Collection<ServiceCheckIntervals> indexed by service id
+     */
+    public function findInheritedCheckIntervals(Collection $serviceIds): Collection;
+
+    /**
+     * The template chain from $templateId, nearest first, through service templates only; stops at a dangling
+     * id or a loop. Empty when the id is not a service template.
+     *
+     * @return Collection<ServiceTemplate>
+     */
+    public function findInheritanceLine(ServiceTemplateId $templateId): Collection;
+
+    /**
+     * The service templates a host gets services from: those linked to the host templates of its template chain,
+     * the host's own templates by `order`, each followed depth-first by its ancestors, each host template once at
+     * its first visit (a loop ends there); within one host template by ascending id; each service template once,
+     * at its first place. Host templates and service templates are taken enabled or not. Templates linked to the
+     * host itself are not part of it.
+     *
+     * Hydrated with the name, the raw alias and the distinct groups of all its `servicegroup_relation` rows,
+     * whatever host, host template or host group the row names and whether the group is enabled or not.
+     *
+     * @return Collection<ServiceTemplate>
+     */
+    public function findDeployableOnHost(HostId $hostId): Collection;
+}

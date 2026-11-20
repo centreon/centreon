@@ -127,12 +127,12 @@ Then('the fields are all frozen', () => {
     isInputFreezed(name);
   });
   // Click on the "Relations" tab
-  cy.getIframeBody().contains('a', 'Notification').click();
+  cy.getIframeBody().contains('a', 'Relations').click();
   // Click outside the form
   cy.get('body').click(0, 0);
   // Check that the "Linked Service Templates" field is freezed
   cy.getIframeBody().find('select[name="host_svTpls[]"]').should('be.disabled');
-  // Check that the "Linked Service Templates" field is freezed
+  // Check that the "Linked Host Categories" field is freezed
   cy.getIframeBody().find('select[name="host_hcs[]"]').should('be.disabled');
   // Click on the "Data Processing" tab
   cy.getIframeBody().contains('a', 'Data Processing').click();

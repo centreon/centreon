@@ -23,8 +23,9 @@ declare(strict_types=1);
 
 namespace Core\Security\Authentication\Infrastructure\Provider;
 
+use Adaptation\Log\Enum\LogChannelEnum;
+use Adaptation\Log\Logger;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Contact\Application\Repository\WriteContactGroupRepositoryInterface;
 use Core\Contact\Domain\Model\ContactGroup;
@@ -38,8 +39,6 @@ use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
 
 class AclUpdater implements AclUpdaterInterface
 {
-    use LoggerTrait;
-
     /** @var ProviderAuthenticationInterface */
     private ProviderAuthenticationInterface $provider;
 
@@ -58,6 +57,8 @@ class AclUpdater implements AclUpdaterInterface
     /**
      * @param ProviderAuthenticationInterface $provider
      * @param ContactInterface $user
+     *
+     * @throws ProviderException when the provider does not support ACL updates from claims (must be OpenId or SAML)
      */
     public function updateForProviderAndUser(ProviderAuthenticationInterface $provider, ContactInterface $user): void
     {
@@ -95,7 +96,7 @@ class AclUpdater implements AclUpdaterInterface
     private function updateAccessGroupsForUser(ContactInterface $user, array $userAccessGroups): void
     {
         try {
-            $this->info('Updating User Access Groups', [
+            Logger::create(LogChannelEnum::WEB)->info('Updating User Access Groups', [
                 'user_id' => $user->getId(),
                 'access_groups' => $userAccessGroups,
             ]);
@@ -105,7 +106,7 @@ class AclUpdater implements AclUpdaterInterface
             $this->dataStorageEngine->commitTransaction();
         } catch (\Exception $ex) {
             $this->dataStorageEngine->rollbackTransaction();
-            $this->error('Error during ACL update', [
+            Logger::create(LogChannelEnum::WEB)->error('Error during ACL update', [
                 'user_id' => $user->getId(),
                 'access_groups' => $userAccessGroups,
                 'trace' => $ex->getTraceAsString(),
@@ -123,11 +124,12 @@ class AclUpdater implements AclUpdaterInterface
     {
         $contactGroup = null;
         try {
-            $this->info('Updating user contact group', [
+            Logger::create(LogChannelEnum::WEB)->info('Updating user contact group', [
                 'user_id' => $user->getId(),
-                'contact_group_id' => [
-                    array_map(fn ($contactGroup) => $contactGroup->getId(), $contactGroups),
-                ],
+                'contact_group_id' => array_map(
+                    static fn (ContactGroup $group): int => $group->getId(),
+                    $contactGroups
+                ),
             ]);
             $this->dataStorageEngine->startTransaction();
             $this->contactGroupRepository->deleteContactGroupsForUser($user);
@@ -137,7 +139,7 @@ class AclUpdater implements AclUpdaterInterface
             $this->dataStorageEngine->commitTransaction();
         } catch (\Exception $ex) {
             $this->dataStorageEngine->rollbackTransaction();
-            $this->error('Error during contact group update', [
+            Logger::create(LogChannelEnum::WEB)->error('Error during contact group update', [
                 'user_id' => $user->getId(),
                 'contact_group_id' => $contactGroup?->getId(),
                 'trace' => $ex->getTraceAsString(),

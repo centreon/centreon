@@ -41,6 +41,7 @@ ACLACTION;GRANT;customer_admin_action;global_host_obsess;
 ACLACTION;GRANT;customer_admin_action;global_perf_data;
 ACLACTION;GRANT;customer_admin_action;generate_cfg;
 ACLACTION;GRANT;customer_admin_action;delete_poller_cfg;
+ACLACTION;GRANT;customer_admin_action;create_edit_poller_cfg;
 ACLACTION;GRANT;customer_admin_action;generate_trap;
 ACLACTION;GRANT;customer_admin_action;manage_tokens;
 ACLACTION;GRANT;customer_admin_action;manage_check_commands;

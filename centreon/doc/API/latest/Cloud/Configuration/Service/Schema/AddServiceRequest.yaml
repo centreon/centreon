@@ -9,8 +9,9 @@ properties:
     description: "ID of the host linked to this service."
     example: 1
   geo_coords:
-    type: string
-    nullable: true
+    type:
+      - string
+      - 'null'
     description: "Geographic coordinates of the service"
     example: "48.10,12.5"
   service_template_id:
@@ -19,16 +20,18 @@ properties:
     minimum: 1
     example: null
   check_timeperiod_id:
-    type: integer
+    type:
+      - integer
+      - 'null'
     description: "Time period ID of the check command."
     minimum: 1
-    nullable: true
     example: null
   check_command_id:
-    type: integer
+    type:
+      - integer
+      - 'null'
     description: "Check command ID."
     minimum: 1
-    nullable: true
     example: null
   check_command_args:
     type: array
@@ -37,18 +40,22 @@ properties:
       description: "Arguments of the check command."
     example: ["80", "90"]
   max_check_attempts:
-    type: integer
+    type:
+      - integer
+      - 'null'
     description: "Define the number of times that the monitoring engine will retry the service check command if it returns any non-OK state."
-    nullable: true
   normal_check_interval:
-    type: integer
+    type:
+      - integer
+      - 'null'
     description: |
       Define the number of 'time units' between regularly scheduled checks of the service.
 
       With the default time unit of 60s, this number will mean multiples of 1 minute.
-    nullable: true
   retry_check_interval:
-    type: integer
+    type:
+      - integer
+      - 'null'
     description: |
       Define the number of "time units" to wait before scheduling a re-check for this service after a non-OK state was detected.
 
@@ -56,33 +63,37 @@ properties:
 
       Once the service has been retried max_check_attempts times without a change in its status,
       it will revert to being scheduled at its "normal" check interval rate.
-    nullable: true
   note:
-    type: string
+    type:
+      - string
+      - 'null'
     description: "Define an optional note."
-    nullable: true
     maxLength: 65535
   note_url:
-    type: string
+    type:
+      - string
+      - 'null'
     description: "Define an optional URL that can be used to provide more information about the service."
     maxLength: 65535
-    nullable: true
   action_url:
-    type: string
+    type:
+      - string
+      - 'null'
     description: "Define an optional URL that can be used to specify actions to be performed on the service."
-    nullable: true
     maxLength: 65535
   icon_id:
-    type: integer
+    type:
+      - integer
+      - 'null'
     description: "Define the image ID that should be associated with this service."
     minimum: 1
-    nullable: true
     example: null
   severity_id:
-    type: integer
+    type:
+      - integer
+      - 'null'
     description: "Severity ID."
     minimum: 1
-    nullable: true
   service_categories:
     type: array
     description: "IDs of service categories linked to this service."

@@ -54,6 +54,7 @@ use Core\Security\ProviderConfiguration\Domain\OpenId\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
+use Webmozart\Assert\InvalidArgumentException;
 
 /**
  * @phpstan-import-type _RoleMapping from PartialUpdateOpenIdConfigurationRequest
@@ -120,7 +121,7 @@ final class PartialUpdateOpenIdConfiguration
             $configuration->setCustomConfiguration($customConfiguration);
 
             $this->repository->updateConfiguration($configuration);
-        } catch (AssertionException|AssertionFailedException|ConfigurationException $ex) {
+        } catch (AssertionException|AssertionFailedException|ConfigurationException|InvalidArgumentException $ex) {
             $this->error(
                 'Unable to perform partial update on OpenID Provider because one or several parameters are invalid',
                 [

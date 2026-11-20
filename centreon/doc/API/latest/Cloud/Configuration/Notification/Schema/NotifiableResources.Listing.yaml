@@ -15,9 +15,10 @@ properties:
           type: string
           example: "Host 1"
         alias:
-          type: string
+          type:
+            - string
+            - 'null'
           example: "Host 1"
-          nullable: true
         event:
           type: integer
           description: "Bitmask representing host's status triggering a notification"
@@ -34,9 +35,10 @@ properties:
                 type: string
                 example: "Ping"
               alias:
-                type: string
+                type:
+                  - string
+                  - 'null'
                 example: "Ping"
-                nullable: true
               event:
                 type: integer
                 description: "Bitmask representing service's status triggering a notification"

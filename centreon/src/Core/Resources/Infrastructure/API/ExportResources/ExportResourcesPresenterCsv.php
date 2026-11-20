@@ -93,6 +93,12 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
             $csvHeader = $this->sortHeaderByFilteredColumns($csvHeader, $response->getFilteredColumns());
         }
 
+        // host_id and service_id are always exported, regardless of the selected
+        // columns: they are the stable identifiers used by the REST API and
+        // downstream integrations to correlate each exported row.
+        $csvHeader->put('host_id', _('Host ID'));
+        $csvHeader->put('service_id', _('Service ID'));
+
         $csvResources = $this->transformToCsvByHeader($response->getResources(), $csvHeader);
 
         $this->viewModel->setHeaders($csvHeader);
@@ -147,7 +153,9 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
                 _('Monitoring server') => $resource->getMonitoringServerName(),
                 _('Notif') => $resource->isNotificationEnabled()
                     ? _('Notifications enabled') : _('Notifications disabled'),
-                _('Check') => _($this->getResourceCheck($resource)),
+                _('Check') => $this->translate($this->getResourceCheck($resource)),
+                _('Host ID') => $this->getHostId($resource),
+                _('Service ID') => $this->getServiceId($resource),
             ];
 
             $line = array_map(
@@ -315,6 +323,40 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
         }
 
         return $check;
+    }
+
+    /**
+     * Host identifier of the resource: the resource's own id for a host, the
+     * parent's id for a service (or any host-parented resource), empty otherwise.
+     *
+     * @param ResourceEntity $resource
+     *
+     * @return string
+     */
+    private function getHostId(ResourceEntity $resource): string
+    {
+        if ($resource->getType() === ResourceEntity::TYPE_HOST) {
+            return $resource->getId() !== null ? (string) $resource->getId() : '';
+        }
+
+        return $resource->getParent()?->getId() !== null
+            ? (string) $resource->getParent()->getId()
+            : '';
+    }
+
+    /**
+     * Service identifier of the resource: the resource's own id for a service,
+     * empty for any other resource type.
+     *
+     * @param ResourceEntity $resource
+     *
+     * @return string
+     */
+    private function getServiceId(ResourceEntity $resource): string
+    {
+        return $resource->getType() === ResourceEntity::TYPE_SERVICE && $resource->getId() !== null
+            ? (string) $resource->getId()
+            : '';
     }
 
     /**

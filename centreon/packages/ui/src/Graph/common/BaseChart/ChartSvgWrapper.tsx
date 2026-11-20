@@ -30,8 +30,7 @@ interface Props {
     | ScaleTime<number, number>
     | ScaleLinear<number, number>
     | ScaleBand<number>;
-  maxAxisCharacters?: number;
-  hasSecondUnit?: boolean;
+  maxLeftAxisCharacters?: number;
   title?: string;
 }
 
@@ -51,8 +50,7 @@ const ChartSvgWrapper = ({
   children,
   orientation = 'horizontal',
   allUnits,
-  maxAxisCharacters = 0,
-  hasSecondUnit,
+  maxLeftAxisCharacters = 0,
   title
 }: Props): ReactElement => {
   const isHorizontal = equals(orientation, 'horizontal');
@@ -73,10 +71,7 @@ const ChartSvgWrapper = ({
     >
       <title>chart</title>
       <Group.Group
-        left={computeGElementMarginLeft({
-          hasSecondUnit,
-          maxCharacters: maxAxisCharacters
-        })}
+        left={computeGElementMarginLeft(maxLeftAxisCharacters)}
         top={marginTop}
       >
         {showGridLines && (canRenderGridRows || canRenderGridColumns) && (

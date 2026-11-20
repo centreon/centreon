@@ -3,13 +3,18 @@
 import { QueryParameter } from '@centreon/ui';
 
 import { useAtomValue } from 'jotai';
-import { equals, isNotEmpty, isNotNil, pluck } from 'ramda';
+import { equals, isNil, isNotEmpty, isNotNil, pluck } from 'ramda';
 import { useMemo } from 'react';
 
 import { FieldType } from '../../models';
 import { useGetAll } from '../api';
 import { configurationAtom } from '../atoms';
-import { limitAtom, pageAtom, sortFieldAtom, sortOrderAtom } from './atoms';
+import {
+  listingLimitAtom,
+  pageAtom,
+  sortFieldAtom,
+  sortOrderAtom
+} from './atoms';
 
 interface LoadDataState {
   data?;
@@ -20,7 +25,7 @@ const useLoadData = ({ filtersAtom, filtersAtomKey }): LoadDataState => {
   const sortOrder = useAtomValue(sortOrderAtom);
   const sortField = useAtomValue(sortFieldAtom);
   const page = useAtomValue(pageAtom);
-  const limit = useAtomValue(limitAtom);
+  const limit = useAtomValue(listingLimitAtom);
   const filters = useAtomValue(filtersAtom);
   const configuration = useAtomValue(configurationAtom);
 
@@ -40,11 +45,18 @@ const useLoadData = ({ filtersAtom, filtersAtomKey }): LoadDataState => {
       return [];
     }
 
-    const filterName = configuration?.filtersConfiguration?.find((filter) =>
+    const filter = configuration?.filtersConfiguration?.find((filter) =>
       equals(filter.fieldType, FieldType.Checkbox)
-    )?.fieldName as string;
+    );
+    const filterName = filter?.fieldName as string;
 
     const filterValue = filters?.[filterName];
+
+    if (filter?.uncheckedQueryParameter) {
+      return filterValue
+        ? []
+        : [{ name: filter.uncheckedQueryParameter, value: true }];
+    }
 
     return filterValue
       ? [
@@ -108,6 +120,18 @@ const useLoadData = ({ filtersAtom, filtersAtomKey }): LoadDataState => {
             : acc;
         }
 
+        if (equals(filter.fieldType, FieldType.SingleConnectedAutocomplete)) {
+          return isNotNil(filterValue)
+            ? [
+                ...acc,
+                {
+                  field: fieldName,
+                  values: { $eq: filterValue.id }
+                }
+              ]
+            : acc;
+        }
+
         return filterValue
           ? [...acc, { field: fieldName, values: { $rg: filterValue } }]
           : acc;
@@ -118,18 +142,51 @@ const useLoadData = ({ filtersAtom, filtersAtomKey }): LoadDataState => {
     return [...statusCondition, ...(otherConditions || [])];
   }, [configuration?.filtersConfiguration, filters]);
 
+  // The status filter carries no `fieldName`, and endpoints do not spell the
+  // parameter alike, so a module may name it through its filter configuration.
+  const getStatusQueries = () => {
+    if (!isStatusFilterApplied) {
+      return [];
+    }
+
+    const fieldName =
+      configuration?.filtersConfiguration?.find((filter) =>
+        equals(filter.fieldType, FieldType.Status)
+      )?.fieldName ?? 'is_activated';
+
+    return [{ name: fieldName, value: filters?.enabled }];
+  };
+
+  const getSingleConnectedAutocompleteQueries = () =>
+    (configuration?.filtersConfiguration ?? [])
+      .filter((filter) =>
+        equals(filter.fieldType, FieldType.SingleConnectedAutocomplete)
+      )
+      .flatMap((filter) => {
+        const filterValue = filters?.[filter.fieldName as string];
+
+        return isNotNil(filterValue)
+          ? [{ name: filter.fieldName as string, value: filterValue.id }]
+          : [];
+      });
+
+  const getTextQueries = () =>
+    (configuration?.filtersConfiguration ?? [])
+      .filter((filter) => equals(filter.fieldType, FieldType.Text))
+      .map((filter) => ({
+        name: `${filter.fieldName}[lk]`,
+        value: filters?.[filter.fieldName as string]
+      }));
+
   const getCustomQueryParameters = (): Array<QueryParameter> => {
     if (!equals(apiFormat, 'JSON-LD')) {
       return [];
     }
 
-    const statusQueryParam = isStatusFilterApplied
-      ? [{ name: 'is_activated', value: filters?.enabled }]
-      : [];
-
     const customQueryParameters = [
-      { name: 'name[lk]', value: filters?.name },
-      ...statusQueryParam,
+      ...getTextQueries(),
+      ...getStatusQueries(),
+      ...getSingleConnectedAutocompleteQueries(),
       ...getCheckboxesQueries(),
       ...getCheckboxQueries()
     ];
@@ -137,7 +194,12 @@ const useLoadData = ({ filtersAtom, filtersAtomKey }): LoadDataState => {
     return customQueryParameters;
   };
 
+  // No request until the page size is known, so the listing is not first
+  // loaded with a page size it is about to replace.
+  const isLimitPending = isNil(limit);
+
   const { data, isLoading } = useGetAll({
+    enabled: !isLimitPending,
     filtersAtomKey,
     getCustomQueryParameters,
     limit,
@@ -147,7 +209,7 @@ const useLoadData = ({ filtersAtom, filtersAtomKey }): LoadDataState => {
     sortOrder
   });
 
-  return { data, isLoading };
+  return { data, isLoading: isLoading || isLimitPending };
 };
 
 export default useLoadData;

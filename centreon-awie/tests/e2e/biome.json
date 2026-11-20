@@ -1,0 +1,17 @@
+{
+  "extends": [
+    "./node_modules/@centreon/js-config/biome/biome.json",
+    "../../../centreon/packages/js-config/biome/tests.json"
+  ],
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "style": {
+        "useNamingConvention": {
+          "level": "warn"
+        }
+      }
+    }
+  }
+}
+

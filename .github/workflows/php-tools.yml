@@ -20,16 +20,23 @@ on:
 
 jobs:
   dependency-scan:
+    permissions:
+      contents: read
+      pull-requests: write
     uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@main
 
   backend-lint:
     needs: [dependency-scan]
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@accd6127cb78bee3e8082180cb391013d204ef9f # v2.37.0
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2.37.2
         with:
           php-version: '8.4'
           coverage: none
@@ -52,3 +59,30 @@ jobs:
       - name: 🔍 PHPStan checks
         working-directory: php-tools
         run: composer stan -- --no-progress
+
+  backend-unit-test:
+    needs: [dependency-scan]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2.37.2
+        with:
+          php-version: '8.4'
+          coverage: none
+        env:
+          runner: ubuntu-24.04
+
+      - name: Install dependencies
+        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-scripts
+        working-directory: php-tools
+        shell: bash
+
+      - name: 🧪 PHPUnit tests
+        working-directory: php-tools
+        run: composer test

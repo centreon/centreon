@@ -26,6 +26,12 @@ use Pimple\Container;
  */
 abstract class Centreon_ObjectRt
 {
+    /** @var string a column name, optionally qualified by a table name */
+    private const COLUMN_IDENTIFIER_PATTERN = '/^[a-zA-Z_][a-zA-Z0-9_]*(\.[a-zA-Z_][a-zA-Z0-9_]*)?$/';
+
+    /** @var string a select-list item: `*`, a column (optionally qualified and aliased) or the max() of a column */
+    private const SELECT_ITEM_PATTERN = '/^(\*|[a-zA-Z_][a-zA-Z0-9_]*(\.[a-zA-Z_][a-zA-Z0-9_]*)?( as [a-zA-Z_][a-zA-Z0-9_]*)?|max\([a-zA-Z_][a-zA-Z0-9_]*\))$/i';
+
     /** Database Connector */
     protected $dbMon;
 
@@ -75,10 +81,17 @@ abstract class Centreon_ObjectRt
      */
     public function getParameters($objectId, $parameterNames)
     {
-        $params = is_array($parameterNames) ? implode(',', $parameterNames) : $parameterNames;
-        $sql = "SELECT {$params} FROM {$this->table} WHERE {$this->primaryKey} = ?";
+        if (is_array($parameterNames)) {
+            $params = implode(',', array_map([$this, 'sanitizeSelectItem'], $parameterNames));
+        } else {
+            $params = $parameterNames !== '*' ? $this->sanitizeSelectItem($parameterNames) : $parameterNames;
+        }
+        $sql = "SELECT {$params} FROM {$this->table} WHERE {$this->primaryKey} = :objectId";
+        $stmt = $this->dbMon->prepare($sql);
+        $stmt->bindValue(':objectId', $objectId, PDO::PARAM_INT);
+        $stmt->execute();
 
-        return $this->getResult($sql, [$objectId], 'fetch');
+        return $stmt->fetch();
     }
 
     /**
@@ -108,31 +121,43 @@ abstract class Centreon_ObjectRt
         if ($filterType != 'OR' && $filterType != 'AND') {
             throw new Exception('Unknown filter type');
         }
-        $params = is_array($parameterNames) ? implode(',', $parameterNames) : $parameterNames;
-        $sql = "SELECT {$params} FROM {$this->table} ";
-        $filterTab = [];
-        if (count($filters)) {
-            foreach ($filters as $key => $rawvalue) {
-                if ($filterTab === []) {
-                    $sql .= " WHERE {$key} LIKE ? ";
-                } else {
-                    $sql .= " {$filterType} {$key} LIKE ? ";
-                }
-                $value = trim($rawvalue);
-                $value = str_replace('\\', '\\\\', $value);
-                $value = str_replace('_', "\_", $value);
-                $value = str_replace(' ', "\ ", $value);
-                $filterTab[] = $value;
-            }
+        if (is_array($parameterNames)) {
+            $params = implode(',', array_map([$this, 'sanitizeSelectItem'], $parameterNames));
+        } else {
+            $params = $parameterNames !== '*' ? $this->sanitizeSelectItem($parameterNames) : $parameterNames;
         }
-        if (isset($order, $sort)   && (strtoupper($sort) == 'ASC' || strtoupper($sort) == 'DESC')) {
+        $sql = "SELECT {$params} FROM {$this->table} ";
+        $bindParams = [];
+        $filterIndex = 0;
+        $whereClauses = [];
+        foreach ($filters as $key => $rawvalue) {
+            $key = $this->sanitizeColumnIdentifier($key);
+            $paramName = ':filter_' . $filterIndex++;
+            $value = trim($rawvalue);
+            $value = str_replace('\\', '\\\\', $value);
+            $value = str_replace('_', "\_", $value);
+            $value = str_replace(' ', "\ ", $value);
+            $whereClauses[] = "{$key} LIKE {$paramName}";
+            $bindParams[$paramName] = $value;
+        }
+        if ($whereClauses !== []) {
+            $sql .= ' WHERE ' . implode(" {$filterType} ", $whereClauses);
+        }
+        if (isset($order, $sort) && (strtoupper($sort) == 'ASC' || strtoupper($sort) == 'DESC')) {
+            $order = $this->sanitizeOrderByColumns($order);
             $sql .= " ORDER BY {$order} {$sort} ";
         }
         if (isset($count) && $count != -1) {
             $sql = $this->dbMon->limit($sql, $count, $offset);
         }
 
-        return $this->getResult($sql, $filterTab, 'fetchAll');
+        $stmt = $this->dbMon->prepare($sql);
+        foreach ($bindParams as $paramName => $paramValue) {
+            $stmt->bindValue($paramName, $paramValue);
+        }
+        $stmt->execute();
+
+        return $stmt->fetchAll();
     }
 
     /**
@@ -145,29 +170,35 @@ abstract class Centreon_ObjectRt
      */
     public function getIdByParameter($paramName, $paramValues = [])
     {
-        $sql = "SELECT {$this->primaryKey} FROM {$this->table} WHERE ";
-        $condition = '';
+        $paramName = $this->sanitizeColumnIdentifier($paramName);
         if (! is_array($paramValues)) {
             $paramValues = [$paramValues];
         }
-        foreach ($paramValues as $val) {
-            if ($condition != '') {
-                $condition .= ' OR ';
-            }
-            $condition .= $paramName . ' = ? ';
-        }
-        if ($condition) {
-            $sql .= $condition;
-            $rows = $this->getResult($sql, $paramValues, 'fetchAll');
-            $tab = [];
-            foreach ($rows as $val) {
-                $tab[] = $val[$this->primaryKey];
-            }
-
-            return $tab;
+        if ($paramValues === []) {
+            return [];
         }
 
-        return [];
+        $conditions = [];
+        $bindParams = [];
+        foreach ($paramValues as $index => $val) {
+            $paramKey = ':val_' . $index;
+            $conditions[] = $paramName . ' = ' . $paramKey;
+            $bindParams[$paramKey] = $val;
+        }
+
+        $sql = "SELECT {$this->primaryKey} FROM {$this->table} WHERE " . implode(' OR ', $conditions);
+        $stmt = $this->dbMon->prepare($sql);
+        foreach ($bindParams as $paramKey => $paramValue) {
+            $stmt->bindValue($paramKey, $paramValue);
+        }
+        $stmt->execute();
+
+        $tab = [];
+        foreach ($stmt->fetchAll() as $row) {
+            $tab[] = $row[$this->primaryKey];
+        }
+
+        return $tab;
     }
 
     /**
@@ -198,6 +229,90 @@ abstract class Centreon_ObjectRt
     public function getTableName()
     {
         return $this->table;
+    }
+
+    /**
+     * @throws InvalidArgumentException
+     */
+    protected function sanitizeIdentifier(string $name): string
+    {
+        $name = trim(trim($name), '`');
+        if ($name === '' || preg_match('/[;\'"\\\\#]|--|\/\*/', $name) === 1) {
+            throw new InvalidArgumentException("Invalid identifier: {$name}");
+        }
+
+        return $name;
+    }
+
+    /**
+     * Validate a value used as a single column reference in a generated statement.
+     *
+     * sanitizeIdentifier() only rejects a set of characters, which still leaves
+     * room for anything else the SQL parser accepts. This accepts nothing but a
+     * column name, optionally qualified by a table name. Use it wherever the
+     * value is known to designate exactly one column: filter keys, relation keys
+     * and the column of getIdByParameter(). Select lists and ORDER BY lists take
+     * other shapes and have their own validation.
+     *
+     * @throws InvalidArgumentException
+     * @return string
+     */
+    protected function sanitizeColumnIdentifier(string $name): string
+    {
+        $name = $this->sanitizeIdentifier($name);
+        if (preg_match(self::COLUMN_IDENTIFIER_PATTERN, $name) !== 1) {
+            throw new InvalidArgumentException("Invalid column identifier: {$name}");
+        }
+
+        return $name;
+    }
+
+    /**
+     * Validate one item of a select list.
+     *
+     * Select lists carry more than column names: an alias (`host_name as host`),
+     * the max() of a column, or `*`. This accepts those shapes and nothing else,
+     * so that a select list never takes an arbitrary expression.
+     *
+     * @throws InvalidArgumentException
+     * @return string
+     */
+    protected function sanitizeSelectItem(string $name): string
+    {
+        $name = $this->sanitizeIdentifier($name);
+        if (preg_match(self::SELECT_ITEM_PATTERN, $name) !== 1) {
+            throw new InvalidArgumentException("Invalid select item: {$name}");
+        }
+
+        return $name;
+    }
+
+    /**
+     * Validate an ORDER BY column list and return it ready for interpolation.
+     *
+     * The list is validated column by column: sanitizeIdentifier() strips the
+     * backticks of the whole string, so applying it to a comma-separated list
+     * would unbalance the quoting of the individual columns. Backtick quoting is
+     * preserved per column, which callers rely on for reserved words such as
+     * `order`.
+     *
+     * @throws InvalidArgumentException
+     * @return string
+     */
+    protected function sanitizeOrderByColumns(string $order): string
+    {
+        $orderColumns = [];
+        foreach (explode(',', $order) as $orderColumn) {
+            $orderColumn = trim($orderColumn);
+            $isQuoted = str_starts_with($orderColumn, '`') && str_ends_with($orderColumn, '`');
+            $orderColumn = $this->sanitizeIdentifier($orderColumn);
+            if (preg_match(self::COLUMN_IDENTIFIER_PATTERN, $orderColumn) !== 1) {
+                throw new InvalidArgumentException("Invalid order column: {$orderColumn}");
+            }
+            $orderColumns[] = $isQuoted ? "`{$orderColumn}`" : $orderColumn;
+        }
+
+        return implode(',', $orderColumns);
     }
 
     /**

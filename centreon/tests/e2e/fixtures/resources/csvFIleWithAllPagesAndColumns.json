@@ -6,10 +6,10 @@
     "Parent Resource Type": "Host",
     "Parent Resource Name": "host1",
     "Parent Resource Status": "Pending",
-    "Duration": "\"1m 9s\"",
-    "Last Check": "\"1m 9s\"",
+    "Duration": "1m 9s",
+    "Last Check": "1m 9s",
     "Information": "submit_status_2",
-    "Tries": "\"1/1 (H)\"",
+    "Tries": "1/1 (H)",
     "Severity": "",
     "Notes": "",
     "Action": "",
@@ -18,8 +18,8 @@
     "Parent alias": "host1",
     "FQDN / Address": "",
     "Monitoring server": "Central",
-    "Notif": "\"Notifications disabled\"",
-    "Check": "\"Only passive checks are enabled\""
+    "Notif": "Notifications disabled",
+    "Check": "Only passive checks are enabled"
   },
   {
     "Status": "Critical",
@@ -28,10 +28,10 @@
     "Parent Resource Type": "Host",
     "Parent Resource Name": "host1",
     "Parent Resource Status": "Pending",
-    "Duration": "\"1m 9s\"",
-    "Last Check": "\"1m 9s\"",
+    "Duration": "1m 9s",
+    "Last Check": "1m 9s",
     "Information": "submit_status_2",
-    "Tries": "\"1/1 (H)\"",
+    "Tries": "1/1 (H)",
     "Severity": "",
     "Notes": "",
     "Action": "",
@@ -40,8 +40,8 @@
     "Parent alias": "host1",
     "FQDN / Address": "",
     "Monitoring server": "Central",
-    "Notif": "\"Notifications disabled\"",
-    "Check": "\"Only passive checks are enabled\""
+    "Notif": "Notifications disabled",
+    "Check": "Only passive checks are enabled"
   },
   {
     "Status": "Critical",
@@ -50,10 +50,10 @@
     "Parent Resource Type": "Host",
     "Parent Resource Name": "host1",
     "Parent Resource Status": "Pending",
-    "Duration": "\"1m 9s\"",
-    "Last Check": "\"1m 9s\"",
+    "Duration": "1m 9s",
+    "Last Check": "1m 9s",
     "Information": "submit_status_2",
-    "Tries": "\"1/1 (H)\"",
+    "Tries": "1/1 (H)",
     "Severity": "",
     "Notes": "",
     "Action": "",
@@ -62,7 +62,7 @@
     "Parent alias": "host1",
     "FQDN / Address": "",
     "Monitoring server": "Central",
-    "Notif": "\"Notifications disabled\"",
-    "Check": "\"Only passive checks are enabled\""
+    "Notif": "Notifications disabled",
+    "Check": "Only passive checks are enabled"
   }
 ]

@@ -42,6 +42,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\{ExceptionEvent, RequestEvent, ResponseEvent};
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
@@ -127,6 +128,7 @@ class CentreonEventSubscriber implements EventSubscriberInterface
      *
      * @param RequestEvent $request
      *
+     * @throws BadRequestHttpException when the "limit" or "page" parameter is not a valid integer
      * @throws \Exception
      */
     public function initRequestParameters(RequestEvent $request): void
@@ -138,7 +140,13 @@ class CentreonEventSubscriber implements EventSubscriberInterface
             FILTER_VALIDATE_INT
         );
         if ($limit === false) {
-            throw RequestParametersException::integer(RequestParameters::NAME_FOR_LIMIT);
+            $exception = RequestParametersException::integer(RequestParameters::NAME_FOR_LIMIT);
+
+            throw new BadRequestHttpException(
+                $exception->getMessage(),
+                previous: $exception,
+                code: Response::HTTP_BAD_REQUEST,
+            );
         }
         $this->requestParameters->setLimit($limit);
 
@@ -147,7 +155,13 @@ class CentreonEventSubscriber implements EventSubscriberInterface
             FILTER_VALIDATE_INT
         );
         if ($page === false) {
-            throw RequestParametersException::integer(RequestParameters::NAME_FOR_PAGE);
+            $exception = RequestParametersException::integer(RequestParameters::NAME_FOR_PAGE);
+
+            throw new BadRequestHttpException(
+                $exception->getMessage(),
+                previous: $exception,
+                code: Response::HTTP_BAD_REQUEST,
+            );
         }
         $this->requestParameters->setPage($page);
 
@@ -232,8 +246,12 @@ class CentreonEventSubscriber implements EventSubscriberInterface
         $event->getRequest()->attributes->set('version.not_beta', true);
 
         $uri = $event->getRequest()->getRequestUri();
-        if (preg_match('/\/api\/([^\/]+)/', $uri, $matches)) {
-            $requestApiVersion = $matches[1];
+        if (preg_match('/\/api(?:\/([^\/]+))?/', $uri, $matches)) {
+            $requestApiVersion = $matches[1] ?? '';
+            if (preg_match('/^(?:' . VersionHelper::API_VERSION_PATTERN . ')$/', $requestApiVersion) !== 1) {
+                $requestApiVersion = 'latest';
+            }
+
             if ($requestApiVersion[0] === 'v') {
                 $requestApiVersion = mb_substr($requestApiVersion, 1);
                 $requestApiVersion = VersionHelper::regularizeDepthVersion(

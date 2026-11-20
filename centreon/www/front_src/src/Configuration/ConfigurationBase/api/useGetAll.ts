@@ -12,6 +12,7 @@ import { useAtomValue } from 'jotai';
 import { configurationAtom } from '../atoms';
 
 interface UseGetAllProps {
+  enabled?: boolean;
   sortField: string;
   sortOrder: string;
   page?: number;
@@ -22,6 +23,7 @@ interface UseGetAllProps {
 }
 
 const useGetAll = ({
+  enabled = true,
   sortField,
   sortOrder,
   page,
@@ -35,10 +37,12 @@ const useGetAll = ({
   const endpoint = configuration?.api?.endpoints?.getAll;
   const decoder = configuration?.api?.decoders?.getAll;
   const apiFormat = configuration?.api?.apiFormat;
+  const baseEndpoint = configuration?.api?.baseEndpoint;
 
   const sort = { [sortField]: sortOrder };
 
   const { data, isFetching } = useFetchQuery({
+    baseEndpoint,
     decoder,
     getEndpoint: () =>
       buildListingEndpoint({
@@ -46,7 +50,7 @@ const useGetAll = ({
         baseEndpoint: endpoint,
         customQueryParameters: getCustomQueryParameters(),
         parameters: {
-          limit: limit || 10,
+          limit: limit || 30,
           page: page || 1,
           search: { conditions: searchConditions },
           sort
@@ -62,6 +66,7 @@ const useGetAll = ({
       filtersAtomKey
     ],
     queryOptions: {
+      enabled,
       refetchOnMount: false,
       staleTime: 0,
       suspense: false

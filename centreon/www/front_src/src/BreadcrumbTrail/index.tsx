@@ -1,5 +1,4 @@
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { Box, Breadcrumbs as MuiBreadcrumbs } from '@mui/material';
 
 import { useCopyToClipboard } from '@centreon/ui';
@@ -33,7 +32,14 @@ const useStyles = makeStyles()((theme) => ({
     display: 'flex'
   },
   root: {
-    padding: theme.spacing(0.5, 0, 0.5, 3)
+    padding: 0
+  },
+  separator: {
+    color: theme.palette.text.secondary,
+    fontSize: '0.875rem',
+    lineHeight: 1,
+    marginLeft: theme.spacing(0.75),
+    marginRight: theme.spacing(0.75)
   }
 }));
 
@@ -85,19 +91,25 @@ const BreadcrumbTrail = ({ breadcrumbsByPath, path }: Props): JSX.Element => {
 
   return (
     <Box
+      data-cy="breadcrumb"
       onMouseEnter={hover}
       onMouseLeave={leave}
       sx={{
+        alignItems: 'center',
         display: 'flex',
         flexDirection: 'row',
-        gap: 1,
+        gap: 0.5,
         width: 'fit-content'
       }}
     >
       <MuiBreadcrumbs
         aria-label="Breadcrumb"
-        classes={{ li: classes.item, root: classes.root }}
-        separator={<NavigateNextIcon fontSize="small" />}
+        classes={{
+          li: classes.item,
+          root: classes.root,
+          separator: classes.separator
+        }}
+        separator="›"
       >
         {breadcrumbs.map((breadcrumb, index) => (
           <Breadcrumb
@@ -133,20 +145,45 @@ export const router = {
   useLocation
 };
 
+const resolveLegacyPath = (
+  search: string,
+  breadcrumbsByPath: BreadcrumbsByPath
+): string | null => {
+  const page = new URLSearchParams(search).get('p');
+
+  if (isNil(page)) {
+    return null;
+  }
+
+  const exactPath = `/main.php?p=${page}`;
+
+  if (breadcrumbsByPath[exactPath]) {
+    return exactPath;
+  }
+
+  return (
+    Object.keys(breadcrumbsByPath).find((key) =>
+      key.startsWith(`${exactPath}&`)
+    ) ?? null
+  );
+};
+
 const Breadcrumbs = (): JSX.Element | null => {
   const navigation = useAtomValue(navigationAtom);
-  const { pathname } = router.useLocation();
+  const { pathname, search } = router.useLocation();
 
   if (isNil(navigation)) {
     return null;
   }
 
-  return (
-    <BreadcrumbTrail
-      breadcrumbsByPath={getBreadcrumbsByPath(navigation.result)}
-      path={pathname}
-    />
-  );
+  const breadcrumbsByPath = getBreadcrumbsByPath(navigation.result);
+
+  const path =
+    pathname === '/main.php'
+      ? (resolveLegacyPath(search, breadcrumbsByPath) ?? pathname)
+      : pathname;
+
+  return <BreadcrumbTrail breadcrumbsByPath={breadcrumbsByPath} path={path} />;
 };
 
 export default Breadcrumbs;

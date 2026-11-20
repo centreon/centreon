@@ -67,12 +67,12 @@ const isCustom = ({ id }: Filter): boolean => {
 
 export {
   allFilter,
-  unhandledProblemsFilter,
-  resourceProblemsFilter,
+  isCustom,
   newFilter,
+  resourceProblemsFilter,
   selectableResourceTypes,
   selectableStates,
   selectableStatuses,
   standardFilterById,
-  isCustom
+  unhandledProblemsFilter
 };

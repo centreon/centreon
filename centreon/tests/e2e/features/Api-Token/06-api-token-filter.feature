@@ -10,7 +10,7 @@ Feature: Authentication Token Information Retrieval
     And Authentication tokens with predefined details are created
     And I am on the Authentication tokens page
 
-  @TEST_MON-36705
+  @MON-36705
   Scenario Outline: Filtering Authentication Tokens by '<filter_by>'
     When I filter tokens by '<filter_by>' and click on Search
     Then I should see all tokens with a '<filter_by>' according to the filter

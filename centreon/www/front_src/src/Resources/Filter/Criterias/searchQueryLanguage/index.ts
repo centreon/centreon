@@ -83,7 +83,7 @@ const replaceEscapeWithSpace = (text) => {
 };
 
 export const replaceMiddleSpace = (text: string) => {
-  return text.replace(/\b\s+\b/g, '\\s');
+  return text.replace(/(?<=\S)\s+(?=\S)/g, '\\s');
 };
 
 interface ParametersParse {

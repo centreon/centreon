@@ -30,6 +30,7 @@ use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Application\VaultEligibilityService;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
@@ -72,6 +73,7 @@ class Mock extends TestCase
             $testCase->writeVaultRepository = $testCase->createMock(WriteVaultRepositoryInterface::class),
             $testCase->readVaultRepository = $testCase->createMock(ReadVaultRepositoryInterface::class),
             $testCase->readCommandRepository = $testCase->createMock(ReadCommandRepositoryInterface::class),
+            $testCase->vaultEligibilityService = $testCase->createMock(VaultEligibilityService::class),
         );
     }
 

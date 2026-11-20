@@ -1,0 +1,15 @@
+# Query to page through the Tests of a Test Plan.
+query GetTestPlanTests($id: String!, $start: Int!) {
+  getTestPlan(issueId: $id) {
+    tests(limit: 100, start: $start) {
+      total
+      results {
+        issueId
+        testType {
+          name
+        }
+        jira(fields: ["key", "components", "status"])
+      }
+    }
+  }
+}

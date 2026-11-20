@@ -7,6 +7,8 @@ jobs:
   set-pull-request-skip-label:
     if: ${{ success() && contains(fromJSON('["pull_request"]') , github.event_name) }}
     runs-on: ubuntu-24.04
+    permissions:
+      pull-requests: write
 
     steps:
       - name: Set PR skip label

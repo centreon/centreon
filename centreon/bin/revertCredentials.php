@@ -1,0 +1,132 @@
+<?php
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
+declare(strict_types=1);
+
+require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../config/centreon.config.php';
+require_once __DIR__ . '/../www/include/common/vault-functions.php';
+
+use Adaptation\Log\Enum\LogChannelEnum;
+use Adaptation\Log\Logger;
+use App\Kernel;
+use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
+use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Application\VaultEligibilityService;
+use Symfony\Component\Process\Exception\ProcessFailedException;
+use Symfony\Component\Process\Process;
+
+try {
+    if (posix_getuid() !== 0) {
+        throw new Exception('This script must be run as root');
+    }
+    $kernel = Kernel::createForWeb();
+    /** @var VaultEligibilityService $vaultEligibilityService */
+    $vaultEligibilityService = $kernel->getContainer()->get(VaultEligibilityService::class);
+
+    if (! $vaultEligibilityService->shouldUseVault()) {
+        throw new Exception('No vault configured');
+    }
+
+    /** @var ReadVaultRepositoryInterface $readVaultRepository */
+    $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
+    /** @var WriteVaultRepositoryInterface $writeVaultRepository */
+    $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
+
+    echo 'Revert of database credentials' . PHP_EOL;
+    revertAndUpdateDatabaseCredentials($readVaultRepository, $writeVaultRepository);
+    echo 'Revert of database credentials completed' . PHP_EOL;
+
+    revertGorgoneApiCredentials(
+        $readVaultRepository,
+        $writeVaultRepository,
+        $vaultEligibilityService->shouldUseVault('vault_gorgone')
+    );
+    revertApplicationCredentials();
+
+} catch (Throwable $ex) {
+    Logger::create(LogChannelEnum::WEB)->error($ex->getMessage(), ['exception' => $ex]);
+    echo $ex->getMessage() . PHP_EOL;
+
+    exit(1);
+}
+
+/**
+ * Revert Gorgone API credentials from the vault back to the configuration file.
+ *
+ * This is handle outside of Symfony Command as this should be executed as root.
+ *
+ * @param ReadVaultRepositoryInterface $readVaultRepository
+ * @param WriteVaultRepositoryInterface $writeVaultRepository
+ * @param bool $isGorgoneVaultEnabled whether the `vault_gorgone` feature flag is active for this platform
+ *
+ * @throws Throwable
+ */
+function revertGorgoneApiCredentials(
+    ReadVaultRepositoryInterface $readVaultRepository,
+    WriteVaultRepositoryInterface $writeVaultRepository,
+    bool $isGorgoneVaultEnabled,
+): void {
+    echo 'Revert of Gorgone API credentials' . PHP_EOL;
+
+    if ($isGorgoneVaultEnabled) {
+        revertGorgoneCredentialsToDb($readVaultRepository, $writeVaultRepository);
+    }
+
+    echo 'Revert of Gorgone API credentials completed' . PHP_EOL;
+}
+
+/**
+ * Execute Symfony command to revert web and modules credentials.
+ *
+ * @throws ProcessFailedException
+ */
+function revertApplicationCredentials(): void
+{
+    echo 'Revert of application credentials' . PHP_EOL;
+    $process = Process::fromShellCommandline(
+        'sudo -u apache php ' . _CENTREON_PATH_ . '/bin/console list vault:revert-credentials'
+    );
+    $process->setWorkingDirectory(_CENTREON_PATH_);
+    $process->run();
+
+    if (! $process->isSuccessful()) {
+        echo 'No application revert command available, skipping' . PHP_EOL;
+
+        return;
+    }
+
+    preg_match_all('/\S*vault:revert-credentials:\S*/', $process->getOutput(), $matches);
+    foreach ($matches[0] as $revertCommand) {
+        $process = Process::fromShellCommandline(
+            'sudo -u apache php ' . _CENTREON_PATH_ . '/bin/console ' . $revertCommand
+        );
+        $process->setWorkingDirectory(_CENTREON_PATH_);
+        $process->mustRun(function ($type, $buffer): void {
+            if ($type === Process::ERR) {
+                echo 'ERROR: ' . $buffer . PHP_EOL;
+            } else {
+                echo $buffer;
+            }
+        });
+    }
+    echo 'Revert of application credentials completed' . PHP_EOL;
+}

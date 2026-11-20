@@ -28,6 +28,8 @@ use Webmozart\Assert\Assert;
 final readonly class CommandName
 {
     public const NAME_VALIDATION_REGEX  = '/^[^~!$%^&*"|\'<>?,()=]+$/';
+    public const CENTREON_MONITORING_AGENT_MARKER = 'Centreon-Monitoring-Agent';
+    public const CMA_MARKER = '-CMA-';
 
     public function __construct(
         public string $value,

@@ -3,12 +3,25 @@
 import { useSnackbar } from '@centreon/ui';
 
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router';
 
-import { configurationAtom, modalStateAtom } from '../atoms';
+import {
+  configurationAtom,
+  formStateAtom,
+  isCloseConfirmationDialogOpenAtom,
+  isFormDirtyAtom
+} from '../atoms';
 import { labelSelectAtLeastOneColumn } from '../translatedLabels';
-import { limitAtom, pageAtom, sortFieldAtom, sortOrderAtom } from './atoms';
+import {
+  limitAtom,
+  listingLimitAtom,
+  pageAtom,
+  sortFieldAtom,
+  sortOrderAtom,
+  sortsByListingAtom
+} from './atoms';
 
 interface UseListing {
   changePage: (updatedPage: number) => void;
@@ -20,7 +33,7 @@ interface UseListing {
   setLimit;
   sortf: string;
   sorto: 'asc' | 'desc';
-  openEditModal: (row) => void;
+  openEditForm: (row) => void;
   disableRowCondition: (row) => boolean;
   limit: number;
 }
@@ -39,11 +52,24 @@ const useListing = ({ selectedColumnIdsAtom }): UseListing => {
     selectedColumnIdsAtom
   );
 
-  const setModalState = useSetAtom(modalStateAtom);
+  const [formState, setFormState] = useAtom(formStateAtom);
+  const isFormDirty = useAtomValue(isFormDirtyAtom);
+  const setIsCloseConfirmationDialogOpen = useSetAtom(
+    isCloseConfirmationDialogOpenAtom
+  );
+
+  // `MemoizedListing` holds this handler, so what it reads must be read when
+  // the row is clicked, not when the handler was built.
+  const formStateRef = useRef(formState);
+  formStateRef.current = formState;
+  const isFormDirtyRef = useRef(isFormDirty);
+  isFormDirtyRef.current = isFormDirty;
   const [sorto, setSorto] = useAtom(sortOrderAtom);
   const [sortf, setSortf] = useAtom(sortFieldAtom);
   const [page, setPage] = useAtom(pageAtom);
-  const [limit, setLimit] = useAtom(limitAtom);
+  const limit = useAtomValue(listingLimitAtom);
+  const setLimit = useSetAtom(limitAtom);
+  const setSortsByListing = useSetAtom(sortsByListingAtom);
 
   const resetColumns = (): void => {
     setSelectedColumnIds(defaultSelectedColumnIds);
@@ -52,6 +78,10 @@ const useListing = ({ selectedColumnIdsAtom }): UseListing => {
   const changeSort = ({ sortOrder, sortField }): void => {
     setSortf(sortField);
     setSorto(sortOrder);
+    setSortsByListing((sorts) => ({
+      ...sorts,
+      [configuration?.resourceType]: { field: sortField, order: sortOrder }
+    }));
   };
 
   const changePage = (updatedPage): void => {
@@ -68,13 +98,26 @@ const useListing = ({ selectedColumnIdsAtom }): UseListing => {
     setSelectedColumnIds(updatedColumnIds);
   };
 
-  const openEditModal = (row) => {
+  const openEditForm = (row) => {
+    // A panel has no backdrop: the listing stays clickable while a form is open.
+    const openForm = formStateRef.current;
+
+    const leavesEditsBehind =
+      openForm.isOpen && isFormDirtyRef.current && openForm.id !== row.id;
+
+    if (leavesEditsBehind) {
+      setIsCloseConfirmationDialogOpen(true);
+
+      return;
+    }
+
     setSearchParams({ id: row.id, mode: 'edit' });
 
-    setModalState({
+    setFormState({
       id: row.id,
       isOpen: true,
-      mode: 'edit'
+      mode: 'edit',
+      resource: row
     });
   };
 
@@ -85,8 +128,8 @@ const useListing = ({ selectedColumnIdsAtom }): UseListing => {
     changePage,
     changeSort,
     disableRowCondition,
-    limit,
-    openEditModal,
+    limit: limit ?? undefined,
+    openEditForm,
     page,
     resetColumns,
     selectColumns,

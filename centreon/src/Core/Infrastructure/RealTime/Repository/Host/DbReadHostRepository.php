@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace Core\Infrastructure\RealTime\Repository\Host;
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Core\Application\RealTime\Repository\ReadHostRepositoryInterface;
@@ -58,12 +60,7 @@ class DbReadHostRepository extends AbstractRepositoryDRB implements ReadHostRepo
             return null;
         }
 
-        $accessGroupRequest = ' INNER JOIN `:dbstg`.`centreon_acl` AS host_acl
-            ON host_acl.host_id = h.host_id
-            AND host_acl.service_id IS NULL
-            AND host_acl.group_id IN (' . implode(',', $accessGroupIds) . ') ';
-
-        return $this->findHost($hostId, $accessGroupRequest);
+        return $this->findHost($hostId, $accessGroupIds);
     }
 
     /**
@@ -75,34 +72,57 @@ class DbReadHostRepository extends AbstractRepositoryDRB implements ReadHostRepo
             return false;
         }
 
-        $request = '
-            SELECT COUNT(h.host_id) AS total, 1 AS REALTIME
-            FROM `:dbstg`.`hosts` AS h
-            INNER JOIN `:dbstg`.`centreon_acl` AS host_acl
-                ON host_acl.host_id = h.host_id
-                AND host_acl.group_id IN (' . implode(',', $accessGroupIds) . ')
-            WHERE h.host_id = :host_id AND h.enabled = 1
-        ';
+        $accessGroupBindParameters = [];
+        $accessGroupPlaceholders = [];
+        foreach ($accessGroupIds as $idx => $accessGroupId) {
+            $name = 'ag_' . $idx;
+            $accessGroupPlaceholders[] = ':' . $name;
+            $accessGroupBindParameters[] = QueryParameter::int($name, (int) $accessGroupId);
+        }
 
-        $statement = $this->db->prepare($this->translateDbName($request));
+        $count = $this->db->fetchOne(
+            $this->translateDbName(
+                'SELECT COUNT(h.host_id) AS total, 1 AS REALTIME
+                FROM `:dbstg`.`hosts` AS h
+                INNER JOIN `:dbstg`.`centreon_acl` AS host_acl
+                    ON host_acl.host_id = h.host_id
+                    AND host_acl.group_id IN (' . implode(', ', $accessGroupPlaceholders) . ')
+                WHERE h.host_id = :host_id AND h.enabled = 1'
+            ),
+            QueryParameters::create([
+                QueryParameter::int('host_id', $hostId),
+                ...$accessGroupBindParameters,
+            ])
+        );
 
-        $statement->bindValue(':host_id', $hostId, \PDO::PARAM_INT);
-
-        $statement->execute();
-
-        return $statement->fetchColumn() > 0;
+        return $count > 0;
     }
 
     /**
      * Find host request according to accessgroups or not.
      *
      * @param int $hostId
-     * @param string|null $accessGroupRequest
+     * @param int[] $accessGroupIds
      *
      * @return Host|null
      */
-    private function findHost(int $hostId, ?string $accessGroupRequest = null): ?Host
+    private function findHost(int $hostId, array $accessGroupIds = []): ?Host
     {
+        $accessGroupBindParameters = [];
+        $accessGroupClause = '';
+        if ($accessGroupIds !== []) {
+            $accessGroupPlaceholders = [];
+            foreach ($accessGroupIds as $idx => $accessGroupId) {
+                $name = 'ag_' . $idx;
+                $accessGroupPlaceholders[] = ':' . $name;
+                $accessGroupBindParameters[] = QueryParameter::int($name, (int) $accessGroupId);
+            }
+            $accessGroupClause = ' INNER JOIN `:dbstg`.`centreon_acl` AS host_acl
+                ON host_acl.host_id = h.host_id
+                AND host_acl.service_id IS NULL
+                AND host_acl.group_id IN (' . implode(', ', $accessGroupPlaceholders) . ') ';
+        }
+
         $request = "SELECT
                 1 AS REALTIME,
                 h.host_id,
@@ -142,16 +162,18 @@ class DbReadHostRepository extends AbstractRepositoryDRB implements ReadHostRepo
             LEFT JOIN `:dbstg`.`customvariables` AS host_cvl ON host_cvl.host_id = h.host_id
                 AND host_cvl.service_id = 0
                 AND host_cvl.name = 'CRITICALITY_LEVEL'"
-            . ($accessGroupRequest ?? '')
+            . $accessGroupClause
             . "WHERE  h.host_id = :host_id AND h.enabled = '1' AND h.name NOT LIKE '\_Module_BAM%'";
 
-        $statement = $this->db->prepare($this->translateDbName($request));
+        $row = $this->db->fetchAssociative(
+            $this->translateDbName($request),
+            QueryParameters::create([
+                QueryParameter::int('host_id', $hostId),
+                ...$accessGroupBindParameters,
+            ])
+        );
 
-        $statement->bindValue(':host_id', $hostId, \PDO::PARAM_INT);
-
-        $statement->execute();
-
-        if (($row = $statement->fetch(\PDO::FETCH_ASSOC))) {
+        if ($row !== false) {
             /** @var _dataHost $row */
             return DbHostFactory::createFromRecord($row);
         }

@@ -30,7 +30,6 @@ export interface GuidingLines {
   timeSeries: Array<TimeValue>;
   xScale: ScaleTime<number, number>;
   maxLeftAxisCharacters: number;
-  hasSecondUnit?: boolean;
   leftScale?: ScaleLinear<number, number>;
   lines: Array<Line>;
   rightScale?: ScaleLinear<number, number>;

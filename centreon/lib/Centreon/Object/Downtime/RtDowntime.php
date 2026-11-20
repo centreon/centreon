@@ -19,6 +19,11 @@
  *
  */
 
+declare(strict_types=1);
+
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+
 require_once 'Centreon/Object/ObjectRt.php';
 
 /**
@@ -47,9 +52,16 @@ class Centreon_Object_RtDowntime extends Centreon_ObjectRt
     public function getHostDowntimes($hostList = [])
     {
         $hostFilter = '';
+        $parameters = [];
 
         if (! empty($hostList)) {
-            $hostFilter = "AND h.name IN ('" . implode("','", $hostList) . "') ";
+            $placeholders = [];
+            foreach (array_values($hostList) as $index => $hostName) {
+                $placeholder = ':host_' . $index;
+                $placeholders[] = $placeholder;
+                $parameters[] = QueryParameter::string(ltrim($placeholder, ':'), (string) $hostName);
+            }
+            $hostFilter = 'AND h.name IN (' . implode(',', $placeholders) . ') ';
         }
 
         $query = 'SELECT downtime_id, name, author, actual_start_time , actual_end_time, '
@@ -62,7 +74,10 @@ class Centreon_Object_RtDowntime extends Centreon_ObjectRt
             . $hostFilter
             . 'ORDER BY actual_start_time, name';
 
-        return $this->getResult($query);
+        return $this->dbMon->fetchAllAssociative(
+            $query,
+            $parameters === [] ? null : QueryParameters::create($parameters)
+        );
     }
 
     /**
@@ -72,15 +87,19 @@ class Centreon_Object_RtDowntime extends Centreon_ObjectRt
     public function getSvcDowntimes($svcList = [])
     {
         $serviceFilter = '';
+        $parameters = [];
 
         if (! empty($svcList)) {
             $serviceFilter = 'AND (';
             $filterTab = [];
             $counter = count($svcList);
             for ($i = 0; $i < $counter; $i += 2) {
-                $hostname = $svcList[$i];
-                $serviceDescription = $svcList[$i + 1];
-                $filterTab[] = '(h.name = "' . $hostname . '" AND s.description = "' . $serviceDescription . '")';
+                $hostnamePlaceholder = ':host_' . $i;
+                $servicePlaceholder = ':svc_' . $i;
+                $filterTab[] = '(h.name = ' . $hostnamePlaceholder
+                    . ' AND s.description = ' . $servicePlaceholder . ')';
+                $parameters[] = QueryParameter::string(ltrim($hostnamePlaceholder, ':'), (string) $svcList[$i]);
+                $parameters[] = QueryParameter::string(ltrim($servicePlaceholder, ':'), (string) $svcList[$i + 1]);
             }
             $serviceFilter .= implode(' AND ', $filterTab) . ') ';
         }
@@ -97,18 +116,29 @@ class Centreon_Object_RtDowntime extends Centreon_ObjectRt
             . $serviceFilter
             . 'ORDER BY actual_start_time, h.name, s.description';
 
-        return $this->getResult($query);
+        return $this->dbMon->fetchAllAssociative(
+            $query,
+            $parameters === [] ? null : QueryParameters::create($parameters)
+        );
     }
 
     /**
-     * @param $id
-     * @return array
+     * @param int|string $id
+     * @return array|false
      */
     public function getCurrentDowntime($id)
     {
-        $query = 'SELECT * FROM downtimes WHERE ISNULL(actual_end_time) '
-            . ' AND end_time > ' . time() . ' AND downtime_id = ' . $id;
-
-        return $this->getResult($query, [], 'fetch');
+        return $this->dbMon->fetchAssociative(
+            <<<'SQL'
+                SELECT * FROM downtimes
+                WHERE ISNULL(actual_end_time)
+                AND end_time > :now
+                AND downtime_id = :downtime_id
+                SQL,
+            QueryParameters::create([
+                QueryParameter::int('now', time()),
+                QueryParameter::int('downtime_id', (int) $id),
+            ])
+        );
     }
 }

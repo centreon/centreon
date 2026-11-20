@@ -27,7 +27,8 @@ use Assert\AssertionFailedException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
-use Centreon\Domain\RequestParameters\RequestParameters;
+use Core\ActionLog\Application\Repository\WriteActionLogRepositoryInterface;
+use Core\ActionLog\Domain\Model\ActionLog;
 use Core\Application\Common\UseCase\{
     ErrorResponse,
     InvalidArgumentResponse,
@@ -41,7 +42,6 @@ use Core\Domain\Common\GeoCoords;
 use Core\Domain\Exception\InvalidGeoCoordException;
 use Core\Host\Application\Exception\HostException;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
-use Core\Host\Domain\Model\SmallHost;
 use Core\HostGroup\Application\Exceptions\HostGroupException;
 use Core\HostGroup\Application\Repository\{
     ReadHostGroupRepositoryInterface,
@@ -83,6 +83,7 @@ final class UpdateHostGroup
         private readonly WriteMonitoringServerRepositoryInterface $writeMonitoringServerRepository,
         private readonly WriteAccessGroupRepositoryInterface $writeAccessGroupRepository,
         private readonly AdminResolver $adminResolver,
+        private readonly WriteActionLogRepositoryInterface $writeActionLogRepository,
     ) {
     }
 
@@ -120,7 +121,7 @@ final class UpdateHostGroup
 
             $this->updateHostGroup($request, $existingHostGroup);
             if ($request->hosts !== null) {
-                $this->updateHostLinks($request);
+                $this->updateHostLinks($request, $existingHostGroup);
             }
             if ($this->isCloudPlatform) {
                 $this->updateResourceAccess($request);
@@ -187,10 +188,11 @@ final class UpdateHostGroup
      * Update the hosts linked to the host group.
      *
      * @param UpdateHostGroupRequest $request
+     * @param HostGroup $existingHostGroup
      *
      * @throws \Throwable
      */
-    private function updateHostLinks(UpdateHostGroupRequest $request): void
+    private function updateHostLinks(UpdateHostGroupRequest $request, HostGroup $existingHostGroup): void
     {
         /** @var int[] $hosts */
         $hosts = $request->hosts;
@@ -199,20 +201,50 @@ final class UpdateHostGroup
             $existingHosts = $this->readHostRepository->findByHostGroup($request->id);
             $hostsToRemove = array_map(fn (SimpleEntity $host): int => $host->getId(), $existingHosts);
         } else {
-            $reachableHosts = $this->readHostRepository->findByRequestParametersAndAccessGroups(
-                new RequestParameters(),
+            // Only the members the user can see may be removed, the hidden ones are kept.
+            $reachableHosts = $this->readHostRepository->findByHostGroupAndAccessGroups(
+                $request->id,
                 $this->readAccessGroupRepository->findByContact($this->user)
             );
 
             $hostsToRemove = (new BasicDifference(
-                array_map(fn (SmallHost $host) => $host->getId(), $reachableHosts),
+                array_map(fn (SimpleEntity $host): int => $host->getId(), $reachableHosts),
                 $hosts
             ))->getRemoved();
         }
 
+        $linkedBefore = array_map('intval', $this->readHostGroupRepository->findLinkedHosts($request->id));
+        // Hosts still linked after the removal must not be inserted again, it would duplicate the relation.
+        $stillLinked = array_diff($linkedBefore, $hostsToRemove);
+        $hostsToAdd = array_values(array_unique(array_diff($hosts, $stillLinked)));
         $this->writeHostGroupRepository->deleteHostLinks($request->id, $hostsToRemove);
-        $this->writeHostGroupRepository->addHostLinks($request->id, $hosts);
-        $this->notifyConfigurationChange($hosts);
+        $this->writeHostGroupRepository->addHostLinks($request->id, $hostsToAdd);
+        $linkedAfter = array_map('intval', $this->readHostGroupRepository->findLinkedHosts($request->id));
+        // The pollers of the removed hosts must also be notified, their configuration changed too.
+        $this->notifyConfigurationChange(array_values(array_unique([...$hosts, ...$hostsToRemove])));
+
+        sort($linkedBefore);
+        sort($linkedAfter);
+        if ($linkedBefore === $linkedAfter) {
+            return;
+        }
+
+        $actionLog = new ActionLog(
+            ActionLog::OBJECT_TYPE_HOSTGROUP,
+            $request->id,
+            $existingHostGroup->getName(),
+            ActionLog::ACTION_TYPE_CHANGE,
+            $this->user->getId(),
+        );
+        $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
+        $actionLog->setId($actionLogId);
+
+        $added = array_values(array_diff($linkedAfter, $linkedBefore));
+        $removed = array_values(array_diff($linkedBefore, $linkedAfter));
+        $this->writeActionLogRepository->addActionDetails($actionLog, [
+            'hosts_added' => implode(',', $added),
+            'hosts_removed' => implode(',', $removed),
+        ]);
     }
 
     /**

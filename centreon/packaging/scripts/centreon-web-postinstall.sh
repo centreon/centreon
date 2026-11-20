@@ -2,15 +2,26 @@
 
 manageUsersAndGroups() {
   echo "Managing users and groups for apache ..."
+
+  # centreon-engine, centreon-broker and centreon-gorgone are no longer guaranteed to be
+  # installed alongside centreon-web (it is now a standalone package), so only add apache
+  # to the groups that actually exist. usermod -a -G fails atomically if any listed group
+  # is missing, which would otherwise leave apache out of the (always present) centreon
+  # group too.
+  local optional_groups=""
+  for grp in centreon-engine centreon-broker centreon-gorgone; do
+    getent group "$grp" >/dev/null 2>&1 && optional_groups="${optional_groups}${grp},"
+  done
+
   if [ "$1" = "rpm" ]; then
-    usermod apache -a -G centreon-engine,centreon-broker,centreon-gorgone,centreon
-    usermod centreon-gorgone -a -G apache
-    usermod centreon-broker -a -G apache
+    usermod apache -a -G "${optional_groups}centreon"
+    getent passwd centreon-gorgone >/dev/null 2>&1 && usermod centreon-gorgone -a -G apache
+    getent passwd centreon-broker >/dev/null 2>&1 && usermod centreon-broker -a -G apache
     usermod centreon -a -G apache
   else
-    usermod www-data -a -G centreon-engine,centreon-broker,centreon-gorgone,centreon
-    usermod centreon-gorgone -a -G www-data
-    usermod centreon-broker -a -G www-data
+    usermod www-data -a -G "${optional_groups}centreon"
+    getent passwd centreon-gorgone >/dev/null 2>&1 && usermod centreon-gorgone -a -G www-data
+    getent passwd centreon-broker >/dev/null 2>&1 && usermod centreon-broker -a -G www-data
     usermod centreon -a -G www-data
   fi
 }
@@ -131,7 +142,7 @@ manageApacheAndPhpFpm() {
     systemctl restart httpd || :
   else
     update-alternatives --set php /usr/bin/php@PHP_MIN_VERSION@ > /dev/null 2>&1 || :
-    a2enmod headers proxy_fcgi setenvif proxy rewrite alias proxy proxy_fcgi > /dev/null 2>&1 || :
+    a2enmod headers proxy proxy_fcgi proxy_wstunnel setenvif rewrite alias > /dev/null 2>&1 || :
     a2enconf php@PHP_MIN_VERSION@-fpm > /dev/null 2>&1 || :
     a2dissite 000-default > /dev/null 2>&1 || :
     a2ensite centreon > /dev/null 2>&1 || :
@@ -172,7 +183,6 @@ fixCentreonCronPermissions() {
 
   # Update log files permissions which have been potentially created by centreon user
   LOG_FILES=(
-    "/var/log/centreon/centreon-web.log"
     "/var/log/centreon/centreon-tokens.log"
   )
   for LOG_FILE in "${LOG_FILES[@]}"; do
@@ -184,6 +194,50 @@ fixCentreonCronPermissions() {
       fi
     fi
   done
+}
+
+archiveLegacyPhpFpmLog() {
+  # php-fpm now writes to /var/log/centreon/prod.web.log. On deb the previous
+  # error log lives at a php-version-dependent path that logrotate does not
+  # cover, so it would linger and keep growing. Archive it as ".old" rather
+  # than deleting it, and let the administrator know.
+  if [ "$1" = "deb" ]; then
+    for old_log in /var/log/php*-fpm-centreon-error.log; do
+      if [ -f "$old_log" ]; then
+        mv "$old_log" "${old_log}.old"
+        echo "NOTICE: php-fpm now writes to /var/log/centreon/prod.web.log. Previous log archived as ${old_log}.old (not covered by logrotate; remove it manually once no longer needed)."
+      fi
+    done
+  fi
+}
+
+fixWebLogPermissions() {
+  # prod.web.log must be group-writable: console commands run by the web server
+  # group (e.g. centreon-broker) append to it. The application creates its log
+  # files that way itself, so other log files need nothing here. prod.web.log
+  # is the exception, because it is also PHP-FPM's error_log and PHP-FPM
+  # creates it 0644 whatever the settings: create it first.
+  # Fixing an existing file is only needed for existing configurations, where
+  # older versions created it 0644. Remove that part once upgrades from those
+  # versions are no longer supported.
+  WEB_LOG_FILE="/var/log/centreon/prod.web.log"
+  WEB_USER="www-data"
+  if [ "$1" = "rpm" ]; then
+    WEB_USER="apache"
+  fi
+  if [ -L "$WEB_LOG_FILE" ]; then
+    return 0
+  fi
+  if [ ! -e "$WEB_LOG_FILE" ]; then
+    # Normally created by the package (same attributes as in centreon-poller).
+    if [ ! -d "/var/log/centreon" ]; then
+      install -d -o centreon -g centreon -m 0774 /var/log/centreon
+    fi
+    install -o "$WEB_USER" -g "$WEB_USER" -m 0664 /dev/null "$WEB_LOG_FILE"
+  elif [ -f "$WEB_LOG_FILE" ]; then
+    chgrp "$WEB_USER" "$WEB_LOG_FILE"
+    chmod 0664 "$WEB_LOG_FILE"
+  fi
 }
 
 package_type="rpm"
@@ -210,6 +264,7 @@ case "$action" in
     manageApacheAndPhpFpm $package_type
     fixSymfonyCacheRights $package_type
     fixCentreonCronPermissions $package_type
+    fixWebLogPermissions $package_type
     ;;
   "2" | "upgrade")
     manageUsersAndGroups $package_type
@@ -221,6 +276,8 @@ case "$action" in
     fixSymfonyCacheRights $package_type
     rebuildSymfonyCache $package_type
     fixCentreonCronPermissions $package_type
+    archiveLegacyPhpFpmLog $package_type
+    fixWebLogPermissions $package_type
     ;;
   *)
     # $1 == version being installed

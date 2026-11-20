@@ -8,6 +8,8 @@ import {
   resetMocks,
   waitFor
 } from '../../../../../test/testRenderer';
+import fetchMock from 'jest-fetch-mock';
+
 import buildListingEndpoint from '../../../../api/buildListingEndpoint';
 import type {
   BuildListingEndpointParameters,
@@ -126,5 +128,40 @@ describe(SingleConnectedAutocompleteField, () => {
         `${baseEndpoint}?page=1&search=%7B%22%24and%22%3A%5B%7B%22%24or%22%3A%5B%7B%22parent_name%22%3A%7B%22%24eq%22%3A%22Centreon-Server%22%7D%7D%5D%7D%5D%7D`
       );
     });
+  });
+
+  it('leaves no request rejected unhandled when it is closed while its options load', async () => {
+    const unhandledRejections: Array<unknown> = [];
+    const onUnhandledRejection = (reason: unknown): void => {
+      unhandledRejections.push(reason);
+    };
+
+    process.on('unhandledRejection', onUnhandledRejection);
+
+    try {
+      // Options that never arrive: the request is still running at unmount,
+      // which cancels it.
+      fetchMock.mockResponse(() => new Promise(() => undefined));
+
+      const { getByLabelText, unmount } =
+        renderSingleConnectedAutocompleteField();
+
+      fireEvent.click(getByLabelText('Open'));
+
+      await waitFor(() => {
+        expect(getFetchCall(0)).toEqual(`${baseEndpoint}?page=1`);
+      });
+
+      unmount();
+
+      // Unhandled rejections are reported once the microtask queue drains.
+      await new Promise((resolve) => {
+        setTimeout(resolve, 50);
+      });
+
+      expect(unhandledRejections).toEqual([]);
+    } finally {
+      process.off('unhandledRejection', onUnhandledRejection);
+    }
   });
 });

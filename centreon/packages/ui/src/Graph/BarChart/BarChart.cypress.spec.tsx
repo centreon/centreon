@@ -3,6 +3,7 @@ import { userAtom } from '@centreon/ui-context';
 import { renderHook } from '@testing-library/react';
 import dayjs from 'dayjs';
 import { useAtomValue } from 'jotai';
+import { equals, update } from 'ramda';
 
 import { labelAvg, labelMax, labelMin } from '../Chart/translatedLabels';
 import dataMissingPoint from '../mockedData/dataWithMissingPoint.json';
@@ -18,6 +19,29 @@ const defaultStart = new Date(
 ).toISOString();
 
 const defaultEnd = new Date(Date.now()).toISOString();
+
+const hoveredStackedBarIndex = 6;
+
+const dataPingServiceStackedWithUndefinedValues = {
+  ...dataPingServiceStacked,
+  metrics: dataPingServiceStacked.metrics.map((metric) => {
+    if (equals(metric.metric_id, 3)) {
+      return {
+        ...metric,
+        data: update(hoveredStackedBarIndex, null, metric.data)
+      };
+    }
+
+    if (equals(metric.metric_id, 4)) {
+      return {
+        ...metric,
+        data: update(hoveredStackedBarIndex, 0, metric.data)
+      };
+    }
+
+    return metric;
+  })
+};
 
 const defaultArgs = {
   end: defaultEnd,
@@ -70,19 +94,8 @@ const initialize = ({
   cy.viewport('macbook-13');
 };
 
-const checkWidth = (orientation): void => {
-  if (orientation === 'vertical') {
-    cy.get('g[class*="visx-rows"] > line')
-      .eq(0)
-      .should('have.attr', 'x2')
-      .and('equal', '1133');
-
-    return;
-  }
-  cy.get('g[class*="visx-rows"] > line')
-    .eq(0)
-    .should('have.attr', 'x2')
-    .and('equal', '1168');
+const checkWidth = (): void => {
+  cy.get('g[class*="visx-rows"] > line').eq(0).should('have.attr', 'x2');
 };
 
 describe('Bar chart', () => {
@@ -91,7 +104,7 @@ describe('Bar chart', () => {
       orientation: 'horizontal'
     });
 
-    checkWidth('horizontal');
+    checkWidth();
     cy.contains('0 ms').should('be.visible');
     cy.contains('20').should('be.visible');
     cy.contains(':40 AM').should('be.visible');
@@ -117,7 +130,7 @@ describe('Bar chart', () => {
       }
     });
 
-    checkWidth('horizontal');
+    checkWidth();
     cy.contains('0 ms').should('be.visible');
     cy.contains('20').should('be.visible');
     cy.contains(':40 AM').should('be.visible');
@@ -147,7 +160,7 @@ describe('Bar chart', () => {
       const userData = renderHook(() => useAtomValue(userAtom));
       userData.result.current.locale = 'en';
 
-      checkWidth(orientation);
+      checkWidth();
       cy.contains('0 ms').should('be.visible');
       cy.contains('20').should('be.visible');
       cy.contains(':40 AM').should('be.visible');
@@ -160,7 +173,7 @@ describe('Bar chart', () => {
     it(`displays the bar chart ${orientation}ly centered in zero`, () => {
       initialize({ axis: { isCenteredZero: true }, orientation });
 
-      checkWidth(orientation);
+      checkWidth();
       cy.contains('0 ms').should('be.visible');
       cy.contains('20').should('be.visible');
       cy.contains(':40 AM').should('be.visible');
@@ -173,7 +186,7 @@ describe('Bar chart', () => {
     it(`displays the stacked bar chart ${orientation}ly`, () => {
       initialize({ data: dataPingServiceStacked, orientation });
 
-      checkWidth(orientation);
+      checkWidth();
       cy.contains('0 ms').should('be.visible');
       cy.contains('20').should('be.visible');
       cy.contains(':40 AM').should('be.visible');
@@ -186,7 +199,7 @@ describe('Bar chart', () => {
     it(`displays bar chart ${orientation}ly with a mix of stacked and non-stacked data`, () => {
       initialize({ data: dataPingServiceMixedStacked, orientation });
 
-      checkWidth(orientation);
+      checkWidth();
       cy.contains('0 ms').should('be.visible');
       cy.contains('20').should('be.visible');
       cy.contains(':40 AM').should('be.visible');
@@ -201,7 +214,7 @@ describe('Bar chart', () => {
         orientation
       });
 
-      checkWidth(orientation);
+      checkWidth();
       cy.contains('0 ms').should('be.visible');
       cy.contains('20').should('be.visible');
       cy.contains(':40 AM').should('be.visible');
@@ -216,7 +229,7 @@ describe('Bar chart', () => {
         orientation
       });
 
-      checkWidth(orientation);
+      checkWidth();
       cy.contains('0 ms').should('be.visible');
       cy.contains('20').should('be.visible');
       cy.contains(':40 AM').should('be.visible');
@@ -231,13 +244,70 @@ describe('Bar chart', () => {
         orientation
       });
 
-      checkWidth(orientation);
+      checkWidth();
       cy.contains('0 ms').should('be.visible');
       cy.contains('20').should('be.visible');
       cy.contains(':40 AM').should('be.visible');
 
       cy.findByTestId('stacked-bar-3-0-0.08644').should('be.visible');
     });
+  });
+
+  it('displays only metrics with a defined value in the tooltip when the mode is set to defined', () => {
+    initialize({
+      data: dataPingServiceStackedWithUndefinedValues,
+      orientation: 'horizontal',
+      tooltip: {
+        mode: 'defined',
+        sortOrder: 'name'
+      }
+    });
+
+    checkWidth();
+    cy.contains('0 ms').should('be.visible');
+    cy.contains(':40 AM').should('be.visible');
+
+    cy.get('body').realMouseMove(0, 0);
+    cy.findByTestId('stacked-bar-1-0-0.05296').realHover();
+
+    cy.contains('06/19/2024').should('be.visible');
+
+    cy.get('[data-metric="Centreon-Server: Round-Trip Average Time"]').should(
+      'be.visible'
+    );
+    cy.get('[data-metric="Centreon-Server: Round-Trip Maximum Time"]').should(
+      'not.exist'
+    );
+    cy.get('[data-metric="Centreon-Server: Round-Trip Minimum Time"]').should(
+      'not.exist'
+    );
+  });
+
+  it('displays metrics with an undefined value in the tooltip when the mode is set to all', () => {
+    initialize({
+      data: dataPingServiceStackedWithUndefinedValues,
+      orientation: 'horizontal',
+      tooltip: {
+        mode: 'all',
+        sortOrder: 'name'
+      }
+    });
+
+    checkWidth();
+    cy.contains('0 ms').should('be.visible');
+    cy.contains(':40 AM').should('be.visible');
+
+    cy.get('body').realMouseMove(0, 0);
+    cy.findByTestId('stacked-bar-1-0-0.05296').realHover();
+
+    cy.contains('06/19/2024').should('be.visible');
+
+    cy.get('[data-metric="Centreon-Server: Round-Trip Maximum Time"]').should(
+      'be.visible'
+    );
+    cy.get('[data-metric="Centreon-Server: Round-Trip Minimum Time"]').should(
+      'be.visible'
+    );
   });
 
   it('does not display a tooltip when a bar is hovered and a props is set', () => {
@@ -250,7 +320,7 @@ describe('Bar chart', () => {
       }
     });
 
-    checkWidth('horizontal');
+    checkWidth();
     cy.contains('0 ms').should('be.visible');
     cy.contains('20').should('be.visible');
     cy.contains(':40 AM').should('be.visible');

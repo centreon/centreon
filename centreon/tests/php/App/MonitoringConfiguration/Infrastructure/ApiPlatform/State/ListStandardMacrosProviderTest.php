@@ -26,10 +26,12 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\StandardMacroResource;
 use Doctrine\DBAL\Connection;
 use Tests\App\Shared\ApiTestCase;
+use Tests\App\Shared\ClearsInstalledPlatformRows;
 
 final class ListStandardMacrosProviderTest extends ApiTestCase
 {
-    private const BASE_ENDPOINT = '/api/latest/configuration/standard-macros';
+    use ClearsInstalledPlatformRows;
+    private const BASE_ENDPOINT = '/api/configuration/standard-macros';
 
     protected function setUp(): void
     {
@@ -37,6 +39,8 @@ final class ListStandardMacrosProviderTest extends ApiTestCase
 
         /** @var Connection $connection */
         $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $this->clearInstalledPlatformRows($connection, 'nagios_macro');
+
         $macros = [
             [1, '$HOSTNAME$'],
             [2, '$HOSTALIAS$'],
@@ -149,5 +153,13 @@ final class ListStandardMacrosProviderTest extends ApiTestCase
         );
         self::assertResponseIsSuccessful();
         $this->assertCount(2, (array) $response->toArray()['member']);
+    }
+
+    public function testItRejectsAScalarNameFilter(): void
+    {
+        $this->login();
+
+        $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => '$HOSTNAME$']]);
+        self::assertResponseStatusCodeSame(400);
     }
 }

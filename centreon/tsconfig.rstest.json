@@ -1,0 +1,23 @@
+{
+  "extends": [
+    "./tsconfig.json",
+    "./packages/js-config/tsconfig/typecheck.json"
+  ],
+  "compilerOptions": {
+    "paths": {
+      "@centreon/ui/components": ["./packages/ui/src/components"],
+      "@test-setup/*": ["./test-setup/*"],
+      "msw": ["./node_modules/msw-v2"],
+      "msw/*": ["./node_modules/msw-v2/*"]
+    },
+    "lib": ["dom", "dom.iterable", "es2023"],
+    "types": ["react"]
+  },
+  "include": [
+    "./types",
+    "./node_modules/@rstest/core/globals.d.ts",
+    "./packages/ui/src/@types",
+    "./test-setup",
+    "./www/front_src/src/**/*.browser.test.tsx"
+  ]
+}

@@ -2,6 +2,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { failingChecks, requestFailed } from "./bruno-result-helpers.js";
 
 // ------------------------
 // Input
@@ -35,7 +36,15 @@ if (!fs.existsSync(mergedFile)) {
   process.exit(1);
 }
 
-const data = JSON.parse(fs.readFileSync(mergedFile, "utf-8"));
+const report = JSON.parse(fs.readFileSync(mergedFile, "utf-8"));
+
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
 
 // ------------------------
 // Global stats
@@ -45,19 +54,22 @@ let success = 0;
 let failed = 0;
 let totalTime = 0;
 
-data.forEach((block) => {
-  (block.results || []).forEach((t) => {
+report.forEach((iteration) => {
+  (iteration.results || []).forEach((requestResult) => {
     total++;
-    const status = t.response?.status;
-    totalTime += t.response?.responseTime || 0;
-    if (status >= 200 && status < 300) success++;
-    else failed++;
+    totalTime += requestResult.response?.responseTime || 0;
+    if (requestFailed(requestResult, failingChecks(requestResult))) failed++;
+    else success++;
   });
 });
 
+if (failed === 0) {
+  process.exit(0);
+}
+
 const avgTime = total ? Math.round(totalTime / total) : 0;
-const globalStatus = failed === 0 ? "SUCCESS ✅" : "FAILED ❌";
-const globalColor = failed === 0 ? "#16a34a" : "#dc2626";
+const globalStatus = "FAILED ❌";
+const globalColor = "#dc2626";
 
 // ------------------------
 // Header (LOGO VIA URL)
@@ -112,21 +124,27 @@ html += `
 
 let row = 0;
 
-data.forEach((block) => {
-  (block.results || []).forEach((test) => {
+report.forEach((iteration) => {
+  (iteration.results || []).forEach((requestResult) => {
     row++;
     const bg = row % 2 === 0 ? "#f8fafc" : "#ffffff";
-    const status = test.response?.status ?? "-";
-    const time = test.response?.responseTime ?? "-";
-    const ok = status >= 200 && status < 300;
+    const status = requestResult.response?.status ?? "-";
+    const time = requestResult.response?.responseTime ?? "-";
+    const failedChecks = failingChecks(requestResult);
+    const ok = !requestFailed(requestResult, failedChecks);
     const color = ok ? "#16a34a" : "#dc2626";
 
-    const message = test.response?.data?.message || test.error || "";
+    const message = escapeHtml(
+      failedChecks.map((check) => check.error).filter(Boolean).join("; ") ||
+      requestResult.response?.data?.message ||
+      requestResult.error ||
+      ""
+    );
 
     html += `
 <tr style="background:${bg};">
-  <td style="padding:8px;">${test.test?.filename}</td>
-  <td style="padding:8px; text-align:center;">${test.request?.method}</td>
+  <td style="padding:8px;">${escapeHtml(requestResult.test?.filename)}</td>
+  <td style="padding:8px; text-align:center;">${escapeHtml(requestResult.request?.method)}</td>
   <td style="padding:8px; text-align:center; color:${color}; font-weight:bold;">
     ${ok ? "✅" : "❌"} ${status}
   </td>

@@ -2,8 +2,10 @@ import { Method, ResponseError, useMutationQuery } from '@centreon/ui';
 
 import { useQueryClient } from '@tanstack/react-query';
 import { useAtomValue } from 'jotai';
+import { is } from 'ramda';
 
 import { configurationAtom } from '../atoms';
+import fanOut from './fanOut';
 
 interface UseDuplicateProps {
   duplicateMutation: ({
@@ -13,24 +15,55 @@ interface UseDuplicateProps {
     ids: Array<number>;
     nbDuplicates?: number;
   }) => Promise<object | ResponseError>;
+  duplicateWithNameMutation: ({
+    id,
+    name
+  }: {
+    id: number;
+    name: string;
+  }) => Promise<object | ResponseError>;
   isMutating: boolean;
 }
+
+// The statuses of a refused name: taken (409) or invalid (422).
+export const nameErrorStatuses = [409, 422];
 
 const useDuplicate = (): UseDuplicateProps => {
   const configuration = useAtomValue(configurationAtom);
 
-  const endpoint = configuration?.api?.endpoints?.duplicate as string;
+  const endpoint = configuration?.api?.endpoints?.duplicate;
   const isSingleDuplicate = configuration?.api?.isSingleDuplicate;
+
+  // A function means the route names one resource, so a selection fans out.
+  const duplicatesEachByItself = is(Function, endpoint);
 
   const queryClient = useQueryClient();
 
+  const writeBaseEndpoint = configuration?.api?.writeBaseEndpoint;
+
+  const getEndpoint = duplicatesEachByItself
+    ? (endpoint as ({ id }: { id: number }) => string)
+    : () => endpoint as string;
+
   const { isMutating, mutateAsync } = useMutationQuery({
-    getEndpoint: () => endpoint,
-    method: Method.POST,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['listResources'] });
-    }
+    baseEndpoint: writeBaseEndpoint,
+    getEndpoint,
+    method: Method.POST
   });
+
+  // Its own instance, so the bypass leaves the selection's feedback as is.
+  const { mutateAsync: mutateWithName } = useMutationQuery({
+    baseEndpoint: writeBaseEndpoint,
+    getEndpoint,
+    httpCodesBypassErrorSnackbar: nameErrorStatuses,
+    method: Method.POST
+  });
+
+  const invalidateListing = <T>(result: T): T => {
+    queryClient.invalidateQueries({ queryKey: ['listResources'] });
+
+    return result;
+  };
 
   const duplicateMutation = ({
     ids,
@@ -39,15 +72,33 @@ const useDuplicate = (): UseDuplicateProps => {
     ids: Array<number>;
     nbDuplicates?: number;
   }) => {
+    if (duplicatesEachByItself) {
+      return fanOut(ids, (id) => mutateAsync({ _meta: { id } })).then(
+        invalidateListing
+      );
+    }
+
     return mutateAsync({
       payload: isSingleDuplicate
         ? { ids }
         : { ids, nb_duplicates: nbDuplicates }
-    });
+    }).then(invalidateListing);
   };
+
+  const duplicateWithNameMutation = ({
+    id,
+    name
+  }: {
+    id: number;
+    name: string;
+  }) =>
+    mutateWithName({ _meta: { id }, payload: { name } }).then(
+      invalidateListing
+    );
 
   return {
     duplicateMutation,
+    duplicateWithNameMutation,
     isMutating
   };
 };

@@ -1,11 +1,16 @@
 import { SelectEntry } from '@centreon/ui';
 
 import { useQueryClient } from '@tanstack/react-query';
-import { useAtom } from 'jotai';
-import { equals, isNil, map, pick, propEq, reject } from 'ramda';
+import { useAtom, useSetAtom } from 'jotai';
+import { equals, isNil, map, pick } from 'ramda';
 import { SyntheticEvent, useEffect, useState } from 'react';
 
-import { filtersAtom } from '../../atoms';
+import {
+  changeFilterAtom,
+  deleteFilterEntryAtom,
+  filtersAtom,
+  pageAtom
+} from '../../atoms';
 import { FiltersState, filtersInitialValues } from '../../utils';
 
 type NamedEntity = {
@@ -35,11 +40,14 @@ export const useFilters = (): UseFiltersState => {
   const [isClearClicked, setIsClearClicked] = useState(false);
 
   const [filters, setFilters] = useAtom(filtersAtom);
+  const setPage = useSetAtom(pageAtom);
+  const changeFilter = useSetAtom(changeFilterAtom);
+  const deleteFilterEntry = useSetAtom(deleteFilterEntryAtom);
 
   const isClearDisabled = equals(filters, filtersInitialValues);
 
   const changeName = (event: React.ChangeEvent<HTMLInputElement>): void => {
-    setFilters({ ...filters, name: event.target.value });
+    changeFilter({ field: 'name', newEntries: event.target.value });
   };
 
   const changeTypes = (_: SyntheticEvent, types: Array<SelectEntry>): void => {
@@ -48,33 +56,27 @@ export const useFilters = (): UseFiltersState => {
       types || []
     ) as Array<NamedEntity>;
 
-    setFilters({ ...filters, type: selectedTypes as Array<SelectEntry> });
+    changeFilter({ field: 'type', newEntries: selectedTypes });
   };
 
   const changerPollers = (
     _: SyntheticEvent,
     values: Array<SelectEntry>
   ): void => {
-    const pollers = map(pick(['id', 'name']), values) as Array<SelectEntry>;
-    setFilters({ ...filters, 'poller.id': pollers });
+    const pollers = map(
+      pick(['id', 'name']),
+      values || []
+    ) as Array<NamedEntity>;
+
+    changeFilter({ field: 'poller.id', newEntries: pollers });
   };
 
   const deletePoller = (_: SyntheticEvent, item: SelectEntry): void => {
-    const pollers = reject(
-      ({ name }: SelectEntry) => equals(item.name, name),
-      filters['poller.id']
-    );
-
-    setFilters({ ...filters, 'poller.id': pollers });
+    deleteFilterEntry({ entryToDelete: item, field: 'poller.id' });
   };
 
   const deleteType = (_: SyntheticEvent, option: SelectEntry): void => {
-    const newItems = reject(propEq(option.id, 'id'), filters.type);
-
-    setFilters({
-      ...filters,
-      type: newItems
-    });
+    deleteFilterEntry({ entryToDelete: option, field: 'type' });
   };
 
   const isOptionEqualToValue = (
@@ -92,6 +94,7 @@ export const useFilters = (): UseFiltersState => {
 
   const reset = (): void => {
     setFilters(filtersInitialValues);
+    setPage(0);
 
     setIsClearClicked(true);
   };

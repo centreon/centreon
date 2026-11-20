@@ -41,12 +41,12 @@ const getElements = (): void => {
 export default (): void =>
   describe('Pollers', () => {
     describe('responsive behaviors', () => {
-      it("hides the button's text at smaller screen size", () => {
+      it('displays only the icon and the expand chevron, no text label', () => {
         initialize();
         getElements();
         cy.viewport(1024, 300);
         cy.get('@pollerButton').within(() => {
-          cy.findByText('Pollers').should('not.be.visible');
+          cy.findByText('Pollers').should('not.exist');
           cy.findByTestId('ExpandMoreIcon').should('be.visible');
           cy.findByTestId('DeviceHubIcon').should('be.visible');
         });

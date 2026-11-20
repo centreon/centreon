@@ -32,7 +32,7 @@ use App\Upgrade\Infrastructure\ApiPlatform\State\UpdateProcessor;
     processor: UpdateProcessor::class,
     status: 204,
     deserialize: false,
-    security: "is_granted('ROLE_ADMIN')",
+    security: "is_granted('ROLE_SUPER_ADMIN')",
     securityMessage: 'Only admin users can perform upgrades',
 )]
 final class UpdateResource

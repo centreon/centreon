@@ -16,7 +16,7 @@ import { JSX, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { baseEndpoint } from '../../../api/endpoint';
-import { modalStateAtom } from '../../ConfigurationBase/atoms';
+import { formStateAtom } from '../../ConfigurationBase/atoms';
 import { getApiErrorMessage, testConnectionEndpoint } from '../api';
 import {
   labelConnectionFailed,
@@ -42,7 +42,7 @@ interface TestResult {
 const TestConnectionButton = (): JSX.Element => {
   const { t } = useTranslation();
   const { values } = useFormikContext<FormValues>();
-  const { mode, id } = useAtomValue(modalStateAtom);
+  const { mode, id } = useAtomValue(formStateAtom);
 
   const [isTesting, setIsTesting] = useState(false);
   const [result, setResult] = useState<TestResult | null>(null);

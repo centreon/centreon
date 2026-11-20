@@ -19,6 +19,11 @@
  *
  */
 
+declare(strict_types=1);
+
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+
 require_once 'Centreon/Object/ObjectRt.php';
 
 /**
@@ -44,11 +49,19 @@ class Centreon_Object_RtAcknowledgement extends Centreon_ObjectRt
     public function getLastHostAcknowledgement($hostIds = [])
     {
         $hostFilter = '';
+        $parameters = [];
+
         if (! empty($hostIds)) {
-            $hostFilter = 'AND hosts.host_id IN (' . implode(',', $hostIds) . ')';
+            $placeholders = [];
+            foreach (array_values($hostIds) as $index => $hostId) {
+                $placeholder = ':host_id_' . $index;
+                $placeholders[] = $placeholder;
+                $parameters[] = QueryParameter::int(ltrim($placeholder, ':'), (int) $hostId);
+            }
+            $hostFilter = 'AND hosts.host_id IN (' . implode(',', $placeholders) . ')';
         }
 
-        return $this->getResult(
+        return $this->dbMon->fetchAllAssociative(
             sprintf(
                 'SELECT  ack.acknowledgement_id, hosts.name, ack.entry_time as entry_time,
                     ack.author, ack.comment_data, ack.sticky, ack.notify_contacts, ack.persistent_comment
@@ -70,7 +83,8 @@ class Centreon_Object_RtAcknowledgement extends Centreon_ObjectRt
                     AND ack.service_id = 0
                 ORDER BY ack.entry_time, hosts.name',
                 $hostFilter
-            )
+            ),
+            $parameters === [] ? null : QueryParameters::create($parameters)
         );
     }
 
@@ -81,24 +95,24 @@ class Centreon_Object_RtAcknowledgement extends Centreon_ObjectRt
     public function getLastSvcAcknowledgement($svcList = [])
     {
         $serviceFilter = '';
+        $parameters = [];
 
         if (! empty($svcList)) {
             $serviceFilter = 'AND (';
             $filterTab = [];
             $counter = count($svcList);
             for ($i = 0; $i < $counter; $i += 2) {
-                $hostname = $svcList[$i];
-                $serviceDescription = $svcList[$i + 1];
-                $filterTab[] = '(host.name = "'
-                    . $hostname
-                    . '" AND service.description = "'
-                    . $serviceDescription
-                    . '")';
+                $hostnamePlaceholder = ':host_' . $i;
+                $servicePlaceholder = ':svc_' . $i;
+                $filterTab[] = '(host.name = ' . $hostnamePlaceholder
+                    . ' AND service.description = ' . $servicePlaceholder . ')';
+                $parameters[] = QueryParameter::string(ltrim($hostnamePlaceholder, ':'), (string) $svcList[$i]);
+                $parameters[] = QueryParameter::string(ltrim($servicePlaceholder, ':'), (string) $svcList[$i + 1]);
             }
             $serviceFilter .= implode(' AND ', $filterTab) . ') ';
         }
 
-        return $this->getResult(
+        return $this->dbMon->fetchAllAssociative(
             sprintf(
                 'SELECT ack.acknowledgement_id, host.name, service.description, ack.entry_time,
                        ack.author, ack.comment_data , ack.sticky, ack.notify_contacts, ack.persistent_comment
@@ -124,7 +138,8 @@ class Centreon_Object_RtAcknowledgement extends Centreon_ObjectRt
                     AND tmp.service_id = ack.service_id
                 ORDER BY ack.entry_time, host.name, service.description',
                 $serviceFilter
-            )
+            ),
+            $parameters === [] ? null : QueryParameters::create($parameters)
         );
     }
 

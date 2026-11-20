@@ -3,7 +3,7 @@ import { fireEvent, render } from "../../../test/testRenderer";
 import SectionPanel from ".";
 
 describe(SectionPanel, () => {
-	it("displays given Header and sections", async () => {
+	it("displays given Header and sections", () => {
 		const header = <>Header</>;
 		const sections = [
 			{

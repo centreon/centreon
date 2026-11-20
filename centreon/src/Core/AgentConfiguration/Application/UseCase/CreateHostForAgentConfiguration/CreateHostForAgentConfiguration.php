@@ -29,6 +29,7 @@ use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Host\Application\Repository\WriteHostRepositoryInterface;
 use Core\Host\Domain\Model\NewHost;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
+use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
 use Core\Service\Application\Repository\ReadServiceRepositoryInterface;
 use Core\Service\Application\Repository\WriteServiceRepositoryInterface;
 use Core\Service\Domain\Model\NewService;
@@ -45,6 +46,7 @@ final class CreateHostForAgentConfiguration
         private readonly ReadServiceRepositoryInterface $readServiceRepository,
         private readonly ReadServiceTemplateRepositoryInterface $readServiceTemplateRepository,
         private readonly WriteServiceRepositoryInterface $writeServiceRepository,
+        private readonly ReadMonitoringServerRepositoryInterface $readMonitoringServerRepository,
     ) {
     }
 
@@ -70,20 +72,25 @@ final class CreateHostForAgentConfiguration
         );
 
         Assert::positiveInteger($pollerId, 'The poller id must be a positive integer.');
-        $agentConfiguration = $this->agentConfigurationRepository->findByPollerId($pollerId);
-        if ($agentConfiguration === null) {
+        // Broker reports the poller Snowflake uid (or nagios_server.id for legacy pollers)
+        $instanceId = $pollerId;
+        $pollerId = $this->readMonitoringServerRepository->findIdByInstanceId($instanceId);
+        $agentConfiguration = $pollerId !== null
+            ? $this->agentConfigurationRepository->findByPollerId($pollerId)
+            : null;
+        if ($pollerId === null || $agentConfiguration === null) {
             CentreonLog::create()->error(
                 logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
                 message: '[AC][create_host_auto] Poller not linked to any agent configuration.',
                 customContext: [
-                    'poller_id' => $pollerId,
+                    'poller_id' => $pollerId ?? $instanceId,
                 ]
             );
 
             return [
                 'success' => false,
                 'message' => 'Host creation process failed.',
-                'details' => sprintf('Reason: Agent configuration not found for poller %d.', $pollerId),
+                'details' => sprintf('Reason: Agent configuration not found for poller %d.', $instanceId),
             ];
         }
 

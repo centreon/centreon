@@ -56,6 +56,20 @@
                 "integer"
             ]
         },
+        "freshness_checked": {
+            "type": "integer",
+            "enum": [
+                0,
+                1,
+                2
+            ]
+        },
+        "freshness_threshold": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
         "event_handler_enabled": {
             "type": "integer",
             "enum": [
@@ -95,7 +109,7 @@
             ]
         },
         "severity_id": {
-             "type": [
+            "type": [
                 "null",
                 "integer"
             ]

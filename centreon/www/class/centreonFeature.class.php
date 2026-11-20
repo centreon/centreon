@@ -142,12 +142,22 @@ class CentreonFeature
         }
         foreach ($features as $name => $versions) {
             foreach ($versions as $version => $value) {
-                $query = 'DELETE FROM contact_feature WHERE contact_id = ' . $userId . ' AND feature = "'
-                    . $this->db->escape($name) . '" AND feature_version = "' . $this->db->escape($version) . '"';
-                $this->db->query($query);
-                $query = 'INSERT INTO contact_feature VALUES (' . $userId . ', "' . $this->db->escape($name) . '", "'
-                    . $this->db->escape($version) . '", ' . (int) $value . ')';
-                $this->db->query($query);
+                $deleteQuery = 'DELETE FROM contact_feature
+                    WHERE contact_id = :userId AND feature = :name AND feature_version = :version';
+                $deleteStmt = $this->db->prepare($deleteQuery);
+                $deleteStmt->bindValue(':userId', (int) $userId, PDO::PARAM_INT);
+                $deleteStmt->bindValue(':name', $name, PDO::PARAM_STR);
+                $deleteStmt->bindValue(':version', $version, PDO::PARAM_STR);
+                $deleteStmt->execute();
+
+                $insertQuery = 'INSERT INTO contact_feature (contact_id, feature, feature_version, feature_enabled)
+                    VALUES (:userId, :name, :version, :value)';
+                $insertStmt = $this->db->prepare($insertQuery);
+                $insertStmt->bindValue(':userId', (int) $userId, PDO::PARAM_INT);
+                $insertStmt->bindValue(':name', $name, PDO::PARAM_STR);
+                $insertStmt->bindValue(':version', $version, PDO::PARAM_STR);
+                $insertStmt->bindValue(':value', (int) $value, PDO::PARAM_INT);
+                $insertStmt->execute();
             }
         }
     }

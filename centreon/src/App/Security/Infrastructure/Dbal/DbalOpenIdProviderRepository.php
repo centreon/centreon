@@ -51,7 +51,7 @@ final readonly class DbalOpenIdProviderRepository extends DbalRepository impleme
         #[Autowire(service: 'doctrine.dbal.default_connection')]
         private Connection $connection,
 
-        #[Autowire(service: DbalOpenIdConfigurationTransformer::class)]
+        #[Autowire(service: OpenIdConfigurationTransformer::class)]
         private TransformerInterface $transformer,
     ) {
     }

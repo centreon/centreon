@@ -112,7 +112,7 @@ const NavigationMenu = ({
   };
 
   const isItemHovered = ({ navigationItem, level, currentPage }): boolean => {
-    if (!navigationItem || !navigationItem[level]) {
+    if (!navigationItem?.[level]) {
       return false;
     }
 

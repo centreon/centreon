@@ -33,6 +33,7 @@ use App\ActivityLogging\Domain\Aggregate\TargetId;
 use App\ActivityLogging\Domain\Aggregate\TargetName;
 use App\ActivityLogging\Domain\Aggregate\TargetTypeEnum;
 use App\ActivityLogging\Infrastructure\Dbal\DbalActivityLogRepository;
+use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 final class DbalActivityLogRepositoryTest extends KernelTestCase
@@ -70,6 +71,124 @@ final class DbalActivityLogRepositoryTest extends KernelTestCase
         $this->repository->add($activityLog);
 
         self::assertEquals($activityLog, $this->repository->find($activityLog->id()));
+    }
+
+    public function testCommandTargetIsStoredWithTheCanonicalSingularToken(): void
+    {
+        $activityLog = new ActivityLog(
+            id: null,
+            action: ActionEnum::Add,
+            actor: new Actor(
+                id: new ActorId(1),
+            ),
+            target: new Target(
+                id: new TargetId(1),
+                name: new TargetName('a_command'),
+                type: TargetTypeEnum::Command,
+            ),
+            performedAt: (new \DateTimeImmutable())->setTime(0, 0),
+            details: [],
+        );
+
+        $this->repository->add($activityLog);
+
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.realtime_connection');
+        $objectType = $connection->createQueryBuilder()
+            ->select('object_type')
+            ->from('log_action')
+            ->where('action_log_id = :id')
+            ->setParameter('id', $activityLog->id()->value)
+            ->executeQuery()
+            ->fetchOne();
+
+        // The Administration > Logs Type filter binds ActionLog::OBJECT_TYPE_COMMAND
+        // ('command'), so command activity must be stored under that exact token.
+        self::assertSame('command', $objectType);
+    }
+
+    public function testAHostTemplateTargetIsStoredAsAHostLikeLegacy(): void
+    {
+        $activityLog = $this->logFor(TargetTypeEnum::HostTemplate, 'a_template');
+
+        $this->repository->add($activityLog);
+
+        self::assertSame('host', $this->storedObjectType($activityLog));
+    }
+
+    public function testAStoredHostRowReadsBackAsAHost(): void
+    {
+        $activityLog = $this->logFor(TargetTypeEnum::Host, 'a_host');
+
+        $this->repository->add($activityLog);
+
+        self::assertSame('host', $this->storedObjectType($activityLog));
+        self::assertSame(TargetTypeEnum::Host, $this->repository->find($activityLog->id())?->target->type);
+    }
+
+    public function testServiceTargetIsStoredWithTheCanonicalSingularToken(): void
+    {
+        $activityLog = new ActivityLog(
+            id: null,
+            action: ActionEnum::Add,
+            actor: new Actor(
+                id: new ActorId(1),
+            ),
+            target: new Target(
+                id: new TargetId(1),
+                name: new TargetName('a_service'),
+                type: TargetTypeEnum::Service,
+            ),
+            performedAt: (new \DateTimeImmutable())->setTime(0, 0),
+            details: [],
+        );
+
+        $this->repository->add($activityLog);
+
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.realtime_connection');
+        $objectType = $connection->createQueryBuilder()
+            ->select('object_type')
+            ->from('log_action')
+            ->where('action_log_id = :id')
+            ->setParameter('id', $activityLog->id()->value)
+            ->executeQuery()
+            ->fetchOne();
+
+        self::assertSame('service', $objectType);
+    }
+
+    public function testMassChangeIsStoredAndReadBackAsTheLegacyMassChangeAction(): void
+    {
+        $activityLog = new ActivityLog(
+            id: null,
+            action: ActionEnum::MassChange,
+            actor: new Actor(
+                id: new ActorId(1),
+            ),
+            target: new Target(
+                id: new TargetId(1),
+                name: new TargetName('a_host'),
+                type: TargetTypeEnum::Host,
+            ),
+            performedAt: (new \DateTimeImmutable())->setTime(0, 0),
+            details: [],
+        );
+
+        $this->repository->add($activityLog);
+
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.realtime_connection');
+        $actionType = $connection->createQueryBuilder()
+            ->select('action_type')
+            ->from('log_action')
+            ->where('action_log_id = :id')
+            ->setParameter('id', $activityLog->id()->value)
+            ->executeQuery()
+            ->fetchOne();
+
+        self::assertSame('mc', $actionType);
+        self::assertSame(ActionEnum::MassChange, $this->repository->find($activityLog->id())?->action);
     }
 
     public function testFind(): void
@@ -228,6 +347,45 @@ final class DbalActivityLogRepositoryTest extends KernelTestCase
         self::assertSame('new', $found->details['new_value']);
     }
 
+    /**
+     * @dataProvider provideActivationActions
+     */
+    public function testAddAndFindWithActivationAction(ActionEnum $action): void
+    {
+        $activityLog = new ActivityLog(
+            id: null,
+            action: $action,
+            actor: new Actor(
+                id: new ActorId(1),
+            ),
+            target: new Target(
+                id: new TargetId(1),
+                name: new TargetName('toggled-host'),
+                type: TargetTypeEnum::Host,
+            ),
+            performedAt: (new \DateTimeImmutable())->setTime(0, 0),
+            details: [],
+        );
+
+        $this->repository->add($activityLog);
+
+        $found = $this->repository->find($activityLog->id());
+
+        // Round-trips the new 'enable'/'disable' legacy tokens through ACTION_VALUE_MAP both ways.
+        self::assertNotNull($found);
+        self::assertEquals($action, $found->action);
+    }
+
+    /**
+     * @return iterable<string, array{ActionEnum}>
+     */
+    public static function provideActivationActions(): iterable
+    {
+        yield 'enable' => [ActionEnum::Enable];
+
+        yield 'disable' => [ActionEnum::Disable];
+    }
+
     public function testAddAndFindWithDeleteAction(): void
     {
         $activityLog = new ActivityLog(
@@ -314,5 +472,31 @@ final class DbalActivityLogRepositoryTest extends KernelTestCase
             self::assertArrayHasKey($key, $found->details);
             self::assertSame($value, $found->details[$key]);
         }
+    }
+
+    private function logFor(TargetTypeEnum $type, string $name): ActivityLog
+    {
+        return new ActivityLog(
+            id: null,
+            action: ActionEnum::Delete,
+            actor: new Actor(id: new ActorId(1)),
+            target: new Target(id: new TargetId(1), name: new TargetName($name), type: $type),
+            performedAt: (new \DateTimeImmutable())->setTime(0, 0),
+            details: [],
+        );
+    }
+
+    private function storedObjectType(ActivityLog $activityLog): mixed
+    {
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.realtime_connection');
+
+        return $connection->createQueryBuilder()
+            ->select('object_type')
+            ->from('log_action')
+            ->where('action_log_id = :id')
+            ->setParameter('id', $activityLog->id()->value)
+            ->executeQuery()
+            ->fetchOne();
     }
 }

@@ -203,8 +203,8 @@ it(
     'should throw an exception when host address does not respect format',
     fn () => ($this->createHost)(['address' => 'hello world'])
 )->throws(
-    InvalidArgumentException::class,
-    AssertionException::ipOrDomain('hello world', 'Host::address')->getMessage()
+    \InvalidArgumentException::class,
+    '[Host::address] The value "hello world" was expected to be a valid IP address or hostname'
 );
 it(
     'should throw an exception when host address does not respect format in setter',
@@ -213,9 +213,14 @@ it(
         $host->setAddress('hello world');
     }
 )->throws(
-    InvalidArgumentException::class,
-    AssertionException::ipOrDomain('hello world', 'Host::address')->getMessage()
+    \InvalidArgumentException::class,
+    '[Host::address] The value "hello world" was expected to be a valid IP address or hostname'
 );
+
+it('should accept an address containing underscores (NETBIOS / Active Directory)', function (): void {
+    $host = ($this->createHost)(['address' => 'netbios_name.local']);
+    expect($host->getAddress())->toBe('netbios_name.local');
+});
 
 // name and conmmands args should be formated
 it('should return trimmed and formatted field name after construct', function (): void {
@@ -309,6 +314,45 @@ foreach (
         }
     );
 }
+
+// single-line fields: a host loaded with a stored control character stays usable
+foreach (
+    [
+        'name' => 'abc_def',
+        'alias' => 'abc def',
+        'snmpCommunity' => 'abc def',
+        'noteUrl' => 'abc def',
+        'note' => 'abc def',
+        'actionUrl' => 'abc def',
+        'iconAlternative' => 'abc def',
+    ] as $field => $expected
+) {
+    it(
+        "should replace control characters with a space when host {$field} contains some",
+        function () use ($field, $expected): void {
+            $host = ($this->createHost)([$field => "\tabc\r\n\x01def\n"]);
+
+            expect($host->{'get' . $field}())->toBe($expected);
+        }
+    );
+
+    it(
+        "should replace control characters with a space when host {$field} is set with some",
+        function () use ($field, $expected): void {
+            $host = ($this->createHost)();
+            $host->{'set' . $field}("\tabc\r\n\x01def\n");
+
+            expect($host->{'get' . $field}())->toBe($expected);
+        }
+    );
+}
+
+it('should set a comment spanning several lines', function (): void {
+    $host = ($this->createHost)();
+    $host->setComment("first line\nsecond line");
+
+    expect($host->getComment())->toBe("first line\nsecond line");
+});
 
 // too long fields
 foreach (

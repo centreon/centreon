@@ -1,0 +1,22 @@
+[
+    {
+        "action": "ADD",
+        "object": "ACLRESOURCE",
+        "values": "name=event-logs-ACLRESOURCE;acl_group=event-logs-ACLGROUP"
+    },
+    {
+        "action": "ADDRESOURCE",
+        "object": "ACLGROUP",
+        "values": "event-logs-ACLGROUP;name=event-logs-ACLRESOURCE"
+    },
+    {
+        "action": "GRANT_HOST",
+        "object": "ACLRESOURCE",
+        "values": "name=event-logs-ACLRESOURCE;host-granted"
+    },
+    {
+        "action": "RELOAD",
+        "object": "ACL",
+        "values": ""
+    }
+]

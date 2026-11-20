@@ -481,9 +481,6 @@ class RequestTracker2Provider extends AbstractProvider
             }
         }
 
-        $fp = fopen('/var/opt/rh/rh-php71/log/php-fpm/debug.txt', 'a+');
-        fwrite($fp, print_r($argument, true));
-        fclose($fp);
         if ($this->callRest('ticket', $argument) == 1) {
             return -1;
         }

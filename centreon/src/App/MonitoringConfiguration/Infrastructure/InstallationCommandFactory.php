@@ -42,10 +42,12 @@ final readonly class InstallationCommandFactory
 
     public function generateCommandForLinux(): string
     {
+        $version = $this->majorMinorVersion();
+
         if ($this->isCloudPlatform && $this->poller->isCentral) {
             return sprintf(
                 'curl -fsSL ' . self::LINUX_INSTALL_SCRIPT_URL . ' -o install_cma.sh && sudo chmod +x install_cma.sh && sudo ./install_cma.sh -e "engine-%s-%s.euwest1.centreon.cloud:443"',
-                $this->platformVersion,
+                $version,
                 $this->baseUri,
                 $this->organisationName
             );
@@ -53,7 +55,7 @@ final readonly class InstallationCommandFactory
 
         $command = sprintf(
             'curl -fsSL ' . self::LINUX_INSTALL_SCRIPT_URL . ' -o install_cma.sh && sudo chmod +x install_cma.sh && sudo ./install_cma.sh -e "%s:%s"',
-            $this->platformVersion,
+            $version,
             $this->poller->address->value,
             $this->agentConfigurationPort
         );
@@ -63,18 +65,20 @@ final readonly class InstallationCommandFactory
 
     public function generateCommandForWindows(): string
     {
+        $version = $this->majorMinorVersion();
+
         if ($this->isCloudPlatform && $this->poller->isCentral) {
             return sprintf(
                 'curl ' . self::WINDOWS_INSTALL_SCRIPT_URL . ' -o install_cma.ps1 ; powershell -ExecutionPolicy Bypass -File .\install_cma.ps1 -endpoint "engine-%s-%s.euwest1.centreon.cloud:443"',
-                $this->platformVersion,
+                $version,
                 $this->baseUri,
                 $this->organisationName
             );
         }
 
         $command = sprintf(
-            'curl -fsSL ' . self::WINDOWS_INSTALL_SCRIPT_URL . ' -o install_cma.ps1 ; .\install_cma.ps1 -endpoint "%s:%s"',
-            $this->platformVersion,
+            'curl ' . self::WINDOWS_INSTALL_SCRIPT_URL . ' -o install_cma.ps1 ; powershell -ExecutionPolicy Bypass -File .\install_cma.ps1 -endpoint "%s:%s"',
+            $version,
             $this->poller->address->value,
             $this->agentConfigurationPort
         );
@@ -98,6 +102,13 @@ final readonly class InstallationCommandFactory
         }
 
         return $flags;
+    }
+
+    private function majorMinorVersion(): string
+    {
+        $parts = explode('.', $this->platformVersion);
+
+        return $parts[0] . '.' . ($parts[1] ?? '0');
     }
 
     private function buildWindowsCertificateFlags(): string

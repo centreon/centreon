@@ -35,6 +35,7 @@ use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Host\Application\Repository\WriteHostRepositoryInterface;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\HostTemplate\Domain\Model\HostTemplate;
+use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
 use Core\Service\Application\Repository\ReadServiceRepositoryInterface;
 use Core\Service\Application\Repository\WriteServiceRepositoryInterface;
 use Core\Service\Domain\Model\Service;
@@ -49,6 +50,10 @@ beforeEach(function (): void {
     $this->readServiceRepository = $this->createMock(ReadServiceRepositoryInterface::class);
     $this->readServiceTemplateRepository = $this->createMock(ReadServiceTemplateRepositoryInterface::class);
     $this->writeServiceRepository = $this->createMock(WriteServiceRepositoryInterface::class);
+    $this->readMonitoringServerRepository = $this->createMock(ReadMonitoringServerRepositoryInterface::class);
+    $this->readMonitoringServerRepository
+        ->method('findIdByInstanceId')
+        ->willReturnArgument(0);
 
     $this->useCase = new CreateHostForAgentConfiguration(
         agentConfigurationRepository: $this->readAgentConfigurationRepository,
@@ -58,6 +63,7 @@ beforeEach(function (): void {
         readServiceRepository: $this->readServiceRepository,
         readServiceTemplateRepository: $this->readServiceTemplateRepository,
         writeServiceRepository: $this->writeServiceRepository,
+        readMonitoringServerRepository: $this->readMonitoringServerRepository,
     );
 
     $this->pollerId = 1;
@@ -99,7 +105,12 @@ beforeEach(function (): void {
 });
 
 afterEach(function (): void {
-    @unlink('centreon-web.log');
+    foreach (['prod', 'test', 'dev'] as $env) {
+        $file = _CENTREON_LOG_ . $env . '.web.log';
+        if (file_exists($file)) {
+            @unlink($file);
+        }
+    }
 });
 
 it(

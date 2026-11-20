@@ -40,7 +40,7 @@ const Form = (): JSX.Element => {
       Buttons={Box}
       className={classes.form}
       groups={basicFormGroups}
-      groupsClassName={classes.groups}
+      groupsClassName="flex-row-reverse justify-between px-2.5"
       initialValues={initialValues}
       inputs={inputs}
       isCollapsible

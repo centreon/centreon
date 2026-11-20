@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\App\Shared\Infrastructure\Logging;
 
+use Adaptation\Log\Adapter\MonologAdapter;
 use App\Shared\Infrastructure\Logging\ExceptionFormatterProcessor;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\FingersCrossedHandler;
@@ -44,7 +45,7 @@ final class ChannelFilterIntegrationTest extends KernelTestCase
 {
     /**
      * Channels we want to land in prod.web.log — everything Symfony emits
-     * by default that does not have a dedicated file in MON-151077. `app`
+     * by default that does not have a dedicated file. `app`
      * is the default Symfony channel served by the unsuffixed
      * `monolog.logger` service; covering it covers the common "no explicit
      * channel" case (Symfony's main channel).
@@ -59,7 +60,7 @@ final class ChannelFilterIntegrationTest extends KernelTestCase
     }
 
     /**
-     * Channels we explicitly excluded because MON-151077 routes them to
+     * Channels we explicitly excluded because they are routed to
      * dedicated files (or because they are noisy/internal). A regression
      * on the exclusion list would silently flood prod.web.log.
      *
@@ -78,6 +79,12 @@ final class ChannelFilterIntegrationTest extends KernelTestCase
         yield 'authentication channel' => ['monolog.logger.authentication'];
 
         yield 'token channel' => ['monolog.logger.token'];
+
+        yield 'upgrade channel' => ['monolog.logger.upgrade'];
+
+        yield 'plugin-pack-manager channel' => ['monolog.logger.plugin-pack-manager'];
+
+        yield 'poller-install channel' => ['monolog.logger.poller-install'];
     }
 
     #[DataProvider('capturedChannels')]
@@ -87,7 +94,7 @@ final class ChannelFilterIntegrationTest extends KernelTestCase
         // web_finger_crossed handler". Without this guard a typo in the
         // exclusion filter (e.g. "!main" by mistake) would silently keep
         // the legacy stderr behaviour and the operator would never see
-        // these records in prod.web.log — exactly what MON-151077 fixes.
+        // these records in prod.web.log.
         self::bootKernel();
         $container = self::getContainer();
 
@@ -128,14 +135,14 @@ final class ChannelFilterIntegrationTest extends KernelTestCase
         self::assertNotContains(
             $webHandler,
             $logger->getHandlers(),
-            sprintf('Logger %s must NOT route records through web_finger_crossed (MON-151077 dedicated file)', $loggerServiceId),
+            sprintf('Logger %s must NOT route records through web_finger_crossed (dedicated file)', $loggerServiceId),
         );
     }
 
     public function testWebFileFormatterUsesRfc3339DateFormat(): void
     {
-        // Pin the line format used in prod.web.log. MON-151077 mandates
-        // RFC3339 (e.g. 2025-09-08T15:38:41+02:00). Asserting the
+        // Pin the line format used in prod.web.log: RFC3339
+        // (e.g. 2025-09-08T15:38:41+02:00). Asserting the
         // configured date format directly is more deterministic than
         // serialising a record and parsing the wall-clock prefix.
         self::bootKernel();
@@ -156,8 +163,7 @@ final class ChannelFilterIntegrationTest extends KernelTestCase
     {
         // Cross-channel set: the request/app pair gets the HTTP processors
         // via channel-scoped tags, but UidProcessor is declared globally —
-        // so it must land on every channel logger including the dedicated
-        // MON-151077 ones.
+        // so it must land on every channel logger including the dedicated ones.
         yield 'request channel' => ['monolog.logger.request'];
 
         yield 'app channel (default)' => ['monolog.logger'];
@@ -167,6 +173,12 @@ final class ChannelFilterIntegrationTest extends KernelTestCase
         yield 'authentication channel' => ['monolog.logger.authentication'];
 
         yield 'token channel' => ['monolog.logger.token'];
+
+        yield 'upgrade channel' => ['monolog.logger.upgrade'];
+
+        yield 'plugin-pack-manager channel' => ['monolog.logger.plugin-pack-manager'];
+
+        yield 'poller-install channel' => ['monolog.logger.poller-install'];
     }
 
     #[DataProvider('everyChannel')]
@@ -241,6 +253,20 @@ final class ChannelFilterIntegrationTest extends KernelTestCase
         );
     }
 
+    public function testSymfonyAndLegacyLoggersShareTheSameUid(): void
+    {
+        self::bootKernel();
+
+        $upgradeLogger = self::getContainer()->get('monolog.logger.upgrade');
+        assert($upgradeLogger instanceof Logger);
+        $testHandler = new TestHandler();
+        $upgradeLogger->pushHandler($testHandler);
+
+        $upgradeLogger->info('from the upgrade channel');
+
+        self::assertSame(MonologAdapter::uidProcessor()->getUid(), $testHandler->getRecords()[0]->extra['uid'] ?? null);
+    }
+
     public function testWebFingerCrossedExcludesHttp404And405(): void
     {
         // Pin "404/405 do not trigger the fingers_crossed buffer flush"
@@ -254,11 +280,11 @@ final class ChannelFilterIntegrationTest extends KernelTestCase
         $handler = $container->get('monolog.handler.web_finger_crossed');
         \assert($handler instanceof FingersCrossedHandler);
 
-        $strategy = (new \ReflectionProperty(FingersCrossedHandler::class, 'activationStrategy'))
+        $strategy = new \ReflectionProperty(FingersCrossedHandler::class, 'activationStrategy')
             ->getValue($handler);
         self::assertInstanceOf(HttpCodeActivationStrategy::class, $strategy);
 
-        $excludedHttpCodes = (new \ReflectionProperty(HttpCodeActivationStrategy::class, 'exclusions'))
+        $excludedHttpCodes = new \ReflectionProperty(HttpCodeActivationStrategy::class, 'exclusions')
             ->getValue($strategy);
         \assert(\is_array($excludedHttpCodes));
         $codes = array_column($excludedHttpCodes, 'code');

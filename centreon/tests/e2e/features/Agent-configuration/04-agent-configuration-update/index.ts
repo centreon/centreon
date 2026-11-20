@@ -82,10 +82,9 @@ Then('a pop up is displayed with all of the agent information', () => {
     'have.value',
     agentsConfiguration.telegraf1.name
   );
-  cy.get('[class^="MuiChip-label MuiChip-labelMedium"]').should(
-    'have.text',
-    'Poller-5'
-  );
+  cy.get('*[role="dialog"]')
+    .find('[class^="MuiChip-label MuiChip-labelMedium"]')
+    .should('have.text', 'Poller-5');
   cy.getByLabel({
     label: 'Public certificate (.crt, .cert, .cer)',
     tag: 'input'

@@ -23,8 +23,11 @@ declare(strict_types=1);
 
 namespace Tests\App\Upgrade\Infrastructure\Dbal;
 
+use Adaptation\Database\Connection\Model\ConnectionConfig;
 use App\Upgrade\Infrastructure\Dbal\DbalModuleRepository;
+use App\Upgrade\Infrastructure\Legacy\LegacyConnectionFactory;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DriverManager;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
@@ -33,8 +36,6 @@ use Symfony\Component\Filesystem\Filesystem;
 final class DbalModuleRepositoryTest extends TestCase
 {
     private Connection&MockObject $configConnection;
-
-    private Connection&MockObject $realtimeConnection;
 
     private Filesystem $filesystem;
 
@@ -45,7 +46,6 @@ final class DbalModuleRepositoryTest extends TestCase
     protected function setUp(): void
     {
         $this->configConnection = $this->createMock(Connection::class);
-        $this->realtimeConnection = $this->createMock(Connection::class);
         $this->filesystem = new Filesystem();
 
         $baseTmpDir = sys_get_temp_dir() . '/centreon-module-test-' . uniqid();
@@ -55,8 +55,11 @@ final class DbalModuleRepositoryTest extends TestCase
 
         $this->repository = new DbalModuleRepository(
             $this->configConnection,
-            $this->realtimeConnection,
             $this->modulesDir,
+            new LegacyConnectionFactory(
+                new ConnectionConfig('localhost', 'centreon', 'password', 'centreon', 'centreon_storage'),
+                new ConnectionConfig('localhost', 'centreon', 'password', 'centreon_storage', 'centreon_storage'),
+            ),
             '/usr/share/centreon/',
             new NullLogger(),
         );
@@ -65,6 +68,27 @@ final class DbalModuleRepositoryTest extends TestCase
     protected function tearDown(): void
     {
         $this->filesystem->remove(dirname($this->modulesDir));
+    }
+
+    public function testAModuleIsInstalledWhenItHasARowInModulesInformations(): void
+    {
+        $connection = DriverManager::getConnection(['driver' => 'pdo_sqlite', 'memory' => true]);
+        $connection->executeStatement('CREATE TABLE modules_informations (name VARCHAR(255) NOT NULL)');
+        $connection->insert('modules_informations', ['name' => 'centreon-open-tickets']);
+
+        $repository = new DbalModuleRepository(
+            $connection,
+            $this->modulesDir,
+            new LegacyConnectionFactory(
+                new ConnectionConfig('localhost', 'centreon', 'password', 'centreon', 'centreon_storage'),
+                new ConnectionConfig('localhost', 'centreon', 'password', 'centreon_storage', 'centreon_storage'),
+            ),
+            '/usr/share/centreon/',
+            new NullLogger(),
+        );
+
+        self::assertTrue($repository->isInstalled('centreon-open-tickets'));
+        self::assertFalse($repository->isInstalled('centreon-bam-server'));
     }
 
     public function testUpdateAllNoInstalledModules(): void

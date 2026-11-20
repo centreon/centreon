@@ -92,13 +92,13 @@ const buildServiceSeveritiesEndpoint = (parameters): string => {
 
 export {
   buildHostCategoriesEndpoint,
-  buildServiceCategoriesEndpoint,
   buildHostGroupsEndpoint,
-  buildServiceGroupsEndpoint,
-  buildMonitoringServersEndpoint,
   buildHostServeritiesEndpoint,
-  buildServiceSeveritiesEndpoint,
   buildHostsEndpoint,
+  buildMonitoringServersEndpoint,
+  buildServiceCategoriesEndpoint,
+  buildServiceGroupsEndpoint,
+  buildServiceSeveritiesEndpoint,
   buildServicesEndpoint,
   serviceNamesEndpoint
 };

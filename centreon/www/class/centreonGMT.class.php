@@ -328,11 +328,14 @@ class CentreonGMT
     {
         if (! empty($userId)) {
             try {
-                $DBRESULT = CentreonDBInstance::getDbCentreonInstance()->query('SELECT `contact_location` FROM `contact` '
-                    . 'WHERE `contact`.`contact_id` = ' . $userId . ' LIMIT 1');
-                $info = $DBRESULT->fetchRow();
-                $DBRESULT->closeCursor();
-                $this->myGMT = $info['contact_location'];
+                $statement = CentreonDBInstance::getDbCentreonInstance()->prepare(
+                    'SELECT `contact_location` FROM `contact` WHERE `contact`.`contact_id` = :userId LIMIT 1'
+                );
+                $statement->bindValue(':userId', (int) $userId, PDO::PARAM_INT);
+                $statement->execute();
+                $info = $statement->fetchRow();
+                $statement->closeCursor();
+                $this->myGMT = $info['contact_location'] ?? 0;
             } catch (PDOException $e) {
                 $this->myGMT = 0;
             }
@@ -519,7 +522,10 @@ class CentreonGMT
             return $this->pollerLocations;
         }
 
-        $query = 'SELECT ns.id, t.timezone_name '
+        // pollerLocations is matched against hosts.instance_id (centreon_storage), which usually
+        // holds the Snowflake UID (nagios_server.uid). Legacy pollers unaware of the Snowflake UID
+        // still report nagios_server.id as instance_id, so key by both uid and id.
+        $query = 'SELECT ns.uid, ns.id, t.timezone_name '
             . 'FROM cfg_nagios cfgn, nagios_server ns, timezone t '
             . 'WHERE cfgn.nagios_activate = "1" '
             . 'AND cfgn.nagios_server_id = ns.id '
@@ -527,6 +533,7 @@ class CentreonGMT
         try {
             $res = CentreonDBInstance::getDbCentreonInstance()->query($query);
             while ($row = $res->fetchRow()) {
+                $this->pollerLocations[$row['uid']] = $row['timezone_name'];
                 $this->pollerLocations[$row['id']] = $row['timezone_name'];
             }
         } catch (Exception $e) {
@@ -580,8 +587,8 @@ class CentreonGMT
             $sTimezone = $this->timezoneById[$gmt];
         } else {
             $this->getCentreonTimezone();
-            if (! empty($this->sDefaultTimezone) && ! empty($this->timezones[$this->sDefaultTimezone])) {
-                $sTimezone = $this->timezones[$this->sDefaultTimezone];
+            if (! empty($this->sDefaultTimezone) && ! empty($this->timezoneById[$this->sDefaultTimezone])) {
+                $sTimezone = $this->timezoneById[$this->sDefaultTimezone];
             } else { // if we take the empty PHP
                 $sTimezone = date_default_timezone_get();
             }

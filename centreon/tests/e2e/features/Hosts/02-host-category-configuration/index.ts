@@ -172,3 +172,152 @@ Then(
       .should('have.length', 1);
   }
 );
+
+const addedCategory = 'host-category-added';
+const severityCategory = 'host-category-severity';
+const regularCategory = 'host-category-regular';
+
+const openAddHostCategoryForm = (): void => {
+  cy.visit(`${PAGES.configuration.hostCategoriesLegacy}&o=a`);
+  cy.wait('@getTimeZone');
+  cy.waitForElementInIframe('#main-content', 'input[name="hc_name"]');
+};
+
+const submitHostCategoryForm = (): void => {
+  cy.getIframeBody().find('input.btc.bt_success[name^="submit"]').eq(0).click();
+  cy.wait('@getTimeZone');
+};
+
+When('the user adds a host category from the form', () => {
+  openAddHostCategoryForm();
+  cy.getIframeBody().find('input[name="hc_name"]').clear().type(addedCategory);
+  cy.getIframeBody().find('input[name="hc_alias"]').clear().type(addedCategory);
+  submitHostCategoryForm();
+});
+
+Then('the added host category appears in the listing', () => {
+  cy.visit(PAGES.configuration.hostCategoriesLegacy);
+  cy.wait('@getTimeZone');
+  cy.getIframeBody()
+    .find('table.ListTable')
+    .contains('tr', addedCategory)
+    .should('exist');
+});
+
+When('the user adds a host category with the severity type enabled', () => {
+  openAddHostCategoryForm();
+  cy.getIframeBody()
+    .find('input[name="hc_name"]')
+    .clear()
+    .type(severityCategory);
+  cy.getIframeBody()
+    .find('input[name="hc_alias"]')
+    .clear()
+    .type(severityCategory);
+  // Enable the severity type: the level and icon fields become required.
+  cy.getIframeBody().find('input[name="hc_type"]').check({ force: true });
+  cy.getIframeBody()
+    .find('input[name="hc_severity_level"]')
+    .clear({ force: true })
+    .type('1', { force: true });
+  cy.getIframeBody()
+    .find('select[name="hc_severity_icon"] option')
+    .eq(1)
+    .then((option) => {
+      cy.getIframeBody()
+        .find('select[name="hc_severity_icon"]')
+        .select(option.val() as string);
+    });
+  submitHostCategoryForm();
+});
+
+Then('the host category is listed as a severity category', () => {
+  cy.visit(PAGES.configuration.hostCategoriesLegacy);
+  cy.wait('@getTimeZone');
+  cy.getIframeBody()
+    .find('table.ListTable')
+    .contains('tr', severityCategory)
+    .should('contain.text', 'Severity');
+});
+
+When('the user adds a host category with the severity type disabled', () => {
+  openAddHostCategoryForm();
+  cy.getIframeBody()
+    .find('input[name="hc_name"]')
+    .clear()
+    .type(regularCategory);
+  cy.getIframeBody()
+    .find('input[name="hc_alias"]')
+    .clear()
+    .type(regularCategory);
+  // Deliberately leave the severity type off; the insert path must not store a
+  // stray level/icon (the hc_type gate fix).
+  submitHostCategoryForm();
+});
+
+Then('the host category is listed as a regular category', () => {
+  cy.visit(PAGES.configuration.hostCategoriesLegacy);
+  cy.wait('@getTimeZone');
+  cy.getIframeBody()
+    .find('table.ListTable')
+    .contains('tr', regularCategory)
+    .should('contain.text', 'Regular')
+    .and('not.contain.text', 'Severity');
+});
+
+When('the user searches the listing for the configured category', () => {
+  cy.visit(PAGES.configuration.hostCategoriesLegacy);
+  cy.wait('@getTimeZone');
+  cy.getIframeBody()
+    .find('input[name="searchH"]')
+    .clear()
+    .type(hostCategories.default.name);
+  cy.getIframeBody().find('form[name="form"]').submit();
+  cy.wait('@getTimeZone');
+});
+
+Then('only the matching category is listed', () => {
+  cy.getIframeBody()
+    .find('table.ListTable')
+    .contains('tr', hostCategories.default.name)
+    .should('exist');
+});
+
+When('the user searches the listing with special characters', () => {
+  cy.getIframeBody().find('input[name="searchH"]').clear().type('a"&% _');
+  cy.getIframeBody().find('form[name="form"]').submit();
+  cy.wait('@getTimeZone');
+});
+
+Then('the listing renders with no result and no error', () => {
+  // The page must still render (no SQL error, no broken layout): a crafted
+  // search only filters, it never breaks the listing.
+  cy.getIframeBody().find('table.ListTable').should('exist');
+  cy.getIframeBody().contains(hostCategories.default.name).should('not.exist');
+});
+
+When('the user bulk disables the configured host category', () => {
+  checkFirstHostCategoryFromListing();
+  cy.getIframeBody().find('select').eq(0).select('Disable');
+  cy.wait('@getTimeZone');
+});
+
+Then('the configured host category is disabled', () => {
+  cy.getIframeBody()
+    .find('table.ListTable')
+    .contains('tr', hostCategories.default.name)
+    .should('contain.text', 'Disabled');
+});
+
+When('the user bulk enables the configured host category', () => {
+  checkFirstHostCategoryFromListing();
+  cy.getIframeBody().find('select').eq(0).select('Enable');
+  cy.wait('@getTimeZone');
+});
+
+Then('the configured host category is enabled', () => {
+  cy.getIframeBody()
+    .find('table.ListTable')
+    .contains('tr', hostCategories.default.name)
+    .should('contain.text', 'Enabled');
+});

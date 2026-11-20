@@ -6,7 +6,7 @@ Feature: Add a filter to display the services of disabled hosts
   Background:
     Given an admin user is logged in a Centreon server
 
-  @TEST_MON-152637
+  @MON-152637
   Scenario: Add a checkbox to show the services of disabled hosts
     Given a host with configured services
     And the host is disabled

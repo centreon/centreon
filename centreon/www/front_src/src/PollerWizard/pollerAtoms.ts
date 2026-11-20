@@ -2,6 +2,7 @@ import { atom } from 'jotai';
 
 export interface PollerData {
   centreon_central_ip?: string;
+  gorgone_pull_wss?: boolean;
   linked_remote_master?: string;
   linked_remote_slaves?: Array<string>;
   open_broker_flow?: boolean;

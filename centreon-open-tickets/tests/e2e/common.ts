@@ -1,4 +1,3 @@
-/* eslint-disable cypress/no-unnecessary-waiting */
 interface ActionClapi {
   action: string;
   object?: string;

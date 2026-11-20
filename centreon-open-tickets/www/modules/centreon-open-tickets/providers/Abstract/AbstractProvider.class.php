@@ -467,7 +467,75 @@ abstract class AbstractProvider
         $tpl->loadPlugin('smarty_function_service_get_servicegroups');
         $tpl->loadPlugin('smarty_function_sortgroup');
 
+        $this->enableSmartySecurity($tpl);
+
         return $tpl;
+    }
+
+    /**
+     * Apply a restrictive Smarty security policy to the engine used to render
+     * user-configured rule fields (message_confirm, format_popup, url, body
+     * lists, provider field mappings, ...).
+     *
+     * Those fields are stored verbatim and rendered through {eval}, so with no
+     * security policy an authenticated user can inject template code to read
+     * arbitrary files, dump environment secrets or execute PHP. The policy keeps
+     * the templating features the module legitimately relies on ({if}, {foreach},
+     * {$var}, {include} of module templates, formatting modifiers) while blocking
+     * the dangerous ones. Because {eval} reuses this Smarty instance, the policy
+     * also applies to the evaluated payload.
+     *
+     * @param SmartyBC $tpl
+     *
+     * @throws SmartyException
+     *
+     * @return void
+     */
+    protected function enableSmartySecurity(SmartyBC $tpl): void
+    {
+        $security = new Smarty_Security($tpl);
+
+        // Restrict {include}/{fetch} file access to the module "providers"
+        // directory only (every legitimate template include resolves there):
+        // blocks reads of /etc/passwd, .env, gorgone/broker/engine config files.
+        $providersDir = realpath($this->centreon_open_tickets_path . 'providers');
+        $security->secure_dir = $providersDir !== false ? [$providersDir] : [];
+        $security->trusted_uri = [];
+        $security->streams = ['file'];
+
+        // Block server-side variable disclosure: $smarty.env dumps APP_SECRET /
+        // MAP_SECRET, $smarty.server exposes the environment, etc.
+        $security->disabled_special_smarty_vars = [
+            'env', 'server', 'get', 'post', 'cookies', 'request', 'session', 'globals',
+        ];
+        $security->allow_constants = false;
+        $security->allow_super_globals = false;
+
+        // No direct static class access from templates: a non-empty allowlist
+        // that no real class name matches blocks every static class/method call.
+        $security->static_classes = ['none'];
+
+        // Allow only a safe, display-oriented set of raw PHP functions/modifiers.
+        // Smarty's own modifiers (date_format, cat, regex_replace, escape, ...) are
+        // governed by $allowed_modifiers (left empty = all allowed) and remain
+        // available; the lists below only gate raw PHP functions, which is where
+        // the RCE risk lives (e.g. {$value|system}).
+        $security->php_functions = [
+            'isset', 'empty', 'count', 'sizeof', 'in_array', 'is_array',
+            'is_string', 'is_null', 'time',
+        ];
+        $security->php_modifiers = [
+            // pre-registered by SmartyBC for backward compatibility
+            'count', 'sizeof', 'in_array', 'is_array', 'time', 'urlencode',
+            'rawurlencode', 'json_encode', 'strtotime', 'number_format', 'is_string',
+            // common safe formatting helpers used in rule templates
+            'strlen', 'strtoupper', 'strtolower', 'ucfirst', 'ucwords', 'trim',
+            'ltrim', 'rtrim', 'substr', 'str_replace', 'sprintf', 'nl2br', 'date',
+            'htmlentities', 'htmlspecialchars', 'implode', 'explode', 'wordwrap',
+        ];
+
+        // {php} / {include_php} are disabled automatically once security is on.
+        $tpl->enableSecurity($security);
     }
 
     /**
@@ -1603,7 +1671,7 @@ Output: {$service.output|substr:0:1024}
                     $insertTicket->bindValue(':ticketValue', $extra_args['ticket_value']);
                 }
                 $insertTicket->execute();
-                $result['ticket_id'] = $db_storage->lastinsertId('mod_open_tickets');
+                $result['ticket_id'] = $db_storage->lastInsertId();
             }
 
             if (is_null($extra_args['ticket_value'])) {

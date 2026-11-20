@@ -13,13 +13,15 @@ properties:
     description: "Service group alias"
     example: "service-group"
   geo_coords:
-    type: string
-    nullable: true
+    type:
+      - string
+      - 'null'
     description: "Geographical coordinates use by Centreon Map module to position element on map"
     example: "48.51,2.20"
   comment:
-    type: string
-    nullable: true
+    type:
+      - string
+      - 'null'
     description: "Service group description"
     example: "example comment"
   is_activated:

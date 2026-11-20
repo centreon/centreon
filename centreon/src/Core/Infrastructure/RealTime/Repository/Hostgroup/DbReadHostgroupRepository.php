@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace Core\Infrastructure\RealTime\Repository\Hostgroup;
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Core\Application\RealTime\Repository\ReadHostgroupRepositoryInterface;
@@ -43,7 +45,7 @@ class DbReadHostgroupRepository extends AbstractRepositoryDRB implements ReadHos
      */
     public function findAllByHostId(int $hostId): array
     {
-        return $this->findAll($hostId, null);
+        return $this->findAll($hostId);
     }
 
     /**
@@ -51,48 +53,55 @@ class DbReadHostgroupRepository extends AbstractRepositoryDRB implements ReadHos
      */
     public function findAllByHostIdAndAccessGroupIds(int $hostId, array $accessGroupIds): array
     {
-        $hostgroups = [];
-
         if ($accessGroupIds === []) {
-            return $hostgroups;
+            return [];
         }
 
-        $aclRequest = ' INNER JOIN `:dbstg`.`centreon_acl` AS acl
-            ON acl.host_id = hhg.host_id
-            AND acl.service_id IS NULL
-            AND acl.group_id IN (' . implode(',', $accessGroupIds) . ') ';
-
-        return $this->findAll($hostId, $aclRequest);
+        return $this->findAll($hostId, $accessGroupIds);
     }
 
     /**
      * @param int $hostId
-     * @param string|null $aclRequest
+     * @param int[] $accessGroupIds
      *
      * @return Hostgroup[]
      */
-    private function findAll(int $hostId, ?string $aclRequest): array
+    private function findAll(int $hostId, array $accessGroupIds = []): array
     {
+        $accessGroupBindParameters = [];
+        $accessGroupClause = '';
+        if ($accessGroupIds !== []) {
+            $accessGroupPlaceholders = [];
+            foreach ($accessGroupIds as $idx => $accessGroupId) {
+                $name = 'ag_' . $idx;
+                $accessGroupPlaceholders[] = ':' . $name;
+                $accessGroupBindParameters[] = QueryParameter::int($name, (int) $accessGroupId);
+            }
+            $accessGroupClause = ' INNER JOIN `:dbstg`.`centreon_acl` AS acl
+                ON acl.host_id = hhg.host_id
+                AND acl.service_id IS NULL
+                AND acl.group_id IN (' . implode(', ', $accessGroupPlaceholders) . ') ';
+        }
+
         $request = 'SELECT DISTINCT
                 1 AS REALTIME,
                 hg.hostgroup_id,
                 hg.name AS `hostgroup_name`
             FROM `:dbstg`.`hosts_hostgroups` AS hhg
-            INNER JOIN `:dbstg`.`hostgroups` AS hg ON hg.hostgroup_id = hhg.hostgroup_id';
+            INNER JOIN `:dbstg`.`hostgroups` AS hg ON hg.hostgroup_id = hhg.hostgroup_id'
+            . $accessGroupClause
+            . ' WHERE hhg.host_id = :hostId ORDER BY hg.name ASC';
 
-        if ($aclRequest !== null) {
-            $request .= $aclRequest;
-        }
-
-        $request .= ' WHERE hhg.host_id = :hostId ORDER BY hg.name ASC';
-
-        $statement = $this->db->prepare($this->translateDbName($request));
-        $statement->bindValue(':hostId', $hostId, \PDO::PARAM_INT);
-        $statement->execute();
+        $rows = $this->db->fetchAllAssociative(
+            $this->translateDbName($request),
+            QueryParameters::create([
+                QueryParameter::int('hostId', $hostId),
+                ...$accessGroupBindParameters,
+            ])
+        );
 
         $hostgroups = [];
-
-        while (($row = $statement->fetch(\PDO::FETCH_ASSOC))) {
+        foreach ($rows as $row) {
             /** @var array<string,int|string|null> $row */
             $hostgroups[] = DbHostgroupFactory::createFromRecord($row);
         }

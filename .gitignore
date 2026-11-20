@@ -34,6 +34,14 @@ checkstyle.core.xml
 **/centreon-build/
 **/build/
 
+# locally generated self-signed certificates
+**/certs/
+
+# Claude Code: CLAUDE.md files are shared and tracked, personal variants stay local
+**/CLAUDE.local.md
+**/.claude/settings.local.json
+**/.claude/worktrees/
+
 # Mac Os cache files
 .DS_Store
 

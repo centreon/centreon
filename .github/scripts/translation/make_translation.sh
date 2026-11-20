@@ -111,7 +111,7 @@ if [ "$PROJECT" = "centreon" ]; then
     find $BASE_DIR_PROJECT -name '*.php' | grep -v "help" | sort > $PO_SRC
     echo "Generate messages.pot file including all strings to translate"
     POT_FILE_PATH=$(realpath --relative-to="${PWD}" "$BASE_DIR_PROJECT/lang/messages.pot")
-    $XGETTEXT --sort-output --from-code=UTF-8 --default-domain=messages -k_ --files-from=$PO_SRC --output=$POT_FILE_PATH > /dev/null 2>&1
+    $XGETTEXT --sort-output --no-wrap --from-code=UTF-8 --default-domain=messages -k_ --files-from=$PO_SRC --output=$POT_FILE_PATH > /dev/null 2>&1
     # remove absolute path from comments
     sed -i -r 's/#:.+\.\.\//#: /g' $POT_FILE_PATH
     # remove line number from comments
@@ -124,13 +124,13 @@ if [ "$PROJECT" = "centreon" ]; then
     rm -f $BASE_DIR_PROJECT/www/install/dashboard_widgets.php
 
     # Merge existing translation file with new POT file
-    $MSGMERGE --no-fuzzy-matching --sort-output -q $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po $BASE_DIR_PROJECT/lang/messages.pot -o $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages_new.po
+    $MSGMERGE --no-fuzzy-matching --sort-output --no-wrap -q $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po $BASE_DIR_PROJECT/lang/messages.pot -o $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages_new.po
     mv -f $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages_new.po $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po
     # uncomment obsolete translations
     sed -i -r 's/^#~ msgid/#: unknown\nmsgid/g' $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po
     sed -i -r 's/^#~ //g' $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po
 
-    missing_translation=$(msggrep -v -T -e "." $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po | grep -c ^msgstr || true)
+    missing_translation=$(LC_ALL=C msgfmt --statistics -o /dev/null $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po 2>&1 | grep -oE '[0-9]+ untranslated' | grep -oE '[0-9]+' || echo 0)
     if [[ $missing_translation -gt 0 && "$LANG" == "fr_FR" ]]; then
         echo "::warning::$missing_translation strings are not translated in $PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po"
     fi
@@ -139,20 +139,20 @@ if [ "$PROJECT" = "centreon" ]; then
     find $BASE_DIR_PROJECT/www -name 'help.php' | sort > $PO_SRC
     echo "Generate help.pot file including all strings to translate"
     POT_FILE_PATH=$(realpath --relative-to="${PWD}" "$BASE_DIR_PROJECT/lang/help.pot")
-    $XGETTEXT --sort-output --from-code=UTF-8 --default-domain=messages -k_ --files-from=$PO_SRC --output=$POT_FILE_PATH > /dev/null 2>&1
+    $XGETTEXT --sort-output --no-wrap --from-code=UTF-8 --default-domain=messages -k_ --files-from=$PO_SRC --output=$POT_FILE_PATH > /dev/null 2>&1
     # remove absolute path from comments
     sed -i -r 's/#:.+\.\.\//#: /g' $POT_FILE_PATH
     # remove line number from comments
     sed -i -r 's/:[0-9]+$//g' $POT_FILE_PATH
 
     # Merge existing translation file with new POT file
-    $MSGMERGE --no-fuzzy-matching --sort-output -q $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po $BASE_DIR_PROJECT/lang/help.pot -o $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help_new.po
+    $MSGMERGE --no-fuzzy-matching --sort-output --no-wrap -q $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po $BASE_DIR_PROJECT/lang/help.pot -o $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help_new.po
     mv -f $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help_new.po $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po
     # uncomment obsolete translations
     sed -i -r 's/^#~ msgid/#: unknown\nmsgid/g' $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po
     sed -i -r 's/^#~ //g' $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po
 
-    missing_translation=$(msggrep -v -T -e "." $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po | grep -c ^msgstr || true)
+    missing_translation=$(LC_ALL=C msgfmt --statistics -o /dev/null $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po 2>&1 | grep -oE '[0-9]+ untranslated' | grep -oE '[0-9]+' || echo 0)
     if [[ $missing_translation -gt 0 && "$LANG" == "fr_FR" ]]; then
         echo "::warning::$missing_translation strings are not translated in $PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po"
     fi

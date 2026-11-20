@@ -22,11 +22,13 @@
 		<tr class="ListHeader">
 			<td class="ListColHeaderLeft">{$headerMenu_host_esc}</td>
 		</tr>
+		{assign var=hostOld value=''}
 		{section name=elem loop=$elemArrHostEsc}
 		{assign var=host value=$elemArrHostEsc[elem].RowMenu_host}
 		<tr class={$elemArrHostEsc[elem].MenuClass}>
-			<td class="ListColLeft">{if $host != $hostOld}<img style="width:20px;height:20px;" src='{$elemArrHostEsc[elem].RowMenu_hico}'>&nbsp;&nbsp;{$elemArrHostEsc[elem].RowMenu_host}{else}&nbsp;{/if}</td>			
-		</tr>		
+			<td class="ListColLeft">{if $host != $hostOld}<img style="width:20px;height:20px;" src='{$elemArrHostEsc[elem].RowMenu_hico}'>&nbsp;&nbsp;{$elemArrHostEsc[elem].RowMenu_host}{else}&nbsp;{/if}</td>
+		</tr>
+		{assign var=hostOld value=$host}
 		{/section}
 	</table>
 	<br/>
@@ -36,6 +38,7 @@
 			<td class="ListColHeaderLeft">{$headerMenu_host}</td>
 			<td class="ListColHeaderLeft">{$headerMenu_service_esc}</td>			
 		</tr>
+		{assign var=hostOld value=''}
 		{section name=elem loop=$elemArrSvcEsc}
 		{assign var=host value=$elemArrSvcEsc[elem].RowMenu_host}
 		<tr class={$elemArrSvcEsc[elem].MenuClass}>
@@ -50,7 +53,7 @@
 				{$elemArrSvcEsc[elem].RowMenu_service}
 			</td>
 		</tr>
-		{assign var=hostOld value=$elemArrSvc[elem].RowMenu_host}
+		{assign var=hostOld value=$host}
 		{/section}
 	</table>
 	<br/>
@@ -59,11 +62,13 @@
 		<tr class="ListHeader">
 			<td class="ListColHeaderLeft">{$headerMenu_host}</td>
 		</tr>
+		{assign var=hostOld value=''}
 		{section name=elem loop=$elemArrHost}
 		{assign var=host value=$elemArrHost[elem].RowMenu_host}
 		<tr class={$elemArrHost[elem].MenuClass}>
-			<td class="ListColLeft">{if $host != $hostOld}<img style="width:20px;height:20px;" src='{$elemArrHost[elem].RowMenu_hico}'>&nbsp;&nbsp;{$elemArrHost[elem].RowMenu_host}{else}&nbsp;{/if}</td>			
-		</tr>		
+			<td class="ListColLeft">{if $host != $hostOld}<img style="width:20px;height:20px;" src='{$elemArrHost[elem].RowMenu_hico}'>&nbsp;&nbsp;{$elemArrHost[elem].RowMenu_host}{else}&nbsp;{/if}</td>
+		</tr>
+		{assign var=hostOld value=$host}
 		{/section}
 	</table>
 	<br/>
@@ -73,6 +78,7 @@
 			<td class="ListColHeaderLeft">{$headerMenu_host}</td>
 			<td class="ListColHeaderLeft">{$headerMenu_service}</td>			
 		</tr>
+		{assign var=hostOld value=''}
 		{section name=elem loop=$elemArrSvc}
 		{assign var=host value=$elemArrSvc[elem].RowMenu_host}
 		<tr class={$elemArrSvc[elem].MenuClass}>
@@ -87,9 +93,9 @@
 				{$elemArrSvc[elem].RowMenu_service}
 			</td>
 		</tr>
-		{assign var=hostOld value=$elemArrSvc[elem].RowMenu_host}
+		{assign var=hostOld value=$host}
 		{/section}
-	</table>	
+	</table>
 	<br/>
 	{/if}
 {$form.hidden}

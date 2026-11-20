@@ -22,6 +22,9 @@ on:
 
 jobs:
   dependency-scan:
+    permissions:
+      contents: read
+      pull-requests: write
     uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@main
 
   check-inputs:
@@ -36,54 +39,48 @@ jobs:
       edition: ${{ steps.check_promoted_packages.outputs.edition }}
       linked_dev_branch: ${{ steps.check_promoted_packages.outputs.linked_dev_branch }}
       php_version: ${{ steps.check_promoted_packages.outputs.php_version }}
+      centreon_tag: ${{ steps.resolve_tags.outputs.centreon_tag }}
+      centreon_collect_tag: ${{ steps.resolve_tags.outputs.centreon_collect_tag }}
     runs-on: ubuntu-24.04
     env:
       RELEASE_BUNDLE_TAG: ${{ inputs.release_bundle_tag }}
     steps:
       - name: Checkout sources
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
       - name: Verify that the workflow is run in a develop context
         uses: ./.github/actions/verify-run-in-develop-context
 
-      - name: Check if ${{ env.RELEASE_BUNDLE_TAG }} exists on standard repositories
-        env:
-          GH_TOKEN: ${{ github.token }}
-        shell: bash
-        run: |
-          for repo in "centreon" "centreon-collect"; do
-            if [[ -z $(gh api "repos/centreon/$repo/tags" --paginate -q "[.[] | select(.name == \"$RELEASE_BUNDLE_TAG\")] | .[].name") ]]; then
-              echo "::error::Release bundle tag $RELEASE_BUNDLE_TAG could not be found on repository $repo."
-              echo "Command: gh api repos/centreon/$repo/tags --paginate -q '[.[] | select(.name == \"$RELEASE_BUNDLE_TAG\")] | .[].name'"
-              echo "Command output: $(gh api "repos/centreon/$repo/tags" --paginate -q "[.[] | select(.name == \"$RELEASE_BUNDLE_TAG\")] | .[].name")"
-              exit 1
-            else
-              echo "Release bundle $RELEASE_BUNDLE_TAG was found on repository $repo."
-              echo "Information fetched on the tag: $(gh api "repos/centreon/$repo/tags" --paginate -q "[.[] | select(.name == \"$RELEASE_BUNDLE_TAG\")] | .[]")"
-            fi
-          done
+      - name: Resolve the tag of each repository for bundle ${{ env.RELEASE_BUNDLE_TAG }}
+        id: resolve_tags
+        uses: ./.github/actions/resolve-release-bundle-tags
+        with:
+          release_bundle_tag: ${{ inputs.release_bundle_tag }}
+          # centreon-modules is private: github.token cannot list its tags
+          github_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
-      - name: Checkout major version on bundle tag
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Checkout major version on tag ${{ steps.resolve_tags.outputs.centreon_tag }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-          ref: ${{ inputs.release_bundle_tag }}
-          path: centreon-${{ inputs.release_bundle_tag }}
+          ref: ${{ steps.resolve_tags.outputs.centreon_tag }}
+          path: centreon-tag
           sparse-checkout: .version
 
       - name: Get parameters from tag
         shell: bash
         id: check_promoted_packages
         run: |
-          source "centreon-$RELEASE_BUNDLE_TAG/.version"
+          source "centreon-tag/.version"
           major_version=${MAJOR}
           if ! [[ ${major_version} =~ ^2[0-9]\.(04|10)$ ]]; then
             is_cloud=true
             echo "is_cloud=true" >> $GITHUB_OUTPUT
             echo "edition=cloud" >> $GITHUB_OUTPUT
-            DISTRIBS=("alma9")
+            # Cloud is deployed on el10 only.
+            DISTRIBS=("alma10")
           else
             is_cloud=false
             echo "is_cloud=false" >> $GITHUB_OUTPUT
@@ -152,7 +149,7 @@ jobs:
 
     steps:
       - name: Checkout docker files on linked dev branch ${{ inputs.dev_branch || needs.check-inputs.outputs.linked_dev_branch }}
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
           ref: ${{ inputs.dev_branch || needs.check-inputs.outputs.linked_dev_branch }}
@@ -162,11 +159,11 @@ jobs:
             .github/docker/centreon-web/scripts/
             .github/docker/centreon-web/sql/
 
-      - name: Checkout entrypoint, configuration and SQL files on tag ${{ inputs.release_bundle_tag }}
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Checkout entrypoint, configuration and SQL files on tag ${{ needs.check-inputs.outputs.centreon_tag }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-          ref: ${{ inputs.release_bundle_tag }}
+          ref: ${{ needs.check-inputs.outputs.centreon_tag }}
           path: ./from-tag/
           sparse-checkout: |
             .github/docker/centreon-web/${{ matrix.distrib }}/entrypoint/
@@ -174,7 +171,7 @@ jobs:
             .github/docker/centreon-web/sql/
           sparse-checkout-cone-mode: false
 
-      - name: Override entrypoint, configuration and SQL with the ones from tag ${{ inputs.release_bundle_tag }}
+      - name: Override entrypoint, configuration and SQL with the ones from tag ${{ needs.check-inputs.outputs.centreon_tag }}
         shell: bash
         env:
           DISTRIB: ${{ matrix.distrib }}
@@ -189,25 +186,25 @@ jobs:
             cp -r "./from-tag/${rel}" "$rel"
           done
 
-      - name: Checkout version files on tag ${{ inputs.release_bundle_tag }}
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Checkout version files on tag ${{ needs.check-inputs.outputs.centreon_tag }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-          ref: ${{ inputs.release_bundle_tag }}
-          path: ./${{ inputs.release_bundle_tag }}/
+          ref: ${{ needs.check-inputs.outputs.centreon_tag }}
+          path: ./versions/
           sparse-checkout: |
             .version.centreon-awie
             .version.centreon-dsm
             .version.centreon-open-tickets
             .version.centreon-web
 
-      - name: Checkout collect .version files on bundle tag ${{ inputs.release_bundle_tag }}
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Checkout collect .version files on tag ${{ needs.check-inputs.outputs.centreon_collect_tag }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
           repository: centreon/centreon-collect
-          ref: ${{ inputs.release_bundle_tag }}
-          path: ./centreon-collect-${{ inputs.release_bundle_tag }}/
+          ref: ${{ needs.check-inputs.outputs.centreon_collect_tag }}
+          path: ./centreon-collect-versions/
           sparse-checkout: |
             .version.centreon-collect
             .version.centreon-common
@@ -217,13 +214,11 @@ jobs:
       - name: Export minor versions
         id: export-minor-versions
         shell: bash
-        env:
-          RELEASE_BUNDLE_TAG: ${{ inputs.release_bundle_tag }}
         run: |
-          mv "./centreon-collect-$RELEASE_BUNDLE_TAG/.version."* "./$RELEASE_BUNDLE_TAG/"
+          mv ./centreon-collect-versions/.version.* ./versions/
 
           for package in "collect" "gorgone" "common" "awie" "dsm" "open-tickets" "web"; do
-            source "$RELEASE_BUNDLE_TAG/.version.centreon-${package}"
+            source "versions/.version.centreon-${package}"
             package="${package//-/_}"
             echo "${package}_minor_version: $MINOR"
             echo "${package}_minor_version=$MINOR" >> $GITHUB_OUTPUT
@@ -232,23 +227,23 @@ jobs:
           mkdir packages-centreon
 
       - name: Login to registry
-        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         with:
           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
           username: ${{ secrets.HARBOR_CENTREON_PUSH_USERNAME }}
           password: ${{ secrets.HARBOR_CENTREON_PUSH_TOKEN }}
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
 
       - name: Build dependencies web image
-        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         env:
           DOCKER_BUILD_RECORD_UPLOAD: false
           DOCKER_BUILD_SUMMARY: false
@@ -275,7 +270,7 @@ jobs:
             ghcr.io/${{ github.repository }}/centreon-web-dependencies:${{ inputs.release_bundle_tag }}-${{ matrix.distrib }}
 
       - name: Build dependencies collect image
-        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         env:
           DOCKER_BUILD_RECORD_UPLOAD: false
           DOCKER_BUILD_SUMMARY: false
@@ -308,7 +303,7 @@ jobs:
             ghcr.io/${{ github.repository }}/centreon-web-dependencies-collect:${{ inputs.release_bundle_tag }}-${{ matrix.distrib }}
 
       - name: Build and push web image
-        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           file: .github/docker/centreon-web/${{ matrix.distrib }}/Dockerfile
           context: .
@@ -336,7 +331,7 @@ jobs:
             ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-${{ matrix.distrib }}:${{ inputs.release_bundle_tag }}
 
       - name: Build and push OSS image
-        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           file: .github/docker/centreon-web/${{ matrix.distrib }}/Dockerfile.oss
           context: .

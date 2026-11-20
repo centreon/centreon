@@ -28,10 +28,9 @@ fi
 echo "Enabling 'notification' feature flag for OnPrem in $FEATURE_FLAGS_FILE"
 sed -i 's/"notification": *[0-9]\+/"notification": 3/' "$FEATURE_FLAGS_FILE"
 
-# Symfony caches the feature flags container parameters. Clear it so the
-# updated value is picked up by subsequent HTTP requests.
-if [[ -d /var/cache/centreon ]]; then
-    rm -rf /var/cache/centreon/*
-fi
+# No Symfony cache clear is needed: the feature flags service reads the file
+# through `%env(file:resolve:FILE_FEATURE_FLAGS)%`, which the compiled
+# container resolves on every request. Deleting the cache here would also race
+# with crond and the web server writing to it.
 
 echo "Notifications setup-web.sh: done."

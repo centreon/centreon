@@ -4,10 +4,23 @@ const hostCriterias = {
   name: 'resource_types',
   value: [{ id: 'host', name: 'Host' }]
 };
-const serviceCriteria = {
+const getServiceCriterias = ({
+  isAnomalyDetectionInstalled = false
+}: {
+  isAnomalyDetectionInstalled?: boolean;
+} = {}): {
+  name: string;
+  value: Array<{ id: string; name: string }>;
+} => ({
   name: 'resource_types',
-  value: [{ id: 'service', name: 'Service' }]
-};
+  value: [
+    { id: 'service', name: 'Service' },
+    { id: 'metaservice', name: 'Meta-Service' },
+    ...(isAnomalyDetectionInstalled
+      ? [{ id: 'anomaly-detection', name: 'Anomaly detection' }]
+      : [])
+  ]
+});
 
 interface StatusCriterias {
   name: string;
@@ -87,26 +100,26 @@ const getServiceResourcesUrl = ({
   stateCriterias = { name: 'states', value: [] }
 }: Criterias = {}): string => {
   return getResourcesUrl({
-    resourceTypeCriterias: serviceCriteria,
+    resourceTypeCriterias: getServiceCriterias(),
     stateCriterias,
     statusCriterias
   });
 };
 
 export {
-  hostCriterias,
-  serviceCriteria,
-  downCriterias,
-  unreachableCriterias,
-  upCriterias,
-  pendingCriterias,
-  getHostResourcesUrl,
   criticalCriterias,
-  unknownCriterias,
-  warningCriterias,
-  okCriterias,
-  unhandledStateCriterias,
+  downCriterias,
+  getHostResourcesUrl,
+  getResourcesUrl,
+  getServiceCriterias,
   getServiceResourcesUrl,
   getStatusCriterias,
-  getResourcesUrl
+  hostCriterias,
+  okCriterias,
+  pendingCriterias,
+  unhandledStateCriterias,
+  unknownCriterias,
+  unreachableCriterias,
+  upCriterias,
+  warningCriterias
 };

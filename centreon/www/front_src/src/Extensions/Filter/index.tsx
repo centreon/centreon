@@ -2,6 +2,7 @@
 // TODO: re-enable type-check after fixing this file
 import CloseIcon from '@mui/icons-material/Close';
 import { ClickAwayListener, MenuItem, Paper, Popper } from '@mui/material';
+import debounce from '@mui/utils/debounce';
 
 import {
   IconButton,
@@ -97,6 +98,19 @@ const Filter = (): JSX.Element => {
   const currentFilter = useAtomValue(currentFilterCriteriasAtom);
   const applyCurrentFilter = useSetAtom(applyCurrentFilterDerivedAtom);
   const clearFilter = useSetAtom(clearFilterDerivedAtom);
+
+  const applyCurrentFilterRef = useRef(applyCurrentFilter);
+  applyCurrentFilterRef.current = applyCurrentFilter;
+
+  const debouncedApply = useRef(
+    debounce((): void => {
+      applyCurrentFilterRef.current();
+    }, 500)
+  );
+
+  useEffect(() => {
+    debouncedApply.current();
+  }, [search]);
 
   const open = Boolean(autocompleteAnchor);
 

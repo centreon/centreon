@@ -26,6 +26,7 @@ namespace Core\Host\Application\Exception;
 class HostException extends \Exception
 {
     public const CODE_CONFLICT = 1;
+    public const CODE_INVALID_ARGUMENT = 2;
 
     /**
      * @return self
@@ -210,5 +211,21 @@ class HostException extends \Exception
     public static function accessNotAllowed(): self
     {
         return new self(_('You are not allowed to access hosts'));
+    }
+
+    /**
+     * @param int[] $templateIds
+     *
+     * @return self
+     */
+    public static function templatesNotLicensed(array $templateIds): self
+    {
+        return new self(
+            sprintf(
+                _("The license does not allow the host templates with ID(s) '%s': they come from or inherit from licensed Monitoring Connectors, and the license is invalid or its host limit is reached"),
+                implode(',', $templateIds)
+            ),
+            self::CODE_INVALID_ARGUMENT
+        );
     }
 }

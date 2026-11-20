@@ -11,8 +11,8 @@ import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { makeStyles } from 'tss-react/mui';
-import routeMap from 'www/front_src/src/reactRoutes/routeMap';
 
+import routeMap from '../../../../../reactRoutes/routeMap';
 import { CriteriaNames } from '../../../../Filter/Criterias/models';
 import { setCriteriaAndNewFilterDerivedAtom } from '../../../../Filter/filterAtoms';
 import { Category, Group } from '../../../models';
@@ -91,7 +91,14 @@ const GroupChip = ({ group, type }: Props): JSX.Element => {
       return;
     }
 
-    window.location.href = group.configuration_uri;
+    try {
+      const resolved = new URL(group.configuration_uri, window.location.origin);
+      if (resolved.origin === window.location.origin) {
+        window.location.href = resolved.href;
+      }
+    } catch {
+      // invalid URI — do nothing
+    }
   }, [group]);
 
   const { name, id } = group;

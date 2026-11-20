@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\Authentication\UseCase;
 
+use App\Shared\Domain\Logging\Attribute\Sensitive;
+
 class LogoutRequest
 {
     /**
@@ -30,6 +32,7 @@ class LogoutRequest
      *
      * @var string
      */
+    #[Sensitive]
     private $token;
 
     public function __construct(string $token)

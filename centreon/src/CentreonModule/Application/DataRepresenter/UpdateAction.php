@@ -46,13 +46,6 @@ class UpdateAction implements JsonSerializable
     }
 
     /**
-     * @OA\Schema(
-     *   schema="UpdateAction",
-     *
-     *       @OA\Property(property="entity", ref="#/components/schemas/ModuleEntity"),
-     *       @OA\Property(property="message", type="string")
-     * )
-     *
      * JSON serialization of entity
      *
      * @return array{entity:ModuleEntity|string|null, message:string|null}

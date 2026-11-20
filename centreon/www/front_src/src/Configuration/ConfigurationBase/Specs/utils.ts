@@ -87,11 +87,44 @@ export const filtersConfiguration = [
   }
 ];
 
+export const hostTemplatesEndpoint = '/configuration/hosts/templates';
+
+export const labelHostTemplate = 'Host template';
+
+export const hostTemplateFieldName = 'host_template.id';
+
+export const getHostTemplatesResponse = () => ({
+  meta: {
+    limit: 10,
+    page: 1,
+    total: 2
+  },
+  result: [
+    { id: 1, name: 'host template 1' },
+    { id: 2, name: 'host template 2' }
+  ]
+});
+
+export const filtersConfigurationWithSingleConnectedAutocomplete = [
+  ...filtersConfiguration,
+  {
+    fieldName: hostTemplateFieldName,
+    fieldType: FieldType.SingleConnectedAutocomplete,
+    getEndpoint: () => hostTemplatesEndpoint,
+    name: labelHostTemplate
+  }
+];
+
 export const filtersInitialValues = {
   alias: '',
   disabled: false,
   enabled: false,
   name: ''
+};
+
+export const filtersInitialValuesWithSingleConnectedAutocomplete = {
+  ...filtersInitialValues,
+  [hostTemplateFieldName]: null
 };
 
 export const columnsAtomKey = 'columns_configuration';

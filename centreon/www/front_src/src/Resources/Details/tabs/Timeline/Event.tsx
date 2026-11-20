@@ -459,10 +459,10 @@ const eventsByDateDivisions: Array<EventsByDateDivisions> = [
 ];
 
 export {
-  TimelineEventByType,
-  types,
-  getTypeIds,
-  TimelineIconByType,
   eventsByDateDivisions,
-  sortEventsByDate
+  getTypeIds,
+  sortEventsByDate,
+  TimelineEventByType,
+  TimelineIconByType,
+  types
 };

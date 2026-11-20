@@ -10,6 +10,8 @@ services:
     _instanceof:
         Core\Security\Vault\Application\UseCase\MigrateAllCredentials\Migrator\AccCredentialMigratorInterface:
           tags: ['additional_connector_configuration.migrators']
+        Core\Security\Vault\Application\UseCase\RevertAllCredentials\Reverter\AccCredentialReverterInterface:
+          tags: ['additional_connector_configuration.reverters']
 
     Core\Security\Vault\Application\Repository\WriteVaultConfigurationRepositoryInterface:
       class: Core\Security\Vault\Infrastructure\Repository\FsWriteVaultConfigurationRepository
@@ -26,3 +28,7 @@ services:
     Core\Security\Vault\Application\UseCase\MigrateAllCredentials\MigrateAllCredentials:
       arguments:
           $accCredentialMigrators: !tagged_iterator 'additional_connector_configuration.migrators'
+
+    Core\Security\Vault\Application\UseCase\RevertAllCredentials\RevertAllCredentials:
+      arguments:
+          $accCredentialReverters: !tagged_iterator 'additional_connector_configuration.reverters'

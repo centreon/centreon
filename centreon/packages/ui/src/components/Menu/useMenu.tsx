@@ -77,4 +77,4 @@ const useMenu = (): UseMenu => {
   };
 };
 
-export { useMenu, MenuProvider };
+export { MenuProvider, useMenu };

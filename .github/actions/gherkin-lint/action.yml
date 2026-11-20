@@ -22,5 +22,5 @@ runs:
     - name: Run Gherkin Lint
       env:
         FEATURES_PATH: ${{ inputs.features_path }}
-      run: ./.github/actions/gherkin-lint/node_modules/.bin/gherkin-lint -c ./.github/actions/gherkin-lint/.gherkin-lintrc "$FEATURES_PATH"
+      run: ./.github/actions/gherkin-lint/node_modules/.bin/gplint -c ./.github/actions/gherkin-lint/.gherkin-lintrc "$FEATURES_PATH"
       shell: bash

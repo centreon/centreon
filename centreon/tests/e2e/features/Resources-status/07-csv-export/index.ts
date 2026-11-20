@@ -3,7 +3,8 @@ import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 
 import {
   checkMetricsAreMonitored,
-  checkServicesAreMonitored
+  checkServicesAreMonitored,
+  parseCsv
 } from '../../../commons';
 
 const serviceOk = 'service_test_ok';
@@ -41,7 +42,9 @@ const AllColumns = [
   'FQDN / Address',
   'Monitoring server',
   'Notif',
-  'Check'
+  'Check',
+  'Host ID',
+  'Service ID'
 ];
 
 const UpdatedColumns = [
@@ -57,13 +60,53 @@ const UpdatedColumns = [
   'Action',
   'FQDN / Address',
   'Notif',
-  'Check'
+  'Check',
+  'Host ID',
+  'Service ID'
 ];
+
+// Rows are sorted by status, which the real Centreon-Server services can change
+const findExportedRow = (
+  rows: Array<Record<string, string>>,
+  expected: Record<string, string>
+): Record<string, string> => {
+  const row = rows.find(
+    (candidate) =>
+      candidate['Resource Name'] === expected['Resource Name'] &&
+      candidate['Parent Resource Name'] === expected['Parent Resource Name']
+  );
+  expect(
+    row,
+    `${expected['Parent Resource Name']} / ${expected['Resource Name']} in the export`
+  ).to.not.equal(undefined);
+
+  return row as Record<string, string>;
+};
 
 const downloadsFolder = Cypress.config('downloadsFolder');
 
-const normalize = (text: string) =>
-  text.trim().replace(/^"|"$/g, '').replace(/\\"/g, '').replace(/"/g, '');
+// Host ID / Service ID values are runtime-generated, so instead of comparing
+// them against a static fixture we assert the type-based contract on every row:
+// a host has only Host ID, a service has both identifiers.
+const assertIdentifierContract = (
+  rows: Array<Record<string, string>>
+): void => {
+  rows.forEach((row, index) => {
+    const type = row['Resource Type'] ?? '';
+    const hostId = row['Host ID'] ?? '';
+    const serviceId = row['Service ID'] ?? '';
+
+    if (type === 'Service') {
+      expect(hostId, `Row ${index + 1} (service) Host ID`).to.match(/^\d+$/);
+      expect(serviceId, `Row ${index + 1} (service) Service ID`).to.match(
+        /^\d+$/
+      );
+    } else if (type === 'Host') {
+      expect(hostId, `Row ${index + 1} (host) Host ID`).to.match(/^\d+$/);
+      expect(serviceId, `Row ${index + 1} (host) Service ID`).to.equal('');
+    }
+  });
+};
 
 before(() => {
   cy.intercept({
@@ -241,11 +284,7 @@ When('the admin user clicks the Export button', () => {
   cy.getByLabel({ label: 'exportCsvButton', tag: 'button' }).click();
   cy.wait('@getResourceCount');
   cy.getByLabel({ label: 'Export', tag: 'button' }).click();
-  cy.get('.MuiAlert-message').then((snackbar) => {
-    if (snackbar.text().includes('Export processing in progress')) {
-      cy.get('.MuiAlert-message').should('not.be.visible');
-    }
-  });
+  // The download is awaited by the next step: the progress snackbar can vanish unseen
 });
 
 Then('a CSV file should be downloaded', () => {
@@ -265,22 +304,15 @@ Then(
   () => {
     cy.task('getExportedFile', { downloadsFolder }).then((filePath) => {
       cy.task('readCsvFile', { filePath }).then((csvContent) => {
-        const rows = (csvContent as string)
-          .trim()
-          .split('\n')
-          .map((row) => row.split(';').map((cell) => cell.trim()));
+        const [headers, ...dataRows] = parseCsv(csvContent as string);
 
-        const rawHeaders = rows[0];
-        const headers = rawHeaders.map(normalize);
-        cy.log('Normalized CSV Headers:', headers.join(' | '));
+        cy.log('CSV Headers:', headers.join(' | '));
         expect(headers).to.deep.equal(AllColumns);
-
-        const dataRows = rows.slice(1);
 
         const rowObjects = dataRows.map((row) =>
           headers.reduce(
             (obj, header, i) => {
-              obj[header.replace(/"/g, '')] = row[i];
+              obj[header] = row[i];
               return obj;
             },
             {} as Record<string, string>
@@ -289,14 +321,14 @@ Then(
         cy.log(
           `Formatted JSON from CSV:\n${JSON.stringify(rowObjects, null, 2)}`
         );
-        const firstTwoRows = rowObjects.slice(0, 2);
+        assertIdentifierContract(rowObjects);
 
         cy.fixture('resources/csvFIleWithAllPagesAndColumns.json').then(
           (expectedData) => {
             const firstTwoExpected = expectedData.slice(0, 2);
 
-            firstTwoRows.forEach((actualRow, index) => {
-              const expectedRow = firstTwoExpected[index];
+            firstTwoExpected.forEach((expectedRow, index) => {
+              const actualRow = findExportedRow(rowObjects, expectedRow);
 
               ColumnsToCompare.forEach((key) => {
                 expect(
@@ -346,11 +378,7 @@ Then('the admin user exports only visible columns and pages', () => {
   cy.getByTestId({ testId: 'Current page only' }).click();
   cy.wait('@getResourceCount');
   cy.getByLabel({ label: 'Export', tag: 'button' }).click();
-  cy.get('.MuiAlert-message').then((snackbar) => {
-    if (snackbar.text().includes('Export processing in progress')) {
-      cy.get('.MuiAlert-message').should('not.be.visible');
-    }
-  });
+  // The download is awaited by the next step: the progress snackbar can vanish unseen
 });
 
 Then(
@@ -358,22 +386,15 @@ Then(
   () => {
     cy.task('getExportedFile', { downloadsFolder }).then((filePath) => {
       cy.task('readCsvFile', { filePath }).then((csvContent) => {
-        const rows = (csvContent as string)
-          .trim()
-          .split('\n')
-          .map((row) => row.split(';').map((cell) => cell.trim()));
+        const [headers, ...dataRows] = parseCsv(csvContent as string);
 
-        const rawHeaders = rows[0];
-        const headers = rawHeaders.map(normalize);
-        cy.log('Normalized CSV Headers:', headers.join(' | '));
+        cy.log('CSV Headers:', headers.join(' | '));
         expect(headers).to.deep.equal(UpdatedColumns);
-
-        const dataRows = rows.slice(1);
 
         const rowObjects = dataRows.map((row) =>
           headers.reduce(
             (obj, header, i) => {
-              obj[header.replace(/"/g, '')] = row[i];
+              obj[header] = row[i];
               return obj;
             },
             {} as Record<string, string>
@@ -382,16 +403,20 @@ Then(
         cy.log(
           `Formatted JSON from CSV:\n${JSON.stringify(rowObjects, null, 2)}`
         );
-        const firstTwoRows = rowObjects.slice(0, 2);
+        assertIdentifierContract(rowObjects);
 
         cy.fixture('resources/csvFIleWithOnlyVisiblePagesAndColumns.json').then(
           (expectedData) => {
             const firstTwoExpected = expectedData.slice(0, 2);
-            firstTwoRows.forEach((actualRow, index) => {
-              const expectedRow = firstTwoExpected[index];
+            firstTwoExpected.forEach((expectedRow, index) => {
+              const actualRow = findExportedRow(rowObjects, expectedRow);
 
               UpdatedColumns.forEach((key) => {
-                if (key === 'Last Check') return;
+                // Last Check is time-dependent; Host ID / Service ID are
+                // runtime-generated, so their values are not compared against
+                // the static fixture (their presence is asserted via the header).
+                if (['Last Check', 'Host ID', 'Service ID'].includes(key))
+                  return;
                 expect(
                   actualRow[key],
                   `Line ${index + 1} - Key: ${key}`

@@ -23,12 +23,15 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\Authentication\UseCase;
 
+use App\Shared\Domain\Logging\Attribute\Sensitive;
+
 class AuthenticateApiRequest
 {
     /** @var string */
     private $login;
 
     /** @var string */
+    #[Sensitive]
     private $password;
 
     /**

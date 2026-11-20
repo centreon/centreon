@@ -2,14 +2,12 @@ import { capitalize } from '@mui/material';
 
 import pluralize from 'pluralize';
 
+import { listingDataTestIds } from '../Listing/dataTestIds';
 import {
   labelActions,
   labelAlias,
-  labelDelete,
-  labelDuplicate,
   labelEnableDisable,
   labelFilters,
-  labelMoreActions,
   labelName
 } from '../translatedLabels';
 import initialize from './initialize';
@@ -39,9 +37,15 @@ export default (resourceType: string): void => {
       cy.contains(labelEnableDisable).should('be.visible');
       cy.contains(labelActions).should('be.visible');
 
-      cy.get(`[data-testid="${labelDuplicate}_1"]`).should('be.visible');
-      cy.get(`[data-testid="${labelDelete}_1"]`).should('be.visible');
-      cy.get(`[data-testid="${labelEnableDisable}_1"]`).should('be.visible');
+      cy.get(`[data-testid="${listingDataTestIds.row.duplicate(1)}"]`).should(
+        'be.visible'
+      );
+      cy.get(`[data-testid="${listingDataTestIds.row.delete(1)}"]`).should(
+        'be.visible'
+      );
+      cy.get(
+        `[data-testid="${listingDataTestIds.row.enableDisable(1)}"]`
+      ).should('be.visible');
     });
 
     it('displays resource-specific additional columns', () => {
@@ -54,7 +58,9 @@ export default (resourceType: string): void => {
     it('displays more actions', () => {
       cy.waitForRequest('@getAll');
 
-      cy.get(`[data-testid="${labelMoreActions}"]`).should('be.visible');
+      cy.get(`[data-testid="${listingDataTestIds.moreActions}"]`).should(
+        'be.visible'
+      );
     });
 
     it('displays and interacts with filters', () => {

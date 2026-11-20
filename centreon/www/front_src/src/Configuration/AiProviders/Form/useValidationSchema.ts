@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { number, ObjectSchema, object, string } from 'yup';
 
 import { baseEndpoint } from '../../../api/endpoint';
-import { modalStateAtom } from '../../ConfigurationBase/atoms';
+import { formStateAtom } from '../../ConfigurationBase/atoms';
 import { aiProvidersEndpoint } from '../api';
 import { AiProviderType } from '../models';
 import {
@@ -48,7 +48,7 @@ const lookupDebounceMs = 500;
 export const useValidationSchema = (): ObjectSchema<object> => {
   const { t } = useTranslation();
 
-  const { mode, id } = useAtomValue(modalStateAtom);
+  const { mode, id } = useAtomValue(formStateAtom);
   const isEditing = equals(mode, 'edit');
 
   // id of the existing provider using a given name (null when unused),

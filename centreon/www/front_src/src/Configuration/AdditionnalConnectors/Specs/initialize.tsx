@@ -1,6 +1,8 @@
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
+import { defaultLimitPerPageAtom } from '@centreon/ui-context';
 
 import i18next from 'i18next';
+import { getDefaultStore } from 'jotai';
 import { initReactI18next } from 'react-i18next';
 import { BrowserRouter as Router } from 'react-router';
 
@@ -16,6 +18,10 @@ const initialize = (): void => {
     lng: 'en',
     resources: {}
   });
+
+  // The platform default page size, which listings wait for, in jotai's
+  // default store: the page is mounted without a Provider.
+  getDefaultStore().set(defaultLimitPerPageAtom, 10);
 
   cy.fixture('ACC/additionalConnectors.json').then((connectors) => {
     cy.interceptAPIRequest({

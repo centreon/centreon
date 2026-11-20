@@ -38,6 +38,7 @@ use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
 use Core\Command\Application\Exception\CommandException;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
+use Core\Command\Domain\Model\Command;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
 use Core\CommandMacro\Domain\Model\CommandMacro;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
@@ -45,6 +46,7 @@ use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Application\Type\NoValue;
 use Core\Common\Application\UseCase\VaultTrait;
+use Core\Common\Application\VaultEligibilityService;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Contact\Domain\AdminResolver;
 use Core\Domain\Common\GeoCoords;
@@ -103,6 +105,7 @@ final class PartialUpdateService
         private readonly bool $isCloudPlatform,
         private readonly WriteVaultRepositoryInterface $writeVaultRepository,
         private readonly ReadVaultRepositoryInterface $readVaultRepository,
+        private readonly VaultEligibilityService $vaultEligibilityService,
         private readonly ReadCommandRepositoryInterface $readCommandRepository,
         private readonly WriteAccessGroupRepositoryInterface $writeAccessGroupRepository,
         private readonly AdminResolver $adminResolver,
@@ -177,7 +180,7 @@ final class PartialUpdateService
         $this->dataStorageEngine->startTransaction();
         try {
 
-            if ($this->writeVaultRepository->isVaultConfigured()) {
+            if ($this->vaultEligibilityService->shouldUseVault()) {
                 $this->retrieveServiceUuidFromVault($service->getId());
             }
 
@@ -326,7 +329,7 @@ final class PartialUpdateService
                 }
                 if ($command->isCentreonMonitoringAgentCommand()) {
                     $service->setCheckFreshness(YesNoDefaultConverter::fromInt(1));
-                    $service->setFreshnessThreshold(120);
+                    $service->setFreshnessThreshold(Command::CENTREON_MONITORING_AGENT_FRESHNESS_THRESHOLD);
                 }
             }
             $service->setCommandId($dto->commandId);
@@ -599,10 +602,10 @@ final class PartialUpdateService
         }
 
         return [
-            $this->writeVaultRepository->isVaultConfigured()
+            $this->vaultEligibilityService->shouldUseVault()
                 ? $this->retrieveMacrosVaultValues($directMacros)
                 : $directMacros,
-            $this->writeVaultRepository->isVaultConfigured()
+            $this->vaultEligibilityService->shouldUseVault()
                 ? $this->retrieveMacrosVaultValues($inheritedMacros)
                 : $inheritedMacros,
             $commandMacros,
@@ -667,7 +670,7 @@ final class PartialUpdateService
      */
     private function updateMacroInVault(Macro $macro, string $action): Macro
     {
-        if ($this->writeVaultRepository->isVaultConfigured() && $macro->isPassword() === true) {
+        if ($this->vaultEligibilityService->shouldUseVault() && $macro->isPassword() === true) {
             $macroPrefixName = '_SERVICE' . $macro->getName();
             $vaultPaths = $this->writeVaultRepository->upsert(
                 $this->uuid ?? null,

@@ -29,7 +29,7 @@ const InstallCommandModal = (): ReactElement => {
   const validationSchema = useValidationSchema();
 
   return (
-    <Modal onClose={close} open={isOpen} size="medium">
+    <Modal onClose={close} open={isOpen} size="large">
       <Modal.Header>{t(labelCreateNewPoller)}</Modal.Header>
       <Modal.Body>
         <Form<CloudInstallCommandFormValues>

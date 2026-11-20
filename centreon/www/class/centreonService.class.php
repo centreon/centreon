@@ -393,19 +393,25 @@ class CentreonService
         preg_match_all($pattern, $string, $matches);
         $i = 0;
         while (isset($matches[1][$i])) {
-            $rq = "SELECT svc_macro_value
-                FROM on_demand_macro_service
-                WHERE svc_svc_id = '" . $svc_id . "' AND svc_macro_name LIKE '" . $matches[1][$i] . "'";
-            $DBRES = $this->db->query($rq);
-            while ($row = $DBRES->fetchRow()) {
+            $stmt = $this->db->prepare(
+                'SELECT svc_macro_value FROM on_demand_macro_service
+                WHERE svc_svc_id = :svcId AND svc_macro_name = :macroName'
+            );
+            $stmt->bindValue(':svcId', (int) $svc_id, PDO::PARAM_INT);
+            $stmt->bindValue(':macroName', $matches[1][$i]);
+            $stmt->execute();
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 $string = str_replace($matches[1][$i], $row['svc_macro_value'], $string);
             }
             $i++;
         }
         if ($i) {
-            $rq2 = "SELECT service_template_model_stm_id FROM service WHERE service_id = '" . $svc_id . "'";
-            $DBRES2 = $this->db->query($rq2);
-            while ($row2 = $DBRES2->fetchRow()) {
+            $stmt2 = $this->db->prepare(
+                'SELECT service_template_model_stm_id FROM service WHERE service_id = :svcId'
+            );
+            $stmt2->bindValue(':svcId', (int) $svc_id, PDO::PARAM_INT);
+            $stmt2->execute();
+            while ($row2 = $stmt2->fetch(PDO::FETCH_ASSOC)) {
                 if (! isset($antiLoop) || ! $antiLoop) {
                     $string = $this->replaceMacroInString(
                         $row2['service_template_model_stm_id'],
@@ -1179,8 +1185,8 @@ class CentreonService
                 $selectedHosts .= 'AND hsr.host_host_id IN (';
             }
             foreach ($hostIdList as $k => $v) {
-                $listValues .= ':host' . $v . ',';
-                $queryValues['host' . $v] = (int) $v;
+                $listValues .= ':host' . $k . ',';
+                $queryValues['host' . $k] = (int) $v;
             }
             $selectedHosts .= rtrim($listValues, ',') . ') ';
         }
@@ -1191,8 +1197,8 @@ class CentreonService
         if ($serviceIdList !== []) {
             $selectedServices .= 'AND hsr.service_service_id IN (';
             foreach ($serviceIdList as $k => $v) {
-                $listValues .= ':service' . $v . ',';
-                $queryValues['service' . $v] = (int) $v;
+                $listValues .= ':service' . $k . ',';
+                $queryValues['service' . $k] = (int) $v;
             }
             $selectedServices .= rtrim($listValues, ',') . ') ';
         }
@@ -1224,14 +1230,19 @@ class CentreonService
                     $serviceList[] = ['id' => $serviceCompleteId, 'text' => $serviceCompleteName];
                 }
             } else {
+                // Anomaly detection services (register 3) hang on regular hosts and are
+                // offered by the search (centreon_configuration_service), keep them on reload.
                 $queryService = 'SELECT DISTINCT s.service_description, s.service_id, h.host_name, h.host_id '
                     . 'FROM host h, service s, host_service_relation hsr '
                     . 'WHERE hsr.host_host_id = h.host_id '
                     . 'AND hsr.service_service_id = s.service_id '
-                    . "AND h.host_register = '{$register}' AND s.service_register = '{$register}' "
+                    . 'AND h.host_register = :hostRegister AND s.service_register IN (:serviceRegister, :adServiceRegister) '
                     . $selectedHosts
                     . $selectedServices
                     . 'ORDER BY h.host_name ';
+                $queryValues['hostRegister'] = (string) $register;
+                $queryValues['serviceRegister'] = (string) $register;
+                $queryValues['adServiceRegister'] = (string) $register === '1' ? '3' : (string) $register;
 
                 $stmt = $this->db->prepare($queryService);
 
@@ -1431,7 +1442,7 @@ class CentreonService
         $rq .= '(service_service_id, esi_notes, esi_notes_url, esi_action_url, esi_icon_image,
             esi_icon_image_alt, graph_id) ';
         $rq .= 'VALUES ';
-        $rq .= "('" . $aDatas['service_service_id'] . "', ";
+        $rq .= "('" . (int) $aDatas['service_service_id'] . "', ";
         isset($aDatas['esi_notes']) ? $rq .= "'" . CentreonDB::escape($aDatas['esi_notes']) . "'," : $rq .= 'NULL, ';
         isset($aDatas['esi_notes_url'])
             ? $rq .= "'" . CentreonDB::escape($aDatas['esi_notes_url']) . "'," : $rq .= 'NULL, ';
@@ -1583,7 +1594,7 @@ class CentreonService
         $rq .= 'service_activate = ';
         isset($ret['service_activate']['service_activate']) && $ret['service_activate']['service_activate'] != null
             ? $rq .= "'" . $ret['service_activate']['service_activate'] . "' " : $rq .= 'NULL ';
-        $rq .= "WHERE service_id = '" . $service_id . "'";
+        $rq .= 'WHERE service_id = ' . (int) $service_id;
 
         $DBRESULT = $this->db->query($rq);
 
@@ -1613,7 +1624,7 @@ class CentreonService
 
         if ($updateFields !== []) {
             $query .= implode(',', $updateFields)
-                . 'WHERE service_service_id = "' . $service_id . '" ';
+                . 'WHERE service_service_id = ' . (int) $service_id . ' ';
             try {
                 $this->db->query($query);
             } catch (PDOException $e) {
@@ -1833,11 +1844,14 @@ class CentreonService
     }
 
     /**
-     * @param $serviceId
-     * @param $hostId
+     * Get the monitored service full name: "<host> - <service>", or "Meta - <name>" for meta services.
+     * A name returned by a "Service/getMonitoringFullName" hook takes precedence.
+     *
+     * @param int|string $serviceId
+     * @param int|string|null $hostId
      *
      * @throws PDOException
-     * @return mixed|null
+     * @return string|null
      */
     public function getMonitoringFullName($serviceId, $hostId = null)
     {
@@ -1850,16 +1864,27 @@ class CentreonService
             }
         }
 
-        $query = 'SELECT CONCAT (h.name, " - ", s.description) as fullname '
-            . 'FROM hosts h, services s '
-            . 'WHERE h.host_id = s.host_id '
-            . 'AND s.enabled = "1" '
-            . 'AND s.service_id = ' . $serviceId;
+        // Meta services use host "_Module_Meta" and description "meta_<id>": show "Meta - <display_name>" instead
+        $query = <<<'SQL'
+            SELECT CASE
+                WHEN h.name = '_Module_Meta' THEN CONCAT('Meta - ', COALESCE(NULLIF(s.display_name, ''), s.description))
+                ELSE CONCAT(h.name, ' - ', s.description)
+            END AS fullname
+            FROM hosts h
+            INNER JOIN services s ON s.host_id = h.host_id
+            WHERE s.enabled = '1'
+              AND s.service_id = :serviceId
+            SQL;
         if (isset($hostId)) {
-            $query .= ' AND s.host_id = ' . $hostId;
+            $query .= ' AND s.host_id = :hostId';
         }
-        $result = $this->dbMon->query($query);
-        while ($row = $result->fetchRow()) {
+        $statement = $this->dbMon->prepare($query);
+        $statement->bindValue(':serviceId', (int) $serviceId, PDO::PARAM_INT);
+        if (isset($hostId)) {
+            $statement->bindValue(':hostId', (int) $hostId, PDO::PARAM_INT);
+        }
+        $statement->execute();
+        while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
             $name = $row['fullname'];
         }
 

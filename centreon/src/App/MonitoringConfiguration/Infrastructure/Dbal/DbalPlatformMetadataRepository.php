@@ -49,7 +49,7 @@ final readonly class DbalPlatformMetadataRepository extends DbalRepository imple
         #[Autowire(service: 'doctrine.dbal.default_connection')]
         private Connection $connection,
 
-        #[Autowire(service: DbalPlatformMetadataTransformer::class)]
+        #[Autowire(service: PlatformMetadataTransformer::class)]
         private TransformerInterface $transformer,
     ) {
     }

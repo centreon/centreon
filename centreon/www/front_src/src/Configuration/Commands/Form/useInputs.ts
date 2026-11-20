@@ -21,35 +21,26 @@ import { useUserPermissions } from '../useUserPermissions';
 import CommandLine from './CommandLine/CommandLine';
 import CommandType from './CommandType/CommandType';
 import EnableShellSyntax from './EnableShellSyntax/EnableShellSyntax';
-import { useInputsStyles } from './Modal.styles';
 
 export const useInputs = (): {
   groups: Array<Group>;
   inputs: Array<InputProps>;
 } => {
-  const { classes } = useInputsStyles();
   const { t } = useTranslation();
 
   const { canEdit } = useUserPermissions();
-
-  const titleAttributes = {
-    classes: { root: classes.titleGroup },
-    variant: 'subtitle1'
-  };
 
   return {
     groups: [
       {
         isDividerHidden: true,
         name: t(labelGeneralInformation),
-        order: 1,
-        titleAttributes
+        order: 1
       },
       {
         isDividerHidden: true,
         name: t(labelAdditionalInformation),
-        order: 2,
-        titleAttributes
+        order: 2
       }
     ],
     inputs: [

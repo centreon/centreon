@@ -20,7 +20,6 @@
  */
 
 require_once __DIR__ . '/../../../centreon-open-tickets.conf.php';
-require_once $centreon_path . 'www/modules/centreon-open-tickets/class/centreonDBManager.class.php';
 require_once $centreon_path . 'www/modules/centreon-open-tickets/class/ticketLog.php';
 require_once $centreon_path . 'www/class/centreonXMLBGRequest.class.php';
 $centreon_open_tickets_path = $centreon_path . 'www/modules/centreon-open-tickets/';

@@ -1,0 +1,125 @@
+import {
+  type BuildListingEndpointParameters,
+  buildListingEndpoint,
+  type QueryParameter,
+  type SearchParameter
+} from '@centreon/ui';
+
+// Hosts are served by API Platform at `./api`, listing and single-host
+// operations alike. Only the form's selectors below stay on the default base.
+export const hostsBaseEndpoint = './api';
+
+export const hostsListEndpoint = '/configuration/hosts';
+export const hostFormHostsEndpoint = hostsListEndpoint;
+
+export const hostTemplatesEndpoint = '/configuration/host_templates';
+export const hostGroupsEndpoint = '/configuration/host_groups';
+export const pollersEndpoint = '/configuration/pollers';
+
+// The form's own selectors, which the listing filters above must not use: they
+// are granted by host write access rather than by the poller and host group
+// ACLs, and the poller one offers only active pollers, as the legacy form did.
+export const hostFormPollersEndpoint = '/configuration/hosts/pollers';
+export const hostFormHostGroupsEndpoint = '/configuration/hosts/host_groups';
+export const hostFormHostCategoriesEndpoint =
+  '/configuration/hosts/host_categories';
+export const hostFormContactsEndpoint = '/configuration/hosts/contacts';
+export const hostFormContactGroupsEndpoint =
+  '/configuration/hosts/contact_groups';
+export const hostFormTimePeriodsEndpoint = '/configuration/hosts/timeperiods';
+export const hostFormHostSeveritiesEndpoint =
+  '/configuration/hosts/host_severities';
+export const hostFormMediasEndpoint = '/configuration/hosts/medias';
+export const hostFormHostTemplatesEndpoint =
+  '/configuration/hosts/host_templates';
+
+// One template's macros, its own and those it inherits.
+export const getHostTemplateMacrosEndpoint = ({ id }: { id: number }): string =>
+  `${hostFormHostTemplatesEndpoint}/${id}/macros`;
+
+export const timezonesEndpoint = '/configuration/timezones';
+
+export const hostFormCommandsEndpoint = '/configuration/hosts/commands';
+
+export const getHostEndpoint = ({ id }: { id: number | string }): string =>
+  `/configuration/hosts/${id}`;
+
+export const getDeployServicesEndpoint = ({
+  id
+}: {
+  id: number | string;
+}): string => `/configuration/hosts/${id}/services/deploy`;
+
+// On-premise only: the route does not exist on cloud.
+export const resolveAddressEndpoint = '/configuration/hosts/_resolve';
+
+export const getResolveAddressEndpoint = ({
+  hostname
+}: {
+  hostname: string;
+}): string =>
+  `${resolveAddressEndpoint}?hostname=${encodeURIComponent(hostname)}`;
+
+export const getDuplicateHostEndpoint = ({
+  id
+}: {
+  id: number | string;
+}): string => `/configuration/hosts/${id}/_duplicate`;
+
+// Selectors take `name[lk]`, not the `search` payload the autocomplete builds.
+const getSelectorEndpoint =
+  (baseEndpoint: string, fixedQueryParameters: Array<QueryParameter> = []) =>
+  ({ search, page }: { search?: SearchParameter; page?: number }): string => {
+    // Once a value is selected the autocomplete prepends a `$ni` condition
+    // excluding it, so the typed text is not necessarily the first one.
+    const searchedValue = search?.conditions
+      ?.map((condition) => condition?.values?.$lk)
+      .find((value): value is string => typeof value === 'string');
+
+    const searchQueryParameters: Array<QueryParameter> = search
+      ? [
+          {
+            name: 'name[lk]',
+            // The autocomplete wraps the typed text in `%`.
+            value: searchedValue?.slice(1, -1) ?? ''
+          }
+        ]
+      : [];
+    const customQueryParameters = [
+      ...searchQueryParameters,
+      ...fixedQueryParameters
+    ];
+
+    return buildListingEndpoint({
+      apiFormat: 'JSON-LD',
+      baseEndpoint,
+      customQueryParameters,
+      parameters: {
+        limit: 10,
+        page
+      } as BuildListingEndpointParameters['parameters']
+    });
+  };
+
+// Include locked templates: hosts commonly use Monitoring Connector ones.
+export const getHostTemplatesEndpoint = getSelectorEndpoint(
+  hostTemplatesEndpoint,
+  [{ name: 'include_locked', value: 'true' }]
+);
+export const getHostGroupsEndpoint = getSelectorEndpoint(hostGroupsEndpoint);
+export const getPollersEndpoint = getSelectorEndpoint(pollersEndpoint);
+export const getFormHostTemplatesEndpoint = getSelectorEndpoint(
+  hostFormHostTemplatesEndpoint
+);
+
+// There is no filter on the default poller, so it is looked for in one page
+// wide enough for any realistic number of pollers.
+export const getFormPollersEndpoint = (): string =>
+  buildListingEndpoint({
+    apiFormat: 'JSON-LD',
+    baseEndpoint: hostFormPollersEndpoint,
+    parameters: {
+      limit: 100,
+      page: 1
+    } as BuildListingEndpointParameters['parameters']
+  });

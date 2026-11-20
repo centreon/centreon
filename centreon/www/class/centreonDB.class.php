@@ -26,6 +26,7 @@ use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\Model\ConnectionConfig;
 use Adaptation\Database\Connection\Trait\ConnectionTrait;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use App\Shared\Infrastructure\Database\DatabaseTLSResolver;
 use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 use Psr\Log\LogLevel;
 
@@ -149,7 +150,7 @@ class CentreonDB extends PDO implements ConnectionInterface
                 $this->connectionConfig->getMysqlDsn(),
                 $this->connectionConfig->getUser(),
                 $this->connectionConfig->getPassword(),
-                $this->options
+                array_replace($this->options, DatabaseTLSResolver::getTLSOptions())
             );
         } catch (Exception $e) {
             $this->writeDbLog(

@@ -56,6 +56,18 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             '%env(password)%',
             '%env(db)%',
             '%env(dbcstg)%',
+            '%env(int:port)%',
+        ]);
+
+    // dbcstg in both slots: CentreonDB reads the database name from the configuration slot.
+    $services->set('upgrade.realtime_connection_config', ConnectionConfig::class)
+        ->args([
+            '%env(hostCentstorage)%',
+            '%env(user)%',
+            '%env(password)%',
+            '%env(dbcstg)%',
+            '%env(dbcstg)%',
+            '%env(int:port)%',
         ]);
 
     $services->load('App\\Upgrade\\', __DIR__ . '/../../src/App/Upgrade');

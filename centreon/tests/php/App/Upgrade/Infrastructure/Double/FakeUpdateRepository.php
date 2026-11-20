@@ -29,23 +29,73 @@ class FakeUpdateRepository implements UpdateRepository
 {
     public ?string $currentVersion = '24.10.0';
 
+    public ?\Throwable $versionReadFailure = null;
+
     public bool $postUpdateCalled = false;
 
-    /** @var string[] */
+    public bool $installDirectoryPresent = true;
+
+    public ?\Throwable $versionUpdateFailure = null;
+
+    public ?\Throwable $monitoringSqlFailure = null;
+
+    /** @var string[] versions whose version row was recorded */
     public array $updatesRun = [];
+
+    /** @var list<string> ordered post-update calls (backup / remove) */
+    public array $calls = [];
 
     public function findCurrentVersion(): ?string
     {
+        if ($this->versionReadFailure instanceof \Throwable) {
+            throw $this->versionReadFailure;
+        }
+
         return $this->currentVersion;
     }
 
-    public function runUpdate(string $version): void
+    public function runMonitoringSql(string $version): void
     {
-        $this->updatesRun[] = $version;
+        if ($this->monitoringSqlFailure instanceof \Throwable) {
+            throw $this->monitoringSqlFailure;
+        }
     }
 
-    public function runPostUpdate(string $currentVersion): void
+    public function runScript(string $version): void
     {
+    }
+
+    public function runConfigurationSql(string $version): void
+    {
+    }
+
+    public function runPostScript(string $version): void
+    {
+    }
+
+    public function updateVersionInformation(string $version): void
+    {
+        if ($this->versionUpdateFailure instanceof \Throwable) {
+            throw $this->versionUpdateFailure;
+        }
+
+        $this->updatesRun[] = $version;
+        $this->currentVersion = $version;
+    }
+
+    public function installDirectoryExists(): bool
+    {
+        return $this->installDirectoryPresent;
+    }
+
+    public function backupInstallDirectory(string $currentVersion): void
+    {
+        $this->calls[] = 'backup';
+    }
+
+    public function removeInstallDirectory(): void
+    {
+        $this->calls[] = 'remove';
         $this->postUpdateCalled = true;
     }
 }

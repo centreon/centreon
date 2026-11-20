@@ -4,7 +4,7 @@ import { useAtomValue } from 'jotai';
 import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { modalStateAtom } from '../../ConfigurationBase/atoms';
+import { formStateAtom } from '../../ConfigurationBase/atoms';
 import { AiProviderType } from '../models';
 import {
   labelApiToken,
@@ -57,7 +57,7 @@ export const useInputs = (): {
 } => {
   const { t } = useTranslation();
 
-  const { mode } = useAtomValue(modalStateAtom);
+  const { mode } = useAtomValue(formStateAtom);
   const isEditing = equals(mode, 'edit');
 
   return {

@@ -8,7 +8,7 @@ Feature: Create and Manage Basic Authentication Token
     Given I am logged in as an administrator
     And I am on the Authentication tokens page
 
-  @TEST_MON-36696
+  @MON-36696
   Scenario Outline: Create basic Authentication Token with required fields
     When I click on the "Add" button
     And I fill in the following required fields
@@ -25,7 +25,7 @@ Feature: Create and Manage Basic Authentication Token
       | TokenName_2      | User_2            | 60 days  |
       | TokenName_3      | User_3            | 90 days  |
 
-  @TEST_MON-36694
+  @MON-36694
   Scenario: Display and copy generated Authentication Token
     Given a basic Authentication token is generated
     When I click to reveal the token

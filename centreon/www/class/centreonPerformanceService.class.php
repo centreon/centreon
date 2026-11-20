@@ -60,33 +60,52 @@ class CentreonPerformanceService
         $serviceDescription = isset($filters['service']) === false ? '' : $filters['service'];
 
         if (isset($filters['page_limit'], $filters['page'])) {
-            $limit = ($filters['page'] - 1) * $filters['page_limit'];
-            $range = 'LIMIT ' . $limit . ',' . $filters['page_limit'];
+            $limit = (int) (($filters['page'] - 1) * $filters['page_limit']);
+            $range = 'LIMIT ' . $limit . ',' . (int) $filters['page_limit'];
         } else {
             $range = '';
         }
 
-        if (isset($filters['hostgroup'])) {
+        $filterBindValues = [];
+        if (isset($filters['hostgroup']) && $filters['hostgroup'] !== []) {
+            $hgTokens = [];
+            foreach ($filters['hostgroup'] as $idx => $hgId) {
+                $key = ':hg_' . $idx;
+                $hgTokens[] = $key;
+                $filterBindValues[$key] = (int) $hgId;
+            }
             $additionnalTables .= ',hosts_hostgroups hg ';
             $additionnalCondition .= 'AND (hg.host_id = i.host_id AND hg.hostgroup_id IN ('
-                . implode(',', $filters['hostgroup']) . ')) ';
+                . implode(',', $hgTokens) . ')) ';
         }
-        if (isset($filters['servicegroup'])) {
+        if (isset($filters['servicegroup']) && $filters['servicegroup'] !== []) {
+            $sgTokens = [];
+            foreach ($filters['servicegroup'] as $idx => $sgId) {
+                $key = ':sg_' . $idx;
+                $sgTokens[] = $key;
+                $filterBindValues[$key] = (int) $sgId;
+            }
             $additionnalTables .= ',services_servicegroups sg ';
             $additionnalCondition .= 'AND (sg.host_id = i.host_id AND sg.service_id = i.service_id '
-                . 'AND sg.servicegroup_id IN (' . implode(',', $filters['servicegroup']) . ')) ';
+                . 'AND sg.servicegroup_id IN (' . implode(',', $sgTokens) . ')) ';
         }
-        if (isset($filters['host'])) {
-            $additionnalCondition .= 'AND i.host_id IN (' . implode(',', $filters['host']) . ') ';
+        if (isset($filters['host']) && $filters['host'] !== []) {
+            $hostTokens = [];
+            foreach ($filters['host'] as $idx => $hostId) {
+                $key = ':host_' . $idx;
+                $hostTokens[] = $key;
+                $filterBindValues[$key] = (int) $hostId;
+            }
+            $additionnalCondition .= 'AND i.host_id IN (' . implode(',', $hostTokens) . ') ';
         }
 
-        $virtualServicesCondition = $this->getVirtualServicesCondition($additionnalCondition);
+        $virtualServicesCondition = $this->getVirtualServicesCondition($additionnalCondition, $additionnalTables);
 
         $query = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT fullname, host_id, service_id, index_id '
             . 'FROM ( '
             . '( SELECT CONCAT(i.host_name, " - ", i.service_description) as fullname, '
             . 'i.host_id, i.service_id, m.index_id '
-            . 'FROM index_data i, metrics m ' . (! $this->aclObj->admin ? ', centreon_acl acl ' : '')
+            . 'FROM index_data i, metrics m ' . $additionnalTables . (! $this->aclObj->admin ? ', centreon_acl acl ' : '')
             . 'WHERE i.id = m.index_id '
             . 'AND i.host_name NOT LIKE "\_Module\_%" '
             . (! $this->aclObj->admin
@@ -96,14 +115,19 @@ class CentreonPerformanceService
             . ') '
             . $virtualServicesCondition
             . ') as t_union '
-            . 'WHERE fullname LIKE "%' . $serviceDescription . '%" '
+            . 'WHERE fullname LIKE :serviceDesc '
             . 'GROUP BY host_id, service_id '
             . 'ORDER BY fullname '
             . $range;
 
-        $DBRESULT = $this->dbMon->query($query);
+        $stmt = $this->dbMon->prepare($query);
+        $stmt->bindValue(':serviceDesc', '%' . $serviceDescription . '%');
+        foreach ($filterBindValues as $key => $value) {
+            $stmt->bindValue($key, $value, PDO::PARAM_INT);
+        }
+        $stmt->execute();
         $serviceList = [];
-        while ($data = $DBRESULT->fetchRow()) {
+        while ($data = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $serviceCompleteName = $data['fullname'];
             $serviceCompleteId = $data['host_id'] . '-' . $data['service_id'];
             $serviceList[] = ['id' => $serviceCompleteId, 'text' => $serviceCompleteName];
@@ -114,10 +138,11 @@ class CentreonPerformanceService
 
     /**
      * @param string $additionnalCondition
+     * @param string $additionnalTables
      *
      * @return string
      */
-    private function getVirtualServicesCondition($additionnalCondition)
+    private function getVirtualServicesCondition($additionnalCondition, $additionnalTables = '')
     {
         // First, get virtual services for metaservices
         $metaServiceCondition = '';
@@ -138,7 +163,7 @@ class CentreonPerformanceService
 
         $virtualServicesCondition = 'UNION ALL ('
             . 'SELECT CONCAT("Meta - ", s.display_name) as fullname, i.host_id, i.service_id, m.index_id '
-            . 'FROM index_data i, metrics m, services s '
+            . 'FROM index_data i, metrics m, services s ' . $additionnalTables
             . 'WHERE i.id = m.index_id '
             . $additionnalCondition
             . $metaServiceCondition
@@ -153,7 +178,7 @@ class CentreonPerformanceService
                     $virtualServicesCondition .= 'UNION ALL ('
                         . 'SELECT CONCAT("' . $hostname . ' - ", s.display_name) as fullname, i.host_id, '
                         . 'i.service_id, m.index_id '
-                        . 'FROM index_data i, metrics m, services s '
+                        . 'FROM index_data i, metrics m, services s ' . $additionnalTables
                         . 'WHERE i.id = m.index_id '
                         . $additionnalCondition
                         . 'AND s.service_id IN (' . implode(',', $virtualServiceIds) . ') '

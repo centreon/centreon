@@ -13,6 +13,7 @@
     "./src/**/*.stories.tsx",
     "./src/**/*.stories.ts",
     "./src/**/*.cypress.spec.tsx",
+    "./src/**/*.browser.test.tsx",
     "./src/**/*.cy.tsx"
   ]
 }

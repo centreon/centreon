@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\Gorgone;
 
+use App\Shared\Domain\Logging\Attribute\Sensitive;
+
 /**
  * This class is designed to represent a action log received by the Gorgone server.
  *
@@ -42,6 +44,7 @@ class ActionLog
     private $id;
 
     /** @var string Token of the response */
+    #[Sensitive]
     private $token;
 
     /**

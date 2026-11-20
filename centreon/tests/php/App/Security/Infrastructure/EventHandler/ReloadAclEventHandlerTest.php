@@ -1,0 +1,532 @@
+<?php
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
+declare(strict_types=1);
+
+namespace Tests\App\Security\Infrastructure\EventHandler;
+
+use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandLine;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\DroppedHostLinks;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
+use App\MonitoringConfiguration\Domain\Event\CommandUpdated;
+use App\MonitoringConfiguration\Domain\Event\HostCreated;
+use App\MonitoringConfiguration\Domain\Event\HostDeleted;
+use App\MonitoringConfiguration\Domain\Event\HostDisabled;
+use App\MonitoringConfiguration\Domain\Event\HostDuplicated;
+use App\MonitoringConfiguration\Domain\Event\ServiceCreated;
+use App\MonitoringConfiguration\Domain\Event\ServiceDeleted;
+use App\MonitoringConfiguration\Domain\Event\ServiceDisabled;
+use App\MonitoringConfiguration\Domain\Event\ServiceEnabled;
+use App\MonitoringConfiguration\Domain\Event\ServiceMassChanged;
+use App\MonitoringConfiguration\Domain\Event\ServiceUpdated;
+use App\Security\Domain\Aggregate\Credential;
+use App\Security\Domain\Aggregate\CredentialIdentifier;
+use App\Security\Domain\Aggregate\Role;
+use App\Security\Domain\Aggregate\UserId;
+use App\Security\Infrastructure\EventHandler\ReloadAclEventHandler;
+use App\Security\Infrastructure\Security\CredentialUser;
+use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\Shared\Domain\Collection;
+use PHPUnit\Framework\TestCase;
+use Symfony\Bundle\SecurityBundle\Security;
+use Tests\App\Security\Infrastructure\Double\FakeAccessGroupRepository;
+use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
+
+final class ReloadAclEventHandlerTest extends TestCase
+{
+    public function testItSeedsCentreonAclAndFlagsOnlyTheCreatorsGroupsForANonAdmin(): void
+    {
+        $accessGroupRepository = new FakeAccessGroupRepository();
+        $accessGroupRepository->groupIdsByUserId[7] = [10, 20];
+        $resourceAccessRepository = new FakeResourceAccessRepository();
+
+        $handler = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 7, isAdmin: false);
+
+        $host = $this->createHost(name: 'server-01');
+        $handler(new HostCreated($host, 7));
+
+        self::assertCount(1, $resourceAccessRepository->grantedAccess);
+        self::assertSame($host, $resourceAccessRepository->grantedAccess[0]['resource']);
+        self::assertSame([10, 20], $resourceAccessRepository->grantedAccess[0]['accessGroupIds']);
+        self::assertSame([10, 20], $accessGroupRepository->flaggedGroupIds);
+        self::assertFalse($resourceAccessRepository->allResourcesFlaggedAsChanged);
+    }
+
+    public function testItFlagsAllResourcesForAnAdminWithoutSeedingCentreonAcl(): void
+    {
+        $accessGroupRepository = new FakeAccessGroupRepository();
+        $resourceAccessRepository = new FakeResourceAccessRepository();
+
+        $handler = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 1, isAdmin: true);
+
+        $host = $this->createHost(name: 'server-02');
+        $handler(new HostCreated($host, 1));
+
+        self::assertTrue($resourceAccessRepository->allResourcesFlaggedAsChanged);
+        self::assertSame([], $resourceAccessRepository->grantedAccess);
+        self::assertSame([], $accessGroupRepository->flaggedGroupIds);
+    }
+
+    public function testItDoesNothingForANonAdminWithNoAccessGroup(): void
+    {
+        $accessGroupRepository = new FakeAccessGroupRepository();
+        $resourceAccessRepository = new FakeResourceAccessRepository();
+
+        $handler = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 9, isAdmin: false);
+
+        $host = $this->createHost(name: 'server-03');
+        $handler(new HostCreated($host, 9));
+
+        self::assertSame([], $resourceAccessRepository->grantedAccess);
+        self::assertSame([], $accessGroupRepository->flaggedGroupIds);
+        self::assertFalse($resourceAccessRepository->allResourcesFlaggedAsChanged);
+    }
+
+    public function testItFlagsTheGroupsWithoutSeedingOnAnUpdateForANonAdmin(): void
+    {
+        $accessGroupRepository = new FakeAccessGroupRepository();
+        $accessGroupRepository->groupIdsByUserId[7] = [10, 20];
+        $resourceAccessRepository = new FakeResourceAccessRepository();
+
+        $handler = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 7, isAdmin: false);
+
+        $host = $this->createHost(name: 'server-04');
+        // A disable is not a creation: the flag must be raised, but centreon_acl must not be seeded.
+        $handler(new HostDisabled($host, 7));
+
+        self::assertSame([], $resourceAccessRepository->grantedAccess);
+        self::assertSame([10, 20], $accessGroupRepository->flaggedGroupIds);
+        self::assertFalse($resourceAccessRepository->allResourcesFlaggedAsChanged);
+    }
+
+    public function testItFlagsOnlyTheDeletersGroupsForANonAdminWithoutSeedingCentreonAclOnDelete(): void
+    {
+        $accessGroupRepository = new FakeAccessGroupRepository();
+        $accessGroupRepository->groupIdsByUserId[7] = [10, 20];
+        $resourceAccessRepository = new FakeResourceAccessRepository();
+
+        $handler = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 7, isAdmin: false);
+
+        $host = $this->createHost(name: 'server-04-deleted');
+        $handler(new HostDeleted($host, 7));
+
+        // Deleting a resource never seeds `centreon_acl` (mirrors legacy's DELETE branch), only
+        // the flag is raised — the cron purges the stale rows on its own.
+        self::assertSame([], $resourceAccessRepository->grantedAccess);
+        self::assertSame([10, 20], $accessGroupRepository->flaggedGroupIds);
+        self::assertFalse($resourceAccessRepository->allResourcesFlaggedAsChanged);
+    }
+
+    public function testItFlagsAllResourcesOnAnUpdateForAnAdmin(): void
+    {
+        $accessGroupRepository = new FakeAccessGroupRepository();
+        $resourceAccessRepository = new FakeResourceAccessRepository();
+
+        $handler = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 1, isAdmin: true);
+
+        $host = $this->createHost(name: 'server-05');
+        $handler(new HostDisabled($host, 1));
+
+        self::assertTrue($resourceAccessRepository->allResourcesFlaggedAsChanged);
+        self::assertSame([], $resourceAccessRepository->grantedAccess);
+        self::assertSame([], $accessGroupRepository->flaggedGroupIds);
+    }
+
+    public function testItFlagsAllResourcesForAnAdminOnDeleteWithoutSeedingCentreonAcl(): void
+    {
+        $accessGroupRepository = new FakeAccessGroupRepository();
+        $resourceAccessRepository = new FakeResourceAccessRepository();
+
+        $handler = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 1, isAdmin: true);
+
+        $host = $this->createHost(name: 'server-05-deleted');
+        $handler(new HostDeleted($host, 1));
+
+        self::assertTrue($resourceAccessRepository->allResourcesFlaggedAsChanged);
+        self::assertSame([], $resourceAccessRepository->grantedAccess);
+        self::assertSame([], $accessGroupRepository->flaggedGroupIds);
+    }
+
+    public function testItDoesNothingForANonAclScopedUpdate(): void
+    {
+        $accessGroupRepository = new FakeAccessGroupRepository();
+        $resourceAccessRepository = new FakeResourceAccessRepository();
+
+        // Admin so that, if the AclScopedInterface guard were removed, flagAllResourcesAsChanged
+        // would fire — this asserts it does not for a non-ACL-scoped aggregate.
+        $handler = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 1, isAdmin: true);
+
+        // Command is an AggregateUpdated but not AclScoped: the handler must ignore it entirely.
+        $handler(new CommandUpdated($this->createCommand(), 1));
+
+        self::assertFalse($resourceAccessRepository->allResourcesFlaggedAsChanged);
+        self::assertSame([], $resourceAccessRepository->grantedAccess);
+        self::assertSame([], $accessGroupRepository->flaggedGroupIds);
+    }
+
+    public function testItFlagsOnlyTheDuplicatorsGroupsWithoutSeedingOnADuplicationForANonAdmin(): void
+    {
+        $accessGroupRepository = new FakeAccessGroupRepository();
+        $accessGroupRepository->groupIdsByUserId[7] = [10, 20];
+        $resourceAccessRepository = new FakeResourceAccessRepository();
+
+        $handler = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 7, isAdmin: false);
+
+        $host = $this->createHost(name: 'server-06-copy');
+        // A duplication is not a creation: the flag must be raised, but centreon_acl must not be seeded
+        // for the duplicator — the copy's scope is seeded from the source by the duplication handler.
+        $handler(new HostDuplicated($host, 7));
+
+        self::assertSame([], $resourceAccessRepository->grantedAccess);
+        self::assertSame([10, 20], $accessGroupRepository->flaggedGroupIds);
+        self::assertFalse($resourceAccessRepository->allResourcesFlaggedAsChanged);
+    }
+
+    public function testItFlagsAllResourcesOnADuplicationForAnAdmin(): void
+    {
+        $accessGroupRepository = new FakeAccessGroupRepository();
+        $resourceAccessRepository = new FakeResourceAccessRepository();
+
+        $handler = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 1, isAdmin: true);
+
+        $host = $this->createHost(name: 'server-07-copy');
+        $handler(new HostDuplicated($host, 1));
+
+        self::assertTrue($resourceAccessRepository->allResourcesFlaggedAsChanged);
+        self::assertSame([], $resourceAccessRepository->grantedAccess);
+        self::assertSame([], $accessGroupRepository->flaggedGroupIds);
+    }
+
+    public function testItDoesNothingOnADuplicationForANonAdminWithNoAccessGroup(): void
+    {
+        $accessGroupRepository = new FakeAccessGroupRepository();
+        $resourceAccessRepository = new FakeResourceAccessRepository();
+
+        $handler = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 9, isAdmin: false);
+
+        $host = $this->createHost(name: 'server-08-copy');
+        $handler(new HostDuplicated($host, 9));
+
+        self::assertSame([], $resourceAccessRepository->grantedAccess);
+        self::assertSame([], $accessGroupRepository->flaggedGroupIds);
+        self::assertFalse($resourceAccessRepository->allResourcesFlaggedAsChanged);
+    }
+
+    /**
+     * A non-admin creator sees the service they created at once: it is granted to their groups.
+     */
+    public function testItGrantsACreatedService(): void
+    {
+        $accessGroupRepository = new FakeAccessGroupRepository();
+        $accessGroupRepository->groupIdsByUserId[7] = [10, 20];
+        $resourceAccessRepository = new FakeResourceAccessRepository();
+
+        $handler = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 7, isAdmin: false);
+
+        $service = $this->createService();
+        $handler(new ServiceCreated($service, 7));
+
+        self::assertCount(1, $resourceAccessRepository->grantedAccess);
+        self::assertSame($service, $resourceAccessRepository->grantedAccess[0]['resource']);
+        self::assertSame([10, 20], $resourceAccessRepository->grantedAccess[0]['accessGroupIds']);
+        self::assertSame([10, 20], $accessGroupRepository->flaggedGroupIds);
+        self::assertFalse($resourceAccessRepository->allResourcesFlaggedAsChanged);
+    }
+
+    public function testItFlagsAllResourcesWithoutGrantingWhenAnAdminCreatesAService(): void
+    {
+        $accessGroupRepository = new FakeAccessGroupRepository();
+        $resourceAccessRepository = new FakeResourceAccessRepository();
+
+        $handler = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 1, isAdmin: true);
+
+        $handler(new ServiceCreated($this->createService(), 1));
+
+        self::assertTrue($resourceAccessRepository->allResourcesFlaggedAsChanged);
+        self::assertSame([], $resourceAccessRepository->grantedAccess);
+        self::assertSame([], $accessGroupRepository->flaggedGroupIds);
+    }
+
+    public function testItFlagsOnlyTheDeletersGroupsWhenAServiceIsDeletedByANonAdmin(): void
+    {
+        $accessGroupRepository = new FakeAccessGroupRepository();
+        $accessGroupRepository->groupIdsByUserId[7] = [10, 20];
+        $resourceAccessRepository = new FakeResourceAccessRepository();
+
+        $handler = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 7, isAdmin: false);
+
+        $handler(new ServiceDeleted($this->createService(), 7));
+
+        self::assertSame([], $resourceAccessRepository->grantedAccess);
+        self::assertSame([10, 20], $accessGroupRepository->flaggedGroupIds);
+        self::assertFalse($resourceAccessRepository->allResourcesFlaggedAsChanged);
+    }
+
+    public function testItFlagsAllResourcesWhenAServiceIsDeletedByAnAdmin(): void
+    {
+        $accessGroupRepository = new FakeAccessGroupRepository();
+        $resourceAccessRepository = new FakeResourceAccessRepository();
+
+        $handler = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 1, isAdmin: true);
+
+        $handler(new ServiceDeleted($this->createService(), 1));
+
+        self::assertTrue($resourceAccessRepository->allResourcesFlaggedAsChanged);
+        self::assertSame([], $resourceAccessRepository->grantedAccess);
+        self::assertSame([], $accessGroupRepository->flaggedGroupIds);
+    }
+
+    public function testItFlagsOnlyTheActorsGroupsWhenAServiceIsEnabledByANonAdmin(): void
+    {
+        // Enabling or disabling a service is an update: caught through the AggregateUpdated supertype.
+        $accessGroupRepository = new FakeAccessGroupRepository();
+        $accessGroupRepository->groupIdsByUserId[7] = [10, 20];
+        $resourceAccessRepository = new FakeResourceAccessRepository();
+
+        $handler = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 7, isAdmin: false);
+
+        $handler(new ServiceEnabled($this->createService(), 7));
+
+        self::assertSame([], $resourceAccessRepository->grantedAccess);
+        self::assertSame([10, 20], $accessGroupRepository->flaggedGroupIds);
+        self::assertFalse($resourceAccessRepository->allResourcesFlaggedAsChanged);
+    }
+
+    public function testItFlagsAllResourcesWhenAServiceIsDisabledByAnAdmin(): void
+    {
+        $accessGroupRepository = new FakeAccessGroupRepository();
+        $resourceAccessRepository = new FakeResourceAccessRepository();
+
+        $handler = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 1, isAdmin: true);
+
+        $handler(new ServiceDisabled($this->createService(), 1));
+
+        self::assertTrue($resourceAccessRepository->allResourcesFlaggedAsChanged);
+        self::assertSame([], $resourceAccessRepository->grantedAccess);
+        self::assertSame([], $accessGroupRepository->flaggedGroupIds);
+    }
+
+    /**
+     * A non-admin who moves a service to another host keeps seeing it there at once: the service, on its new
+     * host, is granted to their groups.
+     */
+    public function testItGrantsAMovedService(): void
+    {
+        $accessGroupRepository = new FakeAccessGroupRepository();
+        $accessGroupRepository->groupIdsByUserId[7] = [10, 20];
+        $resourceAccessRepository = new FakeResourceAccessRepository();
+
+        $handler = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 7, isAdmin: false);
+
+        $service = $this->createService();
+        $handler(new ServiceUpdated($service, 7, previousHostId: new HostId(9)));
+
+        self::assertCount(1, $resourceAccessRepository->grantedAccess);
+        self::assertSame($service, $resourceAccessRepository->grantedAccess[0]['resource']);
+        self::assertSame([10, 20], $resourceAccessRepository->grantedAccess[0]['accessGroupIds']);
+        self::assertSame([10, 20], $accessGroupRepository->flaggedGroupIds);
+    }
+
+    /**
+     * A mass change names the service and its new host by id: the pair is granted to the mover's groups.
+     */
+    public function testItGrantsAServiceMovedByAMassChange(): void
+    {
+        $accessGroupRepository = new FakeAccessGroupRepository();
+        $accessGroupRepository->groupIdsByUserId[7] = [10, 20];
+        $resourceAccessRepository = new FakeResourceAccessRepository();
+
+        $handler = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 7, isAdmin: false);
+        $handler(ServiceMassChanged::of($this->createService(), 7, previousHostId: new HostId(9)));
+
+        self::assertSame([['hostId' => 1, 'serviceId' => 1, 'accessGroupIds' => [10, 20]]], $resourceAccessRepository->grantedServiceAccess);
+        self::assertSame([], $resourceAccessRepository->grantedAccess);
+        self::assertSame([10, 20], $accessGroupRepository->flaggedGroupIds);
+    }
+
+    public function testItDoesNotGrantForAnAdminOrAnUnchangedHost(): void
+    {
+        $accessGroupRepository = new FakeAccessGroupRepository();
+        $accessGroupRepository->groupIdsByUserId[7] = [10, 20];
+        $resourceAccessRepository = new FakeResourceAccessRepository();
+
+        $nonAdmin = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 7, isAdmin: false);
+        $nonAdmin(new ServiceUpdated($this->createService(), 7));
+        $nonAdmin(new ServiceUpdated($this->createService(), 7, loggable: false));
+        $nonAdmin(ServiceMassChanged::of($this->createService(), 7));
+
+        $admin = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 1, isAdmin: true);
+        $admin(new ServiceUpdated($this->createService(), 1, previousHostId: new HostId(9)));
+
+        self::assertSame([], $resourceAccessRepository->grantedAccess);
+        self::assertSame([], $resourceAccessRepository->grantedServiceAccess);
+        self::assertSame([10, 20, 10, 20, 10, 20], $accessGroupRepository->flaggedGroupIds);
+        self::assertTrue($resourceAccessRepository->allResourcesFlaggedAsChanged);
+    }
+
+    /**
+     * A grant on another service or on a host the service was never linked to is left alone.
+     */
+    public function testItFlagsTheGroupsGrantingTheServiceOnItsHostAndTheHostsItLeft(): void
+    {
+        $accessGroupRepository = new FakeAccessGroupRepository();
+        $accessGroupRepository->groupIdsByUserId[7] = [10, 20];
+        $resourceAccessRepository = new FakeResourceAccessRepository();
+        $resourceAccessRepository->grantedPairs = [
+            1 => [1 => [40], 9 => [20, 30], 11 => [50], 12 => [60]],
+            2 => [11 => [70]],
+        ];
+
+        $handler = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 7, isAdmin: false);
+        $handler(ServiceMassChanged::of(
+            $this->createService(),
+            7,
+            previousHostId: new HostId(9),
+            droppedHostLinks: new DroppedHostLinks([new HostId(11)], []),
+        ));
+
+        self::assertSame([['hostId' => 1, 'serviceId' => 1, 'accessGroupIds' => [10, 20]]], $resourceAccessRepository->grantedServiceAccess);
+        self::assertSame([10, 20, 30, 40, 50], $accessGroupRepository->flaggedGroupIds);
+    }
+
+    /**
+     * A removed service group or category can leave another group a stale pair on the host the service keeps.
+     */
+    public function testItFlagsTheGroupsGrantingTheServiceOnTheHostItKeeps(): void
+    {
+        $accessGroupRepository = new FakeAccessGroupRepository();
+        $accessGroupRepository->groupIdsByUserId[7] = [10];
+        $resourceAccessRepository = new FakeResourceAccessRepository();
+        $resourceAccessRepository->grantedPairs = [1 => [1 => [10, 40]], 2 => [1 => [70]]];
+
+        $handler = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 7, isAdmin: false);
+        $handler(ServiceMassChanged::of($this->createService(), 7));
+
+        self::assertSame([], $resourceAccessRepository->grantedServiceAccess);
+        self::assertSame([10, 40], $accessGroupRepository->flaggedGroupIds);
+    }
+
+    public function testItFlagsTheGroupsGrantingTheServiceOnTheHostLinksAnUpdateDropped(): void
+    {
+        $accessGroupRepository = new FakeAccessGroupRepository();
+        $accessGroupRepository->groupIdsByUserId[7] = [10];
+        $resourceAccessRepository = new FakeResourceAccessRepository();
+        $resourceAccessRepository->grantedPairs = [1 => [11 => [50]]];
+
+        $handler = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 7, isAdmin: false);
+        $handler(new ServiceUpdated($this->createService(), 7, loggable: false, droppedHostLinks: new DroppedHostLinks([new HostId(11)], [])));
+
+        self::assertSame([], $resourceAccessRepository->grantedAccess);
+        self::assertSame([10, 50], $accessGroupRepository->flaggedGroupIds);
+    }
+
+    /**
+     * An admin's save flags every resource, which recomputes the groups granting the hosts left too.
+     */
+    public function testAnAdminFlagsAllResourcesWhenAServiceLeavesHosts(): void
+    {
+        $accessGroupRepository = new FakeAccessGroupRepository();
+        $resourceAccessRepository = new FakeResourceAccessRepository();
+        $resourceAccessRepository->grantedPairs = [1 => [11 => [50]]];
+
+        $handler = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 1, isAdmin: true);
+        $handler(ServiceMassChanged::of($this->createService(), 1, droppedHostLinks: new DroppedHostLinks([new HostId(11)], [])));
+
+        self::assertTrue($resourceAccessRepository->allResourcesFlaggedAsChanged);
+        self::assertSame([], $accessGroupRepository->flaggedGroupIds);
+    }
+
+    private function createService(): Service
+    {
+        return new Service(
+            id: new ServiceId(1),
+            name: new ServiceName('ping'),
+            hostId: new HostId(1),
+            hostActivated: true,
+            hostPollerId: new PollerId(1),
+        );
+    }
+
+    private function createHandler(
+        FakeAccessGroupRepository $accessGroupRepository,
+        FakeResourceAccessRepository $resourceAccessRepository,
+        int $userId,
+        bool $isAdmin,
+    ): ReloadAclEventHandler {
+        $credential = new Credential(new CredentialIdentifier('user'), new UserId($userId), active: true);
+        if ($isAdmin) {
+            $credential->assignRole(new Role('ROLE_SUPER_ADMIN'));
+        }
+
+        $security = $this->createMock(Security::class);
+        $security->method('getUser')->willReturn(new CredentialUser($credential));
+
+        return new ReloadAclEventHandler($security, $accessGroupRepository, $resourceAccessRepository);
+    }
+
+    private function createCommand(): Command
+    {
+        return new Command(
+            id: new CommandId(1),
+            name: new CommandName('check-something'),
+            type: CommandTypeEnum::Check,
+            commandLine: new CommandLine('/bin/true'),
+            isShellEnabled: false,
+            isActivated: true,
+            isFromMonitoringConnector: false,
+            connector: null,
+            comment: null,
+        );
+    }
+
+    private function createHost(string $name): Host
+    {
+        $host = new Host(
+            id: null,
+            name: new HostName($name),
+            alias: null,
+            address: new HostAddress('127.0.0.1'),
+            activated: true,
+            pollerId: new PollerId(1),
+            templateIds: new Collection([], HostTemplateId::class),
+            hostGroupIds: new Collection([], HostGroupId::class),
+        );
+
+        $reflection = new \ReflectionProperty(AggregateRoot::class, 'id');
+        $reflection->setAccessible(true);
+        $reflection->setValue($host, new HostId(1));
+
+        return $host;
+    }
+}

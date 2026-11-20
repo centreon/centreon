@@ -24,7 +24,9 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\Connector;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandMacroOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ConnectorResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\ResourceConnectorTransformer;
@@ -46,7 +48,7 @@ final readonly class ResourceCommandTransformer implements TransformerInterface
 
     public function transform(mixed $from): CommandResource
     {
-        return new CommandResource(
+        $resource = new CommandResource(
             id: $from->id()->value,
             name: $from->name->value,
             type: $from->type->name,
@@ -59,5 +61,15 @@ final readonly class ResourceCommandTransformer implements TransformerInterface
                 : null,
             comment: $from->comment?->value,
         );
+        $resource->setMacrosLoader(static fn (): array => array_map(
+            static fn (CommandMacro $macro): CommandMacroOutput => new CommandMacroOutput(
+                id: $macro->id?->value,
+                name: $macro->name,
+                type: mb_strtolower($macro->type->name),
+            ),
+            $from->macros(),
+        ));
+
+        return $resource;
     }
 }

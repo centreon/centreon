@@ -4,7 +4,7 @@ Feature: Create a new Agent Configuration
   I want to visit the Agents Configuration page
   To manage the Agent Configurations
 
-  @TEST_MON-151989
+  @MON-151989
   Scenario: Add an agent with all information
     Given a non-admin user is in the Agents Configuration page
     When the user clicks on Add
@@ -13,7 +13,7 @@ Feature: Create a new Agent Configuration
     And the user clicks on Create
     Then the first agent is displayed in the Agents Configuration page
 
-  @TEST_MON-151990
+  @MON-151990
   Scenario: Add an agent with mandatory information
     Given a CMA Token is configured
     Given a non-admin user is in the Agents Configuration page
@@ -29,7 +29,7 @@ Feature: Create a new Agent Configuration
     And the user clicks on Create
     Then the second agent is displayed in the Agents Configuration page
 
-  @TEST_MON-151991
+  @MON-151991
   Scenario: Add a centreon agent with multiple hosts
     Given a non-admin user is in the Agents Configuration page
     When the user clicks on Add
@@ -43,7 +43,7 @@ Feature: Create a new Agent Configuration
     And the user clicks on Create
     Then the third agent is displayed in the Agents Configuration page
 
-  @TEST_MON-151992
+  @MON-151992
   Scenario: Add an agent with missing information
     Given a non-admin user is in the Agents Configuration page
     When the user clicks on Add
@@ -51,7 +51,7 @@ Feature: Create a new Agent Configuration
     When the user doesn't fill in all the mandatory information
     Then the user cannot click on Create
 
-  @TEST_MON-151993
+  @MON-151993
   Scenario: Add an agent with incorrect information
     Given a non-admin user is in the Agents Configuration page
     When the user clicks on Add
@@ -59,7 +59,7 @@ Feature: Create a new Agent Configuration
     When the user doesn't fill in correct type of information
     Then the form displayed an error
 
-  @TEST_MON-151994
+  @MON-151994
   Scenario: Cancel a creation form
     Given a non-admin user is in the Agents Configuration page
     When the user clicks on Add
@@ -73,7 +73,7 @@ Feature: Create a new Agent Configuration
     When the user clicks on Add
     Then the form fields are empty
 
-  @TEST_MON-152203
+  @MON-152203
   Scenario: Save during cancellation in a creation form
     Given a non-admin user is in the Agents Configuration page
     When the user clicks on Add
@@ -87,7 +87,7 @@ Feature: Create a new Agent Configuration
     When the user clicks on Add
     Then the form fields are empty
 
-  @TEST_MON-152745
+  @MON-152745
   Scenario Outline: Verification of the pop-up displayed when user '<action>' a PAC form creation with '<agent_type>' type and all mandatory informations
     Given a non-admin user is in the Agents Configuration page
     When the user clicks on Add
@@ -105,7 +105,7 @@ Feature: Create a new Agent Configuration
       | clicks outside | Centreon Monitoring Agent | Do you want to save the changes? | If you click on Discard, your changes will not be saved. |
       | clicks outside | Telegraf | Do you want to save the changes? | If you click on Discard, your changes will not be saved. |
 
-  @TEST_MON-152759
+  @MON-152759
   Scenario Outline: Verification of the pop-up displayed when user '<action>' a PAC form creation with '<agent_type>' type and missing mandatory informations
     Given a non-admin user is in the Agents Configuration page
     When the user clicks on Add

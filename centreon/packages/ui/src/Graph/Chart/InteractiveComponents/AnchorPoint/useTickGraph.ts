@@ -27,7 +27,6 @@ interface Props {
   rightScale?: ScaleLinear<number, number>;
   timeSeries: Array<TimeValue>;
   xScale: ScaleTime<number, number>;
-  hasSecondUnit?: boolean;
   maxLeftAxisCharacters: number;
   hasUnit?: boolean;
 }
@@ -39,7 +38,6 @@ const useTickGraph = ({
   rightScale,
   lines = [],
   baseAxis = 1000,
-  hasSecondUnit,
   maxLeftAxisCharacters,
   hasUnit
 }: Props): AnchorPointResult => {
@@ -53,11 +51,7 @@ const useTickGraph = ({
   const mousePosition = useAtomValue(mousePositionAtom);
 
   const positionX = mousePosition
-    ? mousePosition[0] -
-      computeGElementMarginLeft({
-        hasSecondUnit,
-        maxCharacters: maxLeftAxisCharacters
-      })
+    ? mousePosition[0] - computeGElementMarginLeft(maxLeftAxisCharacters)
     : undefined;
   const positionY = mousePosition
     ? mousePosition[1] - (hasUnit ? 29 : 4)
@@ -74,10 +68,7 @@ const useTickGraph = ({
     const pixelToShift = computPixelsToShiftMouse(xScale);
     const mousePositionTimeTick = mousePosition
       ? getTimeValue({
-          marginLeft: computeGElementMarginLeft({
-            hasSecondUnit,
-            maxCharacters: maxLeftAxisCharacters
-          }),
+          marginLeft: computeGElementMarginLeft(maxLeftAxisCharacters),
           timeSeries,
           x: mousePosition[0] - pixelToShift,
           xScale

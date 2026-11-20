@@ -112,7 +112,6 @@ const Lines = ({
         <GuidingLines
           graphHeight={height}
           graphWidth={width}
-          hasSecondUnit={hasSecondUnit}
           hasUnit={hasUnitDisplayed}
           leftScale={leftScale}
           lines={displayedLines}
@@ -235,7 +234,6 @@ const Lines = ({
                 <g key={metric_id}>
                   {displayGuidingLines && (
                     <RegularAnchorPoint
-                      hasSecondUnit={hasSecondUnit}
                       lineColor={lineColor}
                       maxLeftAxisCharacters={maxLeftAxisCharacters}
                       metric_id={metric_id}

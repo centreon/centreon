@@ -1,0 +1,331 @@
+<?php
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
+declare(strict_types=1);
+
+namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
+
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostState;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityId;
+use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceCriteria;
+use App\MonitoringConfiguration\Domain\Repository\ServiceRepository;
+use App\Security\Domain\Aggregate\ActingUser;
+use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\Shared\Domain\Collection;
+use App\Shared\Domain\Repository\Pagination;
+use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
+
+final class FakeServiceRepository implements ServiceRepository
+{
+    /** @var array<int, Service> */
+    public array $services = [];
+
+    /** @var array<int, int> the service template of a service, indexed by service id */
+    public array $serviceTemplateIdOf = [];
+
+    /** @var list<Service> what {@see findAll()} returns, one per listed (host, service) pair */
+    public array $listed = [];
+
+    /** @var list<ServiceCriteria> */
+    public array $requestedCriteria = [];
+
+    /**
+     * @var list<int> ids of stored services also linked to another host or a host group: {@see findIdsSharedWithOthers()}
+     *                lists them, {@see findExclusivelyLinkedToHostId()} leaves them out
+     */
+    public array $sharedServiceIds = [];
+
+    /** @var list<array{serviceId: int, hostId: int}> */
+    public array $addedHostLinks = [];
+
+    /**
+     * @var list<int> ids of stored services {@see findExclusivelyLinkedToHostId()} still lists but
+     *                {@see findOneOnHost()} no longer finds, as when a service is deleted between the two reads
+     */
+    public array $goneBeforeLoadIds = [];
+
+    /** @var list<int> ids of stored services that {@see findOne()} hides from an actor whose access is restricted */
+    public array $outOfRestrictedScopeIds = [];
+
+    /** @var list<array{id: int, activated: bool}> */
+    public array $activationUpdates = [];
+
+    /** Every name taken, as by a concurrent write after the input validation. */
+    public bool $forceNameUsed = false;
+
+    /** @var array<int, list<ServiceMacro>> service id => own macros as read back after insertion */
+    public array $storedMacros = [];
+
+    /**
+     * @var array<int, list<int>> service id => every levelled category it is linked to, in read order, whatever the
+     *                            actor may see; unset, the stored service's severity
+     */
+    public array $storedSeverityIds = [];
+
+    /**
+     * @var array<int, array<int, HostState>> service id => every host it is directly linked to, as
+     *                                        {@see findLinkedHostStates()} reads them; unset, the stored service's
+     *                                        own host. A saved relation rewrite leaves the service's host only.
+     */
+    public array $linkedHostStates = [];
+
+    /** @var list<Service> */
+    public array $updatedServices = [];
+
+    /** @var list<Service> */
+    public array $relationsReplacedServices = [];
+
+    /** Thrown by add(), to stand for a failure after the vault was written. */
+    public ?\Throwable $addThrows = null;
+
+    /** Thrown by update(), to stand for a failure after the vault was written. */
+    public ?\Throwable $updateThrows = null;
+
+    public function add(Service $service): void
+    {
+        if ($this->addThrows instanceof \Throwable) {
+            throw $this->addThrows;
+        }
+
+        do {
+            $id = mt_rand();
+        } while (isset($this->services[$id]));
+
+        $reflection = new \ReflectionProperty(AggregateRoot::class, 'id');
+        $reflection->setAccessible(true);
+        $reflection->setValue($service, new ServiceId($id));
+
+        $this->services[$id] = $service;
+    }
+
+    public function update(Service $service): void
+    {
+        if ($this->updateThrows instanceof \Throwable) {
+            throw $this->updateThrows;
+        }
+
+        if (! isset($this->services[$service->id()->value])) {
+            return;
+        }
+
+        $this->updatedServices[] = $service;
+        $this->services[$service->id()->value] = $service;
+    }
+
+    public function replaceRelationsAndMacros(Service $service): void
+    {
+        if (! isset($this->services[$service->id()->value])) {
+            return;
+        }
+
+        $this->relationsReplacedServices[] = $service;
+        $this->services[$service->id()->value] = $service;
+        unset($this->linkedHostStates[$service->id()->value]);
+    }
+
+    public function hasExtraSeverities(ServiceId $id, ?ServiceSeverityId $kept): bool
+    {
+        return array_diff($this->storedSeverityIds[$id->value] ?? [], [$kept?->value]) !== [];
+    }
+
+    public function findLinkedHostStates(ServiceId $id): Collection
+    {
+        if (isset($this->linkedHostStates[$id->value])) {
+            return new Collection($this->linkedHostStates[$id->value], HostState::class);
+        }
+
+        $service = $this->services[$id->value] ?? null;
+
+        return new Collection(
+            $service instanceof Service ? [$service->hostId->value => new HostState($service->hostActivated, $service->hostPollerId)] : [],
+            HostState::class,
+        );
+    }
+
+    public function isNameUsedOnHost(ServiceName $name, HostId $hostId, ?ServiceId $excludingServiceId = null): bool
+    {
+        if ($this->forceNameUsed) {
+            return true;
+        }
+
+        foreach ($this->services as $id => $service) {
+            if (
+                $id !== $excludingServiceId?->value
+                && $service->hostId->value === $hostId->value
+                && strcasecmp($service->name->value, $name->value) === 0
+            ) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function findExclusivelyLinkedToHostId(HostId $hostId): Collection
+    {
+        $services = array_values(array_filter(
+            $this->services,
+            fn (Service $service): bool => $service->hostId->value === $hostId->value
+                && ! in_array($service->id()->value, $this->sharedServiceIds, true),
+        ));
+
+        return new Collection($services, Service::class);
+    }
+
+    public function findIdsExclusivelyLinkedToHostId(HostId $hostId): Collection
+    {
+        $ids = array_map(
+            static fn (Service $service): int => $service->id()->value,
+            $this->findExclusivelyLinkedToHostId($hostId)->toArray(),
+        );
+        sort($ids);
+
+        return new Collection(array_map(static fn (int $id): ServiceId => new ServiceId($id), $ids), ServiceId::class);
+    }
+
+    public function findIdsSharedWithOthers(HostId $hostId): Collection
+    {
+        $ids = array_values(array_filter(
+            $this->sharedServiceIds,
+            fn (int $id): bool => ($this->services[$id] ?? null)?->hostId->value === $hostId->value,
+        ));
+        sort($ids);
+
+        return new Collection(array_map(static fn (int $id): ServiceId => new ServiceId($id), $ids), ServiceId::class);
+    }
+
+    public function addHostLink(ServiceId $id, HostId $hostId): void
+    {
+        $this->addedHostLinks[] = ['serviceId' => $id->value, 'hostId' => $hostId->value];
+    }
+
+    /**
+     * Whether a service is shared is SQL, pinned by the integration tests of the real repository.
+     */
+    public function findIdsFromServiceTemplates(HostId $hostId, array $serviceTemplateIds): Collection
+    {
+        $ids = [];
+        foreach ($this->services as $id => $service) {
+            if (
+                $service->hostId->value === $hostId->value
+                && in_array($this->serviceTemplateIdOf[$id] ?? null, $serviceTemplateIds, true)
+            ) {
+                $ids[] = new ServiceId($id);
+            }
+        }
+
+        return new Collection($ids, ServiceId::class);
+    }
+
+    public function findOneOnHost(ServiceId $id, HostId $hostId): ?Service
+    {
+        $service = $this->services[$id->value] ?? null;
+        if (in_array($id->value, $this->goneBeforeLoadIds, true)) {
+            return null;
+        }
+
+        return $service?->hostId->value === $hostId->value ? $service : null;
+    }
+
+    public function remove(Service $service): void
+    {
+        unset($this->services[$service->id()->value]);
+    }
+
+    /**
+     * Returns {@see $listed} as it is: filtering, sorting and scoping are SQL, pinned by the integration tests
+     * of the real repository. Records the criteria it is asked with, so a caller's mapping can be checked.
+     */
+    public function findAll(ServiceCriteria $criteria): \IteratorAggregate&\Countable
+    {
+        $this->requestedCriteria[] = $criteria;
+
+        $pagination = $criteria->getPagination();
+        if (! $pagination instanceof Pagination) {
+            return new Collection($this->listed, Service::class);
+        }
+
+        return new InMemoryPaginator(
+            new Collection(array_slice($this->listed, $pagination->getOffset(), $pagination->itemsPerPage), Service::class),
+            count($this->listed),
+            $pagination->page,
+            $pagination->itemsPerPage,
+        );
+    }
+
+    /**
+     * Service found unless listed in {@see $outOfRestrictedScopeIds} for a restricted actor; real visibility is SQL.
+     */
+    public function findOne(ServiceId $id, ActingUser $actor): ?Service
+    {
+        $service = $this->services[$id->value] ?? null;
+        if ($service === null) {
+            return null;
+        }
+
+        if (! $actor->hasUnrestrictedResourceAccess() && in_array($id->value, $this->outOfRestrictedScopeIds, true)) {
+            return null;
+        }
+
+        if (! isset($this->storedSeverityIds[$id->value])) {
+            return $service;
+        }
+
+        // As the real repository: the first stored severity, whatever the actor may see.
+        $stored = $this->storedSeverityIds[$id->value];
+        $severityId = $stored === [] ? null : new ServiceSeverityId($stored[0]);
+
+        if ($severityId?->value === $service->severityId?->value) {
+            return $service;
+        }
+
+        $read = clone $service;
+        $read->changeRelations($severityId, $read->serviceGroupIds, $read->categoryIds, $read->trapIds);
+
+        return $read;
+    }
+
+    /**
+     * The own macros of the stored service; a test seeds {@see $storedMacros} to stand for the ids a real insert
+     * assigns.
+     */
+    public function findMacros(ServiceId $id): Collection
+    {
+        return new Collection(
+            $this->storedMacros[$id->value] ?? $this->services[$id->value]->checkOptions->macros ?? [],
+            ServiceMacro::class,
+        );
+    }
+
+    /**
+     * Only records the write: the stored aggregate is the caller's, which changes it itself, so a caller that
+     * forgets to do so is caught.
+     */
+    public function updateActivationStatus(ServiceId $id, bool $activated): void
+    {
+        $this->activationUpdates[] = ['id' => $id->value, 'activated' => $activated];
+    }
+}

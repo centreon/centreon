@@ -2,14 +2,9 @@ import { Box } from '@mui/material';
 
 import { useSetAtom } from 'jotai';
 import { type ReactElement, useCallback, useEffect, useState } from 'react';
-import {
-  type Layout,
-  LayoutItem,
-  ReactGridLayout,
-  useContainerWidth
-} from 'react-grid-layout';
+import { type Layout, LayoutItem, ReactGridLayout } from 'react-grid-layout';
 
-import { useMemoComponent } from '..';
+import { ParentSize, useMemoComponent } from '..';
 import { isResizingItemAtom } from './atoms';
 import { useDashboardLayoutStyles } from './Dashboard.styles';
 import { getColumnsFromScreenSize, getLayout, rowHeight } from './utils';
@@ -42,8 +37,6 @@ const DashboardLayout = <T extends LayoutItem>({
   isStatic = false,
   additionalMemoProps = []
 }: DashboardLayoutProps<T>): ReactElement => {
-  const { width, containerRef } = useContainerWidth();
-
   const { classes } = useDashboardLayoutStyles(isStatic);
 
   const [columns, setColumns] = useState(getColumnsFromScreenSize());
@@ -77,26 +70,30 @@ const DashboardLayout = <T extends LayoutItem>({
 
   return useMemoComponent({
     Component: (
-      <Box ref={containerRef} sx={{ overflowX: 'hidden', overflowY: 'auto' }}>
-        <Box className={classes.container}>
-          <ReactGridLayout
-            gridConfig={{ cols: columns, margin: [12, 12], rowHeight }}
-            layout={currentLayout}
-            onLayoutChange={changeLayout}
-            onResizeStart={startResize}
-            onResizeStop={stopResize}
-            resizeConfig={{
-              handleComponent: Handle,
-              handles: ['s', 'e', 'se', 'sw', 'w']
-            }}
-            width={width}
-          >
-            {children}
-          </ReactGridLayout>
-        </Box>
+      <Box sx={{ overflowX: 'hidden', overflowY: 'auto' }}>
+        <ParentSize>
+          {({ width }): ReactElement => (
+            <Box className={classes.container}>
+              <ReactGridLayout
+                gridConfig={{ cols: columns, margin: [12, 12], rowHeight }}
+                layout={currentLayout}
+                onLayoutChange={changeLayout}
+                onResizeStart={startResize}
+                onResizeStop={stopResize}
+                resizeConfig={{
+                  handleComponent: Handle,
+                  handles: ['s', 'e', 'se', 'sw', 'w']
+                }}
+                width={width}
+              >
+                {children}
+              </ReactGridLayout>
+            </Box>
+          )}
+        </ParentSize>
       </Box>
     ),
-    memoProps: [columns, currentLayout, isStatic, width, ...additionalMemoProps]
+    memoProps: [columns, currentLayout, isStatic, ...additionalMemoProps]
   });
 };
 

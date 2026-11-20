@@ -4,6 +4,7 @@ parameters:
         - ./src/App/MonitoringConfiguration
         - ./src/App/Security
         - ./src/App/Shared
+        - ./src/App/Upgrade
 
     layers:
         - name: Domain
@@ -43,17 +44,22 @@ parameters:
         - name: Legacy
           collectors:
               - { type: classNameRegex, value: '#^App\\Kernel$#' }
-              - { type: classNameRegex, value: '#^Adaptation\\$#' }
+              - { type: classNameRegex, value: '#^Adaptation\\(?!Log\\)#' } # Adaptation\Log has its own AdaptationLog layer
               - { type: classNameRegex, value: '#^Centreon*\\#' }
+              - { type: classNameRegex, value: '#^CentreonDB#' } # legacy global classes
               - { type: classNameRegex, value: '#^Core\\#' }
               - { type: classNameRegex, value: '#^EventSubscriber\\#' }
               - { type: classNameRegex, value: '#^Security\\#' }
               - { type: classNameRegex, value: '#^Utility\\#' }
 
+        - name: AdaptationLog # hexagonal-arch adapters for logging
+          collectors:
+              - { type: classNameRegex, value: '#^Adaptation\\Log\\#' }
+
     ruleset:
         Domain: [ Helpers ]
         Application: [ Domain, Helpers ]
-        Infrastructure: [ Domain, Application, Vendors, Helpers ]
+        Infrastructure: [ Domain, Application, Vendors, Helpers, AdaptationLog ]
 
     skip_violations:
         App\Shared\Infrastructure\Legacy\LegacyKernelWrapper:
@@ -64,5 +70,14 @@ parameters:
             - Centreon\Domain\Exception\EntityNotFoundException
         App\Shared\Infrastructure\Legacy\LegacyVaultWrapper:
             - Core\Common\Application\Repository\ReadVaultRepositoryInterface
+            - Core\Common\Application\Repository\WriteVaultRepositoryInterface
+            - Core\Common\Application\VaultEligibilityService
         App\Security\Infrastructure\Security\Legacy\LegacyTokenApiAuthenticatorWrapper:
             - Security\TokenAPIAuthenticator
+        App\MonitoringConfiguration\Infrastructure\Legacy\LegacyGorgoneNodesSynchronizer:
+            - Centreon\Domain\Gorgone\Command\NodesSync
+            - Centreon\Domain\Gorgone\GorgoneException
+            - Centreon\Domain\Gorgone\Interfaces\GorgoneServiceInterface
+        App\Upgrade\Infrastructure\Legacy\LegacyConnectionFactory:
+            - CentreonDB
+            - Adaptation\Database\Connection\Model\ConnectionConfig
