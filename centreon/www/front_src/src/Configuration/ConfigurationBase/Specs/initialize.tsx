@@ -1,15 +1,25 @@
 import { capitalize } from '@mui/material';
 
-import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
+import { SnackbarProvider } from '@centreon/ui';
 import { defaultLimitPerPageAtom } from '@centreon/ui-context';
 
+import { rs } from '@rstest/core';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { interceptAPIRequest, Method } from '@test-setup/api';
+import { render } from '@test-setup/render';
+import type { RenderResult } from '@testing-library/react';
 import i18next from 'i18next';
 import { atom, createStore, Provider } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
 import { initReactI18next } from 'react-i18next';
 import { BrowserRouter as Router } from 'react-router';
 
-import { Actions, FilterConfiguration, ResourceType } from '../../models';
+import {
+  type Actions,
+  type FilterConfiguration,
+  type Form,
+  ResourceType
+} from '../../models';
 import ConfigurationBase from '..';
 import { panelWidthAtom } from '../atoms';
 import {
@@ -27,44 +37,61 @@ import {
   resourceDecoderListDecoder
 } from './utils';
 
+// The resource as the endpoints and the fixtures name it: `host group` is
+// served under `/configuration/host_group`, its rows are `host_group 1`...
+export const toResource = (resourceType: string): string =>
+  resourceType.replace(' ', '_');
+
+// What the detail endpoint answers for the resource with id 1.
+export const getDetailsResponse = (
+  resource: string
+): Record<string, string> => ({
+  alias: `${resource} 1 alias`,
+  coordinates: '-20.40,13,12',
+  name: `${resource} 1`
+});
+
+// `disableFails`: the disable request is refused, answered after a delay so a
+// test can see the toggle flip before it is put back.
 export const mockActionsRequests = (
-  resourceType,
+  resource: string,
   disableFails = false
 ): void => {
-  cy.interceptAPIRequest({
+  interceptAPIRequest({
     alias: 'deleteOne',
     method: Method.DELETE,
-    path: `**${getEndpoints(resourceType).deleteOne({ id: 1 })}`,
+    path: `**${getEndpoints(resource).deleteOne?.({ id: 1 })}`,
     response: { code: 200, status: 'ok' }
   });
 
-  cy.interceptAPIRequest({
+  interceptAPIRequest({
     alias: 'delete',
     method: Method.POST,
-    path: `**${getEndpoints(resourceType).delete}`,
+    path: `**${getEndpoints(resource).delete}`,
     response: { code: 200, status: 'ok' }
   });
 
-  cy.interceptAPIRequest({
+  interceptAPIRequest({
     alias: 'duplicate',
     method: Method.POST,
-    path: `**${getEndpoints(resourceType).duplicate}`,
+    path: `**${getEndpoints(resource).duplicate}`,
     response: { code: 200, status: 'ok' }
   });
 
-  cy.interceptAPIRequest({
+  interceptAPIRequest({
     alias: 'enable',
     method: Method.POST,
-    path: `**${getEndpoints(resourceType).enable?.()}`,
+    path: `**${getEndpoints(resource).enable?.({ id: 1 })}`,
     response: {
       results: [{ href: '/resources/1', message: null, status: 204 }]
     }
   });
 
-  cy.interceptAPIRequest({
+  interceptAPIRequest({
     alias: 'disable',
+    delay: disableFails ? 500 : 0,
     method: Method.POST,
-    path: `**${getEndpoints(resourceType).disable?.()}`,
+    path: `**${getEndpoints(resource).disable?.({ id: 1 })}`,
     response: {
       results: [
         {
@@ -77,15 +104,15 @@ export const mockActionsRequests = (
   });
 };
 
-const mockListingRequests = (resourceType): void => {
-  cy.interceptAPIRequest({
+const mockListingRequests = (resource: string): void => {
+  interceptAPIRequest({
     alias: 'getAll',
     method: Method.GET,
-    path: `**${getEndpoints(resourceType).getAll}?**`,
-    response: getListingResponse(resourceType)
+    path: `**${getEndpoints(resource).getAll}?**`,
+    response: getListingResponse(resource)
   });
 
-  cy.interceptAPIRequest({
+  interceptAPIRequest({
     alias: 'getHostTemplates',
     method: Method.GET,
     path: `**${hostTemplatesEndpoint}**`,
@@ -93,36 +120,32 @@ const mockListingRequests = (resourceType): void => {
   });
 };
 
-export const mockModalRequests = (resourceType): void => {
-  const response = {
-    alias: `${resourceType} 1 alias`,
-    coordinates: '-20.40,13,12',
-    name: `${resourceType} 1`
-  };
+export const mockModalRequests = (resource: string): void => {
+  const response = getDetailsResponse(resource);
 
-  cy.interceptAPIRequest({
+  interceptAPIRequest({
     alias: 'getDetails',
     method: Method.GET,
-    path: `**${getEndpoints(resourceType).getOne?.({ id: 1 })}`,
+    path: `**${getEndpoints(resource).getOne?.({ id: 1 })}`,
     response
   });
 
-  cy.interceptAPIRequest({
+  interceptAPIRequest({
     alias: 'create',
     method: Method.POST,
-    path: `**${getEndpoints(resourceType).create}`,
+    path: `**${getEndpoints(resource).create}`,
     response
   });
 
-  cy.interceptAPIRequest({
+  interceptAPIRequest({
     alias: 'update',
     method: Method.PUT,
-    path: `**${getEndpoints(resourceType).update?.({ id: 1 })}`,
+    path: `**${getEndpoints(resource).update?.({ id: 1 })}`,
     response: {}
   });
 };
 
-const defaultActions = {
+const defaultActions: Actions = {
   delete: () => true,
   duplicate: () => true,
   edit: true,
@@ -130,6 +153,27 @@ const defaultActions = {
   massive: true,
   viewDetails: true
 };
+
+interface ScreenSize {
+  height: number;
+  width: number;
+}
+
+interface Props {
+  resourceType?: ResourceType | string;
+  filters?: Array<FilterConfiguration>;
+  initialValues?: Record<string, unknown>;
+  filtersPanelWidth?: number;
+  actions?: Actions;
+  formVariant?: 'modal' | 'panel';
+  formPanelWidth?: number;
+  panelWidth?: number;
+  searchParams?: string;
+  // The screen size the page is laid out for: the page gets that size and
+  // `window.innerWidth` reports its width (the browser viewport is fixed). CSS
+  // media queries still see the real viewport.
+  screenSize?: ScreenSize;
+}
 
 const initialize = ({
   resourceType = ResourceType.Host,
@@ -140,23 +184,19 @@ const initialize = ({
   formVariant,
   formPanelWidth,
   panelWidth,
-  searchParams = ''
-}: {
-  resourceType?: ResourceType;
-  filters?: Array<FilterConfiguration>;
-  initialValues?: Record<string, unknown>;
-  filtersPanelWidth?: number;
-  actions?: Actions;
-  formVariant?: 'modal' | 'panel';
-  formPanelWidth?: number;
-  panelWidth?: number;
-  searchParams?: string;
-}): void => {
-  const resource = resourceType.replace(' ', '_');
+  searchParams = '',
+  screenSize
+}: Props = {}): RenderResult => {
+  const resource = toResource(resourceType);
 
   // A deep link is the URL the page opens on. Always set, so no test leaks
   // its URL into the next.
   window.history.pushState({}, '', searchParams || window.location.pathname);
+
+  if (screenSize) {
+    // Restored after the test (`restoreMocks`).
+    rs.spyOn(window, 'innerWidth', 'get').mockReturnValue(screenSize.width);
+  }
 
   mockListingRequests(resource);
 
@@ -165,46 +205,62 @@ const initialize = ({
     resources: {}
   });
 
-  const selectedColumnIdsAtom = atomWithStorage(columnsAtomKey, []);
+  const selectedColumnIdsAtom = atomWithStorage<Array<string>>(
+    columnsAtomKey,
+    []
+  );
   const filtersAtom = atomWithStorage(filtersAtomKey, initialValues);
   const isWelcomePageDisplayedAtom = atom(false);
 
   const store = createStore();
 
-  // Always set: the store is new for each test but localStorage is not, so a
-  // width one test drags to would otherwise open the next one.
-  store.set(panelWidthAtom, panelWidth ?? null);
   // The platform default page size, which listings wait for.
   store.set(defaultLimitPerPageAtom, 10);
 
-  cy.mount({
-    Component: (
-      <Router>
-        <SnackbarProvider>
-          <TestQueryProvider>
-            <Provider store={store}>
-              <div style={{ height: '100vh' }}>
-                <ConfigurationBase
-                  actions={actions}
-                  api={{
-                    adapter: (data) => data,
-                    decoders: { getAll: resourceDecoderListDecoder },
-                    endpoints: getEndpoints(resource)
-                  }}
-                  columns={columns}
-                  columnsAtomKey={columnsAtomKey}
-                  defaultSelectedColumnIds={[
-                    'name',
-                    'alias',
-                    'actions',
-                    'is_activated'
-                  ]}
-                  filtersAtom={filtersAtom}
-                  filtersAtomKey={filtersAtomKey}
-                  filtersConfiguration={filters}
-                  filtersInitialValues={initialValues}
-                  filtersPanelWidth={filtersPanelWidth}
-                  form={{
+  // Seeds the width the user last dragged the panel to; `null` lets the screen
+  // decide.
+  store.set(panelWidthAtom, panelWidth ?? null);
+
+  // A client of its own, so no cache leaks from one test to the next.
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { gcTime: 0, retry: false } }
+  });
+
+  return render(
+    <Router>
+      <SnackbarProvider>
+        <QueryClientProvider client={queryClient}>
+          <Provider store={store}>
+            <div
+              style={
+                screenSize
+                  ? { height: screenSize.height, width: screenSize.width }
+                  : { height: '100vh' }
+              }
+            >
+              <ConfigurationBase
+                actions={actions}
+                api={{
+                  adapter: (data) => data,
+                  decoders: { getAll: resourceDecoderListDecoder },
+                  endpoints: getEndpoints(resource)
+                }}
+                columns={columns}
+                columnsAtomKey={columnsAtomKey}
+                defaultSelectedColumnIds={[
+                  'name',
+                  'alias',
+                  'actions',
+                  'is_activated'
+                ]}
+                filtersAtom={filtersAtom}
+                filtersAtomKey={filtersAtomKey}
+                filtersConfiguration={filters}
+                filtersInitialValues={initialValues}
+                filtersPanelWidth={filtersPanelWidth}
+                // No validation schema: the form accepts anything.
+                form={
+                  {
                     defaultValues: {
                       alias: '',
                       coordinates: '',
@@ -212,29 +268,29 @@ const initialize = ({
                     },
                     groups,
                     inputs
-                  }}
-                  formPanelWidth={formPanelWidth}
-                  formVariant={formVariant}
-                  isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
-                  labels={{
-                    title: `${capitalize(resourceType)}s`,
-                    welcomePage: {
-                      actions: {
-                        create: 'Add configuration base'
-                      },
-                      title: 'Welcome to configuration base'
-                    }
-                  }}
-                  resourceType={resourceType}
-                  selectedColumnIdsAtom={selectedColumnIdsAtom}
-                />
-              </div>
-            </Provider>
-          </TestQueryProvider>
-        </SnackbarProvider>
-      </Router>
-    )
-  });
+                  } as Form
+                }
+                formPanelWidth={formPanelWidth}
+                formVariant={formVariant}
+                isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
+                labels={{
+                  title: `${capitalize(resourceType)}s`,
+                  welcomePage: {
+                    actions: {
+                      create: 'Add configuration base'
+                    },
+                    title: 'Welcome to configuration base'
+                  }
+                }}
+                resourceType={resourceType as ResourceType}
+                selectedColumnIdsAtom={selectedColumnIdsAtom}
+              />
+            </div>
+          </Provider>
+        </QueryClientProvider>
+      </SnackbarProvider>
+    </Router>
+  );
 };
 
 export default initialize;
