@@ -36,6 +36,7 @@ use App\MonitoringConfiguration\Infrastructure\Validator\AccessibleHostSeverity;
 use App\MonitoringConfiguration\Infrastructure\Validator\AccessiblePoller;
 use App\MonitoringConfiguration\Infrastructure\Validator\ExistingHostTemplates;
 use App\MonitoringConfiguration\Infrastructure\Validator\ExistingTimezone;
+use App\MonitoringConfiguration\Infrastructure\Validator\NoControlCharacters;
 use App\MonitoringConfiguration\Infrastructure\Validator\ValidHostAddress;
 use App\Shared\Domain\Logging\Attribute\Sensitive;
 use App\Shared\Infrastructure\ApiPlatform\RequestPayload;
@@ -63,8 +64,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 ])]
 final readonly class PatchHostInput
 {
-    private const CONTROL_CHARACTERS = '/[\x00-\x1F\x7F]/';
-
     /**
      * @param list<int> $hostGroupIds replaces the host groups, an empty list removes them all
      * @param list<int> $hostGroupIdsToAdd
@@ -99,6 +98,7 @@ final readonly class PatchHostInput
                 match: false,
                 normalizer: 'trim',
             ),
+            new NoControlCharacters(),
         ])]
         public ?string $name = null,
 
@@ -116,7 +116,7 @@ final readonly class PatchHostInput
         public ?int $pollerId = null,
 
         #[Assert\Length(max: HostAlias::MAX_LENGTH, normalizer: 'trim')]
-        #[Assert\Regex(pattern: self::CONTROL_CHARACTERS, message: 'This value must not contain control characters.', match: false)]
+        #[NoControlCharacters]
         public ?string $alias = null,
 
         public ?SnmpVersionEnum $snmpVersion = null,
@@ -125,7 +125,7 @@ final readonly class PatchHostInput
         #[WhenVault(forVault: false, constraints: [
             new Assert\Length(max: SnmpCommunity::MAX_LENGTH, normalizer: 'trim'),
         ])]
-        #[Assert\Regex(pattern: self::CONTROL_CHARACTERS, message: 'This value must not contain control characters.', match: false)]
+        #[NoControlCharacters]
         #[Sensitive]
         public ?string $snmpCommunity = null,
 

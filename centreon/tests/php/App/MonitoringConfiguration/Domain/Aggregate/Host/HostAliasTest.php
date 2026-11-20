@@ -55,4 +55,9 @@ final class HostAliasTest extends TestCase
 
         new HostAlias(str_repeat('a', 201));
     }
+
+    public function testItReplacesControlCharactersWithASpace(): void
+    {
+        self::assertSame('my-alias other', new HostAlias("\tmy-alias\r\n\x01other\n")->value);
+    }
 }

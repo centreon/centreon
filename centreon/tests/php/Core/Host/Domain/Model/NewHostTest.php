@@ -269,6 +269,34 @@ foreach (
     );
 }
 
+// single-line fields
+foreach (
+    [
+        'name' => 'abc_def',
+        'alias' => 'abc def',
+        'snmpCommunity' => 'abc def',
+        'noteUrl' => 'abc def',
+        'note' => 'abc def',
+        'actionUrl' => 'abc def',
+        'iconAlternative' => 'abc def',
+    ] as $field => $expected
+) {
+    it(
+        "should replace control characters with a space when host {$field} contains some",
+        function () use ($field, $expected): void {
+            $host = ($this->createHost)([$field => "\tabc\r\n\x01def\n"]);
+
+            expect($host->{'get' . $field}())->toBe($expected);
+        }
+    );
+}
+
+it('should accept a comment spanning several lines', function (): void {
+    $host = ($this->createHost)(['comment' => "first line\nsecond line"]);
+
+    expect($host->getComment())->toBe("first line\nsecond line");
+});
+
 // foreign keys fields
 foreach (
     [

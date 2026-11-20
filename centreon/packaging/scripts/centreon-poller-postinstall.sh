@@ -54,6 +54,14 @@ updateSnmpConfiguration() {
 view centreon included .1.3.6.1" "$conf"
   grep -q '^access .* centreon ' "$conf" || sed -i "/^access.*$/i\
 access notConfigGroup \"\" any noauth exact centreon none none" "$conf"
+  # el10 net-snmp no longer maps the public community to notConfigGroup (el9 does): add it, loopback only
+  if grep -q '^access notConfigGroup ' "$conf" && ! grep -q '^group\s\+notConfigGroup\s' "$conf"; then
+    sed -i '/^view centreon /i\
+com2sec notConfigUser 127.0.0.1 public\
+com2sec6 notConfigUser ::1 public\
+group notConfigGroup v1 notConfigUser\
+group notConfigGroup v2c notConfigUser' "$conf"
+  fi
   grep -q '^rocommunity .*-V centreon$' "$conf" || sed -i "/^rocommunity\s.*-V systemonly$/i\
 rocommunity public 127.0.0.1 -V centreon" "$conf"
   grep -q '^rocommunity6 .*-V centreon$' "$conf" || sed -i "/^rocommunity6\s.*-V systemonly$/i\
