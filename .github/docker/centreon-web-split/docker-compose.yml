@@ -70,6 +70,34 @@ services:
       # Dockerfile (chown centreon:centreon, chmod 775).
       - centreon-cache:/var/cache/centreon
       - centreon-varlib:/var/lib/centreon
+      # RRD graph rendering (centreonGraph.class.php shells out to rrdtool,
+      # reading these files — never writes them, confirmed by exploring the
+      # PHP source, no `.rrd` write/unlink call anywhere under www/) — a
+      # narrower, dedicated pair of volumes vs. reusing centreon-varlib
+      # above: this data will be shared with centreon-broker specifically,
+      # not with gorgone (which has no reason to see it).
+      #
+      # Not :ro: these are fresh named volumes with no image-provided
+      # ownership, and centreon-broker's own image ships USER centreon-broker
+      # (non-root) by default, so it can't chown them itself. fpm already
+      # runs an early root-level container.d phase and already bakes in
+      # centreon-broker's exact UID/GID — container.d/03-rrd-volumes.sh does
+      # the one-time mkdir+chown there instead of adding a dedicated init
+      # container. The application code itself (www/, the rrdtool shell-out
+      # above) still never writes here — httpd gets no mount at all, it
+      # serves no PHP and has no reason to touch this.
+      - centreon-status:/var/lib/centreon/status
+      - centreon-metrics:/var/lib/centreon/metrics
+      # UI-uploaded media (company logo, host/service icons — anything
+      # through Administration > Parameters > Medias) — fpm is the writer
+      # here (FileWriteMediaRepository writes straight into www/, confirmed
+      # by tracing it: no dedicated upload dir outside the docroot), httpd
+      # only needs to read it back to serve it statically. Without this,
+      # media uploaded after build time is invisible to httpd (its own www/
+      # is a build-time snapshot, no shared volume by design) — 404/broken
+      # image, confirmed by comparing this exact path on both containers
+      # directly.
+      - centreon-media:/usr/share/centreon/www/img/media
       # PHP's own session store (session.save_handler=files, session.save_path
       # in centreon-pool.conf) — without this, every fpm recreate silently
       # logs every user out: the DB-side `session` table only tracks whether
@@ -98,6 +126,10 @@ services:
     environment:
       PHP_FPM_UPSTREAM: "fpm:9000"
       HTTPD_SERVER_NAME: "${HTTPD_SERVER_NAME:-localhost:18080}"
+    volumes:
+      # See the matching comment on fpm's own mount of this volume — fpm
+      # writes, httpd only serves it back statically, :ro here on purpose.
+      - centreon-media:/usr/share/centreon/www/img/media:ro
     healthcheck:
       test: ["CMD-SHELL", "test -f /tmp/docker.ready"]
       interval: 5s
@@ -141,4 +173,7 @@ services:
 volumes:
   centreon-cache:
   centreon-varlib:
+  centreon-status:
+  centreon-metrics:
+  centreon-media:
   centreon-sessions:
