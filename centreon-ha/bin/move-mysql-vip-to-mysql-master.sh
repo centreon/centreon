@@ -9,9 +9,9 @@ if [[ -z $MYSQL_VIP_IPADDR ]] ; then
 fi
 
 # Check who is the curent MySQL master
-IS_PRIMARY_MASTER=$(mysql -f -u "$DBROOTUSER" -h "$DBHOSTNAMEMASTER" "-p$DBROOTPASSWORD" -e "SHOW GLOBAL VARIABLES LIKE 'read_only'" | grep -c OFF)
+IS_PRIMARY_MASTER=$(mariadb -f -u "$DBROOTUSER" -h "$DBHOSTNAMEMASTER" "-p$DBROOTPASSWORD" -e "SHOW GLOBAL VARIABLES LIKE 'read_only'" | grep -c OFF)
 
-IS_SECONDARY_MASTER=$(mysql -f -u "$DBROOTUSER" -h "$DBHOSTNAMESLAVE" "-p$DBROOTPASSWORD" -e "SHOW GLOBAL VARIABLES LIKE 'read_only'" | grep -c OFF)
+IS_SECONDARY_MASTER=$(mariadb -f -u "$DBROOTUSER" -h "$DBHOSTNAMESLAVE" "-p$DBROOTPASSWORD" -e "SHOW GLOBAL VARIABLES LIKE 'read_only'" | grep -c OFF)
 
 [[ "$DEBUG" ]] && declare -p IS_PRIMARY_MASTER IS_SECONDARY_MASTER
 
@@ -47,9 +47,9 @@ ping -W 1 -c 1 "$MYSQL_VIP_IPADDR"  >/dev/null
 VIP_OWNER=
 if [[ "$VIP_USED" ]] ; then
     # Check who is using it
-    MASTER_SERVER_ID=$(mysql -Nf -u "$DBROOTUSER" -h "$MASTER_DB" "-p$DBROOTPASSWORD" -e "SHOW GLOBAL VARIABLES LIKE 'server_id'" | awk '{print $2}')
-    SLAVE_SERVER_ID=$(mysql -Nf -u "$DBROOTUSER" -h "$SLAVE_DB" "-p$DBROOTPASSWORD" -e "SHOW GLOBAL VARIABLES LIKE 'server_id'" | awk '{print $2}')
-    VIP_OWNER_SERVER_ID=$(mysql -Nf -u "$DBROOTUSER" -h "$MYSQL_VIP_IPADDR" "-p$DBROOTPASSWORD" -e "SHOW GLOBAL VARIABLES LIKE 'server_id'" | awk '{print $2}')
+    MASTER_SERVER_ID=$(mariadb -Nf -u "$DBROOTUSER" -h "$MASTER_DB" "-p$DBROOTPASSWORD" -e "SHOW GLOBAL VARIABLES LIKE 'server_id'" | awk '{print $2}')
+    SLAVE_SERVER_ID=$(mariadb -Nf -u "$DBROOTUSER" -h "$SLAVE_DB" "-p$DBROOTPASSWORD" -e "SHOW GLOBAL VARIABLES LIKE 'server_id'" | awk '{print $2}')
+    VIP_OWNER_SERVER_ID=$(mariadb -Nf -u "$DBROOTUSER" -h "$MYSQL_VIP_IPADDR" "-p$DBROOTPASSWORD" -e "SHOW GLOBAL VARIABLES LIKE 'server_id'" | awk '{print $2}')
     [[ "$DEBUG" ]] && declare -p MASTER_SERVER_ID SLAVE_SERVER_ID VIP_OWNER_SERVER_ID
     if [[ "$VIP_OWNER_SERVER_ID" == "$MASTER_SERVER_ID" ]] ; then
         VIP_OWNER="$MASTER_DB"
