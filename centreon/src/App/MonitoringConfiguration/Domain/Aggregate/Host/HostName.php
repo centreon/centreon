@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Aggregate\Host;
 
+use App\MonitoringConfiguration\Domain\Model\EngineConfigurationValue;
 use Webmozart\Assert\Assert;
 
 final readonly class HostName
@@ -37,7 +38,7 @@ final readonly class HostName
         // The name is used as a plain identifier in the monitoring engine's configuration
         // (command lines, config file tokens), where a raw space would break parsing — so it
         // never carries one, wherever the value is built from.
-        $value = str_replace(' ', '_', trim($value));
+        $value = str_replace(' ', '_', trim(EngineConfigurationValue::toSingleLine($value)));
         Assert::lengthBetween($value, self::MIN_LENGTH, self::MAX_LENGTH);
         $this->value = $value;
     }

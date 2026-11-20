@@ -1,4 +1,4 @@
-import { waitForRequest } from '@test-setup/api';
+import { getRequestCalls, waitForRequest } from '@test-setup/api';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
@@ -7,9 +7,11 @@ import {
   labelDelete,
   labelDisable,
   labelDuplicate,
-  labelEnable
+  labelEnable,
+  labelMassChange
 } from '../../ConfigurationBase/translatedLabels';
 import initialize from './initialize';
+import { getSharedServiceListingResponse } from './utils';
 
 const selectAll = async (): Promise<void> => {
   await userEvent.click(screen.getByLabelText('Select all'));
@@ -102,7 +104,13 @@ export default () => {
         within(menu)
           .getAllByRole('menuitem')
           .map((entry) => entry.textContent)
-      ).toEqual([labelDuplicate, labelEnable, labelDisable, labelDelete]);
+      ).toEqual([
+        labelDuplicate,
+        labelEnable,
+        labelDisable,
+        labelDelete,
+        labelMassChange
+      ]);
     });
 
     it('deletes every selected service, one request each', async () => {
@@ -120,6 +128,27 @@ export default () => {
       const { request } = await waitForRequest('@deleteService2');
 
       expect(request.url.pathname).toContain('/api/configuration/services/2');
+    });
+
+    it('deletes a service linked to several hosts once, whatever rows are selected', async () => {
+      initialize({ listingResponse: getSharedServiceListingResponse() });
+
+      await waitForRequest('@getAllServices');
+      await screen.findByLabelText('Select row 10_5');
+
+      await selectAll();
+
+      const menu = await openMoreActions();
+
+      await userEvent.click(within(menu).getByText(labelDelete));
+      await userEvent.click(await screen.findByTestId('confirm'));
+
+      await waitForRequest('@deleteService5');
+      await waitFor(() =>
+        expect(screen.queryByTestId('confirm')).not.toBeInTheDocument()
+      );
+
+      expect(getRequestCalls('@deleteService5')).toHaveLength(1);
     });
 
     describe('Read-only ACL user: ', () => {

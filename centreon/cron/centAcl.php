@@ -22,6 +22,7 @@
 
 require_once realpath(__DIR__ . '/../config/centreon.config.php');
 include_once _CENTREON_PATH_ . '/cron/centAcl-Func.php';
+require_once _CENTREON_PATH_ . '/cron/centAcl-Write.php';
 include_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
 include_once _CENTREON_PATH_ . '/www/class/centreonLDAP.class.php';
 include_once _CENTREON_PATH_ . '/www/class/centreonMeta.class.php';
@@ -46,6 +47,8 @@ if ((int) $nbProc > 0) {
 
 ini_set('max_execution_time', 0);
 
+// Whether this run holds the lock of cron_operation, to release it after an error
+$lockTaken = false;
 try {
     // Init values
     $debug = 0;
@@ -53,6 +56,11 @@ try {
     // Init DB connections
     $pearDB = new CentreonDB();
     $pearDBO = new CentreonDB('centstorage');
+
+    // Groups whose computed rights did not change are skipped thanks to their fingerprint, once the table exists.
+    $useFingerprint = centAclHasFingerprintTable($pearDBO);
+    // What this run did to centreon_acl; read by the qualification scenarios (tests/acl).
+    $aclRunStats = ['groups' => 0, 'skipped' => 0, 'inserted' => 0, 'deleted' => 0];
 
     $metaObj = new CentreonMeta($pearDB);
     $cgObj = new CentreonContactgroup($pearDB);
@@ -81,6 +89,7 @@ try {
     // Lock in MySQL (ie: by setting the `running` value to 1)
     if ($is_running == 0) {
         putALock($appId);
+        $lockTaken = true;
     } else {
         if ($nbProc <= 1) {
             $errorMessage = 'According to DB another instance of centAcl.php is already running and I found '
@@ -149,21 +158,14 @@ try {
     }
 
     /**
-     * Remove data from old groups (deleted groups)
+     * Remove data from old groups (deleted, disabled, or linked to no resource)
      */
-    $aclGroupToDelete = 'SELECT DISTINCT acl_group_id
-        FROM `' . $centreonDbName . "`.acl_groups WHERE acl_group_activate = '1'";
-    $aclGroupToDelete2 = 'SELECT DISTINCT acl_group_id FROM `' . $centreonDbName . '`.acl_res_group_relations';
-    $pearDBO->beginTransaction();
     try {
-        $pearDBO->query('DELETE FROM centreon_acl WHERE group_id NOT IN (' . $aclGroupToDelete . ')');
-        $pearDBO->query('DELETE FROM centreon_acl WHERE group_id NOT IN (' . $aclGroupToDelete2 . ')');
-        $pearDBO->commit();
-    } catch (PDOException $e) {
-        $pearDBO->rollBack();
+        centAclPurgeStaleGroups($pearDB, $pearDBO, $useFingerprint);
+    } catch (Exception $e) {
         $centreonLog->insertLog(
             2,
-            'CentACL CRON: failed to delete old groups relations'
+            'CentACL CRON: failed to delete old groups relations: ' . $e->getMessage()
         );
     }
 
@@ -375,6 +377,7 @@ try {
      *  if yes : let's go to build cache and update database
      */
     $tabGroups = [];
+    // Ordered by id: every run processes the groups in the same order, so that a run stopped by an error is reproducible
     $dbResult1 = $pearDB->query(
         "SELECT DISTINCT acl_groups.acl_group_id
         FROM acl_res_group_relations, `acl_groups`, `acl_resources`
@@ -384,7 +387,8 @@ try {
             AND (
                 acl_groups.acl_group_changed = '1' OR 
                 (acl_resources.changed = '1' AND acl_resources.acl_res_activate IS NOT NULL)
-            )"
+            )
+        ORDER BY acl_groups.acl_group_id"
     );
     while ($result = $dbResult1->fetch()) {
         $tabGroups[] = $result['acl_group_id'];
@@ -576,17 +580,32 @@ try {
         }
         unset($row);
 
-        // Prepare statement
-        $deleteHandler = $pearDBO->prepare('DELETE FROM centreon_acl WHERE group_id = ?');
-
         /**
          * Begin to build ACL
          */
         $cpt = 0;
+        // Rows granted by each resource access, computed once per run, as sorted row keys (see centAcl-Write.php)
         $resourceCache = [];
+        // How many groups of this run use each active resource: its rows are freed after their last use
+        $resourceUses = [];
+        $groupsOfRun = array_fill_keys(array_map('intval', $tabGroups), true);
+        $usesStatement = $pearDB->query(
+            "SELECT DISTINCT r.acl_res_id, r.acl_group_id
+            FROM acl_res_group_relations r
+            INNER JOIN acl_resources ar ON ar.acl_res_id = r.acl_res_id AND ar.acl_res_activate = '1'"
+        );
+        while ($use = $usesStatement->fetch(PDO::FETCH_NUM)) {
+            if (isset($groupsOfRun[(int) $use[1]])) {
+                $resourceUses[(int) $use[0]] = ($resourceUses[(int) $use[0]] ?? 0) + 1;
+            }
+        }
+        unset($usesStatement, $groupsOfRun, $use);
+
         foreach ($tabGroups as $aclGroupId) {
-            // Delete old data for this group
-            $deleteHandler->execute([$aclGroupId]);
+            // Rows of this group: the union of the rows of its resources, written once they are all known
+            $groupRows = [];
+            // Resources of this group used by no later group of the run: their flag is reset once this group is written
+            $lastUsedResourceIds = [];
 
             /**
              * Select
@@ -712,58 +731,34 @@ try {
                     if (count($metaServices)) {
                         $resourceCache[$res2['acl_res_id']] += $metaServices;
                     }
+
+                    // Keep the rows of the resource as a sorted list of row keys: far less memory than nested arrays
+                    $resourceCache[$res2['acl_res_id']] = centAclPackRows($resourceCache[$res2['acl_res_id']], $hostCache);
                 }
 
-                $strBegin = 'INSERT INTO centreon_acl (host_id, service_id, group_id) VALUES ';
-                $strEnd = ' ON DUPLICATE KEY UPDATE `group_id` = ? ';
-
-                $str = '';
-                $params = [];
-                $i = 0;
-                foreach ($resourceCache[$res2['acl_res_id']] as $hostId => $svcList) {
-                    if (isset($hostCache[$hostId])) {
-                        if ($str != '') {
-                            $str .= ', ';
-                        }
-                        $str .= ' (?, NULL, ?) ';
-                        $params[] = $hostId;
-                        $params[] = $aclGroupId;
-
-                        foreach (array_keys($svcList) as $serviceId) {
-                            if ($str != '') {
-                                $str .= ', ';
-                            }
-
-                            $i++;
-                            $str .= ' (?, ?, ?) ';
-                            $params[] = $hostId;
-                            $params[] = $serviceId;
-                            $params[] = $aclGroupId;
-                            if ($i >= 5000) {
-                                $params[] = $aclGroupId; // argument for $strEnd
-                                $stmt = $pearDBO->prepare($strBegin . $str . $strEnd);
-                                $stmt->execute($params); // inject acl by bulk (1000 relations)
-                                $str = '';
-                                $params = [];
-                                $i = 0;
-                            }
-                        }
-                    }
+                foreach ($resourceCache[$res2['acl_res_id']] as $rowKey) {
+                    $groupRows[] = $rowKey;
                 }
-
-                // inject remaining acl (bulk of less than 1000 relations)
-                if ($str != '') {
-                    $params[] = $aclGroupId; // argument for $strEnd
-                    $stmt = $pearDBO->prepare($strBegin . $str . $strEnd);
-                    $stmt->execute($params);
-                    $str = '';
+                $resourceUses[$res2['acl_res_id']] = ($resourceUses[$res2['acl_res_id']] ?? 1) - 1;
+                if ($resourceUses[$res2['acl_res_id']] <= 0) {
+                    // Last group of the run using this resource: free its rows
+                    unset($resourceCache[$res2['acl_res_id']]);
+                    $lastUsedResourceIds[] = (int) $res2['acl_res_id'];
                 }
+            }
 
-                // reset flags of acl_resources
-                $stmt = $pearDB->prepare("UPDATE `acl_resources` SET `changed` = '0' WHERE acl_res_id = :aclResId");
-                $stmt->bindValue(':aclResId', $res2['acl_res_id'], PDO::PARAM_INT);
+            // Write only the rows that changed, in one transaction; skipped when the fingerprint did not change
+            centAclWriteGroupRows($pearDBO, (int) $aclGroupId, $groupRows, $useFingerprint, $aclRunStats);
+            unset($groupRows);
+
+            // reset flags of acl_resources, once every group of the run using them is written: on an error, a resource
+            // shared with a group not written yet stays flagged, so that the next run computes that group again
+            $stmt = $pearDB->prepare("UPDATE `acl_resources` SET `changed` = '0' WHERE acl_res_id = :aclResId");
+            foreach ($lastUsedResourceIds as $resourceId) {
+                $stmt->bindValue(':aclResId', $resourceId, PDO::PARAM_INT);
                 $stmt->execute();
             }
+            unset($lastUsedResourceIds);
 
             if ($debug) {
                 $time_end = microtime_float2();
@@ -804,5 +799,9 @@ try {
     $pearDB = null;
     $pearDBO = null;
 } catch (Exception $e) {
+    // Released so that the next run computes again what this one could not write
+    if ($lockTaken) {
+        releaseLockAfterError($pearDB, $appId);
+    }
     programExit($e->getMessage());
 }

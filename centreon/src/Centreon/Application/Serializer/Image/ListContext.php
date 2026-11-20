@@ -25,13 +25,6 @@ use Centreon\Application\Serializer\SerializerContextInterface;
 use Centreon\Domain\Entity\Image;
 
 /**
- * @OA\Schema(
- *   schema="ImageEntity",
- *       @OA\Property(property="id", type="integer"),
- *       @OA\Property(property="name", type="string"),
- *       @OA\Property(property="preview", type="string"),
- * )
- *
  * Serialize Image entity for list
  */
 class ListContext implements SerializerContextInterface

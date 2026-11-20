@@ -31,6 +31,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceGroup\ServiceGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityId;
@@ -87,6 +88,12 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
     /** @var list<array{resource: AggregateRoot<AggregateRootId>&AclScopedInterface, accessGroupIds: list<int>}> */
     public array $grantedAccess = [];
 
+    /** @var list<array{hostId: int, serviceId: int, accessGroupIds: list<int>}> */
+    public array $grantedServiceAccess = [];
+
+    /** @var array<int, array<int, list<int>>> service id => host id => the groups the real-time ACL cache grants the pair to */
+    public array $grantedPairs = [];
+
     public bool $allResourcesFlaggedAsChanged = false;
 
     /** @var list<array{sourceHostId: int, newHostId: int}> */
@@ -96,6 +103,8 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
     public array $duplicatedHostServiceAccess = [];
 
     public bool $duplicateHostAccessThrows = false;
+
+    public bool $duplicateHostServiceAccessThrows = false;
 
     public function __construct()
     {
@@ -224,6 +233,27 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
         ];
     }
 
+    public function grantServiceAccess(HostId $hostId, ServiceId $serviceId, Collection $accessGroupIds): void
+    {
+        $this->grantedServiceAccess[] = [
+            'hostId' => $hostId->value,
+            'serviceId' => $serviceId->value,
+            'accessGroupIds' => array_values(array_map(static fn (AccessGroupId $id): int => $id->value, $accessGroupIds->toArray())),
+        ];
+    }
+
+    public function findAccessGroupIdsGrantingService(ServiceId $serviceId, Collection $hostIds): Collection
+    {
+        $groupIds = [];
+        foreach ($hostIds as $hostId) {
+            $groupIds = [...$groupIds, ...$this->grantedPairs[$serviceId->value][$hostId->value] ?? []];
+        }
+        $groupIds = array_values(array_unique($groupIds));
+        sort($groupIds);
+
+        return new Collection(array_map(static fn (int $id): AccessGroupId => new AccessGroupId($id), $groupIds), AccessGroupId::class);
+    }
+
     public function flagAllResourcesAsChanged(): void
     {
         $this->allResourcesFlaggedAsChanged = true;
@@ -243,6 +273,10 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
 
     public function duplicateHostServiceAccess(HostId $sourceHostId, HostId $newHostId): void
     {
+        if ($this->duplicateHostServiceAccessThrows) {
+            throw new \RuntimeException('duplicateHostServiceAccess failed');
+        }
+
         $this->duplicatedHostServiceAccess[] = [
             'sourceHostId' => $sourceHostId->value,
             'newHostId' => $newHostId->value,

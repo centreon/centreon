@@ -14,6 +14,7 @@ import {
   getCommentBlock,
   getNotesAndIconsBlock
 } from '../../../ResourceForm/fieldBlocks/extendedInfos';
+import { getMacrosBlock } from '../../../ResourceForm/fieldBlocks/macros';
 import {
   getNotificationDelaysBlock,
   getNotificationRecipientsBlock,
@@ -61,8 +62,8 @@ import {
 } from '../../translatedLabels';
 import { getHostTemplateIdentityBlock } from '../blocks/hostTemplateIdentity';
 import { getLockedBlock } from '../blocks/locked';
-import { getMacrosBlock } from '../blocks/macros';
 import { getTemplatesBlock } from '../blocks/templates';
+import HostTemplateMacros from '../HostTemplateMacros';
 
 export const hostTemplateResource: ResourceOptions = {
   baseEndpoint: hostTemplatesBaseEndpoint,
@@ -92,7 +93,7 @@ export const blocks = [
     resource,
     title: labelHostCheckOptions
   }),
-  getMacrosBlock({ resource }),
+  getMacrosBlock({ Component: HostTemplateMacros, prefix: '$_HOST', resource }),
   getSnmpBlock({ resource }),
   getTemplatesBlock({ resource }),
   getRelationListBlock({

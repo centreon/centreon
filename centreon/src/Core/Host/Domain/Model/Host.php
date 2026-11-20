@@ -201,7 +201,7 @@ class Host extends NewHost
      */
     public function setAlias(string $alias): void
     {
-        $this->alias = mb_trim($alias);
+        $this->alias = mb_trim(self::toSingleLine($alias));
         Assertion::maxLength($this->alias, self::MAX_ALIAS_LENGTH, "{$this->shortName}::alias");
     }
 
@@ -236,7 +236,7 @@ class Host extends NewHost
      */
     public function setSnmpCommunity(string $snmpCommunity): void
     {
-        $this->snmpCommunity = mb_trim($snmpCommunity);
+        $this->snmpCommunity = mb_trim(self::toSingleLine($snmpCommunity));
         Assertion::maxLength($this->snmpCommunity, self::MAX_SNMP_COMMUNITY_LENGTH, "{$this->shortName}::snmpCommunity");
     }
 
@@ -247,7 +247,7 @@ class Host extends NewHost
      */
     public function setNote(string $note): void
     {
-        $this->note = mb_trim($note);
+        $this->note = mb_trim(self::toSingleLine($note));
         Assertion::maxLength($this->note, self::MAX_NOTE_LENGTH, "{$this->shortName}::note");
     }
 
@@ -258,7 +258,7 @@ class Host extends NewHost
      */
     public function setNoteUrl(string $noteUrl): void
     {
-        $this->noteUrl = mb_trim($noteUrl);
+        $this->noteUrl = mb_trim(self::toSingleLine($noteUrl));
         Assertion::maxLength($this->noteUrl, self::MAX_NOTE_URL_LENGTH, "{$this->shortName}::noteUrl");
     }
 
@@ -269,7 +269,7 @@ class Host extends NewHost
      */
     public function setActionUrl(string $actionUrl): void
     {
-        $this->actionUrl = mb_trim($actionUrl);
+        $this->actionUrl = mb_trim(self::toSingleLine($actionUrl));
         Assertion::maxLength($this->actionUrl, self::MAX_ACTION_URL_LENGTH, "{$this->shortName}::actionUrl");
     }
 
@@ -280,7 +280,7 @@ class Host extends NewHost
      */
     public function setIconAlternative(string $iconAlternative): void
     {
-        $this->iconAlternative = mb_trim($iconAlternative);
+        $this->iconAlternative = mb_trim(self::toSingleLine($iconAlternative));
         Assertion::maxLength($this->iconAlternative, self::MAX_ICON_ALT_LENGTH, "{$this->shortName}::iconAlternative");
     }
 

@@ -26,9 +26,10 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Ser
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
-use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceCheckIntervals;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceSchedulingOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Service\ServiceCollectionOutputTransformer;
 use PHPUnit\Framework\TestCase;
@@ -45,8 +46,8 @@ final class ServiceCollectionOutputTransformerTest extends TestCase
             hostPollerId: null,
             activated: false,
             templateId: new ServiceTemplateId(3),
-            iconId: new MediaId(4),
-            checkIntervals: new ServiceCheckIntervals(normal: 5, retry: 1),
+            schedulingOptions: new ServiceSchedulingOptions(normalCheckInterval: 5, retryCheckInterval: 1),
+            extendedInformations: new ServiceExtendedInformations(iconId: new MediaId(4)),
         );
 
         $output = (new ServiceCollectionOutputTransformer())->transform($service);
@@ -60,7 +61,7 @@ final class ServiceCollectionOutputTransformerTest extends TestCase
     {
         // The host, the icon, the intervals and the template are resolved per page by the provider, from lookups.
         $output = (new ServiceCollectionOutputTransformer())->transform(
-            new Service(new ServiceId(1), new ServiceName('ping'), new HostId(2), hostActivated: true, hostPollerId: null, checkIntervals: new ServiceCheckIntervals(normal: 5)),
+            new Service(new ServiceId(1), new ServiceName('ping'), new HostId(2), hostActivated: true, hostPollerId: null, schedulingOptions: new ServiceSchedulingOptions(normalCheckInterval: 5)),
         );
 
         self::assertNull($output->icon);

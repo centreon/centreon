@@ -28,25 +28,30 @@ use App\MonitoringConfiguration\Application\Command\DuplicateHostCommandHandler;
 use App\MonitoringConfiguration\Application\Service\HostLicenseLimit;
 use App\MonitoringConfiguration\Application\Service\HostTemplateLicenseGuard;
 use App\MonitoringConfiguration\Application\Service\UnlicensedHostTemplates;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\CheckOptions;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\DataProcessing;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\ExtendedInformations;
+use App\MonitoringConfiguration\Application\Service\UnlicensedServiceTemplates;
+use App\MonitoringConfiguration\Domain\Aggregate\CheckOptions;
+use App\MonitoringConfiguration\Domain\Aggregate\DataProcessing;
+use App\MonitoringConfiguration\Domain\Aggregate\ExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroId;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\SchedulingOptions;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpVersionEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\SchedulingOptions;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\SnmpCommunity;
+use App\MonitoringConfiguration\Domain\Aggregate\SnmpVersionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\MonitoringConfiguration\Domain\Event\HostDuplicated;
 use App\MonitoringConfiguration\Domain\Event\HostServicesDuplicationRequested;
@@ -54,14 +59,19 @@ use App\MonitoringConfiguration\Domain\Exception\DuplicatedHostNameTooLongExcept
 use App\MonitoringConfiguration\Domain\Exception\HostAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\UnlicensedHostTemplatesException;
+use App\MonitoringConfiguration\Domain\Exception\UnlicensedServiceTemplatesException;
 use App\Shared\Application\Vault\VaultCredentialReader;
 use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Collection;
+use App\Shared\Domain\License\HostLicenseLimitInterface;
+use App\Shared\Domain\License\LicenseCheckInterface;
 use App\Shared\Domain\Vault\VaultPathEnum;
 use PHPUnit\Framework\TestCase;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostTemplateRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeModuleRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceTemplateRepository;
 use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
 use Tests\App\Security\Infrastructure\Double\TestActingUsers;
 use Tests\App\Shared\Double\EventBusSpy;
@@ -82,6 +92,10 @@ final class DuplicateHostCommandHandlerTest extends TestCase
 
     private FakeHostTemplateRepository $hostTemplateRepository;
 
+    private FakeServiceTemplateRepository $serviceTemplateRepository;
+
+    private FakeServiceRepository $serviceRepository;
+
     private DuplicateHostCommandHandler $handler;
 
     protected function setUp(): void
@@ -96,20 +110,11 @@ final class DuplicateHostCommandHandlerTest extends TestCase
 
         $this->logger = new RecordingLogger();
         $this->hostTemplateRepository = new FakeHostTemplateRepository();
+        $this->serviceTemplateRepository = new FakeServiceTemplateRepository();
+        $this->serviceRepository = new FakeServiceRepository();
 
-        $this->handler = new DuplicateHostCommandHandler(
-            $this->repository,
-            $this->resourceAccessRepository,
-            $this->vault,
-            new VaultCredentialReader($this->vault),
-            new VaultCredentialWriter($this->vault),
-            $this->eventBus,
-            $this->logger,
-            new HostTemplateLicenseGuard(new UnlicensedHostTemplates(
-                new HostLicenseLimit(new FakeModuleRepository(), new FakeHostRepository()),
-                $this->hostTemplateRepository,
-            )),
-        );
+        // Without the license services, the license host limit is reached.
+        $this->handler = $this->handlerWithin(new HostLicenseLimit(new FakeModuleRepository(), new FakeHostRepository()));
     }
 
     public function testDuplicatesHostWithFirstFreeSuffixAndCopiesEveryRelation(): void
@@ -245,12 +250,68 @@ final class DuplicateHostCommandHandlerTest extends TestCase
         self::assertTrue($this->eventBus->shouldHaveDispatched(HostServicesDuplicationRequested::class, 1));
         $event = $this->eventBus->getDispatchedEvents(HostServicesDuplicationRequested::class)[0];
         self::assertSame(1, $event->sourceHostId->value);
-        // The actor is threaded onto the event so the deferred clone can rebuild the legacy session.
+        // The actor is threaded onto the event: the author of the copied services.
         self::assertSame(42, $event->duplicatedBy->value);
 
         $copy = $this->findCopyByName('web_1');
         self::assertNotNull($copy);
         self::assertSame($copy->id()->value, $event->newHostId->value);
+    }
+
+    public function testItRejectsASourceWhoseServiceTemplatesTheLicenseNoLongerAllows(): void
+    {
+        $this->storeSourceHost(1, 'web');
+        $this->vault->vaultEnabled = true;
+        $this->storeService(10, hostId: 1, templateId: 31);
+        $this->storeService(11, hostId: 1, templateId: 30);
+        $this->serviceTemplateRepository->monitoringConnectorTemplateIds = [30];
+
+        try {
+            ($this->handler)(new DuplicateHostCommand(new HostId(1), actor: TestActingUsers::unrestricted(42)));
+            self::fail('A host whose services the license no longer allows must not be duplicated.');
+        } catch (UnlicensedServiceTemplatesException $exception) {
+            self::assertSame(['serviceTemplateId' => 30], $exception->criteria);
+        }
+
+        self::assertNull($this->findCopyByName('web_1'));
+        self::assertSame([], $this->vault->writeManyCalls);
+        self::assertTrue($this->eventBus->shouldNotHaveDispatched(HostServicesDuplicationRequested::class));
+    }
+
+    public function testAServiceTemplateTheLicenseAllowsDoesNotRefuseTheDuplication(): void
+    {
+        $this->storeSourceHost(1, 'web');
+        $this->storeService(10, hostId: 1, templateId: 31);
+        $this->serviceTemplateRepository->monitoringConnectorTemplateIds = [30];
+
+        ($this->handler)(new DuplicateHostCommand(new HostId(1), actor: TestActingUsers::unrestricted(42)));
+
+        self::assertNotNull($this->findCopyByName('web_1'));
+    }
+
+    public function testASharedServiceIsNotClonedSoItsTemplateDoesNotRefuseTheDuplication(): void
+    {
+        $this->storeSourceHost(1, 'web');
+        $this->storeService(10, hostId: 1, templateId: 30);
+        $this->serviceRepository->sharedServiceIds = [10];
+        $this->serviceTemplateRepository->monitoringConnectorTemplateIds = [30];
+
+        ($this->handler)(new DuplicateHostCommand(new HostId(1), actor: TestActingUsers::unrestricted(42)));
+
+        self::assertNotNull($this->findCopyByName('web_1'));
+    }
+
+    public function testTheCopyItselfDoesNotCountAgainstTheLicenseOfItsServices(): void
+    {
+        $this->storeSourceHost(1, 'web');
+        $this->storeService(10, hostId: 1, templateId: 30);
+        $this->serviceTemplateRepository->monitoringConnectorTemplateIds = [30];
+        // One host left before the limit: the copy reaches it.
+        $this->handler = $this->handlerWithin($this->limitOf(maxHosts: 2));
+
+        ($this->handler)(new DuplicateHostCommand(new HostId(1), actor: TestActingUsers::unrestricted(42)));
+
+        self::assertSame(2, $this->repository->countAll());
     }
 
     public function testRemintsVaultedSecretsIntoAFreshVaultEntry(): void
@@ -502,6 +563,52 @@ final class DuplicateHostCommandHandlerTest extends TestCase
 
         self::assertNull($this->findCopyByName('web_1'));
         self::assertSame([], $this->vault->writeManyCalls);
+    }
+
+    private function handlerWithin(HostLicenseLimit $limit): DuplicateHostCommandHandler
+    {
+        return new DuplicateHostCommandHandler(
+            $this->repository,
+            $this->resourceAccessRepository,
+            $this->vault,
+            new VaultCredentialReader($this->vault),
+            new VaultCredentialWriter($this->vault),
+            $this->eventBus,
+            $this->logger,
+            new HostTemplateLicenseGuard(new UnlicensedHostTemplates($limit, $this->hostTemplateRepository)),
+            new UnlicensedServiceTemplates($limit, $this->serviceTemplateRepository),
+            $this->serviceRepository,
+        );
+    }
+
+    /**
+     * A valid license allowing $maxHosts hosts, counted on the hosts of {@see $repository}.
+     */
+    private function limitOf(int $maxHosts): HostLicenseLimit
+    {
+        $licenseCheck = $this->createStub(LicenseCheckInterface::class);
+        $licenseCheck->method('isValid')->willReturn(true);
+        $hostLicenseLimit = $this->createStub(HostLicenseLimitInterface::class);
+        $hostLicenseLimit->method('getMaxHosts')->willReturn($maxHosts);
+
+        return new HostLicenseLimit(
+            new FakeModuleRepository(['centreon-license-manager']),
+            $this->repository,
+            $licenseCheck,
+            $hostLicenseLimit,
+        );
+    }
+
+    private function storeService(int $id, int $hostId, int $templateId): void
+    {
+        $this->serviceRepository->services[$id] = new Service(
+            id: new ServiceId($id),
+            name: new ServiceName("service-{$id}"),
+            hostId: new HostId($hostId),
+            hostActivated: true,
+            hostPollerId: null,
+            templateId: new ServiceTemplateId($templateId),
+        );
     }
 
     private function storeSourceHost(int $id, string $name): Host

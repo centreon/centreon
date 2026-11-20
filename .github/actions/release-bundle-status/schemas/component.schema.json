@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "components/<component>.json",
+  "type": "object",
+  "required": ["schema_version", "bundle", "component", "repo", "state", "commit", "run_url", "attempt", "finished_at", "packages", "delivery_jobs"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "bundle": {"type": "string", "pattern": "^testing-(cloud|onprem)-(release|hotfix)-[0-9]{8}-[0-9]{2}\\.[0-9]{2}-[1-9][0-9]*$"},
+    "component": {"type": "string", "minLength": 1},
+    "repo": {"type": "string", "minLength": 1},
+    "state": {"enum": ["success", "failed", "cancelled"]},
+    "commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "run_url": {"type": "string", "format": "uri"},
+    "attempt": {"type": "integer", "minimum": 1},
+    "finished_at": {"type": "string", "format": "date-time"},
+    "packages": {"type": "array", "items": {"$ref": "#/$defs/package"}},
+    "delivery_jobs": {"type": "object", "additionalProperties": {"type": "string"}}
+  },
+  "$defs": {
+    "package": {
+      "type": "object",
+      "required": ["name", "version", "arch", "distrib", "sha256", "repository"],
+      "properties": {
+        "name": {"type": "string"}, "version": {"type": "string"}, "release": {"type": "string"},
+        "arch": {"type": "string"}, "distrib": {"type": "string"},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "repository": {"type": "string"}
+      },
+      "additionalProperties": false
+    }
+  }
+}
