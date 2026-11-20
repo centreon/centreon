@@ -65,7 +65,7 @@ contents:
     dst: "/etc/logrotate.d/centreontrapd"
     type: config|noreplace
     file_info:
-      mode: 0400
+      mode: 0644
 
 scripts:
   postinstall: ./scripts/centreon-trap-postinstall.sh
