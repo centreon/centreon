@@ -288,6 +288,7 @@ jobs:
           run_task legacy:test
 
           exit $exit_code
+        shell: bash
 
   backend-unit-test:
     runs-on: ubuntu-24.04
