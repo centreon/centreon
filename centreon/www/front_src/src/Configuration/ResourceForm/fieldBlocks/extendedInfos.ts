@@ -337,7 +337,7 @@ export const getActionUrlBlock = ({
     defaultValues: defaultActionUrl,
     keyMap: { actionUrl: 'action_url' }
   }),
-  detailKeyMap,
+  detailKeyMap: getDetailKeyMap(defaultApiGroup),
   getInputs: ({ t }) => ({
     actionUrl: getBlock({
       columns: [
