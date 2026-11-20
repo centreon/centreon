@@ -1,93 +1,97 @@
-import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
-import { platformFeaturesAtom, userAtom } from '@centreon/ui-context';
+import { SnackbarProvider } from '@centreon/ui';
+import {
+  type PlatformFeatures,
+  platformFeaturesAtom,
+  type User,
+  userAtom
+} from '@centreon/ui-context';
 
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { interceptAPIRequest, Method } from '@test-setup/api';
+import { render } from '@test-setup/render';
+import type { RenderResult } from '@testing-library/react';
 import i18next from 'i18next';
 import { createStore, Provider } from 'jotai';
 import { initReactI18next } from 'react-i18next';
 import { BrowserRouter as Router } from 'react-router';
 
+import pollers from '../../../../../cypress/fixtures/ACC/pollers-vmware.json';
 import {
   agentConfigurationPollersEndpoint,
   getAgentConfigurationEndpoint,
   getAgentConfigurationsEndpoint,
   getInstallationCommandEndpoint,
-  getPollerAgentEndpoint,
   hostsConfigurationEndpoint,
   listTokensEndpoint,
   pollersEndpoint
 } from '../api/endpoints';
 import AgentConfigurationPage from '../Page';
+import installationCommand from './installation-command.json';
+import listing from './listing.json';
 
 export const windowsCommandLine =
   'installcma.ps /FINGERPRINT=wwwww  /COMPONENTS=agent,plugins /HOST=host_1 /ENDPOINT=https://central/centreon:4318';
 export const linuxCommandLine =
   'installcma.ps /FINGERPRINT=lllllll  /COMPONENTS=agent,plugins /HOST=host_1 /ENDPOINT=https://central/centreon:4317';
 
-const mockRequest = (isListingEmpty): void => {
-  if (isListingEmpty) {
-    cy.interceptAPIRequest({
-      alias: 'getEmptyAgentConfigurations',
-      method: Method.GET,
-      path: `./api/latest${getAgentConfigurationsEndpoint}**`,
-      response: { meta: { limit: 10, page: 1, total: 0 }, result: [] }
-    });
-  } else {
-    cy.fixture('AgentConfigurations/listing.json').then((listing): void => {
-      cy.interceptAPIRequest({
-        alias: 'getAgentConfigurations',
-        method: Method.GET,
-        path: `./api/latest${getAgentConfigurationsEndpoint}?page=1**`,
-        response: listing
-      });
-    });
-  }
+interface Props {
+  isListingEmpty?: boolean;
+}
 
-  cy.fixture('ACC/pollers-vmware.json').then((listing): void => {
-    cy.interceptAPIRequest({
-      alias: 'getFilterPollers',
-      method: Method.GET,
-      path: `./api/latest${pollersEndpoint}**`,
-      response: listing
-    });
+const mockRequests = (isListingEmpty: boolean): void => {
+  interceptAPIRequest({
+    alias: isListingEmpty
+      ? 'getEmptyAgentConfigurations'
+      : 'getAgentConfigurations',
+    method: Method.GET,
+    path: `**/api/latest${getAgentConfigurationsEndpoint}`,
+    response: isListingEmpty
+      ? { meta: { limit: 10, page: 1, total: 0 }, result: [] }
+      : listing
   });
 
-  cy.fixture('ACC/pollers-vmware.json').then((listing): void => {
-    cy.interceptAPIRequest({
-      alias: 'getPollers',
-      method: Method.GET,
-      path: `./api/latest${agentConfigurationPollersEndpoint}**`,
-      response: listing
-    });
+  interceptAPIRequest({
+    alias: 'getFilterPollers',
+    method: Method.GET,
+    path: `**/api/latest${pollersEndpoint}`,
+    response: pollers
   });
 
-  cy.interceptAPIRequest({
+  interceptAPIRequest({
+    alias: 'getPollers',
+    method: Method.GET,
+    path: `**/api/latest${agentConfigurationPollersEndpoint}`,
+    response: pollers
+  });
+
+  interceptAPIRequest({
     alias: 'deleteAgent',
     method: Method.DELETE,
-    path: `./api/latest${getPollerAgentEndpoint({ agentId: 0 })}`
+    path: `**/api/latest${getAgentConfigurationsEndpoint}/0`
   });
 
-  cy.interceptAPIRequest({
+  interceptAPIRequest({
     alias: 'deletePoller',
     method: Method.DELETE,
-    path: `./api/latest${getPollerAgentEndpoint({ agentId: 0, pollerId: 1 })}`
+    path: `**/api/latest${getAgentConfigurationsEndpoint}/0/pollers/1`
   });
 
-  cy.interceptAPIRequest({
+  interceptAPIRequest({
     alias: 'postAgentConfiguration',
     method: Method.POST,
-    path: `./api/latest${getAgentConfigurationsEndpoint}`
+    path: `**/api/latest${getAgentConfigurationsEndpoint}`
   });
 
-  cy.interceptAPIRequest({
+  interceptAPIRequest({
     alias: 'patchAgentConfiguration',
     method: Method.PUT,
-    path: `./api/latest${getAgentConfigurationEndpoint(1)}`
+    path: `**/api/latest${getAgentConfigurationEndpoint(1)}`
   });
 
-  cy.interceptAPIRequest({
+  interceptAPIRequest({
     alias: 'getAgentConfiguration',
     method: Method.GET,
-    path: `./api/latest${getAgentConfigurationEndpoint(1)}`,
+    path: `**/api/latest${getAgentConfigurationEndpoint(1)}`,
     response: {
       configuration: {
         conf_certificate: '/sub/test.crt',
@@ -107,32 +111,27 @@ const mockRequest = (isListingEmpty): void => {
       id: 1,
       name: 'agent',
       pollers: [
-        {
-          id: 1,
-          name: 'poller 1'
-        },
-        {
-          id: 2,
-          name: 'poller 2'
-        }
+        { id: 1, name: 'poller 1' },
+        { id: 2, name: 'poller 2' }
       ],
       type: 'telegraf'
     }
   });
-  cy.interceptAPIRequest({
+
+  interceptAPIRequest({
     alias: 'getHosts',
     method: Method.GET,
-    path: `./api/latest${hostsConfigurationEndpoint}**`,
+    path: `**/api/latest${hostsConfigurationEndpoint}`,
     response: {
       meta: { limit: 10, page: 1, total: 1 },
       result: [{ address: '127.0.0.2', id: 1, name: 'central' }]
     }
   });
 
-  cy.interceptAPIRequest({
+  interceptAPIRequest({
     alias: 'getTokens',
     method: Method.GET,
-    path: `*${listTokensEndpoint}**`,
+    path: `**${listTokensEndpoint}`,
     response: {
       meta: { limit: 10, page: 1, total: 2 },
       result: [
@@ -142,53 +141,52 @@ const mockRequest = (isListingEmpty): void => {
     }
   });
 
-  cy.fixture('AgentConfigurations/installation-command.json').then(
-    (response): void => {
-      cy.interceptAPIRequest({
-        alias: 'getCommandDetails',
-        method: Method.GET,
-        path: `./api/latest${getInstallationCommandEndpoint(1)}`,
-        response
-      });
-    }
-  );
+  interceptAPIRequest({
+    alias: 'getCommandDetails',
+    method: Method.GET,
+    path: `**/api/latest${getInstallationCommandEndpoint(1)}`,
+    response: installationCommand
+  });
 };
 
-const initialize = ({ isListingEmpty = false }) => {
+const initialize = ({ isListingEmpty = false }: Props = {}): RenderResult => {
   const store = createStore();
 
   store.set(userAtom, {
     is_admin: true,
     locale: 'en',
     timezone: 'Europe/Paris'
-  });
+  } as unknown as User);
   store.set(platformFeaturesAtom, {
     featureFlags: {},
     isCloudPlatform: false
-  });
+  } as PlatformFeatures);
 
   i18next.use(initReactI18next).init({
     lng: 'en',
     resources: {}
   });
 
-  mockRequest(isListingEmpty);
+  mockRequests(isListingEmpty);
 
-  cy.mount({
-    Component: (
-      <TestQueryProvider>
-        <Provider store={store}>
-          <Router>
-            <SnackbarProvider>
-              <div style={{ display: 'grid', height: '100vh' }}>
-                <AgentConfigurationPage />
-              </div>
-            </SnackbarProvider>
-          </Router>
-        </Provider>
-      </TestQueryProvider>
-    )
+  // A client of its own, so no cache leaks from one test to the next.
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { gcTime: 0, retry: false } }
   });
+
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <Provider store={store}>
+        <Router>
+          <SnackbarProvider>
+            <div style={{ display: 'grid', height: '100vh' }}>
+              <AgentConfigurationPage />
+            </div>
+          </SnackbarProvider>
+        </Router>
+      </Provider>
+    </QueryClientProvider>
+  );
 };
 
 export default initialize;
