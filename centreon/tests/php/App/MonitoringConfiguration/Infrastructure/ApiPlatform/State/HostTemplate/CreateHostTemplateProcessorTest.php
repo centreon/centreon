@@ -292,14 +292,13 @@ final class CreateHostTemplateProcessorTest extends ApiTestCase
      * @param array<string, mixed> $body
      */
     #[DataProvider('provideRemovedKeys')]
-    public function testAKeyTheTemplateDoesNotHaveIsABadRequest(array $body): void
+    public function testAKeyTheTemplateDoesNotHaveIsIgnored(array $body): void
     {
         $this->login();
 
-        $this->request('POST', self::URI, ['json' => $body + ['name' => "tpl-{$this->tag}", 'alias' => 'alias']]);
+        $id = $this->create($body + ['name' => "tpl-{$this->tag}", 'alias' => 'alias']);
 
-        self::assertResponseStatusCodeSame(400);
-        self::assertFalse($this->connection->fetchOne('SELECT 1 FROM host WHERE host_name = ?', ["tpl-{$this->tag}"]));
+        self::assertSame('0', $this->connection->fetchOne('SELECT host_register FROM host WHERE host_id = ?', [$id]));
     }
 
     /**
