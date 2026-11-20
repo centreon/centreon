@@ -718,6 +718,40 @@ not the package default); `centengine`'s log reaches `"Poller
 'central-broker-master' with id 1 connected"`. All 7 services healthy,
 login still works.
 
+**Full-stack blocker found and fixed (C9/C12, 2026-11-02)**: once
+`gorgone-central`/`gorgone-central-poller` and C10's `moveFiles.php` fix were
+all in the stack together, delivery still silently failed end to end despite
+the API returning `204` — `centreon-broker`/`centengine` kept the
+package-default config, and `gorgone-central-poller`'s pullwss connection
+was rejected with `{"code":500,"message":"please registernodes"}` on every
+retry. Root cause: `gorgone-central`'s image (pinned past MON-213814) now
+fails fast at startup unless `GORGONE_API_USERNAME`/`GORGONE_API_PASSWORD`
+are set (`10-create-config.sh`'s own `:?`-guarded vars) — a **different**
+pair from `CENTREON_API_USERNAME`/`CENTREON_API_PASSWORD` already on this
+service (that one is gorgone calling *out* to Centreon's web API; this one
+is gorgone's own inbound API auth, which is what `fpm`'s identically-named
+`GORGONE_API_USERNAME`/`GORGONE_API_PASSWORD` env vars authenticate
+against). Without it, `gorgone-central` never started at all, so its `nodes`
+module never loaded `nagios_server` into memory, and `proxy/httpserver`'s
+pullwss handler had nothing to match the poller's `REGISTERNODES` id
+against — the API still answered `204` because that endpoint only confirms
+the HTTP call queued, not that gorgone ever received/applied it. Added the
+missing pair to `gorgone-central`'s `environment:` (same value as `fpm`'s).
+**Verified for real**, full stack rebuilt with `GORGONE_IMAGE`/
+`BROKER_IMAGE`/`ENGINE_IMAGE` actually pinned to their `dependencies.env`
+tags (not the Dockerfile/compose `:develop` defaults a plain local
+`docker compose up` silently falls back to): `gorgone-central-poller`'s own
+log shows real `REMOTECOPY` chunks landing (`Copy to '/etc/centreon-broker/'
+finished successfully`), `central-broker.json`/`central-module.json` on disk
+are freshly written (not the image's stale package default), `centengine`'s
+log reaches `"Poller 'central-module-master' with id ... connected"`,
+`centreon-broker` shows the same real BBDO connection, and all 9 services
+(`db`/`fpm`/`httpd`/`centreon-cron`/`gorgone-central`/
+`gorgone-central-poller`/`centreon-broker`/`centengine`/`rrdcached`) reach
+`healthy`/`Up` with no restart loop. `rrdcached` itself confirmed in use:
+`central-broker.json`'s rrd output carries `"host": "rrdcached"` as
+delivered, and `rrdcached` shows active TCP connections from `centreon-broker`.
+
 ### PHP session persistence
 
 `session.save_path` (`/var/lib/php/sessions`, `centreon-pool.conf`) wasn't a
@@ -1526,6 +1560,57 @@ An explicit `RRDCACHED_HOST` always wins over the `rrdcached` default — the
 Helm chart relies on this, passing `127.0.0.1` for its own sidecar-in-pod
 topology (its `rrdcached` listens on `0.0.0.0`, and `localhost` can resolve
 to `::1` there).
+
+## Autodiscovery save-worker (`autodisco-save-worker` service), MON-213829
+
+Drains `mod_auto_disco_save_request`, writing discovered hosts/macros
+straight to the database. No dedicated binary: it's `centreon-autodiscovery`'s
+own `save-worker` console command, run as `www-data` (`bin/console` refuses
+root) on the same `fpm` image/entrypoint pipeline as the `fpm` service
+itself, with `php-fpm` swapped for the console command via `command:`. A
+config-only replica of `fpm` (`RUN_INSTALL=true`, `INSTALL_DB_STEPS=false`,
+`RUN_CONFIG_DELIVERY=false`) — the exact pattern `12-install.sh` already
+documents for N `fpm` replicas sharing one install (there, a Helm install
+Job; here, `fpm` itself). Contract confirmed directly with the
+centreon-modules/autodisco owners (M3, `AUTODISCO_TAG=MON-213817-autodisco-save-worker`):
+
+- **Direct DB access, not API-only**: reads the save-request queue and jobs,
+  writes hosts/macros with the same `MYSQL_*` env as `fpm`. The internal API
+  (`CENTREON_INTERNAL_API_BASE_URL`) is only used for exporting/reloading
+  scheduled auto-add jobs — needs C8's internal-URL fix for that.
+- **Liveness, not `/tmp/docker.ready`**: the worker touches
+  `/tmp/autodiscovery-worker.alive` at the end of every successful poll loop;
+  the healthcheck above checks that file's mtime, not install completion.
+- **License and Vault, read-only, shared with `fpm`**: `/etc/centreon/license.d`
+  (new `centreon-license` volume, also mounted on `fpm`, which is where the UI
+  actually writes an uploaded license) and `/var/lib/centreon` (vault.json,
+  via the existing `centreon-varlib` volume) — without Vault reachable, the
+  save-worker's own fail-closed guard suspends saves rather than writing
+  anything in clear.
+- **Image requirement**: needs the SourceGuardian autodiscovery module +
+  `php8.4-sourceguardian-loader` baked in (C5's `modules_fetcher`/
+  `autodisco_source` stages) — `bin/console list centreon-autodiscovery` has
+  to show `save-worker` for this to be anything but a fast, silent no-op.
+
+**Only ever tested with a single replica** — the owners haven't validated
+concurrent `save-worker` instances draining the same queue, so this service
+is deliberately not scaled in this compose file.
+
+**Local-testing gotcha, not a product bug**: a plain `docker compose build`
+in this directory never reads `dependencies.env`'s `AUTODISCO_TAG` —
+`docker-central.yml` passes it as a `--build-arg AUTODISCO_IMAGE=...`, so a
+manual rebuild needs the exact same flag by hand, or the Dockerfile's own
+`:develop` default silently wins (develop's autodiscovery module predates
+`save-worker`, so `bin/console centreon-autodiscovery:save-worker` fails
+with "There are no commands defined in the centreon-autodiscovery
+namespace."). A second trap once the right `AUTODISCO_IMAGE` is built:
+Compose names a built image `<project>-<service>`, so mixing `-p` flags
+between a `build` and an `up` (or across `docker compose` invocations
+against different project names) silently reuses a stale image under the
+other project's name instead of the one just built — confirmed this is what
+happened on a first pass here. Rebuilt and brought up under one consistent
+project name: `autodisco-save-worker` reaches `healthy`, its own log shows
+`Autodiscovery save worker <host>:<pid> started (poll every 5s)`.
 
 ## Explicitly out of scope for this first pass
 

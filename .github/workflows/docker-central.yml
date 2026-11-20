@@ -375,18 +375,21 @@ jobs:
           retention-days: 7
           if-no-files-found: ignore
 
-  trivy:
-    # Informational CVE scan + SBOM, same as centreon-trapd: never blocks.
-    needs: [prepare, merge-manifests]
+  docker-trivy-cves:
+    # Informational CVE scan + SBOMs, same model as the centreon-collect engine/broker
+    # and centreon-trapd images: never blocks, findings go to the job summary.
+    needs: [get-environment, prepare, merge-manifests]
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
         target: [httpd, fpm, cron, rrdcached]
-    name: trivy ${{ matrix.target }}
+        distrib: [trixie]
+    name: docker trivy cves centreon-web-split-${{ matrix.target }}-${{ matrix.distrib }}
     env:
-      IMAGE: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-split-${{ matrix.target }}-trixie:${{ needs.prepare.outputs.tag }}
+      SCAN_IMAGE: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-split-${{ matrix.target }}-${{ matrix.distrib }}:${{ needs.prepare.outputs.tag }}
+      COMPONENT: centreon-web-split-${{ matrix.target }}-${{ matrix.distrib }}
     steps:
       - name: Login to registry
         uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
@@ -399,48 +402,108 @@ jobs:
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           scan-type: image
-          image-ref: ${{ env.IMAGE }}
+          image-ref: ${{ env.SCAN_IMAGE }}
           severity: UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL
           ignore-unfixed: true
           format: json
-          output: cve-report-${{ matrix.target }}.json
+          output: cve-report-${{ env.COMPONENT }}.json
           exit-code: '0'
 
       - name: Write CVE summary
         env:
-          REPORT: cve-report-${{ matrix.target }}.json
-          TARGET: ${{ matrix.target }}
+          REPORT: cve-report-${{ env.COMPONENT }}.json
+          IMAGE: ${{ env.SCAN_IMAGE }}
         run: |
           count_sev() {
             jq --arg sev "$1" '[.Results[]?.Vulnerabilities[]?] | group_by(.VulnerabilityID) | map(.[0]) | map(select(.Severity==$sev)) | length' "$REPORT"
           }
+          badge() {
+            echo -n "![${1} ${2}](https://img.shields.io/badge/${1}-${2}-${3})"
+          }
+          critical=$(count_sev CRITICAL)
+          high=$(count_sev HIGH)
+          medium=$(count_sev MEDIUM)
+          low=$(count_sev LOW)
+          unknown=$(count_sev UNKNOWN)
           {
-            echo "### Trivy CVE scan — centreon-web-split-${TARGET}-trixie"
+            echo "### Trivy CVE scan — ${COMPONENT}"
             echo
-            echo "_ignore-unfixed: true — fixable CVEs only._"
+            echo "_ignore-unfixed: true — counts below are fixable CVEs only (a fix is available upstream)._"
             echo
             echo "\`${IMAGE}\`"
             echo
-            echo "| CRITICAL | HIGH | MEDIUM | LOW | UNKNOWN |"
-            echo "| --- | --- | --- | --- | --- |"
-            echo "| $(count_sev CRITICAL) | $(count_sev HIGH) | $(count_sev MEDIUM) | $(count_sev LOW) | $(count_sev UNKNOWN) |"
+            badge CRITICAL "$critical" 8b0000
+            echo -n ' '
+            badge HIGH "$high" e05d44
+            echo -n ' '
+            badge MEDIUM "$medium" fe7d37
+            echo -n ' '
+            badge LOW "$low" dfb317
+            echo -n ' '
+            badge UNKNOWN "$unknown" 9f9f9f
+            echo
+            echo
+            high_crit=$(( high + critical ))
+            if [ "$high_crit" -eq 0 ]; then
+              echo "No fixable CRITICAL/HIGH vulnerability found. ✅"
+            else
+              echo "**${high_crit} fixable CRITICAL/HIGH unique CVE(s)** — detail below."
+              echo
+              echo "| CVE | Severity | Status | Fixed version | Affected package(s) |"
+              echo "| --- | --- | --- | --- | --- |"
+              jq -r '
+                [.Results[]?.Vulnerabilities[]?] as $vulns |
+                ($vulns | group_by(.VulnerabilityID) | map({
+                  id: .[0].VulnerabilityID,
+                  severity: .[0].Severity,
+                  status: (.[0].Status // "affected"),
+                  fixed: ([.[].FixedVersion] | map(select(. != null and . != "")) | unique | join(", ")),
+                  pkgs: ([.[].PkgName] | unique | join(", "))
+                })) | map(select(.severity=="CRITICAL" or .severity=="HIGH")) | sort_by(.severity) | .[] |
+                "| [\(.id)](https://avd.aquasec.com/nvd/\(.id | ascii_downcase)) | \(.severity) | \(.status) | \(if .fixed == "" then "—" else .fixed end) | \(.pkgs) |"
+              ' "$REPORT"
+            fi
             echo
           } >> "$GITHUB_STEP_SUMMARY"
         shell: bash
 
-      - name: Generate SBOM (CycloneDX)
+      - name: Upload CVE report artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: cve-report-${{ env.COMPONENT }}
+          path: cve-report-*.json
+          retention-days: 30
+
+      - name: Generate SBOM (CycloneDX format)
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           scan-type: image
-          image-ref: ${{ env.IMAGE }}
+          image-ref: ${{ env.SCAN_IMAGE }}
           format: cyclonedx
-          output: sbom-${{ matrix.target }}-cyclonedx.json
+          output: sbom-${{ env.COMPONENT }}-cyclonedx.json
 
-      - name: Upload CVE report and SBOM
+      - name: Generate SBOM (SPDX format)
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          scan-type: image
+          image-ref: ${{ env.SCAN_IMAGE }}
+          format: spdx-json
+          output: sbom-${{ env.COMPONENT }}-spdx.json
+
+      - name: Upload SBOM artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: central-cve-sbom-${{ matrix.target }}
-          path: |
-            cve-report-*.json
-            sbom-*.json
+          name: sbom-${{ env.COMPONENT }}
+          path: sbom-*.json
           retention-days: 30
+
+      - name: Trivy info message
+        env:
+          STABILITY: ${{ needs.get-environment.outputs.stability }}
+        run: |
+          if [[ "$STABILITY" == "stable" ]]; then
+            echo "::notice::Trivy CVE scan complete (stable build). Review critical/high CVEs above; consider resolving before promotion."
+          else
+            echo "::notice::Trivy CVE scan complete (unstable build). SBOMs uploaded as artifacts for audit trail."
+          fi
+        shell: bash
