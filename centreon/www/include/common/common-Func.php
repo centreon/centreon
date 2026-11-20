@@ -67,7 +67,18 @@ function returnSvg(string $svgPath, string $color, float $height, float $width):
     $path = _CENTREON_PATH_ . DIRECTORY_SEPARATOR . $svgPath;
     if (file_exists($path)) {
         $data = file_get_contents($path);
-        $data = str_replace('<svg ', "<svg height='{$height}' width='{$width}' ", $data);
+        // Replace the size set in the file: a duplicated attribute is invalid XML,
+        // which breaks the legacy pages transformed with the XSLT polyfill.
+        $data = preg_replace_callback(
+            '/<svg\b[^>]*>/',
+            static fn (array $match): string => str_replace(
+                '<svg ',
+                "<svg height='{$height}' width='{$width}' ",
+                preg_replace('/\s(?:height|width)=(?:\'[^\']*\'|"[^"]*")/', '', $match[0])
+            ),
+            $data,
+            1
+        );
 
         return "<span style='fill:{$color} ; vertical-align: middle'>" . $data . '</span>';
     }
