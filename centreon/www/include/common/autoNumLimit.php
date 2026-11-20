@@ -65,8 +65,8 @@ if (isset($_POST['num'], $_POST['search'])
     $num = $centreon->historyPage[$url] ?? 0;
 }
 
-// Cast limit and num to avoid sql error on prepared statement (PDO::PARAM_INT)
-$limit = (int) $limit;
-$num = (int) $num;
+// Integers for PDO::PARAM_INT; limit >= 1 (checkPagination.php divides by it), num >= 0 (first page)
+$limit = max(1, (int) $limit);
+$num = max(0, (int) $num);
 
 global $search;

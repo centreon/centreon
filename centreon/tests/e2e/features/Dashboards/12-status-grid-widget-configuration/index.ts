@@ -125,8 +125,10 @@ before(() => {
     })
     .applyPollerConfiguration();
 
+  // The next calls use the API: the UI login can return before the session is set
   cy.loginByTypeOfUser({
-    jsonName: 'admin'
+    jsonName: 'admin',
+    loginViaApi: true
   });
 
   cy.scheduleServiceCheck({ host: 'Centreon-Server', service: 'Ping' });

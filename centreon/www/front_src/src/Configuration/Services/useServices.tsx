@@ -49,14 +49,16 @@ const getApi = (context: PlatformContext): APIType => ({
     getOne: getServiceEndpoint,
     update: getServiceEndpoint
   },
+  // The listing sorts on the host and service names only.
+  isActivationSortable: false,
   // The duplicate route takes no body, so there is no copy count to ask for.
   isSingleDuplicate: true,
   methods: {
     disable: Method.PATCH,
     enable: Method.PATCH,
-    // The form sends the whole service, where enable and disable send only
-    // `activated`.
-    update: Method.PUT
+    massUpdate: Method.PATCH,
+    // A partial update: a key the form leaves out keeps its stored value.
+    update: Method.PATCH
   },
   writeBaseEndpoint: servicesBaseEndpoint
 });
@@ -81,7 +83,7 @@ const useServices = ({
       },
       {
         // The host name only, not its alias or address as the legacy page did.
-        fieldName: 'host.name',
+        fieldName: 'host_name',
         fieldType: FieldType.Text,
         name: t(labelHostName)
       },
@@ -101,10 +103,12 @@ const useServices = ({
       },
       {
         // Off by default: the services of a disabled host are left out, as
-        // the legacy page did.
+        // the legacy page did. The API reads it the other way round: only
+        // enabled hosts with `host_activated=true`, every host without it.
         fieldName: 'include_disabled_hosts',
         fieldType: FieldType.Checkbox,
-        name: t(labelIncludeDisabledHosts)
+        name: t(labelIncludeDisabledHosts),
+        uncheckedQueryParameter: 'host_activated'
       }
     ],
     [t]

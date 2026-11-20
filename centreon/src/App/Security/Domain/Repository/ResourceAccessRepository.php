@@ -31,6 +31,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceGroup\ServiceGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityId;
@@ -61,6 +62,22 @@ interface ResourceAccessRepository
      * @param Collection<AccessGroupId> $accessGroupIds
      */
     public function grantResourceAccess(AggregateRoot&AclScopedInterface $resource, Collection $accessGroupIds): void;
+
+    /**
+     * {@see grantResourceAccess()} for a service known by its ids, on the host given.
+     *
+     * @param Collection<AccessGroupId> $accessGroupIds
+     */
+    public function grantServiceAccess(HostId $hostId, ServiceId $serviceId, Collection $accessGroupIds): void;
+
+    /**
+     * The Access Groups the `centreon_acl` real-time cache grants that service on one of those hosts, lowest id first.
+     *
+     * @param Collection<HostId> $hostIds
+     *
+     * @return Collection<AccessGroupId>
+     */
+    public function findAccessGroupIdsGrantingService(ServiceId $serviceId, Collection $hostIds): Collection;
 
     /**
      * Flags every Access Group's resource scoping as changed, so the `centAcl` cron fully
@@ -134,6 +151,9 @@ interface ResourceAccessRepository
     public function findServiceGroupAccessScope(UserId $userId): AccessScope;
 
     /**
+     * The image folders the user may read: those granted by their ACL resources, plus the system
+     * folders (MediaDirectory::SYSTEM_NAMES), which are readable even without any ACL resource.
+     *
      * @return AccessScope<MediaDirectoryId>
      */
     public function findImageFolderAccessScope(UserId $userId): AccessScope;

@@ -25,15 +25,12 @@ namespace App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\Security\Domain\Aggregate\UserId;
-use App\Shared\Application\Command\NonTransactionalCommand;
 
 /**
- * Best-effort, non-atomic by design: re-linking shared services commits on the configuration
- * connection while cloning exclusive ones runs through the legacy CentreonDBInstance connection,
- * which no Doctrine transaction covers. Wrapping this in the command bus transaction would give
- * false atomicity — a rollback could not undo the legacy clone's writes — so it stays outside it.
+ * All or none: the services of the copy are written in this command's own transaction, after the host copy was
+ * committed, so a failure leaves the copy without any of the source's services.
  */
-final readonly class DuplicateHostServicesCommand implements NonTransactionalCommand
+final readonly class DuplicateHostServicesCommand
 {
     public function __construct(
         public HostId $sourceHostId,

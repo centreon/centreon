@@ -18,6 +18,7 @@ import ConfigurationBase from '../ConfigurationBase';
 import { formStateAtom } from '../ConfigurationBase/atoms';
 import { labelMassChange } from '../ConfigurationBase/translatedLabels';
 import { type Actions, ResourceType } from '../models';
+import type { FormValues } from '../ResourceForm/models';
 import { useDefaultPoller, useDeployServices } from './api';
 import {
   filtersAtom,
@@ -90,7 +91,8 @@ const Hosts = () => {
     return {
       adapter: getMassChangeAdapter(context),
       defaultValues: getMassChangeDefaultValues(context),
-      getConfirmationWarning: getMassChangeWarning(t),
+      getConfirmationWarning: (values: FormValues) =>
+        getMassChangeWarning({ t, values }),
       groups: massChangeGroups,
       inputs: massChangeInputs,
       validationSchema: massChangeValidationSchema

@@ -238,7 +238,7 @@ for ($i = 0; $indexData = $stmt->fetch(PDO::FETCH_ASSOC); $i++) {
         }
     }
     $indexData['metrics_name'] = $metric;
-    $indexData['service_description'] = "<a href='./main.php?p=50119&o=msvc&index_id=" . $indexData['id'] . "'>"
+    $indexData['service_description'] = "<a href='./main.php?p=50119&o=msvc&num=0&index_id=" . $indexData['id'] . "'>"
         . $indexData['display_name'] . '</a>';
 
     $indexData['storage_type'] = $storage_type[$indexData['storage_type']];

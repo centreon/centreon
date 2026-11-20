@@ -223,27 +223,24 @@ final class DuplicateHostProcessorTest extends ApiTestCase
         self::assertSame(1, (int) $copyAclCount, 'the copy inherits the source real-time ACL row');
     }
 
-    public function testItReLinksSharedServicesOntoTheCopyButLeavesExclusiveOnesToTheLegacyClone(): void
+    public function testItClonesExclusiveServicesAndReLinksSharedOnes(): void
     {
         $pollerId = $this->insertPoller('Central');
         $name = $this->uniqueName('web');
         $sourceId = $this->insertHost($name, $pollerId);
         $otherHostId = $this->insertHost($this->uniqueName('web'), $pollerId);
 
-        // A service shared with another host must be re-linked (not cloned) onto the copy; this path is
-        // pure SQL on the configuration connection and needs no legacy session, so it runs even under
-        // the token-authenticated test.
         $sharedServiceId = $this->insertService('shared');
         $this->linkService($sourceId, $sharedServiceId);
         $this->linkService($otherHostId, $sharedServiceId);
 
-        // A service exclusive to the source is cloned through the legacy procedural multipleServiceInDB,
-        // which needs the legacy www runtime (_CENTREON_PATH_ + the DB-Func.php file). The integration
-        // harness has neither, so that step fails and is swallowed+logged, and the exclusive service is
-        // not materialised on the copy here — the real clone is validated end to end on the CDE. (Under
-        // token auth the session itself is no longer the blocker: it is rebuilt from the actor.)
+        $templateId = $this->insertServiceTemplate();
         $exclusiveServiceId = $this->insertService('exclusive');
+        $this->connection->update('service', ['service_template_model_stm_id' => $templateId], ['service_id' => $exclusiveServiceId]);
         $this->linkService($sourceId, $exclusiveServiceId);
+        $this->connection->insert('service_categories', ['sc_name' => $name, 'sc_description' => $name, 'sc_activate' => '1']);
+        $categoryId = (int) $this->connection->lastInsertId();
+        $this->connection->insert('service_categories_relation', ['service_service_id' => $exclusiveServiceId, 'sc_id' => $categoryId]);
 
         $this->login();
 
@@ -251,20 +248,34 @@ final class DuplicateHostProcessorTest extends ApiTestCase
         self::assertResponseStatusCodeSame(204);
 
         $copyId = $this->hostIdByName($name . '_1');
+        self::assertSame(
+            [$sharedServiceId],
+            $this->ids(
+                'SELECT service_service_id FROM host_service_relation WHERE host_host_id = ? AND service_service_id IN (?, ?)',
+                [$copyId, $sharedServiceId, $exclusiveServiceId],
+            ),
+            'the shared service is re-linked onto the copy, the exclusive one is not',
+        );
 
-        $sharedCount = $this->connection->fetchOne(
-            'SELECT COUNT(*) FROM host_service_relation WHERE host_host_id = ? AND service_service_id = ?',
+        $clone = $this->connection->fetchAssociative(
+            'SELECT s.service_id, s.service_description, s.service_template_model_stm_id
+                FROM service s
+                INNER JOIN host_service_relation hsr ON hsr.service_service_id = s.service_id
+                WHERE hsr.host_host_id = ? AND s.service_id <> ?',
             [$copyId, $sharedServiceId],
         );
-        self::assertIsScalar($sharedCount);
-        self::assertSame(1, (int) $sharedCount, 'the shared service is re-linked onto the copy');
-
-        $exclusiveCount = $this->connection->fetchOne(
-            'SELECT COUNT(*) FROM host_service_relation WHERE host_host_id = ? AND service_service_id = ?',
-            [$copyId, $exclusiveServiceId],
+        self::assertIsArray($clone, 'the exclusive service is cloned onto the copy');
+        \assert(is_numeric($clone['service_id']) && is_numeric($clone['service_template_model_stm_id']));
+        self::assertNotSame($exclusiveServiceId, (int) $clone['service_id']);
+        self::assertSame(
+            $this->connection->fetchOne('SELECT service_description FROM service WHERE service_id = ?', [$exclusiveServiceId]),
+            $clone['service_description'],
         );
-        self::assertIsScalar($exclusiveCount);
-        self::assertSame(0, (int) $exclusiveCount, 'the exclusive service is cloned by the legacy runtime (absent in integration), never re-linked; the clone is validated on the CDE');
+        self::assertSame($templateId, (int) $clone['service_template_model_stm_id']);
+        self::assertSame(
+            [$categoryId],
+            $this->ids('SELECT sc_id FROM service_categories_relation WHERE service_service_id = ?', [$clone['service_id']]),
+        );
     }
 
     public function testItRejectsAHostWhoseTemplatesTheLicenseNoLongerAllows(): void
@@ -313,9 +324,8 @@ final class DuplicateHostProcessorTest extends ApiTestCase
         $sourceId = $this->insertHost($name, $pollerId);
         $otherHostId = $this->insertHost($this->uniqueName('web'), $pollerId);
 
-        // Only a shared service: nothing needs the legacy clone, so the duplication completes cleanly
-        // even under token auth — the cloner early-returns on an empty exclusive-service list, and the
-        // service ACL scoping (duplicateHostServiceAccess) runs.
+        // Only a shared service: the copy is only linked to it, and the service ACL scoping
+        // (duplicateHostServiceAccess) runs.
         $sharedServiceId = $this->insertService('shared');
         $this->linkService($sourceId, $sharedServiceId);
         $this->linkService($otherHostId, $sharedServiceId);
@@ -434,6 +444,29 @@ final class DuplicateHostProcessorTest extends ApiTestCase
             'service_description' => $prefix . '-' . bin2hex(random_bytes(4)),
             'service_register' => '1',
             'service_activate' => '1',
+        ]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    /**
+     * @param list<mixed> $params
+     *
+     * @return list<int>
+     */
+    private function ids(string $sql, array $params): array
+    {
+        return array_map(
+            static fn (mixed $value): int => is_numeric($value) ? (int) $value : throw new \UnexpectedValueException(),
+            $this->connection->fetchFirstColumn($sql, $params),
+        );
+    }
+
+    private function insertServiceTemplate(): int
+    {
+        $this->connection->insert('service', [
+            'service_description' => $this->uniqueName('template'),
+            'service_register' => '0',
         ]);
 
         return (int) $this->connection->lastInsertId();

@@ -27,6 +27,7 @@ use Rector\CodingStyle\Rector\Stmt\NewlineAfterStatementRector;
 use Rector\Config\RectorConfig;
 use Rector\Renaming\Rector\ClassConstFetch\RenameClassConstFetchRector;
 use Rector\Strict\Rector\Empty_\DisallowedEmptyRuleFixerRector;
+use Tools\Rector\Rule\JsonThrowOnErrorFlagRector;
 
 return RectorConfig::configure()
     ->withParallel()
@@ -35,6 +36,9 @@ return RectorConfig::configure()
     ])
     ->withPhpSets(php82: true) // limit rules set to <=php8.2 for backport compatibility
     ->withComposerBased(doctrine: true, phpunit: true, symfony: true)
+    ->withRules([
+        JsonThrowOnErrorFlagRector::class,
+    ])
     ->withPreparedSets(
         deadCode: true,
         codeQuality: true,

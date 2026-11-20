@@ -23,15 +23,17 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Host\GeoCoordinates;
+use App\MonitoringConfiguration\Domain\Aggregate\GeoCoordinates;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostState;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
+use App\MonitoringConfiguration\Domain\Aggregate\Notifications;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\MonitoringConfiguration\Infrastructure\Service\CommandArgumentsFormatter;
@@ -289,10 +291,13 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
                 FROM hostcategories_relation hcr
                 INNER JOIN hostcategories hc ON hc.hc_id = hcr.hostcategories_hc_id
                 WHERE hcr.host_host_id = h.host_id AND hc.level IS NULL) AS category_ids',
+            // A host holds a single severity; legacy may have left several, of which the lowest level
+            // (then the lowest id) is read, as the legacy form and the host templates do.
             '(SELECT hcr.hostcategories_hc_id
                 FROM hostcategories_relation hcr
                 INNER JOIN hostcategories hc ON hc.hc_id = hcr.hostcategories_hc_id
                 WHERE hcr.host_host_id = h.host_id AND hc.level IS NOT NULL
+                ORDER BY hc.level ASC, hc.hc_id ASC
                 LIMIT 1) AS severity_id',
             '(SELECT GROUP_CONCAT(hhr.host_parent_hp_id)
                 FROM host_hostparent_relation hhr
@@ -324,12 +329,56 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         return $this->transformer->transform($row);
     }
 
+    public function findState(HostId $id, ActingUser $actor): ?HostState
+    {
+        if (! $this->accessScopes->hosts($actor, new Collection([$id], HostId::class))->allows($id)) {
+            return null;
+        }
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select(
+            'h.host_activate',
+            // A host has one poller; the lowest id is read should legacy data link it to several.
+            '(SELECT MIN(nsr.nagios_server_id) FROM ns_host_relation nsr WHERE nsr.host_host_id = h.host_id) AS poller_id',
+        )
+            ->from(self::TABLE_NAME, 'h')
+            ->where($qb->expr()->eq('h.host_id', $qb->createNamedParameter($id->value, ParameterType::INTEGER)))
+            ->andWhere("h.host_register = '1'");
+
+        /** @var array{host_activate: string|null, poller_id: int|string|null}|false $row */
+        $row = $qb->executeQuery()->fetchAssociative();
+        if ($row === false) {
+            return null;
+        }
+
+        return new HostState(
+            activated: $row['host_activate'] === '1',
+            pollerId: $row['poller_id'] !== null ? new PollerId((int) $row['poller_id']) : null,
+        );
+    }
+
     public function findMacros(HostId $id): Collection
     {
         return new Collection(
             array_map(HostTransformer::createMacro(...), $this->findMacroRows($id->value)),
             HostMacro::class,
         );
+    }
+
+    public function hasExtraSeverities(HostId $id, ?HostSeverityId $kept): bool
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('1')
+            ->from('hostcategories_relation', 'hcr')
+            ->innerJoin('hcr', 'hostcategories', 'hc', 'hc.hc_id = hcr.hostcategories_hc_id')
+            ->where($qb->expr()->eq('hcr.host_host_id', $qb->createNamedParameter($id->value, ParameterType::INTEGER)))
+            ->andWhere('hc.level IS NOT NULL')
+            ->setMaxResults(1);
+        if ($kept instanceof HostSeverityId) {
+            $qb->andWhere($qb->expr()->neq('hcr.hostcategories_hc_id', $qb->createNamedParameter($kept->value, ParameterType::INTEGER)));
+        }
+
+        return $qb->executeQuery()->fetchOne() !== false;
     }
 
     public function remove(Host $host): void
