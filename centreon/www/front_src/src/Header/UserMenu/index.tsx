@@ -36,7 +36,7 @@ import {
   useState
 } from 'react';
 import { useTranslation, withTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
+import { Link as RouterLink, useNavigate } from 'react-router';
 import { makeStyles } from 'tss-react/mui';
 
 import useNavigation from '../../Navigation/useNavigation';
@@ -317,11 +317,6 @@ const UserMenu = ({ headerRef }: Props): JSX.Element => {
     closeUserMenu();
   };
 
-  const navigateToAboutAndCloseUserMenu = (): void => {
-    navigate(routeMap.about);
-    closeUserMenu();
-  };
-
   const logoutFromSession = (e: MouseEvent): void => {
     e.preventDefault();
     logout();
@@ -470,8 +465,10 @@ const UserMenu = ({ headerRef }: Props): JSX.Element => {
                   <ListItem className={classes.listItem}>
                     <ListItemButton
                       className={cx(classes.listItemButton, 'pl-7')}
+                      component={RouterLink}
                       data-testid="user-menu-about"
-                      onClick={navigateToAboutAndCloseUserMenu}
+                      onClick={closeUserMenu}
+                      to={routeMap.about}
                     >
                       <ListItemText
                         primaryTypographyProps={primaryTypographyProps}

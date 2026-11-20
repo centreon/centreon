@@ -99,15 +99,17 @@ export default (): void => {
         });
     });
 
-    it('navigates to the about page when the button is clicked', () => {
-      const navigates = initialize();
+    it('links to the about page and closes the menu when the item is clicked', () => {
+      initialize();
 
       cy.get('[data-cy=userIcon]').click();
       cy.contains(labelAbout)
-        .click()
-        .then(() => {
-          expect(navigates).to.have.been.calledWith('/administration/about');
-        });
+        .closest('a')
+        .should('have.attr', 'href', '/administration/about');
+
+      cy.contains(labelAbout).click();
+
+      cy.contains(labelAbout).should('not.exist');
     });
 
     it('closes the menu when the user icon is clicked once again', () => {
