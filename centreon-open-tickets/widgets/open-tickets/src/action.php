@@ -140,6 +140,11 @@ function format_popup()
                 'alias' => $centreon->user->alias,
                 'email' => $centreon->user->email,
             ],
+            // Global acknowledgement defaults, pre-filled in the popup so the user can override them
+            'ack_options' => [
+                'sticky' => ! empty($centreon->optGen['monitoring_ack_sticky']),
+                'notify' => ! empty($centreon->optGen['monitoring_ack_notify']),
+            ],
         ],
         $widgetId,
         $uniq_id,
