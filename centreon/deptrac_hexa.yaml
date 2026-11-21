@@ -1,6 +1,8 @@
 parameters:
     paths:
         - ./src/App/ActivityLogging
+        - ./src/App/AiAssistance
+        - ./src/App/AiConfiguration
         - ./src/App/MonitoringConfiguration
         - ./src/App/Security
         - ./src/App/Shared

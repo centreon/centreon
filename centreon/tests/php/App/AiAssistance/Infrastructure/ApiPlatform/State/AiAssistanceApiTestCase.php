@@ -27,6 +27,14 @@ use Tests\App\Shared\ApiTestCase;
 
 abstract class AiAssistanceApiTestCase extends ApiTestCase
 {
+    // a non-admin user without access to the Resources Status page
+    protected const USER_WITHOUT_RESOURCES_ACCESS = 'ai-assistance-user-without-resources-access';
+
+    protected static function apiUsers(): array
+    {
+        return [self::USER_WITHOUT_RESOURCES_ACCESS];
+    }
+
     /**
      * Create a default AI provider configuration pointing at an unreachable
      * endpoint: requests pass the configuration stage and fail at transport.

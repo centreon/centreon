@@ -26,10 +26,12 @@ namespace App\AiAssistance\Infrastructure\ApiPlatform\Resource;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model;
+use App\AiAssistance\Domain\Security\AiAssistancePermissionEnum;
 use App\AiAssistance\Infrastructure\ApiPlatform\Dto\SummarizeIncidentInput;
 use App\AiAssistance\Infrastructure\ApiPlatform\State\SummarizeIncidentProcessor;
 
 #[Post(
+    security: "is_granted('" . AiAssistancePermissionEnum::CanUse->value . "')",
     shortName: 'AiAssistance',
     uriTemplate: '/ai/incident-summary',
     processor: SummarizeIncidentProcessor::class,
@@ -42,6 +44,7 @@ use App\AiAssistance\Infrastructure\ApiPlatform\State\SummarizeIncidentProcessor
             . 'timeline events, suitable for a ticket or a shift handover. The summary is '
             . 'produced by the default AI provider: the provided data is sent to it.',
         responses: [
+            403 => new Model\Response('The user has no access to the Resources Status page'),
             409 => new Model\Response('No default AI provider is configured'),
             502 => new Model\Response('The AI provider could not be reached or rejected the request'),
         ],

@@ -51,6 +51,15 @@ final class SummarizeIncidentProcessorTest extends AiAssistanceApiTestCase
         self::assertResponseStatusCodeSame(401);
     }
 
+    public function testWithoutResourcesStatusAccessReturns403(): void
+    {
+        $this->login(self::USER_WITHOUT_RESOURCES_ACCESS);
+
+        $this->request('POST', self::ENDPOINT, ['json' => self::PAYLOAD]);
+
+        self::assertResponseStatusCodeSame(403);
+    }
+
     public function testWithoutDefaultProviderReturns409(): void
     {
         $this->login();

@@ -7088,6 +7088,8 @@ paths:
       tags:
         - AiAssistance
       responses:
+        '403':
+          description: 'The user has no access to the Resources Status page'
         '409':
           description: 'No default AI provider is configured'
         '502':
@@ -7147,6 +7149,8 @@ paths:
       tags:
         - AiAssistance
       responses:
+        '403':
+          description: 'The user has no access to the Resources Status page'
         '200':
           description: 'AiAssistance resource'
           content:
@@ -7178,6 +7182,8 @@ paths:
       tags:
         - AiAssistance
       responses:
+        '403':
+          description: 'The user has no access to the Resources Status page'
         '409':
           description: 'No default AI provider is configured'
         '502':
@@ -7237,6 +7243,8 @@ paths:
       tags:
         - AiAssistance
       responses:
+        '403':
+          description: 'The user has no access to the Resources Status page'
         '409':
           description: 'No default AI provider is configured'
         '502':
@@ -7296,6 +7304,8 @@ paths:
       tags:
         - AiAssistance
       responses:
+        '403':
+          description: 'The user has no access to the Resources Status page'
         '409':
           description: 'No default AI provider is configured'
         '502':
@@ -7355,6 +7365,8 @@ paths:
       tags:
         - AiAssistance
       responses:
+        '403':
+          description: 'The user has no access to the Resources Status page'
         '409':
           description: 'No default AI provider is configured'
         '502':

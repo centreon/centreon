@@ -26,10 +26,12 @@ namespace App\AiAssistance\Infrastructure\ApiPlatform\Resource;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model;
+use App\AiAssistance\Domain\Security\AiAssistancePermissionEnum;
 use App\AiAssistance\Infrastructure\ApiPlatform\Dto\CorrelateAlertsInput;
 use App\AiAssistance\Infrastructure\ApiPlatform\State\CorrelateAlertsProcessor;
 
 #[Post(
+    security: "is_granted('" . AiAssistancePermissionEnum::CanUse->value . "')",
     shortName: 'AiAssistance',
     uriTemplate: '/ai/alert-correlation',
     processor: CorrelateAlertsProcessor::class,
@@ -42,6 +44,7 @@ use App\AiAssistance\Infrastructure\ApiPlatform\State\CorrelateAlertsProcessor;
             . 'treating each alert in isolation. The facts of the selected resources are sent to '
             . 'the default AI provider.',
         responses: [
+            403 => new Model\Response('The user has no access to the Resources Status page'),
             409 => new Model\Response('No default AI provider is configured'),
             502 => new Model\Response('The AI provider could not be reached or rejected the request'),
         ],

@@ -34,6 +34,15 @@ final class GetAiAvailabilityProviderTest extends AiAssistanceApiTestCase
         self::assertResponseStatusCodeSame(401);
     }
 
+    public function testWithoutResourcesStatusAccessReturns403(): void
+    {
+        $this->login(self::USER_WITHOUT_RESOURCES_ACCESS);
+
+        $this->request('GET', self::ENDPOINT);
+
+        self::assertResponseStatusCodeSame(403);
+    }
+
     public function testNotAvailableWithoutEnabledProvider(): void
     {
         $this->login();

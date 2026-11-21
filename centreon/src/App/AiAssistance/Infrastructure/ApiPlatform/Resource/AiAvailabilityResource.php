@@ -26,9 +26,11 @@ namespace App\AiAssistance\Infrastructure\ApiPlatform\Resource;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\OpenApi\Model;
+use App\AiAssistance\Domain\Security\AiAssistancePermissionEnum;
 use App\AiAssistance\Infrastructure\ApiPlatform\State\GetAiAvailabilityProvider;
 
 #[Get(
+    security: "is_granted('" . AiAssistancePermissionEnum::CanUse->value . "')",
     shortName: 'AiAssistance',
     uriTemplate: '/ai/availability',
     provider: GetAiAvailabilityProvider::class,
@@ -37,6 +39,9 @@ use App\AiAssistance\Infrastructure\ApiPlatform\State\GetAiAvailabilityProvider;
         description: 'AI features are available when an AI provider is enabled and its spend limit '
             . 'is not reached. The frontend hides the AI features when no provider is enabled, and '
             . 'disables them when the budget is exhausted.',
+        responses: [
+            403 => new Model\Response('The user has no access to the Resources Status page'),
+        ],
     ),
 )]
 final readonly class AiAvailabilityResource
