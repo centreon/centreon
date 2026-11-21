@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\AiConfiguration\Infrastructure\ApiPlatform\Dto;
 
 use ApiPlatform\Metadata\ApiProperty;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -33,7 +34,7 @@ final class ModelPricesInput
 {
     public function __construct(
         #[ApiProperty(description: 'Provider type, to resolve the catalog provider-prefixed keys', openapiContext: ['example' => 'mistral'])]
-        #[Assert\Length(min: 1, max: 50)]
+        #[Assert\Choice(callback: [AiProviderTypeEnum::class, 'values'])]
         public string $type,
 
         #[ApiProperty(description: 'Default model name to look up', openapiContext: ['example' => 'gpt-4o'])]

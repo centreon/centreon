@@ -30,6 +30,7 @@ use App\AiAssistance\Application\Command\TranslateResourceFilterResult;
 use App\AiAssistance\Infrastructure\ApiPlatform\Dto\TranslateResourceFilterInput;
 use App\AiAssistance\Infrastructure\ApiPlatform\Resource\TranslateResourceFilterResource;
 use App\Shared\Application\Command\CommandBus;
+use Psr\Log\LoggerInterface;
 use Webmozart\Assert\Assert;
 
 /**
@@ -39,6 +40,7 @@ final readonly class TranslateResourceFilterProcessor implements ProcessorInterf
 {
     public function __construct(
         private CommandBus $commandBus,
+        private LoggerInterface $logger,
     ) {
     }
 
@@ -51,6 +53,14 @@ final readonly class TranslateResourceFilterProcessor implements ProcessorInterf
             )
         );
         Assert::isInstanceOf($result, TranslateResourceFilterResult::class);
+
+        if ($result->invalidOutputReason !== null) {
+            // the prompt is not logged: it is free text typed by the user
+            $this->logger->warning('Ask AI gave up on an invalid model output', [
+                'reason' => $result->invalidOutputReason,
+                'has_current_filter' => $data->currentFilter !== null && $data->currentFilter !== '',
+            ]);
+        }
 
         return new TranslateResourceFilterResource(
             intent: $result->intent,

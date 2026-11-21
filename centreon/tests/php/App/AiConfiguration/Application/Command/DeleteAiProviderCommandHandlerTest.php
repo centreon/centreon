@@ -28,9 +28,9 @@ use App\AiConfiguration\Application\Command\DeleteAiProviderCommandHandler;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProvider;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderName;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
-use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\StoredApiToken;
 use App\AiConfiguration\Domain\Event\AiProviderDeleted;
 use App\AiConfiguration\Domain\Exception\AiProviderNotFoundException;
 use App\AiConfiguration\Domain\Exception\VaultWriteFailedException;
@@ -127,7 +127,7 @@ final class DeleteAiProviderCommandHandlerTest extends TestCase
             name: new AiProviderName($name),
             type: AiProviderTypeEnum::Anthropic,
             endpointUrl: new EndpointUrl('https://api.anthropic.com'),
-            apiToken: new ApiToken('initial-token'),
+            apiToken: new StoredApiToken('initial-token'),
             defaultModel: new ModelName('claude-sonnet-4-6'),
             fastModel: null,
             description: null,

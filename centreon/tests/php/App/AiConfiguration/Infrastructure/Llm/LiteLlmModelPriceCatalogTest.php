@@ -24,8 +24,9 @@ declare(strict_types=1);
 namespace Tests\App\AiConfiguration\Infrastructure\Llm;
 
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
-use App\AiConfiguration\Domain\Llm\Exception\LlmRequestFailedException;
+use App\AiConfiguration\Domain\Llm\Exception\PriceCatalogUnavailableException;
 use App\AiConfiguration\Infrastructure\Llm\LiteLlmModelPriceCatalog;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\HttpClient\MockHttpClient;
@@ -125,14 +126,25 @@ final class LiteLlmModelPriceCatalogTest extends TestCase
         self::assertSame(1, $httpClient->getRequestsCount());
     }
 
-    public function testTransportFailureBecomesARequestFailure(): void
+    /**
+     * @return iterable<string, array{MockResponse}>
+     */
+    public static function provideFailingResponses(): iterable
     {
-        $httpClient = new MockHttpClient(static function (): MockResponse {
-            throw new \RuntimeException('network down');
-        });
-        $catalog = new LiteLlmModelPriceCatalog($httpClient, new FakeHttpProxyProvider(), new ArrayAdapter());
+        yield 'transport failure' => [new MockResponse('', ['error' => 'network down'])];
 
-        $this->expectException(LlmRequestFailedException::class);
+        yield 'server error' => [new MockResponse('oops', ['http_code' => 503])];
+
+        yield 'invalid JSON' => [new MockResponse('not json')];
+    }
+
+    #[DataProvider('provideFailingResponses')]
+    public function testAFetchFailureIsReportedAsAnUnavailablePriceList(MockResponse $response): void
+    {
+        $catalog = new LiteLlmModelPriceCatalog(new MockHttpClient($response), new FakeHttpProxyProvider(), new ArrayAdapter());
+
+        $this->expectException(PriceCatalogUnavailableException::class);
+        $this->expectExceptionMessage('The model price list can not be fetched');
 
         $catalog->priceFor('gpt-4o', AiProviderTypeEnum::OpenAi);
     }

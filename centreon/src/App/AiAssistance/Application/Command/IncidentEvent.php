@@ -23,16 +23,21 @@ declare(strict_types=1);
 
 namespace App\AiAssistance\Application\Command;
 
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 use Webmozart\Assert\Assert;
 
 /**
  * One timeline event of a monitored resource, as displayed to the user.
+ *
+ * The free texts are masked in the bus logs: they may carry secrets (a command
+ * line, a plugin output) and they make up the prompt.
  */
 final readonly class IncidentEvent
 {
     public function __construct(
         public string $date,
         public string $type,
+        #[Sensitive]
         public ?string $content = null,
         public ?string $author = null,
         public ?string $status = null,

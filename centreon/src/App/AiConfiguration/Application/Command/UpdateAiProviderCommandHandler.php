@@ -26,6 +26,7 @@ namespace App\AiConfiguration\Application\Command;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProvider;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Event\AiProviderUpdated;
+use App\AiConfiguration\Domain\Exception\AiProviderActivationConflictException;
 use App\AiConfiguration\Domain\Exception\AiProviderAlreadyExistsException;
 use App\AiConfiguration\Domain\Exception\AiProviderCanNotBeUpdatedException;
 use App\AiConfiguration\Domain\Exception\AiProviderNotFoundException;
@@ -49,6 +50,7 @@ final readonly class UpdateAiProviderCommandHandler
      * @throws AiProviderNotFoundException
      * @throws AiProviderAlreadyExistsException
      * @throws AiProviderCanNotBeUpdatedException
+     * @throws AiProviderActivationConflictException when another provider was enabled concurrently
      * @throws VaultWriteFailedException
      */
     public function __invoke(UpdateAiProviderCommand $command): AiProvider
@@ -64,43 +66,35 @@ final readonly class UpdateAiProviderCommandHandler
             );
         }
 
-        // the stored token is never sent to another server than the one it was configured for
-        if (
-            ! $command->apiToken instanceof ApiToken
-            && ! $aiProvider->canReuseApiTokenFor($aiProvider->type, $command->endpointUrl)
-        ) {
-            throw AiProviderCanNotBeUpdatedException::apiTokenRequiredForNewEndpoint($command->id);
-        }
-
-        $aiProvider->rename($command->name);
-        $aiProvider->updateEndpointUrl($command->endpointUrl);
-        $aiProvider->updateDefaultModel($command->defaultModel);
-        $aiProvider->updateFastModel($command->fastModel);
-        $aiProvider->updateDescription($command->description);
-        $aiProvider->updateBilling($command->currency, $command->pricing, $command->limit);
-
+        $storedApiToken = null;
         if ($command->apiToken instanceof ApiToken) {
             // written before the configuration is saved, so that an unreachable vault saves nothing
             try {
-                $apiToken = $this->tokenStorage->persist($command->apiToken, $aiProvider->apiToken);
+                $storedApiToken = $this->tokenStorage->persist($command->apiToken, $aiProvider->apiToken());
             } catch (\Throwable $exception) {
                 throw VaultWriteFailedException::forUpdate($command->id, $exception);
             }
-            $aiProvider->updateApiToken($apiToken);
         }
 
+        // the stored token is never sent to another server than the one it was configured for
+        $aiProvider->retarget($command->endpointUrl, $storedApiToken);
+        $aiProvider->rename($command->name);
+        $aiProvider->changeModels($command->defaultModel, $command->fastModel);
+        $aiProvider->describe($command->description);
+        $aiProvider->changeBilling($command->billing);
+
         $toUpdate = [$aiProvider];
-        if ($command->isActivated && ! $aiProvider->isActivated) {
+        if ($command->isActivated && ! $aiProvider->isActivated()) {
             // at most one provider is activated: enabling this one disables the current one
             $currentlyActivated = $this->repository->findActivated();
             if ($currentlyActivated instanceof AiProvider) {
-                $currentlyActivated->disable();
+                $currentlyActivated->deactivate();
                 $toUpdate[] = $currentlyActivated;
             }
-            $aiProvider->enable();
-        } elseif (! $command->isActivated && $aiProvider->isActivated) {
+            $aiProvider->activate();
+        } elseif (! $command->isActivated && $aiProvider->isActivated()) {
             // disabling the activated provider is allowed: it turns AI features off
-            $aiProvider->disable();
+            $aiProvider->deactivate();
         }
 
         $this->repository->update(...$toUpdate);

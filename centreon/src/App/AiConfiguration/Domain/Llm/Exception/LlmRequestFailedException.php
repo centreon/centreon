@@ -23,10 +23,12 @@ declare(strict_types=1);
 
 namespace App\AiConfiguration\Domain\Llm\Exception;
 
+use App\Shared\Domain\Exception\ExpectedFailureInterface;
+
 /**
  * The provider could not be reached, or rejected the request.
  */
-final class LlmRequestFailedException extends LlmException
+final class LlmRequestFailedException extends LlmException implements ExpectedFailureInterface
 {
     public static function fromTransportError(string $message, ?\Throwable $previous = null): self
     {
@@ -57,6 +59,11 @@ final class LlmRequestFailedException extends LlmException
         }
 
         return new self('The model returned an empty answer. Try again, or choose another model.');
+    }
+
+    public static function fromRefusal(string $reason): self
+    {
+        return new self(sprintf('The AI provider refused to answer: %s', $reason));
     }
 
     public static function fromProviderError(int $statusCode, string $message): self

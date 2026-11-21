@@ -43,7 +43,7 @@ final readonly class UsageSummaryProvider
 
     public function forProvider(AiProvider $aiProvider): UsageSummary
     {
-        $currency = $aiProvider->currency;
+        $currency = $aiProvider->billing()->currency;
         $id = $aiProvider->id();
 
         if (! $currency instanceof Currency) {

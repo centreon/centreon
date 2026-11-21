@@ -23,14 +23,22 @@ declare(strict_types=1);
 
 namespace App\AiAssistance\Application\Command;
 
+use App\Shared\Application\Command\NonTransactionalCommand;
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 use Webmozart\Assert\Assert;
 
 /**
  * The performance graph displayed in the details panel, to explain. The data
  * comes from the caller (it already passed the user's ACL): this feature never
  * reads monitoring data on its own.
+ *
+ * The free texts are masked in the bus logs: they may carry secrets (a command
+ * line, a plugin output) and they make up the prompt.
+ *
+ * Not transactional: the usage row of a provider call must survive a later
+ * failure, and no transaction may stay open during the provider call.
  */
-final readonly class ExplainGraphCommand
+final readonly class ExplainGraphCommand implements NonTransactionalCommand
 {
     public const MAX_METRICS = 50;
 
@@ -43,6 +51,7 @@ final readonly class ExplainGraphCommand
         public array $metrics,
         public ?string $parentName = null,
         public ?string $timeRange = null,
+        #[Sensitive]
         public ?string $performanceData = null,
     ) {
         Assert::lengthBetween($name, 1, 255);

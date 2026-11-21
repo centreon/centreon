@@ -25,7 +25,7 @@ namespace App\AiConfiguration\Domain\Llm;
 
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\TierPricing;
-use App\AiConfiguration\Domain\Llm\Exception\LlmRequestFailedException;
+use App\AiConfiguration\Domain\Llm\Exception\PriceCatalogUnavailableException;
 
 /**
  * Looks up published token prices for a model, to help prefill the provider
@@ -36,7 +36,7 @@ interface ModelPriceCatalog
     /**
      * @param AiProviderTypeEnum $type used to resolve the catalog's provider-prefixed keys
      *
-     * @throws LlmRequestFailedException when the catalog can not be fetched
+     * @throws PriceCatalogUnavailableException when the catalog can not be fetched
      * @return TierPricing|null the per-1M-token prices, or null when the model
      *                          is not found in the catalog
      */

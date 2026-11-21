@@ -27,13 +27,16 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderId;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
+use App\Shared\Application\Command\NonTransactionalCommand;
 
 /**
  * List the models a provider configuration exposes, as entered in the form,
  * before it is saved. The token is the one typed in the form, or—when omitted
  * while editing—the token already stored for the provider identified by $id.
+ *
+ * Not transactional: no transaction may stay open during the provider call.
  */
-final readonly class DiscoverModelsCommand
+final readonly class DiscoverModelsCommand implements NonTransactionalCommand
 {
     public function __construct(
         public AiProviderTypeEnum $type,

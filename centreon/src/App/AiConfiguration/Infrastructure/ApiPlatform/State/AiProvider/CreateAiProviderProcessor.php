@@ -31,7 +31,6 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderDescription;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderName;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
-use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
 use App\AiConfiguration\Infrastructure\AiFeatureAvailability;
 use App\AiConfiguration\Infrastructure\ApiPlatform\AiProvider\BillingInput;
@@ -42,7 +41,6 @@ use App\Shared\Application\Command\CommandBus;
 use App\Shared\Infrastructure\TransformerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Webmozart\Assert\Assert;
 
 /**
@@ -70,16 +68,9 @@ final readonly class CreateAiProviderProcessor implements ProcessorInterface
         Assert::isInstanceOf($credentialUser, CredentialUser::class);
 
         $type = AiProviderTypeEnum::from($data->type);
+        $endpointUrl = $type->resolveEndpoint($data->endpointUrl);
 
-        // The endpoint URL of curated providers is fixed: any provided value is ignored.
-        $endpointUrl = $type->defaultEndpointUrl()
-            ?? ($data->endpointUrl !== null
-                ? new EndpointUrl($data->endpointUrl)
-                : throw new UnprocessableEntityHttpException(
-                    sprintf("An endpoint URL is required for providers of type '%s'.", $type->value)
-                ));
-
-        $billing = BillingInput::fromFields(
+        $billing = BillingInput::toBilling(
             currency: $data->currency,
             priceDefaultInput: $data->priceDefaultInput,
             priceDefaultOutput: $data->priceDefaultOutput,
@@ -98,10 +89,8 @@ final readonly class CreateAiProviderProcessor implements ProcessorInterface
             fastModel: $data->fastModel !== null ? new ModelName($data->fastModel) : null,
             description: $data->description !== null ? new AiProviderDescription($data->description) : null,
             isActivated: $data->isActivated,
-            currency: $billing->currency,
-            pricing: $billing->pricing,
-            limit: $billing->limit,
             creatorId: $credentialUser->credential->userId->value,
+            billing: $billing,
         );
 
         $aiProvider = $this->commandBus->execute($command);

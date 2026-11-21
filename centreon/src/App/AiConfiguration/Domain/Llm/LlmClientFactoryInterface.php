@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\AiConfiguration\Domain\Llm;
 
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProvider;
+use App\AiConfiguration\Domain\Llm\Exception\ApiTokenUnavailableException;
 use App\AiConfiguration\Domain\Llm\Exception\LlmConfigurationException;
 
 interface LlmClientFactoryInterface
@@ -32,11 +33,12 @@ interface LlmClientFactoryInterface
      * Build a client for the enabled AI provider configuration.
      *
      * @throws LlmConfigurationException when no provider is enabled
+     * @throws ApiTokenUnavailableException when the API token can not be read from the vault
      */
     public function forActivatedProvider(): LlmClientInterface;
 
     /**
-     * @throws LlmConfigurationException when the provider configuration is not usable
+     * @throws ApiTokenUnavailableException when the API token can not be read from the vault
      */
     public function forProvider(AiProvider $aiProvider): LlmClientInterface;
 
@@ -44,7 +46,7 @@ interface LlmClientFactoryInterface
      * Build a client for a configuration-time connection test: unmetered and
      * uncapped, and usable with a not-yet-saved provider.
      *
-     * @throws LlmConfigurationException when the provider configuration is not usable
+     * @throws ApiTokenUnavailableException when the API token can not be read from the vault
      */
     public function forConnectionTest(AiProvider $aiProvider): LlmClientInterface;
 }

@@ -36,15 +36,18 @@ use App\AiConfiguration\Infrastructure\AiFeatureAvailability;
 use App\AiConfiguration\Infrastructure\ApiPlatform\Resource\AiProvider\ListAiProviderResource;
 use App\Shared\Domain\Repository\Pagination;
 use App\Shared\Domain\Repository\Paginator;
+use App\Shared\Infrastructure\ApiPlatform\State\FilterAwareProviderTrait;
 use App\Shared\Infrastructure\ApiPlatform\State\PaginationResolver;
 use App\Shared\Infrastructure\ApiPlatform\State\SortAwareProviderTrait;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * @implements ProviderInterface<ListAiProviderResource>
  */
 final readonly class ListAiProvidersProvider implements ProviderInterface
 {
+    use FilterAwareProviderTrait;
     use SortAwareProviderTrait;
 
     public function __construct(
@@ -68,7 +71,7 @@ final readonly class ListAiProvidersProvider implements ProviderInterface
             throw new AccessDeniedException('You are not allowed to access AI provider configurations');
         }
 
-        /** @var array{name?: array<string>|null, type?: string|array<string>, is_activated?: string, sort?: array<string, string>} $filters */
+        /** @var array<string, mixed> $filters */
         $filters = $context['filters'] ?? [];
 
         $criteria = new AiProviderCriteria();
@@ -79,7 +82,11 @@ final readonly class ListAiProvidersProvider implements ProviderInterface
 
         $criteria = $this->handleNameFilter($filters['name'] ?? null, $criteria);
         $criteria = $this->handleTypeFilter($filters['type'] ?? null, $criteria);
-        $criteria = $this->handleIsActivatedFilter($filters['is_activated'] ?? null, $criteria);
+
+        $isActivated = $this->handleBoolFilter($filters['is_activated'] ?? null, 'is_activated');
+        if ($isActivated !== null) {
+            $criteria = $criteria->withIsActivated($isActivated);
+        }
         /** @var AiProviderCriteria $criteria */
         $criteria = $this->handleSort($filters, $criteria);
 
@@ -106,22 +113,23 @@ final readonly class ListAiProvidersProvider implements ProviderInterface
     }
 
     /**
-     * @param array<string>|null $nameFilter
+     * @throws BadRequestHttpException when the filter is malformed or uses an unknown operator
      */
-    private function handleNameFilter(?array $nameFilter, AiProviderCriteria $criteria): AiProviderCriteria
+    private function handleNameFilter(mixed $nameFilter, AiProviderCriteria $criteria): AiProviderCriteria
     {
-        if ($nameFilter === null) {
-            return $criteria;
+        // the shared parser drops unknown operators: reject them, so a typo does not list everything
+        if (is_array($nameFilter)) {
+            foreach (array_keys($nameFilter) as $operator) {
+                if (! in_array($operator, AiProviderCriteria::ALLOWED_OPERATORS, true)) {
+                    throw new BadRequestHttpException(sprintf(
+                        'The "name" filter operator must be one of: %s.',
+                        implode(', ', AiProviderCriteria::ALLOWED_OPERATORS)
+                    ));
+                }
+            }
         }
 
-        foreach ($nameFilter as $operator => $names) {
-            if (! in_array($operator, AiProviderCriteria::ALLOWED_OPERATORS, true)) {
-                continue;
-            }
-            if (is_string($names)) {
-                $names = [$names];
-            }
-
+        foreach ($this->handleOperatorFilter($nameFilter, 'name', AiProviderCriteria::ALLOWED_OPERATORS) as $operator => $names) {
             foreach ($names as $name) {
                 $criteria = $criteria->withName($name, $operator);
             }
@@ -131,32 +139,24 @@ final readonly class ListAiProvidersProvider implements ProviderInterface
     }
 
     /**
-     * @param string|array<string>|null $typeFilter
+     * @throws BadRequestHttpException when a type is unknown
      */
-    private function handleTypeFilter(string|array|null $typeFilter, AiProviderCriteria $criteria): AiProviderCriteria
+    private function handleTypeFilter(mixed $typeFilter, AiProviderCriteria $criteria): AiProviderCriteria
     {
         if ($typeFilter === null) {
             return $criteria;
         }
 
-        $types = is_string($typeFilter) ? [$typeFilter] : $typeFilter;
-
-        foreach ($types as $type) {
-            if (AiProviderTypeEnum::tryFrom($type) === null) {
-                continue;
+        foreach (is_array($typeFilter) ? $typeFilter : [$typeFilter] as $type) {
+            if (! is_string($type) || AiProviderTypeEnum::tryFrom($type) === null) {
+                throw new BadRequestHttpException(sprintf(
+                    'The "type" filter must be one of: %s.',
+                    implode(', ', AiProviderTypeEnum::values())
+                ));
             }
             $criteria = $criteria->withType($type);
         }
 
         return $criteria;
-    }
-
-    private function handleIsActivatedFilter(?string $isActivatedFilter, AiProviderCriteria $criteria): AiProviderCriteria
-    {
-        if ($isActivatedFilter === null) {
-            return $criteria;
-        }
-
-        return $criteria->withIsActivated(filter_var($isActivatedFilter, \FILTER_VALIDATE_BOOLEAN));
     }
 }

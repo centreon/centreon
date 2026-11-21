@@ -23,11 +23,16 @@ declare(strict_types=1);
 
 namespace App\AiAssistance\Application\Command;
 
+use App\Shared\Application\Command\NonTransactionalCommand;
+
 /**
  * Correlate several monitored resources that are in a non-OK state, to surface
  * a likely common root cause rather than treating each alert in isolation.
+ *
+ * Not transactional: the usage row of a provider call must survive a later
+ * failure, and no transaction may stay open during the provider call.
  */
-final readonly class CorrelateAlertsCommand
+final readonly class CorrelateAlertsCommand implements NonTransactionalCommand
 {
     public const MAX_RESOURCES = 50;
 

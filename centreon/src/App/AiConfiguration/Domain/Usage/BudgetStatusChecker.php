@@ -44,8 +44,8 @@ final readonly class BudgetStatusChecker
 
     public function isExhausted(AiProvider $aiProvider): bool
     {
-        $limit = $aiProvider->limit;
-        $currency = $aiProvider->currency;
+        $limit = $aiProvider->billing()->limit;
+        $currency = $aiProvider->billing()->currency;
 
         if (! $currency instanceof Currency || ! $limit instanceof SpendLimit || ! $limit->hasAnyLimit()) {
             return false;

@@ -31,6 +31,7 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\StoredApiToken;
 use App\AiConfiguration\Domain\Event\AiProviderUpdated;
 use App\AiConfiguration\Domain\Exception\AiProviderAlreadyExistsException;
 use App\AiConfiguration\Domain\Exception\AiProviderCanNotBeUpdatedException;
@@ -95,7 +96,7 @@ final class UpdateAiProviderCommandHandlerTest extends TestCase
 
         $updated = ($this->handler)($this->updateCommand($aiProvider));
 
-        self::assertSame('Anthropic production', $updated->name->value);
+        self::assertSame('Anthropic production', $updated->name()->value);
     }
 
     public function testDisablingTheActivatedProviderLeavesNoneActivated(): void
@@ -104,7 +105,7 @@ final class UpdateAiProviderCommandHandlerTest extends TestCase
 
         ($this->handler)($this->updateCommand($aiProvider, isActivated: false));
 
-        self::assertFalse($this->repository->getById($aiProvider->id())->isActivated);
+        self::assertFalse($this->repository->getById($aiProvider->id())->isActivated());
         self::assertNull($this->repository->findActivated());
     }
 
@@ -115,8 +116,8 @@ final class UpdateAiProviderCommandHandlerTest extends TestCase
 
         ($this->handler)($this->updateCommand($second, isActivated: true));
 
-        self::assertTrue($this->repository->getById($second->id())->isActivated);
-        self::assertFalse($this->repository->getById($first->id())->isActivated);
+        self::assertTrue($this->repository->getById($second->id())->isActivated());
+        self::assertFalse($this->repository->getById($first->id())->isActivated());
     }
 
     public function testNullTokenKeepsCurrentToken(): void
@@ -125,7 +126,7 @@ final class UpdateAiProviderCommandHandlerTest extends TestCase
 
         $updated = ($this->handler)($this->updateCommand($aiProvider, apiToken: null));
 
-        self::assertSame('initial-token', $updated->apiToken->value);
+        self::assertSame('initial-token', $updated->apiToken()->value);
         self::assertSame([], $this->tokenStorage->persistedTokens);
     }
 
@@ -136,7 +137,7 @@ final class UpdateAiProviderCommandHandlerTest extends TestCase
         $updated = ($this->handler)($this->updateCommand($aiProvider, apiToken: 'new-token'));
 
         self::assertSame(['new-token'], $this->tokenStorage->persistedTokens);
-        self::assertSame(FakeAiProviderTokenStorage::STORED_PREFIX . 'new-token', $updated->apiToken->value);
+        self::assertSame(FakeAiProviderTokenStorage::STORED_PREFIX . 'new-token', $updated->apiToken()->value);
     }
 
     public function testVaultWriteFailureKeepsTheStoredToken(): void
@@ -150,7 +151,7 @@ final class UpdateAiProviderCommandHandlerTest extends TestCase
         } catch (VaultWriteFailedException) {
         }
 
-        self::assertSame('initial-token', $this->repository->getById($aiProvider->id())->apiToken->value);
+        self::assertSame('initial-token', $this->repository->getById($aiProvider->id())->apiToken()->value);
         self::assertTrue($this->eventBus->shouldNotHaveDispatched(AiProviderUpdated::class));
     }
 
@@ -164,7 +165,7 @@ final class UpdateAiProviderCommandHandlerTest extends TestCase
         } catch (AiProviderCanNotBeUpdatedException) {
         }
 
-        self::assertSame('https://api.anthropic.com', $this->repository->getById($aiProvider->id())->endpointUrl->value);
+        self::assertSame('https://api.anthropic.com', $this->repository->getById($aiProvider->id())->endpointUrl()->value);
         self::assertTrue($this->eventBus->shouldNotHaveDispatched(AiProviderUpdated::class));
     }
 
@@ -176,7 +177,7 @@ final class UpdateAiProviderCommandHandlerTest extends TestCase
             $this->updateCommand($aiProvider, apiToken: 'new-token', endpointUrl: 'https://llm.example.com')
         );
 
-        self::assertSame('https://llm.example.com', $updated->endpointUrl->value);
+        self::assertSame('https://llm.example.com', $updated->endpointUrl()->value);
         self::assertSame(['new-token'], $this->tokenStorage->persistedTokens);
     }
 
@@ -188,7 +189,7 @@ final class UpdateAiProviderCommandHandlerTest extends TestCase
             $this->updateCommand($aiProvider, apiToken: null, endpointUrl: 'https://api.anthropic.com/')
         );
 
-        self::assertSame('initial-token', $updated->apiToken->value);
+        self::assertSame('initial-token', $updated->apiToken()->value);
     }
 
     public function testDispatchUpdatedEvent(): void
@@ -207,7 +208,7 @@ final class UpdateAiProviderCommandHandlerTest extends TestCase
             name: new AiProviderName($name),
             type: AiProviderTypeEnum::Anthropic,
             endpointUrl: new EndpointUrl('https://api.anthropic.com'),
-            apiToken: new ApiToken('initial-token'),
+            apiToken: new StoredApiToken('initial-token'),
             defaultModel: new ModelName('claude-sonnet-4-6'),
             fastModel: null,
             description: null,
@@ -227,13 +228,13 @@ final class UpdateAiProviderCommandHandlerTest extends TestCase
     ): UpdateAiProviderCommand {
         return new UpdateAiProviderCommand(
             id: $aiProvider->id(),
-            name: new AiProviderName($name ?? $aiProvider->name->value),
-            endpointUrl: $endpointUrl !== null ? new EndpointUrl($endpointUrl) : $aiProvider->endpointUrl,
+            name: new AiProviderName($name ?? $aiProvider->name()->value),
+            endpointUrl: $endpointUrl !== null ? new EndpointUrl($endpointUrl) : $aiProvider->endpointUrl(),
             apiToken: $apiToken !== null ? new ApiToken($apiToken) : null,
-            defaultModel: $aiProvider->defaultModel,
-            fastModel: $aiProvider->fastModel,
-            description: $aiProvider->description,
-            isActivated: $isActivated ?? $aiProvider->isActivated,
+            defaultModel: $aiProvider->defaultModel(),
+            fastModel: $aiProvider->fastModel(),
+            description: $aiProvider->description(),
+            isActivated: $isActivated ?? $aiProvider->isActivated(),
             updatedBy: 1,
         );
     }

@@ -26,9 +26,9 @@ namespace Tests\App\AiConfiguration\Infrastructure\Dbal;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProvider;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderName;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
-use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\StoredApiToken;
 use App\AiConfiguration\Domain\Llm\AiFeatureEnum;
 use App\AiConfiguration\Domain\Llm\LlmModelTierEnum;
 use App\AiConfiguration\Domain\Usage\UsageLogEntry;
@@ -96,19 +96,6 @@ final class DbalAiProviderUsageRepositoryTest extends KernelTestCase
         self::assertEquals(1200, $durationMs);
     }
 
-    public function testDeleteOlderThan(): void
-    {
-        $providerId = $this->createProvider();
-
-        $this->repository->add($this->entry($providerId, cost: 1.0, currency: 'USD', requestedAt: 500));
-        $this->repository->add($this->entry($providerId, cost: 1.0, currency: 'USD', requestedAt: 1500));
-
-        $deleted = $this->repository->deleteOlderThan(1000);
-
-        self::assertSame(1, $deleted);
-        self::assertEqualsWithDelta(1.0, $this->repository->sumCostSince($providerId, 'USD', 0), 0.0001);
-    }
-
     private function createProvider(): int
     {
         $provider = new AiProvider(
@@ -116,7 +103,7 @@ final class DbalAiProviderUsageRepositoryTest extends KernelTestCase
             name: new AiProviderName('Anthropic production'),
             type: AiProviderTypeEnum::Anthropic,
             endpointUrl: new EndpointUrl('https://api.anthropic.com'),
-            apiToken: new ApiToken('a-token'),
+            apiToken: new StoredApiToken('a-token'),
             defaultModel: new ModelName('claude-sonnet-4-6'),
             fastModel: null,
             description: null,

@@ -26,10 +26,11 @@ namespace Tests\App\AiConfiguration\Infrastructure\Llm;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProvider;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderName;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
-use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\StoredApiToken;
 use App\AiConfiguration\Domain\Llm\AiFeatureEnum;
+use App\AiConfiguration\Domain\Llm\Exception\ApiTokenUnavailableException;
 use App\AiConfiguration\Domain\Llm\Exception\LlmConfigurationException;
 use App\AiConfiguration\Domain\Llm\LlmMessage;
 use App\AiConfiguration\Domain\Llm\LlmRequest;
@@ -153,11 +154,12 @@ final class LlmClientFactoryTest extends TestCase
         self::assertSame(['x-api-key: the-real-token'], $sentKeys);
     }
 
-    public function testAnUnresolvableVaultTokenIsAConfigurationError(): void
+    public function testAnUnresolvableVaultTokenIsAPlatformError(): void
     {
         $this->vault->resolveThrows = true;
 
-        $this->expectException(LlmConfigurationException::class);
+        // not a configuration problem the user can fix in the form: the vault failed
+        $this->expectException(ApiTokenUnavailableException::class);
 
         $this->factory->forProvider($this->createAiProvider(AiProviderTypeEnum::Anthropic, token: self::STORED_TOKEN));
     }
@@ -188,7 +190,7 @@ final class LlmClientFactoryTest extends TestCase
             name: new AiProviderName(uniqid('provider-', true)),
             type: $type,
             endpointUrl: new EndpointUrl('https://api.example.org'),
-            apiToken: new ApiToken($token),
+            apiToken: new StoredApiToken($token),
             defaultModel: new ModelName('a-model'),
             fastModel: null,
             description: null,

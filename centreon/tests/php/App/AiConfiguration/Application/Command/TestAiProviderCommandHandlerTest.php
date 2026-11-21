@@ -29,14 +29,16 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProvider;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderId;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderName;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
-use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\StoredApiToken;
 use App\AiConfiguration\Domain\Exception\AiProviderNotFoundException;
+use App\AiConfiguration\Domain\Llm\Exception\ApiTokenUnavailableException;
 use App\AiConfiguration\Domain\Llm\Exception\LlmConfigurationException;
 use App\AiConfiguration\Domain\Llm\Exception\LlmRequestFailedException;
 use App\AiConfiguration\Domain\Llm\LlmResponse;
 use App\AiConfiguration\Domain\Llm\LlmUsage;
+use App\Shared\Application\Command\NonTransactionalCommand;
 use PHPUnit\Framework\TestCase;
 use Tests\App\AiConfiguration\Infrastructure\Double\FakeAiProviderRepository;
 use Tests\App\AiConfiguration\Infrastructure\Double\FakeLlmClient;
@@ -56,7 +58,7 @@ final class TestAiProviderCommandHandlerTest extends TestCase
             name: new AiProviderName('Anthropic production'),
             type: AiProviderTypeEnum::Anthropic,
             endpointUrl: new EndpointUrl('https://api.anthropic.com'),
-            apiToken: new ApiToken('a-token'),
+            apiToken: new StoredApiToken('a-token'),
             defaultModel: new ModelName('claude-sonnet-4-6'),
             fastModel: null,
             description: null,
@@ -102,17 +104,33 @@ final class TestAiProviderCommandHandlerTest extends TestCase
         self::assertStringContainsString('invalid x-api-key', (string) $result->message);
     }
 
-    public function testUnusableConfigurationIsReportedAsUnsuccessful(): void
+    public function testAnUnavailableVaultTokenPropagates(): void
     {
+        // a platform failure, not a test result: it must be mapped and logged as such
         $handler = new TestAiProviderCommandHandler(
             $this->repository,
-            new FakeLlmClientFactory(exception: LlmConfigurationException::unresolvableToken())
+            new FakeLlmClientFactory(exception: ApiTokenUnavailableException::fromVault())
         );
 
-        $result = $handler(new TestAiProviderCommand($this->aiProvider->id()));
+        $this->expectException(ApiTokenUnavailableException::class);
 
-        self::assertFalse($result->success);
-        self::assertStringContainsString('resolved', (string) $result->message);
+        $handler(new TestAiProviderCommand($this->aiProvider->id()));
+    }
+
+    public function testAReachedSpendLimitPropagates(): void
+    {
+        $client = new FakeLlmClient(exception: LlmConfigurationException::budgetExceeded());
+        $handler = new TestAiProviderCommandHandler($this->repository, new FakeLlmClientFactory($client));
+
+        $this->expectException(LlmConfigurationException::class);
+
+        $handler(new TestAiProviderCommand($this->aiProvider->id()));
+    }
+
+    public function testTheCommandIsNotTransactional(): void
+    {
+        // a metered call records its usage even when it fails afterwards
+        self::assertTrue(new \ReflectionClass(TestAiProviderCommand::class)->implementsInterface(NonTransactionalCommand::class));
     }
 
     public function testUnknownProviderThrows(): void

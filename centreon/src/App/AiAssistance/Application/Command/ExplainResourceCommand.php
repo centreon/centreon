@@ -23,21 +23,32 @@ declare(strict_types=1);
 
 namespace App\AiAssistance\Application\Command;
 
+use App\Shared\Application\Command\NonTransactionalCommand;
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 use Webmozart\Assert\Assert;
 
 /**
  * Resource facts to explain, as displayed to the user in the details panel.
  * The data comes from the caller (it already passed the user's ACL): this
  * feature never reads monitoring data on its own.
+ *
+ * The free texts are masked in the bus logs: they may carry secrets (a command
+ * line, a plugin output) and they make up the prompt.
+ *
+ * Not transactional: the usage row of a provider call must survive a later
+ * failure, and no transaction may stay open during the provider call.
  */
-final readonly class ExplainResourceCommand
+final readonly class ExplainResourceCommand implements NonTransactionalCommand
 {
     public function __construct(
         public string $name,
         public string $resourceType,
         public string $status,
+        #[Sensitive]
         public ?string $information = null,
+        #[Sensitive]
         public ?string $commandLine = null,
+        #[Sensitive]
         public ?string $performanceData = null,
         public ?string $duration = null,
         public ?string $tries = null,

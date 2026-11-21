@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace Tests\App\AiConfiguration\Infrastructure\ApiPlatform\State\AiProvider;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+
 final class ListAiProvidersProviderTest extends AiProviderApiTestCase
 {
     public function testUnauthenticatedReturns401(): void
@@ -75,6 +77,30 @@ final class ListAiProvidersProviderTest extends AiProviderApiTestCase
         $members = $content['hydra:member'] ?? $content;
         self::assertCount(1, $members);
         self::assertSame('Mistral fallback', $members[0]['name']);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function provideInvalidFilters(): iterable
+    {
+        yield 'unknown type' => ['?type=unknown'];
+
+        yield 'unknown name operator' => ['?name[like]=mistral'];
+
+        yield 'name without operator' => ['?name=mistral'];
+
+        yield 'non boolean is_activated' => ['?is_activated=maybe'];
+    }
+
+    #[DataProvider('provideInvalidFilters')]
+    public function testInvalidFilterReturns400(string $query): void
+    {
+        $this->login();
+
+        $this->request('GET', self::ENDPOINT . $query);
+
+        self::assertResponseStatusCodeSame(400);
     }
 
     public function testGetItemDoesNotExposeToken(): void

@@ -67,11 +67,13 @@ $createAiProviderConfigurationTable = function () use ($pearDB, &$errorMessage, 
               `name` varchar(255) NOT NULL COMMENT 'Name of the AI provider configuration',
               `description` text COMMENT 'Description of the AI provider configuration',
               `is_activated` BOOLEAN NOT NULL DEFAULT 0 COMMENT 'Whether this provider is enabled; at most one provider is enabled and it is the one used by AI features',
-              `configuration` JSON NOT NULL COMMENT 'Provider parameters: endpoint url, api token (plaintext or vault path), default and fast models',
+              `configuration` JSON NOT NULL COMMENT 'Provider parameters: endpoint url, api token (plaintext or vault path), default and fast models, currency, per-tier pricing and spend limits',
               `created_at` int(11) NOT NULL COMMENT 'Creation timestamp',
               `updated_at` int(11) NOT NULL COMMENT 'Last update timestamp',
+              `activated_marker` TINYINT(1) GENERATED ALWAYS AS (IF(`is_activated` = 1, 1, NULL)) STORED COMMENT 'computed: 1 for the enabled provider, NULL otherwise; its unique key allows at most one enabled provider',
               PRIMARY KEY (`id`),
-              UNIQUE KEY `ai_provider_configuration_name_unique` (`name`)
+              UNIQUE KEY `ai_provider_configuration_name_unique` (`name`),
+              UNIQUE KEY `ai_provider_configuration_single_activated` (`activated_marker`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI provider configurations for LLM-based features'
             SQL
     );

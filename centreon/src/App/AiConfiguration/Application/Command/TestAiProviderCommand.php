@@ -25,8 +25,13 @@ namespace App\AiConfiguration\Application\Command;
 
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderId;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
+use App\Shared\Application\Command\NonTransactionalCommand;
 
-final readonly class TestAiProviderCommand
+/**
+ * Not transactional: the usage row of a provider call must survive a later
+ * failure, and no transaction may stay open during the provider call.
+ */
+final readonly class TestAiProviderCommand implements NonTransactionalCommand
 {
     public function __construct(
         public AiProviderId $id,

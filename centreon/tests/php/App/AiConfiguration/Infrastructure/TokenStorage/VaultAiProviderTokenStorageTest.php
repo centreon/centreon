@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\App\AiConfiguration\Infrastructure\TokenStorage;
 
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\StoredApiToken;
 use App\AiConfiguration\Infrastructure\TokenStorage\VaultAiProviderTokenStorage;
 use App\Shared\Application\Vault\VaultCredentialWriter;
 use PHPUnit\Framework\TestCase;
@@ -50,6 +51,7 @@ final class VaultAiProviderTokenStorageTest extends TestCase
         $stored = $this->storage->persist(new ApiToken('a-token'), null);
 
         self::assertSame('a-token', $stored->value);
+        self::assertFalse($stored->isVaultReference());
         self::assertSame([], $this->vault->writeManyCalls);
     }
 
@@ -57,7 +59,7 @@ final class VaultAiProviderTokenStorageTest extends TestCase
     {
         $stored = $this->storage->persist(new ApiToken('a-token'), null);
 
-        self::assertTrue($stored->isStoredInVault());
+        self::assertTrue($stored->isVaultReference());
         self::assertSame('secret::vault::configuration/aiProviders/new-uuid::_AI_API_TOKEN', $stored->value);
         self::assertSame(
             [['customPath' => 'configuration/aiProviders', 'secrets' => ['_AI_API_TOKEN' => 'a-token'], 'uuid' => null, 'deletes' => []]],
@@ -67,7 +69,7 @@ final class VaultAiProviderTokenStorageTest extends TestCase
 
     public function testRotatingTheTokenReusesTheProviderEntry(): void
     {
-        $stored = $this->storage->persist(new ApiToken('b-token'), new ApiToken(self::STORED_TOKEN));
+        $stored = $this->storage->persist(new ApiToken('b-token'), new StoredApiToken(self::STORED_TOKEN));
 
         self::assertSame(self::STORED_TOKEN, $stored->value);
         self::assertSame('abc-123', $this->vault->writeManyCalls[0]['uuid']);
@@ -76,7 +78,7 @@ final class VaultAiProviderTokenStorageTest extends TestCase
 
     public function testAPlaintextTokenMovesToAFreshEntry(): void
     {
-        $this->storage->persist(new ApiToken('b-token'), new ApiToken('a-plaintext-token'));
+        $this->storage->persist(new ApiToken('b-token'), new StoredApiToken('a-plaintext-token'));
 
         self::assertNull($this->vault->writeManyCalls[0]['uuid']);
     }
@@ -92,14 +94,14 @@ final class VaultAiProviderTokenStorageTest extends TestCase
 
     public function testRemovingAPlaintextTokenLeavesTheVaultAlone(): void
     {
-        $this->storage->remove(new ApiToken('a-token'));
+        $this->storage->remove(new StoredApiToken('a-token'));
 
         self::assertSame([], $this->vault->deleteCalls);
     }
 
     public function testRemovingAStoredTokenDeletesItsEntry(): void
     {
-        $this->storage->remove(new ApiToken(self::STORED_TOKEN));
+        $this->storage->remove(new StoredApiToken(self::STORED_TOKEN));
 
         self::assertSame([['customPath' => 'configuration/aiProviders', 'uuid' => 'abc-123']], $this->vault->deleteCalls);
     }

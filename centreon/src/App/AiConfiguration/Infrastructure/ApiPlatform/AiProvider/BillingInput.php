@@ -23,31 +23,23 @@ declare(strict_types=1);
 
 namespace App\AiConfiguration\Infrastructure\ApiPlatform\AiProvider;
 
+use App\AiConfiguration\Domain\Aggregate\AiProvider\Billing;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\Currency;
-use App\AiConfiguration\Domain\Aggregate\AiProvider\Pricing;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\SpendLimit;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\TierPricing;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 /**
- * Builds the currency, pricing and spend-limit value objects from the flat
- * billing fields of the create/update payloads, enforcing their coherence
- * (a price or a limit requires a currency; a limit requires the default tier
- * prices; a tier price needs both input and output).
+ * Maps the flat billing fields of the create/update payloads to the Billing
+ * value object, which enforces their coherence. Only the shape of the payload
+ * is checked here: a tier price needs both its input and output prices.
  */
 final readonly class BillingInput
 {
-    public function __construct(
-        public ?Currency $currency,
-        public ?Pricing $pricing,
-        public ?SpendLimit $limit,
-    ) {
-    }
-
     /**
-     * @throws UnprocessableEntityHttpException when prices, limits and currency are inconsistent
+     * @throws UnprocessableEntityHttpException when the fields are not valid or do not go together
      */
-    public static function fromFields(
+    public static function toBilling(
         ?string $currency,
         ?float $priceDefaultInput,
         ?float $priceDefaultOutput,
@@ -55,36 +47,22 @@ final readonly class BillingInput
         ?float $priceFastOutput,
         ?float $limitDaily,
         ?float $limitMonthly,
-    ): self {
-        $defaultPricing = self::tierPricing($priceDefaultInput, $priceDefaultOutput, 'default');
-        $fastPricing = self::tierPricing($priceFastInput, $priceFastOutput, 'fast');
-
-        if ($fastPricing instanceof TierPricing && ! $defaultPricing instanceof TierPricing) {
-            throw new UnprocessableEntityHttpException('The default tier prices are required when a fast tier price is set.');
+    ): Billing {
+        try {
+            return Billing::fromTierPrices(
+                currency: $currency !== null && trim($currency) !== '' ? new Currency($currency) : null,
+                defaultPrice: self::tierPricing($priceDefaultInput, $priceDefaultOutput, 'default'),
+                fastPrice: self::tierPricing($priceFastInput, $priceFastOutput, 'fast'),
+                limit: $limitDaily !== null || $limitMonthly !== null ? new SpendLimit($limitDaily, $limitMonthly) : null,
+            );
+        } catch (\InvalidArgumentException $exception) {
+            throw new UnprocessableEntityHttpException($exception->getMessage(), $exception);
         }
-
-        $pricing = $defaultPricing instanceof TierPricing ? new Pricing($defaultPricing, $fastPricing) : null;
-
-        $hasLimit = $limitDaily !== null || $limitMonthly !== null;
-        $limit = $hasLimit ? new SpendLimit($limitDaily, $limitMonthly) : null;
-
-        if ($hasLimit && ! $pricing instanceof Pricing) {
-            throw new UnprocessableEntityHttpException('A spend limit requires the default tier prices to be set.');
-        }
-
-        if (($pricing instanceof Pricing || $limit instanceof SpendLimit) && ($currency === null || trim($currency) === '')) {
-            throw new UnprocessableEntityHttpException('A currency is required when prices or spend limits are set.');
-        }
-
-        return new self(
-            currency: $currency !== null && trim($currency) !== '' ? new Currency($currency) : null,
-            pricing: $pricing,
-            limit: $limit,
-        );
     }
 
     /**
-     * @throws UnprocessableEntityHttpException when the value is not valid
+     * @throws UnprocessableEntityHttpException when only one of the prices is set
+     * @throws \InvalidArgumentException when a price is not valid
      */
     private static function tierPricing(?float $input, ?float $output, string $tier): ?TierPricing
     {

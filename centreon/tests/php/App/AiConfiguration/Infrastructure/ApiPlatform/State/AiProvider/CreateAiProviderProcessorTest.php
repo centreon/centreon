@@ -249,4 +249,74 @@ final class CreateAiProviderProcessorTest extends AiProviderApiTestCase
 
         self::assertResponseStatusCodeSame(422);
     }
+
+    public function testCreateWithFastPriceButNoDefaultPriceReturns422(): void
+    {
+        $this->login();
+
+        $this->request('POST', self::ENDPOINT, [
+            'json' => [
+                'name' => 'Anthropic production',
+                'type' => 'anthropic',
+                'api_token' => 'a-token',
+                'default_model' => 'claude-sonnet-4-6',
+                'currency' => 'USD',
+                'price_fast_input' => 1.0,
+                'price_fast_output' => 5.0,
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testCreateBedrockWithTheMantleEndpointOfARegion(): void
+    {
+        $this->login();
+
+        $this->request('POST', self::ENDPOINT, [
+            'json' => [
+                'name' => 'Bedrock',
+                'type' => 'bedrock',
+                'api_token' => 'a-token',
+                'endpoint_url' => 'https://bedrock-mantle.eu-west-3.api.aws',
+                'default_model' => 'anthropic.claude-sonnet-4-6',
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+    }
+
+    public function testCreateBedrockWithAnotherEndpointReturns422(): void
+    {
+        $this->login();
+
+        $this->request('POST', self::ENDPOINT, [
+            'json' => [
+                'name' => 'Bedrock',
+                'type' => 'bedrock',
+                'api_token' => 'a-token',
+                'endpoint_url' => 'https://attacker.example.org',
+                'default_model' => 'anthropic.claude-sonnet-4-6',
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testCreateWithCredentialsInTheEndpointReturns422(): void
+    {
+        $this->login();
+
+        $this->request('POST', self::ENDPOINT, [
+            'json' => [
+                'name' => 'Local Ollama',
+                'type' => 'openai_compatible',
+                'api_token' => 'a-token',
+                'endpoint_url' => 'http://user:password@ollama.internal:11434',
+                'default_model' => 'llama3',
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
 }

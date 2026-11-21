@@ -30,8 +30,10 @@ use App\AiConfiguration\Domain\Llm\LlmClientInterface;
 use App\AiConfiguration\Domain\Llm\LlmRequest;
 use App\AiConfiguration\Domain\Llm\LlmResponse;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface as HttpClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TimeoutExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Contracts\HttpClient\ResponseInterface;
 
 /**
  * Google Gemini. Chat completions go through the OpenAI-compatible layer (the
@@ -73,17 +75,21 @@ final readonly class GeminiLlmClient implements LlmClientInterface
                 'max_redirects' => 0,
             ]);
             $statusCode = $response->getStatusCode();
+        } catch (TimeoutExceptionInterface $exception) {
+            throw LlmRequestFailedException::fromTimeout(self::TIMEOUT_SECONDS, $exception);
         } catch (TransportExceptionInterface $exception) {
             throw LlmRequestFailedException::fromTransportError($exception->getMessage(), $exception);
         }
 
         if ($statusCode >= 400) {
-            throw LlmRequestFailedException::fromProviderError($statusCode, 'model discovery failed');
+            throw LlmRequestFailedException::fromProviderError($statusCode, $this->extractErrorMessage($response));
         }
 
         try {
             /** @var array{models?: array<array{name?: string, supportedGenerationMethods?: array<string>}>} $data */
             $data = $response->toArray();
+        } catch (TimeoutExceptionInterface $exception) {
+            throw LlmRequestFailedException::fromTimeout(self::TIMEOUT_SECONDS, $exception);
         } catch (HttpClientExceptionInterface $exception) {
             throw LlmRequestFailedException::fromInvalidResponse($exception->getMessage(), $exception);
         }
@@ -104,5 +110,23 @@ final readonly class GeminiLlmClient implements LlmClientInterface
         sort($ids);
 
         return array_values(array_unique($ids));
+    }
+
+    /**
+     * Google reports errors as {"error": {"message": ...}}; any other body is
+     * not reported (it may come from any server on the way).
+     */
+    private function extractErrorMessage(ResponseInterface $response): string
+    {
+        try {
+            /** @var array{error?: array{message?: mixed}}|null $data */
+            $data = json_decode($response->getContent(false), true, 512, \JSON_THROW_ON_ERROR);
+        } catch (HttpClientExceptionInterface|\JsonException) {
+            $data = null;
+        }
+
+        $message = $data['error']['message'] ?? null;
+
+        return is_string($message) && $message !== '' ? $message : 'model discovery failed';
     }
 }

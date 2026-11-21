@@ -27,11 +27,9 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderDescription;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderName;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
-use App\AiConfiguration\Domain\Aggregate\AiProvider\Currency;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\Billing;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
-use App\AiConfiguration\Domain\Aggregate\AiProvider\Pricing;
-use App\AiConfiguration\Domain\Aggregate\AiProvider\SpendLimit;
 
 final readonly class CreateAiProviderCommand
 {
@@ -45,9 +43,7 @@ final readonly class CreateAiProviderCommand
         public ?AiProviderDescription $description,
         public bool $isActivated,
         public int $creatorId,
-        public ?Currency $currency = null,
-        public ?Pricing $pricing = null,
-        public ?SpendLimit $limit = null,
+        public Billing $billing = new Billing(),
     ) {
     }
 }

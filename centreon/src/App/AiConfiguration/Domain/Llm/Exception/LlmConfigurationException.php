@@ -23,20 +23,17 @@ declare(strict_types=1);
 
 namespace App\AiConfiguration\Domain\Llm\Exception;
 
+use App\Shared\Domain\Exception\ExpectedFailureInterface;
+
 /**
- * The LLM request can not be built from the AI provider configuration
- * (e.g. no enabled provider, unresolvable token).
+ * The AI provider configuration does not allow the LLM request (no enabled
+ * provider, spend limit reached).
  */
-final class LlmConfigurationException extends LlmException
+final class LlmConfigurationException extends LlmException implements ExpectedFailureInterface
 {
     public static function noActivatedProvider(): self
     {
         return new self('No AI provider is enabled.');
-    }
-
-    public static function unresolvableToken(?\Throwable $previous = null): self
-    {
-        return new self('The API token of this AI provider can not be resolved.', previous: $previous);
     }
 
     public static function budgetExceeded(): self

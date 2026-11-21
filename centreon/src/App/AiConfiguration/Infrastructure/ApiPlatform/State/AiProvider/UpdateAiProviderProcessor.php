@@ -32,7 +32,6 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderId;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderName;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
-use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
 use App\AiConfiguration\Infrastructure\ApiPlatform\AiProvider\BillingInput;
 use App\AiConfiguration\Infrastructure\ApiPlatform\Resource\AiProvider\AiProviderResource;
@@ -67,11 +66,9 @@ final readonly class UpdateAiProviderProcessor implements ProcessorInterface
         $credentialUser = $this->security->getUser();
         Assert::isInstanceOf($credentialUser, CredentialUser::class);
 
-        // The endpoint URL of curated providers is fixed: any provided value is ignored.
-        $endpointUrl = AiProviderTypeEnum::from($data->type)->defaultEndpointUrl()
-            ?? new EndpointUrl($data->endpointUrl);
+        $endpointUrl = AiProviderTypeEnum::from($data->type)->resolveEndpoint($data->endpointUrl);
 
-        $billing = BillingInput::fromFields(
+        $billing = BillingInput::toBilling(
             currency: $data->currency,
             priceDefaultInput: $data->priceDefaultInput,
             priceDefaultOutput: $data->priceDefaultOutput,
@@ -90,10 +87,8 @@ final readonly class UpdateAiProviderProcessor implements ProcessorInterface
             fastModel: $data->fastModel !== null ? new ModelName($data->fastModel) : null,
             description: $data->description !== null ? new AiProviderDescription($data->description) : null,
             isActivated: $data->isActivated,
-            currency: $billing->currency,
-            pricing: $billing->pricing,
-            limit: $billing->limit,
             updatedBy: $credentialUser->credential->userId->value,
+            billing: $billing,
         );
 
         $aiProvider = $this->commandBus->execute($command);

@@ -36,9 +36,4 @@ interface AiProviderUsageRepository
      * units: only rows in the given currency are summed.
      */
     public function sumCostSince(int $providerId, string $currency, int $sinceTimestamp): float;
-
-    /**
-     * @return int the number of deleted rows
-     */
-    public function deleteOlderThan(int $timestamp): int;
 }

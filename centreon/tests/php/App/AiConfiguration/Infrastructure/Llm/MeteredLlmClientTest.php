@@ -27,12 +27,13 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProvider;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderId;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderName;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
-use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\Billing;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\Currency;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\Pricing;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\SpendLimit;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\StoredApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\TierPricing;
 use App\AiConfiguration\Domain\Llm\AiFeatureEnum;
 use App\AiConfiguration\Domain\Llm\Exception\LlmConfigurationException;
@@ -92,7 +93,11 @@ final class MeteredLlmClientTest extends TestCase
         $usageRepository = new FakeAiProviderUsageRepository(windowSum: 50.0);
         $inner = new FakeLlmClient();
         $client = $this->metered(
-            $this->provider(currency: new Currency('USD'), limit: new SpendLimit(daily: 10.0)),
+            $this->provider(
+                pricing: new Pricing(new TierPricing(3.0, 15.0)),
+                currency: new Currency('USD'),
+                limit: new SpendLimit(daily: 10.0),
+            ),
             $usageRepository,
             $inner,
         );
@@ -188,14 +193,12 @@ final class MeteredLlmClientTest extends TestCase
             name: new AiProviderName('Anthropic production'),
             type: AiProviderTypeEnum::Anthropic,
             endpointUrl: new EndpointUrl('https://api.anthropic.com'),
-            apiToken: new ApiToken('a-token'),
+            apiToken: new StoredApiToken('a-token'),
             defaultModel: new ModelName('claude-sonnet-4-6'),
             fastModel: null,
             description: null,
             isActivated: true,
-            currency: $currency,
-            pricing: $pricing,
-            limit: $limit,
+            billing: new Billing($currency, $pricing, $limit),
         );
     }
 

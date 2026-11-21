@@ -42,11 +42,11 @@ use App\AiAssistance\Infrastructure\ApiPlatform\State\TranslateResourceFilterPro
         description: 'Classify a natural-language request as a "filter" (a description to turn into '
             . 'a search expression) or an "explain" (a question to analyse), and resolve the '
             . 'resource set an explain is about (the displayed set, or a derived filter). Produced '
-            . 'by the default AI provider.',
+            . 'by the enabled AI provider.',
         responses: [
             403 => new Model\Response('The user has no access to the Resources Status page'),
-            409 => new Model\Response('No default AI provider is configured'),
-            502 => new Model\Response('The AI provider could not be reached or rejected the request'),
+            409 => new Model\Response('No AI provider is enabled, or its spend limit is reached'),
+            502 => new Model\Response('The AI provider could not be reached or rejected the request, or its API token could not be read from the vault'),
         ],
     ),
 )]

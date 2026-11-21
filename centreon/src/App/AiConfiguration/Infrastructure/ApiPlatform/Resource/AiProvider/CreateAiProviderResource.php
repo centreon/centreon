@@ -41,11 +41,12 @@ use Symfony\Component\Validator\Constraints as Assert;
         description: 'Create an AI provider configuration. The first configuration is automatically '
             . 'enabled, and at most one provider is enabled at a time: creating an enabled provider '
             . 'disables the currently enabled one. The endpoint URL is only used for OpenAI-compatible '
-            . 'providers, where it is required.',
+            . 'and Amazon Bedrock providers, where it is required (for Bedrock, the Mantle endpoint of '
+            . 'an AWS region).',
         responses: [
-            409 => new Model\Response('An AI provider configuration with this name already exists'),
+            409 => new Model\Response('An AI provider configuration with this name already exists, or another provider was enabled at the same time'),
             403 => new Model\Response('You are not allowed to create AI provider configurations'),
-            422 => new Model\Response('An endpoint URL is required for this provider type'),
+            422 => new Model\Response('The endpoint URL is missing or not accepted for this provider type, or the billing fields do not go together'),
         ],
     ),
     securityPostValidation: "is_granted('" . AiProviderActionEnum::Create->value . "', object)",
@@ -105,9 +106,10 @@ final class CreateAiProviderResource
         public string $defaultModel,
 
         #[ApiProperty(
-            description: 'Base URL of the AI provider API. Only used for OpenAI-compatible providers, '
-                . 'where it is required; for the other provider types the official endpoint is '
-                . 'enforced and any provided value is ignored.',
+            description: 'Base URL of the AI provider API. Only used for OpenAI-compatible and Amazon '
+                . 'Bedrock providers, where it is required (for Bedrock, the Mantle endpoint of an AWS '
+                . 'region); for the other provider types the official endpoint is enforced and any '
+                . 'provided value is ignored.',
             openapiContext: ['example' => 'https://api.anthropic.com'],
         )]
         #[Assert\Length(min: 1, max: 2048)]

@@ -67,19 +67,22 @@ final readonly class OpenAiCompatibleLlmClient implements LlmClientInterface
 
         /** @var array{
          *   model?: string,
-         *   choices?: array<array{message?: array{content?: string|null}, finish_reason?: string|null}>,
+         *   choices?: array<array{message?: array{content?: mixed, refusal?: string|null}, finish_reason?: string|null}>,
          *   usage?: array{prompt_tokens?: int, completion_tokens?: int},
          * } $data */
         $data = $this->decodeOrFail($response, $this->timeoutFor($request));
 
+        $finishReason = $data['choices'][0]['finish_reason'] ?? null;
+        $this->assertNotRefused($data['choices'][0]['message']['refusal'] ?? '', $finishReason);
+
         return new LlmResponse(
-            content: $data['choices'][0]['message']['content'] ?? '',
+            content: $this->textOf($data['choices'][0]['message']['content'] ?? null),
             model: $data['model'] ?? '',
             usage: new LlmUsage(
                 inputTokens: $data['usage']['prompt_tokens'] ?? 0,
                 outputTokens: $data['usage']['completion_tokens'] ?? 0,
             ),
-            truncated: ($data['choices'][0]['finish_reason'] ?? null) === 'length',
+            truncated: $finishReason === 'length',
         );
     }
 
@@ -95,6 +98,8 @@ final readonly class OpenAiCompatibleLlmClient implements LlmClientInterface
         $inputTokens = 0;
         $outputTokens = 0;
         $truncated = false;
+        $refusal = '';
+        $finishReason = null;
 
         try {
             foreach ($this->httpClient->stream($response) as $chunk) {
@@ -106,7 +111,7 @@ final readonly class OpenAiCompatibleLlmClient implements LlmClientInterface
                     try {
                         /** @var array{
                          *   model?: string,
-                         *   choices?: array<array{delta?: array{content?: string|null}, finish_reason?: string|null}>,
+                         *   choices?: array<array{delta?: array{content?: mixed, refusal?: string|null}, finish_reason?: string|null}>,
                          *   usage?: array{prompt_tokens?: int, completion_tokens?: int},
                          *   error?: array{message?: string},
                          * } $event */
@@ -125,12 +130,14 @@ final readonly class OpenAiCompatibleLlmClient implements LlmClientInterface
                     $model = $event['model'] ?? $model;
                     $inputTokens = $event['usage']['prompt_tokens'] ?? $inputTokens;
                     $outputTokens = $event['usage']['completion_tokens'] ?? $outputTokens;
-                    if (($event['choices'][0]['finish_reason'] ?? null) === 'length') {
+                    $finishReason = $event['choices'][0]['finish_reason'] ?? $finishReason;
+                    if ($finishReason === 'length') {
                         $truncated = true;
                     }
+                    $refusal .= $event['choices'][0]['delta']['refusal'] ?? '';
 
-                    $text = $event['choices'][0]['delta']['content'] ?? null;
-                    if (is_string($text) && $text !== '') {
+                    $text = $this->textOf($event['choices'][0]['delta']['content'] ?? null);
+                    if ($text !== '') {
                         $content .= $text;
 
                         yield $text;
@@ -142,6 +149,8 @@ final readonly class OpenAiCompatibleLlmClient implements LlmClientInterface
         } catch (TransportExceptionInterface $exception) {
             throw LlmRequestFailedException::fromTransportError($exception->getMessage(), $exception);
         }
+
+        $this->assertNotRefused($refusal, $finishReason);
 
         return new LlmResponse($content, $model, new LlmUsage($inputTokens, $outputTokens), $truncated);
     }
@@ -192,6 +201,46 @@ final readonly class OpenAiCompatibleLlmClient implements LlmClientInterface
         sort($ids);
 
         return array_values(array_unique($ids));
+    }
+
+    /**
+     * The content is a string, or—for some providers (e.g. Mistral reasoning
+     * models)—a list of typed parts, of which only the text parts are the answer.
+     */
+    private function textOf(mixed $content): string
+    {
+        if (is_string($content)) {
+            return $content;
+        }
+
+        if (! is_array($content)) {
+            return '';
+        }
+
+        $text = '';
+        foreach ($content as $part) {
+            if (is_array($part) && ($part['type'] ?? null) === 'text' && is_string($part['text'] ?? null)) {
+                $text .= $part['text'];
+            }
+        }
+
+        return $text;
+    }
+
+    /**
+     * A refusal is not an empty answer: report why the provider did not answer.
+     *
+     * @throws LlmRequestFailedException when the provider refused to answer
+     */
+    private function assertNotRefused(string $refusal, ?string $finishReason): void
+    {
+        if (trim($refusal) !== '') {
+            throw LlmRequestFailedException::fromRefusal(trim($refusal));
+        }
+
+        if ($finishReason === 'content_filter') {
+            throw LlmRequestFailedException::fromRefusal('the answer was blocked by its content filter.');
+        }
     }
 
     /**

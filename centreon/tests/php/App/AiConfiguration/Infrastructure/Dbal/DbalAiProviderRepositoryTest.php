@@ -28,9 +28,11 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderDescription;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderId;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderName;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
-use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\StoredApiToken;
+use App\AiConfiguration\Domain\Exception\AiProviderActivationConflictException;
+use App\AiConfiguration\Domain\Exception\AiProviderAlreadyExistsException;
 use App\AiConfiguration\Domain\Exception\AiProviderNotFoundException;
 use App\AiConfiguration\Domain\Repository\Criteria\AiProviderCriteria;
 use App\AiConfiguration\Infrastructure\Dbal\DbalAiProviderRepository;
@@ -57,14 +59,14 @@ final class DbalAiProviderRepositoryTest extends KernelTestCase
 
         $fetched = $this->repository->getById($aiProvider->id());
 
-        self::assertSame('Anthropic production', $fetched->name->value);
-        self::assertSame(AiProviderTypeEnum::Anthropic, $fetched->type);
-        self::assertSame('https://api.anthropic.com', $fetched->endpointUrl->value);
-        self::assertSame('a-token', $fetched->apiToken->value);
-        self::assertSame('claude-sonnet-4-6', $fetched->defaultModel->value);
-        self::assertSame('claude-haiku-4-5', $fetched->fastModel?->value);
-        self::assertSame('a description', $fetched->description?->value);
-        self::assertTrue($fetched->isActivated);
+        self::assertSame('Anthropic production', $fetched->name()->value);
+        self::assertSame(AiProviderTypeEnum::Anthropic, $fetched->type());
+        self::assertSame('https://api.anthropic.com', $fetched->endpointUrl()->value);
+        self::assertSame('a-token', $fetched->apiToken()->value);
+        self::assertSame('claude-sonnet-4-6', $fetched->defaultModel()->value);
+        self::assertSame('claude-haiku-4-5', $fetched->fastModel()?->value);
+        self::assertSame('a description', $fetched->description()?->value);
+        self::assertTrue($fetched->isActivated());
     }
 
     public function testGetByIdNotFound(): void
@@ -88,7 +90,7 @@ final class DbalAiProviderRepositoryTest extends KernelTestCase
 
         $this->repository->add($this->newAiProvider('Anthropic production', isActivated: true));
 
-        self::assertSame('Anthropic production', $this->repository->findActivated()?->name->value);
+        self::assertSame('Anthropic production', $this->repository->findActivated()?->name()->value);
     }
 
     public function testCountAll(): void
@@ -107,15 +109,49 @@ final class DbalAiProviderRepositoryTest extends KernelTestCase
         $this->repository->add($aiProvider);
 
         $aiProvider->rename(new AiProviderName('Anthropic renamed'));
-        $aiProvider->updateApiToken(new ApiToken('new-token'));
-        $aiProvider->enable();
+        $aiProvider->retarget($aiProvider->endpointUrl(), new StoredApiToken('new-token'));
+        $aiProvider->activate();
 
         $this->repository->update($aiProvider);
 
         $fetched = $this->repository->getById($aiProvider->id());
-        self::assertSame('Anthropic renamed', $fetched->name->value);
-        self::assertSame('new-token', $fetched->apiToken->value);
-        self::assertTrue($fetched->isActivated);
+        self::assertSame('Anthropic renamed', $fetched->name()->value);
+        self::assertSame('new-token', $fetched->apiToken()->value);
+        self::assertTrue($fetched->isActivated());
+    }
+
+    public function testASecondActivatedProviderIsAConflict(): void
+    {
+        // what two concurrent creations would do: the unique key keeps a single enabled provider
+        $this->repository->add($this->newAiProvider('Anthropic production', isActivated: true));
+
+        $this->expectException(AiProviderActivationConflictException::class);
+
+        $this->repository->add($this->newAiProvider('Mistral fallback', type: AiProviderTypeEnum::Mistral, isActivated: true));
+    }
+
+    public function testADuplicateNameIsAConflict(): void
+    {
+        $this->repository->add($this->newAiProvider('Anthropic production'));
+
+        $this->expectException(AiProviderAlreadyExistsException::class);
+
+        $this->repository->add($this->newAiProvider('Anthropic production'));
+    }
+
+    public function testMovingTheActivationInOneUpdate(): void
+    {
+        $current = $this->newAiProvider('Anthropic production', isActivated: true);
+        $next = $this->newAiProvider('Mistral fallback', type: AiProviderTypeEnum::Mistral);
+        $this->repository->add($current);
+        $this->repository->add($next);
+
+        $next->activate();
+        $current->deactivate();
+        // given in the order a handler builds it: the newly enabled provider first
+        $this->repository->update($next, $current);
+
+        self::assertSame('Mistral fallback', $this->repository->findActivated()?->name()->value);
     }
 
     public function testDelete(): void
@@ -163,7 +199,7 @@ final class DbalAiProviderRepositoryTest extends KernelTestCase
             name: new AiProviderName($name),
             type: $type,
             endpointUrl: new EndpointUrl('https://api.anthropic.com'),
-            apiToken: new ApiToken('a-token'),
+            apiToken: new StoredApiToken('a-token'),
             defaultModel: new ModelName('claude-sonnet-4-6'),
             fastModel: new ModelName('claude-haiku-4-5'),
             description: new AiProviderDescription('a description'),

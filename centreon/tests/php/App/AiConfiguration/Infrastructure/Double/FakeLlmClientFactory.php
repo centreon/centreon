@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace Tests\App\AiConfiguration\Infrastructure\Double;
 
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProvider;
-use App\AiConfiguration\Domain\Llm\Exception\LlmConfigurationException;
+use App\AiConfiguration\Domain\Llm\Exception\LlmException;
 use App\AiConfiguration\Domain\Llm\LlmClientFactoryInterface;
 use App\AiConfiguration\Domain\Llm\LlmClientInterface;
 
@@ -32,7 +32,7 @@ final readonly class FakeLlmClientFactory implements LlmClientFactoryInterface
 {
     public function __construct(
         private ?LlmClientInterface $client = null,
-        private ?LlmConfigurationException $exception = null,
+        private ?LlmException $exception = null,
     ) {
     }
 
@@ -53,7 +53,7 @@ final readonly class FakeLlmClientFactory implements LlmClientFactoryInterface
 
     private function getClientOrThrow(): LlmClientInterface
     {
-        if ($this->exception instanceof LlmConfigurationException) {
+        if ($this->exception instanceof LlmException) {
             throw $this->exception;
         }
 

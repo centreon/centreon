@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace App\AiConfiguration\Domain\Aggregate\AiProvider;
 
+use App\AiConfiguration\Domain\Exception\InvalidAiProviderConfigurationException;
+
 enum AiProviderTypeEnum: string
 {
     case Anthropic = 'anthropic';
@@ -31,6 +33,17 @@ enum AiProviderTypeEnum: string
     case Google = 'google';
     case Bedrock = 'bedrock';
     case OpenAiCompatible = 'openai_compatible';
+
+    /** Bedrock is reached through the Mantle endpoint of an AWS region. */
+    private const BEDROCK_ENDPOINT_PATTERN = '~^https://bedrock-mantle\.[a-z0-9]+(?:-[a-z0-9]+)*\.api\.aws/?$~';
+
+    /**
+     * @return list<string>
+     */
+    public static function values(): array
+    {
+        return array_map(static fn (self $type): string => $type->value, self::cases());
+    }
 
     /**
      * Endpoint used when the configuration does not provide one. OpenAI-compatible
@@ -46,6 +59,37 @@ enum AiProviderTypeEnum: string
             self::Google => new EndpointUrl('https://generativelanguage.googleapis.com'),
             self::Bedrock, self::OpenAiCompatible => null,
         };
+    }
+
+    /**
+     * Endpoint a provider of this type is reached at: the official one of the
+     * curated providers, whatever the input (it is ignored), or the input
+     * otherwise, which must then be the Mantle endpoint of a region for Bedrock.
+     *
+     * @throws InvalidAiProviderConfigurationException when the input is missing or not acceptable
+     */
+    public function resolveEndpoint(?string $input): EndpointUrl
+    {
+        $defaultEndpointUrl = $this->defaultEndpointUrl();
+        if ($defaultEndpointUrl instanceof EndpointUrl) {
+            return $defaultEndpointUrl;
+        }
+
+        if ($input === null || trim($input) === '') {
+            throw InvalidAiProviderConfigurationException::endpointRequired($this);
+        }
+
+        try {
+            $endpointUrl = new EndpointUrl($input);
+        } catch (\InvalidArgumentException $exception) {
+            throw InvalidAiProviderConfigurationException::invalidEndpoint($exception);
+        }
+
+        if ($this === self::Bedrock && preg_match(self::BEDROCK_ENDPOINT_PATTERN, $endpointUrl->value) !== 1) {
+            throw InvalidAiProviderConfigurationException::invalidBedrockEndpoint();
+        }
+
+        return $endpointUrl;
     }
 
     /**

@@ -35,7 +35,7 @@ interface LlmClientInterface
     /**
      * Send a request and wait for the full completion.
      *
-     * @throws LlmConfigurationException when the request can not be built from the provider configuration
+     * @throws LlmConfigurationException when the spend limit of the provider is reached
      * @throws LlmRequestFailedException when the provider can not be reached or rejects the request
      */
     public function complete(LlmRequest $request): LlmResponse;
@@ -46,7 +46,7 @@ interface LlmClientInterface
      * The generator yields text deltas as they arrive; once iteration is over,
      * the full response is available through the generator return value.
      *
-     * @throws LlmConfigurationException when the request can not be built from the provider configuration
+     * @throws LlmConfigurationException when the spend limit of the provider is reached
      * @throws LlmRequestFailedException when the provider can not be reached or rejects the request
      *
      * @return \Generator<int, string, void, LlmResponse>
@@ -56,7 +56,6 @@ interface LlmClientInterface
     /**
      * List the model identifiers the provider exposes.
      *
-     * @throws LlmConfigurationException when the request can not be built from the provider configuration
      * @throws LlmRequestFailedException when the provider can not be reached or rejects the request
      *
      * @return list<string>

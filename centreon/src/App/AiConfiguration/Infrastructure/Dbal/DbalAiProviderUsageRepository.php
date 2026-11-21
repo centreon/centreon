@@ -71,12 +71,4 @@ final readonly class DbalAiProviderUsageRepository extends DbalRepository implem
 
         return is_numeric($sum) ? (float) $sum : 0.0;
     }
-
-    public function deleteOlderThan(int $timestamp): int
-    {
-        return (int) $this->connection->executeStatement(
-            'DELETE FROM ' . self::TABLE_NAME . ' WHERE requested_at < :timestamp',
-            ['timestamp' => $timestamp]
-        );
-    }
 }

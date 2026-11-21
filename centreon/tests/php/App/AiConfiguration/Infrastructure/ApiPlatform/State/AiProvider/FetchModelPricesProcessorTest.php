@@ -50,4 +50,16 @@ final class FetchModelPricesProcessorTest extends AiProviderApiTestCase
 
         self::assertResponseStatusCodeSame(403);
     }
+
+    public function testUnknownTypeReturns422(): void
+    {
+        $this->login();
+
+        // rejected by validation, before any catalog download
+        $this->request('POST', self::PRICES_ENDPOINT, [
+            'json' => ['type' => 'unknown', 'default_model' => 'gpt-4o'],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
 }

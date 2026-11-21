@@ -97,4 +97,31 @@ final class TestConnectionProcessorTest extends AiProviderApiTestCase
         self::assertFalse($result['success']);
         self::assertNotEmpty($result['message']);
     }
+
+    public function testUnknownTypeReturns422(): void
+    {
+        $this->login();
+
+        $this->request('POST', self::TEST_ENDPOINT, [
+            'json' => ['type' => 'unknown', 'default_model' => 'a-model', 'api_token' => 'a-token'],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testBedrockWithAnotherEndpointReturns422(): void
+    {
+        $this->login();
+
+        $this->request('POST', self::TEST_ENDPOINT, [
+            'json' => [
+                'type' => 'bedrock',
+                'default_model' => 'a-model',
+                'api_token' => 'a-token',
+                'endpoint_url' => 'https://attacker.example.org',
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
 }

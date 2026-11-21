@@ -282,6 +282,94 @@ final class OpenAiCompatibleLlmClientTest extends TestCase
         self::assertSame(2, $response->usage->outputTokens);
     }
 
+    public function testContentPartsAreConcatenated(): void
+    {
+        // e.g. Mistral reasoning models: the thinking part is not the answer
+        $httpClient = new MockHttpClient(new MockResponse(json_encode([
+            'model' => 'magistral-small-latest',
+            'choices' => [['finish_reason' => 'stop', 'message' => ['content' => [
+                ['type' => 'thinking', 'thinking' => [['type' => 'text', 'text' => 'let me think']]],
+                ['type' => 'text', 'text' => 'po'],
+                ['type' => 'text', 'text' => 'ng'],
+            ]]]],
+        ], \JSON_THROW_ON_ERROR)));
+
+        $response = $this->createClient($httpClient)->complete($this->createRequest());
+
+        self::assertSame('pong', $response->content);
+    }
+
+    public function testARefusalIsReportedAsSuch(): void
+    {
+        $httpClient = new MockHttpClient(new MockResponse(json_encode([
+            'model' => 'gpt-5',
+            'choices' => [['finish_reason' => 'stop', 'message' => ['content' => null, 'refusal' => 'I can not help with that.']]],
+        ], \JSON_THROW_ON_ERROR)));
+
+        $this->expectException(LlmRequestFailedException::class);
+        $this->expectExceptionMessage('The AI provider refused to answer: I can not help with that.');
+
+        $this->createClient($httpClient)->complete($this->createRequest());
+    }
+
+    public function testAContentFilterStopIsReportedAsARefusal(): void
+    {
+        $httpClient = new MockHttpClient(new MockResponse(json_encode([
+            'model' => 'gpt-5',
+            'choices' => [['finish_reason' => 'content_filter', 'message' => ['content' => null]]],
+        ], \JSON_THROW_ON_ERROR)));
+
+        $this->expectException(LlmRequestFailedException::class);
+        $this->expectExceptionMessage('The AI provider refused to answer');
+
+        $this->createClient($httpClient)->complete($this->createRequest());
+    }
+
+    public function testStreamConcatenatesContentParts(): void
+    {
+        $sse = [
+            "data: {\"choices\":[{\"delta\":{\"content\":[{\"type\":\"thinking\",\"thinking\":[]},{\"type\":\"text\",\"text\":\"po\"}]}}]}\n\n",
+            "data: {\"choices\":[{\"delta\":{\"content\":[{\"type\":\"text\",\"text\":\"ng\"}]}}]}\n\n",
+            "data: [DONE]\n\n",
+        ];
+        $httpClient = new MockHttpClient(new MockResponse($sse));
+
+        $generator = $this->createClient($httpClient)->stream($this->createRequest());
+
+        self::assertSame(['po', 'ng'], iterator_to_array($generator, false));
+        self::assertSame('pong', $generator->getReturn()->content);
+    }
+
+    public function testAStreamedRefusalIsReportedAsSuch(): void
+    {
+        $sse = [
+            "data: {\"choices\":[{\"delta\":{\"refusal\":\"I can not \"}}]}\n\n",
+            "data: {\"choices\":[{\"delta\":{\"refusal\":\"help with that.\"},\"finish_reason\":\"stop\"}]}\n\n",
+            "data: [DONE]\n\n",
+        ];
+        $httpClient = new MockHttpClient(new MockResponse($sse));
+
+        $this->expectException(LlmRequestFailedException::class);
+        $this->expectExceptionMessage('The AI provider refused to answer: I can not help with that.');
+
+        iterator_to_array($this->createClient($httpClient)->stream($this->createRequest()), false);
+    }
+
+    public function testAStreamStoppedByTheContentFilterIsReportedAsARefusal(): void
+    {
+        $sse = [
+            "data: {\"choices\":[{\"delta\":{\"content\":\"Here\"}}]}\n\n",
+            "data: {\"choices\":[{\"delta\":{},\"finish_reason\":\"content_filter\"}]}\n\n",
+            "data: [DONE]\n\n",
+        ];
+        $httpClient = new MockHttpClient(new MockResponse($sse));
+
+        $this->expectException(LlmRequestFailedException::class);
+        $this->expectExceptionMessage('The AI provider refused to answer');
+
+        iterator_to_array($this->createClient($httpClient)->stream($this->createRequest()), false);
+    }
+
     private function createClient(HttpClientInterface $httpClient): OpenAiCompatibleLlmClient
     {
         return new OpenAiCompatibleLlmClient(

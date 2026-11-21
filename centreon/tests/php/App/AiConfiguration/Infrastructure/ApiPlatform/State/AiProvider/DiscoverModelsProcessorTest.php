@@ -58,12 +58,13 @@ final class DiscoverModelsProcessorTest extends AiProviderApiTestCase
         self::assertResponseStatusCodeSame(422);
     }
 
-    public function testUnreachableEndpointReturns502(): void
+    public function testUnreachableEndpointReturns422(): void
     {
         $this->login();
 
         // no service listens on port 1: the discovery request can not succeed,
-        // and the provider error is surfaced (not swallowed into an empty list)
+        // and the provider error is surfaced as a 422 with its reason (not
+        // swallowed into an empty list)
         $this->request('POST', self::DISCOVER_ENDPOINT, [
             'json' => [
                 'type' => 'openai_compatible',
@@ -72,6 +73,17 @@ final class DiscoverModelsProcessorTest extends AiProviderApiTestCase
             ],
         ]);
 
-        self::assertResponseStatusCodeSame(502);
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testUnknownTypeReturns422(): void
+    {
+        $this->login();
+
+        $this->request('POST', self::DISCOVER_ENDPOINT, [
+            'json' => ['type' => 'unknown', 'api_token' => 'a-token'],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
     }
 }

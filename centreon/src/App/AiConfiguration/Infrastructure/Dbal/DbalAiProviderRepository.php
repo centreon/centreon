@@ -30,6 +30,8 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\Pricing;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\SpendLimit;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\TierPricing;
+use App\AiConfiguration\Domain\Exception\AiProviderActivationConflictException;
+use App\AiConfiguration\Domain\Exception\AiProviderAlreadyExistsException;
 use App\AiConfiguration\Domain\Exception\AiProviderNotFoundException;
 use App\AiConfiguration\Domain\Repository\AiProviderRepository;
 use App\AiConfiguration\Domain\Repository\Criteria\AiProviderCriteria;
@@ -41,6 +43,7 @@ use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use App\Shared\Infrastructure\TransformerInterface;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Webmozart\Assert\Assert;
@@ -59,6 +62,7 @@ final readonly class DbalAiProviderRepository extends DbalRepository implements 
 {
     use DbalCriteriaApplierTrait;
     public const TABLE_NAME = 'ai_provider_configuration';
+    private const SINGLE_ACTIVATED_KEY = 'ai_provider_configuration_single_activated';
 
     /**
      * @param TransformerInterface<RowTypeAlias, AiProvider> $transformer
@@ -182,6 +186,9 @@ final readonly class DbalAiProviderRepository extends DbalRepository implements 
         return $count;
     }
 
+    /**
+     * @inheritDoc
+     */
     public function add(AiProvider $aiProvider): void
     {
         $qb = $this->connection->createQueryBuilder();
@@ -196,24 +203,38 @@ final readonly class DbalAiProviderRepository extends DbalRepository implements 
                 'created_at' => ':created_at',
                 'updated_at' => ':updated_at',
             ])
-            ->setParameter('type', $aiProvider->type->value)
-            ->setParameter('name', $aiProvider->name->value)
-            ->setParameter('description', $aiProvider->description?->value)
-            ->setParameter('is_activated', $aiProvider->isActivated ? 1 : 0)
+            ->setParameter('type', $aiProvider->type()->value)
+            ->setParameter('name', $aiProvider->name()->value)
+            ->setParameter('description', $aiProvider->description()?->value)
+            ->setParameter('is_activated', $aiProvider->isActivated() ? 1 : 0)
             ->setParameter('configuration', $this->encodeConfiguration($aiProvider))
             ->setParameter('created_at', time())
             ->setParameter('updated_at', time());
 
-        $qb->executeStatement();
+        try {
+            $qb->executeStatement();
+        } catch (UniqueConstraintViolationException $exception) {
+            throw $this->toDomainConflict($exception, $aiProvider);
+        }
 
         $this->setId($aiProvider, new AiProviderId((int) $this->connection->lastInsertId()));
     }
 
+    /**
+     * @inheritDoc
+     */
     public function update(AiProvider ...$aiProviders): void
     {
         if ($aiProviders === []) {
             return;
         }
+
+        // the unique key on the enabled provider is checked row by row: when
+        // the enabled provider changes, the previous one is disabled first
+        usort(
+            $aiProviders,
+            static fn (AiProvider $left, AiProvider $right): int => $left->isActivated() <=> $right->isActivated()
+        );
 
         $this->connection->transactional(function () use ($aiProviders): void {
             foreach ($aiProviders as $aiProvider) {
@@ -230,13 +251,17 @@ final readonly class DbalAiProviderRepository extends DbalRepository implements 
                     ->set('updated_at', ':updated_at')
                     ->where('id = :id')
                     ->setParameter('id', $aiProviderId->value)
-                    ->setParameter('name', $aiProvider->name->value)
-                    ->setParameter('description', $aiProvider->description?->value)
-                    ->setParameter('is_activated', $aiProvider->isActivated ? 1 : 0)
+                    ->setParameter('name', $aiProvider->name()->value)
+                    ->setParameter('description', $aiProvider->description()?->value)
+                    ->setParameter('is_activated', $aiProvider->isActivated() ? 1 : 0)
                     ->setParameter('configuration', $this->encodeConfiguration($aiProvider))
                     ->setParameter('updated_at', time());
 
-                $qb->executeStatement();
+                try {
+                    $qb->executeStatement();
+                } catch (UniqueConstraintViolationException $exception) {
+                    throw $this->toDomainConflict($exception, $aiProvider);
+                }
             }
         });
     }
@@ -322,17 +347,38 @@ final readonly class DbalAiProviderRepository extends DbalRepository implements 
         return $count;
     }
 
+    /**
+     * A concurrent request got there first: another provider enabled (the
+     * generated `activated_marker` column holds a unique key), or the name
+     * taken.
+     */
+    private function toDomainConflict(
+        UniqueConstraintViolationException $exception,
+        AiProvider $aiProvider,
+    ): AiProviderActivationConflictException|AiProviderAlreadyExistsException {
+        if (str_contains($exception->getMessage(), self::SINGLE_ACTIVATED_KEY)) {
+            return AiProviderActivationConflictException::anotherProviderEnabled($exception);
+        }
+
+        return new AiProviderAlreadyExistsException(
+            ['name' => $aiProvider->name()->value],
+            sprintf("An AI provider configuration with name '%s' already exists.", $aiProvider->name()->value),
+            409,
+            $exception,
+        );
+    }
+
     private function encodeConfiguration(AiProvider $aiProvider): string
     {
-        $pricing = $aiProvider->pricing;
-        $limit = $aiProvider->limit;
+        $pricing = $aiProvider->billing()->pricing;
+        $limit = $aiProvider->billing()->limit;
 
         return json_encode([
-            'endpoint_url' => $aiProvider->endpointUrl->value,
-            'api_token' => $aiProvider->apiToken->value,
-            'default_model' => $aiProvider->defaultModel->value,
-            'fast_model' => $aiProvider->fastModel?->value,
-            'currency' => $aiProvider->currency?->value,
+            'endpoint_url' => $aiProvider->endpointUrl()->value,
+            'api_token' => $aiProvider->apiToken()->value,
+            'default_model' => $aiProvider->defaultModel()->value,
+            'fast_model' => $aiProvider->fastModel()?->value,
+            'currency' => $aiProvider->billing()->currency?->value,
             'pricing' => $pricing instanceof Pricing ? [
                 'default' => [
                     'input' => $pricing->default->inputPricePerMillion,

@@ -26,6 +26,8 @@ namespace App\AiConfiguration\Infrastructure\Llm;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProvider;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\StoredApiToken;
+use App\AiConfiguration\Domain\Llm\Exception\ApiTokenUnavailableException;
 use App\AiConfiguration\Domain\Llm\Exception\LlmConfigurationException;
 use App\AiConfiguration\Domain\Llm\LlmClientFactoryInterface;
 use App\AiConfiguration\Domain\Llm\LlmClientInterface;
@@ -52,6 +54,10 @@ final readonly class LlmClientFactory implements LlmClientFactoryInterface
     ) {
     }
 
+    /**
+     * @throws LlmConfigurationException
+     * @throws ApiTokenUnavailableException
+     */
     public function forActivatedProvider(): LlmClientInterface
     {
         $aiProvider = $this->repository->findActivated()
@@ -60,6 +66,9 @@ final readonly class LlmClientFactory implements LlmClientFactoryInterface
         return $this->forProvider($aiProvider);
     }
 
+    /**
+     * @throws ApiTokenUnavailableException
+     */
     public function forProvider(AiProvider $aiProvider): LlmClientInterface
     {
         // every call is metered, and capped when the provider has a spend limit
@@ -73,6 +82,9 @@ final readonly class LlmClientFactory implements LlmClientFactoryInterface
         );
     }
 
+    /**
+     * @throws ApiTokenUnavailableException
+     */
     public function forConnectionTest(AiProvider $aiProvider): LlmClientInterface
     {
         // a connection test is a configuration-time check: it is not metered or
@@ -80,48 +92,51 @@ final readonly class LlmClientFactory implements LlmClientFactoryInterface
         return $this->buildClient($aiProvider);
     }
 
+    /**
+     * @throws ApiTokenUnavailableException
+     */
     private function buildClient(AiProvider $aiProvider): LlmClientInterface
     {
-        $apiToken = $this->resolveToken($aiProvider->apiToken);
+        $apiToken = $this->resolveToken($aiProvider->apiToken());
         $httpClient = $this->httpClient();
 
         $openAiCompatible = fn (): OpenAiCompatibleLlmClient => new OpenAiCompatibleLlmClient(
             $httpClient,
-            $aiProvider->endpointUrl,
+            $aiProvider->endpointUrl(),
             $apiToken,
-            $aiProvider->defaultModel,
-            $aiProvider->fastModel,
-            $aiProvider->type->chatCompletionsPath(),
-            $aiProvider->type->chatMaxTokensField(),
+            $aiProvider->defaultModel(),
+            $aiProvider->fastModel(),
+            $aiProvider->type()->chatCompletionsPath(),
+            $aiProvider->type()->chatMaxTokensField(),
         );
 
         // Gemini and Bedrock mix transports: see GeminiLlmClient and BedrockLlmClient
-        return match ($aiProvider->type) {
+        return match ($aiProvider->type()) {
             AiProviderTypeEnum::Anthropic => new AnthropicLlmClient(
                 $httpClient,
-                $aiProvider->endpointUrl,
+                $aiProvider->endpointUrl(),
                 $apiToken,
-                $aiProvider->defaultModel,
-                $aiProvider->fastModel,
+                $aiProvider->defaultModel(),
+                $aiProvider->fastModel(),
             ),
             AiProviderTypeEnum::Google => new GeminiLlmClient(
                 $openAiCompatible(),
                 $httpClient,
-                $aiProvider->endpointUrl,
+                $aiProvider->endpointUrl(),
                 $apiToken,
             ),
             AiProviderTypeEnum::Bedrock => new BedrockLlmClient(
                 $openAiCompatible(),
                 new AnthropicLlmClient(
                     $httpClient,
-                    $aiProvider->endpointUrl,
+                    $aiProvider->endpointUrl(),
                     $apiToken,
-                    $aiProvider->defaultModel,
-                    $aiProvider->fastModel,
+                    $aiProvider->defaultModel(),
+                    $aiProvider->fastModel(),
                     '/anthropic/v1/messages',
                 ),
-                $aiProvider->defaultModel,
-                $aiProvider->fastModel,
+                $aiProvider->defaultModel(),
+                $aiProvider->fastModel(),
             ),
             AiProviderTypeEnum::OpenAi,
             AiProviderTypeEnum::Mistral,
@@ -131,22 +146,22 @@ final readonly class LlmClientFactory implements LlmClientFactoryInterface
 
     /**
      * A token stored in the vault is kept in the database as a "secret::..." reference, read back
-     * here for each client. Users cannot submit such a reference themselves (rejected at input),
-     * so it always designates the provider's own vault entry.
+     * here for each client. A user can not submit such a reference (an ApiToken refuses it), so it
+     * always designates the provider's own vault entry.
      *
-     * @throws LlmConfigurationException when the reference cannot be read back (vault disabled,
-     *                                   unreachable, or the entry is gone)
+     * @throws ApiTokenUnavailableException when the reference cannot be read back (vault disabled,
+     *                                      unreachable, or the entry is gone)
      */
-    private function resolveToken(ApiToken $apiToken): ApiToken
+    private function resolveToken(StoredApiToken $storedApiToken): ApiToken
     {
-        if (! $apiToken->isStoredInVault()) {
-            return $apiToken;
+        if (! $storedApiToken->isVaultReference()) {
+            return $storedApiToken->plainToken();
         }
 
         try {
-            return new ApiToken($this->vault->resolve($apiToken->value));
+            return new ApiToken($this->vault->resolve($storedApiToken->value));
         } catch (\Throwable $exception) {
-            throw LlmConfigurationException::unresolvableToken($exception);
+            throw ApiTokenUnavailableException::fromVault($exception);
         }
     }
 

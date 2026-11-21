@@ -30,7 +30,6 @@ use App\AiConfiguration\Application\Command\DiscoverModelsResult;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderId;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
-use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Infrastructure\AiFeatureAvailability;
 use App\AiConfiguration\Infrastructure\ApiPlatform\Dto\DiscoverModelsInput;
 use App\AiConfiguration\Infrastructure\ApiPlatform\Resource\AiProvider\DiscoverModelsResource;
@@ -54,14 +53,7 @@ final readonly class DiscoverModelsProcessor implements ProcessorInterface
         $this->availability->assertAvailable();
 
         $type = AiProviderTypeEnum::from($data->type);
-
-        // the endpoint of curated providers is enforced, like create/update
-        $endpointUrl = $type->defaultEndpointUrl()
-            ?? ($data->endpointUrl !== null
-                ? new EndpointUrl($data->endpointUrl)
-                : throw new UnprocessableEntityHttpException(
-                    sprintf("An endpoint URL is required for providers of type '%s'.", $type->value)
-                ));
+        $endpointUrl = $type->resolveEndpoint($data->endpointUrl);
 
         $typedToken = $data->apiToken !== null && trim($data->apiToken) !== ''
             ? new ApiToken($data->apiToken)

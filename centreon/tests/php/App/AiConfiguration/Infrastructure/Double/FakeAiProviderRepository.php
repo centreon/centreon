@@ -49,7 +49,7 @@ final class FakeAiProviderRepository implements AiProviderRepository
     public function findOneByName(AiProviderName $name): ?AiProvider
     {
         foreach ($this->aiProviders as $aiProvider) {
-            if ($aiProvider->name->value === $name->value) {
+            if ($aiProvider->name()->value === $name->value) {
                 return $aiProvider;
             }
         }
@@ -60,7 +60,7 @@ final class FakeAiProviderRepository implements AiProviderRepository
     public function findActivated(): ?AiProvider
     {
         foreach ($this->aiProviders as $aiProvider) {
-            if ($aiProvider->isActivated) {
+            if ($aiProvider->isActivated()) {
                 return $aiProvider;
             }
         }

@@ -33,6 +33,14 @@ final readonly class EndpointUrl
         Assert::lengthBetween($value, 1, 2048);
         Assert::regex($value, '~^https?://~', 'The endpoint URL must start with http:// or https://.');
         Assert::notFalse(filter_var($value, \FILTER_VALIDATE_URL), 'The endpoint URL is not a valid URL.');
+
+        // a base URL only: the clients append their paths to it, and credentials
+        // in it would travel (and be logged) with every request
+        $parts = parse_url($value);
+        Assert::isArray($parts, 'The endpoint URL is not a valid URL.');
+        Assert::false(isset($parts['user']) || isset($parts['pass']), 'The endpoint URL can not contain credentials.');
+        Assert::keyNotExists($parts, 'query', 'The endpoint URL can not contain a query string.');
+        Assert::keyNotExists($parts, 'fragment', 'The endpoint URL can not contain a fragment.');
     }
 
     /**

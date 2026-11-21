@@ -28,12 +28,13 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderDescription;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderId;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderName;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
-use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\Billing;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\Currency;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\Pricing;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\SpendLimit;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\StoredApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\TierPricing;
 use App\Shared\Infrastructure\TransformerInterface;
 use Webmozart\Assert\Assert;
@@ -71,7 +72,7 @@ final readonly class DbalAiProviderTransformer implements TransformerInterface
             name: new AiProviderName($from['ap_name']),
             type: AiProviderTypeEnum::from($from['ap_type']),
             endpointUrl: new EndpointUrl($configuration['endpoint_url']),
-            apiToken: new ApiToken($configuration['api_token']),
+            apiToken: new StoredApiToken($configuration['api_token']),
             defaultModel: new ModelName($configuration['default_model']),
             fastModel: isset($configuration['fast_model'])
                 ? new ModelName($configuration['fast_model'])
@@ -80,11 +81,13 @@ final readonly class DbalAiProviderTransformer implements TransformerInterface
                 ? new AiProviderDescription($from['ap_description'])
                 : null,
             isActivated: (bool) $from['ap_is_activated'],
-            currency: isset($configuration['currency'])
-                ? new Currency($configuration['currency'])
-                : null,
-            pricing: $this->transformPricing($configuration['pricing'] ?? null),
-            limit: $this->transformLimit($configuration['limits'] ?? null),
+            billing: new Billing(
+                currency: isset($configuration['currency'])
+                    ? new Currency($configuration['currency'])
+                    : null,
+                pricing: $this->transformPricing($configuration['pricing'] ?? null),
+                limit: $this->transformLimit($configuration['limits'] ?? null),
+            ),
         );
     }
 

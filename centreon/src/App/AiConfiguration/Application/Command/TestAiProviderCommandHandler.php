@@ -24,7 +24,9 @@ declare(strict_types=1);
 namespace App\AiConfiguration\Application\Command;
 
 use App\AiConfiguration\Domain\Exception\AiProviderNotFoundException;
-use App\AiConfiguration\Domain\Llm\Exception\LlmException;
+use App\AiConfiguration\Domain\Llm\Exception\ApiTokenUnavailableException;
+use App\AiConfiguration\Domain\Llm\Exception\LlmConfigurationException;
+use App\AiConfiguration\Domain\Llm\Exception\LlmRequestFailedException;
 use App\AiConfiguration\Domain\Llm\LlmClientFactoryInterface;
 use App\AiConfiguration\Domain\Llm\LlmRequest;
 use App\AiConfiguration\Domain\Repository\AiProviderRepository;
@@ -41,16 +43,20 @@ final readonly class TestAiProviderCommandHandler
 
     /**
      * @throws AiProviderNotFoundException when the provider to test does not exist
+     * @throws ApiTokenUnavailableException when the stored token can not be read from the vault
+     * @throws LlmConfigurationException when the spend limit of the provider is reached
      */
     public function __invoke(TestAiProviderCommand $command): TestAiProviderResult
     {
         $aiProvider = $this->repository->getById($command->id);
 
-        try {
-            $client = $this->clientFactory->forProvider($aiProvider);
+        $client = $this->clientFactory->forProvider($aiProvider);
 
+        try {
             $response = $client->complete(LlmRequest::connectionTest($command->model));
-        } catch (LlmException $exception) {
+        } catch (LlmRequestFailedException $exception) {
+            // an expected provider error is the test result; a spend limit
+            // reached or a platform failure (vault) propagates
             return new TestAiProviderResult(success: false, message: $exception->getMessage());
         }
 

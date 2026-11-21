@@ -25,6 +25,7 @@ namespace App\AiAssistance\Application\Command;
 
 use App\AiAssistance\Domain\ResourceFilterQueryLanguage;
 use App\AiConfiguration\Domain\Llm\AiFeatureEnum;
+use App\AiConfiguration\Domain\Llm\Exception\ApiTokenUnavailableException;
 use App\AiConfiguration\Domain\Llm\Exception\LlmConfigurationException;
 use App\AiConfiguration\Domain\Llm\Exception\LlmRequestFailedException;
 use App\AiConfiguration\Domain\Llm\LlmClientFactoryInterface;
@@ -124,6 +125,7 @@ final readonly class TranslateResourceFilterCommandHandler
 
     /**
      * @throws LlmConfigurationException when no provider is enabled or its spend limit is reached
+     * @throws ApiTokenUnavailableException when the token of the provider can not be read from the vault
      * @throws LlmRequestFailedException when the provider fails, times out or answers nothing
      */
     public function __invoke(TranslateResourceFilterCommand $command): TranslateResourceFilterResult
@@ -155,8 +157,13 @@ final readonly class TranslateResourceFilterCommandHandler
 
         if ($error !== null) {
             // give up gracefully: a filter intent with no expression (the UI then
-            // tells the user nothing could be derived)
-            return new TranslateResourceFilterResult(intent: 'filter', query: '', scope: null);
+            // tells the user nothing could be derived), saying why for the logs
+            return new TranslateResourceFilterResult(
+                intent: 'filter',
+                query: '',
+                scope: null,
+                invalidOutputReason: $error,
+            );
         }
 
         return $this->extract($content);

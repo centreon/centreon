@@ -28,8 +28,10 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderId;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderName;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\StoredApiToken;
 use App\AiConfiguration\Domain\Exception\AiProviderNotFoundException;
-use App\AiConfiguration\Domain\Llm\Exception\LlmException;
+use App\AiConfiguration\Domain\Llm\Exception\ApiTokenUnavailableException;
+use App\AiConfiguration\Domain\Llm\Exception\LlmRequestFailedException;
 use App\AiConfiguration\Domain\Llm\LlmClientFactoryInterface;
 use App\AiConfiguration\Domain\Repository\AiProviderRepository;
 use App\Shared\Application\Command\AsCommandHandler;
@@ -47,6 +49,7 @@ final readonly class DiscoverModelsCommandHandler
 
     /**
      * @throws AiProviderNotFoundException when the provider to reuse does not exist
+     * @throws ApiTokenUnavailableException when the stored token can not be read from the vault
      */
     public function __invoke(DiscoverModelsCommand $command): DiscoverModelsResult
     {
@@ -62,7 +65,9 @@ final readonly class DiscoverModelsCommandHandler
             if (! $stored->canReuseApiTokenFor($command->type, $command->endpointUrl)) {
                 return new DiscoverModelsResult(models: [], error: self::TOKEN_REQUIRED_MESSAGE);
             }
-            $apiToken = $stored->apiToken;
+            $storedApiToken = $stored->apiToken();
+        } else {
+            $storedApiToken = StoredApiToken::plain($apiToken);
         }
 
         $aiProvider = new AiProvider(
@@ -70,7 +75,7 @@ final readonly class DiscoverModelsCommandHandler
             name: new AiProviderName('model-discovery'),
             type: $command->type,
             endpointUrl: $command->endpointUrl,
-            apiToken: $apiToken,
+            apiToken: $storedApiToken,
             // unused by listModels(), but the aggregate requires a default model
             defaultModel: new ModelName('model-discovery'),
             fastModel: null,
@@ -80,11 +85,11 @@ final readonly class DiscoverModelsCommandHandler
 
         try {
             $models = $this->clientFactory->forConnectionTest($aiProvider)->listModels();
-        } catch (LlmException $exception) {
+        } catch (LlmRequestFailedException $exception) {
             // an expected provider error (bad token, unreachable, ...) is
-            // returned as data, like the connection-test handlers, so it does
-            // not propagate through the command bus as a CRITICAL failure; the
-            // processor turns it into a 422
+            // returned as data, like the connection-test handlers; the
+            // processor turns it into a 422. A platform failure (vault)
+            // propagates.
             return new DiscoverModelsResult(models: [], error: $exception->getMessage());
         }
 

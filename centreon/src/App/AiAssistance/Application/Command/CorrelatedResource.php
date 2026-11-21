@@ -23,11 +23,15 @@ declare(strict_types=1);
 
 namespace App\AiAssistance\Application\Command;
 
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 use Webmozart\Assert\Assert;
 
 /**
  * One monitored resource in an alert-correlation request, as displayed in the
  * monitoring console.
+ *
+ * The free texts are masked in the bus logs: they may carry secrets (a command
+ * line, a plugin output) and they make up the prompt.
  */
 final readonly class CorrelatedResource
 {
@@ -36,6 +40,7 @@ final readonly class CorrelatedResource
         public string $resourceType,
         public string $status,
         public ?string $parentName = null,
+        #[Sensitive]
         public ?string $information = null,
         public ?string $duration = null,
         public ?string $tries = null,

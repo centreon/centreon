@@ -27,11 +27,14 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProvider;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderId;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderName;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
-use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\Billing;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\Currency;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\Pricing;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\SpendLimit;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\StoredApiToken;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\TierPricing;
 use App\AiConfiguration\Domain\Usage\BudgetStatusChecker;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Clock\MockClock;
@@ -60,28 +63,30 @@ final class BudgetStatusCheckerTest extends TestCase
         self::assertTrue($checker->isExhausted($this->provider(limit: new SpendLimit(daily: 10.0))));
     }
 
-    public function testNotExhaustedWithoutCurrency(): void
+    public function testExhaustedAtMonthlyLimit(): void
     {
         $checker = new BudgetStatusChecker(new FakeAiProviderUsageRepository(windowSum: 100.0), new MockClock());
 
-        self::assertFalse($checker->isExhausted($this->provider(limit: new SpendLimit(monthly: 10.0), currency: null)));
+        self::assertTrue($checker->isExhausted($this->provider(limit: new SpendLimit(monthly: 10.0))));
     }
 
-    private function provider(?SpendLimit $limit, ?Currency $currency = new Currency('USD')): AiProvider
+    private function provider(?SpendLimit $limit): AiProvider
     {
         return new AiProvider(
             id: new AiProviderId(1),
             name: new AiProviderName('Anthropic production'),
             type: AiProviderTypeEnum::Anthropic,
             endpointUrl: new EndpointUrl('https://api.anthropic.com'),
-            apiToken: new ApiToken('a-token'),
+            apiToken: new StoredApiToken('a-token'),
             defaultModel: new ModelName('claude-sonnet-4-6'),
             fastModel: null,
             description: null,
             isActivated: true,
-            currency: $currency,
-            pricing: null,
-            limit: $limit,
+            billing: new Billing(
+                currency: new Currency('USD'),
+                pricing: new Pricing(new TierPricing(3.0, 15.0)),
+                limit: $limit,
+            ),
         );
     }
 }

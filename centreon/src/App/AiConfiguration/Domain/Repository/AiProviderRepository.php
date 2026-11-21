@@ -26,6 +26,8 @@ namespace App\AiConfiguration\Domain\Repository;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProvider;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderId;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderName;
+use App\AiConfiguration\Domain\Exception\AiProviderActivationConflictException;
+use App\AiConfiguration\Domain\Exception\AiProviderAlreadyExistsException;
 use App\AiConfiguration\Domain\Exception\AiProviderNotFoundException;
 use App\AiConfiguration\Domain\Repository\Criteria\AiProviderCriteria;
 
@@ -47,8 +49,16 @@ interface AiProviderRepository
 
     public function countAll(): int;
 
+    /**
+     * @throws AiProviderActivationConflictException when another provider was enabled concurrently
+     * @throws AiProviderAlreadyExistsException when the name was taken concurrently
+     */
     public function add(AiProvider $aiProvider): void;
 
+    /**
+     * @throws AiProviderActivationConflictException when another provider was enabled concurrently
+     * @throws AiProviderAlreadyExistsException when the name was taken concurrently
+     */
     public function update(AiProvider ...$aiProviders): void;
 
     public function delete(AiProvider $aiProvider): void;

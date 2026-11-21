@@ -44,17 +44,17 @@ final readonly class AiProviderActivityLogFactory implements ActivityLogFactoryI
     {
         $target = new Target(
             id: new TargetId($aggregate->id()->value),
-            name: new TargetName($aggregate->name->value),
+            name: new TargetName($aggregate->name()->value),
             type: TargetTypeEnum::AiProvider,
         );
 
         // The API token is deliberately excluded from the logged details.
         $details = [
-            'name' => $aggregate->name->value,
-            'type' => $aggregate->type->value,
-            'endpoint_url' => $aggregate->endpointUrl->value,
-            'default_model' => $aggregate->defaultModel->value ?? '',
-            'is_activated' => $aggregate->isActivated ? '1' : '0',
+            'name' => $aggregate->name()->value,
+            'type' => $aggregate->type()->value,
+            'endpoint_url' => $aggregate->endpointUrl()->value,
+            'default_model' => $aggregate->defaultModel()->value,
+            'is_activated' => $aggregate->isActivated() ? '1' : '0',
         ];
 
         return new ActivityLog(

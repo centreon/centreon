@@ -42,12 +42,12 @@ use App\AiAssistance\Infrastructure\ApiPlatform\State\ExplainGraphProcessor;
         description: 'Produce a plain-text explanation of a performance graph (what the metrics '
             . 'show over the displayed window, whether it looks healthy, where it is heading, '
             . 'suggested next steps) from the metric summary displayed in the details panel. The '
-            . 'explanation is produced by the default AI provider: the provided figures are sent '
+            . 'explanation is produced by the enabled AI provider: the provided figures are sent '
             . 'to it.',
         responses: [
             403 => new Model\Response('The user has no access to the Resources Status page'),
-            409 => new Model\Response('No default AI provider is configured'),
-            502 => new Model\Response('The AI provider could not be reached or rejected the request'),
+            409 => new Model\Response('No AI provider is enabled, or its spend limit is reached'),
+            502 => new Model\Response('The AI provider could not be reached or rejected the request, or its API token could not be read from the vault'),
         ],
     ),
 )]

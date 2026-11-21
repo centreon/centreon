@@ -25,17 +25,18 @@ namespace App\AiConfiguration\Infrastructure\Llm;
 
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\TierPricing;
-use App\AiConfiguration\Domain\Llm\Exception\LlmRequestFailedException;
+use App\AiConfiguration\Domain\Llm\Exception\PriceCatalogUnavailableException;
 use App\AiConfiguration\Domain\Llm\ModelPriceCatalog;
 use App\Shared\Infrastructure\Proxy\HttpProxyProvider;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Contracts\HttpClient\Exception\ExceptionInterface as HttpClientExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
  * Reads token prices from LiteLLM's community price catalog (hosted on GitHub).
- * The catalog is fetched once per instance, through the platform proxy. Prices
- * are published per token in USD; they are returned per 1M tokens.
+ * The catalog is fetched through the platform proxy and cached for a day.
+ * Prices are published per token in USD; they are returned per 1M tokens.
  */
 final class LiteLlmModelPriceCatalog implements ModelPriceCatalog
 {
@@ -117,7 +118,7 @@ final class LiteLlmModelPriceCatalog implements ModelPriceCatalog
     }
 
     /**
-     * @throws LlmRequestFailedException when the catalog can not be fetched
+     * @throws PriceCatalogUnavailableException when the catalog can not be fetched
      * @return array<string, array{input_cost_per_token?: float, output_cost_per_token?: float}>
      */
     private function fetch(): array
@@ -131,8 +132,8 @@ final class LiteLlmModelPriceCatalog implements ModelPriceCatalog
         try {
             /** @var array<string, array{input_cost_per_token?: float, output_cost_per_token?: float}> $catalog */
             $catalog = $this->httpClient->request('GET', self::CATALOG_URL, $options)->toArray();
-        } catch (\Throwable $exception) {
-            throw LlmRequestFailedException::fromTransportError($exception->getMessage(), $exception);
+        } catch (HttpClientExceptionInterface $exception) {
+            throw PriceCatalogUnavailableException::fromFetchError($exception->getMessage(), $exception);
         }
 
         return $catalog;

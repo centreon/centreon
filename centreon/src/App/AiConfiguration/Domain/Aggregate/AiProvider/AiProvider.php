@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\AiConfiguration\Domain\Aggregate\AiProvider;
 
+use App\AiConfiguration\Domain\Exception\AiProviderCanNotBeUpdatedException;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 
 /**
@@ -32,19 +33,62 @@ final class AiProvider extends AggregateRoot
 {
     public function __construct(
         ?AiProviderId $id,
-        public AiProviderName $name,
-        public AiProviderTypeEnum $type,
-        public EndpointUrl $endpointUrl,
-        public ApiToken $apiToken,
-        public ModelName $defaultModel,
-        public ?ModelName $fastModel,
-        public ?AiProviderDescription $description,
-        public bool $isActivated,
-        public ?Currency $currency = null,
-        public ?Pricing $pricing = null,
-        public ?SpendLimit $limit = null,
+        private AiProviderName $name,
+        private readonly AiProviderTypeEnum $type,
+        private EndpointUrl $endpointUrl,
+        private StoredApiToken $apiToken,
+        private ModelName $defaultModel,
+        private ?ModelName $fastModel,
+        private ?AiProviderDescription $description,
+        private bool $isActivated,
+        private Billing $billing = new Billing(),
     ) {
         parent::__construct($id);
+    }
+
+    public function name(): AiProviderName
+    {
+        return $this->name;
+    }
+
+    public function type(): AiProviderTypeEnum
+    {
+        return $this->type;
+    }
+
+    public function endpointUrl(): EndpointUrl
+    {
+        return $this->endpointUrl;
+    }
+
+    public function apiToken(): StoredApiToken
+    {
+        return $this->apiToken;
+    }
+
+    public function defaultModel(): ModelName
+    {
+        return $this->defaultModel;
+    }
+
+    public function fastModel(): ?ModelName
+    {
+        return $this->fastModel;
+    }
+
+    public function description(): ?AiProviderDescription
+    {
+        return $this->description;
+    }
+
+    public function isActivated(): bool
+    {
+        return $this->isActivated;
+    }
+
+    public function billing(): Billing
+    {
+        return $this->billing;
     }
 
     public function rename(AiProviderName $name): void
@@ -52,46 +96,48 @@ final class AiProvider extends AggregateRoot
         $this->name = $name;
     }
 
-    public function updateEndpointUrl(EndpointUrl $endpointUrl): void
-    {
-        $this->endpointUrl = $endpointUrl;
-    }
-
-    public function updateApiToken(ApiToken $apiToken): void
-    {
-        $this->apiToken = $apiToken;
-    }
-
-    public function updateDefaultModel(ModelName $defaultModel): void
-    {
-        $this->defaultModel = $defaultModel;
-    }
-
-    public function updateFastModel(?ModelName $fastModel): void
-    {
-        $this->fastModel = $fastModel;
-    }
-
-    public function updateDescription(?AiProviderDescription $description): void
+    public function describe(?AiProviderDescription $description): void
     {
         $this->description = $description;
     }
 
-    public function updateBilling(?Currency $currency, ?Pricing $pricing, ?SpendLimit $limit): void
+    public function changeModels(ModelName $defaultModel, ?ModelName $fastModel): void
     {
-        $this->currency = $currency;
-        $this->pricing = $pricing;
-        $this->limit = $limit;
+        $this->defaultModel = $defaultModel;
+        $this->fastModel = $fastModel;
     }
 
-    public function enable(): void
+    public function changeBilling(Billing $billing): void
+    {
+        $this->billing = $billing;
+    }
+
+    public function activate(): void
     {
         $this->isActivated = true;
     }
 
-    public function disable(): void
+    public function deactivate(): void
     {
         $this->isActivated = false;
+    }
+
+    /**
+     * Point the provider at an endpoint, with a new token or keeping the stored
+     * one, which is only allowed while the target does not change.
+     *
+     * @param StoredApiToken|null $apiToken the new token, or null to keep the stored one
+     *
+     * @throws AiProviderCanNotBeUpdatedException when the endpoint changes without a new token
+     */
+    public function retarget(EndpointUrl $endpointUrl, ?StoredApiToken $apiToken): void
+    {
+        if (! $apiToken instanceof StoredApiToken && ! $this->canReuseApiTokenFor($this->type, $endpointUrl)) {
+            throw AiProviderCanNotBeUpdatedException::apiTokenRequiredForNewEndpoint($this->id());
+        }
+
+        $this->endpointUrl = $endpointUrl;
+        $this->apiToken = $apiToken ?? $this->apiToken;
     }
 
     /**

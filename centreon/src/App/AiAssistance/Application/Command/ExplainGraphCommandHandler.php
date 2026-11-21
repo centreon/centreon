@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\AiAssistance\Application\Command;
 
 use App\AiConfiguration\Domain\Llm\AiFeatureEnum;
+use App\AiConfiguration\Domain\Llm\Exception\ApiTokenUnavailableException;
 use App\AiConfiguration\Domain\Llm\Exception\LlmConfigurationException;
 use App\AiConfiguration\Domain\Llm\Exception\LlmRequestFailedException;
 use App\AiConfiguration\Domain\Llm\LlmClientFactoryInterface;
@@ -73,6 +74,7 @@ final readonly class ExplainGraphCommandHandler
 
     /**
      * @throws LlmConfigurationException when no provider is enabled or its spend limit is reached
+     * @throws ApiTokenUnavailableException when the token of the provider can not be read from the vault
      * @throws LlmRequestFailedException when the provider fails, times out or answers nothing
      */
     public function __invoke(ExplainGraphCommand $command): ExplainGraphResult

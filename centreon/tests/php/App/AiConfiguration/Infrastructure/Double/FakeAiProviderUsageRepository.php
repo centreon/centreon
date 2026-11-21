@@ -48,9 +48,4 @@ final class FakeAiProviderUsageRepository implements AiProviderUsageRepository
     {
         return $this->windowSum;
     }
-
-    public function deleteOlderThan(int $timestamp): int
-    {
-        return 0;
-    }
 }

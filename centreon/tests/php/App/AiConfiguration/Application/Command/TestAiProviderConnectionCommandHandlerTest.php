@@ -32,9 +32,12 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\StoredApiToken;
+use App\AiConfiguration\Domain\Llm\Exception\ApiTokenUnavailableException;
 use App\AiConfiguration\Domain\Llm\Exception\LlmRequestFailedException;
 use App\AiConfiguration\Domain\Llm\LlmResponse;
 use App\AiConfiguration\Domain\Llm\LlmUsage;
+use App\Shared\Application\Command\NonTransactionalCommand;
 use PHPUnit\Framework\TestCase;
 use Tests\App\AiConfiguration\Infrastructure\Double\FakeAiProviderRepository;
 use Tests\App\AiConfiguration\Infrastructure\Double\FakeLlmClient;
@@ -141,6 +144,27 @@ final class TestAiProviderConnectionCommandHandlerTest extends TestCase
         self::assertFalse($result->success);
     }
 
+    public function testAnUnavailableVaultTokenPropagates(): void
+    {
+        // a platform failure, not a provider answer: it must be mapped and logged as such
+        $provider = $this->aiProvider();
+        $this->repository->add($provider);
+        $handler = new TestAiProviderConnectionCommandHandler(
+            $this->repository,
+            new FakeLlmClientFactory(exception: ApiTokenUnavailableException::fromVault())
+        );
+
+        $this->expectException(ApiTokenUnavailableException::class);
+
+        $handler($this->command(apiToken: null, id: $provider->id()->value));
+    }
+
+    public function testTheCommandIsNotTransactional(): void
+    {
+        // no transaction may stay open during the provider call
+        self::assertTrue(new \ReflectionClass(TestAiProviderConnectionCommand::class)->implementsInterface(NonTransactionalCommand::class));
+    }
+
     private function handler(FakeLlmClient $client): TestAiProviderConnectionCommandHandler
     {
         return new TestAiProviderConnectionCommandHandler(
@@ -171,7 +195,7 @@ final class TestAiProviderConnectionCommandHandlerTest extends TestCase
             name: new AiProviderName('Anthropic production'),
             type: AiProviderTypeEnum::Anthropic,
             endpointUrl: new EndpointUrl('https://api.anthropic.com'),
-            apiToken: new ApiToken('initial-token'),
+            apiToken: new StoredApiToken('initial-token'),
             defaultModel: new ModelName('claude-sonnet-4-6'),
             fastModel: null,
             description: null,

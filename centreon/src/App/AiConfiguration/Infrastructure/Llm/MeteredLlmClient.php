@@ -116,16 +116,13 @@ final readonly class MeteredLlmClient implements LlmClientInterface
 
     private function record(LlmRequest $request, LlmResponse $response, int $durationMs): void
     {
-        $cost = null;
-        $currency = null;
-        if ($this->provider->pricing instanceof \App\AiConfiguration\Domain\Aggregate\AiProvider\Pricing && $this->provider->currency instanceof \App\AiConfiguration\Domain\Aggregate\AiProvider\Currency) {
-            $cost = $this->provider->pricing->costOf($request->tier, $response->usage);
-            $currency = $this->provider->currency->value;
-        }
+        $cost = $this->provider->billing()->costOf($request->tier, $response->usage);
+        // a cost always comes with its currency: the billing requires one along with prices
+        $currency = $cost !== null ? $this->provider->billing()->currency?->value : null;
 
         $this->usageRepository->add(new UsageLogEntry(
             providerId: $this->provider->id()->value,
-            providerName: $this->provider->name->value,
+            providerName: $this->provider->name()->value,
             feature: $request->feature,
             contactId: $this->currentUserId(),
             model: $response->model,

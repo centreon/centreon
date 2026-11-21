@@ -42,11 +42,11 @@ use App\AiAssistance\Infrastructure\ApiPlatform\State\SummarizeIncidentProcessor
         description: 'Produce a plain-text incident summary (overview, timeline of significant '
             . 'moments, current state) from the current state of a resource and its recent '
             . 'timeline events, suitable for a ticket or a shift handover. The summary is '
-            . 'produced by the default AI provider: the provided data is sent to it.',
+            . 'produced by the enabled AI provider: the provided data is sent to it.',
         responses: [
             403 => new Model\Response('The user has no access to the Resources Status page'),
-            409 => new Model\Response('No default AI provider is configured'),
-            502 => new Model\Response('The AI provider could not be reached or rejected the request'),
+            409 => new Model\Response('No AI provider is enabled, or its spend limit is reached'),
+            502 => new Model\Response('The AI provider could not be reached or rejected the request, or its API token could not be read from the vault'),
         ],
     ),
 )]

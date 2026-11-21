@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\Shared\Infrastructure\Messenger;
 
+use App\Shared\Domain\Exception\ExpectedFailureInterface;
 use App\Shared\Infrastructure\Logging\ExceptionFormatter;
 use App\Shared\Infrastructure\Logging\LogPayloadNormalizer;
 use App\Shared\Infrastructure\Logging\PayloadSanitizer;
@@ -92,13 +93,15 @@ final readonly class LoggingMiddleware implements MiddlewareInterface
     /**
      * A value-object / domain rejection surfaces as \InvalidArgumentException
      * (Centreon's AssertionException extends it) and maps to a 4xx response —
-     * expected client input, logged as a warning. Anything else is an
-     * unexpected server-side failure (DB down, OOM, bug) and is critical,
-     * mirroring LegacyHttpExceptionListener's CRITICAL-vs-WARNING split.
+     * expected client input, logged as a warning, like an exception marked as
+     * an expected failure (e.g. an upstream service rejecting a request).
+     * Anything else is an unexpected server-side failure (DB down, OOM, bug)
+     * and is critical, mirroring LegacyHttpExceptionListener's
+     * CRITICAL-vs-WARNING split.
      */
     private function resolveFailureLevel(\Throwable $exception): string
     {
-        return $exception instanceof \InvalidArgumentException
+        return $exception instanceof \InvalidArgumentException || $exception instanceof ExpectedFailureInterface
             ? LogLevel::WARNING
             : LogLevel::CRITICAL;
     }

@@ -67,7 +67,7 @@ final class CreateAiProviderCommandHandlerTest extends TestCase
     {
         $aiProvider = ($this->handler)($this->createCommand('Anthropic production', isActivated: false));
 
-        self::assertTrue($aiProvider->isActivated);
+        self::assertTrue($aiProvider->isActivated());
     }
 
     public function testSecondProviderDoesNotBecomeDefault(): void
@@ -75,7 +75,7 @@ final class CreateAiProviderCommandHandlerTest extends TestCase
         ($this->handler)($this->createCommand('Anthropic production'));
         $second = ($this->handler)($this->createCommand('Mistral fallback', isActivated: false));
 
-        self::assertFalse($second->isActivated);
+        self::assertFalse($second->isActivated());
     }
 
     public function testCreatingDefaultProviderMovesTheDefaultFlag(): void
@@ -83,8 +83,8 @@ final class CreateAiProviderCommandHandlerTest extends TestCase
         $first = ($this->handler)($this->createCommand('Anthropic production'));
         $second = ($this->handler)($this->createCommand('Mistral fallback', isActivated: true));
 
-        self::assertTrue($second->isActivated);
-        self::assertFalse($this->repository->getById($first->id())->isActivated);
+        self::assertTrue($second->isActivated());
+        self::assertFalse($this->repository->getById($first->id())->isActivated());
         self::assertSame($second->id()->value, $this->repository->findActivated()?->id()->value);
     }
 
@@ -102,7 +102,7 @@ final class CreateAiProviderCommandHandlerTest extends TestCase
         $aiProvider = ($this->handler)($this->createCommand('Anthropic production'));
 
         self::assertSame(['a-token'], $this->tokenStorage->persistedTokens);
-        self::assertSame(FakeAiProviderTokenStorage::STORED_PREFIX . 'a-token', $aiProvider->apiToken->value);
+        self::assertSame(FakeAiProviderTokenStorage::STORED_PREFIX . 'a-token', $aiProvider->apiToken()->value);
     }
 
     public function testVaultWriteFailureSavesNothing(): void

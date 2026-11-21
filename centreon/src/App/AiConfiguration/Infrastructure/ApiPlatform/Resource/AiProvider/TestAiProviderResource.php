@@ -50,6 +50,8 @@ use App\AiConfiguration\Infrastructure\ApiPlatform\State\AiProvider\TestAiProvid
         responses: [
             404 => new Model\Response('AI provider configuration not found'),
             403 => new Model\Response('You are not allowed to test AI provider configurations'),
+            409 => new Model\Response('The spend limit of the provider is reached'),
+            502 => new Model\Response('The stored API token could not be read from the vault'),
         ],
     ),
     securityPostValidation: "is_granted('" . AiProviderActionEnum::Update->value . "', object)",

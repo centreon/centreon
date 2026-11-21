@@ -36,21 +36,21 @@ final readonly class ResourceAiProviderTransformer implements TransformerInterfa
     {
         return new AiProviderResource(
             id: $from->id()->value,
-            name: $from->name->value,
-            type: $from->type->value,
-            endpointUrl: $from->endpointUrl->value,
-            defaultModel: $from->defaultModel->value,
-            fastModel: $from->fastModel?->value,
-            description: $from->description?->value,
-            isActivated: $from->isActivated,
+            name: $from->name()->value,
+            type: $from->type()->value,
+            endpointUrl: $from->endpointUrl()->value,
+            defaultModel: $from->defaultModel()->value,
+            fastModel: $from->fastModel()?->value,
+            description: $from->description()?->value,
+            isActivated: $from->isActivated(),
             apiToken: null, // the token is write-only and never exposed
-            currency: $from->currency?->value,
-            priceDefaultInput: $from->pricing?->default->inputPricePerMillion,
-            priceDefaultOutput: $from->pricing?->default->outputPricePerMillion,
-            priceFastInput: $from->pricing?->fast?->inputPricePerMillion,
-            priceFastOutput: $from->pricing?->fast?->outputPricePerMillion,
-            limitDaily: $from->limit?->daily,
-            limitMonthly: $from->limit?->monthly,
+            currency: $from->billing()->currency?->value,
+            priceDefaultInput: $from->billing()->pricing?->default->inputPricePerMillion,
+            priceDefaultOutput: $from->billing()->pricing?->default->outputPricePerMillion,
+            priceFastInput: $from->billing()->pricing?->fast?->inputPricePerMillion,
+            priceFastOutput: $from->billing()->pricing?->fast?->outputPricePerMillion,
+            limitDaily: $from->billing()->limit?->daily,
+            limitMonthly: $from->billing()->limit?->monthly,
         );
     }
 }

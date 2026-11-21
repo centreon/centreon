@@ -26,6 +26,7 @@ namespace App\AiConfiguration\Infrastructure\ApiPlatform\State\AiProvider;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
+use App\AiConfiguration\Domain\Llm\Exception\PriceCatalogUnavailableException;
 use App\AiConfiguration\Domain\Llm\ModelPriceCatalog;
 use App\AiConfiguration\Infrastructure\AiFeatureAvailability;
 use App\AiConfiguration\Infrastructure\ApiPlatform\Dto\ModelPricesInput;
@@ -42,6 +43,11 @@ final readonly class FetchModelPricesProcessor implements ProcessorInterface
     ) {
     }
 
+    /**
+     * @param ModelPricesInput $data
+     *
+     * @throws PriceCatalogUnavailableException when the price list can not be fetched (mapped to a 502)
+     */
     public function process($data, Operation $operation, array $uriVariables = [], array $context = []): ModelPricesResource
     {
         $this->availability->assertAvailable();

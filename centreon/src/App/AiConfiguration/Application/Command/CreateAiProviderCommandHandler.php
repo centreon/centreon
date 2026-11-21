@@ -25,6 +25,7 @@ namespace App\AiConfiguration\Application\Command;
 
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProvider;
 use App\AiConfiguration\Domain\Event\AiProviderCreated;
+use App\AiConfiguration\Domain\Exception\AiProviderActivationConflictException;
 use App\AiConfiguration\Domain\Exception\AiProviderAlreadyExistsException;
 use App\AiConfiguration\Domain\Exception\VaultWriteFailedException;
 use App\AiConfiguration\Domain\Repository\AiProviderRepository;
@@ -44,6 +45,7 @@ final readonly class CreateAiProviderCommandHandler
 
     /**
      * @throws AiProviderAlreadyExistsException
+     * @throws AiProviderActivationConflictException when another provider was enabled concurrently
      * @throws VaultWriteFailedException
      */
     public function __invoke(CreateAiProviderCommand $command): AiProvider
@@ -76,15 +78,13 @@ final readonly class CreateAiProviderCommandHandler
             fastModel: $command->fastModel,
             description: $command->description,
             isActivated: $isActivated,
-            currency: $command->currency,
-            pricing: $command->pricing,
-            limit: $command->limit,
+            billing: $command->billing,
         );
 
         // at most one provider is activated: enabling this one disables the current one
         $currentlyActivated = $isActivated ? $this->repository->findActivated() : null;
         if ($currentlyActivated instanceof AiProvider) {
-            $currentlyActivated->disable();
+            $currentlyActivated->deactivate();
             $this->repository->update($currentlyActivated);
         }
 

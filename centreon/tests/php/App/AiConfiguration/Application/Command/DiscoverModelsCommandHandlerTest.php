@@ -32,7 +32,10 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\StoredApiToken;
+use App\AiConfiguration\Domain\Llm\Exception\ApiTokenUnavailableException;
 use App\AiConfiguration\Domain\Llm\Exception\LlmRequestFailedException;
+use App\Shared\Application\Command\NonTransactionalCommand;
 use PHPUnit\Framework\TestCase;
 use Tests\App\AiConfiguration\Infrastructure\Double\FakeAiProviderRepository;
 use Tests\App\AiConfiguration\Infrastructure\Double\FakeLlmClient;
@@ -99,9 +102,8 @@ final class DiscoverModelsCommandHandlerTest extends TestCase
 
     public function testProviderErrorIsReturnedAsDataNotThrown(): void
     {
-        // an expected provider rejection must not propagate (it would be logged
-        // as a CRITICAL command-bus failure); it is returned as data so the
-        // processor can map it to a 422
+        // an expected provider rejection is returned as data, so the processor
+        // can map it to a 422 with its reason
         $handler = $this->handler(new FakeLlmClient(
             exception: LlmRequestFailedException::fromProviderError(401, 'invalid token')
         ));
@@ -113,6 +115,27 @@ final class DiscoverModelsCommandHandlerTest extends TestCase
             'The AI provider rejected the request (HTTP 401): invalid token',
             $result->error
         );
+    }
+
+    public function testAnUnavailableVaultTokenPropagates(): void
+    {
+        // a platform failure, not a provider answer: it must be mapped and logged as such
+        $provider = $this->aiProvider();
+        $this->repository->add($provider);
+        $handler = new DiscoverModelsCommandHandler(
+            $this->repository,
+            new FakeLlmClientFactory(exception: ApiTokenUnavailableException::fromVault())
+        );
+
+        $this->expectException(ApiTokenUnavailableException::class);
+
+        $handler($this->command(apiToken: null, id: $provider->id()->value));
+    }
+
+    public function testTheCommandIsNotTransactional(): void
+    {
+        // no transaction may stay open during the provider call
+        self::assertTrue(new \ReflectionClass(DiscoverModelsCommand::class)->implementsInterface(NonTransactionalCommand::class));
     }
 
     private function handler(FakeLlmClient $client): DiscoverModelsCommandHandler
@@ -143,7 +166,7 @@ final class DiscoverModelsCommandHandlerTest extends TestCase
             name: new AiProviderName('Anthropic production'),
             type: AiProviderTypeEnum::Anthropic,
             endpointUrl: new EndpointUrl('https://api.anthropic.com'),
-            apiToken: new ApiToken('initial-token'),
+            apiToken: new StoredApiToken('initial-token'),
             defaultModel: new ModelName('claude-sonnet-4-6'),
             fastModel: null,
             description: null,

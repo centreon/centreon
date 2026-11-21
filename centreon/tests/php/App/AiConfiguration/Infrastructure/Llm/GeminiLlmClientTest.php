@@ -26,6 +26,7 @@ namespace Tests\App\AiConfiguration\Infrastructure\Llm;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Llm\AiFeatureEnum;
+use App\AiConfiguration\Domain\Llm\Exception\LlmRequestFailedException;
 use App\AiConfiguration\Domain\Llm\LlmMessage;
 use App\AiConfiguration\Domain\Llm\LlmRequest;
 use App\AiConfiguration\Domain\Llm\LlmResponse;
@@ -73,6 +74,43 @@ final class GeminiLlmClientTest extends TestCase
         );
     }
 
+    public function testListModelsReportsGooglesErrorMessage(): void
+    {
+        $httpClient = new MockHttpClient(new MockResponse(
+            json_encode(['error' => ['code' => 400, 'message' => 'API key not valid.', 'status' => 'INVALID_ARGUMENT']], \JSON_THROW_ON_ERROR),
+            ['http_code' => 400]
+        ));
+
+        $this->expectException(LlmRequestFailedException::class);
+        $this->expectExceptionMessage('The AI provider rejected the request (HTTP 400): API key not valid.');
+
+        $this->createClient($httpClient)->listModels();
+    }
+
+    public function testListModelsDoesNotReportANonJsonErrorBody(): void
+    {
+        $httpClient = new MockHttpClient(new MockResponse('<html>internal admin page</html>', ['http_code' => 404]));
+
+        try {
+            $this->createClient($httpClient)->listModels();
+            self::fail('Expected the provider error to be reported');
+        } catch (LlmRequestFailedException $exception) {
+            self::assertStringContainsString('HTTP 404', $exception->getMessage());
+            self::assertStringNotContainsString('internal admin page', $exception->getMessage());
+        }
+    }
+
+    public function testListModelsReportsAnIdleTimeout(): void
+    {
+        // an empty chunk is how MockResponse simulates an idle timeout
+        $httpClient = new MockHttpClient(new MockResponse(['']));
+
+        $this->expectException(LlmRequestFailedException::class);
+        $this->expectExceptionMessage('sent nothing for 20 seconds');
+
+        $this->createClient($httpClient)->listModels();
+    }
+
     public function testCompleteDelegatesToTheOpenAiCompatibleClient(): void
     {
         $delegate = new FakeLlmClient(
@@ -93,5 +131,15 @@ final class GeminiLlmClientTest extends TestCase
 
         self::assertSame('pong', $response->content);
         self::assertNotNull($delegate->lastRequest);
+    }
+
+    private function createClient(MockHttpClient $httpClient): GeminiLlmClient
+    {
+        return new GeminiLlmClient(
+            new FakeLlmClient(),
+            $httpClient,
+            new EndpointUrl('https://generativelanguage.googleapis.com'),
+            new ApiToken('a-key'),
+        );
     }
 }

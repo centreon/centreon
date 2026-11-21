@@ -67,7 +67,7 @@ use Symfony\Component\Validator\Constraints as Assert;
                 responses: [
                     404 => new Model\Response('AI provider configuration not found'),
                     403 => new Model\Response('You are not allowed to update AI provider configurations'),
-                    409 => new Model\Response('An AI provider configuration with this name already exists'),
+                    409 => new Model\Response('An AI provider configuration with this name already exists, or another provider was enabled at the same time'),
                 ],
             ),
             securityPostValidation: "is_granted('" . AiProviderActionEnum::Update->value . "', object)",
@@ -122,9 +122,10 @@ final class AiProviderResource
         public string $type,
 
         #[ApiProperty(
-            description: 'Base URL of the AI provider API. Only customizable for OpenAI-compatible '
-                . 'providers; for the other provider types the official endpoint is enforced and '
-                . 'any provided value is ignored.',
+            description: 'Base URL of the AI provider API. Only customizable for OpenAI-compatible and '
+                . 'Amazon Bedrock providers (for Bedrock, the Mantle endpoint of an AWS region); for the '
+                . 'other provider types the official endpoint is enforced and any provided value is '
+                . 'ignored.',
             openapiContext: ['example' => 'https://api.anthropic.com'],
         )]
         #[Assert\Length(min: 1, max: 2048)]

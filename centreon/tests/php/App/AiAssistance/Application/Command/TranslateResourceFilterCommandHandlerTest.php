@@ -47,6 +47,7 @@ final class TranslateResourceFilterCommandHandlerTest extends TestCase
         self::assertSame('filter', $result->intent);
         self::assertSame('type:service status:critical', $result->query);
         self::assertNull($result->scope);
+        self::assertNull($result->invalidOutputReason);
         self::assertCount(1, $client->requests);
     }
 
@@ -160,6 +161,8 @@ final class TranslateResourceFilterCommandHandlerTest extends TestCase
         self::assertSame('filter', $result->intent);
         self::assertSame('', $result->query);
         self::assertCount(2, $client->requests);
+        // the Application layer does not log: it says why, for the processor to log
+        self::assertSame('the answer is not a JSON object', $result->invalidOutputReason);
     }
 
     public function testMissingProviderConfigurationPropagates(): void

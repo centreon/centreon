@@ -42,11 +42,11 @@ use App\AiAssistance\Infrastructure\ApiPlatform\State\CorrelateAlertsProcessor;
         description: 'Analyze a set of non-OK resources selected in the listing and produce a '
             . 'Markdown analysis (likely root cause, grouping, suggested next steps) instead of '
             . 'treating each alert in isolation. The facts of the selected resources are sent to '
-            . 'the default AI provider.',
+            . 'the enabled AI provider.',
         responses: [
             403 => new Model\Response('The user has no access to the Resources Status page'),
-            409 => new Model\Response('No default AI provider is configured'),
-            502 => new Model\Response('The AI provider could not be reached or rejected the request'),
+            409 => new Model\Response('No AI provider is enabled, or its spend limit is reached'),
+            502 => new Model\Response('The AI provider could not be reached or rejected the request, or its API token could not be read from the vault'),
         ],
     ),
 )]

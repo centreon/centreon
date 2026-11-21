@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\App\Shared\Infrastructure\Messenger;
 
+use App\Shared\Domain\Exception\ExpectedFailureInterface;
 use App\Shared\Domain\Logging\Attribute\Sensitive;
 use App\Shared\Infrastructure\Logging\Attribute\SensitivityScanner;
 use App\Shared\Infrastructure\Logging\LogPayloadNormalizer;
@@ -130,6 +131,25 @@ final class LoggingMiddlewareTest extends TestCase
         \assert(\is_array($formatted['exceptions']));
         \assert(\is_array($formatted['exceptions'][0]));
         self::assertSame(\InvalidArgumentException::class, $formatted['exceptions'][0]['type']);
+    }
+
+    public function testExpectedFailureLogsWarningNotCritical(): void
+    {
+        // an upstream service rejecting a request is routine, not an outage
+        $exception = new class ('The provider rejected the request') extends \RuntimeException implements ExpectedFailureInterface {
+        };
+        $envelope = new Envelope(new \stdClass(), [new BusNameStamp('command.bus')]);
+        $stack = $this->createFailingStack($exception);
+
+        try {
+            $this->middleware->handle($envelope, $stack);
+            self::fail('Expected exception was not thrown.');
+        } catch (\RuntimeException $caught) {
+            self::assertSame($exception, $caught);
+        }
+
+        self::assertCount(0, $this->logger->criticalMessages);
+        self::assertCount(1, $this->logger->warningMessages);
     }
 
     public function testExceptionChainCapturesAllLevels(): void

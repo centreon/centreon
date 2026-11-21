@@ -7091,9 +7091,9 @@ paths:
         '403':
           description: 'The user has no access to the Resources Status page'
         '409':
-          description: 'No default AI provider is configured'
+          description: 'No AI provider is enabled, or its spend limit is reached'
         '502':
-          description: 'The AI provider could not be reached or rejected the request'
+          description: 'The AI provider could not be reached or rejected the request, or its API token could not be read from the vault'
         '200':
           description: 'AiAssistance resource created'
           content:
@@ -7131,7 +7131,7 @@ paths:
                 $ref: '#/components/schemas/ConstraintViolation'
           links: {}
       summary: 'Correlate several alerts to surface a likely common cause'
-      description: 'Analyze a set of non-OK resources selected in the listing and produce a Markdown analysis (likely root cause, grouping, suggested next steps) instead of treating each alert in isolation. The facts of the selected resources are sent to the default AI provider.'
+      description: 'Analyze a set of non-OK resources selected in the listing and produce a Markdown analysis (likely root cause, grouping, suggested next steps) instead of treating each alert in isolation. The facts of the selected resources are sent to the enabled AI provider.'
       parameters: []
       requestBody:
         description: 'The new AiAssistance resource'
@@ -7185,9 +7185,9 @@ paths:
         '403':
           description: 'The user has no access to the Resources Status page'
         '409':
-          description: 'No default AI provider is configured'
+          description: 'No AI provider is enabled, or its spend limit is reached'
         '502':
-          description: 'The AI provider could not be reached or rejected the request'
+          description: 'The AI provider could not be reached or rejected the request, or its API token could not be read from the vault'
         '200':
           description: 'AiAssistance resource created'
           content:
@@ -7225,7 +7225,7 @@ paths:
                 $ref: '#/components/schemas/ConstraintViolation'
           links: {}
       summary: 'Explain a performance graph'
-      description: 'Produce a plain-text explanation of a performance graph (what the metrics show over the displayed window, whether it looks healthy, where it is heading, suggested next steps) from the metric summary displayed in the details panel. The explanation is produced by the default AI provider: the provided figures are sent to it.'
+      description: 'Produce a plain-text explanation of a performance graph (what the metrics show over the displayed window, whether it looks healthy, where it is heading, suggested next steps) from the metric summary displayed in the details panel. The explanation is produced by the enabled AI provider: the provided figures are sent to it.'
       parameters: []
       requestBody:
         description: 'The new AiAssistance resource'
@@ -7246,9 +7246,9 @@ paths:
         '403':
           description: 'The user has no access to the Resources Status page'
         '409':
-          description: 'No default AI provider is configured'
+          description: 'No AI provider is enabled, or its spend limit is reached'
         '502':
-          description: 'The AI provider could not be reached or rejected the request'
+          description: 'The AI provider could not be reached or rejected the request, or its API token could not be read from the vault'
         '200':
           description: 'AiAssistance resource created'
           content:
@@ -7286,7 +7286,7 @@ paths:
                 $ref: '#/components/schemas/ConstraintViolation'
           links: {}
       summary: 'Summarize an incident from the resource timeline'
-      description: 'Produce a plain-text incident summary (overview, timeline of significant moments, current state) from the current state of a resource and its recent timeline events, suitable for a ticket or a shift handover. The summary is produced by the default AI provider: the provided data is sent to it.'
+      description: 'Produce a plain-text incident summary (overview, timeline of significant moments, current state) from the current state of a resource and its recent timeline events, suitable for a ticket or a shift handover. The summary is produced by the enabled AI provider: the provided data is sent to it.'
       parameters: []
       requestBody:
         description: 'The new AiAssistance resource'
@@ -7307,9 +7307,9 @@ paths:
         '403':
           description: 'The user has no access to the Resources Status page'
         '409':
-          description: 'No default AI provider is configured'
+          description: 'No AI provider is enabled, or its spend limit is reached'
         '502':
-          description: 'The AI provider could not be reached or rejected the request'
+          description: 'The AI provider could not be reached or rejected the request, or its API token could not be read from the vault'
         '200':
           description: 'AiAssistance resource created'
           content:
@@ -7347,7 +7347,7 @@ paths:
                 $ref: '#/components/schemas/ConstraintViolation'
           links: {}
       summary: 'Explain the state of a monitored resource'
-      description: 'Produce a plain-text explanation of a resource state (what the check output means, probable causes, suggested next steps) from the facts displayed in the details panel. The explanation is produced by the default AI provider: the provided facts are sent to it.'
+      description: 'Produce a plain-text explanation of a resource state (what the check output means, probable causes, suggested next steps) from the facts displayed in the details panel. The explanation is produced by the enabled AI provider: the provided facts are sent to it.'
       parameters: []
       requestBody:
         description: 'The new AiAssistance resource'
@@ -7368,9 +7368,9 @@ paths:
         '403':
           description: 'The user has no access to the Resources Status page'
         '409':
-          description: 'No default AI provider is configured'
+          description: 'No AI provider is enabled, or its spend limit is reached'
         '502':
-          description: 'The AI provider could not be reached or rejected the request'
+          description: 'The AI provider could not be reached or rejected the request, or its API token could not be read from the vault'
         '200':
           description: 'AiAssistance resource created'
           content:
@@ -7408,7 +7408,7 @@ paths:
                 $ref: '#/components/schemas/ConstraintViolation'
           links: {}
       summary: 'Route a natural-language request on the Resources Status page'
-      description: 'Classify a natural-language request as a "filter" (a description to turn into a search expression) or an "explain" (a question to analyse), and resolve the resource set an explain is about (the displayed set, or a derived filter). Produced by the default AI provider.'
+      description: 'Classify a natural-language request as a "filter" (a description to turn into a search expression) or an "explain" (a question to analyse), and resolve the resource set an explain is about (the displayed set, or a derived filter). Produced by the enabled AI provider.'
       parameters: []
       requestBody:
         description: 'The new AiAssistance resource'
@@ -7525,11 +7525,11 @@ paths:
         - AiProvider
       responses:
         '409':
-          description: 'An AI provider configuration with this name already exists'
+          description: 'An AI provider configuration with this name already exists, or another provider was enabled at the same time'
         '403':
           description: 'You are not allowed to create AI provider configurations'
         '422':
-          description: 'An endpoint URL is required for this provider type'
+          description: 'The endpoint URL is missing or not accepted for this provider type, or the billing fields do not go together'
           content:
             application/ld+json:
               schema:
@@ -7565,7 +7565,7 @@ paths:
                 $ref: '#/components/schemas/Error'
           links: {}
       summary: 'Create an AI provider configuration'
-      description: 'Create an AI provider configuration. The first configuration is automatically enabled, and at most one provider is enabled at a time: creating an enabled provider disables the currently enabled one. The endpoint URL is only used for OpenAI-compatible providers, where it is required.'
+      description: 'Create an AI provider configuration. The first configuration is automatically enabled, and at most one provider is enabled at a time: creating an enabled provider disables the currently enabled one. The endpoint URL is only used for OpenAI-compatible and Amazon Bedrock providers, where it is required (for Bedrock, the Mantle endpoint of an AWS region).'
       parameters: []
       requestBody:
         description: 'The new AiProvider resource'
@@ -7586,7 +7586,7 @@ paths:
         '403':
           description: 'You are not allowed to configure AI providers'
         '422':
-          description: 'An endpoint URL is required for this provider type'
+          description: 'The endpoint URL is missing or not accepted for this provider type, or the provider rejected the request'
           content:
             application/ld+json:
               schema:
@@ -7599,7 +7599,7 @@ paths:
                 $ref: '#/components/schemas/ConstraintViolation'
           links: {}
         '502':
-          description: 'The provider could not be reached'
+          description: 'The stored API token could not be read from the vault'
         '200':
           description: 'AiProvider resource created'
           content:
@@ -7704,7 +7704,7 @@ paths:
         '403':
           description: 'You are not allowed to test AI provider configurations'
         '422':
-          description: 'An endpoint URL is required for this provider type'
+          description: 'The endpoint URL is missing or not accepted for this provider type'
           content:
             application/ld+json:
               schema:
@@ -7716,6 +7716,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/ConstraintViolation'
           links: {}
+        '502':
+          description: 'The stored API token could not be read from the vault'
         '200':
           description: 'AiProvider resource created'
           content:
@@ -7818,7 +7820,7 @@ paths:
         '403':
           description: 'You are not allowed to update AI provider configurations'
         '409':
-          description: 'An AI provider configuration with this name already exists'
+          description: 'An AI provider configuration with this name already exists, or another provider was enabled at the same time'
         '200':
           description: 'AiProvider resource updated'
           content:
@@ -7885,6 +7887,10 @@ paths:
           description: 'AI provider configuration not found'
         '403':
           description: 'You are not allowed to test AI provider configurations'
+        '409':
+          description: 'The spend limit of the provider is reached'
+        '502':
+          description: 'The stored API token could not be read from the vault'
         '200':
           description: 'AiProvider resource created'
           content:
@@ -17032,7 +17038,7 @@ components:
           minLength: 1
           maxLength: 2048
           format: uri
-          description: 'Base URL of the AI provider API. Only customizable for OpenAI-compatible providers; for the other provider types the official endpoint is enforced and any provided value is ignored.'
+          description: 'Base URL of the AI provider API. Only customizable for OpenAI-compatible and Amazon Bedrock providers (for Bedrock, the Mantle endpoint of an AWS region); for the other provider types the official endpoint is enforced and any provided value is ignored.'
           externalDocs:
             url: 'https://schema.org/url'
           type: string
@@ -17143,7 +17149,7 @@ components:
           minLength: 1
           maxLength: 2048
           format: uri
-          description: 'Base URL of the AI provider API. Only customizable for OpenAI-compatible providers; for the other provider types the official endpoint is enforced and any provided value is ignored.'
+          description: 'Base URL of the AI provider API. Only customizable for OpenAI-compatible and Amazon Bedrock providers (for Bedrock, the Mantle endpoint of an AWS region); for the other provider types the official endpoint is enforced and any provided value is ignored.'
           externalDocs:
             url: 'https://schema.org/url'
           type: string
@@ -17258,7 +17264,7 @@ components:
               minLength: 1
               maxLength: 2048
               format: uri
-              description: 'Base URL of the AI provider API. Only customizable for OpenAI-compatible providers; for the other provider types the official endpoint is enforced and any provided value is ignored.'
+              description: 'Base URL of the AI provider API. Only customizable for OpenAI-compatible and Amazon Bedrock providers (for Bedrock, the Mantle endpoint of an AWS region); for the other provider types the official endpoint is enforced and any provided value is ignored.'
               externalDocs:
                 url: 'https://schema.org/url'
               type: string
@@ -17462,7 +17468,7 @@ components:
           minLength: 1
           maxLength: 2048
           format: uri
-          description: 'Base URL of the AI provider API. Only used for OpenAI-compatible providers, where it is required; for the other provider types the official endpoint is enforced and any provided value is ignored.'
+          description: 'Base URL of the AI provider API. Only used for OpenAI-compatible and Amazon Bedrock providers, where it is required (for Bedrock, the Mantle endpoint of an AWS region); for the other provider types the official endpoint is enforced and any provided value is ignored.'
           externalDocs:
             url: 'https://schema.org/url'
           type:
@@ -17574,7 +17580,7 @@ components:
               minLength: 1
               maxLength: 2048
               format: uri
-              description: 'Base URL of the AI provider API. Only used for OpenAI-compatible providers, where it is required; for the other provider types the official endpoint is enforced and any provided value is ignored.'
+              description: 'Base URL of the AI provider API. Only used for OpenAI-compatible and Amazon Bedrock providers, where it is required (for Bedrock, the Mantle endpoint of an AWS region); for the other provider types the official endpoint is enforced and any provided value is ignored.'
               externalDocs:
                 url: 'https://schema.org/url'
               type:
@@ -17660,8 +17666,13 @@ components:
       type: object
       properties:
         type:
-          minLength: 1
-          maxLength: 50
+          enum:
+            - anthropic
+            - openai
+            - mistral
+            - google
+            - bedrock
+            - openai_compatible
           description: 'Type of the AI provider'
           type: string
           example: anthropic
@@ -18083,8 +18094,13 @@ components:
       type: object
       properties:
         type:
-          minLength: 1
-          maxLength: 50
+          enum:
+            - anthropic
+            - openai
+            - mistral
+            - google
+            - bedrock
+            - openai_compatible
           description: 'Provider type, to resolve the catalog provider-prefixed keys'
           type: string
           example: mistral
@@ -18281,8 +18297,13 @@ components:
       type: object
       properties:
         type:
-          minLength: 1
-          maxLength: 50
+          enum:
+            - anthropic
+            - openai
+            - mistral
+            - google
+            - bedrock
+            - openai_compatible
           description: 'Type of the AI provider'
           type: string
           example: anthropic
@@ -18303,7 +18324,7 @@ components:
         endpoint_url:
           minLength: 1
           maxLength: 2048
-          description: 'Endpoint URL; only used for OpenAI-compatible providers'
+          description: 'Endpoint URL; only used for OpenAI-compatible and Bedrock providers'
           type:
             - string
             - 'null'

@@ -27,25 +27,24 @@ use App\Shared\Domain\Logging\Attribute\Sensitive;
 use Webmozart\Assert\Assert;
 
 /**
- * API token of an AI provider.
+ * Plain API token of an AI provider, as typed by a user or read back from the
+ * vault.
  *
- * Holds either the plain token or a vault path reference ("secret::..."). It
+ * It can not be a vault reference: a user submitting one would make the
+ * platform send the secret stored at that path to the provider endpoint. It
  * must never be exposed through the API, and is masked in logs wherever it
  * travels (the bus logs every command).
  */
 #[Sensitive]
 final readonly class ApiToken
 {
-    private const VAULT_PATH_PREFIX = 'secret::';
-
     public function __construct(
         public string $value,
     ) {
         Assert::lengthBetween($value, 1, 4096);
-    }
-
-    public function isStoredInVault(): bool
-    {
-        return str_starts_with($this->value, self::VAULT_PATH_PREFIX);
+        Assert::false(
+            str_starts_with($value, StoredApiToken::VAULT_REFERENCE_PREFIX),
+            'The API token cannot be a vault reference.'
+        );
     }
 }

@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\AiConfiguration\Domain\Repository;
 
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\StoredApiToken;
 
 /**
  * Port abstracting where AI provider API tokens are persisted: in the vault when it is enabled
@@ -36,16 +37,16 @@ interface AiProviderTokenStorage
      * (the token itself, or a vault path reference).
      *
      * @param ApiToken $token the new token provided by the user
-     * @param ApiToken|null $previousToken the currently stored token, if any
+     * @param StoredApiToken|null $previousToken the currently stored token, if any
      *
      * @throws \Throwable when the token cannot be written to its storage
      */
-    public function persist(ApiToken $token, ?ApiToken $previousToken): ApiToken;
+    public function persist(ApiToken $token, ?StoredApiToken $previousToken): StoredApiToken;
 
     /**
      * Remove a stored token from its storage (no-op for a token kept in the database).
      *
      * @throws \Throwable when the token cannot be removed from its storage
      */
-    public function remove(ApiToken $token): void;
+    public function remove(StoredApiToken $token): void;
 }

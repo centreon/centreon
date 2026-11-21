@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\AiConfiguration\Infrastructure\TokenStorage;
 
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\StoredApiToken;
 use App\AiConfiguration\Domain\Repository\AiProviderTokenStorage;
 use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Vault\VaultCredentials;
@@ -46,13 +47,13 @@ final readonly class VaultAiProviderTokenStorage implements AiProviderTokenStora
     ) {
     }
 
-    public function persist(ApiToken $token, ?ApiToken $previousToken): ApiToken
+    public function persist(ApiToken $token, ?StoredApiToken $previousToken): StoredApiToken
     {
         if (! $this->vault->isEnabled()) {
-            return $token;
+            return StoredApiToken::plain($token);
         }
 
-        $uuid = $previousToken instanceof ApiToken && $previousToken->isStoredInVault()
+        $uuid = $previousToken instanceof StoredApiToken && $previousToken->isVaultReference()
             ? $this->vault->extractUuid($previousToken->value)
             : null;
 
@@ -62,12 +63,12 @@ final readonly class VaultAiProviderTokenStorage implements AiProviderTokenStora
             $uuid,
         );
 
-        return new ApiToken($stored[VaultKeyEnum::AiProviderApiToken->value]);
+        return StoredApiToken::vaultReference($stored[VaultKeyEnum::AiProviderApiToken->value]);
     }
 
-    public function remove(ApiToken $token): void
+    public function remove(StoredApiToken $token): void
     {
-        if (! $token->isStoredInVault()) {
+        if (! $token->isVaultReference()) {
             // a plaintext token lives in the configuration row, deleted with it
             return;
         }

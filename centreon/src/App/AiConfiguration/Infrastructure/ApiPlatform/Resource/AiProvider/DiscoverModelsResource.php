@@ -45,8 +45,8 @@ use App\AiConfiguration\Infrastructure\ApiPlatform\State\AiProvider\DiscoverMode
             . 'trust level as the test-connection endpoint.',
         responses: [
             403 => new Model\Response('You are not allowed to configure AI providers'),
-            422 => new Model\Response('An endpoint URL is required for this provider type'),
-            502 => new Model\Response('The provider could not be reached'),
+            422 => new Model\Response('The endpoint URL is missing or not accepted for this provider type, or the provider rejected the request'),
+            502 => new Model\Response('The stored API token could not be read from the vault'),
         ],
     ),
     security: "is_granted('" . AiProviderActionEnum::Update->value . "')",

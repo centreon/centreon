@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\AiConfiguration\Infrastructure\ApiPlatform\Dto;
 
 use ApiPlatform\Metadata\ApiProperty;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
 use App\Shared\Domain\Logging\Attribute\Sensitive;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -36,7 +37,7 @@ final class DiscoverModelsInput
 {
     public function __construct(
         #[ApiProperty(description: 'Type of the AI provider', openapiContext: ['example' => 'anthropic'])]
-        #[Assert\Length(min: 1, max: 50)]
+        #[Assert\Choice(callback: [AiProviderTypeEnum::class, 'values'])]
         public string $type,
 
         #[ApiProperty(description: 'API token to use; omit while editing to use the stored token')]
