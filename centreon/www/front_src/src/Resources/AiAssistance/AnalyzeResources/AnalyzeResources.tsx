@@ -12,9 +12,9 @@ import {
 
 import { IconButton } from '@centreon/ui';
 
+import clsx from 'clsx';
 import { lazy, Suspense, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
 
 import { ResourceDetails } from '../../Details/models';
 import { Resource } from '../../models';
@@ -42,31 +42,7 @@ const MarkdownContent = lazy(() =>
   }))
 );
 
-const useStyles = makeStyles()((theme) => ({
-  disclaimer: {
-    color: theme.palette.text.secondary,
-    flexGrow: 1,
-    paddingLeft: theme.spacing(1)
-  },
-  // the two labels share one grid cell so the button always reserves the width
-  // of the wider one and does not resize when switching between them
-  labelHidden: {
-    visibility: 'hidden'
-  },
-  labelSlot: {
-    gridArea: '1 / 1',
-    whiteSpace: 'nowrap'
-  },
-  labelStack: {
-    display: 'grid',
-    justifyItems: 'center'
-  },
-  loading: {
-    display: 'flex',
-    justifyContent: 'center',
-    padding: theme.spacing(3)
-  }
-}));
+const labelSlotClassName = 'col-start-1 row-start-1 whitespace-nowrap';
 
 interface Props {
   displayCondensed?: boolean;
@@ -82,7 +58,6 @@ const AnalyzeResources = ({
   resources,
   displayCondensed = false
 }: Props): JSX.Element | null => {
-  const { classes, cx } = useStyles();
   const { t } = useTranslation();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -193,18 +168,17 @@ const AnalyzeResources = ({
               startIcon={<AutoAwesomeIcon />}
               variant="contained"
             >
-              <span className={classes.labelStack}>
+              {/* the two labels share one grid cell so the button always
+                  reserves the width of the wider one and does not resize
+                  when switching between them */}
+              <span className="grid justify-items-center">
                 <span
-                  className={cx(classes.labelSlot, {
-                    [classes.labelHidden]: !isSingle
-                  })}
+                  className={clsx(labelSlotClassName, { invisible: !isSingle })}
                 >
                   {t(labelExplain)}
                 </span>
                 <span
-                  className={cx(classes.labelSlot, {
-                    [classes.labelHidden]: isSingle
-                  })}
+                  className={clsx(labelSlotClassName, { invisible: isSingle })}
                 >
                   {t(labelAnalyze)}
                 </span>
@@ -225,9 +199,9 @@ const AnalyzeResources = ({
               {t(labelAiExplanation)} — {explainedResource.name}
               {explainedResource.parent?.name && (
                 <Typography
+                  className="ml-2"
                   color="textSecondary"
                   component="span"
-                  sx={{ ml: 1 }}
                   variant="subtitle1"
                 >
                   {t(labelOnHost, { host: explainedResource.parent.name })}
@@ -240,14 +214,14 @@ const AnalyzeResources = ({
         </DialogTitle>
         <DialogContent>
           {isMutating || result === null ? (
-            <div className={classes.loading}>
+            <div className="flex justify-center p-6">
               <CircularProgress data-testid="analysis-loading" />
             </div>
           ) : (
             <>
               <Suspense
                 fallback={
-                  <div className={classes.loading}>
+                  <div className="flex justify-center p-6">
                     <CircularProgress />
                   </div>
                 }
@@ -261,7 +235,10 @@ const AnalyzeResources = ({
           )}
         </DialogContent>
         <DialogActions>
-          <Typography className={classes.disclaimer} variant="caption">
+          <Typography
+            className="grow pl-2 text-text-secondary"
+            variant="caption"
+          >
             {t(
               explainedResource
                 ? labelAiExplanationDisclaimer

@@ -1,7 +1,7 @@
-import { Method, useMutationQuery } from '@centreon/ui';
-
 import { ResourceDetails } from '../../Details/models';
-import { aiGraphExplanationEndpoint } from '../endpoints';
+import { explainGraphDecoder } from '../api/decoders';
+import { aiGraphExplanationEndpoint } from '../api/endpoints';
+import { useAiCall } from '../api/useAiCall';
 import { ExplainGraphResult } from '../models';
 
 export interface GraphMetricSummary {
@@ -32,12 +32,12 @@ interface UseExplainGraphState {
 }
 
 const useExplainGraph = (): UseExplainGraphState => {
-  const { mutateAsync, isMutating } = useMutationQuery<
+  const { call, isMutating } = useAiCall<
     ExplainGraphPayload,
-    undefined
+    ExplainGraphResult
   >({
-    getEndpoint: () => aiGraphExplanationEndpoint,
-    method: Method.POST
+    decoder: explainGraphDecoder,
+    endpoint: aiGraphExplanationEndpoint
   });
 
   const explain = ({
@@ -49,21 +49,13 @@ const useExplainGraph = (): UseExplainGraphState => {
     metrics: Array<GraphMetricSummary>;
     timeRange: string | null;
   }): Promise<ExplainGraphResult | null> =>
-    mutateAsync({
-      payload: {
-        metrics,
-        name: details.name,
-        parent_name: details.parent?.name ?? null,
-        performance_data: details.performance_data ?? null,
-        resource_type: details.type,
-        time_range: timeRange
-      }
-    }).then((result) => {
-      if ('isError' in result) {
-        return null;
-      }
-
-      return result as unknown as ExplainGraphResult;
+    call({
+      metrics,
+      name: details.name,
+      parent_name: details.parent?.name ?? null,
+      performance_data: details.performance_data ?? null,
+      resource_type: details.type,
+      time_range: timeRange
     });
 
   return { explain, isMutating };

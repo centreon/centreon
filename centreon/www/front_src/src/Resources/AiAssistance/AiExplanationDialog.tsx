@@ -10,7 +10,6 @@ import {
 
 import { lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
 
 import { Resource } from '../models';
 import {
@@ -28,19 +27,6 @@ const MarkdownContent = lazy(() =>
     default: module.MarkdownContent
   }))
 );
-
-const useStyles = makeStyles()((theme) => ({
-  disclaimer: {
-    color: theme.palette.text.secondary,
-    flexGrow: 1,
-    paddingLeft: theme.spacing(1)
-  },
-  loading: {
-    display: 'flex',
-    justifyContent: 'center',
-    padding: theme.spacing(3)
-  }
-}));
 
 interface Result {
   content: string;
@@ -63,7 +49,6 @@ const AiExplanationDialog = ({
   open,
   result
 }: Props): JSX.Element => {
-  const { classes } = useStyles();
   const { t } = useTranslation();
 
   return (
@@ -74,9 +59,9 @@ const AiExplanationDialog = ({
             {t(labelAiExplanation)} — {explainedResource.name}
             {explainedResource.parent?.name && (
               <Typography
+                className="ml-2"
                 color="textSecondary"
                 component="span"
-                sx={{ ml: 1 }}
                 variant="subtitle1"
               >
                 {t(labelOnHost, { host: explainedResource.parent.name })}
@@ -89,14 +74,14 @@ const AiExplanationDialog = ({
       </DialogTitle>
       <DialogContent>
         {isLoading || result === null ? (
-          <div className={classes.loading}>
+          <div className="flex justify-center p-6">
             <CircularProgress data-testid="analysis-loading" />
           </div>
         ) : (
           <>
             <Suspense
               fallback={
-                <div className={classes.loading}>
+                <div className="flex justify-center p-6">
                   <CircularProgress />
                 </div>
               }
@@ -110,7 +95,7 @@ const AiExplanationDialog = ({
         )}
       </DialogContent>
       <DialogActions>
-        <Typography className={classes.disclaimer} variant="caption">
+        <Typography className="grow pl-2 text-text-secondary" variant="caption">
           {t(
             explainedResource
               ? labelAiExplanationDisclaimer

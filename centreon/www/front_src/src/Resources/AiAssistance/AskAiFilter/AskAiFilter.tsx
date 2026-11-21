@@ -14,7 +14,6 @@ import { IconButton, useSnackbar } from '@centreon/ui';
 import { atom, useAtomValue, useSetAtom } from 'jotai';
 import { KeyboardEvent, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
 
 import { ResourceDetails } from '../../Details/models';
 import {
@@ -55,30 +54,7 @@ const explainResultAtom = atom<AnalysisResult | null>(null);
 const explainedResourceAtom = atom<Resource | null>(null);
 const explainLoadingAtom = atom(false);
 
-const useStyles = makeStyles()((theme) => ({
-  actions: {
-    alignItems: 'center',
-    display: 'flex',
-    gap: theme.spacing(1),
-    justifyContent: 'flex-end'
-  },
-  disclaimer: {
-    color: theme.palette.text.secondary
-  },
-  paper: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: theme.spacing(1),
-    padding: theme.spacing(1.5),
-    width: theme.spacing(50)
-  },
-  popper: {
-    zIndex: theme.zIndex.tooltip
-  }
-}));
-
 const AskAiFilter = (): JSX.Element | null => {
-  const { classes } = useStyles();
   const { t } = useTranslation();
   const { showWarningMessage } = useSnackbar();
 
@@ -256,12 +232,13 @@ const AskAiFilter = (): JSX.Element | null => {
       </IconButton>
       <Popper
         anchorEl={anchorRef.current}
-        className={classes.popper}
         open={isOpen}
         placement="bottom-end"
+        // above the tooltips: Tailwind has no token for the theme's z-index
+        sx={{ zIndex: 'tooltip' }}
       >
         <ClickAwayListener onClickAway={() => setIsOpen(false)}>
-          <Paper className={classes.paper}>
+          <Paper className="flex w-100 flex-col gap-2 p-3">
             <TextField
               autoFocus
               fullWidth
@@ -274,10 +251,10 @@ const AskAiFilter = (): JSX.Element | null => {
               size="small"
               value={prompt}
             />
-            <Typography className={classes.disclaimer} variant="caption">
+            <Typography className="text-text-secondary" variant="caption">
               {t(labelAskAiDisclaimer)}
             </Typography>
-            <div className={classes.actions}>
+            <div className="flex items-center justify-end gap-2">
               <Button
                 data-testid={labelAskAiApply}
                 disabled={!prompt.trim() || isMutating}

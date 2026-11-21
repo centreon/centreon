@@ -1,7 +1,7 @@
-import { Method, useMutationQuery } from '@centreon/ui';
-
 import { ResourceDetails } from '../../Details/models';
-import { aiResourceExplanationEndpoint } from '../endpoints';
+import { explainResourceDecoder } from '../api/decoders';
+import { aiResourceExplanationEndpoint } from '../api/endpoints';
+import { useAiCall } from '../api/useAiCall';
 import { ExplainResourceResult } from '../models';
 
 interface ExplainResourcePayload {
@@ -22,35 +22,27 @@ interface UseExplainResourceState {
 }
 
 const useExplainResource = (): UseExplainResourceState => {
-  const { mutateAsync, isMutating } = useMutationQuery<
+  const { call, isMutating } = useAiCall<
     ExplainResourcePayload,
-    undefined
+    ExplainResourceResult
   >({
-    getEndpoint: () => aiResourceExplanationEndpoint,
-    method: Method.POST
+    decoder: explainResourceDecoder,
+    endpoint: aiResourceExplanationEndpoint
   });
 
   const explain = (
     details: ResourceDetails
   ): Promise<ExplainResourceResult | null> =>
-    mutateAsync({
-      payload: {
-        command_line: details.command_line ?? null,
-        duration: details.duration ?? null,
-        information: details.information ?? null,
-        name: details.name,
-        parent_name: details.parent?.name ?? null,
-        performance_data: details.performance_data ?? null,
-        resource_type: details.type,
-        status: details.status?.name ?? 'UNKNOWN',
-        tries: details.tries ?? null
-      }
-    }).then((result) => {
-      if ('isError' in result) {
-        return null;
-      }
-
-      return result as unknown as ExplainResourceResult;
+    call({
+      command_line: details.command_line ?? null,
+      duration: details.duration ?? null,
+      information: details.information ?? null,
+      name: details.name,
+      parent_name: details.parent?.name ?? null,
+      performance_data: details.performance_data ?? null,
+      resource_type: details.type,
+      status: details.status?.name ?? 'UNKNOWN',
+      tries: details.tries ?? null
     });
 
   return { explain, isMutating };

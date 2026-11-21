@@ -12,7 +12,6 @@ import {
 
 import { lazy, Suspense, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
 
 import { ResourceDetails } from '../../Details/models';
 import { ExplainGraphResult } from '../models';
@@ -34,19 +33,6 @@ const MarkdownContent = lazy(() =>
   }))
 );
 
-const useStyles = makeStyles()((theme) => ({
-  disclaimer: {
-    color: theme.palette.text.secondary,
-    flexGrow: 1,
-    paddingLeft: theme.spacing(1)
-  },
-  loading: {
-    display: 'flex',
-    justifyContent: 'center',
-    padding: theme.spacing(3)
-  }
-}));
-
 interface Props {
   details: ResourceDetails;
   metrics: Array<GraphMetricSummary>;
@@ -58,7 +44,6 @@ const ExplainGraph = ({
   metrics,
   timeRange = null
 }: Props): JSX.Element | null => {
-  const { classes } = useStyles();
   const { t } = useTranslation();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -116,9 +101,9 @@ const ExplainGraph = ({
           {t(labelAiGraphExplanation)} — {details.name}
           {details.parent?.name && (
             <Typography
+              className="ml-2"
               color="textSecondary"
               component="span"
-              sx={{ ml: 1 }}
               variant="subtitle1"
             >
               {t(labelOnHost, { host: details.parent.name })}
@@ -127,14 +112,14 @@ const ExplainGraph = ({
         </DialogTitle>
         <DialogContent>
           {isMutating || result === null ? (
-            <div className={classes.loading}>
+            <div className="flex justify-center p-6">
               <CircularProgress data-testid="graph-explanation-loading" />
             </div>
           ) : (
             <>
               <Suspense
                 fallback={
-                  <div className={classes.loading}>
+                  <div className="flex justify-center p-6">
                     <CircularProgress />
                   </div>
                 }
@@ -148,7 +133,10 @@ const ExplainGraph = ({
           )}
         </DialogContent>
         <DialogActions>
-          <Typography className={classes.disclaimer} variant="caption">
+          <Typography
+            className="grow pl-2 text-text-secondary"
+            variant="caption"
+          >
             {t(labelAiGraphExplanationDisclaimer)}
           </Typography>
           <Button onClick={() => setIsDialogOpen(false)} size="small">

@@ -1,6 +1,6 @@
-import { Method, useMutationQuery } from '@centreon/ui';
-
-import { aiResourceFilterEndpoint } from '../endpoints';
+import { translateResourceFilterDecoder } from '../api/decoders';
+import { aiResourceFilterEndpoint } from '../api/endpoints';
+import { useAiCall } from '../api/useAiCall';
 import { TranslateResourceFilterResult } from '../models';
 
 interface AskAiFilterPayload {
@@ -17,27 +17,19 @@ interface UseAskAiFilterState {
 }
 
 const useAskAiFilter = (): UseAskAiFilterState => {
-  const { mutateAsync, isMutating } = useMutationQuery<
+  const { call, isMutating } = useAiCall<
     AskAiFilterPayload,
-    undefined
+    TranslateResourceFilterResult
   >({
-    getEndpoint: () => aiResourceFilterEndpoint,
-    method: Method.POST
+    decoder: translateResourceFilterDecoder,
+    endpoint: aiResourceFilterEndpoint
   });
 
   const translate = (
     prompt: string,
     currentFilter: string
   ): Promise<TranslateResourceFilterResult | null> =>
-    mutateAsync({
-      payload: { current_filter: currentFilter || null, prompt }
-    }).then((result) => {
-      if ('isError' in result) {
-        return null;
-      }
-
-      return result as unknown as TranslateResourceFilterResult;
-    });
+    call({ current_filter: currentFilter || null, prompt });
 
   return { isMutating, translate };
 };

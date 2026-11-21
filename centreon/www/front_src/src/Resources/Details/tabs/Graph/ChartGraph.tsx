@@ -176,7 +176,7 @@ const ChartGraph = ({
         {...rest}
       />
       {resource && graphMetrics.length > 0 && (
-        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <div className="flex justify-end">
           <ExplainGraph
             details={resource}
             metrics={graphMetrics}

@@ -1,7 +1,22 @@
+export type AiUnavailableReason = 'no_provider' | 'budget_exhausted';
+
+export interface AiAvailability {
+  isAvailable: boolean;
+  reason?: AiUnavailableReason | null;
+}
+
+export type TranslateResourceFilterIntent =
+  | 'filter'
+  | 'explain'
+  | 'unsupported';
+
+export type TranslateResourceFilterScope = 'current' | 'query';
+
 export interface TranslateResourceFilterResult {
-  intent: 'filter' | 'explain' | 'unsupported';
+  intent: TranslateResourceFilterIntent;
   query: string;
-  scope: 'current' | 'query' | null;
+  // null when the model gave none; an absent key is tolerated too
+  scope?: TranslateResourceFilterScope | null;
 }
 
 export interface ExplainResourceResult {

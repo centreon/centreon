@@ -1,9 +1,8 @@
 import {
-  ListingModel,
-  ListingParameters,
+  buildListingEndpoint,
+  type ListingModel,
   Method,
   useMutationQuery,
-  useRequest,
   useSnackbar
 } from '@centreon/ui';
 
@@ -11,10 +10,11 @@ import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
 
 import { ResourceDetails } from '../../Details/models';
-import { listTimelineEvents } from '../../Details/tabs/Timeline/api';
 import { listTimelineEventsDecoder } from '../../Details/tabs/Timeline/api/decoders';
 import { TimelineEvent } from '../../Details/tabs/Timeline/models';
-import { aiIncidentSummaryEndpoint } from '../endpoints';
+import { summarizeIncidentDecoder } from '../api/decoders';
+import { aiIncidentSummaryEndpoint } from '../api/endpoints';
+import { useAiCall } from '../api/useAiCall';
 import { SummarizeIncidentResult } from '../models';
 import { labelNoRecentEvents } from '../translatedLabels';
 
@@ -42,6 +42,11 @@ interface SummarizeIncidentPayload {
   status: string;
 }
 
+interface TimelineWindow {
+  endpoint: string;
+  since: string;
+}
+
 interface UseSummarizeIncidentState {
   isLoading: boolean;
   summarize: (
@@ -63,22 +68,33 @@ const useSummarizeIncident = (): UseSummarizeIncidentState => {
   const { t } = useTranslation();
   const { showWarningMessage } = useSnackbar();
 
-  const { sendRequest: listEvents, sending: isListingEvents } = useRequest<
-    ListingModel<TimelineEvent>
-  >({
-    decoder: listTimelineEventsDecoder,
-    request: (cancelToken) => (params) =>
-      listTimelineEvents(cancelToken)(
-        params as { endpoint: string; parameters: ListingParameters }
-      )
-  });
+  // Fetched on demand, for a window that starts when the user asks, so it is
+  // sent like a mutation rather than kept as a query. The resource's timeline
+  // link is used as is (no API prefix), as the timeline tab does.
+  const { mutateAsync: listEvents, isMutating: isListingEvents } =
+    useMutationQuery<ListingModel<TimelineEvent>, TimelineWindow>({
+      baseEndpoint: '',
+      decoder: listTimelineEventsDecoder,
+      getEndpoint: ({ endpoint, since }) =>
+        buildListingEndpoint({
+          baseEndpoint: endpoint,
+          parameters: {
+            limit: maxEvents,
+            page: 1,
+            search: {
+              conditions: [{ field: 'date', values: { $gt: since } }]
+            }
+          }
+        }),
+      method: Method.GET
+    });
 
-  const { mutateAsync, isMutating } = useMutationQuery<
+  const { call, isMutating } = useAiCall<
     SummarizeIncidentPayload,
-    undefined
+    SummarizeIncidentResult
   >({
-    getEndpoint: () => aiIncidentSummaryEndpoint,
-    method: Method.POST
+    decoder: summarizeIncidentDecoder,
+    endpoint: aiIncidentSummaryEndpoint
   });
 
   const summarize = async (
@@ -95,15 +111,13 @@ const useSummarizeIncident = (): UseSummarizeIncidentState => {
     const since = dayjs().subtract(windowInHours, 'hour').toISOString();
 
     const listing = await listEvents({
-      endpoint: timelineEndpoint,
-      parameters: {
-        limit: maxEvents,
-        page: 1,
-        search: {
-          conditions: [{ field: 'date', values: { $gt: since } }]
-        }
-      }
+      _meta: { endpoint: timelineEndpoint, since }
     });
+
+    // the error snackbar already shows why the timeline could not be listed
+    if ('isError' in listing) {
+      return null;
+    }
 
     if (listing.result.length === 0) {
       showWarningMessage(t(labelNoRecentEvents));
@@ -115,24 +129,16 @@ const useSummarizeIncident = (): UseSummarizeIncidentState => {
       .sort((a, b) => dayjs(a.date).valueOf() - dayjs(b.date).valueOf())
       .map(toEventPayload);
 
-    return mutateAsync({
-      payload: {
-        duration: details.duration ?? null,
-        events,
-        information: details.information ?? null,
-        is_truncated: listing.meta.total > maxEvents,
-        name: details.name,
-        parent_name: details.parent?.name ?? null,
-        resource_type: details.type,
-        since,
-        status: details.status?.name ?? 'UNKNOWN'
-      }
-    }).then((result) => {
-      if ('isError' in result) {
-        return null;
-      }
-
-      return result as unknown as SummarizeIncidentResult;
+    return call({
+      duration: details.duration ?? null,
+      events,
+      information: details.information ?? null,
+      is_truncated: listing.meta.total > maxEvents,
+      name: details.name,
+      parent_name: details.parent?.name ?? null,
+      resource_type: details.type,
+      since,
+      status: details.status?.name ?? 'UNKNOWN'
     });
   };
 

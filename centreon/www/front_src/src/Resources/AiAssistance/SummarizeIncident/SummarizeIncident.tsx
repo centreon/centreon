@@ -14,7 +14,6 @@ import { useCopyToClipboard } from '@centreon/ui';
 
 import { lazy, Suspense, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
 
 import { ResourceDetails } from '../../Details/models';
 import { SummarizeIncidentResult } from '../models';
@@ -40,23 +39,6 @@ const MarkdownContent = lazy(() =>
   }))
 );
 
-const useStyles = makeStyles()((theme) => ({
-  // push the trigger to the right of the timeline action row for visibility
-  button: {
-    marginLeft: 'auto'
-  },
-  disclaimer: {
-    color: theme.palette.text.secondary,
-    flexGrow: 1,
-    paddingLeft: theme.spacing(1)
-  },
-  loading: {
-    display: 'flex',
-    justifyContent: 'center',
-    padding: theme.spacing(3)
-  }
-}));
-
 interface Props {
   details: ResourceDetails;
   // null while the timeline listing is still loading: keep the action enabled
@@ -68,7 +50,6 @@ const SummarizeIncident = ({
   details,
   hasRecentEvents = null
 }: Props): JSX.Element | null => {
-  const { classes } = useStyles();
   const { t } = useTranslation();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -119,7 +100,8 @@ const SummarizeIncident = ({
   return (
     <>
       <Tooltip title={t(getTooltip())}>
-        <span className={classes.button}>
+        {/* pushed to the right of the timeline action row */}
+        <span className="ml-auto">
           <Button
             color="primary"
             data-testid={labelSummarize}
@@ -143,9 +125,9 @@ const SummarizeIncident = ({
           {t(labelAiTimelineSummary)} — {details.name}
           {details.parent?.name && (
             <Typography
+              className="ml-2"
               color="textSecondary"
               component="span"
-              sx={{ ml: 1 }}
               variant="subtitle1"
             >
               {t(labelOnHost, { host: details.parent.name })}
@@ -154,14 +136,14 @@ const SummarizeIncident = ({
         </DialogTitle>
         <DialogContent>
           {isLoading || result === null ? (
-            <div className={classes.loading}>
+            <div className="flex justify-center p-6">
               <CircularProgress data-testid="summary-loading" />
             </div>
           ) : (
             <>
               <Suspense
                 fallback={
-                  <div className={classes.loading}>
+                  <div className="flex justify-center p-6">
                     <CircularProgress data-testid="summary-loading" />
                   </div>
                 }
@@ -175,7 +157,10 @@ const SummarizeIncident = ({
           )}
         </DialogContent>
         <DialogActions>
-          <Typography className={classes.disclaimer} variant="caption">
+          <Typography
+            className="grow pl-2 text-text-secondary"
+            variant="caption"
+          >
             {t(labelAiTimelineSummaryDisclaimer)}
           </Typography>
           <Button

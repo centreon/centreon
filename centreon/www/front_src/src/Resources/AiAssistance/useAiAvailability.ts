@@ -1,33 +1,8 @@
 import { useFetchQuery } from '@centreon/ui';
 
-import { JsonDecoder } from 'ts.data.json';
-
-import { aiAvailabilityEndpoint } from './endpoints';
-
-type AiUnavailableReason = 'no_provider' | 'budget_exhausted';
-
-interface AiAvailability {
-  isAvailable: boolean;
-  reason?: AiUnavailableReason | null;
-}
-
-const aiAvailabilityDecoder = JsonDecoder.object<AiAvailability>(
-  {
-    isAvailable: JsonDecoder.boolean,
-    reason: JsonDecoder.optional(
-      JsonDecoder.nullable(
-        JsonDecoder.enumeration<AiUnavailableReason>(
-          { budget_exhausted: 'budget_exhausted', no_provider: 'no_provider' },
-          'AiUnavailableReason'
-        )
-      )
-    )
-  },
-  'AiAvailability',
-  {
-    isAvailable: 'is_available'
-  }
-);
+import { aiAvailabilityDecoder } from './api/decoders';
+import { aiAvailabilityEndpoint } from './api/endpoints';
+import { AiAvailability } from './models';
 
 export interface AiAvailabilityState {
   // the budget is reached: the features stay visible but disabled
