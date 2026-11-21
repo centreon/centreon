@@ -35,7 +35,9 @@ use App\AiConfiguration\Infrastructure\ApiPlatform\State\AiProvider\TestAiProvid
     shortName: 'AiProvider',
     uriTemplate: '/administration/ai-providers/{id}/test',
     // this resource has no identifier of its own: the provider's identifier types the id (an integer)
-    uriVariables: ['id' => new Link(fromClass: AiProviderResource::class, identifiers: ['id'])],
+    uriVariables: [
+        'id' => new Link(fromClass: AiProviderResource::class, identifiers: ['id'], description: 'AiProvider identifier'),
+    ],
     requirements: ['id' => '[1-9]\d*'],
     processor: TestAiProviderProcessor::class,
     input: TestAiProviderInput::class,
