@@ -29,9 +29,9 @@ use Webmozart\Assert\Assert;
 /**
  * API token of an AI provider.
  *
- * Holds either the plain token or, once vault storage is wired, a vault path
- * reference ("secret::..."). It must never be exposed through the API, and is
- * masked in logs wherever it travels (the bus logs every command).
+ * Holds either the plain token or a vault path reference ("secret::..."). It
+ * must never be exposed through the API, and is masked in logs wherever it
+ * travels (the bus logs every command).
  */
 #[Sensitive]
 final readonly class ApiToken

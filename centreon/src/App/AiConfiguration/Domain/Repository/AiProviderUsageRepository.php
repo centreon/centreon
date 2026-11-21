@@ -38,8 +38,7 @@ interface AiProviderUsageRepository
     public function sumCostSince(int $providerId, string $currency, int $sinceTimestamp): float;
 
     /**
-     * Delete usage rows older than a timestamp. Returns the number of deleted
-     * rows.
+     * @return int the number of deleted rows
      */
     public function deleteOlderThan(int $timestamp): int;
 }

@@ -76,10 +76,7 @@ final readonly class DiscoverModelsProcessor implements ProcessorInterface
         Assert::isInstanceOf($result, DiscoverModelsResult::class);
 
         if ($result->error !== null) {
-            // a provider rejection (e.g. an invalid key) or an unreachable
-            // endpoint is a user/configuration error, not a server fault:
-            // surface it as a 422 carrying the provider's reason rather than a
-            // 500 / CRITICAL log entry
+            // expected provider error: 422 with its reason
             throw new UnprocessableEntityHttpException($result->error);
         }
 

@@ -82,8 +82,6 @@ const AnalyzeResources = ({
   const hasEnough = resources.length >= 1;
   const disabled = isBudgetExhausted || !hasEnough;
   const isMutating = isAnalyzing || isExplaining;
-  // a single resource is explained, several are analyzed together: the button
-  // label follows the action it triggers
   const actionLabel = isSingle ? labelExplain : labelAnalyze;
 
   const getTooltip = (): string => {

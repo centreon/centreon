@@ -13,8 +13,6 @@ export interface AiAvailabilityState {
   isConfigured: boolean;
 }
 
-// AI features react to the platform state: hidden when no provider is enabled,
-// disabled when the enabled provider has reached its spend limit
 const useAiAvailability = (): AiAvailabilityState => {
   const { data } = useFetchQuery<AiAvailability>({
     decoder: aiAvailabilityDecoder,

@@ -108,7 +108,7 @@ export default (): void => {
       const body = request.body as Payload;
 
       expect(body.currency).toBe('USD');
-      // the decimal value can be entered (the bug this guards against)
+      // decimal prices are kept
       expect(body.price_default_input).toBe(0.01);
       expect(body.price_default_output).toBe(15);
       expect(body.limit_daily).toBe(10);

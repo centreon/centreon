@@ -66,8 +66,6 @@ const SummarizeIncident = ({
     return null;
   }
 
-  // hasRecentEvents is null until the timeline loads; only disable once we
-  // know the window is empty, so the action is not blocked while loading
   const hasNoRecentEvents = hasRecentEvents === false;
   const disabled = isBudgetExhausted || hasNoRecentEvents;
 

@@ -46,9 +46,8 @@ export const defaultModels: Record<AiProviderType, DefaultModels> = {
     defaultModel: 'claude-sonnet-5-5',
     fastModel: 'claude-haiku-5-5'
   },
-  // Mistral Medium is retired (its replacement is Large 4), so the general
-  // model is now Large. The -latest aliases track the current version; only the
-  // optional price prefill may lag behind them, and prices can be set by hand.
+  // the -latest aliases track the current version; the price prefill may lag
+  // behind them (prices can be set by hand)
   [AiProviderType.Mistral]: {
     defaultModel: 'mistral-large-latest',
     fastModel: 'mistral-small-latest'
@@ -64,8 +63,7 @@ export const defaultModels: Record<AiProviderType, DefaultModels> = {
   // Bedrock (mantle) exposes bare vendor.model ids (no region prefix) across
   // several vendors. Default to text-only Qwen3 models: they route through the
   // OpenAI-compatible surface (no Anthropic Marketplace subscription needed) and
-  // are inexpensive. Users adjust to whatever their catalog lists, e.g.
-  // anthropic.claude-opus-4-8 for higher capability.
+  // are inexpensive.
   [AiProviderType.Bedrock]: {
     defaultModel: 'qwen.qwen3-235b-a22b-2507',
     fastModel: 'qwen.qwen3-32b'
