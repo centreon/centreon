@@ -156,6 +156,8 @@ final readonly class OpenAiCompatibleLlmClient implements LlmClientInterface
             $response = $this->httpClient->request('GET', $url, [
                 'auth_bearer' => $this->apiToken->value,
                 'timeout' => self::TIMEOUT_SECONDS,
+                // the provider's answer is reported back: never follow it elsewhere
+                'max_redirects' => 0,
             ]);
         } catch (TransportExceptionInterface $exception) {
             throw LlmRequestFailedException::fromTransportError($exception->getMessage(), $exception);
@@ -245,6 +247,7 @@ final readonly class OpenAiCompatibleLlmClient implements LlmClientInterface
                 'auth_bearer' => $this->apiToken->value,
                 'json' => $payload,
                 'timeout' => $this->timeoutFor($request),
+                'max_redirects' => 0,
             ]);
         } catch (TransportExceptionInterface $exception) {
             throw LlmRequestFailedException::fromTransportError($exception->getMessage(), $exception);
@@ -319,14 +322,14 @@ final readonly class OpenAiCompatibleLlmClient implements LlmClientInterface
             /** @var array{error?: array{message?: string}|string}|null $data */
             $data = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
         } catch (\JsonException) {
-            // not a JSON error document: the raw body is reported instead
+            // not a JSON error document: its body is not reported (it may come from any server)
             $data = null;
         }
         $error = $data['error'] ?? null;
         if (is_array($error)) {
-            return $error['message'] ?? mb_substr($body, 0, 200);
+            return $error['message'] ?? 'no error message in the response';
         }
 
-        return is_string($error) ? $error : mb_substr($body, 0, 200);
+        return is_string($error) ? $error : 'no error message in the response';
     }
 }

@@ -193,6 +193,22 @@ final class AnthropicLlmClientTest extends TestCase
         self::assertSame(2, $response->usage->outputTokens);
     }
 
+    public function testANonJsonErrorBodyIsNotReported(): void
+    {
+        $httpClient = new MockHttpClient(new MockResponse(
+            '<html>internal admin page</html>',
+            ['http_code' => 404]
+        ));
+
+        try {
+            $this->createClient($httpClient)->complete($this->createRequest());
+            self::fail('Expected the provider error to be reported');
+        } catch (LlmRequestFailedException $exception) {
+            self::assertStringContainsString('HTTP 404', $exception->getMessage());
+            self::assertStringNotContainsString('internal admin page', $exception->getMessage());
+        }
+    }
+
     public function testIdleTimeoutIsReportedWithItsDuration(): void
     {
         // an empty chunk is how MockResponse simulates an idle timeout

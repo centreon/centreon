@@ -69,6 +69,8 @@ final readonly class GeminiLlmClient implements LlmClientInterface
             $response = $this->httpClient->request('GET', $url, [
                 'headers' => ['x-goog-api-key' => $this->apiToken->value],
                 'timeout' => self::TIMEOUT_SECONDS,
+                // the provider's answer is reported back: never follow it elsewhere
+                'max_redirects' => 0,
             ]);
             $statusCode = $response->getStatusCode();
         } catch (TransportExceptionInterface $exception) {

@@ -166,6 +166,8 @@ final readonly class AnthropicLlmClient implements LlmClientInterface
                         'x-api-key' => $this->apiToken->value,
                     ],
                     'timeout' => self::TIMEOUT_SECONDS,
+                    // the provider's answer is reported back: never follow it elsewhere
+                    'max_redirects' => 0,
                 ]
             );
         } catch (TransportExceptionInterface $exception) {
@@ -217,6 +219,7 @@ final readonly class AnthropicLlmClient implements LlmClientInterface
                 ],
                 'json' => $payload,
                 'timeout' => $this->timeoutFor($request),
+                'max_redirects' => 0,
             ]);
         } catch (TransportExceptionInterface $exception) {
             throw LlmRequestFailedException::fromTransportError($exception->getMessage(), $exception);
@@ -291,10 +294,10 @@ final readonly class AnthropicLlmClient implements LlmClientInterface
             /** @var array{error?: array{message?: string}}|null $data */
             $data = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
         } catch (\JsonException) {
-            // not a JSON error document: the raw body is reported instead
+            // not a JSON error document: its body is not reported (it may come from any server)
             $data = null;
         }
 
-        return $data['error']['message'] ?? mb_substr($body, 0, 200);
+        return $data['error']['message'] ?? 'no error message in the response';
     }
 }
