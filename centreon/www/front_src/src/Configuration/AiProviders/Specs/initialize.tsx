@@ -1,5 +1,14 @@
-import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
+import { SnackbarProvider } from '@centreon/ui';
+import {
+  defaultLimitPerPageAtom,
+  type UserPermissions,
+  userPermissionsAtom
+} from '@centreon/ui-context';
 
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { interceptAPIRequest, Method } from '@test-setup/api';
+import { render } from '@test-setup/render';
+import type { RenderResult } from '@testing-library/react';
 import i18next from 'i18next';
 import { createStore, Provider } from 'jotai';
 import { initReactI18next } from 'react-i18next';
@@ -11,83 +20,103 @@ import {
   discoverModelsEndpoint,
   getAiProviderEndpoint
 } from '../api';
+import {
+  discoveredModelsResponse,
+  getAiProviderResponse,
+  getListingResponse
+} from './utils';
 
-const initialize = (): void => {
+interface Props {
+  // Whether the user may edit AI providers.
+  hasWriteAccess?: boolean;
+  // The details provider 1 answers, when not the default one.
+  aiProvider?: Record<string, unknown>;
+}
+
+const initialize = ({
+  hasWriteAccess = true,
+  aiProvider = getAiProviderResponse()
+}: Props = {}): RenderResult => {
   i18next.use(initReactI18next).init({
     lng: 'en',
     resources: {}
   });
 
+  // The form is URL-driven, and the page is not reloaded between tests.
+  window.history.pushState({}, '', window.location.pathname);
+
   const store = createStore();
 
-  cy.fixture('AiProviders/listAiProviders.json').then((aiProviders) => {
-    // also answers the limit=1 request the add form reads the provider total
-    // from: request matching ignores the query string, so a dedicated mock
-    // for it would swallow every listing request
-    cy.interceptAPIRequest({
-      alias: 'getAiProviders',
-      method: Method.GET,
-      path: `**${aiProvidersEndpoint}?**`,
-      response: aiProviders
-    });
+  // Only what the module reads.
+  store.set(userPermissionsAtom, {
+    administration_ai_provider_write: hasWriteAccess
+  } as UserPermissions);
+  // The listing waits for the platform page size before loading.
+  store.set(defaultLimitPerPageAtom, 10);
+
+  // Also answers the `limit=1` request the add form reads the provider total
+  // from, and the `name[lk]=` lookup of the name validation: MSW ignores the
+  // query string, so this one mock serves every listing request.
+  interceptAPIRequest({
+    alias: 'getAiProviders',
+    method: Method.GET,
+    path: `**${aiProvidersEndpoint}?**`,
+    response: getListingResponse()
   });
 
-  // registered before createAiProvider so MSW (first match wins) routes the
-  // discover-models POST here rather than to the broad create intercept
-  cy.interceptAPIRequest({
+  interceptAPIRequest({
     alias: 'discoverModels',
     method: Method.POST,
-    path: `**${discoverModelsEndpoint}**`,
-    response: {
-      models: ['claude-haiku-5-5', 'claude-opus-5-5', 'claude-sonnet-5-5']
-    }
+    path: `**${discoverModelsEndpoint}`,
+    response: discoveredModelsResponse
   });
 
-  cy.fixture('AiProviders/aiProviderDetails.json').then((aiProvider) => {
-    cy.interceptAPIRequest({
-      alias: 'getAiProvider',
-      method: Method.GET,
-      path: `**${getAiProviderEndpoint({ id: 1 })}`,
-      response: aiProvider
-    });
-
-    cy.interceptAPIRequest({
-      alias: 'createAiProvider',
-      method: Method.POST,
-      path: `**${aiProvidersEndpoint}**`,
-      response: aiProvider
-    });
-
-    cy.interceptAPIRequest({
-      alias: 'updateAiProvider',
-      method: Method.PATCH,
-      path: `**${getAiProviderEndpoint({ id: 1 })}`,
-      response: aiProvider
-    });
-
-    cy.interceptAPIRequest({
-      alias: 'enableAiProvider',
-      method: Method.PATCH,
-      path: `**${getAiProviderEndpoint({ id: 2 })}`,
-      response: aiProvider
-    });
+  interceptAPIRequest({
+    alias: 'getAiProvider',
+    method: Method.GET,
+    path: `**${getAiProviderEndpoint({ id: 1 })}`,
+    response: aiProvider
   });
 
-  cy.mount({
-    Component: (
-      <Router>
-        <SnackbarProvider>
-          <TestQueryProvider>
-            <Provider store={store}>
-              <div style={{ height: '100vh' }}>
-                <AiProviders />
-              </div>
-            </Provider>
-          </TestQueryProvider>
-        </SnackbarProvider>
-      </Router>
-    )
+  interceptAPIRequest({
+    alias: 'createAiProvider',
+    method: Method.POST,
+    path: `**${aiProvidersEndpoint}`,
+    response: aiProvider
   });
+
+  interceptAPIRequest({
+    alias: 'updateAiProvider',
+    method: Method.PATCH,
+    path: `**${getAiProviderEndpoint({ id: 1 })}`,
+    response: aiProvider
+  });
+
+  interceptAPIRequest({
+    alias: 'enableAiProvider',
+    method: Method.PATCH,
+    path: `**${getAiProviderEndpoint({ id: 2 })}`,
+    response: aiProvider
+  });
+
+  // A client of its own, so no cache leaks from one test to the next.
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { gcTime: 0, retry: false } }
+  });
+
+  return render(
+    <Router>
+      <SnackbarProvider>
+        <QueryClientProvider client={queryClient}>
+          <Provider store={store}>
+            <div style={{ height: '100vh' }}>
+              <AiProviders />
+            </div>
+          </Provider>
+        </QueryClientProvider>
+      </SnackbarProvider>
+    </Router>
+  );
 };
 
 export default initialize;
