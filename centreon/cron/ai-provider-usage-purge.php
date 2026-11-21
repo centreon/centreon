@@ -22,6 +22,9 @@
 
 declare(strict_types=1);
 
+use Adaptation\Log\Enum\LogChannelEnum;
+use Adaptation\Log\Logger;
+
 require_once realpath(__DIR__ . '/../config/centreon.config.php');
 include_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
 
@@ -38,11 +41,9 @@ try {
 
     echo '[' . date(DATE_RFC822) . "] AI provider usage purge completed\n";
 } catch (Throwable $e) {
-    CentreonLog::create()->error(
-        CentreonLog::TYPE_BUSINESS_LOG,
+    Logger::create(LogChannelEnum::WEB)->error(
         'AiProviderUsagePurge CRON: failed to purge old usage rows',
-        ['table' => 'ai_provider_usage_log', 'retention' => '13 months'],
-        $e
+        ['table' => 'ai_provider_usage_log', 'retention' => '13 months', 'exception' => $e]
     );
 
     echo '[' . date(DATE_RFC822) . '] ' . $e->getMessage() . "\n";
