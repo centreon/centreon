@@ -57,10 +57,7 @@ $createAclFingerprintTable = function () use ($pearDBO, &$errorMessage, $version
 /** ------------------------------------ AI provider configurations ------------------------------------ */
 $createAiProviderConfigurationTable = function () use ($pearDB, &$errorMessage, $version): void {
     $errorMessage = 'Unable to create ai_provider_configuration table';
-    CentreonLog::create()->info(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: Creating ai_provider_configuration table",
-    );
+    LoggerUpgrade::create()->info($version, 'Creating ai_provider_configuration table');
 
     $pearDB->executeStatement(
         <<<'SQL'
@@ -79,18 +76,12 @@ $createAiProviderConfigurationTable = function () use ($pearDB, &$errorMessage, 
             SQL
     );
 
-    CentreonLog::create()->info(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: ai_provider_configuration table created successfully",
-    );
+    LoggerUpgrade::create()->info($version, 'ai_provider_configuration table created successfully');
 };
 
 $createAiProviderUsageLogTable = function () use ($pearDB, &$errorMessage, $version): void {
     $errorMessage = 'Unable to create ai_provider_usage_log table';
-    CentreonLog::create()->info(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: Creating ai_provider_usage_log table",
-    );
+    LoggerUpgrade::create()->info($version, 'Creating ai_provider_usage_log table');
 
     $pearDB->executeStatement(
         <<<'SQL'
@@ -122,14 +113,12 @@ $createAiProviderUsageLogTable = function () use ($pearDB, &$errorMessage, $vers
             SQL
     );
 
-    CentreonLog::create()->info(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: ai_provider_usage_log table created successfully",
-    );
+    LoggerUpgrade::create()->info($version, 'ai_provider_usage_log table created successfully');
 };
 
 $addAiProvidersTopology = function () use ($pearDB, &$errorMessage, $version): void {
     $errorMessage = 'Unable to add AI Providers topology entry';
+    LoggerUpgrade::create()->info($version, 'Adding AI Providers topology entry');
 
     $alreadyExists = $pearDB->fetchOne(
         <<<'SQL'
@@ -140,10 +129,7 @@ $addAiProvidersTopology = function () use ($pearDB, &$errorMessage, $version): v
         ])
     );
     if ($alreadyExists !== false) {
-        CentreonLog::create()->info(
-            logTypeId: CentreonLog::TYPE_UPGRADE,
-            message: "UPGRADE - {$version}: AI Providers topology entry already exists, skipping insertion",
-        );
+        LoggerUpgrade::create()->info($version, 'AI Providers topology entry already exists, skipping insertion');
 
         return;
     }
@@ -159,10 +145,7 @@ $addAiProvidersTopology = function () use ($pearDB, &$errorMessage, $version): v
             SQL
     );
 
-    CentreonLog::create()->info(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: AI Providers topology entry added successfully",
-    );
+    LoggerUpgrade::create()->info($version, 'AI Providers topology entry added successfully');
 };
 
 try {
