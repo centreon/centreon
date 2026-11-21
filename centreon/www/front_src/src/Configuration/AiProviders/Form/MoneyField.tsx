@@ -2,7 +2,7 @@ import { TextField } from '@mui/material';
 
 import type { InputPropsWithoutGroup } from '@centreon/ui';
 
-import { useFormikContext } from 'formik';
+import { type FormikValues, useFormikContext } from 'formik';
 import { path } from 'ramda';
 import { JSX } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -11,18 +11,22 @@ import { useTranslation } from 'react-i18next';
 // this field keeps the typed string so prices/limits like 0.01 can be entered
 const MoneyField = ({
   fieldName,
+  getDisabled,
   label
 }: InputPropsWithoutGroup): JSX.Element => {
   const { t } = useTranslation();
   const { values, errors, touched, setFieldValue, setFieldTouched } =
-    useFormikContext();
+    useFormikContext<FormikValues>();
 
+  // read-only without the right to edit providers
+  const isDisabled = getDisabled?.(values) ?? false;
   const fieldPath = fieldName.split('.');
   const value = path(fieldPath, values);
   const error = path(fieldPath, touched) ? path(fieldPath, errors) : undefined;
 
   return (
     <TextField
+      disabled={isDisabled}
       error={Boolean(error)}
       fullWidth
       helperText={error as string | undefined}

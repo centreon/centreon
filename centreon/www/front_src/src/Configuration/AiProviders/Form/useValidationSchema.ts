@@ -48,7 +48,9 @@ interface PendingLookup {
 
 const lookupDebounceMs = 500;
 
-export const useValidationSchema = (): ObjectSchema<object> => {
+export const useValidationSchema = (): {
+  validationSchema: ObjectSchema<object>;
+} => {
   const { t } = useTranslation();
 
   const { mode, id } = useAtomValue(formStateAtom);
@@ -111,7 +113,7 @@ export const useValidationSchema = (): ObjectSchema<object> => {
     });
   };
 
-  return object({
+  const validationSchema = object({
     // when editing, an empty token keeps the stored one, which is only sent
     // to the endpoint it was configured for
     apiToken: isEditing
@@ -173,7 +175,9 @@ export const useValidationSchema = (): ObjectSchema<object> => {
             )
           : schema
     ),
+    // checked and sent trimmed (see adaptFormToApiPayload)
     name: string()
+      .trim()
       .required(t(labelRequired))
       .test(
         'unique-name',
@@ -186,4 +190,6 @@ export const useValidationSchema = (): ObjectSchema<object> => {
     priceFastOutput: optionalNumber(),
     type: string().required(t(labelRequired))
   });
+
+  return { validationSchema };
 };

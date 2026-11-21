@@ -29,12 +29,16 @@ const placeholder = (fieldName: string): string =>
 
 const ModelField = ({
   fieldName,
+  getDisabled,
   label
 }: InputPropsWithoutGroup): JSX.Element => {
   const { t } = useTranslation();
   const { values, errors, touched, setFieldValue, setFieldTouched } =
     useFormikContext<FormValues>();
   const discovered = useAtomValue(discoveredModelsAtom);
+
+  // read-only without the right to edit providers
+  const isDisabled = getDisabled?.(values) ?? false;
 
   const value = (path([fieldName], values) as string | null) ?? '';
   const error = path([fieldName], touched)
@@ -49,6 +53,7 @@ const ModelField = ({
   return (
     <Autocomplete
       autoHighlight
+      disabled={isDisabled}
       freeSolo
       inputValue={value}
       onBlur={() => setFieldTouched(fieldName, true, true)}

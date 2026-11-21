@@ -22,7 +22,10 @@ interface FormValues {
   type?: AiProviderType | null;
 }
 
-const TypeField = ({ fieldName }: InputPropsWithoutGroup): JSX.Element => {
+const TypeField = ({
+  fieldName,
+  getDisabled
+}: InputPropsWithoutGroup): JSX.Element => {
   const { t } = useTranslation();
   const { values, errors, touched, setValues, setFieldTouched } =
     useFormikContext<FormValues>();
@@ -78,7 +81,7 @@ const TypeField = ({ fieldName }: InputPropsWithoutGroup): JSX.Element => {
     <Autocomplete
       autoHighlight
       disableClearable={false}
-      disabled={isEditing}
+      disabled={isEditing || (getDisabled?.(values) ?? false)}
       getOptionLabel={(option) => t(aiProviderTypeLabels[option])}
       onBlur={() => setFieldTouched(fieldName, true, true)}
       onChange={(_event, newValue) => handleChange(newValue)}

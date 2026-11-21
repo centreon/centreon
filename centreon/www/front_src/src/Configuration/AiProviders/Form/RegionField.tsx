@@ -2,7 +2,7 @@ import { Autocomplete, TextField, Typography } from '@mui/material';
 
 import type { InputPropsWithoutGroup } from '@centreon/ui';
 
-import { useFormikContext } from 'formik';
+import { type FormikValues, useFormikContext } from 'formik';
 import { path } from 'ramda';
 import { JSX } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -38,10 +38,16 @@ const awsRegions: Record<string, string> = {
 
 const regionCodes = Object.keys(awsRegions);
 
-const RegionField = ({ fieldName }: InputPropsWithoutGroup): JSX.Element => {
+const RegionField = ({
+  fieldName,
+  getDisabled
+}: InputPropsWithoutGroup): JSX.Element => {
   const { t } = useTranslation();
   const { values, errors, touched, setFieldValue, setFieldTouched } =
-    useFormikContext();
+    useFormikContext<FormikValues>();
+
+  // read-only without the right to edit providers
+  const isDisabled = getDisabled?.(values) ?? false;
 
   const endpointUrl = (path([fieldName], values) as string | null) ?? '';
   const region = regionFromEndpoint(endpointUrl);
@@ -52,6 +58,7 @@ const RegionField = ({ fieldName }: InputPropsWithoutGroup): JSX.Element => {
   return (
     <Autocomplete
       autoHighlight
+      disabled={isDisabled}
       freeSolo
       inputValue={region}
       onBlur={() => setFieldTouched(fieldName, true, true)}

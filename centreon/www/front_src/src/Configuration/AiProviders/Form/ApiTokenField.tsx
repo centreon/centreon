@@ -1,6 +1,6 @@
 import type { InputPropsWithoutGroup } from '@centreon/ui';
 
-import { useFormikContext } from 'formik';
+import { type FormikValues, useFormikContext } from 'formik';
 import { useAtomValue } from 'jotai';
 import { equals, path } from 'ramda';
 import { type ChangeEvent, JSX, useState } from 'react';
@@ -17,7 +17,10 @@ import { isSameEndpoint } from '../utils';
 // empty value tells the API to keep the current token). The stored token is
 // only sent to the endpoint it was configured for: once the endpoint changes,
 // the field is a plain input again and the token has to be typed.
-const ApiTokenField = ({ fieldName }: InputPropsWithoutGroup): JSX.Element => {
+const ApiTokenField = ({
+  fieldName,
+  getDisabled
+}: InputPropsWithoutGroup): JSX.Element => {
   const { t } = useTranslation();
   const {
     values,
@@ -26,7 +29,7 @@ const ApiTokenField = ({ fieldName }: InputPropsWithoutGroup): JSX.Element => {
     touched,
     setFieldValue,
     setFieldTouched
-  } = useFormikContext();
+  } = useFormikContext<FormikValues>();
 
   const { mode } = useAtomValue(formStateAtom);
   const isEditing = equals(mode, 'edit');
@@ -50,6 +53,7 @@ const ApiTokenField = ({ fieldName }: InputPropsWithoutGroup): JSX.Element => {
   return (
     <StoredSecretField
       dataTestId={t(labelApiToken)}
+      disabled={getDisabled?.(values) ?? false}
       error={error}
       isErased={isErased}
       isStored={isStoredTokenUsable}

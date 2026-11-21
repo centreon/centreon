@@ -1,4 +1,6 @@
 export const labelAiProviders = 'AI Providers';
+export const labelAiProvidersDescription =
+  'Connect the AI features to the LLM provider of your choice.';
 export const labelAddAiProvider = 'Add provider configuration';
 export const labelWelcomePageTitle = 'Welcome to AI provider configurations';
 export const labelWelcomePageDescription =

@@ -1,3 +1,3 @@
-export { initialValues } from './initialValues';
-export { useInputs } from './useInputs';
+export { getDefaultValues } from './defaultValues';
+export { useFormInputs } from './useFormInputs';
 export { useValidationSchema } from './useValidationSchema';

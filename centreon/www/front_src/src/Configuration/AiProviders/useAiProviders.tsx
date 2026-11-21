@@ -41,7 +41,7 @@ export const adaptFormToApiPayload = (data: unknown): Payload => {
     is_activated: formData.isActivated,
     limit_daily: toNumber(formData.limitDaily),
     limit_monthly: toNumber(formData.limitMonthly),
-    name: formData.name,
+    name: formData.name.trim(),
     price_default_input: toNumber(formData.priceDefaultInput),
     price_default_output: toNumber(formData.priceDefaultOutput),
     price_fast_input: toNumber(formData.priceFastInput),
@@ -84,22 +84,25 @@ const useAiProviders = (): UseAiProvidersState => {
     []
   );
 
-  const filtersConfiguration: Array<FilterConfiguration> = [
-    {
-      fieldName: 'name',
-      fieldType: FieldType.Text,
-      name: t(labelName)
-    },
-    {
-      fieldName: 'type',
-      fieldType: FieldType.Checkboxes,
-      name: t(labelType),
-      options: Object.values(AiProviderType).map((type) => ({
-        id: type,
-        name: t(aiProviderTypeLabels[type])
-      }))
-    }
-  ];
+  const filtersConfiguration: Array<FilterConfiguration> = useMemo(
+    () => [
+      {
+        fieldName: 'name',
+        fieldType: FieldType.Text,
+        name: t(labelName)
+      },
+      {
+        fieldName: 'type',
+        fieldType: FieldType.Checkboxes,
+        name: t(labelType),
+        options: Object.values(AiProviderType).map((type) => ({
+          id: type,
+          name: t(aiProviderTypeLabels[type])
+        }))
+      }
+    ],
+    [t]
+  );
 
   return {
     api,

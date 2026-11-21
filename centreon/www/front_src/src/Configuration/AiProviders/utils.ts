@@ -22,8 +22,8 @@ export const filtersInitialValues: Filters = {
   type: []
 };
 
-export const filtersAtomKey = 'centreon-ai-providers-filters-1';
-export const columnsAtomKey = 'centreon-ai-providers-columns-3';
+export const filtersAtomKey = 'filters_ai_providers';
+export const columnsAtomKey = 'columns_ai_providers';
 
 export const aiProviderTypeLabels: Record<AiProviderType, string> = {
   [AiProviderType.Anthropic]: labelAnthropic,

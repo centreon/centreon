@@ -2,7 +2,7 @@ import { Autocomplete, TextField, Typography } from '@mui/material';
 
 import type { InputPropsWithoutGroup } from '@centreon/ui';
 
-import { useFormikContext } from 'formik';
+import { type FormikValues, useFormikContext } from 'formik';
 import { path } from 'ramda';
 import { JSX } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -40,11 +40,16 @@ const currencySymbol = (code: string): string => {
   }
 };
 
-const CurrencyField = ({ fieldName }: InputPropsWithoutGroup): JSX.Element => {
+const CurrencyField = ({
+  fieldName,
+  getDisabled
+}: InputPropsWithoutGroup): JSX.Element => {
   const { t } = useTranslation();
   const { values, errors, touched, setFieldValue, setFieldTouched } =
-    useFormikContext();
+    useFormikContext<FormikValues>();
 
+  // read-only without the right to edit providers
+  const isDisabled = getDisabled?.(values) ?? false;
   const value = (path([fieldName], values) as string | null) ?? '';
   const error = path([fieldName], touched)
     ? (path([fieldName], errors) as string | undefined)
@@ -53,6 +58,7 @@ const CurrencyField = ({ fieldName }: InputPropsWithoutGroup): JSX.Element => {
   return (
     <Autocomplete
       autoHighlight
+      disabled={isDisabled}
       freeSolo
       // both value and inputValue are controlled from the form, so closing the
       // dropdown (blur or Escape) restores the typed code instead of clearing it

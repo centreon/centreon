@@ -1,11 +1,13 @@
 import { useFetchQuery } from '@centreon/ui';
+import { userPermissionsAtom } from '@centreon/ui-context';
 
+import { useAtomValue } from 'jotai';
 import { ReactElement, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { baseEndpoint } from '../../api/endpoint';
 import ConfigurationBase from '../ConfigurationBase';
-import { ResourceType } from '../models';
+import { type Actions, ResourceType } from '../models';
 import { aiProvidersEndpoint, aiProvidersListDecoder } from './api';
 import {
   filtersAtom,
@@ -13,11 +15,12 @@ import {
   selectedColumnIdsAtom
 } from './atoms';
 import useColumns from './Columns/useColumns';
-import { initialValues, useInputs, useValidationSchema } from './Form';
+import { getDefaultValues, useFormInputs, useValidationSchema } from './Form';
 import { Filters } from './models';
 import {
   labelAddAiProvider,
   labelAiProviders,
+  labelAiProvidersDescription,
   labelWelcomePageDescription,
   labelWelcomePageTitle
 } from './translatedLabels';
@@ -32,9 +35,12 @@ import {
 const AiProviders = (): ReactElement => {
   const { t } = useTranslation();
 
+  const userPermissions = useAtomValue(userPermissionsAtom);
+  const canEdit = !!userPermissions?.administration_ai_provider_write;
+
   const { columns } = useColumns();
-  const { groups, inputs } = useInputs();
-  const validationSchema = useValidationSchema();
+  const { groups, inputs } = useFormInputs({ canEdit });
+  const { validationSchema } = useValidationSchema();
 
   const { api, filtersConfiguration } = useAiProviders();
 
@@ -49,21 +55,25 @@ const AiProviders = (): ReactElement => {
   });
 
   const defaultValues = useMemo(
-    () => ({
-      ...initialValues,
-      isActivated: providersCount?.meta?.total === 0
-    }),
+    () => getDefaultValues({ isActivated: providersCount?.meta?.total === 0 }),
     [providersCount?.meta?.total]
+  );
+
+  // at most one provider is enabled: enabling one disables the other. The API
+  // has no duplication and no batch operation for providers.
+  const actions: Actions = useMemo(
+    () => ({
+      delete: () => canEdit,
+      edit: canEdit,
+      enableDisable: () => canEdit,
+      viewDetails: true
+    }),
+    [canEdit]
   );
 
   return (
     <ConfigurationBase<Filters>
-      actions={{
-        delete: () => true,
-        edit: true,
-        // at most one provider is enabled: enabling one disables the other
-        enableDisable: () => true
-      }}
+      actions={actions}
       api={api}
       columns={columns}
       columnsAtomKey={columnsAtomKey}
@@ -72,10 +82,12 @@ const AiProviders = (): ReactElement => {
       filtersAtomKey={filtersAtomKey}
       filtersConfiguration={filtersConfiguration}
       filtersInitialValues={filtersInitialValues}
+      filtersPanelWidth={60}
       form={{ defaultValues, groups, inputs, validationSchema }}
       formVariant="panel"
       isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
       labels={{
+        description: t(labelAiProvidersDescription),
         title: t(labelAiProviders),
         welcomePage: {
           actions: {
