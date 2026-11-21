@@ -3753,6 +3753,12 @@ msgstr "Services critiques"
 msgid "Critical status services"
 msgstr "Services au statut Critique"
 
+msgid "{{status}} — {{unhandled}} unhandled out of {{total}}"
+msgstr "{{status}} — {{unhandled}} non traité(s) sur {{total}}"
+
+msgid "{{status}} — {{total}} in total"
+msgstr "{{status}} — {{total}} au total"
+
 #: centreon/www/install/front_translate.php
 msgid "Critical threshold"
 msgstr "Seuil critique"

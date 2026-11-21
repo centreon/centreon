@@ -1,12 +1,4 @@
-import {
-  formatTopCounterCount,
-  formatTopCounterUnhandledOverTotal
-} from '@centreon/ui';
-
 import type { Criteria } from '../../Resources/Filter/Criterias/models';
-
-export const formatCount = formatTopCounterCount;
-export const formatUnhandledOverTotal = formatTopCounterUnhandledOverTotal;
 
 type ChangeFilterAndNavigate = (params: {
   criterias: Array<Criteria>;

@@ -16,11 +16,7 @@ import {
   warningCriterias
 } from '../getResourcesUrl';
 import type { Adapter } from '../useResourceCounters';
-import {
-  formatCount,
-  formatUnhandledOverTotal,
-  getNavigationFunction
-} from '../utils';
+import { getNavigationFunction } from '../utils';
 import {
   labelAll,
   labelCritical,
@@ -30,6 +26,8 @@ import {
   labelPending,
   labelPendingStatusServices,
   labelServices,
+  labelStatusCount,
+  labelUnhandledOutOfTotal,
   labelUnknown,
   labelUnknownStatusServices,
   labelWarning,
@@ -162,7 +160,6 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
 
   const config = {
     all: {
-      count: formatCount(data.total),
       label: t(labelAll),
       onClick: changeFilterAndNavigate({
         criterias: servicesCriterias,
@@ -172,10 +169,6 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
       to: servicesLink
     },
     critical: {
-      count: formatUnhandledOverTotal(
-        data.critical.unhandled,
-        data.critical.total
-      ),
       label: t(labelCritical),
       onClick: changeFilterAndNavigate({
         criterias: unhandledCriticalServicesCriterias,
@@ -184,10 +177,14 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
       severityCode: SeverityCode.High,
       shortCount: data.critical.unhandled,
       to: unhandledCriticalServicesLink,
+      tooltip: t(labelUnhandledOutOfTotal, {
+        status: t(labelCritical),
+        total: data.critical.total,
+        unhandled: data.critical.unhandled
+      }),
       topCounterAriaLabel: t(labelCriticalStatusServices)
     },
     ok: {
-      count: formatCount(data.ok),
       label: t(labelOk),
       onClick: changeFilterAndNavigate({
         criterias: okServicesCriterias,
@@ -196,10 +193,13 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
       severityCode: SeverityCode.OK,
       shortCount: data.ok,
       to: okServicesLink,
+      tooltip: t(labelStatusCount, {
+        status: t(labelOk),
+        total: data.ok
+      }),
       topCounterAriaLabel: t(labelOkStatusServices)
     },
     pending: {
-      count: formatCount(data.pending),
       label: t(labelPending),
       onClick: changeFilterAndNavigate({
         criterias: pendingServicesCriterias,
@@ -208,13 +208,13 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
       severityCode: SeverityCode.Pending,
       shortCount: data.pending,
       to: pendingServicesLink,
+      tooltip: t(labelStatusCount, {
+        status: t(labelPending),
+        total: data.pending
+      }),
       topCounterAriaLabel: t(labelPendingStatusServices)
     },
     unknown: {
-      count: formatUnhandledOverTotal(
-        data.unknown.unhandled,
-        data.unknown.total
-      ),
       label: t(labelUnknown),
       onClick: changeFilterAndNavigate({
         criterias: unhandledUnknownServicesCriterias,
@@ -223,13 +223,14 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
       severityCode: SeverityCode.Low,
       shortCount: data.unknown.unhandled,
       to: unhandledUnknownServicesLink,
+      tooltip: t(labelUnhandledOutOfTotal, {
+        status: t(labelUnknown),
+        total: data.unknown.total,
+        unhandled: data.unknown.unhandled
+      }),
       topCounterAriaLabel: t(labelUnknownStatusServices)
     },
     warning: {
-      count: formatUnhandledOverTotal(
-        data.warning.unhandled,
-        data.warning.total
-      ),
       label: t(labelWarning),
       onClick: changeFilterAndNavigate({
         criterias: unhandledWarningServicesCriterias,
@@ -238,6 +239,11 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
       severityCode: SeverityCode.Medium,
       shortCount: data.warning.unhandled,
       to: unhandledWarningServicesLink,
+      tooltip: t(labelUnhandledOutOfTotal, {
+        status: t(labelWarning),
+        total: data.warning.total,
+        unhandled: data.warning.unhandled
+      }),
       topCounterAriaLabel: t(labelWarningStatusServices)
     }
   };
@@ -251,16 +257,16 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
         const {
           to,
           shortCount,
-          count,
           topCounterAriaLabel,
           onClick,
-          severityCode
+          severityCode,
+          tooltip
         } = config[statusName as keyof typeof config];
 
         return {
           ariaLabel: topCounterAriaLabel,
           count: shortCount,
-          detail: count,
+          detail: tooltip,
           onClick,
           severityCode,
           to

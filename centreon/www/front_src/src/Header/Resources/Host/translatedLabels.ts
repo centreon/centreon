@@ -9,3 +9,7 @@ export const labelDown = 'Down';
 export const labelPending = 'Pending';
 export const labelUnreachable = 'Unreachable';
 export const labelUp = 'Up';
+
+export const labelUnhandledOutOfTotal =
+  '{{status}} — {{unhandled}} unhandled out of {{total}}';
+export const labelStatusCount = '{{status}} — {{total}} in total';
