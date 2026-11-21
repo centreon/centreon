@@ -56,7 +56,7 @@ final class CorrelateAlertsCommandHandlerTest extends TestCase
         $handler($this->command());
 
         $userMessage = $client->lastRequest?->messages[0]->content ?? '';
-        self::assertStringContainsString('2 resources are in a non-OK state', $userMessage);
+        self::assertStringContainsString('The operator selected the following 2 resources', $userMessage);
         // a service is labelled host / service, with its status and check output
         self::assertStringContainsString('db-server-01 / Ping (service) — status CRITICAL', $userMessage);
         self::assertStringContainsString('output: CRITICAL - Packet loss = 100%', $userMessage);

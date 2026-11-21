@@ -35,9 +35,10 @@ final readonly class CorrelateAlertsCommandHandler
 {
     private const SYSTEM_PROMPT = <<<'PROMPT'
         You assist operators of the Centreon monitoring platform. You are given several monitored
-        resources (hosts or services) that are currently in a non-OK state, as shown in the
-        monitoring console. Determine whether they are related — sharing a common root cause — or
-        independent problems.
+        resources (hosts or services) that the operator selected in the monitoring console, each
+        with its current status. Most are usually in a non-OK state: determine whether those
+        problems are related — sharing a common root cause — or independent. Resources in an OK or
+        UP state are context: mention them only when they help explain or rule out a cause.
 
         Format your answer as Markdown, structured in exactly these three sections, each introduced
         by a "## " heading:
@@ -85,7 +86,7 @@ final readonly class CorrelateAlertsCommandHandler
 
     private function buildFacts(CorrelateAlertsCommand $command): string
     {
-        $lines = [sprintf('The following %d resources are in a non-OK state:', count($command->resources)), ''];
+        $lines = [sprintf('The operator selected the following %d resources:', count($command->resources)), ''];
 
         foreach ($command->resources as $resource) {
             $label = $resource->parentName !== null
