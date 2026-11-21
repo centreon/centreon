@@ -24,6 +24,8 @@ declare(strict_types=1);
 namespace App\AiAssistance\Application\Command;
 
 use App\AiConfiguration\Domain\Llm\AiFeatureEnum;
+use App\AiConfiguration\Domain\Llm\Exception\LlmConfigurationException;
+use App\AiConfiguration\Domain\Llm\Exception\LlmRequestFailedException;
 use App\AiConfiguration\Domain\Llm\LlmClientFactoryInterface;
 use App\AiConfiguration\Domain\Llm\LlmMessage;
 use App\AiConfiguration\Domain\Llm\LlmRequest;
@@ -65,6 +67,10 @@ final readonly class ExplainResourceCommandHandler
     ) {
     }
 
+    /**
+     * @throws LlmConfigurationException when no provider is enabled or its spend limit is reached
+     * @throws LlmRequestFailedException when the provider fails, times out or answers nothing
+     */
     public function __invoke(ExplainResourceCommand $command): ExplainResourceResult
     {
         $client = $this->clientFactory->forActivatedProvider();

@@ -87,8 +87,8 @@ final class LiteLlmModelPriceCatalog implements ModelPriceCatalog
         // on 0.39999999999999997). Round to 6 decimals: enough for sub-cent
         // per-million prices, and it removes the artifact from the prefill.
         return new TierPricing(
-            inputPricePerMillion: round((float) $entry['input_cost_per_token'] * 1_000_000, 6),
-            outputPricePerMillion: round((float) $entry['output_cost_per_token'] * 1_000_000, 6),
+            inputPricePerMillion: round($entry['input_cost_per_token'] * 1_000_000, 6),
+            outputPricePerMillion: round($entry['output_cost_per_token'] * 1_000_000, 6),
         );
     }
 
@@ -117,12 +117,13 @@ final class LiteLlmModelPriceCatalog implements ModelPriceCatalog
     }
 
     /**
+     * @throws LlmRequestFailedException when the catalog can not be fetched
      * @return array<string, array{input_cost_per_token?: float, output_cost_per_token?: float}>
      */
     private function fetch(): array
     {
         $options = ['timeout' => self::TIMEOUT_SECONDS];
-        $proxyUrl = $this->proxyProvider->getProxyUrl();
+        $proxyUrl = $this->proxyProvider->findProxyUrl();
         if ($proxyUrl !== null) {
             $options['proxy'] = $proxyUrl;
         }
@@ -131,7 +132,7 @@ final class LiteLlmModelPriceCatalog implements ModelPriceCatalog
             /** @var array<string, array{input_cost_per_token?: float, output_cost_per_token?: float}> $catalog */
             $catalog = $this->httpClient->request('GET', self::CATALOG_URL, $options)->toArray();
         } catch (\Throwable $exception) {
-            throw LlmRequestFailedException::fromProviderError(0, $exception->getMessage());
+            throw LlmRequestFailedException::fromTransportError($exception->getMessage(), $exception);
         }
 
         return $catalog;

@@ -67,8 +67,8 @@ final class LlmRequestFailedException extends LlmException
         );
     }
 
-    public static function fromInvalidResponse(string $details): self
+    public static function fromInvalidResponse(string $details, ?\Throwable $previous = null): self
     {
-        return new self(sprintf('The AI provider returned an unexpected response: %s', $details));
+        return new self(sprintf('The AI provider returned an unexpected response: %s', $details), 0, $previous);
     }
 }

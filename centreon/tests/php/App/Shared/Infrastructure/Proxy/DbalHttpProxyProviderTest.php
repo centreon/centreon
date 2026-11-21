@@ -48,7 +48,7 @@ final class DbalHttpProxyProviderTest extends KernelTestCase
 
     public function testNoProxyConfigured(): void
     {
-        self::assertNull($this->provider->getProxyUrl());
+        self::assertNull($this->provider->findProxyUrl());
     }
 
     public function testProxyBuiltFromTheOptions(): void
@@ -58,6 +58,6 @@ final class DbalHttpProxyProviderTest extends KernelTestCase
         $this->connection->insert('options', ['key' => 'proxy_user', 'value' => 'user']);
         $this->connection->insert('options', ['key' => 'proxy_password', 'value' => 'pass']);
 
-        self::assertSame('http://user:pass@proxy.internal:3128', $this->provider->getProxyUrl());
+        self::assertSame('http://user:pass@proxy.internal:3128', $this->provider->findProxyUrl());
     }
 }

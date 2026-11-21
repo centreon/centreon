@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace App\AiConfiguration\Infrastructure\Dbal;
 
-use App\AiConfiguration\Domain\Usage\AiProviderUsageRepository;
+use App\AiConfiguration\Domain\Repository\AiProviderUsageRepository;
 use App\AiConfiguration\Domain\Usage\UsageLogEntry;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
 use Doctrine\DBAL\Connection;

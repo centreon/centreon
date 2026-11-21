@@ -35,7 +35,7 @@ final readonly class DbalHttpProxyProvider extends DbalRepository implements Htt
     ) {
     }
 
-    public function getProxyUrl(): ?string
+    public function findProxyUrl(): ?string
     {
         /** @var array<string, string|null> $options */
         $options = $this->connection->fetchAllKeyValue(

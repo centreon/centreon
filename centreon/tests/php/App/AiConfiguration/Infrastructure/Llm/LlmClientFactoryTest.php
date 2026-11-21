@@ -44,8 +44,10 @@ use App\AiConfiguration\Infrastructure\Llm\OpenAiCompatibleLlmClient;
 use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Clock\MockClock;
+use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Tests\App\AiConfiguration\Infrastructure\Double\FakeAiProviderRepository;
 use Tests\App\AiConfiguration\Infrastructure\Double\FakeAiProviderUsageRepository;
@@ -170,7 +172,7 @@ final class LlmClientFactoryTest extends TestCase
             new FakeHttpProxyProvider(),
             $usageRepository,
             new BudgetStatusChecker($usageRepository, new MockClock()),
-            $this->createMock(Security::class),
+            $this->securityWithoutUser(),
             new MockClock(),
             $this->vault,
         );
@@ -192,5 +194,16 @@ final class LlmClientFactoryTest extends TestCase
             description: null,
             isActivated: $isActivated,
         );
+    }
+
+    /**
+     * A real Security whose token storage holds no token: no logged-in user.
+     */
+    private function securityWithoutUser(): Security
+    {
+        $container = new Container();
+        $container->set('security.token_storage', new TokenStorage());
+
+        return new Security($container);
     }
 }

@@ -24,6 +24,8 @@ declare(strict_types=1);
 namespace App\AiConfiguration\Domain\Usage;
 
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProvider;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\Currency;
+use App\AiConfiguration\Domain\Repository\AiProviderUsageRepository;
 use Psr\Clock\ClockInterface;
 
 /**
@@ -44,7 +46,7 @@ final readonly class UsageSummaryProvider
         $currency = $aiProvider->currency;
         $id = $aiProvider->id();
 
-        if ($currency === null) {
+        if (! $currency instanceof Currency) {
             return new UsageSummary();
         }
 

@@ -24,6 +24,9 @@ declare(strict_types=1);
 namespace App\AiConfiguration\Domain\Usage;
 
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProvider;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\Currency;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\SpendLimit;
+use App\AiConfiguration\Domain\Repository\AiProviderUsageRepository;
 use Psr\Clock\ClockInterface;
 
 /**
@@ -44,7 +47,7 @@ final readonly class BudgetStatusChecker
         $limit = $aiProvider->limit;
         $currency = $aiProvider->currency;
 
-        if ($currency === null || $limit === null || ! $limit->hasAnyLimit()) {
+        if (! $currency instanceof Currency || ! $limit instanceof SpendLimit || ! $limit->hasAnyLimit()) {
             return false;
         }
 

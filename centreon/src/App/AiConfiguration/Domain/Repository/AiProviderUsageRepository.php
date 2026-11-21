@@ -21,7 +21,9 @@
 
 declare(strict_types=1);
 
-namespace App\AiConfiguration\Domain\Usage;
+namespace App\AiConfiguration\Domain\Repository;
+
+use App\AiConfiguration\Domain\Usage\UsageLogEntry;
 
 interface AiProviderUsageRepository
 {

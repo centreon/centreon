@@ -29,7 +29,7 @@ use App\AiConfiguration\Domain\Llm\Exception\LlmRequestFailedException;
 use App\AiConfiguration\Domain\Llm\LlmClientInterface;
 use App\AiConfiguration\Domain\Llm\LlmRequest;
 use App\AiConfiguration\Domain\Llm\LlmResponse;
-use App\AiConfiguration\Domain\Usage\AiProviderUsageRepository;
+use App\AiConfiguration\Domain\Repository\AiProviderUsageRepository;
 use App\AiConfiguration\Domain\Usage\BudgetStatusChecker;
 use App\AiConfiguration\Domain\Usage\UsageLogEntry;
 use App\Security\Infrastructure\Security\CredentialUser;
@@ -84,6 +84,9 @@ final readonly class MeteredLlmClient implements LlmClientInterface
         return $this->inner->listModels();
     }
 
+    /**
+     * @throws LlmConfigurationException when the provider has reached its spend limit
+     */
     private function assertWithinBudget(): void
     {
         if ($this->budgetChecker->isExhausted($this->provider)) {

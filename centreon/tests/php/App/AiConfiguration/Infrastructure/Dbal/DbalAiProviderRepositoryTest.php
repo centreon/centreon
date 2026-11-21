@@ -136,19 +136,19 @@ final class DbalAiProviderRepositoryTest extends KernelTestCase
         $all = $this->repository->findAll(null);
         self::assertCount(2, $all);
 
-        $criteria = (new AiProviderCriteria())->withName('mistral', AiProviderCriteria::OPERATOR_LIKE);
+        $criteria = new AiProviderCriteria()->withName('mistral', AiProviderCriteria::OPERATOR_LIKE);
         $filtered = $this->repository->findAll($criteria);
         self::assertCount(1, $filtered);
 
-        $criteria = (new AiProviderCriteria())->withType(AiProviderTypeEnum::Anthropic->value);
+        $criteria = new AiProviderCriteria()->withType(AiProviderTypeEnum::Anthropic->value);
         $filtered = $this->repository->findAll($criteria);
         self::assertCount(1, $filtered);
 
-        $criteria = (new AiProviderCriteria())->withIsActivated(true);
+        $criteria = new AiProviderCriteria()->withIsActivated(true);
         $filtered = $this->repository->findAll($criteria);
         self::assertCount(1, $filtered);
 
-        $criteria = (new AiProviderCriteria())->withPagination(new Pagination(1, 1))->withSort('name', 'ASC');
+        $criteria = new AiProviderCriteria()->withPagination(new Pagination(1, 1))->withSort('name', 'ASC');
         $paginated = $this->repository->findAll($criteria);
         self::assertCount(1, $paginated);
     }

@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\AiConfiguration\Application\Command;
 
+use App\AiConfiguration\Domain\Exception\AiProviderNotFoundException;
 use App\AiConfiguration\Domain\Llm\Exception\LlmException;
 use App\AiConfiguration\Domain\Llm\LlmClientFactoryInterface;
 use App\AiConfiguration\Domain\Llm\LlmRequest;
@@ -38,6 +39,9 @@ final readonly class TestAiProviderCommandHandler
     ) {
     }
 
+    /**
+     * @throws AiProviderNotFoundException when the provider to test does not exist
+     */
     public function __invoke(TestAiProviderCommand $command): TestAiProviderResult
     {
         $aiProvider = $this->repository->getById($command->id);

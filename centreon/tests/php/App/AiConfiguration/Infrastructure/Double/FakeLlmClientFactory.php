@@ -28,11 +28,11 @@ use App\AiConfiguration\Domain\Llm\Exception\LlmConfigurationException;
 use App\AiConfiguration\Domain\Llm\LlmClientFactoryInterface;
 use App\AiConfiguration\Domain\Llm\LlmClientInterface;
 
-final class FakeLlmClientFactory implements LlmClientFactoryInterface
+final readonly class FakeLlmClientFactory implements LlmClientFactoryInterface
 {
     public function __construct(
-        private readonly ?LlmClientInterface $client = null,
-        private readonly ?LlmConfigurationException $exception = null,
+        private ?LlmClientInterface $client = null,
+        private ?LlmConfigurationException $exception = null,
     ) {
     }
 

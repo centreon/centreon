@@ -40,7 +40,9 @@ try {
 } catch (Throwable $e) {
     CentreonLog::create()->error(
         CentreonLog::TYPE_BUSINESS_LOG,
-        'AiProviderUsagePurge CRON: failed to purge old usage rows'
+        'AiProviderUsagePurge CRON: failed to purge old usage rows',
+        ['table' => 'ai_provider_usage_log', 'retention' => '13 months'],
+        $e
     );
 
     echo '[' . date(DATE_RFC822) . '] ' . $e->getMessage() . "\n";

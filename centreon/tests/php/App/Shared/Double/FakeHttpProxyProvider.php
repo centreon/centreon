@@ -32,7 +32,7 @@ final class FakeHttpProxyProvider implements HttpProxyProvider
     ) {
     }
 
-    public function getProxyUrl(): ?string
+    public function findProxyUrl(): ?string
     {
         return $this->proxyUrl;
     }

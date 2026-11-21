@@ -115,8 +115,8 @@ final readonly class DbalAiProviderTransformer implements TransformerInterface
         }
 
         return new SpendLimit(
-            daily: isset($limits['daily']) ? (float) $limits['daily'] : null,
-            monthly: isset($limits['monthly']) ? (float) $limits['monthly'] : null,
+            daily: $limits['daily'] ?? null,
+            monthly: $limits['monthly'] ?? null,
         );
     }
 }

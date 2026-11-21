@@ -28,6 +28,7 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderId;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderName;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
+use App\AiConfiguration\Domain\Exception\AiProviderNotFoundException;
 use App\AiConfiguration\Domain\Llm\Exception\LlmException;
 use App\AiConfiguration\Domain\Llm\LlmClientFactoryInterface;
 use App\AiConfiguration\Domain\Repository\AiProviderRepository;
@@ -44,6 +45,9 @@ final readonly class DiscoverModelsCommandHandler
     ) {
     }
 
+    /**
+     * @throws AiProviderNotFoundException when the provider to reuse does not exist
+     */
     public function __invoke(DiscoverModelsCommand $command): DiscoverModelsResult
     {
         $apiToken = $command->apiToken;

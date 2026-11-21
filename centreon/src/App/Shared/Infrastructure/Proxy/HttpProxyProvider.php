@@ -30,5 +30,5 @@ interface HttpProxyProvider
      * (protocol://[user:password@]host[:port]), or null when the platform
      * has no proxy configured.
      */
-    public function getProxyUrl(): ?string;
+    public function findProxyUrl(): ?string;
 }

@@ -44,6 +44,9 @@ final readonly class BillingInput
     ) {
     }
 
+    /**
+     * @throws UnprocessableEntityHttpException when prices, limits and currency are inconsistent
+     */
     public static function fromFields(
         ?string $currency,
         ?float $priceDefaultInput,
@@ -56,20 +59,20 @@ final readonly class BillingInput
         $defaultPricing = self::tierPricing($priceDefaultInput, $priceDefaultOutput, 'default');
         $fastPricing = self::tierPricing($priceFastInput, $priceFastOutput, 'fast');
 
-        if ($fastPricing !== null && $defaultPricing === null) {
+        if ($fastPricing instanceof TierPricing && ! $defaultPricing instanceof TierPricing) {
             throw new UnprocessableEntityHttpException('The default tier prices are required when a fast tier price is set.');
         }
 
-        $pricing = $defaultPricing !== null ? new Pricing($defaultPricing, $fastPricing) : null;
+        $pricing = $defaultPricing instanceof TierPricing ? new Pricing($defaultPricing, $fastPricing) : null;
 
         $hasLimit = $limitDaily !== null || $limitMonthly !== null;
         $limit = $hasLimit ? new SpendLimit($limitDaily, $limitMonthly) : null;
 
-        if ($hasLimit && $pricing === null) {
+        if ($hasLimit && ! $pricing instanceof Pricing) {
             throw new UnprocessableEntityHttpException('A spend limit requires the default tier prices to be set.');
         }
 
-        if (($pricing !== null || $limit !== null) && ($currency === null || trim($currency) === '')) {
+        if (($pricing instanceof Pricing || $limit instanceof SpendLimit) && ($currency === null || trim($currency) === '')) {
             throw new UnprocessableEntityHttpException('A currency is required when prices or spend limits are set.');
         }
 
@@ -80,6 +83,9 @@ final readonly class BillingInput
         );
     }
 
+    /**
+     * @throws UnprocessableEntityHttpException when the value is not valid
+     */
     private static function tierPricing(?float $input, ?float $output, string $tier): ?TierPricing
     {
         if ($input === null && $output === null) {

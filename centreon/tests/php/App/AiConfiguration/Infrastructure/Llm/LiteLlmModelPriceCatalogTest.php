@@ -117,6 +117,7 @@ final class LiteLlmModelPriceCatalogTest extends TestCase
         $catalog = new LiteLlmModelPriceCatalog($httpClient, new FakeHttpProxyProvider(), new ArrayAdapter());
 
         $catalog->priceFor('gpt-4o', AiProviderTypeEnum::OpenAi);
+
         $second = $catalog->priceFor('gpt-4o', AiProviderTypeEnum::OpenAi);
 
         // a second lookup must not trigger a second request (still found)

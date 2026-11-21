@@ -47,6 +47,8 @@ use App\AiConfiguration\Infrastructure\Llm\MeteredLlmClient;
 use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Clock\MockClock;
+use Symfony\Component\DependencyInjection\Container;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
 use Tests\App\AiConfiguration\Infrastructure\Double\FakeAiProviderUsageRepository;
 use Tests\App\AiConfiguration\Infrastructure\Double\FakeLlmClient;
 
@@ -158,15 +160,12 @@ final class MeteredLlmClientTest extends TestCase
         FakeAiProviderUsageRepository $usageRepository,
         FakeLlmClient $inner,
     ): MeteredLlmClient {
-        $security = $this->createMock(Security::class);
-        $security->method('getUser')->willReturn(null);
-
         return new MeteredLlmClient(
             $inner,
             $provider,
             $usageRepository,
             new BudgetStatusChecker($usageRepository, new MockClock()),
-            $security,
+            $this->securityWithoutUser(),
             new MockClock(),
         );
     }
@@ -198,5 +197,16 @@ final class MeteredLlmClientTest extends TestCase
             pricing: $pricing,
             limit: $limit,
         );
+    }
+
+    /**
+     * A real Security whose token storage holds no token: no logged-in user.
+     */
+    private function securityWithoutUser(): Security
+    {
+        $container = new Container();
+        $container->set('security.token_storage', new TokenStorage());
+
+        return new Security($container);
     }
 }

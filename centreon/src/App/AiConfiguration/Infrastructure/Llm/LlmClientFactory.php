@@ -30,7 +30,7 @@ use App\AiConfiguration\Domain\Llm\Exception\LlmConfigurationException;
 use App\AiConfiguration\Domain\Llm\LlmClientFactoryInterface;
 use App\AiConfiguration\Domain\Llm\LlmClientInterface;
 use App\AiConfiguration\Domain\Repository\AiProviderRepository;
-use App\AiConfiguration\Domain\Usage\AiProviderUsageRepository;
+use App\AiConfiguration\Domain\Repository\AiProviderUsageRepository;
 use App\AiConfiguration\Domain\Usage\BudgetStatusChecker;
 use App\Shared\Domain\VaultInterface;
 use App\Shared\Infrastructure\Proxy\HttpProxyProvider;
@@ -159,7 +159,7 @@ final readonly class LlmClientFactory implements LlmClientFactoryInterface
      */
     private function httpClient(): HttpClientInterface
     {
-        $proxyUrl = $this->proxyProvider->getProxyUrl();
+        $proxyUrl = $this->proxyProvider->findProxyUrl();
 
         return $proxyUrl === null
             ? $this->httpClient

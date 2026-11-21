@@ -37,13 +37,13 @@ use App\AiConfiguration\Domain\Llm\LlmResponse;
  * the Anthropic Messages API at /anthropic/v1/messages — so chat is routed by
  * model family.
  */
-final class BedrockLlmClient implements LlmClientInterface
+final readonly class BedrockLlmClient implements LlmClientInterface
 {
     public function __construct(
-        private readonly LlmClientInterface $openAiCompatible,
-        private readonly LlmClientInterface $anthropicMessages,
-        private readonly ModelName $defaultModel,
-        private readonly ?ModelName $fastModel,
+        private LlmClientInterface $openAiCompatible,
+        private LlmClientInterface $anthropicMessages,
+        private ModelName $defaultModel,
+        private ?ModelName $fastModel,
     ) {
     }
 

@@ -39,15 +39,15 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
  * OpenAI-compatible /models—reports each model's supported generation methods,
  * so embedding/image/TTS models can be filtered out.
  */
-final class GeminiLlmClient implements LlmClientInterface
+final readonly class GeminiLlmClient implements LlmClientInterface
 {
     private const TIMEOUT_SECONDS = 20;
 
     public function __construct(
-        private readonly LlmClientInterface $delegate,
-        private readonly HttpClientInterface $httpClient,
-        private readonly EndpointUrl $endpointUrl,
-        private readonly ApiToken $apiToken,
+        private LlmClientInterface $delegate,
+        private HttpClientInterface $httpClient,
+        private EndpointUrl $endpointUrl,
+        private ApiToken $apiToken,
     ) {
     }
 
@@ -83,7 +83,7 @@ final class GeminiLlmClient implements LlmClientInterface
             /** @var array{models?: array<array{name?: string, supportedGenerationMethods?: array<string>}>} $data */
             $data = $response->toArray();
         } catch (HttpClientExceptionInterface $exception) {
-            throw LlmRequestFailedException::fromInvalidResponse($exception->getMessage());
+            throw LlmRequestFailedException::fromInvalidResponse($exception->getMessage(), $exception);
         }
 
         $ids = [];

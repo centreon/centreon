@@ -272,7 +272,7 @@ final readonly class AnthropicLlmClient implements LlmClientInterface
             // the headers arrived, but the body stalled (e.g. a model still reasoning)
             throw LlmRequestFailedException::fromTimeout($timeout, $exception);
         } catch (HttpClientExceptionInterface $exception) {
-            throw LlmRequestFailedException::fromInvalidResponse($exception->getMessage());
+            throw LlmRequestFailedException::fromInvalidResponse($exception->getMessage(), $exception);
         }
 
         /** @var array<string, mixed> $data */

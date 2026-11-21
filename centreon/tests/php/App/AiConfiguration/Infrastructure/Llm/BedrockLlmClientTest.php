@@ -108,8 +108,10 @@ final class BedrockLlmClientTest extends TestCase
     {
         $openAi = new FakeLlmClient();
         $openAi->models = ['anthropic.claude-opus-4-8', 'qwen.qwen3-32b'];
+
         $anthropic = new FakeLlmClient();
         $anthropic->models = ['unused'];
+
         $client = new BedrockLlmClient(
             $openAi,
             $anthropic,

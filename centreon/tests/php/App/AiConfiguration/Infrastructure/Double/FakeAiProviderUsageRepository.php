@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\App\AiConfiguration\Infrastructure\Double;
 
-use App\AiConfiguration\Domain\Usage\AiProviderUsageRepository;
+use App\AiConfiguration\Domain\Repository\AiProviderUsageRepository;
 use App\AiConfiguration\Domain\Usage\UsageLogEntry;
 
 final class FakeAiProviderUsageRepository implements AiProviderUsageRepository
