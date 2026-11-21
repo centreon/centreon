@@ -15,10 +15,17 @@ import { aiProviderTypeLabels, defaultModels } from '../utils';
 
 const options = Object.values(AiProviderType);
 
+interface FormValues {
+  defaultModel?: string | null;
+  fastModel?: string | null;
+  name?: string | null;
+  type?: AiProviderType | null;
+}
+
 const TypeField = ({ fieldName }: InputPropsWithoutGroup): JSX.Element => {
   const { t } = useTranslation();
   const { values, errors, touched, setValues, setFieldTouched } =
-    useFormikContext();
+    useFormikContext<FormValues>();
 
   const { mode } = useAtomValue(formStateAtom);
   const isEditing = equals(mode, 'edit');

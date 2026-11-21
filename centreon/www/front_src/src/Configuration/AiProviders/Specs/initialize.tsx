@@ -21,16 +21,9 @@ const initialize = (): void => {
   const store = createStore();
 
   cy.fixture('AiProviders/listAiProviders.json').then((aiProviders) => {
-    // the add form reads the provider total from a dedicated limit=1 request;
-    // registered first (MSW first match wins) and under its own alias so it
-    // does not shift the getAiProviders request sequence the tests rely on
-    cy.interceptAPIRequest({
-      alias: 'getAiProvidersCount',
-      method: Method.GET,
-      path: `**${aiProvidersEndpoint}?page=1&limit=1**`,
-      response: aiProviders
-    });
-
+    // also answers the limit=1 request the add form reads the provider total
+    // from: request matching ignores the query string, so a dedicated mock
+    // for it would swallow every listing request
     cy.interceptAPIRequest({
       alias: 'getAiProviders',
       method: Method.GET,

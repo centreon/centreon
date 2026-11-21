@@ -265,9 +265,9 @@ const AskAiFilter = (): JSX.Element | null => {
             <TextField
               autoFocus
               fullWidth
-              multiline
               inputProps={{ 'data-testid': labelAskAiPlaceholder }}
               maxRows={4}
+              multiline
               onChange={(event) => setPrompt(event.target.value)}
               onKeyDown={onKeyDown}
               placeholder={t(labelAskAiPlaceholder)}
