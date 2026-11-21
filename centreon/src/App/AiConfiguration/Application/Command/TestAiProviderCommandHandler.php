@@ -23,12 +23,9 @@ declare(strict_types=1);
 
 namespace App\AiConfiguration\Application\Command;
 
-use App\AiConfiguration\Domain\Llm\AiFeatureEnum;
 use App\AiConfiguration\Domain\Llm\Exception\LlmException;
 use App\AiConfiguration\Domain\Llm\LlmClientFactoryInterface;
-use App\AiConfiguration\Domain\Llm\LlmMessage;
 use App\AiConfiguration\Domain\Llm\LlmRequest;
-use App\AiConfiguration\Domain\Llm\LlmRoleEnum;
 use App\AiConfiguration\Domain\Repository\AiProviderRepository;
 use App\Shared\Application\Command\AsCommandHandler;
 
@@ -48,12 +45,7 @@ final readonly class TestAiProviderCommandHandler
         try {
             $client = $this->clientFactory->forProvider($aiProvider);
 
-            $response = $client->complete(new LlmRequest(
-                messages: [new LlmMessage(LlmRoleEnum::User, 'Reply with the single word: pong')],
-                feature: AiFeatureEnum::ConnectionTest,
-                model: $command->model,
-                maxTokens: 16,
-            ));
+            $response = $client->complete(LlmRequest::connectionTest($command->model));
         } catch (LlmException $exception) {
             return new TestAiProviderResult(success: false, message: $exception->getMessage());
         }

@@ -36,6 +36,7 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\SpendLimit;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\TierPricing;
 use App\AiConfiguration\Domain\Llm\AiFeatureEnum;
 use App\AiConfiguration\Domain\Llm\Exception\LlmConfigurationException;
+use App\AiConfiguration\Domain\Llm\Exception\LlmRequestFailedException;
 use App\AiConfiguration\Domain\Llm\LlmMessage;
 use App\AiConfiguration\Domain\Llm\LlmRequest;
 use App\AiConfiguration\Domain\Llm\LlmResponse;
@@ -103,6 +104,53 @@ final class MeteredLlmClientTest extends TestCase
 
         self::assertNull($inner->lastRequest, 'the inner client must not be called when over budget');
         self::assertSame([], $usageRepository->added);
+    }
+
+    public function testEmptyAnswerFailsAfterTheUsageIsRecorded(): void
+    {
+        $usageRepository = new FakeAiProviderUsageRepository();
+        $client = $this->metered(
+            $this->provider(),
+            $usageRepository,
+            new FakeLlmClient(new LlmResponse('', 'gemini-4-hydrogen', new LlmUsage(37, 3))),
+        );
+
+        try {
+            $client->complete($this->request());
+            self::fail('Expected an empty answer to fail');
+        } catch (LlmRequestFailedException $exception) {
+            self::assertStringContainsString('empty answer', $exception->getMessage());
+        }
+
+        self::assertNotNull($usageRepository->lastAdded, 'the tokens spent must still be recorded');
+        self::assertSame(3, $usageRepository->lastAdded->outputTokens);
+    }
+
+    public function testTruncatedEmptyAnswerNamesTheTokenBudget(): void
+    {
+        $client = $this->metered(
+            $this->provider(),
+            new FakeAiProviderUsageRepository(),
+            new FakeLlmClient(new LlmResponse('', 'gemini-4-hydrogen', new LlmUsage(37, 1024), truncated: true)),
+        );
+
+        $this->expectException(LlmRequestFailedException::class);
+        $this->expectExceptionMessage('whole budget of 1024 tokens');
+
+        $client->complete($this->request());
+    }
+
+    public function testConnectionTestAcceptsAnEmptyAnswer(): void
+    {
+        $client = $this->metered(
+            $this->provider(),
+            new FakeAiProviderUsageRepository(),
+            new FakeLlmClient(new LlmResponse('', 'gemini-4-hydrogen', new LlmUsage(7, 16), truncated: true)),
+        );
+
+        $response = $client->complete(LlmRequest::connectionTest(null));
+
+        self::assertSame('gemini-4-hydrogen', $response->model);
     }
 
     private function metered(

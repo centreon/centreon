@@ -61,6 +61,17 @@ final class TestAiProviderConnectionCommandHandlerTest extends TestCase
         self::assertSame('claude-sonnet-4-6', $result->model);
     }
 
+    public function testSendsAShortRequestThatNeedsNoAnswer(): void
+    {
+        $client = new FakeLlmClient();
+
+        ($this->handler($client))($this->command(apiToken: new ApiToken('typed-token')));
+
+        self::assertNotNull($client->lastRequest);
+        self::assertSame(30, $client->lastRequest->timeoutSeconds);
+        self::assertFalse($client->lastRequest->requiresAnswer);
+    }
+
     public function testFailureReportsTheProviderError(): void
     {
         $handler = $this->handler(new FakeLlmClient(

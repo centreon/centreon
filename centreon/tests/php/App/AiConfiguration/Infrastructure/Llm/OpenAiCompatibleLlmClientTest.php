@@ -199,6 +199,52 @@ final class OpenAiCompatibleLlmClientTest extends TestCase
         $this->createClient($httpClient)->complete($this->createRequest());
     }
 
+    public function testIdleTimeoutIsReportedWithItsDuration(): void
+    {
+        // an empty chunk is how MockResponse simulates an idle timeout
+        $httpClient = new MockHttpClient(new MockResponse(['']));
+
+        $this->expectException(LlmRequestFailedException::class);
+        $this->expectExceptionMessage('sent nothing for 30 seconds');
+
+        $this->createClient($httpClient)->complete(LlmRequest::connectionTest(null));
+    }
+
+    public function testSendsTheTimeoutOfTheRequest(): void
+    {
+        $timeouts = [];
+        $httpClient = new MockHttpClient(
+            static function (string $method, string $url, array $options) use (&$timeouts): MockResponse {
+                $timeouts[] = $options['timeout'];
+
+                return new MockResponse(json_encode([
+                    'model' => 'mistral-small-latest',
+                    'choices' => [['message' => ['content' => 'pong']]],
+                ], \JSON_THROW_ON_ERROR));
+            }
+        );
+
+        $client = $this->createClient($httpClient);
+        $client->complete(LlmRequest::connectionTest(null));
+        $client->complete($this->createRequest());
+
+        self::assertEquals([30, 120], $timeouts);
+    }
+
+    public function testFinishReasonLengthMarksTheResponseTruncated(): void
+    {
+        $httpClient = new MockHttpClient(new MockResponse(json_encode([
+            'model' => 'gemini-4-hydrogen',
+            'choices' => [['finish_reason' => 'length', 'message' => ['role' => 'assistant']]],
+            'usage' => ['prompt_tokens' => 37, 'completion_tokens' => 3],
+        ], \JSON_THROW_ON_ERROR)));
+
+        $response = $this->createClient($httpClient)->complete($this->createRequest());
+
+        self::assertSame('', $response->content);
+        self::assertTrue($response->truncated);
+    }
+
     public function testStreamYieldsTextDeltasUntilDone(): void
     {
         $sse = [

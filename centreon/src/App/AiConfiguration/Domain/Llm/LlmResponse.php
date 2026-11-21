@@ -25,10 +25,15 @@ namespace App\AiConfiguration\Domain\Llm;
 
 final readonly class LlmResponse
 {
+    /**
+     * @param bool $truncated whether the model stopped because it reached the
+     *                        token limit of the request
+     */
     public function __construct(
         public string $content,
         public string $model,
         public LlmUsage $usage,
+        public bool $truncated = false,
     ) {
     }
 }

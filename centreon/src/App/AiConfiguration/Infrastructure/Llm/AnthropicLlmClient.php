@@ -34,6 +34,7 @@ use App\AiConfiguration\Domain\Llm\LlmRequest;
 use App\AiConfiguration\Domain\Llm\LlmResponse;
 use App\AiConfiguration\Domain\Llm\LlmUsage;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface as HttpClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TimeoutExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
@@ -41,20 +42,20 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 /**
  * Client for the Anthropic Messages API (https://docs.anthropic.com).
  */
-final class AnthropicLlmClient implements LlmClientInterface
+final readonly class AnthropicLlmClient implements LlmClientInterface
 {
     private const ANTHROPIC_VERSION = '2023-06-01';
     private const TIMEOUT_SECONDS = 120;
 
     public function __construct(
-        private readonly HttpClientInterface $httpClient,
-        private readonly EndpointUrl $endpointUrl,
-        private readonly ApiToken $apiToken,
-        private readonly ModelName $defaultModel,
-        private readonly ?ModelName $fastModel,
+        private HttpClientInterface $httpClient,
+        private EndpointUrl $endpointUrl,
+        private ApiToken $apiToken,
+        private ModelName $defaultModel,
+        private ?ModelName $fastModel,
         // native Anthropic exposes the Messages API at /v1/messages; Bedrock
         // Mantle exposes the same API at /anthropic/v1/messages
-        private readonly string $messagesPath = '/v1/messages',
+        private string $messagesPath = '/v1/messages',
     ) {
     }
 
@@ -65,9 +66,10 @@ final class AnthropicLlmClient implements LlmClientInterface
         /** @var array{
          *   content?: array<array{type?: string, text?: string}>,
          *   model?: string,
+         *   stop_reason?: string|null,
          *   usage?: array{input_tokens?: int, output_tokens?: int},
          * } $data */
-        $data = $this->decodeOrFail($response);
+        $data = $this->decodeOrFail($response, $this->timeoutFor($request));
 
         $content = '';
         foreach ($data['content'] ?? [] as $block) {
@@ -83,19 +85,22 @@ final class AnthropicLlmClient implements LlmClientInterface
                 inputTokens: $data['usage']['input_tokens'] ?? 0,
                 outputTokens: $data['usage']['output_tokens'] ?? 0,
             ),
+            truncated: ($data['stop_reason'] ?? null) === 'max_tokens',
         );
     }
 
     public function stream(LlmRequest $request): \Generator
     {
+        $timeout = $this->timeoutFor($request);
         $response = $this->sendRequest($request, stream: true);
-        $this->assertSuccessful($response);
+        $this->assertSuccessful($response, $timeout);
 
         $parser = new ServerSentEventParser();
         $content = '';
         $model = '';
         $inputTokens = 0;
         $outputTokens = 0;
+        $truncated = false;
 
         try {
             foreach ($this->httpClient->stream($response) as $chunk) {
@@ -104,7 +109,7 @@ final class AnthropicLlmClient implements LlmClientInterface
                         /** @var array{
                          *   type?: string,
                          *   message?: array{model?: string, usage?: array{input_tokens?: int}},
-                         *   delta?: array{type?: string, text?: string},
+                         *   delta?: array{type?: string, text?: string, stop_reason?: string|null},
                          *   usage?: array{output_tokens?: int},
                          *   error?: array{message?: string},
                          * } $event */
@@ -129,6 +134,9 @@ final class AnthropicLlmClient implements LlmClientInterface
                             break;
                         case 'message_delta':
                             $outputTokens = $event['usage']['output_tokens'] ?? $outputTokens;
+                            if (($event['delta']['stop_reason'] ?? null) === 'max_tokens') {
+                                $truncated = true;
+                            }
                             break;
                         case 'error':
                             throw LlmRequestFailedException::fromInvalidResponse(
@@ -137,11 +145,13 @@ final class AnthropicLlmClient implements LlmClientInterface
                     }
                 }
             }
+        } catch (TimeoutExceptionInterface $exception) {
+            throw LlmRequestFailedException::fromTimeout($timeout, $exception);
         } catch (TransportExceptionInterface $exception) {
             throw LlmRequestFailedException::fromTransportError($exception->getMessage(), $exception);
         }
 
-        return new LlmResponse($content, $model, new LlmUsage($inputTokens, $outputTokens));
+        return new LlmResponse($content, $model, new LlmUsage($inputTokens, $outputTokens), $truncated);
     }
 
     public function listModels(): array
@@ -163,7 +173,7 @@ final class AnthropicLlmClient implements LlmClientInterface
         }
 
         /** @var array{data?: array<array{id?: string}>} $data */
-        $data = $this->decodeOrFail($response);
+        $data = $this->decodeOrFail($response, self::TIMEOUT_SECONDS);
 
         $ids = [];
         foreach ($data['data'] ?? [] as $model) {
@@ -206,11 +216,16 @@ final class AnthropicLlmClient implements LlmClientInterface
                     'x-api-key' => $this->apiToken->value,
                 ],
                 'json' => $payload,
-                'timeout' => self::TIMEOUT_SECONDS,
+                'timeout' => $this->timeoutFor($request),
             ]);
         } catch (TransportExceptionInterface $exception) {
             throw LlmRequestFailedException::fromTransportError($exception->getMessage(), $exception);
         }
+    }
+
+    private function timeoutFor(LlmRequest $request): int
+    {
+        return $request->timeoutSeconds ?? self::TIMEOUT_SECONDS;
     }
 
     private function resolveTierModel(LlmModelTierEnum $tier): ModelName
@@ -221,10 +236,15 @@ final class AnthropicLlmClient implements LlmClientInterface
         };
     }
 
-    private function assertSuccessful(ResponseInterface $response): void
+    /**
+     * @param int $timeout the idle timeout of the request, reported if it is reached
+     */
+    private function assertSuccessful(ResponseInterface $response, int $timeout): void
     {
         try {
             $statusCode = $response->getStatusCode();
+        } catch (TimeoutExceptionInterface $exception) {
+            throw LlmRequestFailedException::fromTimeout($timeout, $exception);
         } catch (TransportExceptionInterface $exception) {
             throw LlmRequestFailedException::fromTransportError($exception->getMessage(), $exception);
         }
@@ -238,14 +258,19 @@ final class AnthropicLlmClient implements LlmClientInterface
     }
 
     /**
+     * @param int $timeout the idle timeout of the request, reported if it is reached
+     *
      * @return array<string, mixed>
      */
-    private function decodeOrFail(ResponseInterface $response): array
+    private function decodeOrFail(ResponseInterface $response, int $timeout): array
     {
-        $this->assertSuccessful($response);
+        $this->assertSuccessful($response, $timeout);
 
         try {
             $data = $response->toArray();
+        } catch (TimeoutExceptionInterface $exception) {
+            // the headers arrived, but the body stalled (e.g. a model still reasoning)
+            throw LlmRequestFailedException::fromTimeout($timeout, $exception);
         } catch (HttpClientExceptionInterface $exception) {
             throw LlmRequestFailedException::fromInvalidResponse($exception->getMessage());
         }

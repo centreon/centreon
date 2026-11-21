@@ -193,6 +193,32 @@ final class AnthropicLlmClientTest extends TestCase
         self::assertSame(2, $response->usage->outputTokens);
     }
 
+    public function testIdleTimeoutIsReportedWithItsDuration(): void
+    {
+        // an empty chunk is how MockResponse simulates an idle timeout
+        $httpClient = new MockHttpClient(new MockResponse(['']));
+
+        $this->expectException(LlmRequestFailedException::class);
+        $this->expectExceptionMessage('sent nothing for 120 seconds');
+
+        $this->createClient($httpClient)->complete($this->createRequest());
+    }
+
+    public function testMaxTokensStopReasonMarksTheResponseTruncated(): void
+    {
+        $httpClient = new MockHttpClient(new MockResponse(json_encode([
+            'content' => [['type' => 'thinking', 'thinking' => '…']],
+            'model' => 'claude-sonnet-4-6',
+            'stop_reason' => 'max_tokens',
+            'usage' => ['input_tokens' => 12, 'output_tokens' => 16],
+        ], \JSON_THROW_ON_ERROR)));
+
+        $response = $this->createClient($httpClient)->complete($this->createRequest());
+
+        self::assertSame('', $response->content);
+        self::assertTrue($response->truncated);
+    }
+
     private function createClient(HttpClientInterface $httpClient): AnthropicLlmClient
     {
         return new AnthropicLlmClient(

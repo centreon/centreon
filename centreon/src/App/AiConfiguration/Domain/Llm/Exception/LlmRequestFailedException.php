@@ -33,6 +33,32 @@ final class LlmRequestFailedException extends LlmException
         return new self(sprintf('The AI provider can not be reached: %s', $message), 0, $previous);
     }
 
+    public static function fromTimeout(int $timeoutSeconds, ?\Throwable $previous = null): self
+    {
+        return new self(
+            sprintf(
+                'The AI provider sent nothing for %d seconds: the model may be busy, throttled or not '
+                . 'available to this account. Try again later, or choose another model.',
+                $timeoutSeconds
+            ),
+            0,
+            $previous
+        );
+    }
+
+    public static function fromEmptyAnswer(bool $truncated, int $maxTokens): self
+    {
+        if ($truncated) {
+            return new self(sprintf(
+                'The model used its whole budget of %d tokens without writing an answer, probably '
+                . 'reasoning. Choose another model.',
+                $maxTokens
+            ));
+        }
+
+        return new self('The model returned an empty answer. Try again, or choose another model.');
+    }
+
     public static function fromProviderError(int $statusCode, string $message): self
     {
         return new self(

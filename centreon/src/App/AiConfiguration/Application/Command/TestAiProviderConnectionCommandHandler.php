@@ -27,12 +27,9 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProvider;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderId;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderName;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
-use App\AiConfiguration\Domain\Llm\AiFeatureEnum;
 use App\AiConfiguration\Domain\Llm\Exception\LlmException;
 use App\AiConfiguration\Domain\Llm\LlmClientFactoryInterface;
-use App\AiConfiguration\Domain\Llm\LlmMessage;
 use App\AiConfiguration\Domain\Llm\LlmRequest;
-use App\AiConfiguration\Domain\Llm\LlmRoleEnum;
 use App\AiConfiguration\Domain\Repository\AiProviderRepository;
 use App\Shared\Application\Command\AsCommandHandler;
 
@@ -76,12 +73,8 @@ final readonly class TestAiProviderConnectionCommandHandler
         );
 
         try {
-            $response = $this->clientFactory->forConnectionTest($aiProvider)->complete(new LlmRequest(
-                messages: [new LlmMessage(LlmRoleEnum::User, 'Reply with the single word: pong')],
-                feature: AiFeatureEnum::ConnectionTest,
-                model: $command->model,
-                maxTokens: 16,
-            ));
+            $response = $this->clientFactory->forConnectionTest($aiProvider)
+                ->complete(LlmRequest::connectionTest($command->model));
         } catch (LlmException $exception) {
             return new TestAiProviderResult(success: false, message: $exception->getMessage());
         }
