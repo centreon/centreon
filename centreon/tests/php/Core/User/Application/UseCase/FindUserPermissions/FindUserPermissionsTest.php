@@ -60,6 +60,7 @@ it('should return every permission as active when the user is an admin', functio
             'see_miscellaneous_commands',
             'manage_miscellaneous_commands',
             'create_edit_poller_cfg',
+            'administration_ai_provider_write',
         ]);
 
     foreach ($response->permissions as $permission) {
@@ -106,6 +107,7 @@ it(
     'see miscellaneous commands' => [Contact::ROLE_SEE_MISCELLANEOUS_COMMANDS, 'see_miscellaneous_commands'],
     'manage miscellaneous commands' => [Contact::ROLE_MANAGE_MISCELLANEOUS_COMMANDS, 'manage_miscellaneous_commands'],
     'create and edit pollers' => [Contact::ROLE_CREATE_EDIT_POLLER_CFG, 'create_edit_poller_cfg'],
+    'AI provider write' => [Contact::ROLE_ADMINISTRATION_PARAMETERS_AI_PROVIDERS_RW, 'administration_ai_provider_write'],
 ]);
 
 it('should return the permission when the user has the corresponding topology role', function (): void {

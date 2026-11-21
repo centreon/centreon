@@ -157,4 +157,5 @@ export interface UserPermissions {
   see_miscellaneous_commands: boolean;
   manage_miscellaneous_commands: boolean;
   create_edit_poller_cfg: boolean;
+  administration_ai_provider_write: boolean;
 }

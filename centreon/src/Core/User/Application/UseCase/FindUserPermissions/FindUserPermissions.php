@@ -48,6 +48,7 @@ final class FindUserPermissions
         'see_miscellaneous_commands' => Contact::ROLE_SEE_MISCELLANEOUS_COMMANDS,
         'manage_miscellaneous_commands' => Contact::ROLE_MANAGE_MISCELLANEOUS_COMMANDS,
         'create_edit_poller_cfg' => Contact::ROLE_CREATE_EDIT_POLLER_CFG,
+        'administration_ai_provider_write' => Contact::ROLE_ADMINISTRATION_PARAMETERS_AI_PROVIDERS_RW,
     ];
 
     public function __invoke(ContactInterface $user): FindUserPermissionsResponse|ResponseStatusInterface
