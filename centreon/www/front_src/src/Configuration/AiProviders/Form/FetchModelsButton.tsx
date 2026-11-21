@@ -1,11 +1,5 @@
 import ListIcon from '@mui/icons-material/FormatListBulleted';
-import {
-  Box,
-  Button,
-  CircularProgress,
-  Tooltip,
-  Typography
-} from '@mui/material';
+import { Button, CircularProgress, Tooltip, Typography } from '@mui/material';
 
 import { useFormikContext } from 'formik';
 import { useAtomValue, useSetAtom } from 'jotai';
@@ -89,7 +83,7 @@ const FetchModelsButton = (): JSX.Element => {
   };
 
   return (
-    <Box sx={{ alignItems: 'center', display: 'flex', gap: 1 }}>
+    <div className="flex items-center gap-2">
       <Tooltip title={t(labelFetchModelsHint)}>
         <span>
           <Button
@@ -110,7 +104,7 @@ const FetchModelsButton = (): JSX.Element => {
           {message[status].label}
         </Typography>
       )}
-    </Box>
+    </div>
   );
 };
 

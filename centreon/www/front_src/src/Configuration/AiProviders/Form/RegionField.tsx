@@ -58,6 +58,7 @@ const RegionField = ({
   return (
     <Autocomplete
       autoHighlight
+      className="max-w-[360px]"
       disabled={isDisabled}
       freeSolo
       inputValue={region}
@@ -86,7 +87,7 @@ const RegionField = ({
 
         return (
           <li key={key} {...rest}>
-            <Typography component="span" sx={{ minWidth: 116 }}>
+            <Typography className="min-w-[116px]" component="span">
               {code}
             </Typography>
             <Typography color="textSecondary" component="span">
@@ -95,7 +96,6 @@ const RegionField = ({
           </li>
         );
       }}
-      sx={{ maxWidth: 360 }}
       value={region || null}
     />
   );

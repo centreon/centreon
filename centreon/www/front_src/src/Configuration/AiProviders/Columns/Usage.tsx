@@ -1,4 +1,4 @@
-import { Box, LinearProgress, Tooltip, Typography } from '@mui/material';
+import { LinearProgress, Tooltip, Typography } from '@mui/material';
 
 import { ComponentColumnProps } from '@centreon/ui';
 
@@ -80,7 +80,7 @@ const Usage = ({ row }: ComponentColumnProps): JSX.Element => {
     }));
 
   const tooltip = (
-    <Box>
+    <div>
       <Typography variant="caption">
         {t(labelToday)}: {format(usedDaily ?? 0)}
         {!isNil(limitDaily) && ` / ${format(limitDaily)}`}
@@ -90,7 +90,7 @@ const Usage = ({ row }: ComponentColumnProps): JSX.Element => {
         {t(labelThisMonth)}: {format(usedMonthly ?? 0)}
         {!isNil(limitMonthly) && ` / ${format(limitMonthly)}`}
       </Typography>
-    </Box>
+    </div>
   );
 
   // no limit configured: show the spend of the current month, without a bar
@@ -112,7 +112,7 @@ const Usage = ({ row }: ComponentColumnProps): JSX.Element => {
 
   return (
     <Tooltip title={tooltip}>
-      <Box sx={{ minWidth: 140, width: '100%' }}>
+      <div className="w-full min-w-[140px]">
         <Typography variant="body2">
           {format(binding.used)} / {format(binding.limit)} ({percent}%){' '}
           {binding.label}
@@ -122,7 +122,7 @@ const Usage = ({ row }: ComponentColumnProps): JSX.Element => {
           value={Math.min(binding.ratio * 100, 100)}
           variant="determinate"
         />
-      </Box>
+      </div>
     </Tooltip>
   );
 };

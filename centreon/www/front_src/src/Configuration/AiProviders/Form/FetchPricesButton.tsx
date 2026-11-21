@@ -1,11 +1,5 @@
 import DownloadIcon from '@mui/icons-material/CloudDownload';
-import {
-  Box,
-  Button,
-  CircularProgress,
-  Tooltip,
-  Typography
-} from '@mui/material';
+import { Button, CircularProgress, Tooltip, Typography } from '@mui/material';
 
 import { useFormikContext } from 'formik';
 import { isNil } from 'ramda';
@@ -96,7 +90,7 @@ const FetchPricesButton = (): JSX.Element => {
   };
 
   return (
-    <Box sx={{ alignItems: 'center', display: 'flex', gap: 1 }}>
+    <div className="flex items-center gap-2">
       <Tooltip title={t(labelFetchPricesHint)}>
         <span>
           <Button
@@ -117,7 +111,7 @@ const FetchPricesButton = (): JSX.Element => {
           {message[status].label}
         </Typography>
       )}
-    </Box>
+    </div>
   );
 };
 

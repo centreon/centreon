@@ -80,6 +80,7 @@ const TypeField = ({
   return (
     <Autocomplete
       autoHighlight
+      className="max-w-[320px]"
       disableClearable={false}
       disabled={isEditing || (getDisabled?.(values) ?? false)}
       getOptionLabel={(option) => t(aiProviderTypeLabels[option])}
@@ -98,7 +99,6 @@ const TypeField = ({
           size="small"
         />
       )}
-      sx={{ maxWidth: 320 }}
       value={value}
     />
   );

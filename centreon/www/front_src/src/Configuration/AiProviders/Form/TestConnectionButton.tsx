@@ -1,12 +1,6 @@
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ErrorIcon from '@mui/icons-material/Error';
-import {
-  Box,
-  Button,
-  CircularProgress,
-  Tooltip,
-  Typography
-} from '@mui/material';
+import { Button, CircularProgress, Tooltip, Typography } from '@mui/material';
 
 import { useFormikContext } from 'formik';
 import { useAtomValue } from 'jotai';
@@ -73,7 +67,7 @@ const TestConnectionButton = (): JSX.Element => {
   };
 
   return (
-    <Box sx={{ alignItems: 'center', display: 'flex', gap: 1 }}>
+    <div className="flex items-center gap-2">
       <Tooltip title={t(labelTestConnectionHint)}>
         <span>
           <Button
@@ -90,8 +84,8 @@ const TestConnectionButton = (): JSX.Element => {
       {isTesting && <CircularProgress size={16} />}
       {result?.success && (
         <Typography
+          className="flex items-center gap-1"
           color="success.main"
-          sx={{ alignItems: 'center', display: 'flex', gap: 0.5 }}
           variant="body2"
         >
           <CheckCircleIcon fontSize="small" />
@@ -101,15 +95,15 @@ const TestConnectionButton = (): JSX.Element => {
       )}
       {result && !result.success && (
         <Typography
+          className="flex items-center gap-1"
           color="error.main"
-          sx={{ alignItems: 'center', display: 'flex', gap: 0.5 }}
           variant="body2"
         >
           <ErrorIcon fontSize="small" />
           {result.message || t(labelConnectionFailed)}
         </Typography>
       )}
-    </Box>
+    </div>
   );
 };
 

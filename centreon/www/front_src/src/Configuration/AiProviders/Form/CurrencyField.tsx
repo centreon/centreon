@@ -58,6 +58,7 @@ const CurrencyField = ({
   return (
     <Autocomplete
       autoHighlight
+      className="max-w-[280px]"
       disabled={isDisabled}
       freeSolo
       // both value and inputValue are controlled from the form, so closing the
@@ -85,13 +86,13 @@ const CurrencyField = ({
         return (
           <li key={key} {...rest}>
             <Typography
+              className="min-w-[36px]"
               color="textSecondary"
               component="span"
-              sx={{ minWidth: 36 }}
             >
               {currencySymbol(code)}
             </Typography>
-            <Typography component="span" sx={{ minWidth: 44 }}>
+            <Typography className="min-w-[44px]" component="span">
               {code}
             </Typography>
             <Typography color="textSecondary" component="span">
@@ -100,7 +101,6 @@ const CurrencyField = ({
           </li>
         );
       }}
-      sx={{ maxWidth: 280 }}
       value={value || null}
     />
   );
