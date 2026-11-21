@@ -79,7 +79,7 @@ final readonly class SummarizeIncidentCommandHandler
             messages: [new LlmMessage(LlmRoleEnum::User, $this->buildFacts($command))],
             feature: AiFeatureEnum::IncidentSummary,
             systemPrompt: self::SYSTEM_PROMPT,
-            maxTokens: 1024,
+            maxTokens: 2048,
         ));
 
         return new SummarizeIncidentResult(

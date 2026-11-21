@@ -73,7 +73,7 @@ final readonly class ExplainResourceCommandHandler
             messages: [new LlmMessage(LlmRoleEnum::User, $this->buildFacts($command))],
             feature: AiFeatureEnum::ResourceExplanation,
             systemPrompt: self::SYSTEM_PROMPT,
-            maxTokens: 1024,
+            maxTokens: 2048,
         ));
 
         return new ExplainResourceResult(

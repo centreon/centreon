@@ -77,7 +77,7 @@ final readonly class ExplainGraphCommandHandler
             messages: [new LlmMessage(LlmRoleEnum::User, $this->buildFacts($command))],
             feature: AiFeatureEnum::PerformanceGraphExplanation,
             systemPrompt: self::SYSTEM_PROMPT,
-            maxTokens: 1024,
+            maxTokens: 2048,
         ));
 
         return new ExplainGraphResult(
