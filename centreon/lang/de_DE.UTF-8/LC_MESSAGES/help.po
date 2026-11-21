@@ -1,17 +1,5 @@
 msgid ""
-msgstr ""
-"Project-Id-Version: Centreon web\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-01-01 00:00+0000\n"
-"PO-Revision-Date: 2022-08-19 13:22+0200\n"
-"Last-Translator: Johannes Reiter <reiterjohannes3@googlemail.com>\n"
-"Language-Team: Centreon Team\n"
-"Language: de\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.1.1\n"
+msgstr "Project-Id-Version: Centreon web\nReport-Msgid-Bugs-To: \nPOT-Creation-Date: 2025-01-01 00:00+0000\nPO-Revision-Date: 2026-10-27 17:11+0000\nLast-Translator: Anonymous <noreply@weblate.org>\nLanguage-Team: German <https://weblate.prod.centreon.io/projects/centreon-infra-monitoring/26-10/web-help-26-10/de/>\nLanguage: de_DE\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nPlural-Forms: nplurals=2; plural=n != 1;\nX-Generator: Weblate 2026.10.1\n"
 
 #: centreon/www/include/configuration/configObject/host/help.php
 msgid "A host or host template inherits properties from its templates, unless the properties are defined directly on the host or host template itself. A host or host template can inherit from multiple templates. The properties of the first template in the list prevail over the properties of the second one, and so on."
@@ -1234,9 +1222,7 @@ msgstr "Es ist möglich, einen spezifischen Service als Datenquelle festzulegen.
 msgid ""
 "It should be enabled to control whether or not Centreon Broker\n"
 " should insert performance data in the data_bin table."
-msgstr ""
-"Legt fest, ob vom Centreon Broker \n"
-" Einträge in der index_data-Tabelle erstellt werden sollen."
+msgstr "Legt fest, ob vom Centreon Broker \n Einträge in der index_data-Tabelle erstellt werden sollen."
 
 #: centreon/www/include/Administration/parameters/knowledgeBase/help.php
 msgid "Knowledge wiki url. Exemple: http://wiki/mywiki"
@@ -2003,17 +1989,13 @@ msgstr "Die hier angegebene SNMP-Community und -version können in Überprüfung
 msgid ""
 "The TCP port used to communicate with rrdcached.\n"
 " This is a global option, go to Administration > Options > RRDTool to modify it."
-msgstr ""
-"TCP-Port für die Kommunikation mit rrdcached.\n"
-"Diese Einstellungen muss global gesetzt werden. Sie kann unter Administration > Optionen > RRDTool geändert werden."
+msgstr "TCP-Port für die Kommunikation mit rrdcached.\nDiese Einstellungen muss global gesetzt werden. Sie kann unter Administration > Optionen > RRDTool geändert werden."
 
 #: centreon/www/include/configuration/configCentreonBroker/help.php
 msgid ""
 "The Unix socket used to communicate with rrdcached.\n"
 " This is a global option, go to Administration > Options > RRDTool to modify it."
-msgstr ""
-"Unix-Socket für die Kommunikation mit rrdcached.\n"
-"Diese Einstellungen muss global gesetzt werden. Sie kann unter Administration > Optionen > RRDTool geändert werden."
+msgstr "Unix-Socket für die Kommunikation mit rrdcached.\nDiese Einstellungen muss global gesetzt werden. Sie kann unter Administration > Optionen > RRDTool geändert werden."
 
 #: centreon/www/include/Administration/parameters/rrdtool/help.php
 msgid "The absolute path to unix socket for communicating with rrdcached"
@@ -2083,9 +2065,7 @@ msgstr "Die Header-Variable, die als Login genutzt wird. Als Beispiel: $_SERVER[
 msgid ""
 "The higher the buffer size is, the best compression.\n"
 " This however increase data streaming latency. Use with caution."
-msgstr ""
-"Je höher die Puffergröße, desto besser die Kompression.\n"
-"Hinweis: Durch eine höhere Puffergröße wird die Datenstrom-Latenz erhöht."
+msgstr "Je höher die Puffergröße, desto besser die Kompression.\nHinweis: Durch eine höhere Puffergröße wird die Datenstrom-Latenz erhöht."
 
 #: centreon/www/include/configuration/configCentreonBroker/help.php
 msgid "The interval between check if some metrics must be rebuild. The default value is 300s"
@@ -2964,9 +2944,7 @@ msgid ""
 "Whether or not Broker should create entries in the index_data table.\n"
 " This process should be done by Centreon and this option should only be enabled by advanced \n"
 " users knowing what they're doing"
-msgstr ""
-"Legt fest, ob vom Broker Einträge in der index_data-Tabelle erstellt werden sollen.\n"
-"Dieser Eintrag sollte nur von Centreon bzw. von erfahrenen Nutzern aktiviert werden"
+msgstr "Legt fest, ob vom Broker Einträge in der index_data-Tabelle erstellt werden sollen.\nDieser Eintrag sollte nur von Centreon bzw. von erfahrenen Nutzern aktiviert werden"
 
 #: centreon/www/include/configuration/configObject/connector/help.php
 msgid "Whether or not the connector is enabled."
