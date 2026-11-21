@@ -24093,3 +24093,347 @@ msgstr ""
 #: centreon/www/install/front_translate.php
 msgid "When services inherit contacts and contact groups only from their host, their own contacts and contact groups are removed. Only those you have access to are affected."
 msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "AI Providers"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Connect the AI features to the LLM provider of your choice."
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Add provider configuration"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Welcome to AI provider configurations"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Configure the AI providers used by AI features. Requests made by AI features send monitoring data (such as host names and check outputs) to the configured provider."
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Select a provider type"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Endpoint URL"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "API token"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Default model"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "e.g. claude-sonnet-5-5, mistral-large-latest, gpt-6.2-sol"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Fast model"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "e.g. claude-haiku-5-5, mistral-small-latest, gpt-6-luna — defaults to the default model"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Anthropic"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Mistral"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "OpenAI"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Google Gemini"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Amazon Bedrock"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "OpenAI-compatible"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "AWS region"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "e.g. eu-west-1, eu-west-3, us-east-1"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Connection"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Models"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "The endpoint must be a valid URL"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Enter the API token again to use it with this endpoint"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "An AI provider with this name already exists"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Usage"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "today"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "this month"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Not metered"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Test connection"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Testing connection…"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Connection successful"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Connection failed"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Sends a minimal request to the provider (billed by the provider, not counted toward the spend limit)"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Fetch models"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Fetching models…"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Models fetched from the provider"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "The provider returned no models"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Could not fetch the models"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Lists the models the provider exposes, using the token entered above. Doubles as a connection test."
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Prefill model prices"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Fetching prices…"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Downloads current USD prices from the LiteLLM catalog on github.com (a third party). Available only when the currency is USD."
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Prices prefilled (USD)"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "No published prices found for these models"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Could not fetch the prices"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Pricing"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Spend limits"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Currency"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "e.g. USD, EUR"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Use a 3-letter ISO code, e.g. USD"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Default model price per 1M input tokens"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Default model price per 1M output tokens"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Fast model price per 1M input tokens"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Fast model price per 1M output tokens"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Daily spend limit"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Monthly spend limit"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "A currency is required to set prices or spend limits"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Set the default model prices to use a spend limit"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Only usage recorded in the selected currency counts toward the limit, so the current daily and monthly totals will change. Past usage is kept for reporting."
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Ask AI"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Describe a filter or ask a question, e.g. why is everything failing?"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "AI-generated and may be incorrect. A question may also change the filter."
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "AI could not translate this description into a filter"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Ask AI only helps filter or explain monitored resources"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "No resources to explain"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Explain"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "AI explanation"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "AI-generated from the selected resource: verify before acting."
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Generated by"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "on {{host}}"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Summarize"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "AI timeline summary"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "AI-generated from the last 24 hours of timeline events: verify before sharing."
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Summary copied to the clipboard"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "The summary could not be copied"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "No timeline events in the last 24 hours to summarize"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "AI budget reached for the current period"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Analyze"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "AI analysis"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "AI-generated from the selected resources: verify before acting."
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Analyze the selected resources together to surface a likely common cause"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Select at least one resource to analyze"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Explain graph"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "AI graph explanation"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "AI-generated from the displayed metrics: verify before acting."
+msgstr ""

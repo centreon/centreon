@@ -25057,3 +25057,7 @@ msgstr "Impossible de récupérer les prix"
 #: centreon/www/install/front_translate.php
 msgid "When services inherit contacts and contact groups only from their host, their own contacts and contact groups are removed. Only those you have access to are affected."
 msgstr "Lorsque les services héritent uniquement des contacts et groupes de contacts de leur hôte, leurs propres contacts et groupes de contacts sont supprimés. Seuls ceux auxquels vous avez accès sont concernés."
+
+#: centreon/www/install/front_translate.php
+msgid "Connect the AI features to the LLM provider of your choice."
+msgstr "Connectez les fonctionnalités d'IA au fournisseur de LLM de votre choix."
