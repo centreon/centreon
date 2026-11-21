@@ -187,7 +187,8 @@ export const useFormInputs = ({ canEdit }: Props): FormInputsState => {
           custom: { Component: TestConnectionButton },
           fieldName: 'testConnection',
           hideInput: hideWithoutWriteAccess,
-          label: '',
+          // the grid keys its columns by label: each one is unique
+          label: `${idPrefix}-testConnection`,
           type: InputType.Custom
         }
       ]),
@@ -215,7 +216,8 @@ export const useFormInputs = ({ canEdit }: Props): FormInputsState => {
           custom: { Component: FetchModelsButton },
           fieldName: 'fetchModels',
           hideInput: hideWithoutWriteAccess,
-          label: '',
+          // the grid keys its columns by label: each one is unique
+          label: `${idPrefix}-fetchModels`,
           type: InputType.Custom
         }
       ]),
@@ -224,7 +226,8 @@ export const useFormInputs = ({ canEdit }: Props): FormInputsState => {
           custom: { Component: FetchPricesButton },
           fieldName: 'fetchPrices',
           hideInput: hideWithoutWriteAccess,
-          label: '',
+          // the grid keys its columns by label: each one is unique
+          label: `${idPrefix}-fetchPrices`,
           type: InputType.Custom
         },
         {
@@ -237,7 +240,8 @@ export const useFormInputs = ({ canEdit }: Props): FormInputsState => {
         {
           custom: { Component: CurrencyChangeWarning },
           fieldName: 'currencyChangeWarning',
-          label: '',
+          // the grid keys its columns by label: each one is unique
+          label: `${idPrefix}-currencyChangeWarning`,
           type: InputType.Custom
         },
         pair('default-model-prices', [
