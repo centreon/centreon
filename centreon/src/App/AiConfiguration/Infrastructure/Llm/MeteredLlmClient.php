@@ -37,8 +37,9 @@ use Symfony\Bundle\SecurityBundle\Security;
 
 /**
  * Wraps a client to enforce the provider spend limit before each request and
- * record token usage and cost after each successful one. The triggering user
- * is read from the security context; the feature comes from the request.
+ * record token usage, cost and duration after each successful one. The
+ * triggering user is read from the security context; the feature comes from
+ * the request.
  */
 final readonly class MeteredLlmClient implements LlmClientInterface
 {
@@ -55,8 +56,9 @@ final readonly class MeteredLlmClient implements LlmClientInterface
     public function complete(LlmRequest $request): LlmResponse
     {
         $this->assertWithinBudget();
+        $startedAt = hrtime(true);
         $response = $this->inner->complete($request);
-        $this->record($request, $response);
+        $this->record($request, $response, $this->millisecondsSince($startedAt));
 
         return $response;
     }
@@ -64,8 +66,10 @@ final readonly class MeteredLlmClient implements LlmClientInterface
     public function stream(LlmRequest $request): \Generator
     {
         $this->assertWithinBudget();
+        // until the last chunk: the time the user waits for the whole answer
+        $startedAt = hrtime(true);
         $response = yield from $this->inner->stream($request);
-        $this->record($request, $response);
+        $this->record($request, $response, $this->millisecondsSince($startedAt));
 
         return $response;
     }
@@ -83,7 +87,15 @@ final readonly class MeteredLlmClient implements LlmClientInterface
         }
     }
 
-    private function record(LlmRequest $request, LlmResponse $response): void
+    /**
+     * @param int $startedAt a monotonic timestamp from hrtime(true), in nanoseconds
+     */
+    private function millisecondsSince(int $startedAt): int
+    {
+        return intdiv(hrtime(true) - $startedAt, 1_000_000);
+    }
+
+    private function record(LlmRequest $request, LlmResponse $response, int $durationMs): void
     {
         $cost = null;
         $currency = null;
@@ -104,6 +116,7 @@ final readonly class MeteredLlmClient implements LlmClientInterface
             cost: $cost,
             currency: $currency,
             requestedAt: $this->clock->now()->getTimestamp(),
+            durationMs: $durationMs,
         ));
     }
 

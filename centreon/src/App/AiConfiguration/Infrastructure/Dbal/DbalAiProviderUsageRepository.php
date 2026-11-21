@@ -53,6 +53,7 @@ final readonly class DbalAiProviderUsageRepository extends DbalRepository implem
             'cost' => $entry->cost,
             'currency' => $entry->currency,
             'requested_at' => $entry->requestedAt,
+            'duration_ms' => $entry->durationMs,
         ]);
     }
 

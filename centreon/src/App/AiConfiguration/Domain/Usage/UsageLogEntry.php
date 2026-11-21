@@ -28,8 +28,9 @@ use App\AiConfiguration\Domain\Llm\LlmModelTierEnum;
 
 /**
  * One recorded LLM call: raw token counts plus the cost computed at write time
- * (so a later price change never rewrites history). The provider name and the
- * currency are snapshots, kept even if the provider is later deleted or changed.
+ * (so a later price change never rewrites history), and how long the provider
+ * took to answer. The provider name and the currency are snapshots, kept even if
+ * the provider is later deleted or changed.
  */
 final readonly class UsageLogEntry
 {
@@ -45,6 +46,7 @@ final readonly class UsageLogEntry
         public ?float $cost,
         public ?string $currency,
         public int $requestedAt,
+        public int $durationMs,
     ) {
     }
 }

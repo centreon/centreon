@@ -70,6 +70,7 @@ final class MeteredLlmClientTest extends TestCase
         self::assertSame('USD', $entry->currency);
         self::assertEqualsWithDelta(18.0, $entry->cost, 0.0001);
         self::assertNull($entry->contactId);
+        self::assertGreaterThanOrEqual(0, $entry->durationMs);
     }
 
     public function testRecordsWithoutCostWhenNoPricing(): void

@@ -34,6 +34,7 @@ use App\AiConfiguration\Domain\Llm\LlmModelTierEnum;
 use App\AiConfiguration\Domain\Usage\UsageLogEntry;
 use App\AiConfiguration\Infrastructure\Dbal\DbalAiProviderRepository;
 use App\AiConfiguration\Infrastructure\Dbal\DbalAiProviderUsageRepository;
+use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 final class DbalAiProviderUsageRepositoryTest extends KernelTestCase
@@ -76,6 +77,23 @@ final class DbalAiProviderUsageRepositoryTest extends KernelTestCase
         $this->repository->add($this->entry($providerId, cost: null, currency: null, requestedAt: 1500));
 
         self::assertEqualsWithDelta(0.0, $this->repository->sumCostSince($providerId, 'USD', 1000), 0.0001);
+    }
+
+    public function testAddStoresTheDuration(): void
+    {
+        $providerId = $this->createProvider();
+
+        $this->repository->add($this->entry($providerId, cost: 1.0, currency: 'USD', requestedAt: 1500));
+
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $durationMs = $connection->fetchOne(
+            'SELECT duration_ms FROM ' . DbalAiProviderUsageRepository::TABLE_NAME . ' WHERE ai_provider_id = :id',
+            ['id' => $providerId]
+        );
+
+        // the driver may return the column as a string
+        self::assertEquals(1200, $durationMs);
     }
 
     public function testDeleteOlderThan(): void
@@ -123,6 +141,7 @@ final class DbalAiProviderUsageRepositoryTest extends KernelTestCase
             cost: $cost,
             currency: $currency,
             requestedAt: $requestedAt,
+            durationMs: 1200,
         );
     }
 }

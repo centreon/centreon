@@ -2727,6 +2727,7 @@ CREATE TABLE IF NOT EXISTS `ai_provider_usage_log` (
   `cost` DECIMAL(14,6) DEFAULT NULL COMMENT 'Cost of the request computed at write time; null when no pricing is configured',
   `currency` char(3) DEFAULT NULL COMMENT 'ISO 4217 currency of the cost (snapshot); null when cost is null',
   `requested_at` int(11) NOT NULL COMMENT 'Request timestamp (UTC)',
+  `duration_ms` INT UNSIGNED DEFAULT NULL COMMENT 'Time the provider took to answer, in milliseconds',
   PRIMARY KEY (`id`),
   KEY `ai_provider_usage_log_window` (`ai_provider_id`, `requested_at`),
   CONSTRAINT `fk_ai_provider_usage_log_provider`
