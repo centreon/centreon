@@ -26,6 +26,7 @@ namespace Tests\App\AiConfiguration\Application\Command;
 use App\AiConfiguration\Application\Command\TestAiProviderConnectionCommand;
 use App\AiConfiguration\Application\Command\TestAiProviderConnectionCommandHandler;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProvider;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderId;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderName;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
@@ -86,6 +87,40 @@ final class TestAiProviderConnectionCommandHandlerTest extends TestCase
         self::assertNotNull($client->lastRequest);
     }
 
+    public function testRefusesTheStoredTokenForAnotherEndpoint(): void
+    {
+        $provider = $this->aiProvider();
+        $this->repository->add($provider);
+        $client = new FakeLlmClient(response: new LlmResponse('pong', 'm', new LlmUsage(5, 1)));
+        $handler = $this->handler($client);
+
+        $result = $handler($this->command(
+            apiToken: null,
+            id: $provider->id()->value,
+            endpointUrl: 'https://llm.example.com',
+        ));
+
+        self::assertFalse($result->success);
+        self::assertNull($client->lastRequest);
+    }
+
+    public function testRefusesTheStoredTokenForAnotherType(): void
+    {
+        $provider = $this->aiProvider();
+        $this->repository->add($provider);
+        $client = new FakeLlmClient(response: new LlmResponse('pong', 'm', new LlmUsage(5, 1)));
+        $handler = $this->handler($client);
+
+        $result = $handler($this->command(
+            apiToken: null,
+            id: $provider->id()->value,
+            type: AiProviderTypeEnum::OpenAiCompatible,
+        ));
+
+        self::assertFalse($result->success);
+        self::assertNull($client->lastRequest);
+    }
+
     public function testNoTokenAndNoIdFails(): void
     {
         $handler = $this->handler(new FakeLlmClient());
@@ -103,14 +138,18 @@ final class TestAiProviderConnectionCommandHandlerTest extends TestCase
         );
     }
 
-    private function command(?ApiToken $apiToken, ?int $id = null): TestAiProviderConnectionCommand
-    {
+    private function command(
+        ?ApiToken $apiToken,
+        ?int $id = null,
+        AiProviderTypeEnum $type = AiProviderTypeEnum::Anthropic,
+        string $endpointUrl = 'https://api.anthropic.com',
+    ): TestAiProviderConnectionCommand {
         return new TestAiProviderConnectionCommand(
-            type: AiProviderTypeEnum::Anthropic,
+            type: $type,
             model: new ModelName('claude-sonnet-4-6'),
-            endpointUrl: new EndpointUrl('https://api.anthropic.com'),
+            endpointUrl: new EndpointUrl($endpointUrl),
             apiToken: $apiToken,
-            id: $id !== null ? new \App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderId($id) : null,
+            id: $id !== null ? new AiProviderId($id) : null,
         );
     }
 

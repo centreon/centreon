@@ -33,6 +33,7 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
 use App\AiConfiguration\Domain\Event\AiProviderUpdated;
 use App\AiConfiguration\Domain\Exception\AiProviderAlreadyExistsException;
+use App\AiConfiguration\Domain\Exception\AiProviderCanNotBeUpdatedException;
 use App\AiConfiguration\Domain\Exception\AiProviderNotFoundException;
 use App\AiConfiguration\Domain\Exception\VaultWriteFailedException;
 use PHPUnit\Framework\TestCase;
@@ -153,6 +154,43 @@ final class UpdateAiProviderCommandHandlerTest extends TestCase
         self::assertTrue($this->eventBus->shouldNotHaveDispatched(AiProviderUpdated::class));
     }
 
+    public function testChangingTheEndpointRequiresTheTokenAgain(): void
+    {
+        $aiProvider = $this->givenAiProvider('Anthropic production', isActivated: true);
+
+        try {
+            ($this->handler)($this->updateCommand($aiProvider, apiToken: null, endpointUrl: 'https://llm.example.com'));
+            self::fail('The stored token must not be kept for another endpoint.');
+        } catch (AiProviderCanNotBeUpdatedException) {
+        }
+
+        self::assertSame('https://api.anthropic.com', $this->repository->getById($aiProvider->id())->endpointUrl->value);
+        self::assertTrue($this->eventBus->shouldNotHaveDispatched(AiProviderUpdated::class));
+    }
+
+    public function testChangingTheEndpointWithANewTokenIsAllowed(): void
+    {
+        $aiProvider = $this->givenAiProvider('Anthropic production', isActivated: true);
+
+        $updated = ($this->handler)(
+            $this->updateCommand($aiProvider, apiToken: 'new-token', endpointUrl: 'https://llm.example.com')
+        );
+
+        self::assertSame('https://llm.example.com', $updated->endpointUrl->value);
+        self::assertSame(['new-token'], $this->tokenStorage->persistedTokens);
+    }
+
+    public function testATrailingSlashDoesNotChangeTheEndpoint(): void
+    {
+        $aiProvider = $this->givenAiProvider('Anthropic production', isActivated: true);
+
+        $updated = ($this->handler)(
+            $this->updateCommand($aiProvider, apiToken: null, endpointUrl: 'https://api.anthropic.com/')
+        );
+
+        self::assertSame('initial-token', $updated->apiToken->value);
+    }
+
     public function testDispatchUpdatedEvent(): void
     {
         $aiProvider = $this->givenAiProvider('Anthropic production', isActivated: true);
@@ -185,11 +223,12 @@ final class UpdateAiProviderCommandHandlerTest extends TestCase
         ?string $name = null,
         ?string $apiToken = null,
         ?bool $isActivated = null,
+        ?string $endpointUrl = null,
     ): UpdateAiProviderCommand {
         return new UpdateAiProviderCommand(
             id: $aiProvider->id(),
             name: new AiProviderName($name ?? $aiProvider->name->value),
-            endpointUrl: $aiProvider->endpointUrl,
+            endpointUrl: $endpointUrl !== null ? new EndpointUrl($endpointUrl) : $aiProvider->endpointUrl,
             apiToken: $apiToken !== null ? new ApiToken($apiToken) : null,
             defaultModel: $aiProvider->defaultModel,
             fastModel: $aiProvider->fastModel,

@@ -40,7 +40,8 @@ use App\AiConfiguration\Infrastructure\ApiPlatform\State\AiProvider\TestConnecti
         summary: 'Test an AI provider configuration before saving it',
         description: 'Send a minimal completion request to verify the configuration entered in the '
             . 'form (endpoint, token and model), without saving it. The typed token is used; when '
-            . 'omitted while editing, the stored token of the given provider is used. The outcome '
+            . 'omitted while editing, the stored token of the given provider is used, provided the '
+            . 'type and endpoint match the stored ones. The outcome '
             . 'is reported in the response body. The provider still bills this minimal request, '
             . 'but it is not metered against the configured spend limit.',
         responses: [

@@ -1,8 +1,12 @@
+import { Method } from '@centreon/ui';
+
 import { panelDataTestIds } from '../../ConfigurationBase/Panel/dataTestIds';
+import { getAiProviderEndpoint } from '../api';
 import {
   labelAiProviders,
   labelAnthropic,
   labelApiToken,
+  labelApiTokenRequiredForNewEndpoint,
   labelAwsRegion,
   labelBedrock,
   labelCurrency,
@@ -384,6 +388,58 @@ describe('AiProviders', () => {
       cy.waitForRequest('@updateAiProvider').then(({ request }) => {
         expect(request.body.name).to.equal('Anthropic renamed');
         expect(request.body).to.not.have.property('api_token');
+      });
+    });
+
+    it('asks for the token again when the endpoint of a provider is changed', () => {
+      cy.fixture('AiProviders/aiProviderDetails.json').then((aiProvider) => {
+        cy.interceptAPIRequest({
+          alias: 'getAiProvider',
+          method: Method.GET,
+          path: `**${getAiProviderEndpoint({ id: 1 })}`,
+          response: {
+            ...aiProvider,
+            endpoint_url: 'https://llm-gateway.example.com',
+            type: 'openai_compatible'
+          }
+        });
+      });
+
+      cy.waitForRequest('@getAiProviders');
+
+      cy.contains('Anthropic production').click();
+
+      cy.waitForRequest('@getAiProvider');
+
+      cy.findAllByTestId(labelApiToken).eq(1).should('have.value', '********');
+      cy.findByTestId(labelTestConnection).should('be.enabled');
+
+      cy.get(`[data-testid="${panelDataTestIds.content}"]`).within(() => {
+        cy.findAllByTestId(labelEndpointUrl)
+          .last()
+          .type('{selectall}https://other-gateway.example.com');
+      });
+
+      // the stored token is never sent to another endpoint: it must be typed
+      cy.findAllByTestId(labelApiToken)
+        .eq(1)
+        .should('have.value', '')
+        .and('be.enabled');
+      cy.contains(labelApiTokenRequiredForNewEndpoint).should('be.visible');
+      cy.findByTestId(labelTestConnection).should('be.disabled');
+      cy.findByTestId(labelFetchModels).should('be.disabled');
+      cy.findByTestId(panelDataTestIds.save).should('be.disabled');
+
+      cy.findAllByTestId(labelApiToken).eq(1).type('a-new-token');
+      cy.findByTestId(labelTestConnection).should('be.enabled');
+
+      cy.findByTestId(panelDataTestIds.save).click();
+
+      cy.waitForRequest('@updateAiProvider').then(({ request }) => {
+        expect(request.body.endpoint_url).to.equal(
+          'https://other-gateway.example.com'
+        );
+        expect(request.body.api_token).to.equal('a-new-token');
       });
     });
   });

@@ -6,10 +6,12 @@ import { useTranslation } from 'react-i18next';
 import { number, ObjectSchema, object, string } from 'yup';
 
 import { baseEndpoint } from '../../../api/endpoint';
+import useGetDetails from '../../ConfigurationBase/api/useGetOne';
 import { formStateAtom } from '../../ConfigurationBase/atoms';
 import { aiProvidersEndpoint } from '../api';
 import { AiProviderType } from '../models';
 import {
+  labelApiTokenRequiredForNewEndpoint,
   labelCurrencyRequired,
   labelInvalidCurrency,
   labelInvalidUrl,
@@ -17,6 +19,7 @@ import {
   labelPricingRequiredForLimit,
   labelRequired
 } from '../translatedLabels';
+import { isSameEndpoint } from '../utils';
 
 const billingFields = [
   'priceDefaultInput',
@@ -50,6 +53,14 @@ export const useValidationSchema = (): ObjectSchema<object> => {
 
   const { mode, id } = useAtomValue(formStateAtom);
   const isEditing = equals(mode, 'edit');
+
+  // the provider being edited, already loaded (and cached) by the form
+  const { data: storedProvider } = useGetDetails({
+    id: isEditing ? id : null
+  });
+  const storedEndpointUrl = (
+    storedProvider as { endpointUrl?: string } | undefined
+  )?.endpointUrl;
 
   // id of the existing provider using a given name (null when unused),
   // cached so that re-validations do not query the API again
@@ -101,8 +112,18 @@ export const useValidationSchema = (): ObjectSchema<object> => {
   };
 
   return object({
+    // when editing, an empty token keeps the stored one, which is only sent
+    // to the endpoint it was configured for
     apiToken: isEditing
-      ? string().nullable()
+      ? string()
+          .nullable()
+          .when('endpointUrl', ([endpointUrl], schema) =>
+            // the API enforces it anyway: do not block before the details load
+            isNil(storedEndpointUrl) ||
+            isSameEndpoint(endpointUrl, storedEndpointUrl)
+              ? schema
+              : schema.required(t(labelApiTokenRequiredForNewEndpoint))
+          )
       : string().required(t(labelRequired)),
     // a price or a limit requires a currency
     currency: string()

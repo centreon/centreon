@@ -40,7 +40,8 @@ use App\AiConfiguration\Infrastructure\ApiPlatform\State\AiProvider\DiscoverMode
         summary: 'List the models a provider exposes, before saving it',
         description: 'Query the provider for the models it exposes, using the configuration entered '
             . 'in the form (type, endpoint and token), without saving it. The typed token is used; '
-            . 'when omitted while editing, the stored token of the given provider is used. Same '
+            . 'when omitted while editing, the stored token of the given provider is used, provided '
+            . 'the type and endpoint match the stored ones. Same '
             . 'trust level as the test-connection endpoint.',
         responses: [
             403 => new Model\Response('You are not allowed to configure AI providers'),

@@ -35,7 +35,7 @@ abstract class AiProviderApiTestCase extends ApiTestCase
         return [self::USER_WITHOUT_RIGHTS];
     }
 
-    final protected function createProvider(string $name, string $type = 'anthropic'): int
+    final protected function createProvider(string $name, string $type = 'anthropic', ?string $endpointUrl = null): int
     {
         $response = $this->request('POST', self::ENDPOINT, [
             'json' => [
@@ -43,6 +43,7 @@ abstract class AiProviderApiTestCase extends ApiTestCase
                 'type' => $type,
                 'api_token' => 'a-very-secret-token',
                 'default_model' => 'a-default-model',
+                ...($endpointUrl !== null ? ['endpoint_url' => $endpointUrl] : []),
             ],
         ]);
 

@@ -34,6 +34,8 @@ export const labelModels = 'Models';
 
 export const labelRequired = 'Required';
 export const labelInvalidUrl = 'The endpoint must be a valid URL';
+export const labelApiTokenRequiredForNewEndpoint =
+  'Enter the API token again to use it with this endpoint';
 export const labelNameAlreadyExists =
   'An AI provider with this name already exists';
 

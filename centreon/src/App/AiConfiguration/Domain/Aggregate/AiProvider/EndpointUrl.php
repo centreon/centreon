@@ -34,4 +34,12 @@ final readonly class EndpointUrl
         Assert::regex($value, '~^https?://~', 'The endpoint URL must start with http:// or https://.');
         Assert::notFalse(filter_var($value, \FILTER_VALIDATE_URL), 'The endpoint URL is not a valid URL.');
     }
+
+    /**
+     * A trailing slash does not change the target: the clients strip it.
+     */
+    public function equals(self $other): bool
+    {
+        return rtrim($this->value, '/') === rtrim($other->value, '/');
+    }
 }

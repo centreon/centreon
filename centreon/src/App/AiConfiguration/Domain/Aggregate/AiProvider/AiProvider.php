@@ -93,4 +93,15 @@ final class AiProvider extends AggregateRoot
     {
         $this->isActivated = false;
     }
+
+    /**
+     * Whether the stored API token may be sent to the given provider. The token
+     * is write-only: reusing it for another type or endpoint would let whoever
+     * edits the configuration send it to a server they control, so a different
+     * target requires the token to be typed again.
+     */
+    public function canReuseApiTokenFor(AiProviderTypeEnum $type, EndpointUrl $endpointUrl): bool
+    {
+        return $type === $this->type && $this->endpointUrl->equals($endpointUrl);
+    }
 }

@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\AiConfiguration\Application\Command;
 
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProvider;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderId;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderName;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
@@ -35,6 +36,8 @@ use App\Shared\Application\Command\AsCommandHandler;
 #[AsCommandHandler]
 final readonly class DiscoverModelsCommandHandler
 {
+    private const TOKEN_REQUIRED_MESSAGE = 'Enter the API token to list the models of this endpoint.';
+
     public function __construct(
         private AiProviderRepository $repository,
         private LlmClientFactoryInterface $clientFactory,
@@ -45,12 +48,17 @@ final readonly class DiscoverModelsCommandHandler
     {
         $apiToken = $command->apiToken;
         if (! $apiToken instanceof ApiToken) {
-            if ($command->id === null) {
+            if (! $command->id instanceof AiProviderId) {
                 // nothing to authenticate with (the form gates this anyway)
                 return new DiscoverModelsResult(models: []);
             }
-            // editing with an empty token field: use the stored token
-            $apiToken = $this->repository->getById($command->id)->apiToken;
+            // editing with an empty token field: use the stored token, but only
+            // against the stored target
+            $stored = $this->repository->getById($command->id);
+            if (! $stored->canReuseApiTokenFor($command->type, $command->endpointUrl)) {
+                return new DiscoverModelsResult(models: [], error: self::TOKEN_REQUIRED_MESSAGE);
+            }
+            $apiToken = $stored->apiToken;
         }
 
         $aiProvider = new AiProvider(

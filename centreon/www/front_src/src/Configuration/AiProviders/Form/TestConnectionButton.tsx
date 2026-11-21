@@ -25,6 +25,7 @@ import {
   labelTestConnectionHint,
   labelTestingConnection
 } from '../translatedLabels';
+import { isSameEndpoint } from '../utils';
 
 interface FormValues {
   apiToken?: string | null;
@@ -41,7 +42,7 @@ interface TestResult {
 
 const TestConnectionButton = (): JSX.Element => {
   const { t } = useTranslation();
-  const { values } = useFormikContext<FormValues>();
+  const { values, initialValues } = useFormikContext<FormValues>();
   const { mode, id } = useAtomValue(formStateAtom);
 
   const [isTesting, setIsTesting] = useState(false);
@@ -49,9 +50,13 @@ const TestConnectionButton = (): JSX.Element => {
 
   const isEditing = equals(mode, 'edit');
   const hasTypedToken = Boolean(values.apiToken);
+  // the stored token is only reused against the endpoint it was configured for
+  const canUseStoredToken =
+    isEditing && isSameEndpoint(values.endpointUrl, initialValues.endpointUrl);
   // a token is available to test with when one is typed, or when editing
-  // (the stored token is reused); a model is also required
-  const canTest = Boolean(values.defaultModel) && (hasTypedToken || isEditing);
+  // with an unchanged endpoint; a model is also required
+  const canTest =
+    Boolean(values.defaultModel) && (hasTypedToken || canUseStoredToken);
 
   const test = (): void => {
     setIsTesting(true);

@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\AiConfiguration\Application\Command;
 
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProvider;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderId;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderName;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Llm\AiFeatureEnum;
@@ -38,6 +39,8 @@ use App\Shared\Application\Command\AsCommandHandler;
 #[AsCommandHandler]
 final readonly class TestAiProviderConnectionCommandHandler
 {
+    private const TOKEN_REQUIRED_MESSAGE = 'Enter the API token to test this endpoint.';
+
     public function __construct(
         private AiProviderRepository $repository,
         private LlmClientFactoryInterface $clientFactory,
@@ -48,11 +51,16 @@ final readonly class TestAiProviderConnectionCommandHandler
     {
         $apiToken = $command->apiToken;
         if (! $apiToken instanceof ApiToken) {
-            if ($command->id === null) {
+            if (! $command->id instanceof AiProviderId) {
                 return new TestAiProviderResult(success: false, message: 'No API token to test.');
             }
-            // editing with an empty token field: test the stored token
-            $apiToken = $this->repository->getById($command->id)->apiToken;
+            // editing with an empty token field: test the stored token, but only
+            // against the stored target
+            $stored = $this->repository->getById($command->id);
+            if (! $stored->canReuseApiTokenFor($command->type, $command->endpointUrl)) {
+                return new TestAiProviderResult(success: false, message: self::TOKEN_REQUIRED_MESSAGE);
+            }
+            $apiToken = $stored->apiToken;
         }
 
         $aiProvider = new AiProvider(

@@ -25,6 +25,7 @@ import {
   labelModelsFetched,
   labelNoModelsFound
 } from '../translatedLabels';
+import { isSameEndpoint } from '../utils';
 import { discoveredModelsAtom } from './discoveredModelsAtom';
 
 interface FormValues {
@@ -41,7 +42,7 @@ type Status = 'failed' | 'fetched' | 'none';
 
 const FetchModelsButton = (): JSX.Element => {
   const { t } = useTranslation();
-  const { values } = useFormikContext<FormValues>();
+  const { values, initialValues } = useFormikContext<FormValues>();
   const { mode, id } = useAtomValue(formStateAtom);
   const setDiscoveredModels = useSetAtom(discoveredModelsAtom);
 
@@ -51,8 +52,12 @@ const FetchModelsButton = (): JSX.Element => {
 
   const isEditing = equals(mode, 'edit');
   const hasTypedToken = Boolean(values.apiToken);
-  // a token is available when one is typed, or when editing (stored token)
-  const canFetch = hasTypedToken || isEditing;
+  // the stored token is only reused against the endpoint it was configured for
+  const canUseStoredToken =
+    isEditing && isSameEndpoint(values.endpointUrl, initialValues.endpointUrl);
+  // a token is available when one is typed, or when editing with an
+  // unchanged endpoint (stored token)
+  const canFetch = hasTypedToken || canUseStoredToken;
 
   const fetchModels = (): void => {
     setIsFetching(true);

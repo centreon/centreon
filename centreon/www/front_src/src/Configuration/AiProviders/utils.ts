@@ -75,3 +75,15 @@ export const defaultModels: Record<AiProviderType, DefaultModels> = {
     fastModel: null
   }
 };
+
+// The stored API token is only sent to the endpoint it was configured for
+// (the API enforces it): a new endpoint requires typing the token again. A
+// trailing slash does not change the endpoint.
+const normalizeEndpoint = (endpointUrl?: string | null): string =>
+  (endpointUrl ?? '').replace(/\/+$/, '');
+
+export const isSameEndpoint = (
+  endpointUrl?: string | null,
+  storedEndpointUrl?: string | null
+): boolean =>
+  normalizeEndpoint(endpointUrl) === normalizeEndpoint(storedEndpointUrl);

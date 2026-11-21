@@ -51,6 +51,7 @@ final class DiscoverModelsCommandHandlerTest extends TestCase
     {
         $client = new FakeLlmClient();
         $client->models = ['claude-haiku-4-5', 'claude-sonnet-4-6'];
+
         $handler = $this->handler($client);
 
         $result = $handler($this->command(apiToken: new ApiToken('typed-token')));
@@ -68,6 +69,23 @@ final class DiscoverModelsCommandHandlerTest extends TestCase
         $result = $handler($this->command(apiToken: null, id: $provider->id()->value));
 
         self::assertSame(['fake-model-a', 'fake-model-b'], $result->models);
+    }
+
+    public function testRefusesTheStoredTokenForAnotherEndpoint(): void
+    {
+        $provider = $this->aiProvider();
+        $this->repository->add($provider);
+        $handler = $this->handler(new FakeLlmClient());
+
+        $result = $handler($this->command(
+            apiToken: null,
+            id: $provider->id()->value,
+            endpointUrl: 'https://llm.example.com',
+        ));
+
+        // the fake client would have listed models had it been called
+        self::assertSame([], $result->models);
+        self::assertNotNull($result->error);
     }
 
     public function testNoTokenAndNoIdReturnsNoModels(): void
@@ -105,11 +123,14 @@ final class DiscoverModelsCommandHandlerTest extends TestCase
         );
     }
 
-    private function command(?ApiToken $apiToken, ?int $id = null): DiscoverModelsCommand
-    {
+    private function command(
+        ?ApiToken $apiToken,
+        ?int $id = null,
+        string $endpointUrl = 'https://api.anthropic.com',
+    ): DiscoverModelsCommand {
         return new DiscoverModelsCommand(
             type: AiProviderTypeEnum::Anthropic,
-            endpointUrl: new EndpointUrl('https://api.anthropic.com'),
+            endpointUrl: new EndpointUrl($endpointUrl),
             apiToken: $apiToken,
             id: $id !== null ? new AiProviderId($id) : null,
         );

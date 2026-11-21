@@ -59,7 +59,8 @@ use Symfony\Component\Validator\Constraints as Assert;
             openapi: new Model\Operation(
                 summary: 'Update an AI provider configuration',
                 description: 'Update an AI provider configuration. The provider type can not be changed. '
-                    . 'Omitting the api_token field keeps the current token. At most one provider is '
+                    . 'Omitting the api_token field keeps the current token, unless the endpoint URL '
+                    . 'changes: the token must then be provided again. At most one provider is '
                     . 'enabled: enabling a provider disables the currently enabled one, and disabling '
                     . 'the enabled provider turns AI features off.',
                 responses: [

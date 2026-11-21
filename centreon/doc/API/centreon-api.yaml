@@ -7612,7 +7612,7 @@ paths:
                 $ref: '#/components/schemas/Error'
           links: {}
       summary: 'List the models a provider exposes, before saving it'
-      description: 'Query the provider for the models it exposes, using the configuration entered in the form (type, endpoint and token), without saving it. The typed token is used; when omitted while editing, the stored token of the given provider is used. Same trust level as the test-connection endpoint.'
+      description: 'Query the provider for the models it exposes, using the configuration entered in the form (type, endpoint and token), without saving it. The typed token is used; when omitted while editing, the stored token of the given provider is used, provided the type and endpoint match the stored ones. Same trust level as the test-connection endpoint.'
       parameters: []
       requestBody:
         description: 'The new AiProvider resource'
@@ -7728,7 +7728,7 @@ paths:
                 $ref: '#/components/schemas/Error'
           links: {}
       summary: 'Test an AI provider configuration before saving it'
-      description: 'Send a minimal completion request to verify the configuration entered in the form (endpoint, token and model), without saving it. The typed token is used; when omitted while editing, the stored token of the given provider is used. The outcome is reported in the response body. The provider still bills this minimal request, but it is not metered against the configured spend limit.'
+      description: 'Send a minimal completion request to verify the configuration entered in the form (endpoint, token and model), without saving it. The typed token is used; when omitted while editing, the stored token of the given provider is used, provided the type and endpoint match the stored ones. The outcome is reported in the response body. The provider still bills this minimal request, but it is not metered against the configured spend limit.'
       parameters: []
       requestBody:
         description: 'The new AiProvider resource'
@@ -7844,7 +7844,7 @@ paths:
                 $ref: '#/components/schemas/ConstraintViolation'
           links: {}
       summary: 'Update an AI provider configuration'
-      description: 'Update an AI provider configuration. The provider type can not be changed. Omitting the api_token field keeps the current token. At most one provider is enabled: enabling a provider disables the currently enabled one, and disabling the enabled provider turns AI features off.'
+      description: 'Update an AI provider configuration. The provider type can not be changed. Omitting the api_token field keeps the current token, unless the endpoint URL changes: the token must then be provided again. At most one provider is enabled: enabling a provider disables the currently enabled one, and disabling the enabled provider turns AI features off.'
       parameters:
         -
           name: id

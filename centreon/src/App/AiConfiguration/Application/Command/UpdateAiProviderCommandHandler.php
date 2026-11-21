@@ -27,6 +27,7 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProvider;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Event\AiProviderUpdated;
 use App\AiConfiguration\Domain\Exception\AiProviderAlreadyExistsException;
+use App\AiConfiguration\Domain\Exception\AiProviderCanNotBeUpdatedException;
 use App\AiConfiguration\Domain\Exception\AiProviderNotFoundException;
 use App\AiConfiguration\Domain\Exception\VaultWriteFailedException;
 use App\AiConfiguration\Domain\Repository\AiProviderRepository;
@@ -47,6 +48,7 @@ final readonly class UpdateAiProviderCommandHandler
     /**
      * @throws AiProviderNotFoundException
      * @throws AiProviderAlreadyExistsException
+     * @throws AiProviderCanNotBeUpdatedException
      * @throws VaultWriteFailedException
      */
     public function __invoke(UpdateAiProviderCommand $command): AiProvider
@@ -60,6 +62,14 @@ final readonly class UpdateAiProviderCommandHandler
                 sprintf("An AI provider configuration with name '%s' already exists.", $command->name->value),
                 409
             );
+        }
+
+        // the stored token is never sent to another server than the one it was configured for
+        if (
+            ! $command->apiToken instanceof ApiToken
+            && ! $aiProvider->canReuseApiTokenFor($aiProvider->type, $command->endpointUrl)
+        ) {
+            throw AiProviderCanNotBeUpdatedException::apiTokenRequiredForNewEndpoint($command->id);
         }
 
         $aiProvider->rename($command->name);

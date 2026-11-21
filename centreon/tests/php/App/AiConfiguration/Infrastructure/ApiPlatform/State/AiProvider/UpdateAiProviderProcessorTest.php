@@ -76,6 +76,20 @@ final class UpdateAiProviderProcessorTest extends AiProviderApiTestCase
         ]);
     }
 
+    public function testPatchEndpointWithoutTokenReturns422(): void
+    {
+        $this->login();
+
+        $id = $this->createProvider('Local gateway', 'openai_compatible', 'https://llm-gateway.example.com');
+
+        $this->request('PATCH', self::ENDPOINT . '/' . $id, [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'],
+            'json' => ['endpoint_url' => 'https://other-gateway.example.com'],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
     public function testPatchUnknownProviderReturns404(): void
     {
         $this->login();

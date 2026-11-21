@@ -24757,6 +24757,9 @@ msgstr "Connexion"
 msgid "The endpoint must be a valid URL"
 msgstr "Le point d'entrée doit être une URL valide"
 
+msgid "Enter the API token again to use it with this endpoint"
+msgstr "Saisissez à nouveau le jeton d'API pour l'utiliser avec ce point d'entrée"
+
 #: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
 msgid "An AI provider with this name already exists"
 msgstr "Un fournisseur d'IA avec ce nom existe déjà"
