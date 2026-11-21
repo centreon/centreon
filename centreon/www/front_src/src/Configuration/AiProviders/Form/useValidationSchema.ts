@@ -1,4 +1,5 @@
-import axios from 'axios';
+import { useFetchQuery } from '@centreon/ui';
+
 import { useAtomValue } from 'jotai';
 import { equals, isNil } from 'ramda';
 import { useRef } from 'react';
@@ -8,7 +9,7 @@ import { number, ObjectSchema, object, string } from 'yup';
 import { baseEndpoint } from '../../../api/endpoint';
 import useGetDetails from '../../ConfigurationBase/api/useGetOne';
 import { formStateAtom } from '../../ConfigurationBase/atoms';
-import { aiProvidersEndpoint } from '../api';
+import { aiProvidersEndpoint, aiProvidersListDecoder } from '../api';
 import { AiProviderType } from '../models';
 import {
   labelApiTokenRequiredForNewEndpoint,
@@ -36,10 +37,6 @@ const optionalNumber = () =>
     .nullable()
     .transform((value, original) => (original === '' ? null : value))
     .min(0);
-
-interface ListingResponse {
-  member?: Array<{ id: number; name: string }>;
-}
 
 interface PendingLookup {
   resolve: (available: boolean) => void;
@@ -69,6 +66,21 @@ export const useValidationSchema = (): {
   const knownNamesRef = useRef<Record<string, number | null>>({});
   const pendingLookupRef = useRef<PendingLookup | null>(null);
 
+  // the providers whose name contains the one being checked, fetched on
+  // demand: the name sits in a ref so the endpoint and the key read it when
+  // the lookup runs
+  const lookedUpNameRef = useRef('');
+  const { fetchQuery: fetchProvidersNamedLike } = useFetchQuery({
+    decoder: aiProvidersListDecoder,
+    getEndpoint: () =>
+      `${baseEndpoint}${aiProvidersEndpoint}?name[lk]=${encodeURIComponent(lookedUpNameRef.current)}`,
+    getQueryKey: () => ['aiProviderNameLookup', lookedUpNameRef.current],
+    // a failed lookup does not block the form: the API rejects duplicate
+    // names anyway
+    httpCodesBypassErrorSnackbar: [400, 401, 403, 404, 500, 502, 503],
+    queryOptions: { enabled: false, suspense: false }
+  });
+
   const isKnownNameAvailable = (name: string): boolean => {
     const existingId = knownNamesRef.current[name];
 
@@ -92,21 +104,23 @@ export const useValidationSchema = (): {
       const timer = setTimeout(async () => {
         pendingLookupRef.current = null;
 
-        try {
-          const { data } = await axios.get<ListingResponse>(
-            `${baseEndpoint}${aiProvidersEndpoint}?name[lk]=${encodeURIComponent(name)}`
-          );
-          const existing = (data.member || []).find((provider) =>
-            equals(provider.name, name)
-          );
-          knownNamesRef.current[name] = existing?.id ?? null;
+        lookedUpNameRef.current = name;
+        const response = await fetchProvidersNamedLike();
 
-          resolve(isKnownNameAvailable(name));
-        } catch (_error) {
+        if ('isError' in response) {
           // do not block the form on a failed lookup: the API rejects
           // duplicate names anyway
           resolve(true);
+
+          return;
         }
+
+        const existing = response.result.find((provider) =>
+          equals(provider.name, name)
+        );
+        knownNamesRef.current[name] = existing?.id ?? null;
+
+        resolve(isKnownNameAvailable(name));
       }, lookupDebounceMs);
 
       pendingLookupRef.current = { resolve, timer };

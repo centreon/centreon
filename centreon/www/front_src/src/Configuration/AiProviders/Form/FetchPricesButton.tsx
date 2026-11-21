@@ -7,14 +7,13 @@ import {
   Typography
 } from '@mui/material';
 
-import axios from 'axios';
 import { useFormikContext } from 'formik';
 import { isNil } from 'ramda';
 import { JSX, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { baseEndpoint } from '../../../api/endpoint';
-import { modelPricesEndpoint } from '../api';
+import { modelPricesDecoder, modelPricesEndpoint } from '../api';
+import useProviderCall from '../api/useProviderCall';
 import {
   labelFetchingPrices,
   labelFetchPrices,
@@ -31,20 +30,16 @@ interface FormValues {
   type?: string | null;
 }
 
-interface PricesResponse {
-  default_model_input: number | null;
-  default_model_output: number | null;
-  fast_model_input: number | null;
-  fast_model_output: number | null;
-}
-
 type Status = 'failed' | 'filled' | 'notFound';
 
 const FetchPricesButton = (): JSX.Element => {
   const { t } = useTranslation();
   const { values, setFieldValue } = useFormikContext<FormValues>();
 
-  const [isFetching, setIsFetching] = useState(false);
+  const { call, isCalling: isFetching } = useProviderCall({
+    decoder: modelPricesDecoder,
+    endpoint: modelPricesEndpoint
+  });
   const [status, setStatus] = useState<Status | null>(null);
 
   // LiteLLM prices are in USD: only offer the prefill when the currency is
@@ -53,44 +48,45 @@ const FetchPricesButton = (): JSX.Element => {
     !values.currency || values.currency.toUpperCase() === 'USD';
   const canFetch = Boolean(values.defaultModel) && currencyAllowsUsd;
 
-  const fetchPrices = (): void => {
-    setIsFetching(true);
+  const fetchPrices = async (): Promise<void> => {
     setStatus(null);
 
-    axios
-      .post<PricesResponse>(`${baseEndpoint}${modelPricesEndpoint}`, {
-        default_model: values.defaultModel,
-        type: values.type,
-        ...(values.fastModel ? { fast_model: values.fastModel } : {})
-      })
-      .then(({ data }) => {
-        const filled = [
-          ['priceDefaultInput', data.default_model_input],
-          ['priceDefaultOutput', data.default_model_output],
-          ['priceFastInput', data.fast_model_input],
-          ['priceFastOutput', data.fast_model_output]
-        ].reduce((count, [field, value]) => {
-          if (isNil(value)) {
-            return count;
-          }
-          setFieldValue(field as string, value);
+    const { data } = await call({
+      default_model: values.defaultModel,
+      type: values.type,
+      ...(values.fastModel ? { fast_model: values.fastModel } : {})
+    });
 
-          return count + 1;
-        }, 0);
+    if (!data) {
+      setStatus('failed');
 
-        if (filled === 0) {
-          setStatus('notFound');
+      return;
+    }
 
-          return;
-        }
+    const filled = [
+      ['priceDefaultInput', data.defaultModelInput],
+      ['priceDefaultOutput', data.defaultModelOutput],
+      ['priceFastInput', data.fastModelInput],
+      ['priceFastOutput', data.fastModelOutput]
+    ].reduce((count, [field, value]) => {
+      if (isNil(value)) {
+        return count;
+      }
+      setFieldValue(field as string, value);
 
-        if (!values.currency) {
-          setFieldValue('currency', 'USD');
-        }
-        setStatus('filled');
-      })
-      .catch(() => setStatus('failed'))
-      .finally(() => setIsFetching(false));
+      return count + 1;
+    }, 0);
+
+    if (filled === 0) {
+      setStatus('notFound');
+
+      return;
+    }
+
+    if (!values.currency) {
+      setFieldValue('currency', 'USD');
+    }
+    setStatus('filled');
   };
 
   const message: Record<Status, { color: string; label: string }> = {

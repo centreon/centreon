@@ -8,16 +8,19 @@ import {
   Typography
 } from '@mui/material';
 
-import axios from 'axios';
 import { useFormikContext } from 'formik';
 import { useAtomValue } from 'jotai';
 import { equals } from 'ramda';
 import { JSX, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { baseEndpoint } from '../../../api/endpoint';
 import { formStateAtom } from '../../ConfigurationBase/atoms';
-import { getApiErrorMessage, testConnectionEndpoint } from '../api';
+import {
+  type ConnectionTestResult,
+  connectionTestResultDecoder,
+  testConnectionEndpoint
+} from '../api';
+import useProviderCall from '../api/useProviderCall';
 import {
   labelConnectionFailed,
   labelConnectionSucceeded,
@@ -34,19 +37,16 @@ interface FormValues {
   type?: string | null;
 }
 
-interface TestResult {
-  message?: string | null;
-  model?: string | null;
-  success: boolean;
-}
-
 const TestConnectionButton = (): JSX.Element => {
   const { t } = useTranslation();
   const { values, initialValues } = useFormikContext<FormValues>();
   const { mode, id } = useAtomValue(formStateAtom);
 
-  const [isTesting, setIsTesting] = useState(false);
-  const [result, setResult] = useState<TestResult | null>(null);
+  const { call, isCalling: isTesting } = useProviderCall({
+    decoder: connectionTestResultDecoder,
+    endpoint: testConnectionEndpoint
+  });
+  const [result, setResult] = useState<ConnectionTestResult | null>(null);
 
   const isEditing = equals(mode, 'edit');
   const hasTypedToken = Boolean(values.apiToken);
@@ -58,23 +58,18 @@ const TestConnectionButton = (): JSX.Element => {
   const canTest =
     Boolean(values.defaultModel) && (hasTypedToken || canUseStoredToken);
 
-  const test = (): void => {
-    setIsTesting(true);
+  const test = async (): Promise<void> => {
     setResult(null);
 
-    axios
-      .post<TestResult>(`${baseEndpoint}${testConnectionEndpoint}`, {
-        default_model: values.defaultModel,
-        type: values.type,
-        ...(hasTypedToken ? { api_token: values.apiToken } : {}),
-        ...(values.endpointUrl ? { endpoint_url: values.endpointUrl } : {}),
-        ...(isEditing && id ? { provider_id: id } : {})
-      })
-      .then(({ data }) => setResult(data))
-      .catch((error) =>
-        setResult({ message: getApiErrorMessage(error), success: false })
-      )
-      .finally(() => setIsTesting(false));
+    const { data, error } = await call({
+      default_model: values.defaultModel,
+      type: values.type,
+      ...(hasTypedToken ? { api_token: values.apiToken } : {}),
+      ...(values.endpointUrl ? { endpoint_url: values.endpointUrl } : {}),
+      ...(isEditing && id ? { provider_id: id } : {})
+    });
+
+    setResult(data ?? { message: error, success: false });
   };
 
   return (

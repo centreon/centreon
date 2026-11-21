@@ -7,16 +7,15 @@ import {
   Typography
 } from '@mui/material';
 
-import axios from 'axios';
 import { useFormikContext } from 'formik';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { equals } from 'ramda';
 import { JSX, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { baseEndpoint } from '../../../api/endpoint';
 import { formStateAtom } from '../../ConfigurationBase/atoms';
-import { discoverModelsEndpoint, getApiErrorMessage } from '../api';
+import { discoveredModelsDecoder, discoverModelsEndpoint } from '../api';
+import useProviderCall from '../api/useProviderCall';
 import {
   labelFetchingModels,
   labelFetchModels,
@@ -34,10 +33,6 @@ interface FormValues {
   type?: string | null;
 }
 
-interface ModelsResponse {
-  models: Array<string>;
-}
-
 type Status = 'failed' | 'fetched' | 'none';
 
 const FetchModelsButton = (): JSX.Element => {
@@ -46,7 +41,10 @@ const FetchModelsButton = (): JSX.Element => {
   const { mode, id } = useAtomValue(formStateAtom);
   const setDiscoveredModels = useSetAtom(discoveredModelsAtom);
 
-  const [isFetching, setIsFetching] = useState(false);
+  const { call, isCalling: isFetching } = useProviderCall({
+    decoder: discoveredModelsDecoder,
+    endpoint: discoverModelsEndpoint
+  });
   const [status, setStatus] = useState<Status | null>(null);
   const [failureMessage, setFailureMessage] = useState<string | null>(null);
 
@@ -59,27 +57,26 @@ const FetchModelsButton = (): JSX.Element => {
   // unchanged endpoint (stored token)
   const canFetch = hasTypedToken || canUseStoredToken;
 
-  const fetchModels = (): void => {
-    setIsFetching(true);
+  const fetchModels = async (): Promise<void> => {
     setStatus(null);
     setFailureMessage(null);
 
-    axios
-      .post<ModelsResponse>(`${baseEndpoint}${discoverModelsEndpoint}`, {
-        type: values.type,
-        ...(hasTypedToken ? { api_token: values.apiToken } : {}),
-        ...(values.endpointUrl ? { endpoint_url: values.endpointUrl } : {}),
-        ...(isEditing && id ? { provider_id: id } : {})
-      })
-      .then(({ data }) => {
-        setDiscoveredModels({ models: data.models, type: values.type ?? null });
-        setStatus(data.models.length > 0 ? 'fetched' : 'none');
-      })
-      .catch((error) => {
-        setFailureMessage(getApiErrorMessage(error));
-        setStatus('failed');
-      })
-      .finally(() => setIsFetching(false));
+    const { data, error } = await call({
+      type: values.type,
+      ...(hasTypedToken ? { api_token: values.apiToken } : {}),
+      ...(values.endpointUrl ? { endpoint_url: values.endpointUrl } : {}),
+      ...(isEditing && id ? { provider_id: id } : {})
+    });
+
+    if (!data) {
+      setFailureMessage(error);
+      setStatus('failed');
+
+      return;
+    }
+
+    setDiscoveredModels({ models: data.models, type: values.type ?? null });
+    setStatus(data.models.length > 0 ? 'fetched' : 'none');
   };
 
   const message: Record<Status, { color: string; label: string }> = {

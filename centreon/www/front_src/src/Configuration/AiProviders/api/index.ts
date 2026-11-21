@@ -1,4 +1,13 @@
-export { aiProviderDecoder, aiProvidersListDecoder } from './decoders';
+export {
+  aiProviderDecoder,
+  aiProvidersListDecoder,
+  type ConnectionTestResult,
+  connectionTestResultDecoder,
+  type DiscoveredModels,
+  discoveredModelsDecoder,
+  type ModelPrices,
+  modelPricesDecoder
+} from './decoders';
 export {
   aiProvidersEndpoint,
   discoverModelsEndpoint,
@@ -6,4 +15,3 @@ export {
   modelPricesEndpoint,
   testConnectionEndpoint
 } from './endpoints';
-export { getApiErrorMessage } from './getApiErrorMessage';
