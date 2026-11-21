@@ -1,6 +1,7 @@
 import AnalyzeResources from './AiAssistance.AnalyzeResources';
 import AskAiFilter from './AiAssistance.AskAiFilter';
 import ExplainGraph from './AiAssistance.ExplainGraph';
+import MarkdownContent from './AiAssistance.MarkdownContent';
 import SummarizeIncident from './AiAssistance.SummarizeIncident';
 
 describe('AI assistance: ', () => {
@@ -12,4 +13,5 @@ describe('AI assistance: ', () => {
   SummarizeIncident();
   AnalyzeResources();
   ExplainGraph();
+  MarkdownContent();
 });

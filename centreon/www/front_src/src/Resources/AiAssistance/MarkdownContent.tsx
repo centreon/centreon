@@ -36,13 +36,28 @@ const Heading = ({
   />
 );
 
+// An answer may echo text from monitored data: an image would be loaded
+// without any click, sending its URL to a third party. Only its text is shown.
+const ImageAsText = ({ alt }: JSX.IntrinsicElements['img']): JSX.Element => (
+  <span>{alt}</span>
+);
+
+const Link = ({
+  node,
+  ...props
+}: JSX.IntrinsicElements['a'] & { node?: unknown }): JSX.Element => (
+  <a {...props} rel="noopener noreferrer" target="_blank" />
+);
+
 const components: Components = {
+  a: Link,
   h1: Heading,
   h2: Heading,
   h3: Heading,
   h4: Heading,
   h5: Heading,
-  h6: Heading
+  h6: Heading,
+  img: ImageAsText
 };
 
 interface Props {
