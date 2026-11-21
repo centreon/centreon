@@ -34,6 +34,7 @@ use App\AiConfiguration\Domain\Security\AiProviderActionEnum;
 use App\AiConfiguration\Infrastructure\ApiPlatform\State\AiProvider\DeleteAiProviderProcessor;
 use App\AiConfiguration\Infrastructure\ApiPlatform\State\AiProvider\FindAiProviderProvider;
 use App\AiConfiguration\Infrastructure\ApiPlatform\State\AiProvider\UpdateAiProviderProcessor;
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
@@ -167,6 +168,7 @@ final class AiProviderResource
         )]
         #[Assert\Length(min: 1, max: 4096)]
         #[Assert\Regex(pattern: '/^secret::/', message: 'The API token cannot be a vault reference.', match: false)]
+        #[Sensitive]
         public ?string $apiToken = null,
 
         #[ApiProperty(

@@ -29,6 +29,7 @@ use ApiPlatform\OpenApi\Model;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
 use App\AiConfiguration\Domain\Security\AiProviderActionEnum;
 use App\AiConfiguration\Infrastructure\ApiPlatform\State\AiProvider\CreateAiProviderProcessor;
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[Post(
@@ -93,6 +94,7 @@ final class CreateAiProviderResource
         )]
         #[Assert\Length(min: 1, max: 4096)]
         #[Assert\Regex(pattern: '/^secret::/', message: 'The API token cannot be a vault reference.', match: false)]
+        #[Sensitive]
         public string $apiToken,
 
         #[ApiProperty(

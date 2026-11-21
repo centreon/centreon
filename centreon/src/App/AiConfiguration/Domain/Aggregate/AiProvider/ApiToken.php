@@ -23,14 +23,17 @@ declare(strict_types=1);
 
 namespace App\AiConfiguration\Domain\Aggregate\AiProvider;
 
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 use Webmozart\Assert\Assert;
 
 /**
  * API token of an AI provider.
  *
  * Holds either the plain token or, once vault storage is wired, a vault path
- * reference ("secret::..."). It must never be exposed through the API.
+ * reference ("secret::..."). It must never be exposed through the API, and is
+ * masked in logs wherever it travels (the bus logs every command).
  */
+#[Sensitive]
 final readonly class ApiToken
 {
     private const VAULT_PATH_PREFIX = 'secret::';
