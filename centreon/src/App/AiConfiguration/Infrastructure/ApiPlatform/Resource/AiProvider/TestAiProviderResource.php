@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\AiConfiguration\Infrastructure\ApiPlatform\Resource\AiProvider;
 
 use ApiPlatform\Metadata\ApiProperty;
+use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model;
 use App\AiConfiguration\Domain\Security\AiProviderActionEnum;
@@ -33,6 +34,9 @@ use App\AiConfiguration\Infrastructure\ApiPlatform\State\AiProvider\TestAiProvid
 #[Post(
     shortName: 'AiProvider',
     uriTemplate: '/administration/ai-providers/{id}/test',
+    // this resource has no identifier of its own: the provider's identifier types the id (an integer)
+    uriVariables: ['id' => new Link(fromClass: AiProviderResource::class, identifiers: ['id'])],
+    requirements: ['id' => '[1-9]\d*'],
     processor: TestAiProviderProcessor::class,
     input: TestAiProviderInput::class,
     status: 200,
