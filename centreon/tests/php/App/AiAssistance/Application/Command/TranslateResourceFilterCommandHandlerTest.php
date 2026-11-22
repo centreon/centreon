@@ -29,6 +29,7 @@ use App\AiConfiguration\Domain\Llm\Exception\LlmConfigurationException;
 use App\AiConfiguration\Domain\Llm\LlmModelTierEnum;
 use App\AiConfiguration\Domain\Llm\LlmResponse;
 use App\AiConfiguration\Domain\Llm\LlmUsage;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Tests\App\AiConfiguration\Infrastructure\Double\FakeLlmClient;
 use Tests\App\AiConfiguration\Infrastructure\Double\FakeLlmClientFactory;
@@ -146,6 +147,91 @@ final class TranslateResourceFilterCommandHandlerTest extends TestCase
         $correctionMessages = $client->requests[1]->messages;
         self::assertCount(3, $correctionMessages);
         self::assertStringContainsString("unknown key 'hostgroup'", end($correctionMessages)->content);
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function provideInvalidExplainAnswers(): iterable
+    {
+        yield 'unknown scope' => [
+            '{"intent": "explain", "query": "", "scope": "all"}',
+            'the "scope" must be "current" or "query"',
+        ];
+
+        yield 'missing scope' => [
+            '{"intent": "explain", "query": ""}',
+            'the "scope" must be "current" or "query"',
+        ];
+
+        yield 'query scope without a query' => [
+            '{"intent": "explain", "query": "", "scope": "query"}',
+            'the "query" must select the resources to explain',
+        ];
+
+        yield 'query scope with an unknown key' => [
+            '{"intent": "explain", "query": "hostgroup:db", "scope": "query"}',
+            "unknown key 'hostgroup'",
+        ];
+    }
+
+    #[DataProvider('provideInvalidExplainAnswers')]
+    public function testInvalidExplainAnswerTriggersOneCorrection(string $invalidAnswer, string $expectedError): void
+    {
+        $client = new FakeLlmClient(queue: [
+            $this->response($invalidAnswer),
+            $this->response('{"intent": "explain", "query": "host_group:db", "scope": "query"}'),
+        ]);
+        $handler = new TranslateResourceFilterCommandHandler(new FakeLlmClientFactory($client));
+
+        $result = $handler(new TranslateResourceFilterCommand('what is wrong with the db group?'));
+
+        self::assertSame('explain', $result->intent);
+        self::assertSame('query', $result->scope);
+        self::assertSame('host_group:db', $result->query);
+        self::assertNull($result->invalidOutputReason);
+        self::assertCount(2, $client->requests);
+        $correctionMessages = $client->requests[1]->messages;
+        self::assertCount(3, $correctionMessages);
+        self::assertSame($invalidAnswer, $correctionMessages[1]->content);
+        self::assertStringContainsString($expectedError, end($correctionMessages)->content);
+    }
+
+    public function testNonJsonAnswerCorrectedIntoAnExplainOnTheCurrentSet(): void
+    {
+        $client = new FakeLlmClient(queue: [
+            $this->response('These alerts are caused by a network outage.'),
+            $this->response('{"intent": "explain", "query": "", "scope": "current"}'),
+        ]);
+        $handler = new TranslateResourceFilterCommandHandler(new FakeLlmClientFactory($client));
+
+        $result = $handler(new TranslateResourceFilterCommand('why these alerts?'));
+
+        self::assertSame('explain', $result->intent);
+        self::assertSame('current', $result->scope);
+        self::assertSame('', $result->query);
+        self::assertCount(2, $client->requests);
+        self::assertStringContainsString(
+            'the answer is not a JSON object',
+            $client->requests[1]->messages[2]->content
+        );
+    }
+
+    public function testStillInvalidExplainAfterCorrectionReturnsAnEmptyFilter(): void
+    {
+        $client = new FakeLlmClient(queue: [
+            $this->response('{"intent": "explain", "query": "", "scope": "query"}'),
+            $this->response('{"intent": "explain", "query": "", "scope": "query"}'),
+        ]);
+        $handler = new TranslateResourceFilterCommandHandler(new FakeLlmClientFactory($client));
+
+        $result = $handler(new TranslateResourceFilterCommand('what is wrong with the db group?'));
+
+        self::assertSame('filter', $result->intent);
+        self::assertSame('', $result->query);
+        self::assertNull($result->scope);
+        self::assertNotNull($result->invalidOutputReason);
+        self::assertStringContainsString('the "query" must select the resources', $result->invalidOutputReason);
     }
 
     public function testStillInvalidAfterCorrectionReturnsAnEmptyFilter(): void

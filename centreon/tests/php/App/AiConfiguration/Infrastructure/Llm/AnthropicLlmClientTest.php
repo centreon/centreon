@@ -235,6 +235,64 @@ final class AnthropicLlmClientTest extends TestCase
         self::assertTrue($response->truncated);
     }
 
+    public function testAMalformedSuccessfulBodyIsAnUnexpectedResponse(): void
+    {
+        $httpClient = new MockHttpClient(new MockResponse('<html>not json</html>', ['http_code' => 200]));
+
+        $this->expectException(LlmRequestFailedException::class);
+        $this->expectExceptionMessage('The AI provider returned an unexpected response');
+
+        $this->createClient($httpClient)->complete($this->createRequest());
+    }
+
+    public function testASuccessfulBodyWithoutContentHasNoText(): void
+    {
+        // the metered client turns it into an "empty answer" failure when an answer is required
+        $httpClient = new MockHttpClient(new MockResponse(json_encode([
+            'model' => 'claude-sonnet-4-6',
+            'usage' => ['input_tokens' => 12, 'output_tokens' => 0],
+        ], \JSON_THROW_ON_ERROR)));
+
+        $response = $this->createClient($httpClient)->complete($this->createRequest());
+
+        self::assertSame('', $response->content);
+        self::assertSame(12, $response->usage->inputTokens);
+    }
+
+    public function testAStreamedErrorEventIsReported(): void
+    {
+        $sse = [
+            "event: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"delta\":{\"type\":\"text_delta\",\"text\":\"po\"}}\n\n",
+            "event: error\ndata: {\"type\":\"error\",\"error\":{\"type\":\"overloaded_error\",\"message\":\"Overloaded\"}}\n\n",
+        ];
+        $httpClient = new MockHttpClient(new MockResponse($sse));
+
+        $this->expectException(LlmRequestFailedException::class);
+        $this->expectExceptionMessage('The AI provider returned an unexpected response: Overloaded');
+
+        iterator_to_array($this->createClient($httpClient)->stream($this->createRequest()), false);
+    }
+
+    public function testAStreamStalledAfterTheFirstChunkIsReportedAsATimeout(): void
+    {
+        // an empty chunk is how MockResponse simulates an idle timeout
+        $sse = [
+            "event: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"delta\":{\"type\":\"text_delta\",\"text\":\"po\"}}\n\n",
+            '',
+        ];
+        $httpClient = new MockHttpClient(new MockResponse($sse));
+
+        $generator = $this->createClient($httpClient)->stream($this->createRequest());
+
+        // the text received before the stall is handed over
+        self::assertSame('po', $generator->current());
+
+        $this->expectException(LlmRequestFailedException::class);
+        $this->expectExceptionMessage('sent nothing for 120 seconds');
+
+        $generator->next();
+    }
+
     private function createClient(HttpClientInterface $httpClient): AnthropicLlmClient
     {
         return new AnthropicLlmClient(

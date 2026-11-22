@@ -28,9 +28,14 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderDescription;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderId;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderName;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\Billing;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\Currency;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\Pricing;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\SpendLimit;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\StoredApiToken;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\TierPricing;
 use App\AiConfiguration\Domain\Exception\AiProviderActivationConflictException;
 use App\AiConfiguration\Domain\Exception\AiProviderAlreadyExistsException;
 use App\AiConfiguration\Domain\Exception\AiProviderNotFoundException;
@@ -67,6 +72,42 @@ final class DbalAiProviderRepositoryTest extends KernelTestCase
         self::assertSame('claude-haiku-4-5', $fetched->fastModel()?->value);
         self::assertSame('a description', $fetched->description()?->value);
         self::assertTrue($fetched->isActivated());
+    }
+
+    public function testTheBillingIsReadBackAsSaved(): void
+    {
+        $billing = new Billing(
+            currency: new Currency('EUR'),
+            pricing: new Pricing(new TierPricing(3.0, 15.0), new TierPricing(0.8, 4.0)),
+            limit: new SpendLimit(daily: 10.5, monthly: 200.0),
+        );
+        $aiProvider = $this->newAiProvider('Anthropic production', billing: $billing);
+
+        $this->repository->add($aiProvider);
+
+        $fetched = $this->repository->getById($aiProvider->id());
+        self::assertEquals($billing, $fetched->billing());
+        self::assertEqualsWithDelta(10.5, $fetched->billing()->limit?->daily, 0.0001);
+        self::assertEqualsWithDelta(0.8, $fetched->billing()->pricing?->fast?->inputPricePerMillion, 0.0001);
+    }
+
+    public function testAnUpdateCanClearTheSpendLimit(): void
+    {
+        $currency = new Currency('USD');
+        $pricing = new Pricing(new TierPricing(3.0, 15.0));
+        $aiProvider = $this->newAiProvider(
+            'Anthropic production',
+            billing: new Billing($currency, $pricing, new SpendLimit(daily: 10.0, monthly: 100.0)),
+        );
+        $this->repository->add($aiProvider);
+
+        $aiProvider->changeBilling(new Billing($currency, $pricing, null));
+        $this->repository->update($aiProvider);
+
+        $fetched = $this->repository->getById($aiProvider->id());
+        self::assertNull($fetched->billing()->limit);
+        self::assertEquals($pricing, $fetched->billing()->pricing);
+        self::assertSame('USD', $fetched->billing()->currency?->value);
     }
 
     public function testGetByIdNotFound(): void
@@ -193,6 +234,7 @@ final class DbalAiProviderRepositoryTest extends KernelTestCase
         string $name,
         AiProviderTypeEnum $type = AiProviderTypeEnum::Anthropic,
         bool $isActivated = false,
+        Billing $billing = new Billing(),
     ): AiProvider {
         return new AiProvider(
             id: null,
@@ -204,6 +246,7 @@ final class DbalAiProviderRepositoryTest extends KernelTestCase
             fastModel: new ModelName('claude-haiku-4-5'),
             description: new AiProviderDescription('a description'),
             isActivated: $isActivated,
+            billing: $billing,
         );
     }
 }

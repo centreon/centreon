@@ -45,16 +45,23 @@ use App\AiConfiguration\Domain\Llm\LlmRoleEnum;
 use App\AiConfiguration\Domain\Llm\LlmUsage;
 use App\AiConfiguration\Domain\Usage\BudgetStatusChecker;
 use App\AiConfiguration\Infrastructure\Llm\MeteredLlmClient;
+use App\Security\Domain\Aggregate\Credential;
+use App\Security\Domain\Aggregate\CredentialIdentifier;
+use App\Security\Domain\Aggregate\UserId;
+use App\Security\Infrastructure\Security\CredentialUser;
 use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
+use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Tests\App\AiConfiguration\Infrastructure\Double\FakeAiProviderUsageRepository;
 use Tests\App\AiConfiguration\Infrastructure\Double\FakeLlmClient;
 
 final class MeteredLlmClientTest extends TestCase
 {
+    private const NOW = '2026-03-15 12:00:00';
+
     public function testRecordsUsageWithCostAfterASuccessfulCall(): void
     {
         $usageRepository = new FakeAiProviderUsageRepository();
@@ -90,7 +97,9 @@ final class MeteredLlmClientTest extends TestCase
 
     public function testRefusesAndDoesNotRecordWhenBudgetExhausted(): void
     {
-        $usageRepository = new FakeAiProviderUsageRepository(windowSum: 50.0);
+        $usageRepository = new FakeAiProviderUsageRepository([
+            FakeAiProviderUsageRepository::spend(1, 'USD', 50.0, (new MockClock(self::NOW))->now()->getTimestamp()),
+        ]);
         $inner = new FakeLlmClient();
         $client = $this->metered(
             $this->provider(
@@ -160,18 +169,102 @@ final class MeteredLlmClientTest extends TestCase
         self::assertSame('gemini-4-hydrogen', $response->model);
     }
 
+    public function testRecordsTheLoggedInUser(): void
+    {
+        $usageRepository = new FakeAiProviderUsageRepository();
+        $client = $this->metered(
+            $this->provider(),
+            $usageRepository,
+            new FakeLlmClient(),
+            $this->securityWithUser(42),
+        );
+
+        $client->complete($this->request());
+
+        self::assertSame(42, $usageRepository->lastAdded?->contactId);
+    }
+
+    public function testAFailedCallRecordsNothing(): void
+    {
+        $usageRepository = new FakeAiProviderUsageRepository();
+        $client = $this->metered(
+            $this->provider(),
+            $usageRepository,
+            new FakeLlmClient(exception: LlmRequestFailedException::fromTransportError('Connection refused')),
+        );
+
+        try {
+            $client->complete($this->request());
+            self::fail('Expected the inner failure to propagate');
+        } catch (LlmRequestFailedException) {
+            // expected
+        }
+
+        self::assertSame([], $usageRepository->added);
+    }
+
+    public function testStreamRecordsUsageOnceTheAnswerIsComplete(): void
+    {
+        $usageRepository = new FakeAiProviderUsageRepository();
+        $client = $this->metered(
+            $this->provider(pricing: new Pricing(new TierPricing(3.0, 15.0)), currency: new Currency('USD')),
+            $usageRepository,
+            new FakeLlmClient(new LlmResponse('pong', 'claude-sonnet-4-6', new LlmUsage(1_000_000, 1_000_000))),
+            $this->securityWithUser(42),
+        );
+
+        $generator = $client->stream($this->request());
+
+        self::assertSame(['pong'], iterator_to_array($generator, false));
+        self::assertSame('pong', $generator->getReturn()->content);
+        $entry = $usageRepository->lastAdded;
+        self::assertNotNull($entry);
+        self::assertCount(1, $usageRepository->added);
+        self::assertSame(42, $entry->contactId);
+        self::assertSame('USD', $entry->currency);
+        self::assertEqualsWithDelta(18.0, $entry->cost, 0.0001);
+    }
+
+    public function testStreamRefusesAndDoesNotRecordWhenBudgetExhausted(): void
+    {
+        $usageRepository = new FakeAiProviderUsageRepository([
+            FakeAiProviderUsageRepository::spend(1, 'USD', 50.0, (new MockClock(self::NOW))->now()->getTimestamp()),
+        ]);
+        $inner = new FakeLlmClient();
+        $client = $this->metered(
+            $this->provider(
+                pricing: new Pricing(new TierPricing(3.0, 15.0)),
+                currency: new Currency('USD'),
+                limit: new SpendLimit(monthly: 10.0),
+            ),
+            $usageRepository,
+            $inner,
+        );
+
+        try {
+            iterator_to_array($client->stream($this->request()), false);
+            self::fail('Expected a budget exception');
+        } catch (LlmConfigurationException) {
+            // expected
+        }
+
+        self::assertNull($inner->lastRequest, 'the inner client must not be called when over budget');
+        self::assertSame([], $usageRepository->added);
+    }
+
     private function metered(
         AiProvider $provider,
         FakeAiProviderUsageRepository $usageRepository,
         FakeLlmClient $inner,
+        ?Security $security = null,
     ): MeteredLlmClient {
         return new MeteredLlmClient(
             $inner,
             $provider,
             $usageRepository,
-            new BudgetStatusChecker($usageRepository, new MockClock()),
-            $this->securityWithoutUser(),
-            new MockClock(),
+            new BudgetStatusChecker($usageRepository, new MockClock(self::NOW)),
+            $security ?? $this->securityWithoutUser(),
+            new MockClock(self::NOW),
         );
     }
 
@@ -209,6 +302,26 @@ final class MeteredLlmClientTest extends TestCase
     {
         $container = new Container();
         $container->set('security.token_storage', new TokenStorage());
+
+        return new Security($container);
+    }
+
+    /**
+     * A real Security whose token storage holds the token of a logged-in user.
+     */
+    private function securityWithUser(int $userId): Security
+    {
+        $tokenStorage = new TokenStorage();
+        $tokenStorage->setToken(new UsernamePasswordToken(
+            new CredentialUser(new Credential(
+                identifier: new CredentialIdentifier('operator'),
+                userId: new UserId($userId),
+                active: true,
+            )),
+            'main',
+        ));
+        $container = new Container();
+        $container->set('security.token_storage', $tokenStorage);
 
         return new Security($container);
     }

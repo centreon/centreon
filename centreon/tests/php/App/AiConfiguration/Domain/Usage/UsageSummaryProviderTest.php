@@ -32,6 +32,7 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\Currency;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\StoredApiToken;
+use App\AiConfiguration\Domain\Usage\UsageLogEntry;
 use App\AiConfiguration\Domain\Usage\UsageSummaryProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Clock\MockClock;
@@ -42,27 +43,44 @@ final class UsageSummaryProviderTest extends TestCase
     public function testReturnsTheCurrencyScopedSpend(): void
     {
         $provider = new UsageSummaryProvider(
-            new FakeAiProviderUsageRepository(windowSum: 12.5),
-            new MockClock()
+            new FakeAiProviderUsageRepository([
+                $this->spend(1, 'USD', 2.5, '2026-03-15 08:00:00'),
+                $this->spend(1, 'USD', 10.0, '2026-03-02 10:00:00'),
+                // last month, another currency, another provider: all left out
+                $this->spend(1, 'USD', 100.0, '2026-02-28 23:59:59'),
+                $this->spend(1, 'EUR', 100.0, '2026-03-15 08:00:00'),
+                $this->spend(2, 'USD', 100.0, '2026-03-15 08:00:00'),
+            ]),
+            new MockClock('2026-03-15 12:00:00', 'UTC')
         );
 
         $summary = $provider->forProvider($this->aiProvider(new Currency('USD')));
 
-        self::assertEqualsWithDelta(12.5, $summary->usedDaily, 0.0001);
+        self::assertEqualsWithDelta(2.5, $summary->usedDaily, 0.0001);
         self::assertEqualsWithDelta(12.5, $summary->usedMonthly, 0.0001);
     }
 
     public function testNoUsageWithoutCurrency(): void
     {
         $provider = new UsageSummaryProvider(
-            new FakeAiProviderUsageRepository(windowSum: 99.0),
-            new MockClock()
+            new FakeAiProviderUsageRepository([$this->spend(1, 'USD', 99.0, '2026-03-15 08:00:00')]),
+            new MockClock('2026-03-15 12:00:00', 'UTC')
         );
 
         $summary = $provider->forProvider($this->aiProvider(null));
 
         self::assertNull($summary->usedDaily);
         self::assertNull($summary->usedMonthly);
+    }
+
+    private function spend(int $providerId, string $currency, float $cost, string $utcDateTime): UsageLogEntry
+    {
+        return FakeAiProviderUsageRepository::spend(
+            $providerId,
+            $currency,
+            $cost,
+            (new \DateTimeImmutable($utcDateTime, new \DateTimeZone('UTC')))->getTimestamp(),
+        );
     }
 
     private function aiProvider(?Currency $currency): AiProvider

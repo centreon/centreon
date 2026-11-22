@@ -164,14 +164,59 @@ final class LlmClientFactoryTest extends TestCase
         $this->factory->forProvider($this->createAiProvider(AiProviderTypeEnum::Anthropic, token: self::STORED_TOKEN));
     }
 
-    private function createFactory(HttpClientInterface $httpClient): LlmClientFactory
+    public function testRequestsGoThroughThePlatformProxy(): void
+    {
+        self::assertSame(
+            'http://proxy.example.org:3128',
+            $this->proxyOfARequest(new FakeHttpProxyProvider('http://proxy.example.org:3128'))
+        );
+    }
+
+    public function testRequestsGoDirectWithoutAPlatformProxy(): void
+    {
+        self::assertNull($this->proxyOfARequest(new FakeHttpProxyProvider()));
+    }
+
+    /**
+     * Sends a metered request and returns the proxy option the HTTP client received.
+     */
+    private function proxyOfARequest(FakeHttpProxyProvider $proxyProvider): ?string
+    {
+        $sentProxy = null;
+        $httpClient = new MockHttpClient(
+            function (string $method, string $url, array $options) use (&$sentProxy): MockResponse {
+                $sentProxy = $options['proxy'] ?? null;
+
+                return new MockResponse(json_encode([
+                    'content' => [['type' => 'text', 'text' => 'pong']],
+                    'model' => 'claude-sonnet-5-5',
+                    'usage' => ['input_tokens' => 1, 'output_tokens' => 1],
+                ], \JSON_THROW_ON_ERROR));
+            }
+        );
+
+        $aiProvider = $this->createAiProvider(AiProviderTypeEnum::Anthropic, isActivated: true);
+        $this->repository->add($aiProvider);
+        $this->createFactory($httpClient, $proxyProvider)
+            ->forActivatedProvider()
+            ->complete(new LlmRequest(
+                messages: [new LlmMessage(LlmRoleEnum::User, 'ping')],
+                feature: AiFeatureEnum::ResourceExplanation,
+                maxTokens: 16,
+            ));
+
+        /** @var string|null $sentProxy */
+        return $sentProxy;
+    }
+
+    private function createFactory(HttpClientInterface $httpClient, ?FakeHttpProxyProvider $proxyProvider = null): LlmClientFactory
     {
         $usageRepository = new FakeAiProviderUsageRepository();
 
         return new LlmClientFactory(
             $this->repository,
             $httpClient,
-            new FakeHttpProxyProvider(),
+            $proxyProvider ?? new FakeHttpProxyProvider(),
             $usageRepository,
             new BudgetStatusChecker($usageRepository, new MockClock()),
             $this->securityWithoutUser(),

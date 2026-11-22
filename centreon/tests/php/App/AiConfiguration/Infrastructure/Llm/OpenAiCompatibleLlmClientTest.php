@@ -370,6 +370,74 @@ final class OpenAiCompatibleLlmClientTest extends TestCase
         iterator_to_array($this->createClient($httpClient)->stream($this->createRequest()), false);
     }
 
+    public function testTransportErrorIsReported(): void
+    {
+        $httpClient = new MockHttpClient(new MockResponse('', ['error' => 'Connection refused']));
+
+        $this->expectException(LlmRequestFailedException::class);
+        $this->expectExceptionMessage('can not be reached');
+
+        $this->createClient($httpClient)->complete($this->createRequest());
+    }
+
+    public function testAMalformedSuccessfulBodyIsAnUnexpectedResponse(): void
+    {
+        $httpClient = new MockHttpClient(new MockResponse('{"choices": [', ['http_code' => 200]));
+
+        $this->expectException(LlmRequestFailedException::class);
+        $this->expectExceptionMessage('The AI provider returned an unexpected response');
+
+        $this->createClient($httpClient)->complete($this->createRequest());
+    }
+
+    public function testASuccessfulBodyWithoutChoicesHasNoContent(): void
+    {
+        // the metered client turns it into an "empty answer" failure when an answer is required
+        $httpClient = new MockHttpClient(new MockResponse(json_encode([
+            'model' => 'mistral-small-latest',
+            'usage' => ['prompt_tokens' => 12, 'completion_tokens' => 0],
+        ], \JSON_THROW_ON_ERROR)));
+
+        $response = $this->createClient($httpClient)->complete($this->createRequest());
+
+        self::assertSame('', $response->content);
+        self::assertSame(12, $response->usage->inputTokens);
+    }
+
+    public function testAStreamedErrorEventIsReported(): void
+    {
+        $sse = [
+            "data: {\"choices\":[{\"delta\":{\"content\":\"po\"}}]}\n\n",
+            "data: {\"error\":{\"message\":\"The server is overloaded\"}}\n\n",
+        ];
+        $httpClient = new MockHttpClient(new MockResponse($sse));
+
+        $this->expectException(LlmRequestFailedException::class);
+        $this->expectExceptionMessage('The AI provider returned an unexpected response: The server is overloaded');
+
+        iterator_to_array($this->createClient($httpClient)->stream($this->createRequest()), false);
+    }
+
+    public function testAStreamStalledAfterTheFirstChunkIsReportedAsATimeout(): void
+    {
+        // an empty chunk is how MockResponse simulates an idle timeout
+        $sse = [
+            "data: {\"choices\":[{\"delta\":{\"content\":\"po\"}}]}\n\n",
+            '',
+        ];
+        $httpClient = new MockHttpClient(new MockResponse($sse));
+
+        $generator = $this->createClient($httpClient)->stream($this->createRequest());
+
+        // the text received before the stall is handed over
+        self::assertSame('po', $generator->current());
+
+        $this->expectException(LlmRequestFailedException::class);
+        $this->expectExceptionMessage('sent nothing for 120 seconds');
+
+        $generator->next();
+    }
+
     private function createClient(HttpClientInterface $httpClient): OpenAiCompatibleLlmClient
     {
         return new OpenAiCompatibleLlmClient(

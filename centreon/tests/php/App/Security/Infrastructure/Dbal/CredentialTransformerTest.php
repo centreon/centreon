@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace Tests\App\Security\Infrastructure\Dbal;
 
+use App\AiAssistance\Domain\Security\AiAssistancePermissionEnum;
+use App\AiConfiguration\Domain\Security\AiProviderPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\HostCategoryPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\HostSeverityPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\ServicePermissionEnum;
@@ -135,6 +137,50 @@ final class CredentialTransformerTest extends TestCase
             'ROLE_CONFIGURATION_SERVICES_SERVICES_BY_HOST_RW',
             ServicePermissionEnum::CanReadAndWrite,
             ServicePermissionEnum::CanRead,
+        ];
+    }
+
+    /**
+     * The AI providers page grants the matching provider permission, and the Resources Status page
+     * (where the assistants live) grants the use of the AI assistance.
+     *
+     * @param list<string> $notExpectedPermissions
+     */
+    #[DataProvider('aiTopologyProvider')]
+    public function testAiTopologiesGrantTheirPermissions(
+        string $topology,
+        string $expectedPermission,
+        array $notExpectedPermissions,
+    ): void {
+        $credential = $this->transform(contactAdmin: false, isCloudAdmin: false, topologyPermissions: [$topology]);
+
+        self::assertTrue($credential->isPermissionGranted(new Permission($expectedPermission)));
+        foreach ($notExpectedPermissions as $notExpectedPermission) {
+            self::assertFalse($credential->isPermissionGranted(new Permission($notExpectedPermission)));
+        }
+    }
+
+    /**
+     * @return iterable<string, array{string, string, list<string>}>
+     */
+    public static function aiTopologyProvider(): iterable
+    {
+        yield 'AI providers read' => [
+            'ROLE_ADMINISTRATION_PARAMETERS_AI_PROVIDERS_R',
+            AiProviderPermissionEnum::CanRead->value,
+            [AiProviderPermissionEnum::CanReadAndWrite->value, AiAssistancePermissionEnum::CanUse->value],
+        ];
+
+        yield 'AI providers read/write' => [
+            'ROLE_ADMINISTRATION_PARAMETERS_AI_PROVIDERS_RW',
+            AiProviderPermissionEnum::CanReadAndWrite->value,
+            [AiProviderPermissionEnum::CanRead->value, AiAssistancePermissionEnum::CanUse->value],
+        ];
+
+        yield 'Resources Status' => [
+            'ROLE_MONITORING_RESOURCES_STATUS_RW',
+            AiAssistancePermissionEnum::CanUse->value,
+            [AiProviderPermissionEnum::CanRead->value, AiProviderPermissionEnum::CanReadAndWrite->value],
         ];
     }
 

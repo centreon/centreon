@@ -126,6 +126,26 @@ final class LiteLlmModelPriceCatalogTest extends TestCase
         self::assertSame(1, $httpClient->getRequestsCount());
     }
 
+    public function testTheCatalogIsFetchedThroughThePlatformProxy(): void
+    {
+        $sentProxy = null;
+        $httpClient = new MockHttpClient(
+            static function (string $method, string $url, array $options) use (&$sentProxy): MockResponse {
+                $sentProxy = $options['proxy'] ?? null;
+
+                return new MockResponse(self::CATALOG);
+            }
+        );
+        $catalog = new LiteLlmModelPriceCatalog(
+            $httpClient,
+            new FakeHttpProxyProvider('http://proxy.example.org:3128'),
+            new ArrayAdapter()
+        );
+
+        self::assertNotNull($catalog->priceFor('gpt-4o', AiProviderTypeEnum::OpenAi));
+        self::assertSame('http://proxy.example.org:3128', $sentProxy);
+    }
+
     /**
      * @return iterable<string, array{MockResponse}>
      */
