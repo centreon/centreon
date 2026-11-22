@@ -85,5 +85,11 @@ export interface MoreSecondaryActions {
   renderMoreSecondaryActions?: (arg: Arg) => ReactNode;
 }
 
-export const smallWidth = 885;
-export const mediumWidth = 1350;
+// The toolbar condenses below these widths. The Analyze action needs room:
+// with AI configured, it condenses sooner.
+export const toolbarWidths = {
+  default: { condensed: 1150, medium: 1100, small: 760, smallQuery: 775 },
+  withAi: { condensed: 1400, medium: 1350, small: 885, smallQuery: 900 }
+};
+
+export type ToolbarWidths = typeof toolbarWidths.default;

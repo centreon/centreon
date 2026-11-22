@@ -20,12 +20,13 @@ const Actions = ({ onRefresh }: Props): JSX.Element => {
   const { classes, cx } = useStyles();
   const theme = useTheme();
 
-  const { applyBreakPoint, breakPointType } = useMediaQueryListing();
+  const { applyBreakPoint, breakPointType, widths } = useMediaQueryListing();
   const displayCondensed =
-    Boolean(useMediaQuery(theme.breakpoints.down(1400))) || applyBreakPoint;
+    Boolean(useMediaQuery(theme.breakpoints.down(widths.condensed))) ||
+    applyBreakPoint;
 
   const smallSize =
-    useMediaQuery(theme.breakpoints.down(900)) ||
+    useMediaQuery(theme.breakpoints.down(widths.smallQuery)) ||
     equals(breakPointType, Type.small);
 
   return (
