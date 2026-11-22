@@ -1,37 +1,22 @@
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
-import {
-  Button,
-  CircularProgress,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Tooltip,
-  Typography
-} from '@mui/material';
+import { Button, Tooltip } from '@mui/material';
 
-import { lazy, Suspense, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { ResourceDetails } from '../../Details/models';
-import { ExplainGraphResult } from '../models';
+import AiResultDialog from '../AiResultDialog';
+import { AiResult } from '../models';
 import {
   labelAiBudgetExhausted,
-  labelAiGraphExplanation,
   labelAiGraphExplanationDisclaimer,
-  labelClose,
-  labelExplainGraph,
-  labelGeneratedBy,
-  labelOnHost
+  labelAiGraphExplanationOf,
+  labelExplainGraph
 } from '../translatedLabels';
 import useAiAvailability from '../useAiAvailability';
+import { useLatestRequest } from '../useLatestRequest';
+import { unescaped } from '../utils';
 import useExplainGraph, { type GraphMetricSummary } from './useExplainGraph';
-
-const MarkdownContent = lazy(() =>
-  import('../MarkdownContent').then((module) => ({
-    default: module.MarkdownContent
-  }))
-);
 
 interface Props {
   details: ResourceDetails;
@@ -47,10 +32,11 @@ const ExplainGraph = ({
   const { t } = useTranslation();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [result, setResult] = useState<ExplainGraphResult | null>(null);
+  const [result, setResult] = useState<AiResult | null>(null);
 
-  const { explain, isMutating } = useExplainGraph();
+  const { explain } = useExplainGraph();
   const { isConfigured, isBudgetExhausted } = useAiAvailability();
+  const startRequest = useLatestRequest();
 
   if (!isConfigured) {
     return null;
@@ -60,17 +46,23 @@ const ExplainGraph = ({
   const disabled = isBudgetExhausted || !hasMetrics;
 
   const openExplanation = (): void => {
+    const isLatest = startRequest();
+
     setResult(null);
     setIsDialogOpen(true);
 
     explain({ details, metrics, timeRange }).then((explanation) => {
+      if (!isLatest()) {
+        return;
+      }
+
       if (explanation === null) {
         setIsDialogOpen(false);
 
         return;
       }
 
-      setResult(explanation);
+      setResult({ content: explanation.explanation, model: explanation.model });
     });
   };
 
@@ -91,59 +83,17 @@ const ExplainGraph = ({
           </Button>
         </span>
       </Tooltip>
-      <Dialog
-        fullWidth
-        maxWidth="sm"
+      <AiResultDialog
+        disclaimer={t(labelAiGraphExplanationDisclaimer)}
+        host={details.parent?.name}
         onClose={() => setIsDialogOpen(false)}
         open={isDialogOpen}
-      >
-        <DialogTitle>
-          {t(labelAiGraphExplanation)} — {details.name}
-          {details.parent?.name && (
-            <Typography
-              className="ml-2"
-              color="textSecondary"
-              component="span"
-              variant="subtitle1"
-            >
-              {t(labelOnHost, { host: details.parent.name })}
-            </Typography>
-          )}
-        </DialogTitle>
-        <DialogContent>
-          {isMutating || result === null ? (
-            <div className="flex justify-center p-6">
-              <CircularProgress data-testid="graph-explanation-loading" />
-            </div>
-          ) : (
-            <>
-              <Suspense
-                fallback={
-                  <div className="flex justify-center p-6">
-                    <CircularProgress />
-                  </div>
-                }
-              >
-                <MarkdownContent content={result.explanation} />
-              </Suspense>
-              <Typography variant="caption">
-                {t(labelGeneratedBy)} {result.model}
-              </Typography>
-            </>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Typography
-            className="grow pl-2 text-text-secondary"
-            variant="caption"
-          >
-            {t(labelAiGraphExplanationDisclaimer)}
-          </Typography>
-          <Button onClick={() => setIsDialogOpen(false)} size="small">
-            {t(labelClose)}
-          </Button>
-        </DialogActions>
-      </Dialog>
+        result={result}
+        title={t(labelAiGraphExplanationOf, {
+          name: details.name,
+          ...unescaped
+        })}
+      />
     </>
   );
 };

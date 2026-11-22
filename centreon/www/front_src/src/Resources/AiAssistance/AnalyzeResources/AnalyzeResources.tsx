@@ -1,57 +1,33 @@
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
-import {
-  Button,
-  CircularProgress,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Tooltip,
-  Typography
-} from '@mui/material';
+import { Button, Tooltip } from '@mui/material';
 
 import { IconButton } from '@centreon/ui';
 
 import clsx from 'clsx';
-import { lazy, Suspense, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { ResourceDetails } from '../../Details/models';
 import { Resource } from '../../models';
-import useExplainResource from '../ExplainResource/useExplainResource';
+import { AiResult } from '../models';
 import {
-  labelAiAnalysis,
-  labelAiAnalysisDisclaimer,
   labelAiBudgetExhausted,
-  labelAiExplanation,
-  labelAiExplanationDisclaimer,
   labelAnalyze,
   labelAnalyzeHint,
   labelAnalyzeMinSelection,
-  labelClose,
-  labelExplain,
-  labelGeneratedBy,
-  labelOnHost
+  labelAnalyzeMostSevere,
+  labelExplain
 } from '../translatedLabels';
 import useAiAvailability from '../useAiAvailability';
-import useAnalyzeResources from './useAnalyzeResources';
-
-const MarkdownContent = lazy(() =>
-  import('../MarkdownContent').then((module) => ({
-    default: module.MarkdownContent
-  }))
-);
+import { useLatestRequest } from '../useLatestRequest';
+import { maxCorrelatedResources } from '../utils';
+import AnalysisDialog from './AnalysisDialog';
+import useAnalyzeOrExplain from './useAnalyzeOrExplain';
 
 const labelSlotClassName = 'col-start-1 row-start-1 whitespace-nowrap';
 
 interface Props {
   displayCondensed?: boolean;
   resources: Array<Resource>;
-}
-
-interface AnalysisResult {
-  content: string;
-  model: string;
 }
 
 const AnalyzeResources = ({
@@ -61,16 +37,16 @@ const AnalyzeResources = ({
   const { t } = useTranslation();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [result, setResult] = useState<AnalysisResult | null>(null);
+  const [result, setResult] = useState<AiResult | null>(null);
   // the resource being explained drives the single-resource dialog; null while
   // correlating two or more resources
   const [explainedResource, setExplainedResource] = useState<Resource | null>(
     null
   );
 
-  const { analyze, isMutating: isAnalyzing } = useAnalyzeResources();
-  const { explain, isMutating: isExplaining } = useExplainResource();
+  const analyzeOrExplain = useAnalyzeOrExplain();
   const { isConfigured, isBudgetExhausted } = useAiAvailability();
+  const startRequest = useLatestRequest();
 
   if (!isConfigured) {
     return null;
@@ -81,21 +57,23 @@ const AnalyzeResources = ({
   const isSingle = resources.length === 1;
   const hasEnough = resources.length >= 1;
   const disabled = isBudgetExhausted || !hasEnough;
-  const isMutating = isAnalyzing || isExplaining;
   const actionLabel = isSingle ? labelExplain : labelAnalyze;
 
   const getTooltip = (): string => {
     if (isBudgetExhausted) {
-      return labelAiBudgetExhausted;
+      return t(labelAiBudgetExhausted);
     }
     if (!hasEnough) {
-      return labelAnalyzeMinSelection;
+      return t(labelAnalyzeMinSelection);
     }
     if (isSingle) {
       return '';
     }
+    if (resources.length > maxCorrelatedResources) {
+      return t(labelAnalyzeMostSevere, { max: maxCorrelatedResources });
+    }
 
-    return labelAnalyzeHint;
+    return t(labelAnalyzeHint);
   };
 
   // the icon has no visible label, so always surface the action (or the reason
@@ -112,24 +90,17 @@ const AnalyzeResources = ({
   };
 
   const openAnalysis = (): void => {
+    const isLatest = startRequest();
+
     setResult(null);
     setExplainedResource(isSingle ? resources[0] : null);
     setIsDialogOpen(true);
 
-    const request = isSingle
-      ? explain(resources[0] as unknown as ResourceDetails).then(
-          (explanation) =>
-            explanation === null
-              ? null
-              : { content: explanation.explanation, model: explanation.model }
-        )
-      : analyze(resources).then((analysis) =>
-          analysis === null
-            ? null
-            : { content: analysis.analysis, model: analysis.model }
-        );
+    analyzeOrExplain(resources).then((analysisResult) => {
+      if (!isLatest()) {
+        return;
+      }
 
-    request.then((analysisResult) => {
       if (analysisResult === null) {
         setIsDialogOpen(false);
 
@@ -154,7 +125,7 @@ const AnalyzeResources = ({
           <AutoAwesomeIcon />
         </IconButton>
       ) : (
-        <Tooltip title={t(getTooltip())}>
+        <Tooltip title={getTooltip()}>
           <span>
             <Button
               aria-label={t(actionLabel)}
@@ -185,69 +156,12 @@ const AnalyzeResources = ({
           </span>
         </Tooltip>
       )}
-      <Dialog
-        fullWidth
-        maxWidth="sm"
+      <AnalysisDialog
+        explainedResource={explainedResource}
         onClose={() => setIsDialogOpen(false)}
         open={isDialogOpen}
-      >
-        <DialogTitle>
-          {explainedResource ? (
-            <>
-              {t(labelAiExplanation)} — {explainedResource.name}
-              {explainedResource.parent?.name && (
-                <Typography
-                  className="ml-2"
-                  color="textSecondary"
-                  component="span"
-                  variant="subtitle1"
-                >
-                  {t(labelOnHost, { host: explainedResource.parent.name })}
-                </Typography>
-              )}
-            </>
-          ) : (
-            t(labelAiAnalysis)
-          )}
-        </DialogTitle>
-        <DialogContent>
-          {isMutating || result === null ? (
-            <div className="flex justify-center p-6">
-              <CircularProgress data-testid="analysis-loading" />
-            </div>
-          ) : (
-            <>
-              <Suspense
-                fallback={
-                  <div className="flex justify-center p-6">
-                    <CircularProgress />
-                  </div>
-                }
-              >
-                <MarkdownContent content={result.content} />
-              </Suspense>
-              <Typography variant="caption">
-                {t(labelGeneratedBy)} {result.model}
-              </Typography>
-            </>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Typography
-            className="grow pl-2 text-text-secondary"
-            variant="caption"
-          >
-            {t(
-              explainedResource
-                ? labelAiExplanationDisclaimer
-                : labelAiAnalysisDisclaimer
-            )}
-          </Typography>
-          <Button onClick={() => setIsDialogOpen(false)} size="small">
-            {t(labelClose)}
-          </Button>
-        </DialogActions>
-      </Dialog>
+        result={result}
+      />
     </>
   );
 };

@@ -10,6 +10,8 @@ import { useTranslation } from 'react-i18next';
 import { formStateAtom } from '../../ConfigurationBase/atoms';
 import { discoveredModelsDecoder, discoverModelsEndpoint } from '../api';
 import useProviderCall from '../api/useProviderCall';
+import { discoveredModelsAtom } from '../atoms';
+import { AiProviderType } from '../models';
 import {
   labelFetchingModels,
   labelFetchModels,
@@ -19,12 +21,11 @@ import {
   labelNoModelsFound
 } from '../translatedLabels';
 import { isSameEndpoint } from '../utils';
-import { discoveredModelsAtom } from './discoveredModelsAtom';
 
 interface FormValues {
   apiToken?: string | null;
   endpointUrl?: string | null;
-  type?: string | null;
+  type?: AiProviderType | null;
 }
 
 type Status = 'failed' | 'fetched' | 'none';

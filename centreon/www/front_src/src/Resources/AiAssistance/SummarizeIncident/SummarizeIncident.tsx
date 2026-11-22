@@ -1,66 +1,51 @@
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
-import {
-  Button,
-  CircularProgress,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Tooltip,
-  Typography
-} from '@mui/material';
+import { Button, Tooltip } from '@mui/material';
 
 import { useCopyToClipboard } from '@centreon/ui';
 
-import { lazy, Suspense, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { ResourceDetails } from '../../Details/models';
-import { SummarizeIncidentResult } from '../models';
+import AiResultDialog from '../AiResultDialog';
+import { AiResult } from '../models';
 import {
   labelAiBudgetExhausted,
-  labelAiTimelineSummary,
   labelAiTimelineSummaryDisclaimer,
-  labelClose,
+  labelAiTimelineSummaryOf,
   labelCopy,
-  labelGeneratedBy,
   labelNoRecentEvents,
-  labelOnHost,
   labelSummarize,
   labelSummaryCopied,
   labelSummaryCopyFailed
 } from '../translatedLabels';
 import useAiAvailability from '../useAiAvailability';
+import { useLatestRequest } from '../useLatestRequest';
+import { unescaped } from '../utils';
+import useHasRecentEvents from './useHasRecentEvents';
 import useSummarizeIncident from './useSummarizeIncident';
-
-const MarkdownContent = lazy(() =>
-  import('../MarkdownContent').then((module) => ({
-    default: module.MarkdownContent
-  }))
-);
 
 interface Props {
   details: ResourceDetails;
-  // null while the timeline listing is still loading: keep the action enabled
-  // until we know there is nothing in the window to summarize
-  hasRecentEvents?: boolean | null;
 }
 
-const SummarizeIncident = ({
-  details,
-  hasRecentEvents = null
-}: Props): JSX.Element | null => {
+const SummarizeIncident = ({ details }: Props): JSX.Element | null => {
   const { t } = useTranslation();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [result, setResult] = useState<SummarizeIncidentResult | null>(null);
+  const [result, setResult] = useState<AiResult | null>(null);
 
-  const { summarize, isLoading } = useSummarizeIncident();
+  const { summarize } = useSummarizeIncident();
   const { copy } = useCopyToClipboard({
     errorMessage: t(labelSummaryCopyFailed),
     successMessage: t(labelSummaryCopied)
   });
   const { isConfigured, isBudgetExhausted } = useAiAvailability();
+  const hasRecentEvents = useHasRecentEvents({
+    enabled: isConfigured,
+    timelineEndpoint: details.links?.endpoints?.timeline
+  });
+  const startRequest = useLatestRequest();
 
   if (!isConfigured) {
     return null;
@@ -81,17 +66,23 @@ const SummarizeIncident = ({
   };
 
   const openSummary = (): void => {
+    const isLatest = startRequest();
+
     setResult(null);
     setIsDialogOpen(true);
 
     summarize(details).then((summary) => {
+      if (!isLatest()) {
+        return;
+      }
+
       if (summary === null) {
         setIsDialogOpen(false);
 
         return;
       }
 
-      setResult(summary);
+      setResult({ content: summary.summary, model: summary.model });
     });
   };
 
@@ -113,67 +104,27 @@ const SummarizeIncident = ({
           </Button>
         </span>
       </Tooltip>
-      <Dialog
-        fullWidth
-        maxWidth="sm"
-        onClose={() => setIsDialogOpen(false)}
-        open={isDialogOpen}
-      >
-        <DialogTitle>
-          {t(labelAiTimelineSummary)} — {details.name}
-          {details.parent?.name && (
-            <Typography
-              className="ml-2"
-              color="textSecondary"
-              component="span"
-              variant="subtitle1"
-            >
-              {t(labelOnHost, { host: details.parent.name })}
-            </Typography>
-          )}
-        </DialogTitle>
-        <DialogContent>
-          {isLoading || result === null ? (
-            <div className="flex justify-center p-6">
-              <CircularProgress data-testid="summary-loading" />
-            </div>
-          ) : (
-            <>
-              <Suspense
-                fallback={
-                  <div className="flex justify-center p-6">
-                    <CircularProgress data-testid="summary-loading" />
-                  </div>
-                }
-              >
-                <MarkdownContent content={result.summary} />
-              </Suspense>
-              <Typography variant="caption">
-                {t(labelGeneratedBy)} {result.model}
-              </Typography>
-            </>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Typography
-            className="grow pl-2 text-text-secondary"
-            variant="caption"
-          >
-            {t(labelAiTimelineSummaryDisclaimer)}
-          </Typography>
+      <AiResultDialog
+        actions={
           <Button
             data-testid={labelCopy}
             disabled={result === null}
-            onClick={() => result && copy(result.summary)}
+            onClick={() => result && copy(result.content)}
             size="small"
           >
             {t(labelCopy)}
           </Button>
-          <Button onClick={() => setIsDialogOpen(false)} size="small">
-            {t(labelClose)}
-          </Button>
-        </DialogActions>
-      </Dialog>
+        }
+        disclaimer={t(labelAiTimelineSummaryDisclaimer)}
+        host={details.parent?.name}
+        onClose={() => setIsDialogOpen(false)}
+        open={isDialogOpen}
+        result={result}
+        title={t(labelAiTimelineSummaryOf, {
+          name: details.name,
+          ...unescaped
+        })}
+      />
     </>
   );
 };

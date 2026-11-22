@@ -17,10 +17,37 @@ import { aiIncidentSummaryEndpoint } from '../api/endpoints';
 import { useAiCall } from '../api/useAiCall';
 import { SummarizeIncidentResult } from '../models';
 import { labelNoRecentEvents } from '../translatedLabels';
+import { truncate } from '../utils';
 
 const maxEvents = 100;
+// the summary covers this window, whatever period the Timeline tab displays
 const windowInHours = 24;
 const maxEventContentLength = 2000;
+
+export const getWindowStart = (): string =>
+  dayjs().subtract(windowInHours, 'hour').toISOString();
+
+// The events of the resource since the start of the window. The resource's
+// timeline link is used as is (no API prefix), as the timeline tab does.
+export const buildTimelineWindowEndpoint = ({
+  endpoint,
+  limit,
+  since
+}: {
+  endpoint: string;
+  limit: number;
+  since: string;
+}): string =>
+  buildListingEndpoint({
+    baseEndpoint: endpoint,
+    parameters: {
+      limit,
+      page: 1,
+      search: {
+        conditions: [{ field: 'date', values: { $gt: since } }]
+      }
+    }
+  });
 
 interface IncidentEventPayload {
   author: string | null;
@@ -69,23 +96,13 @@ const useSummarizeIncident = (): UseSummarizeIncidentState => {
   const { showWarningMessage } = useSnackbar();
 
   // Fetched on demand, for a window that starts when the user asks, so it is
-  // sent like a mutation rather than kept as a query. The resource's timeline
-  // link is used as is (no API prefix), as the timeline tab does.
+  // sent like a mutation rather than kept as a query.
   const { mutateAsync: listEvents, isMutating: isListingEvents } =
     useMutationQuery<ListingModel<TimelineEvent>, TimelineWindow>({
       baseEndpoint: '',
       decoder: listTimelineEventsDecoder,
       getEndpoint: ({ endpoint, since }) =>
-        buildListingEndpoint({
-          baseEndpoint: endpoint,
-          parameters: {
-            limit: maxEvents,
-            page: 1,
-            search: {
-              conditions: [{ field: 'date', values: { $gt: since } }]
-            }
-          }
-        }),
+        buildTimelineWindowEndpoint({ endpoint, limit: maxEvents, since }),
       method: Method.GET
     });
 
@@ -108,7 +125,7 @@ const useSummarizeIncident = (): UseSummarizeIncidentState => {
       return null;
     }
 
-    const since = dayjs().subtract(windowInHours, 'hour').toISOString();
+    const since = getWindowStart();
 
     const listing = await listEvents({
       _meta: { endpoint: timelineEndpoint, since }
@@ -132,7 +149,7 @@ const useSummarizeIncident = (): UseSummarizeIncidentState => {
     return call({
       duration: details.duration ?? null,
       events,
-      information: details.information ?? null,
+      information: truncate(details.information),
       is_truncated: listing.meta.total > maxEvents,
       name: details.name,
       parent_name: details.parent?.name ?? null,

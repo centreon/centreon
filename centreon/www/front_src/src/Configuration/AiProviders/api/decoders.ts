@@ -2,7 +2,12 @@ import { buildListingDecoder } from '@centreon/ui';
 
 import { JsonDecoder } from 'ts.data.json';
 
-import { AiProvider, AiProviderListItem } from '../models';
+import { AiProvider, AiProviderListItem, AiProviderType } from '../models';
+
+const typeDecoder = JsonDecoder.enumeration<AiProviderType>(
+  AiProviderType,
+  'AiProviderType'
+);
 
 const listOptionalNumber = JsonDecoder.optional(
   JsonDecoder.nullable(JsonDecoder.number)
@@ -20,7 +25,7 @@ const aiProviderListItemDecoder = JsonDecoder.object<AiProviderListItem>(
     limitDaily: listOptionalNumber,
     limitMonthly: listOptionalNumber,
     name: JsonDecoder.string,
-    type: JsonDecoder.string,
+    type: typeDecoder,
     usedDaily: listOptionalNumber,
     usedMonthly: listOptionalNumber
   },
@@ -50,7 +55,6 @@ const optionalNumber = JsonDecoder.optional(
 
 export const aiProviderDecoder = JsonDecoder.object<AiProvider>(
   {
-    apiToken: JsonDecoder.optional(JsonDecoder.string),
     currency: JsonDecoder.optional(JsonDecoder.nullable(JsonDecoder.string)),
     defaultModel: JsonDecoder.string,
     description: JsonDecoder.optional(JsonDecoder.nullable(JsonDecoder.string)),
@@ -64,11 +68,10 @@ export const aiProviderDecoder = JsonDecoder.object<AiProvider>(
     priceDefaultOutput: optionalNumber,
     priceFastInput: optionalNumber,
     priceFastOutput: optionalNumber,
-    type: JsonDecoder.string
+    type: typeDecoder
   },
   'AiProvider',
   {
-    apiToken: 'api_token',
     defaultModel: 'default_model',
     endpointUrl: 'endpoint_url',
     fastModel: 'fast_model',

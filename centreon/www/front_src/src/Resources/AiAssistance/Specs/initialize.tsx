@@ -17,6 +17,7 @@ import {
 } from '../api/endpoints';
 import {
   correlationResponse,
+  getErrorResponse,
   getTimelineListing,
   graphExplanationResponse,
   incidentSummaryResponse,
@@ -29,10 +30,24 @@ interface Availability {
   reason?: string | null;
 }
 
+type AiCall =
+  | 'correlateAlerts'
+  | 'explainGraph'
+  | 'explainResource'
+  | 'summarizeIncident'
+  | 'translateFilter';
+
 interface Props {
   availability?: Availability;
+  // The status the availability endpoint answers with.
+  availabilityStatus?: number;
+  // The AI calls that fail, with the status they answer.
+  failures?: Partial<Record<AiCall, number>>;
   // What the resource filter translation answers.
   filterTranslation?: object;
+  // The number of timeline events in the last 24 hours, as counted for the
+  // summary action.
+  recentTimelineTotal?: number;
   // The number of timeline events in the summarized window.
   timelineTotal?: number;
 }
@@ -41,7 +56,10 @@ const initialize = (
   component: JSX.Element,
   {
     availability = { is_available: true },
+    availabilityStatus = 200,
+    failures = {},
     filterTranslation,
+    recentTimelineTotal,
     timelineTotal = 2
   }: Props = {}
 ): ReturnType<typeof createStore> => {
@@ -50,32 +68,53 @@ const initialize = (
     resources: {}
   });
 
+  const interceptAiCall = ({
+    alias,
+    path,
+    response
+  }: {
+    alias: AiCall;
+    path: string;
+    response?: object;
+  }): void => {
+    const statusCode = failures[alias];
+
+    interceptAPIRequest({
+      alias,
+      method: Method.POST,
+      path,
+      response: statusCode ? getErrorResponse(statusCode) : response,
+      statusCode
+    });
+  };
+
   interceptAPIRequest({
     alias: 'getAiAvailability',
     method: Method.GET,
     path: aiAvailabilityEndpoint,
-    response: availability
+    response:
+      availabilityStatus === 200
+        ? availability
+        : getErrorResponse(availabilityStatus),
+    statusCode: availabilityStatus
   });
 
-  if (filterTranslation) {
-    interceptAPIRequest({
+  if (filterTranslation || failures.translateFilter) {
+    interceptAiCall({
       alias: 'translateFilter',
-      method: Method.POST,
       path: aiResourceFilterEndpoint,
       response: filterTranslation
     });
   }
 
-  interceptAPIRequest({
+  interceptAiCall({
     alias: 'correlateAlerts',
-    method: Method.POST,
     path: aiAlertCorrelationEndpoint,
     response: correlationResponse
   });
 
-  interceptAPIRequest({
+  interceptAiCall({
     alias: 'explainResource',
-    method: Method.POST,
     path: aiResourceExplanationEndpoint,
     response: resourceExplanationResponse
   });
@@ -88,16 +127,24 @@ const initialize = (
     response: getTimelineListing(timelineTotal)
   });
 
+  // The count of the recent events, which enables the summary action: a
+  // single event is requested. Registered last, so it is matched first.
   interceptAPIRequest({
+    alias: 'countRecentTimelineEvents',
+    method: Method.GET,
+    path: `**${timelineEndpoint}`,
+    query: { name: 'limit', value: '1' },
+    response: getTimelineListing(recentTimelineTotal ?? timelineTotal)
+  });
+
+  interceptAiCall({
     alias: 'summarizeIncident',
-    method: Method.POST,
     path: aiIncidentSummaryEndpoint,
     response: incidentSummaryResponse
   });
 
-  interceptAPIRequest({
+  interceptAiCall({
     alias: 'explainGraph',
-    method: Method.POST,
     path: aiGraphExplanationEndpoint,
     response: graphExplanationResponse
   });

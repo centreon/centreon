@@ -42,13 +42,21 @@ export const labelNameAlreadyExists =
   'An AI provider with this name already exists';
 
 export const labelUsage = 'Usage';
-export const labelToday = 'today';
-export const labelThisMonth = 'this month';
+export const labelTodayUsage = 'Today: {{used}}';
+export const labelTodayUsageOfLimit = 'Today: {{used}} / {{limit}}';
+export const labelThisMonthUsage = 'This month: {{used}}';
+export const labelThisMonthUsageOfLimit = 'This month: {{used}} / {{limit}}';
+export const labelSpentThisMonth = '{{amount}} this month';
+export const labelLimitUsedToday = '{{used}} / {{limit}} ({{percent}}%) today';
+export const labelLimitUsedThisMonth =
+  '{{used}} / {{limit}} ({{percent}}%) this month';
 export const labelNotMetered = 'Not metered';
 
 export const labelTestConnection = 'Test connection';
 export const labelTestingConnection = 'Testing connection…';
 export const labelConnectionSucceeded = 'Connection successful';
+export const labelConnectionSucceededWithModel =
+  'Connection successful ({{model}})';
 export const labelConnectionFailed = 'Connection failed';
 export const labelTestConnectionHint =
   'Sends a minimal request to the provider (billed by the provider, not counted toward the spend limit)';

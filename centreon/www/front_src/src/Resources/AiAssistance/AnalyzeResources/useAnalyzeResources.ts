@@ -3,6 +3,7 @@ import { correlateAlertsDecoder } from '../api/decoders';
 import { aiAlertCorrelationEndpoint } from '../api/endpoints';
 import { useAiCall } from '../api/useAiCall';
 import { CorrelateAlertsResult } from '../models';
+import { selectMostSevere, truncate } from '../utils';
 
 interface ResourcePayload {
   duration: string | null;
@@ -35,13 +36,14 @@ const useAnalyzeResources = (): UseAnalyzeResourcesState => {
     }
   );
 
+  // more resources than the API accepts: the most severe ones are analyzed
   const analyze = (
     resources: Array<Resource>
   ): Promise<CorrelateAlertsResult | null> =>
     call({
-      resources: resources.map((resource) => ({
+      resources: selectMostSevere(resources).map((resource) => ({
         duration: resource.duration ?? null,
-        information: resource.information ?? null,
+        information: truncate(resource.information),
         is_acknowledged: resource.is_acknowledged ?? false,
         is_in_downtime: resource.is_in_downtime ?? false,
         name: resource.name,

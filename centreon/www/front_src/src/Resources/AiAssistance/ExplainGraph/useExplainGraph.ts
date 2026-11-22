@@ -3,6 +3,7 @@ import { explainGraphDecoder } from '../api/decoders';
 import { aiGraphExplanationEndpoint } from '../api/endpoints';
 import { useAiCall } from '../api/useAiCall';
 import { ExplainGraphResult } from '../models';
+import { truncate } from '../utils';
 
 export interface GraphMetricSummary {
   average: number | null;
@@ -53,7 +54,7 @@ const useExplainGraph = (): UseExplainGraphState => {
       metrics,
       name: details.name,
       parent_name: details.parent?.name ?? null,
-      performance_data: details.performance_data ?? null,
+      performance_data: truncate(details.performance_data),
       resource_type: details.type,
       time_range: timeRange
     });

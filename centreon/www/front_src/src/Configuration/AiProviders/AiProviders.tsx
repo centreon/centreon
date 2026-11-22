@@ -1,15 +1,18 @@
 import { useFetchQuery } from '@centreon/ui';
 import { userPermissionsAtom } from '@centreon/ui-context';
 
-import { useAtomValue } from 'jotai';
-import { ReactElement, useMemo } from 'react';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { RESET } from 'jotai/utils';
+import { ReactElement, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { baseEndpoint } from '../../api/endpoint';
 import ConfigurationBase from '../ConfigurationBase';
+import { formStateAtom } from '../ConfigurationBase/atoms';
 import { type Actions, ResourceType } from '../models';
 import { aiProvidersEndpoint, aiProvidersListDecoder } from './api';
 import {
+  discoveredModelsAtom,
   filtersAtom,
   isWelcomePageDisplayedAtom,
   selectedColumnIdsAtom
@@ -47,12 +50,21 @@ const AiProviders = (): ReactElement => {
   // The API always activates the very first provider (there must be an enabled
   // one for AI features to work), so the Enabled switch starts on when no
   // provider exists yet and off otherwise, where enabling would disable the
-  // currently active one. Only the add form reads these defaults.
+  // currently active one. Only the add form reads these defaults. Keyed under
+  // the listing, whose invalidation on create and delete refreshes it.
   const { data: providersCount } = useFetchQuery({
     decoder: aiProvidersListDecoder,
     getEndpoint: () => `${baseEndpoint}${aiProvidersEndpoint}?page=1&limit=1`,
-    getQueryKey: () => ['aiProvidersCount']
+    getQueryKey: () => ['listResources', 'aiProvidersCount']
   });
+
+  // the models discovered for a provider are not offered for another one
+  const { isOpen, id, mode } = useAtomValue(formStateAtom);
+  const resetDiscoveredModels = useSetAtom(discoveredModelsAtom);
+
+  useEffect(() => {
+    resetDiscoveredModels(RESET);
+  }, [isOpen, id, mode]);
 
   const defaultValues = useMemo(
     () => getDefaultValues({ isActivated: providersCount?.meta?.total === 0 }),

@@ -8,17 +8,26 @@ import { useTranslation } from 'react-i18next';
 
 import { AiProviderListItem } from '../models';
 import {
+  labelLimitUsedThisMonth,
+  labelLimitUsedToday,
   labelNotMetered,
-  labelThisMonth,
-  labelToday
+  labelSpentThisMonth,
+  labelThisMonthUsage,
+  labelThisMonthUsageOfLimit,
+  labelTodayUsage,
+  labelTodayUsageOfLimit
 } from '../translatedLabels';
 
 interface Window {
+  // the gauge text, with the used amount, the limit and the percentage
   label: string;
   limit: number;
   ratio: number;
   used: number;
 }
+
+// the amounts are formatted already: no HTML escaping on top of React's
+const interpolation = { escapeValue: false };
 
 const formatAmount = (
   amount: number,
@@ -63,32 +72,55 @@ const Usage = ({ row }: ComponentColumnProps): JSX.Element => {
     formatAmount(amount, currency, i18n.language);
 
   const windows: Array<Window> = [
-    { key: 'daily', label: t(labelToday), limit: limitDaily, used: usedDaily },
-    {
-      key: 'monthly',
-      label: t(labelThisMonth),
-      limit: limitMonthly,
-      used: usedMonthly
-    }
+    { label: labelLimitUsedToday, limit: limitDaily, used: usedDaily },
+    { label: labelLimitUsedThisMonth, limit: limitMonthly, used: usedMonthly }
   ]
     .filter((window) => !isNil(window.limit) && window.limit > 0)
-    .map((window) => ({
-      label: window.label,
-      limit: window.limit as number,
-      ratio: (window.used ?? 0) / (window.limit as number),
-      used: window.used ?? 0
-    }));
+    .map((window) => {
+      const limit = window.limit as number;
+      const used = window.used ?? 0;
+      const ratio = used / limit;
+
+      return {
+        label: t(window.label, {
+          interpolation,
+          limit: format(limit),
+          percent: Math.round(ratio * 100),
+          used: format(used)
+        }),
+        limit,
+        ratio,
+        used
+      };
+    });
+
+  const describeUsage = (
+    used: number | null | undefined,
+    limit: number | null | undefined,
+    labels: { withLimit: string; withoutLimit: string }
+  ): string =>
+    isNil(limit)
+      ? t(labels.withoutLimit, { interpolation, used: format(used ?? 0) })
+      : t(labels.withLimit, {
+          interpolation,
+          limit: format(limit),
+          used: format(used ?? 0)
+        });
 
   const tooltip = (
     <div>
       <Typography variant="caption">
-        {t(labelToday)}: {format(usedDaily ?? 0)}
-        {!isNil(limitDaily) && ` / ${format(limitDaily)}`}
+        {describeUsage(usedDaily, limitDaily, {
+          withLimit: labelTodayUsageOfLimit,
+          withoutLimit: labelTodayUsage
+        })}
       </Typography>
       <br />
       <Typography variant="caption">
-        {t(labelThisMonth)}: {format(usedMonthly ?? 0)}
-        {!isNil(limitMonthly) && ` / ${format(limitMonthly)}`}
+        {describeUsage(usedMonthly, limitMonthly, {
+          withLimit: labelThisMonthUsageOfLimit,
+          withoutLimit: labelThisMonthUsage
+        })}
       </Typography>
     </div>
   );
@@ -98,7 +130,10 @@ const Usage = ({ row }: ComponentColumnProps): JSX.Element => {
     return (
       <Tooltip title={tooltip}>
         <Typography variant="body2">
-          {format(usedMonthly ?? 0)} {t(labelThisMonth)}
+          {t(labelSpentThisMonth, {
+            amount: format(usedMonthly ?? 0),
+            interpolation
+          })}
         </Typography>
       </Tooltip>
     );
@@ -108,15 +143,10 @@ const Usage = ({ row }: ComponentColumnProps): JSX.Element => {
   const binding = windows.reduce((highest, window) =>
     window.ratio > highest.ratio ? window : highest
   );
-  const percent = Math.round(binding.ratio * 100);
-
   return (
     <Tooltip title={tooltip}>
       <div className="w-full min-w-[140px]">
-        <Typography variant="body2">
-          {format(binding.used)} / {format(binding.limit)} ({percent}%){' '}
-          {binding.label}
-        </Typography>
+        <Typography variant="body2">{binding.label}</Typography>
         <LinearProgress
           color={barColor(binding.ratio)}
           value={Math.min(binding.ratio * 100, 100)}

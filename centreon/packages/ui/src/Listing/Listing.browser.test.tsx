@@ -300,6 +300,50 @@ describe('Listing', () => {
     expect.hasAssertions();
   });
 
+  describe('Action bar', () => {
+    // Three actions that could wrap onto several lines: together they are too
+    // wide to share the row with the pagination.
+    const actions = (
+      <div>
+        {[1, 2, 3].map((index) => (
+          <span
+            className="inline-block h-5 w-30"
+            data-testid={`action-${index}`}
+            key={index}
+          />
+        ))}
+      </div>
+    );
+
+    it('wraps the pagination below actions too wide to share the row, instead of squeezing them', async () => {
+      render(
+        <div className="w-150">
+          <Listing
+            actions={actions}
+            columns={defaultColumn}
+            currentPage={0}
+            limit={10}
+            onPaginate={rs.fn()}
+            rows={listingWithSubItems}
+            totalRows={100}
+          />
+        </div>
+      );
+
+      const first = await screen.findByTestId('action-1');
+      const last = screen.getByTestId('action-3');
+      const pagination = await screen.findByText('1-10 of 100');
+
+      // the actions stay on a single line
+      expect(last.getBoundingClientRect().top).toBe(
+        first.getBoundingClientRect().top
+      );
+      expect(pagination.getBoundingClientRect().top).toBeGreaterThanOrEqual(
+        first.getBoundingClientRect().bottom
+      );
+    });
+  });
+
   describe('Sub items', () => {
     it('expands the row when the corresponding icon is clicked', async () => {
       mountListingForSubItems({});

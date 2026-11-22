@@ -38,3 +38,9 @@ export interface ExplainGraphResult {
   explanation: string;
   model: string;
 }
+
+// What the result dialog shows, whatever the feature.
+export interface AiResult {
+  content: string;
+  model: string;
+}

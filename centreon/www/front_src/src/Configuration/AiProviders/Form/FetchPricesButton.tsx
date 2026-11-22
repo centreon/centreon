@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 
 import { modelPricesDecoder, modelPricesEndpoint } from '../api';
 import useProviderCall from '../api/useProviderCall';
+import { AiProviderType } from '../models';
 import {
   labelFetchingPrices,
   labelFetchPrices,
@@ -21,7 +22,7 @@ interface FormValues {
   currency?: string | null;
   defaultModel?: string | null;
   fastModel?: string | null;
-  type?: string | null;
+  type?: AiProviderType | null;
 }
 
 type Status = 'failed' | 'filled' | 'notFound';
@@ -35,6 +36,7 @@ const FetchPricesButton = (): JSX.Element => {
     endpoint: modelPricesEndpoint
   });
   const [status, setStatus] = useState<Status | null>(null);
+  const [failureMessage, setFailureMessage] = useState<string | null>(null);
 
   // LiteLLM prices are in USD: only offer the prefill when the currency is
   // empty (it will be set to USD) or already USD, never mixing units
@@ -44,14 +46,16 @@ const FetchPricesButton = (): JSX.Element => {
 
   const fetchPrices = async (): Promise<void> => {
     setStatus(null);
+    setFailureMessage(null);
 
-    const { data } = await call({
+    const { data, error } = await call({
       default_model: values.defaultModel,
       type: values.type,
       ...(values.fastModel ? { fast_model: values.fastModel } : {})
     });
 
     if (!data) {
+      setFailureMessage(error);
       setStatus('failed');
 
       return;
@@ -84,7 +88,10 @@ const FetchPricesButton = (): JSX.Element => {
   };
 
   const message: Record<Status, { color: string; label: string }> = {
-    failed: { color: 'error.main', label: t(labelFetchPricesFailed) },
+    failed: {
+      color: 'error.main',
+      label: failureMessage ?? t(labelFetchPricesFailed)
+    },
     filled: { color: 'success.main', label: t(labelPricesFilled) },
     notFound: { color: 'warning.main', label: t(labelPricesNotFound) }
   };

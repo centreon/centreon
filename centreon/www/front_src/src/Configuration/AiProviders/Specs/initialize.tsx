@@ -18,12 +18,17 @@ import AiProviders from '..';
 import {
   aiProvidersEndpoint,
   discoverModelsEndpoint,
-  getAiProviderEndpoint
+  getAiProviderEndpoint,
+  modelPricesEndpoint,
+  testConnectionEndpoint
 } from '../api';
 import {
+  connectionTestResponse,
   discoveredModelsResponse,
   getAiProviderResponse,
-  getListingResponse
+  getListingResponse,
+  getProvidersCountResponse,
+  priceListUnavailableResponse
 } from './utils';
 
 interface Props {
@@ -31,11 +36,14 @@ interface Props {
   hasWriteAccess?: boolean;
   // The details provider 1 answers, when not the default one.
   aiProvider?: Record<string, unknown>;
+  // The number of providers the add form defaults the Enabled switch from.
+  providersTotal?: number;
 }
 
 const initialize = ({
   hasWriteAccess = true,
-  aiProvider = getAiProviderResponse()
+  aiProvider = getAiProviderResponse(),
+  providersTotal = 2
 }: Props = {}): RenderResult => {
   i18next.use(initReactI18next).init({
     lng: 'en',
@@ -54,14 +62,39 @@ const initialize = ({
   // The listing waits for the platform page size before loading.
   store.set(defaultLimitPerPageAtom, 10);
 
-  // Also answers the `limit=1` request the add form reads the provider total
-  // from, and the `name[lk]=` lookup of the name validation: MSW ignores the
-  // query string, so this one mock serves every listing request.
+  // Also answers the `name[lk]=` lookup of the name validation: MSW ignores
+  // the query string, so this one mock serves every listing request but the
+  // provider count below.
   interceptAPIRequest({
     alias: 'getAiProviders',
     method: Method.GET,
     path: `**${aiProvidersEndpoint}?**`,
     response: getListingResponse()
+  });
+
+  // The `limit=1` request the add form reads the provider total from.
+  // Registered last, so it is matched first.
+  interceptAPIRequest({
+    alias: 'getAiProvidersCount',
+    method: Method.GET,
+    path: `**${aiProvidersEndpoint}?**`,
+    query: { name: 'limit', value: '1' },
+    response: getProvidersCountResponse(providersTotal)
+  });
+
+  interceptAPIRequest({
+    alias: 'testConnection',
+    method: Method.POST,
+    path: `**${testConnectionEndpoint}`,
+    response: connectionTestResponse
+  });
+
+  interceptAPIRequest({
+    alias: 'fetchPrices',
+    method: Method.POST,
+    path: `**${modelPricesEndpoint}`,
+    response: priceListUnavailableResponse,
+    statusCode: 502
   });
 
   interceptAPIRequest({

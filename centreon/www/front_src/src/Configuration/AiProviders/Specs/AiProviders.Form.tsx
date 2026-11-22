@@ -1,14 +1,19 @@
-import { waitForRequest } from '@test-setup/api';
-import { screen, waitFor } from '@testing-library/react';
+import { interceptAPIRequest, Method, waitForRequest } from '@test-setup/api';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { labelClose } from '../../ConfigurationBase/translatedLabels';
+import { aiProvidersEndpoint } from '../api';
 import {
   labelAnthropic,
   labelApiToken,
   labelApiTokenRequiredForNewEndpoint,
   labelAwsRegion,
   labelBedrock,
+  labelConnectionSucceededWithModel,
   labelCurrency,
+  labelCurrencyChangeResetsUsage,
+  labelCurrencyRequired,
   labelDailyLimit,
   labelDefaultModel,
   labelDefaultModelInputPrice,
@@ -20,6 +25,7 @@ import {
   labelMistral,
   labelNameAlreadyExists,
   labelOpenAiCompatible,
+  labelPricingRequiredForLimit,
   labelTestConnection
 } from '../translatedLabels';
 import {
@@ -28,6 +34,8 @@ import {
   getCustomInput,
   getName,
   getSaveButton,
+  initializeListing,
+  isActivatedTestId,
   openCreationForm,
   openProvider,
   queryAllInPanel,
@@ -35,7 +43,11 @@ import {
   save,
   selectType
 } from './helpers';
-import { getAiProviderResponse } from './utils';
+import {
+  getAiProviderResponse,
+  getProvidersCountResponse,
+  priceListUnavailableMessage
+} from './utils';
 
 interface Payload {
   [key: string]: unknown;
@@ -43,6 +55,17 @@ interface Payload {
 
 const expectValue = (testId: string, value: string): Promise<void> =>
   waitFor(async () => expect(await getCustomInput(testId)).toHaveValue(value));
+
+const getEnabledSwitch = async (): Promise<HTMLElement> =>
+  within(await screen.findByTestId(isActivatedTestId)).getByRole('checkbox');
+
+// a provider with prices, metered in USD
+const pricedProvider = {
+  ...getAiProviderResponse(),
+  currency: 'USD',
+  price_default_input: 3,
+  price_default_output: 15
+};
 
 const isFollowing = (first: Element, second: Element): boolean =>
   (first.compareDocumentPosition(second) & Node.DOCUMENT_POSITION_FOLLOWING) !==
@@ -290,6 +313,171 @@ export default (): void => {
         'https://bedrock-mantle.us-east-1.api.aws'
       );
       expect(body.default_model).toBe('qwen.qwen3-235b-a22b-2507');
+    });
+
+    it('starts the add form enabled only while no provider exists, the count refreshed after a creation', async () => {
+      await initializeListing({ providersTotal: 0 });
+
+      await userEvent.click(await screen.findByTestId('add-resource'));
+      await waitForRequest('@getAiProvidersCount');
+
+      // the very first provider is enabled
+      await waitFor(async () => expect(await getEnabledSwitch()).toBeChecked());
+
+      await selectType(labelAnthropic);
+      await userEvent.type(await getApiToken(), 'a-very-secret-token');
+
+      // the API now counts the created provider
+      interceptAPIRequest({
+        alias: 'getAiProvidersCountAfterCreation',
+        method: Method.GET,
+        path: `**${aiProvidersEndpoint}?**`,
+        query: { name: 'limit', value: '1' },
+        response: getProvidersCountResponse(1)
+      });
+
+      await save();
+      await waitForRequest('@createAiProvider');
+      await waitForRequest('@getAiProvidersCountAfterCreation');
+
+      await userEvent.click(await screen.findByTestId('add-resource'));
+
+      // enabling a second provider would disable the first one
+      await waitFor(async () =>
+        expect(await getEnabledSwitch()).not.toBeChecked()
+      );
+    });
+
+    it('requires a currency once a price is set', async () => {
+      await openCreationForm();
+      await selectType(labelAnthropic);
+
+      await userEvent.type(
+        await getCustomInput(labelDefaultModelInputPrice),
+        '3'
+      );
+      await userEvent.click(await getCustomInput(labelCurrency));
+      await userEvent.tab();
+
+      expect(await screen.findByText(labelCurrencyRequired)).toBeVisible();
+    });
+
+    it('requires the default model prices to set a spend limit', async () => {
+      await openCreationForm();
+      await selectType(labelAnthropic);
+
+      await userEvent.type(await getCustomInput(labelDailyLimit), '10');
+      await userEvent.tab();
+
+      expect(
+        await screen.findByText(labelPricingRequiredForLimit)
+      ).toBeVisible();
+
+      await userEvent.type(
+        await getCustomInput(labelDefaultModelInputPrice),
+        '3'
+      );
+      await userEvent.type(
+        await getCustomInput(labelDefaultModelOutputPrice),
+        '15'
+      );
+
+      await waitFor(() =>
+        expect(screen.queryByText(labelPricingRequiredForLimit)).toBeNull()
+      );
+    });
+
+    it('warns about the usage totals only when the currency of an existing provider changes', async () => {
+      await openProvider({ aiProvider: pricedProvider });
+
+      await expectValue(labelCurrency, 'USD');
+      expect(screen.queryByText(labelCurrencyChangeResetsUsage)).toBeNull();
+
+      await replaceValue(await getCustomInput(labelCurrency), 'EUR');
+
+      expect(
+        await screen.findByText(labelCurrencyChangeResetsUsage)
+      ).toBeVisible();
+
+      await replaceValue(await getCustomInput(labelCurrency), 'USD');
+
+      await waitFor(() =>
+        expect(screen.queryByText(labelCurrencyChangeResetsUsage)).toBeNull()
+      );
+    });
+
+    it('does not warn about the usage totals when a currency is set on a new provider', async () => {
+      await openCreationForm();
+      await selectType(labelAnthropic);
+
+      await userEvent.type(await getCustomInput(labelCurrency), 'EUR');
+      await expectValue(labelCurrency, 'EUR');
+
+      expect(screen.queryByText(labelCurrencyChangeResetsUsage)).toBeNull();
+    });
+
+    it('hides the connection test result once the tested inputs change', async () => {
+      await openCreationForm();
+      await selectType(labelAnthropic);
+      await userEvent.type(await getApiToken(), 'a-very-secret-token');
+
+      await waitFor(() =>
+        expect(screen.getByTestId(labelTestConnection)).toBeEnabled()
+      );
+      await userEvent.click(screen.getByTestId(labelTestConnection));
+      await waitForRequest('@testConnection');
+
+      const success = labelConnectionSucceededWithModel.replace(
+        '{{model}}',
+        'claude-sonnet-5-5'
+      );
+
+      expect(await screen.findByText(success)).toBeVisible();
+
+      await replaceValue(await getCustomInput(labelDefaultModel), 'other');
+
+      await waitFor(() => expect(screen.queryByText(success)).toBeNull());
+    });
+
+    it('shows why the prices could not be fetched', async () => {
+      await openCreationForm();
+      await selectType(labelAnthropic);
+
+      await waitFor(() =>
+        expect(screen.getByTestId(labelFetchPrices)).toBeEnabled()
+      );
+      await userEvent.click(screen.getByTestId(labelFetchPrices));
+      await waitForRequest('@fetchPrices');
+
+      expect(
+        await screen.findByText(priceListUnavailableMessage)
+      ).toBeVisible();
+    });
+
+    it('forgets the discovered models once the form is closed', async () => {
+      await openProvider();
+
+      await waitFor(() =>
+        expect(screen.getByTestId(labelFetchModels)).toBeEnabled()
+      );
+      await userEvent.click(screen.getByTestId(labelFetchModels));
+      await waitForRequest('@discoverModels');
+
+      await userEvent.click(await getCustomInput(labelDefaultModel));
+      expect(
+        await screen.findByRole('option', { name: 'claude-opus-5-5' })
+      ).toBeVisible();
+      await userEvent.keyboard('{Escape}');
+
+      await userEvent.click(screen.getByLabelText(labelClose));
+      await waitFor(() => expect(getSaveButton()).toBeNull());
+
+      await userEvent.click(await screen.findByText('Anthropic production'));
+      await waitForRequest('@getAiProvider');
+
+      await userEvent.click(await getCustomInput(labelDefaultModel));
+
+      expect(screen.queryByRole('option')).toBeNull();
     });
 
     it('keeps the token untouched when a provider is edited without typing a new token', async () => {

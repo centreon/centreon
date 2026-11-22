@@ -12,7 +12,7 @@ export enum AiProviderType {
 export interface AiProviderListItem {
   id: number;
   name: string;
-  type: string;
+  type: AiProviderType;
   endpointUrl: string;
   defaultModel: string;
   fastModel?: string | null;
@@ -35,15 +35,21 @@ export interface Billing {
   priceFastOutput?: number | null;
 }
 
+// A provider as the API returns it: the API token is write-only.
 export interface AiProvider extends Billing {
   name: string;
-  type: string;
+  type: AiProviderType;
   endpointUrl: string;
-  apiToken?: string;
   defaultModel: string;
   fastModel?: string | null;
   description?: string | null;
   isActivated: boolean;
+}
+
+// What the form edits: a provider, plus the token to send (empty to keep the
+// stored one).
+export interface AiProviderFormValues extends AiProvider {
+  apiToken?: string;
 }
 
 export interface Payload {
@@ -61,7 +67,7 @@ export interface Payload {
   price_fast_output: number | null;
   api_token?: string;
   endpoint_url?: string;
-  type?: string;
+  type?: AiProviderType;
 }
 
 export interface Filters {

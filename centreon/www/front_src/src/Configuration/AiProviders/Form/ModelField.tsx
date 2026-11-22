@@ -8,14 +8,15 @@ import { equals, path } from 'ramda';
 import { JSX } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { discoveredModelsAtom } from '../atoms';
+import { AiProviderType } from '../models';
 import {
   labelDefaultModelPlaceholder,
   labelFastModelPlaceholder
 } from '../translatedLabels';
-import { discoveredModelsAtom } from './discoveredModelsAtom';
 
 interface FormValues {
-  type?: string | null;
+  type?: AiProviderType | null;
 }
 
 // the default model is the only required model field

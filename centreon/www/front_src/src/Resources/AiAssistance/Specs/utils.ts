@@ -127,3 +127,39 @@ export const graphMetrics = [
     unit: 'ms'
   }
 ];
+
+export const aiErrorMessage = 'The AI provider did not answer';
+
+export const getErrorResponse = (code: number): object => ({
+  code,
+  message: aiErrorMessage
+});
+
+// A page of the listing of the derived filter: the Ask AI explanation runs on
+// the first one.
+export const getDerivedListing = (page = 1): ResourceListing =>
+  ({
+    meta: { limit: 30, page, total: 31 },
+    result: [
+      {
+        name: page === 1 ? 'Disk-/var' : 'Disk-/home',
+        parent: { name: 'db-server-01' },
+        status: { name: 'CRITICAL', severity_code: 1 },
+        type: 'service'
+      }
+    ]
+  }) as unknown as ResourceListing;
+
+export const derivedQuery = 'status:critical';
+
+export const explainDerivedQueryResponse = {
+  intent: 'explain',
+  query: derivedQuery,
+  scope: 'query'
+};
+
+export const unsupportedResponse = {
+  intent: 'unsupported',
+  query: '',
+  scope: null
+};

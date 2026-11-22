@@ -11,20 +11,26 @@ import {
 
 import { IconButton, useSnackbar } from '@centreon/ui';
 
-import { atom, useAtomValue, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom, useStore } from 'jotai';
 import { KeyboardEvent, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { ResourceDetails } from '../../Details/models';
 import {
+  appliedFilterAtom,
   applyCurrentFilterDerivedAtom,
   searchAtom
 } from '../../Filter/filterAtoms';
-import { listingAtom } from '../../Listing/listingAtoms';
+import { Filter } from '../../Filter/models';
+import { listingAtom, sendingAtom } from '../../Listing/listingAtoms';
 import { Resource, ResourceListing } from '../../models';
-import AiExplanationDialog from '../AiExplanationDialog';
-import useAnalyzeResources from '../AnalyzeResources/useAnalyzeResources';
-import useExplainResource from '../ExplainResource/useExplainResource';
+import AnalysisDialog from '../AnalyzeResources/AnalysisDialog';
+import useAnalyzeOrExplain from '../AnalyzeResources/useAnalyzeOrExplain';
+import {
+  askAiDialogOpenAtom,
+  askAiExplainedResourceAtom,
+  askAiRequestIdAtom,
+  askAiResultAtom
+} from '../atoms';
 import {
   labelAiBudgetExhausted,
   labelAiCouldNotTranslate,
@@ -36,85 +42,68 @@ import {
   labelNoResourcesToExplain
 } from '../translatedLabels';
 import useAiAvailability from '../useAiAvailability';
+import { useLatestRequest } from '../useLatestRequest';
 import useAskAiFilter from './useAskAiFilter';
 
-// the alert-correlation endpoint accepts at most this many resources
-const maxResourcesToExplain = 50;
-
-interface AnalysisResult {
-  content: string;
-  model: string;
+// An explanation waiting for the listing to load the filter derived from the
+// question.
+interface PendingExplain {
+  // the listing displayed when the filter was applied
+  baseline: ResourceListing | undefined;
+  // the filter applied for the question: another one means the user moved on
+  filter: Filter;
+  // a load of the previous filter was still in flight: what it lands is not
+  // the derived filter's
+  hasStaleLoad: boolean;
+  // the load of the derived filter has started
+  hasStarted: boolean;
 }
-
-// the explanation dialog state lives in the store, not in component state, so
-// it survives any re-render or remount of AskAiFilter while the (async) request
-// is in flight
-const explainDialogOpenAtom = atom(false);
-const explainResultAtom = atom<AnalysisResult | null>(null);
-const explainedResourceAtom = atom<Resource | null>(null);
-const explainLoadingAtom = atom(false);
 
 const AskAiFilter = (): JSX.Element | null => {
   const { t } = useTranslation();
   const { showWarningMessage } = useSnackbar();
+  const store = useStore();
 
   const [isOpen, setIsOpen] = useState(false);
   const [prompt, setPrompt] = useState('');
   const anchorRef = useRef<HTMLDivElement | null>(null);
-  // an explain request waiting for the listing to refresh with the derived
-  // filter; we capture the listing at request time and fire once it changes to
-  // the new settled result
-  const pendingExplainRef = useRef(false);
-  const listingBaselineRef = useRef<ResourceListing | undefined>(undefined);
+  const pendingExplainRef = useRef<PendingExplain | null>(null);
 
-  const isDialogOpen = useAtomValue(explainDialogOpenAtom);
-  const setIsDialogOpen = useSetAtom(explainDialogOpenAtom);
-  const result = useAtomValue(explainResultAtom);
-  const setResult = useSetAtom(explainResultAtom);
-  const explainedResource = useAtomValue(explainedResourceAtom);
-  const setExplainedResource = useSetAtom(explainedResourceAtom);
-  const isExplainLoading = useAtomValue(explainLoadingAtom);
-  const setExplainLoading = useSetAtom(explainLoadingAtom);
+  const [isDialogOpen, setIsDialogOpen] = useAtom(askAiDialogOpenAtom);
+  const [result, setResult] = useAtom(askAiResultAtom);
+  const [explainedResource, setExplainedResource] = useAtom(
+    askAiExplainedResourceAtom
+  );
 
   const { isMutating, translate } = useAskAiFilter();
-  const { explain } = useExplainResource();
-  const { analyze } = useAnalyzeResources();
+  const analyzeOrExplain = useAnalyzeOrExplain();
   const { isConfigured, isBudgetExhausted } = useAiAvailability();
+  const startRequest = useLatestRequest(askAiRequestIdAtom);
 
   const search = useAtomValue(searchAtom);
   const listing = useAtomValue(listingAtom);
+  const isListingLoading = useAtomValue(sendingAtom);
+  const appliedFilter = useAtomValue(appliedFilterAtom);
   const setSearch = useSetAtom(searchAtom);
   const applyCurrentFilter = useSetAtom(applyCurrentFilterDerivedAtom);
 
   const runExplain = (resources: Array<Resource>): void => {
-    const capped = resources.slice(0, maxResourcesToExplain);
-
-    if (capped.length === 0) {
+    if (resources.length === 0) {
       showWarningMessage(t(labelNoResourcesToExplain));
 
       return;
     }
 
-    const isSingle = capped.length === 1;
+    const isLatest = startRequest();
+
     setResult(null);
-    setExplainedResource(isSingle ? capped[0] : null);
-    setExplainLoading(true);
+    setExplainedResource(resources.length === 1 ? resources[0] : null);
     setIsDialogOpen(true);
 
-    const request = isSingle
-      ? explain(capped[0] as unknown as ResourceDetails).then((explanation) =>
-          explanation === null
-            ? null
-            : { content: explanation.explanation, model: explanation.model }
-        )
-      : analyze(capped).then((analysis) =>
-          analysis === null
-            ? null
-            : { content: analysis.analysis, model: analysis.model }
-        );
-
-    request.then((analysisResult) => {
-      setExplainLoading(false);
+    analyzeOrExplain(resources).then((analysisResult) => {
+      if (!isLatest()) {
+        return;
+      }
 
       if (analysisResult === null) {
         setIsDialogOpen(false);
@@ -126,17 +115,54 @@ const AskAiFilter = (): JSX.Element | null => {
     });
   };
 
-  // once the listing has refreshed with the derived filter (it changes from the
-  // value captured when the request was made), explain what is now displayed
+  // Explains the first page of the derived filter once it has loaded. Other
+  // listings may land meanwhile (another page, the previous filter); a load
+  // that settles without a new listing has failed, which drops the request.
   useEffect(() => {
-    if (!pendingExplainRef.current || listing === listingBaselineRef.current) {
+    const pending = pendingExplainRef.current;
+
+    if (!pending) {
       return;
     }
 
-    pendingExplainRef.current = false;
-    runExplain(listing?.result ?? []);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [listing]);
+    if (appliedFilter !== pending.filter) {
+      pendingExplainRef.current = null;
+
+      return;
+    }
+
+    if (isListingLoading) {
+      pending.hasStarted = true;
+
+      return;
+    }
+
+    if (!pending.hasStarted) {
+      return;
+    }
+
+    if (listing === pending.baseline) {
+      pendingExplainRef.current = null;
+
+      return;
+    }
+
+    if (pending.hasStaleLoad) {
+      pending.hasStaleLoad = false;
+      pending.baseline = listing;
+
+      return;
+    }
+
+    if (listing?.meta?.page !== 1) {
+      return;
+    }
+
+    pendingExplainRef.current = null;
+    runExplain(listing.result);
+    // runExplain is not a dependency: it changes on every render, and the one
+    // of the render that changed the listing is up to date
+  }, [listing, isListingLoading, appliedFilter]);
 
   if (!isConfigured) {
     return null;
@@ -145,6 +171,18 @@ const AskAiFilter = (): JSX.Element | null => {
   const close = (): void => {
     setIsOpen(false);
     setPrompt('');
+  };
+
+  const explainDerivedFilter = (query: string): void => {
+    setSearch(query);
+    applyCurrentFilter();
+
+    pendingExplainRef.current = {
+      baseline: store.get(listingAtom),
+      filter: store.get(appliedFilterAtom),
+      hasStaleLoad: store.get(sendingAtom),
+      hasStarted: store.get(sendingAtom)
+    };
   };
 
   const apply = (): void => {
@@ -160,9 +198,8 @@ const AskAiFilter = (): JSX.Element | null => {
     close();
 
     translate(trimmedPrompt, search).then((translation) => {
+      // the error snackbar already says why the call failed
       if (translation === null) {
-        showWarningMessage(t(labelAiCouldNotTranslate));
-
         return;
       }
 
@@ -179,15 +216,12 @@ const AskAiFilter = (): JSX.Element | null => {
         // filter, narrow the listing to that set, then explain it once the
         // listing refreshes. Otherwise explain whatever is currently displayed.
         if (translation.query && translation.query !== search) {
-          listingBaselineRef.current = listing;
-          pendingExplainRef.current = true;
-          setSearch(translation.query);
-          applyCurrentFilter();
+          explainDerivedFilter(translation.query);
 
           return;
         }
 
-        runExplain(listing?.result ?? []);
+        runExplain(store.get(listingAtom)?.result ?? []);
 
         return;
       }
@@ -268,9 +302,8 @@ const AskAiFilter = (): JSX.Element | null => {
           </Paper>
         </ClickAwayListener>
       </Popper>
-      <AiExplanationDialog
+      <AnalysisDialog
         explainedResource={explainedResource}
-        isLoading={isExplainLoading}
         onClose={() => setIsDialogOpen(false)}
         open={isDialogOpen}
         result={result}

@@ -37,16 +37,6 @@ interface StyleProps {
 
 const useStyles = makeStyles<StyleProps>()(
   (theme, { width, marginWidthTableListing }) => ({
-    actions: {
-      // grow to fill the row but never shrink below the actions' content:
-      // the header wraps the pagination to a second line instead of squeezing
-      // (and overlapping) the action icons
-      flexBasis: 'auto',
-      flexGrow: 1,
-      flexShrink: 0,
-      minWidth: 'fit-content',
-      padding: theme.spacing(1, 1, 1, 0)
-    },
     container: {
       alignItems: 'center',
       display: 'flex',
@@ -250,7 +240,10 @@ const MemoListingActionBar = ({
   return useMemoComponent({
     Component: (
       <div className={classes.container}>
-        <div className={classes.actions}>
+        {/* grows to fill the row but never shrinks below the actions'
+            content: the header wraps the pagination to a second line instead
+            of squeezing (and overlapping) the action icons */}
+        <div className="min-w-fit shrink-0 grow basis-auto py-2 pr-2">
           <div>{actions}</div>
         </div>
         <div className={classes.subContainer}>

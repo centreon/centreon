@@ -55,3 +55,23 @@ export const getAiProviderResponse = () => ({
 export const discoveredModelsResponse = {
   models: ['claude-haiku-5-5', 'claude-opus-5-5', 'claude-sonnet-5-5']
 };
+
+export const getProvidersCountResponse = (total: number) => ({
+  ...getListingResponse(),
+  member: getListingResponse().member.slice(0, Math.min(total, 1)),
+  totalItems: total
+});
+
+export const connectionTestResponse = {
+  message: null,
+  model: 'claude-sonnet-5-5',
+  success: true
+};
+
+export const priceListUnavailableMessage =
+  'The price list is unavailable, enter the prices by hand';
+
+export const priceListUnavailableResponse = {
+  code: 502,
+  message: priceListUnavailableMessage
+};

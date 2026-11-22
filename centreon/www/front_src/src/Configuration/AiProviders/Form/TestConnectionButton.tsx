@@ -15,9 +15,11 @@ import {
   testConnectionEndpoint
 } from '../api';
 import useProviderCall from '../api/useProviderCall';
+import { AiProviderType } from '../models';
 import {
   labelConnectionFailed,
   labelConnectionSucceeded,
+  labelConnectionSucceededWithModel,
   labelTestConnection,
   labelTestConnectionHint,
   labelTestingConnection
@@ -28,8 +30,21 @@ interface FormValues {
   apiToken?: string | null;
   defaultModel?: string | null;
   endpointUrl?: string | null;
-  type?: string | null;
+  type?: AiProviderType | null;
 }
+
+interface TestedResult extends ConnectionTestResult {
+  // the inputs the result was obtained with
+  inputs: string;
+}
+
+const getInputs = ({
+  apiToken,
+  defaultModel,
+  endpointUrl,
+  type
+}: FormValues): string =>
+  JSON.stringify([type, endpointUrl, apiToken, defaultModel]);
 
 const TestConnectionButton = (): JSX.Element => {
   const { t } = useTranslation();
@@ -40,7 +55,7 @@ const TestConnectionButton = (): JSX.Element => {
     decoder: connectionTestResultDecoder,
     endpoint: testConnectionEndpoint
   });
-  const [result, setResult] = useState<ConnectionTestResult | null>(null);
+  const [testedResult, setTestedResult] = useState<TestedResult | null>(null);
 
   const isEditing = equals(mode, 'edit');
   const hasTypedToken = Boolean(values.apiToken);
@@ -52,8 +67,13 @@ const TestConnectionButton = (): JSX.Element => {
   const canTest =
     Boolean(values.defaultModel) && (hasTypedToken || canUseStoredToken);
 
+  // a result only holds for the inputs it was obtained with: it is hidden as
+  // soon as one of them changes, including while the test is running
+  const inputs = getInputs(values);
+  const result = equals(testedResult?.inputs, inputs) ? testedResult : null;
+
   const test = async (): Promise<void> => {
-    setResult(null);
+    setTestedResult(null);
 
     const { data, error } = await call({
       default_model: values.defaultModel,
@@ -63,7 +83,10 @@ const TestConnectionButton = (): JSX.Element => {
       ...(isEditing && id ? { provider_id: id } : {})
     });
 
-    setResult(data ?? { message: error, success: false });
+    setTestedResult({
+      ...(data ?? { message: error, success: false }),
+      inputs
+    });
   };
 
   return (
@@ -89,8 +112,12 @@ const TestConnectionButton = (): JSX.Element => {
           variant="body2"
         >
           <CheckCircleIcon fontSize="small" />
-          {t(labelConnectionSucceeded)}
-          {result.model ? ` (${result.model})` : ''}
+          {result.model
+            ? t(labelConnectionSucceededWithModel, {
+                interpolation: { escapeValue: false },
+                model: result.model
+              })
+            : t(labelConnectionSucceeded)}
         </Typography>
       )}
       {result && !result.success && (

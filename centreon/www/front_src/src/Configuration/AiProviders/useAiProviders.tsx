@@ -10,7 +10,7 @@ import {
   aiProvidersListDecoder,
   getAiProviderEndpoint
 } from './api';
-import { AiProvider, AiProviderType, Payload } from './models';
+import { AiProviderFormValues, AiProviderType, Payload } from './models';
 import { labelName, labelType } from './translatedLabels';
 import { aiProviderTypeLabels } from './utils';
 
@@ -31,7 +31,7 @@ const toNumber = (value: number | string | null | undefined): number | null => {
 };
 
 export const adaptFormToApiPayload = (data: unknown): Payload => {
-  const formData = data as AiProvider;
+  const formData = data as AiProviderFormValues;
 
   return {
     currency: formData.currency || null,
