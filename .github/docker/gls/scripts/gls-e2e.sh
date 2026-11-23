@@ -382,12 +382,11 @@ restore() {
 }
 
 is_explicit_error() { # is_explicit_error <mode> <check|reload> <HTTP code> (body in last.json)
-  # contracts § 4: realtime NOT_CONNECTED=503, TIMEOUT=504; 502 = central cbd unreachable (not this case).
+  # Decision 1: explicit error, never 2xx, body naming the poller, <= 30 s (checked by the caller).
+  # contracts § 4: realtime NOT_CONNECTED=503, TIMEOUT=504 (any mode); 502 = central cbd unreachable.
   if [[ "$2" == check ]]; then
-    case "$1:$3" in
-      stop:503 | stop:504 | partition:503 | partition:504 | pause:503 | pause:504) return 0 ;;
-      *) return 1 ;;
-    esac
+    [[ "$3" == 503 || "$3" == 504 ]] && grep -qF "$POLLER_NAME" "$LOG_DIR/last.json"
+    return
   fi
   # Export path: codes not pinned yet (web-sender), any non-2xx except 502 naming the poller.
   [[ "$3" != 2* && "$3" != 502 && "$3" != 000 ]] && grep -qF "$POLLER_NAME" "$LOG_DIR/last.json"
