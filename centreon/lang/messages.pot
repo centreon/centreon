@@ -8547,6 +8547,7 @@ msgid "Host basic information"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+#: centreon/www/install/front_translate.php
 msgid "Host categories"
 msgstr ""
 
@@ -8739,6 +8740,7 @@ msgstr ""
 #: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
+#: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
 msgid "Host severity"
@@ -14037,6 +14039,7 @@ msgstr ""
 #: centreon/www/include/monitoring/recurrentDowntime/formDowntime.php
 #: centreon/www/include/options/accessLists/actionsACL/formActionsAccess.php
 #: centreon/www/include/options/accessLists/groupsACL/formGroupConfig.php
+#: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/smarty_translate.php
