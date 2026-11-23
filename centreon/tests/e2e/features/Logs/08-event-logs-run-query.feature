@@ -14,6 +14,7 @@ Feature: Event Logs search runs only on demand
   Scenario: Changing the filters does not run the search
     When the administrator changes the Event Logs filters
     Then no Event Logs search is run
+    And the Event Logs page is not reloaded
     And the "Run query" button is enabled
 
   Scenario: The "Run query" button runs the search and refreshes the list

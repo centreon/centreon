@@ -8,6 +8,11 @@ import { openHostFilterDropdown } from '../common';
 const searchDelayInMs = 2000;
 // Leaves time for a search that would start late.
 const noSearchGraceInMs = 2000;
+// Set on the window of the Event Logs page: a reload replaces the window and drops it.
+const notReloadedMarker = '__eventLogsNotReloaded';
+
+const eventLogsWindow = (): Cypress.Chainable<Record<string, unknown>> =>
+  cy.get('iframe#main-content').its('0.contentWindow');
 
 const runQueryButton = (): Cypress.Chainable =>
   cy.getIframeBody().find('#div1 input[name="graph"]');
@@ -60,6 +65,10 @@ Given('the Event Logs search fails', () => {
 });
 
 When('the administrator changes the Event Logs filters', () => {
+  eventLogsWindow().then((win) => {
+    win[notReloadedMarker] = true;
+  });
+
   filterCheckboxes.forEach((selector) => {
     cy.getIframeBody().find(selector).click();
   });
@@ -82,9 +91,8 @@ When('the administrator changes the Event Logs filters', () => {
         .select(String(option.val()));
     });
 
+  // Enter must not submit the form: "the Event Logs page is not reloaded" checks it.
   cy.getIframeBody().find('#output').type('ping{enter}');
-  // Enter must not submit the form: a reload would empty the field.
-  cy.getIframeBody().find('#output').should('have.value', 'ping');
 });
 
 When('the administrator clicks the "Run query" button', () => {
@@ -94,6 +102,12 @@ When('the administrator clicks the "Run query" button', () => {
 Then('no Event Logs search is run', () => {
   cy.wait(noSearchGraceInMs);
   cy.get('@eventLogsSearch.all').should('have.length', 0);
+});
+
+// Runs after the wait of "no Event Logs search is run", which leaves time for a reload to happen.
+Then('the Event Logs page is not reloaded', () => {
+  eventLogsWindow().its(notReloadedMarker).should('eq', true);
+  cy.getIframeBody().find('#output').should('have.value', 'ping');
 });
 
 Then('the "Run query" button is enabled', () => {
