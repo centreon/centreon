@@ -159,7 +159,8 @@ services:
         sleep 2
         exec /usr/local/lib/centreon-broker/container.sh "$$@"
       - gls-wait
-    command: ["/opt/centreon/venv/bin/python3", "/usr/local/lib/centreon-broker/api_control.py", "/etc/centreon-broker/central-broker.json"]
+    # cbd directly: the pinned image has no api_control.py, and cbd reloads itself (contracts § 5.3).
+    command: ["cbd", "/etc/centreon-broker/central-broker.json"]
     environment:
       <<: [*tz, *secrets]
     volumes:
