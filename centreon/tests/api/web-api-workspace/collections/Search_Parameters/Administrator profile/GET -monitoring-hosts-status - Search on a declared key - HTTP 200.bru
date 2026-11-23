@@ -1,0 +1,28 @@
+meta {
+  name: GET /monitoring/hosts/status - Search on a declared key - HTTP 200
+  type: http
+  seq: 24
+}
+
+get {
+  url: {{baseUrlWeb}}/monitoring/hosts/status?search={"name":{"$lk":"%"}}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("A search on the declared key 'name' is accepted", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    expect(body).to.not.have.property("message");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
