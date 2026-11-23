@@ -350,32 +350,32 @@ class CentreonAuthLDAP
                 /**
                  * Searching the user's affiliated contactgroups in the LDAP
                  */
-                $listGroup = $this->ldap->listGroupsForUser($userDn);
-                $listGroupStr = '';
-                foreach ($listGroup as $gName) {
-                    if ($listGroupStr !== '') {
-                        $listGroupStr .= ',';
+                $listGroup = array_values($this->ldap->listGroupsForUser($userDn));
+                if ($listGroup !== []) {
+                    $placeholders = [];
+                    foreach (array_keys($listGroup) as $index) {
+                        $placeholders[] = ':groupName' . $index;
                     }
-                    $listGroupStr .= "'" . $gName . "'";
-                }
-                if ($listGroupStr === '') {
-                    $listGroupStr = "''";
-                }
-                $res2 = $this->pearDB->query(
-                    'SELECT cg_id FROM contactgroup
-                        WHERE cg_name IN (' . $listGroupStr . ')'
-                );
+                    $res2 = $this->pearDB->prepare(
+                        'SELECT cg_id FROM contactgroup
+                            WHERE cg_name IN (' . implode(', ', $placeholders) . ')'
+                    );
+                    foreach ($listGroup as $index => $groupName) {
+                        $res2->bindValue(':groupName' . $index, $groupName, PDO::PARAM_STR);
+                    }
+                    $res2->execute();
 
-                // Inserting the relation between the LDAP's contactgroups and the user
-                $stmt = $this->pearDB->prepare(
-                    'INSERT INTO contactgroup_contact_relation
-                        (contactgroup_cg_id, contact_contact_id)
-                        VALUES (:ldapCg, :contactId)'
-                );
-                while ($row2 = $res2->fetch()) {
-                    $stmt->bindValue(':ldapCg', $row2['cg_id'], PDO::PARAM_INT);
-                    $stmt->bindValue(':contactId', $this->contactInfos['contact_id'], PDO::PARAM_INT);
-                    $stmt->execute();
+                    // Inserting the relation between the LDAP's contactgroups and the user
+                    $stmt = $this->pearDB->prepare(
+                        'INSERT INTO contactgroup_contact_relation
+                            (contactgroup_cg_id, contact_contact_id)
+                            VALUES (:ldapCg, :contactId)'
+                    );
+                    while ($row2 = $res2->fetch()) {
+                        $stmt->bindValue(':ldapCg', $row2['cg_id'], PDO::PARAM_INT);
+                        $stmt->bindValue(':contactId', $this->contactInfos['contact_id'], PDO::PARAM_INT);
+                        $stmt->execute();
+                    }
                 }
                 $this->ldap->setUserCurrentSyncTime($this->contactInfos);
 
