@@ -4,6 +4,7 @@ import {
   labelGeneralInformation,
   labelHostMonitoringProperties,
   labelMonitoringEngineSchedulingOptions,
+  labelNotifications,
   labelRelations
 } from '../translatedLabels';
 import { getPlacedBlockIds, placeBlocks } from './layout';
@@ -62,8 +63,12 @@ describe('layout', () => {
       labelGeneralInformation,
       labelHostMonitoringProperties,
       labelRelations,
-      labelMonitoringEngineSchedulingOptions
+      labelMonitoringEngineSchedulingOptions,
+      labelNotifications
     ]);
+  });
+
+  it('has no notifications section on a cloud platform', () => {
     expect(getSectionLabels({ isCloudPlatform: true, t })).toEqual([
       labelGeneralInformation,
       labelHostMonitoringProperties,
