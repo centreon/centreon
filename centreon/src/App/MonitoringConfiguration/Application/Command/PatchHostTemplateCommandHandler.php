@@ -117,7 +117,6 @@ final readonly class PatchHostTemplateCommandHandler
 
         try {
             $this->repository->update($changed);
-            $this->eventBus->fire(new HostTemplateUpdated($changed, $command->actor->userId->value));
         } catch (\Throwable $exception) {
             if ($vaultWritten) {
                 $this->undoTheVaultWrite($template, $changed, $exception);
@@ -125,6 +124,8 @@ final readonly class PatchHostTemplateCommandHandler
 
             throw $exception;
         }
+
+        $this->eventBus->fire(new HostTemplateUpdated($changed, $command->actor->userId->value));
 
         if ($this->vault->isEnabled() && $changed->releasesVaultEntryOf($template, $this->vault)) {
             $this->eventBus->fire(new HostTemplateVaultPurgeRequested($template, bestEffort: true));
