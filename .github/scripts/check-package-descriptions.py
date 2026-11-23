@@ -48,10 +48,14 @@ def check(packages):
         name = str(package["name"])
         synopsis = first_line(package.get("description"))
         # nfpm uses the first description line when rpm.summary is not set
-        summary = first_line((package.get("rpm") or {}).get("summary")) or synopsis
+        raw_summary = (package.get("rpm") or {}).get("summary")
+        summary = synopsis if raw_summary in (None, "") else first_line(raw_summary)
 
         if not synopsis:
             errors.append((path, f"{name}: the description is empty"))
+            continue
+        if not summary:
+            errors.append((path, f"{name}: the rpm summary is blank"))
             continue
 
         fields = {"synopsis": synopsis, "rpm summary": summary}
