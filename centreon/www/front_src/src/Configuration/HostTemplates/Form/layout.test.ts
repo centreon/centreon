@@ -1,6 +1,10 @@
 import type { TFunction } from 'i18next';
 
 import {
+  threeColumnsFromWide,
+  twoColumnsFromWide
+} from '../../ResourceForm/grid';
+import {
   labelAdvanced,
   labelGeneralInformation,
   labelHostMonitoringProperties,
@@ -79,6 +83,25 @@ describe('layout', () => {
       labelAdvanced
     ]);
   });
+
+  it.each([
+    [false, 3, threeColumnsFromWide],
+    [true, 2, twoColumnsFromWide]
+  ])(
+    'lays the advanced settings out in as many columns as the platform keeps (cloud: %s)',
+    (isCloudPlatform, columnCount, className) => {
+      const advanced = placeBlocks({
+        blocks: getBlocks({ isCloudPlatform, t }),
+        t
+      }).find(({ label }) => label === labelAdvanced);
+      const grid = advanced?.inputs.find(
+        ({ fieldName }) => fieldName === 'advanced-layout'
+      )?.grid;
+
+      expect(grid?.columns).toHaveLength(columnCount);
+      expect(grid?.className).toBe(className);
+    }
+  );
 
   it('shows the SNMP fields right after the check command', () => {
     const [, monitoringProperties] = placeBlocks({
