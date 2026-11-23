@@ -226,7 +226,7 @@ export default () => {
 
       await save();
 
-      const body = await getRequestBody('@updateService0');
+      const body = await getRequestBody('@patchService0');
 
       expect(body.advanced).toEqual({
         acknowledgment_timeout: 15,
@@ -257,7 +257,7 @@ export default () => {
       await userEvent.type(await getInput('acknowledgmentTimeout'), '5');
       await save();
 
-      const body = await getRequestBody('@updateService1');
+      const body = await getRequestBody('@patchService1');
 
       expect(body.advanced).toMatchObject({
         acknowledgment_timeout: 5,
@@ -381,7 +381,7 @@ export default () => {
 
       await save();
 
-      const body = await getRequestBody('@updateService2');
+      const body = await getRequestBody('@patchService2');
 
       expect(body.advanced).toEqual({
         check_freshness: 'true',

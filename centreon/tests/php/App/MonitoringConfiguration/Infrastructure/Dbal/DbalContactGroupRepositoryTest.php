@@ -29,6 +29,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupTypeEn
 use App\MonitoringConfiguration\Domain\Repository\ContactGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ContactGroupCriteria;
 use App\Shared\Domain\Collection;
+use App\Shared\Domain\Repository\Pagination;
 use App\Shared\Domain\Repository\Paginator;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -79,7 +80,7 @@ final class DbalContactGroupRepositoryTest extends KernelTestCase
             self::markTestSkipped('No contact group in the dataset.');
         }
 
-        $result = $this->repository->findAll(ContactGroupCriteria::unscoped()->withPagination(1, 1));
+        $result = $this->repository->findAll(ContactGroupCriteria::unscoped()->withPagination(new Pagination(1, 1)));
 
         self::assertInstanceOf(Paginator::class, $result);
         self::assertCount(1, iterator_to_array($result));
@@ -269,7 +270,7 @@ final class DbalContactGroupRepositoryTest extends KernelTestCase
         self::assertCount(0, iterator_to_array($this->repository->findAll($criteria)));
         self::assertContains("group_{$suffix}", $this->names($this->repository->findAll(ContactGroupCriteria::forActor(TestActingUsers::unrestricted($actorId)))), 'An unrestricted actor is not scoped by ACL.');
 
-        $paginated = $this->repository->findAll($criteria->withPagination(1, 10));
+        $paginated = $this->repository->findAll($criteria->withPagination(new Pagination(1, 10)));
         self::assertInstanceOf(Paginator::class, $paginated);
         self::assertCount(0, iterator_to_array($paginated));
         self::assertSame(0, $paginated->getTotalItems());

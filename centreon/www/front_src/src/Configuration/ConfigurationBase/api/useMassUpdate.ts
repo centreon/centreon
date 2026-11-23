@@ -23,7 +23,8 @@ const useMassUpdate = (): UseMassUpdateState => {
   const getEndpoint = configuration?.api?.endpoints?.update as (
     parameters: Record<string, unknown>
   ) => string;
-  const method = configuration?.api?.methods?.update as Method | undefined;
+  const method = (configuration?.api?.methods?.massUpdate ??
+    configuration?.api?.methods?.update) as Method | undefined;
 
   const queryClient = useQueryClient();
 

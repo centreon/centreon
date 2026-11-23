@@ -293,11 +293,22 @@ export const getServiceFormCommandsResponse = () =>
     { id: 9, name: 'check-centreon-cpu' }
   ]);
 
-// One service template's macros, its own then those it inherits, for when the
-// template field (F03) can pick one.
+// `skip_null_values` drops a null `parent`, `value` or `id`.
 export const getServiceTemplateMacrosResponse = () => ({
+  '@type': 'ServiceTemplateMacrosOutput',
   id: 30,
-  macros: [{ id: 31, is_password: false, name: 'TIMEOUT', value: '10' }],
+  macros: [
+    { id: 31, is_password: false, name: 'TIMEOUT', value: '10' },
+    { id: 32, is_password: true, name: 'SNMP_COMMUNITY' },
+    {
+      id: 33,
+      is_password: false,
+      name: 'RETRIES',
+      parent: 'template',
+      value: '3'
+    },
+    { is_password: false, name: 'PORT', parent: 'command', value: '' }
+  ],
   name: 'generic-active-service'
 });
 

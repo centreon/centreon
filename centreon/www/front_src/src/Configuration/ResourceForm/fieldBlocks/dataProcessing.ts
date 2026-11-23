@@ -59,6 +59,7 @@ import {
   type TriState,
   triStateOptions
 } from '../triState';
+import { withUpdateMode } from '../updateMode';
 
 // The blocks fill the form's `dataProcessing`, and a group of the API:
 // `data_processing` for a host, the `apiGroup` a resource names otherwise.
@@ -613,7 +614,7 @@ export const getObsessRetainAndStalkingBlock = ({
     }
   }),
   detailKeyMap: getDetailKeyMap(apiGroup),
-  getInputs: ({ t }) => ({
+  getInputs: ({ isMassChange, t }) => ({
     obsessRetainAndStalking: getBlock({
       columns: [
         getBlock({
@@ -641,17 +642,23 @@ export const getObsessRetainAndStalkingBlock = ({
           idPrefix,
           name: 'data-processing-obsess-and-retain'
         }),
-        getBlock({
-          className: fourColumnsFromNarrow,
-          columns: stalkingOptions.map(({ label, option }) => ({
-            dataTestId: `${idPrefix}-data-processing-stalkingOptions-${option}`,
-            fieldName: `dataProcessing.stalkingOptions.${option}`,
-            label: t(label),
-            type: InputType.Checkbox
-          })),
+        withUpdateMode({
+          field: 'stalkingOptions',
           idPrefix,
-          name: 'data-processing-stalking-options',
-          title: t(labelStalkingOptions)
+          input: getBlock({
+            className: fourColumnsFromNarrow,
+            columns: stalkingOptions.map(({ label, option }) => ({
+              dataTestId: `${idPrefix}-data-processing-stalkingOptions-${option}`,
+              fieldName: `dataProcessing.stalkingOptions.${option}`,
+              label: t(label),
+              type: InputType.Checkbox
+            })),
+            idPrefix,
+            name: 'data-processing-stalking-options',
+            title: t(labelStalkingOptions)
+          }),
+          isMassChange,
+          t
         })
       ],
       idPrefix,
@@ -661,6 +668,10 @@ export const getObsessRetainAndStalkingBlock = ({
   }),
   getSchema: () => ({}),
   isAvailable: ({ isCloudPlatform }) => !isCloudPlatform,
+  // States, like the notification options: added to or replaced.
+  massChange: {
+    updateModeFields: { stalkingOptions: [[apiGroup, 'stalking_options']] }
+  },
   toPayload: (values) => {
     const dataProcessing = getDataProcessing(
       values,

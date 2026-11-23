@@ -64,7 +64,7 @@ final class CreateServiceCommandLoggingTest extends TestCase
 
         self::assertIsArray($sanitised);
         self::assertSame('***', $sanitised['check_command_args']);
-        $logged = (string) json_encode($sanitised);
+        $logged = json_encode($sanitised, flags: JSON_THROW_ON_ERROR);
         self::assertStringNotContainsString('check-secret', $logged);
         self::assertStringNotContainsString('handler-secret', $logged);
         // The rest of the payload still goes through, so the masking is targeted.
@@ -90,6 +90,6 @@ final class CreateServiceCommandLoggingTest extends TestCase
 
         self::assertIsArray($sanitised);
         self::assertSame('***', $sanitised['macro_changes']);
-        self::assertStringNotContainsString('top-secret', (string) json_encode($sanitised));
+        self::assertStringNotContainsString('top-secret', json_encode($sanitised, flags: JSON_THROW_ON_ERROR));
     }
 }

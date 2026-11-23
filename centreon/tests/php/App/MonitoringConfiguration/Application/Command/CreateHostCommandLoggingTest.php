@@ -92,6 +92,6 @@ final class CreateHostCommandLoggingTest extends TestCase
 
         self::assertIsArray($sanitised);
         self::assertSame('***', $sanitised['macro_changes']);
-        self::assertStringNotContainsString('top-secret', (string) json_encode($sanitised));
+        self::assertStringNotContainsString('top-secret', json_encode($sanitised, flags: JSON_THROW_ON_ERROR));
     }
 }

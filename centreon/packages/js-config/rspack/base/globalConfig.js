@@ -50,7 +50,10 @@ module.exports = {
       },
       {
         generator: {
-          filename: '[name][ext]'
+          filename: '[name][ext]',
+          // Fonts are referenced from emitted CSS files, which sit next to
+          // them: a relative output.publicPath would be applied twice.
+          publicPath: ''
         },
         test: /\.(woff|woff2|eot|ttf|otf)$/i,
         type: 'asset/resource'

@@ -30,7 +30,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceNotifications;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
 use PHPUnit\Framework\TestCase;
-use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeOptionRepository;
+use Tests\App\Shared\Double\FakeOptionRepository;
 
 final class AdditiveInheritanceModeApplierTest extends TestCase
 {

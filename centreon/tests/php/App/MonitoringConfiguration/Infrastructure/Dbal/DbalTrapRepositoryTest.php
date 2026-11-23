@@ -29,6 +29,7 @@ use App\MonitoringConfiguration\Domain\Repository\Criteria\TrapCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalTrapRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\TrapTransformer;
 use App\Shared\Domain\Collection;
+use App\Shared\Domain\Repository\Pagination;
 use App\Shared\Domain\Repository\Paginator;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -143,7 +144,7 @@ final class DbalTrapRepositoryTest extends KernelTestCase
 
         // page 2 @ 1 item/page proves the OFFSET arithmetic (a page-1 request cannot)
         $result = $this->repository->findAll(
-            (new TrapCriteria())->withName("pg-{$this->tag}-")->withPagination(2, 1)
+            (new TrapCriteria())->withName("pg-{$this->tag}-")->withPagination(new Pagination(2, 1))
         );
 
         self::assertInstanceOf(Paginator::class, $result);
