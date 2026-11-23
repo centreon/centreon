@@ -50,6 +50,14 @@ class BrokerApiClient
     }
 
     /**
+     * True when the platform has a central broker API (URL and token set).
+     */
+    public function isConfigured(): bool
+    {
+        return $this->getEnv(self::URL_ENV) !== '' && $this->getEnv(self::TOKEN_ENV) !== '';
+    }
+
+    /**
      * @param array<string, mixed>|null $json
      * @param float|null $timeout seconds, HTTP_TIMEOUT by default
      *

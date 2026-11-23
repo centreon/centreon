@@ -38,6 +38,7 @@ use App\MonitoringConfiguration\Domain\Exception\PollerAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerTokenRepository;
 use App\MonitoringConfiguration\Domain\Service\GorgoneNodesSynchronizer;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\BrokerCaOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\CreatePollerInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\PollerResource;
 use App\MonitoringConfiguration\Infrastructure\CentralUrlFactory;
@@ -47,6 +48,7 @@ use App\Shared\Application\Command\CommandBus;
 use App\Shared\Domain\Repository\EngineSecretsRepository;
 use App\Shared\Infrastructure\Logging\ExceptionFormatter;
 use App\Shared\Infrastructure\TransformerInterface;
+use Core\RemoteChannel\Infrastructure\Broker\BrokerCaReader;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -75,6 +77,7 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
         private CentralUrlFactory $centralUrlFactory,
         #[Autowire(env: 'bool:default::IS_CLOUD_PLATFORM')]
         private bool $isCloudPlatform = false,
+        private ?BrokerCaReader $brokerCaReader = null,
     ) {
     }
 
@@ -133,6 +136,14 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
 
         $resource = $this->transformer->transform($model);
         $resource->installationCommand = $factory->generate();
+
+        // MON-215450 phase 2d: the poller gets the central broker CA here, out of band of the BBDO stream.
+        // Never fails the creation: the poller is already committed.
+        if ($this->brokerCaReader !== null) {
+            ['ca' => $ca, 'warning' => $warning] = $this->brokerCaReader->read();
+            $resource->brokerCa = $ca === null ? null : new BrokerCaOutput($ca['pem'], $ca['fingerprint_sha256']);
+            $resource->brokerCaWarning = $warning;
+        }
 
         return $resource;
     }

@@ -101,6 +101,11 @@ final class CreatePollerProcessorTest extends ApiTestCase
         self::assertNotNull($responseData['uid']);
         self::assertArrayHasKey('installation_command', $responseData);
         self::assertNotNull($responseData['installation_command']);
+        // No central broker API configured here: the CA fields are present and null (contracts.md § 8).
+        self::assertArrayHasKey('broker_ca', $responseData);
+        self::assertNull($responseData['broker_ca']);
+        self::assertArrayHasKey('broker_ca_warning', $responseData);
+        self::assertNull($responseData['broker_ca_warning']);
 
         $poller = $repository->findOneByName(new PollerName($name));
         self::assertNotNull($poller);

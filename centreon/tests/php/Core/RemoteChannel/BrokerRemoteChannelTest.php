@@ -34,6 +34,7 @@ use Core\RemoteChannel\Domain\Model\DispatchStatus;
 use Core\RemoteChannel\Domain\Model\PollerTarget;
 use Core\RemoteChannel\Domain\Model\RemoteChannel;
 use Core\RemoteChannel\Infrastructure\Broker\BrokerApiClient;
+use Core\RemoteChannel\Infrastructure\Broker\BrokerCaReader;
 use Core\RemoteChannel\Infrastructure\Broker\BrokerConfigurationDeployer;
 use Core\RemoteChannel\Infrastructure\Broker\BrokerPollerCommandSender;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -50,6 +51,7 @@ use Symfony\Component\HttpClient\Response\MockResponse;
 #[CoversClass(BrokerApiClient::class)]
 #[CoversClass(EngineRepositoryRemoteChannel::class)]
 #[CoversClass(StoppedPollerGuard::class)]
+#[CoversClass(BrokerCaReader::class)]
 class BrokerRemoteChannelTest extends TestCase
 {
     /** @var list<array{method: string, url: string, headers: list<string>, body: array<mixed>|null}> */
@@ -308,6 +310,52 @@ class BrokerRemoteChannelTest extends TestCase
         $this->expectExceptionCode(503);
         $this->expectExceptionMessage('"poller-2"');
         $guard->assertHostPollerRunning(13);
+    }
+
+    public function testCaIsReadFromTheCentralBroker(): void
+    {
+        $pem = "-----BEGIN CERTIFICATE-----\nMIIB\n-----END CERTIFICATE-----\n";
+        $fingerprint = str_repeat('ab', 32);
+        $reader = new BrokerCaReader(
+            $this->client(['GET /v1/ca' => [200, ['pem' => $pem, 'fingerprint_sha256' => $fingerprint]]])
+        );
+
+        $this->assertSame(
+            ['ca' => ['pem' => $pem, 'fingerprint_sha256' => $fingerprint], 'warning' => null],
+            $reader->read()
+        );
+        $this->assertContains('Authorization: Bearer secret', $this->requests[0]['headers']);
+    }
+
+    public function testUnavailableCaIsAWarningNotAnError(): void
+    {
+        $reader = new BrokerCaReader($this->client(['GET /v1/ca' => [404, ['error' => 'CA_UNAVAILABLE']]]));
+
+        $result = $reader->read();
+
+        $this->assertNull($result['ca']);
+        $this->assertStringContainsString('CA_UNAVAILABLE', (string) $result['warning']);
+    }
+
+    public function testInvalidCaAnswerIsAWarning(): void
+    {
+        $reader = new BrokerCaReader(
+            $this->client(['GET /v1/ca' => [200, ['pem' => 'not a pem', 'fingerprint_sha256' => 'AB:CD']]])
+        );
+
+        $result = $reader->read();
+
+        $this->assertNull($result['ca']);
+        $this->assertStringContainsString('invalid answer', (string) $result['warning']);
+    }
+
+    public function testNoCaAndNoWarningWithoutCentralBrokerApi(): void
+    {
+        putenv('CENTREON_BROKER_API_URL');
+        $reader = new BrokerCaReader($this->client([]));
+
+        $this->assertSame(['ca' => null, 'warning' => null], $reader->read());
+        $this->assertSame([], $this->requests);
     }
 
     private function target(int $id, string $uid): PollerTarget
