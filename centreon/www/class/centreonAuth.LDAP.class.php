@@ -352,10 +352,10 @@ class CentreonAuthLDAP
                  */
                 $listGroup = array_values($this->ldap->listGroupsForUser($userDn));
                 if ($listGroup !== []) {
-                    $placeholders = [];
-                    foreach (array_keys($listGroup) as $index) {
-                        $placeholders[] = ':groupName' . $index;
-                    }
+                    $placeholders = array_map(
+                        static fn (int $index): string => ':groupName' . $index,
+                        array_keys($listGroup)
+                    );
                     $res2 = $this->pearDB->prepare(
                         'SELECT cg_id FROM contactgroup
                             WHERE cg_name IN (' . implode(', ', $placeholders) . ')'
