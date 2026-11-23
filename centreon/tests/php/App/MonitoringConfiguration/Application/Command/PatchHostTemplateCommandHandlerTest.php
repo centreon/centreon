@@ -290,22 +290,38 @@ final class PatchHostTemplateCommandHandlerTest extends KernelTestCase
     public function testAMonitoringAgentCommandForcesTheFreshness(): void
     {
         $this->addTemplate();
-        $this->commandRepository->commands[9] = new Command(
-            new CommandId(9),
-            new CommandName('Centreon-Monitoring-Agent-check'),
-            CommandTypeEnum::Check,
-            new CommandLine('$USER1$/check'),
-            isShellEnabled: false,
-            isActivated: true,
-            isFromMonitoringConnector: true,
-            connector: null,
-            comment: null,
-        );
+        $this->addCommand(9, 'Centreon-Monitoring-Agent-check', isFromMonitoringConnector: true);
 
         $template = ($this->handler)($this->command(7, ['checkOptions' => new CheckOptionsChanges(checkCommandId: new CommandId(9))]));
 
         self::assertSame(TriStateEnum::True, $template->dataProcessing->checkFreshness);
         self::assertSame(DataProcessing::CENTREON_MONITORING_AGENT_FRESHNESS_THRESHOLD, $template->dataProcessing->freshnessThreshold);
+    }
+
+    public function testAnotherCommandLeavesTheFreshnessAlone(): void
+    {
+        $this->addTemplate();
+        $this->addCommand(9, 'check-host-alive', isFromMonitoringConnector: false);
+
+        $template = ($this->handler)($this->command(7, ['checkOptions' => new CheckOptionsChanges(checkCommandId: new CommandId(9))]));
+
+        self::assertSame(TriStateEnum::UseDefault, $template->dataProcessing->checkFreshness);
+        self::assertNull($template->dataProcessing->freshnessThreshold);
+    }
+
+    public function testAMonitoringAgentCommandOverridesTheFreshnessSentAndKeepsTheOtherKeys(): void
+    {
+        $this->addTemplate();
+        $this->addCommand(9, 'Centreon-Monitoring-Agent-check', isFromMonitoringConnector: true);
+
+        $template = ($this->handler)($this->command(7, [
+            'checkOptions' => new CheckOptionsChanges(checkCommandId: new CommandId(9)),
+            'dataProcessing' => new DataProcessingChanges(checkFreshness: TriStateEnum::False, acknowledgmentTimeout: 20, freshnessThreshold: 5),
+        ]));
+
+        self::assertSame(TriStateEnum::True, $template->dataProcessing->checkFreshness);
+        self::assertSame(DataProcessing::CENTREON_MONITORING_AGENT_FRESHNESS_THRESHOLD, $template->dataProcessing->freshnessThreshold);
+        self::assertSame(20, $template->dataProcessing->acknowledgmentTimeout);
     }
 
     public function testTheAdditiveInheritanceFlagsAreDroppedWhenTheOptionIsDisabled(): void
@@ -316,6 +332,34 @@ final class PatchHostTemplateCommandHandlerTest extends KernelTestCase
         $template = ($this->handler)($this->command(7, ['notifications' => new NotificationsChanges(contactAdditiveInheritance: true)]));
 
         self::assertFalse($template->notifications?->contactAdditiveInheritance);
+    }
+
+    /**
+     * @param array{bool, bool} $expected
+     */
+    #[DataProvider('provideInheritanceModes')]
+    public function testAStoredAdditiveFlagFollowsTheModeOnAnotherNotificationChange(string $mode, array $expected): void
+    {
+        $this->addTemplate(notifications: Notifications::default()->with(
+            interval: 30,
+            contactAdditiveInheritance: true,
+            contactGroupAdditiveInheritance: true,
+        ));
+        $this->optionRepository->options['inheritance_mode'] = $mode;
+
+        $template = ($this->handler)($this->command(7, ['notifications' => new NotificationsChanges(interval: 45)]));
+
+        self::assertSame($expected, [$template->notifications?->contactAdditiveInheritance, $template->notifications?->contactGroupAdditiveInheritance]);
+    }
+
+    /**
+     * @return iterable<string, array{string, array{bool, bool}}>
+     */
+    public static function provideInheritanceModes(): iterable
+    {
+        yield 'mode off: reset' => ['3', [false, false]];
+
+        yield 'additive mode: kept' => ['1', [true, true]];
     }
 
     public function testClearingASeverityTheActorCannotSeeKeepsIt(): void
@@ -527,7 +571,22 @@ final class PatchHostTemplateCommandHandlerTest extends KernelTestCase
         );
     }
 
-    private function addTemplate(bool $isLocked = false, string $snmpCommunity = 'public'): void
+    private function addCommand(int $id, string $name, bool $isFromMonitoringConnector): void
+    {
+        $this->commandRepository->commands[$id] = new Command(
+            new CommandId($id),
+            new CommandName($name),
+            CommandTypeEnum::Check,
+            new CommandLine('$USER1$/check'),
+            isShellEnabled: false,
+            isActivated: true,
+            isFromMonitoringConnector: $isFromMonitoringConnector,
+            connector: null,
+            comment: null,
+        );
+    }
+
+    private function addTemplate(bool $isLocked = false, string $snmpCommunity = 'public', ?Notifications $notifications = null): void
     {
         $this->repository->hostTemplates[7] = new HostTemplate(
             new HostTemplateId(7),
@@ -537,7 +596,7 @@ final class PatchHostTemplateCommandHandlerTest extends KernelTestCase
             isLocked: $isLocked,
             snmpCommunity: new SnmpCommunity($snmpCommunity),
             severityId: new HostSeverityId(8),
-            notifications: Notifications::default()->with(enabled: TriStateEnum::True, interval: 30),
+            notifications: $notifications ?? Notifications::default()->with(enabled: TriStateEnum::True, interval: 30),
         );
     }
 
