@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Core\RemoteChannel\Infrastructure\Broker;
@@ -38,8 +39,9 @@ class BrokerCaReader
     }
 
     /**
+     * ca and warning are both null when no central broker API is configured (gorgone-only platform).
+     *
      * @return array{ca: array{pem: string, fingerprint_sha256: string}|null, warning: string|null}
-     *         ca and warning both null when no central broker API is configured (gorgone-only platform)
      */
     public function read(): array
     {
