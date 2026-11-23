@@ -254,13 +254,10 @@ final readonly class PatchHostTemplateCommandHandler
     {
         $mintedUuid = $before->getVaultUuid($this->vault) === null ? $changed->getVaultUuid($this->vault) : null;
         if ($mintedUuid === null) {
-            try {
-                $this->logger->warning(
-                    'A host template update failed after writing to its vault entry: the vault may now diverge from the host template stored in the database.',
-                    ['host_template_id' => $before->id()->value, 'exception' => $cause],
-                );
-            } catch (\Throwable) {
-            }
+            $this->logger->warning(
+                'A host template update failed after writing to its vault entry: the vault may now diverge from the host template stored in the database.',
+                ['host_template_id' => $before->id()->value, 'exception' => $cause],
+            );
 
             return;
         }
@@ -268,13 +265,10 @@ final readonly class PatchHostTemplateCommandHandler
         try {
             $this->vaultCredentialWriter->delete(VaultPathEnum::MonitoringHosts, $mintedUuid);
         } catch (\Throwable $vaultException) {
-            try {
-                $this->logger->warning('The vault entry minted for a failed host template update could not be purged.', [
-                    'host_template_id' => $before->id()->value,
-                    'exception' => $vaultException,
-                ]);
-            } catch (\Throwable) {
-            }
+            $this->logger->warning('The vault entry minted for a failed host template update could not be purged.', [
+                'host_template_id' => $before->id()->value,
+                'exception' => $vaultException,
+            ]);
         }
     }
 

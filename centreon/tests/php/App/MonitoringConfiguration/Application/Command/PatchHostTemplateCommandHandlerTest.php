@@ -38,6 +38,8 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\DataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\HostAlias;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
@@ -394,6 +396,35 @@ final class PatchHostTemplateCommandHandlerTest extends KernelTestCase
         self::assertSame('tpl-uuid', $this->vault->writeManyCalls[0]['uuid']);
         self::assertSame(['_HOSTSNMPCOMMUNITY' => 'new-community'], $this->vault->writeManyCalls[0]['secrets']);
         self::assertSame([7], $this->repository->updatedIds);
+    }
+
+    public function testACommunitySentToATemplateWithoutAVaultEntryMintsOneAndSavesItsReference(): void
+    {
+        $this->vault->vaultEnabled = true;
+        $this->addTemplate();
+
+        $template = ($this->handler)($this->command(7, [], snmpCommunity: 'new-community'));
+
+        self::assertNull($this->vault->writeManyCalls[0]['uuid']);
+        self::assertSame(['_HOSTSNMPCOMMUNITY' => 'new-community'], $this->vault->writeManyCalls[0]['secrets']);
+        self::assertStringStartsWith('secret::', (string) $template->snmpCommunity?->value);
+        self::assertSame([7], $this->repository->updatedIds);
+        self::assertTrue($this->eventBus->shouldNotHaveDispatched(HostTemplateVaultPurgeRequested::class));
+    }
+
+    public function testClearingTheCommunityKeepsTheEntryWhileAPasswordMacroStillUsesIt(): void
+    {
+        $this->vault->vaultEnabled = true;
+        $this->addTemplate(snmpCommunity: self::VAULTED_COMMUNITY);
+        $stored = $this->repository->hostTemplates[7];
+        $this->repository->hostTemplates[7] = $stored->with(checkOptions: new CheckOptions(null, macros: [
+            new HostMacro(new HostMacroName('TOKEN'), 'secret::vault::monitoring/hosts/tpl-uuid::_HOSTTOKEN', isPassword: true),
+        ], commandMayBeInherited: true));
+
+        ($this->handler)($this->command(7, [], snmpCommunity: null));
+
+        self::assertSame(['_HOSTSNMPCOMMUNITY'], $this->vault->writeManyCalls[0]['deletes']);
+        self::assertTrue($this->eventBus->shouldNotHaveDispatched(HostTemplateVaultPurgeRequested::class));
     }
 
     public function testAVaultReferenceSentAsCommunityIsIgnored(): void
