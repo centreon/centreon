@@ -142,9 +142,13 @@ class BrokerRemoteChannelTest extends TestCase
     public static function provideNotConfirmedStatuses(): iterable
     {
         yield 'accepted' => [['poller_id' => '900001', 'status' => 'ACCEPTED'], 'status ACCEPTED'];
+
         yield 'delivered' => [['poller_id' => '900001', 'status' => 'DELIVERED'], 'status DELIVERED'];
+
         yield 'unknown status' => [['poller_id' => '900001', 'status' => 'WHATEVER'], 'status WHATEVER'];
+
         yield 'no status' => [['poller_id' => '900001'], 'status (none)'];
+
         yield 'missing item' => [[], 'no answer'];
     }
 
