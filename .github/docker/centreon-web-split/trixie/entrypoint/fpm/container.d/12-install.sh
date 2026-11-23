@@ -233,13 +233,9 @@ if [ "$INSTALL_DB_STEPS" = "true" ]; then
 echo "Applying any pending schema updates..."
 su www-data -s /bin/bash -c "php runPendingUpdates.php"
 
-# Same no-new-env-var reasoning as runPendingUpdates.php above:
-# installBakedModules.php checks each module's own installed state first
-# (CentreonModuleService::getDetail()->isInstalled()), so this is a no-op
-# once all 4 T0 modules (baked into the image at build time, see the
-# Dockerfile's modules_fetcher/autodisco_source stages) are registered.
-echo "Installing baked-in modules (Autodiscovery, License Manager, IT Edition, PP Manager)..."
-su www-data -s /bin/bash -c "php installBakedModules.php"
+# MON-215450 PoC: package-less images, no T0 module baked in (no
+# Autodiscovery, License Manager, IT Edition, PP Manager), so
+# installBakedModules.php is not called.
 
 # Container-topology adaptations of the Centreon database. Run on every
 # install/upgrade run (fresh install AND an already-installed database, e.g.
