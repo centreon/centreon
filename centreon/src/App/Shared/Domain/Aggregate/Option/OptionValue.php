@@ -21,11 +21,11 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Aggregate\Option;
+namespace App\Shared\Domain\Aggregate\Option;
 
 use Webmozart\Assert\Assert;
 
-final readonly class OptionName
+final readonly class OptionValue
 {
     public function __construct(
         public string $value,

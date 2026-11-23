@@ -23,9 +23,9 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Repository;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Option\OptionValue;
 use App\MonitoringConfiguration\Domain\Aggregate\Plugin\Plugin;
 use App\MonitoringConfiguration\Domain\Aggregate\Plugin\PluginName;
+use App\Shared\Domain\Aggregate\Option\OptionValue;
 use App\Shared\Domain\Collection;
 
 interface PluginRepository

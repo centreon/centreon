@@ -24,18 +24,18 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\GraphTemplate;
 
 use ApiPlatform\Metadata\Operation;
-use ApiPlatform\State\Pagination\Pagination;
 use ApiPlatform\State\Pagination\TraversablePaginator;
 use ApiPlatform\State\ProviderInterface;
 use App\MonitoringConfiguration\Domain\Aggregate\GraphTemplate\GraphTemplate;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\GraphTemplateCriteria;
 use App\MonitoringConfiguration\Domain\Repository\GraphTemplateRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\GraphTemplate\GraphTemplateChoicesOutput;
+use App\Shared\Domain\Repository\Pagination;
 use App\Shared\Domain\Repository\Paginator;
 use App\Shared\Infrastructure\ApiPlatform\State\FilterAwareProviderTrait;
+use App\Shared\Infrastructure\ApiPlatform\State\PaginationResolver;
 use App\Shared\Infrastructure\TransformerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * @implements ProviderInterface<GraphTemplateChoicesOutput>
@@ -51,7 +51,7 @@ final readonly class ListGraphTemplatesChoicesProvider implements ProviderInterf
         #[Autowire(service: GraphTemplateChoicesTransformer::class)]
         private TransformerInterface $transformer,
         private GraphTemplateRepository $repository,
-        private Pagination $pagination,
+        private PaginationResolver $paginationResolver,
     ) {
     }
 
@@ -62,12 +62,8 @@ final readonly class ListGraphTemplatesChoicesProvider implements ProviderInterf
     {
         // No viewer scoping: the legacy service form's source (centreon_configuration_graphtemplate) ignores ACL.
         $criteria = new GraphTemplateCriteria();
-        if ($this->pagination->isEnabled($operation, $context)) {
-            $itemsPerPage = $this->pagination->getLimit($operation, $context);
-            if ($itemsPerPage <= 0) {
-                throw new BadRequestHttpException('itemsPerPage must be a positive integer.');
-            }
-            $criteria = $criteria->withPagination($this->pagination->getPage($context), $itemsPerPage);
+        if (($pagination = $this->paginationResolver->resolve($operation, $context)) instanceof Pagination) {
+            $criteria = $criteria->withPagination($pagination);
         }
 
         /** @var array{name?: mixed} $filters */

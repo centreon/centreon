@@ -21,10 +21,25 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Exception;
+namespace App\Shared\Infrastructure\Dbal;
 
-use App\Shared\Domain\Exception\AggregateNotFoundException;
+use App\Shared\Domain\Aggregate\Option\Option;
+use App\Shared\Domain\Aggregate\Option\OptionName;
+use App\Shared\Domain\Aggregate\Option\OptionValue;
+use App\Shared\Infrastructure\TransformerInterface;
 
-final class OptionDoesNotExistException extends AggregateNotFoundException
+/**
+ * @phpstan-import-type RowTypeAlias from DbalOptionRepository
+ *
+ * @implements TransformerInterface<RowTypeAlias, Option>
+ */
+final readonly class OptionTransformer implements TransformerInterface
 {
+    public function transform(mixed $from): Option
+    {
+        return new Option(
+            name: new OptionName($from['option_name']),
+            value: new OptionValue($from['option_value']),
+        );
+    }
 }
