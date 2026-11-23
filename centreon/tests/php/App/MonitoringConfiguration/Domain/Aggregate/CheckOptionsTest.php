@@ -150,6 +150,23 @@ final class CheckOptionsTest extends TestCase
         (new CheckOptions(null))->with(args: ['-w']);
     }
 
+    public function testArgumentsAreKeptWithoutACommandWhenTheCommandMayBeInherited(): void
+    {
+        $options = new CheckOptions(null, ['-w'], commandMayBeInherited: true);
+
+        self::assertNull($options->checkCommandId);
+        self::assertSame(['-w'], $options->args);
+    }
+
+    public function testRemovingAnInheritableCommandKeepsTheArguments(): void
+    {
+        $changed = (new CheckOptions(new CommandId(1), ['-w'], commandMayBeInherited: true))->with(checkCommandId: null);
+
+        self::assertNull($changed->checkCommandId);
+        self::assertSame(['-w'], $changed->args);
+        self::assertTrue($changed->commandMayBeInherited);
+    }
+
     public function testEqualsComparesTheMacros(): void
     {
         $options = new CheckOptions(null, [], [new HostMacro(new HostMacroName('TOKEN'), 'v', true)]);
