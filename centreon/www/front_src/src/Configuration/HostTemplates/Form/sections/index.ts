@@ -3,8 +3,19 @@ import {
   getInputBlocks
 } from '../../../ResourceForm/blocks';
 import { getCheckCommandBlock } from '../../../ResourceForm/fieldBlocks/checkCommand';
+import {
+  getActionUrlBlock,
+  getNotesAndIconsBlock
+} from '../../../ResourceForm/fieldBlocks/extendedInfos';
 import { getMacrosBlock } from '../../../ResourceForm/fieldBlocks/macros';
+import { getRelationListBlock } from '../../../ResourceForm/fieldBlocks/relationList';
+import {
+  getActiveAndPassiveChecksBlock,
+  getCheckPeriodAndIntervalsBlock
+} from '../../../ResourceForm/fieldBlocks/scheduling';
+import { getSeverityBlock } from '../../../ResourceForm/fieldBlocks/severity';
 import { getSnmpBlock } from '../../../ResourceForm/fieldBlocks/snmp';
+import { getTimezoneBlock } from '../../../ResourceForm/fieldBlocks/timezone';
 import type {
   Blocks,
   DetailOfBlocks,
@@ -14,9 +25,20 @@ import type {
 } from '../../../ResourceForm/models';
 import {
   hostTemplateFormCommandsEndpoint,
-  hostTemplatesBaseEndpoint
+  hostTemplateFormHostCategoriesEndpoint,
+  hostTemplateFormHostSeveritiesEndpoint,
+  hostTemplateFormMediasEndpoint,
+  hostTemplateFormServiceTemplatesEndpoint,
+  hostTemplateFormTimePeriodsEndpoint,
+  hostTemplatesBaseEndpoint,
+  timezonesEndpoint
 } from '../../api/endpoints';
-import { labelHostCheckOptions } from '../../translatedLabels';
+import {
+  labelHostCategories,
+  labelHostCheckOptions,
+  labelHostSeverity,
+  labelLinkedServiceTemplates
+} from '../../translatedLabels';
 import { getHostTemplateIdentityBlock } from '../blocks/hostTemplateIdentity';
 import { getLockedBlock } from '../blocks/locked';
 import { getTemplatesBlock } from '../blocks/templates';
@@ -43,7 +65,42 @@ export const blocks = [
   }),
   getMacrosBlock({ Component: HostTemplateMacros, prefix: '$_HOST', resource }),
   getSnmpBlock({ resource }),
-  getTemplatesBlock({ resource })
+  getTemplatesBlock({ resource }),
+  getRelationListBlock({
+    decoderNames: ['Category', 'Categories'],
+    endpoint: hostTemplateFormHostCategoriesEndpoint,
+    id: 'categories',
+    label: labelHostCategories,
+    name: 'categories',
+    payloadKey: 'category_ids',
+    resource
+  }),
+  getSeverityBlock({
+    endpoint: hostTemplateFormHostSeveritiesEndpoint,
+    label: labelHostSeverity,
+    resource
+  }),
+  getRelationListBlock({
+    decoderNames: ['Service template', 'Service templates'],
+    detailKey: 'linked_service_templates',
+    endpoint: hostTemplateFormServiceTemplatesEndpoint,
+    id: 'linkedServiceTemplates',
+    label: labelLinkedServiceTemplates,
+    name: 'linked-service-templates',
+    payloadKey: 'linked_service_template_ids',
+    resource
+  }),
+  getNotesAndIconsBlock({
+    mediasEndpoint: hostTemplateFormMediasEndpoint,
+    resource
+  }),
+  getActionUrlBlock({ resource }),
+  getTimezoneBlock({ endpoint: timezonesEndpoint, resource }),
+  getCheckPeriodAndIntervalsBlock({
+    resource,
+    timePeriodsEndpoint: hostTemplateFormTimePeriodsEndpoint
+  }),
+  getActiveAndPassiveChecksBlock({ resource })
 ] as const;
 
 // Each available block, as a section of the data.
