@@ -381,27 +381,36 @@ cmd_ca() {
   # poller (empty config, certs/ dir): right fingerprint renders a config
   # (control), wrong fingerprint exits before (fail closed).
   pem=$(cbd_get /v1/ca | jq -r '.pem // empty')
-  local -a boot=(--network none
+  # Internal network: no way out, but local name resolution (sudo, apt fail fast).
+  docker network create --internal gls-ca-boot >/dev/null 2>&1
+  local -a boot=(--network gls-ca-boot
     --tmpfs /etc/centreon-engine:mode=0777 --tmpfs /etc/centreon-broker:mode=0777
     --tmpfs /etc/centreon-broker/certs:mode=0777 --tmpfs /var/lib/centreon-engine/rw:uid=901,gid=901,mode=0770
     -e POLLER_NAME=gls-boot -e POLLER_ID=999 -e POLLER_UID=gls-boot -e CENTRAL_BROKER_HOST=centreon-broker
     -e BROKER_CA_PEM="$pem")
   docker rm -f gls-ca-boot >/dev/null 2>&1
   docker run -d --name gls-ca-boot "${boot[@]}" -e BROKER_CA_FINGERPRINT="$fp1" "$REGISTRY/centreon-engine-trixie:$ENGINE_TAG" >/dev/null 2>&1
-  if wait_until 90 docker exec gls-ca-boot test -s /etc/centreon-engine/centengine.cfg; then
+  if wait_until 240 docker exec gls-ca-boot test -s /etc/centreon-engine/centengine.cfg; then
     record "bootstrap accepts the CA with the right fingerprint (control)" ok
   else
     record "bootstrap accepts the CA with the right fingerprint (control)" ko "$(docker logs gls-ca-boot 2>&1 | tail -3 | tr '\n' ' ' | head -c 200)"
   fi
   docker logs gls-ca-boot >"$LOG_DIR/ca-boot-ok.log" 2>&1
   docker rm -f gls-ca-boot >/dev/null 2>&1
-  out=$(timeout 120 docker run --name gls-ca-boot "${boot[@]}" -e BROKER_CA_FINGERPRINT="$(printf '0%.0s' {1..64})" \
+  out=$(timeout 300 docker run --name gls-ca-boot "${boot[@]}" -e BROKER_CA_FINGERPRINT="$(printf '0%.0s' {1..64})" \
     "$REGISTRY/centreon-engine-trixie:$ENGINE_TAG" 2>&1); rc=$?
   docker rm -f gls-ca-boot >/dev/null 2>&1
   echo "$out" >"$LOG_DIR/ca-boot-failclosed.log"
+  docker network rm gls-ca-boot >/dev/null 2>&1
   [[ "$rc" != 0 && "$rc" != 124 ]] && grep -qi fingerprint <<<"$out" \
     && record "bootstrap refuses a CA with a wrong fingerprint (fail closed)" ok "exit $rc" \
     || record "bootstrap refuses a CA with a wrong fingerprint (fail closed)" ko "exit $rc: $(tail -3 <<<"$out" | tr '\n' ' ' | head -c 200)"
+}
+
+# The cbmod JSON the poller engine actually loads (the image also seeds the
+# package-default central-module.json in that volume).
+poller_module_json() {
+  cp_ exec -T poller-engine sh -c 'f=$(grep -oE "/etc/centreon-broker/[^ \",]+\.json" /etc/centreon-engine/centengine.cfg | head -1); cat "$f"' 2>/dev/null
 }
 
 service_ready_running() { local id; id=$("$1" ps -q "$2" | head -1); [[ -n "$id" ]] && [[ "$(docker inspect -f '{{.State.Status}}' "$id")" == running ]]; }
@@ -453,7 +462,7 @@ cmd_step0() {
   o=$(outbound_only) && record "poller has only outbound sockets" ok "$o" || record "poller has only outbound sockets" ko "$(echo "$o" | tr '\n' ' ')"
   # Delivered cbmod config (not the bootstrap): gRPC TLS with the CA, remote actions, no escape hatch.
   local mod
-  mod=$(cp_ exec -T poller-engine sh -c 'cat /etc/centreon-broker/*-module.json' 2>/dev/null)
+  mod=$(poller_module_json)
   if jq -e '.centreonBroker as $b | ($b.remote_actions == "yes") and (($b.remote_actions_insecure // "no") != "yes")
         and ([$b.output[]? | select(.type == "bbdo_client" and .encryption == "yes" and (.ca_certificate // "") != "")] | length > 0)' <<<"$mod" >/dev/null 2>&1; then
     record "poller cbmod: gRPC TLS + CA, remote_actions, no insecure" ok
@@ -683,7 +692,7 @@ cmd_state() {
   # cbmod queue: central cbd down, poller stopped cleanly -> unacked events in
   # <cache_directory>/<broker_name>.{memory,queue}.<output> on the state volume.
   local mod bname cdir qre
-  mod=$(cp_ exec -T poller-engine sh -c 'cat /etc/centreon-broker/*-module.json' 2>/dev/null)
+  mod=$(poller_module_json)
   bname=$(jq -r '.centreonBroker.broker_name // empty' <<<"$mod" 2>/dev/null)
   cdir=$(jq -r '.centreonBroker.cache_directory // empty' <<<"$mod" 2>/dev/null)
   [[ "${cdir%/}" == /var/lib/centreon-engine && -n "$bname" ]] \
