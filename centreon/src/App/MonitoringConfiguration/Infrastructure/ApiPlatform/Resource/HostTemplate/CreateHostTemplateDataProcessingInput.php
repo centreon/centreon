@@ -28,6 +28,7 @@ use App\MonitoringConfiguration\Infrastructure\Validator\ValidCommandArguments;
 use App\MonitoringConfiguration\Infrastructure\Validator\ValidEventHandlerCommand;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Logging\Attribute\Sensitive;
+use App\Shared\Infrastructure\Validator\Constraints\NotProvided;
 use App\Shared\Infrastructure\Validator\Constraints\WhenPlatform;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -48,30 +49,45 @@ final readonly class CreateHostTemplateDataProcessingInput
         public ?int $eventHandlerCommandId = null,
 
         #[WhenPlatform(forCloud: true, constraints: [
-            new Assert\IsNull(message: 'acknowledgment_timeout is not available on a Cloud platform.'),
+            new Assert\Sequentially([
+                new Assert\IsNull(message: 'acknowledgment_timeout is not available on a Cloud platform.'),
+                new NotProvided(message: 'acknowledgment_timeout is not available on a Cloud platform.'),
+            ]),
         ])]
         #[Assert\Range(min: 1, max: HostTemplate::MAX_INTEGER)]
         public ?int $acknowledgmentTimeout = null,
 
         #[WhenPlatform(forCloud: true, constraints: [
-            new Assert\IsNull(message: 'flap_detection_enabled is not available on a Cloud platform.'),
+            new Assert\Sequentially([
+                new Assert\IsNull(message: 'flap_detection_enabled is not available on a Cloud platform.'),
+                new NotProvided(message: 'flap_detection_enabled is not available on a Cloud platform.'),
+            ]),
         ])]
         public ?TriStateEnum $flapDetectionEnabled = null,
 
         #[WhenPlatform(forCloud: true, constraints: [
-            new Assert\IsNull(message: 'low_flap_threshold is not available on a Cloud platform.'),
+            new Assert\Sequentially([
+                new Assert\IsNull(message: 'low_flap_threshold is not available on a Cloud platform.'),
+                new NotProvided(message: 'low_flap_threshold is not available on a Cloud platform.'),
+            ]),
         ])]
         #[Assert\Range(min: 0, max: 100)]
         public ?int $lowFlapThreshold = null,
 
         #[WhenPlatform(forCloud: true, constraints: [
-            new Assert\IsNull(message: 'high_flap_threshold is not available on a Cloud platform.'),
+            new Assert\Sequentially([
+                new Assert\IsNull(message: 'high_flap_threshold is not available on a Cloud platform.'),
+                new NotProvided(message: 'high_flap_threshold is not available on a Cloud platform.'),
+            ]),
         ])]
         #[Assert\Range(min: 0, max: 100)]
         public ?int $highFlapThreshold = null,
 
         #[WhenPlatform(forCloud: true, constraints: [
-            new Assert\Count(exactly: 0, exactMessage: 'event_handler_args is not available on a Cloud platform.'),
+            new Assert\Sequentially([
+                new Assert\Count(exactly: 0, exactMessage: 'event_handler_args is not available on a Cloud platform.'),
+                new NotProvided(message: 'event_handler_args is not available on a Cloud platform.'),
+            ]),
         ])]
         #[Assert\All([new Assert\Type('string')])]
         #[ValidCommandArguments('event handler')]
