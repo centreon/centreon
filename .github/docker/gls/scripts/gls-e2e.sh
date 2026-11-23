@@ -367,6 +367,15 @@ cmd_step0() {
     || record "poller check result upstream" ko
   local o
   o=$(outbound_only) && record "poller has only outbound sockets" ok "$o" || record "poller has only outbound sockets" ko "$(echo "$o" | tr '\n' ' ')"
+  # Delivered cbmod config (not the bootstrap): gRPC TLS with the CA, remote actions, no escape hatch.
+  local mod
+  mod=$(cp_ exec -T poller-engine sh -c 'cat /etc/centreon-broker/*-module.json' 2>/dev/null)
+  if jq -e '.centreonBroker as $b | ($b.remote_actions == "yes") and (($b.remote_actions_insecure // "no") != "yes")
+        and ([$b.output[]? | select(.type == "bbdo_client" and .encryption == "yes" and (.ca_certificate // "") != "")] | length > 0)' <<<"$mod" >/dev/null 2>&1; then
+    record "poller cbmod: gRPC TLS + CA, remote_actions, no insecure" ok
+  else
+    record "poller cbmod: gRPC TLS + CA, remote_actions, no insecure" ko "$(head -c 300 <<<"$mod")"
+  fi
 }
 
 # ---------- criterion 1: realtime ----------
