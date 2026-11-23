@@ -35,6 +35,9 @@ final readonly class CreateEngineConfigurationCommandHandler
         private EngineConfigurationRepository $repository,
         #[Autowire(env: 'bool:default::IS_CLOUD_PLATFORM')]
         private bool $isCloudPlatform = false,
+        // MON-215450: containers keep the retention file on the engine state volume.
+        #[Autowire(env: 'default::ENGINE_STATE_RETENTION_FILE')]
+        private ?string $stateRetentionFile = null,
     ) {
     }
 
@@ -46,6 +49,7 @@ final readonly class CreateEngineConfigurationCommandHandler
             $command->pollerName,
             enableFlapDetection: $this->isCloudPlatform,
             hostDownDisableServiceChecks: $this->isCloudPlatform,
+            stateRetentionFile: $this->stateRetentionFile,
         );
 
         $this->repository->add($engineConfiguration);

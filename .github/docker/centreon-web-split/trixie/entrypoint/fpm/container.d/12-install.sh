@@ -499,6 +499,18 @@ mysql -h"${MYSQL_HOST}" -P"${MYSQL_PORT}" -u"${MYSQL_ROOT_USER}" "${MYSQL_DB_CON
   UPDATE cfg_nagios SET log_file = '/dev/stdout'
    WHERE nagios_server_id = ${CENTRAL_ID}
      AND log_file = '/var/log/centreon-engine/centengine.log'"
+
+# MON-215450: Central's engine retention file on its state volume
+# (/var/lib/centreon-engine) instead of the log directory, only when the
+# caller asks for it and the package default is still there. New pollers get
+# the same value from API v2 (CreateEngineConfigurationCommandHandler).
+if [ -n "${ENGINE_STATE_RETENTION_FILE:-}" ]; then
+  echo "Setting Central's engine retention file to ${ENGINE_STATE_RETENTION_FILE}..."
+  mysql -h"${MYSQL_HOST}" -P"${MYSQL_PORT}" -u"${MYSQL_ROOT_USER}" "${MYSQL_DB_CONFIGURATION}" -e "
+    UPDATE cfg_nagios SET state_retention_file = '${ENGINE_STATE_RETENTION_FILE}'
+     WHERE nagios_server_id = ${CENTRAL_ID}
+       AND state_retention_file = '/var/log/centreon-engine/retention.dat'"
+fi
 fi
 
 echo "Generating Centreon cache..."

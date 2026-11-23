@@ -52,6 +52,7 @@ final class EngineConfiguration extends AggregateRoot
         string $pollerName,
         bool $enableFlapDetection = false,
         bool $hostDownDisableServiceChecks = false,
+        ?string $stateRetentionFile = null,
     ): self {
         return new self(
             engineConfigurationId: null,
@@ -65,6 +66,11 @@ final class EngineConfiguration extends AggregateRoot
             ),
             freshnessAndFlap: new FreshnessAndFlapOptions(
                 enableFlapDetection: $enableFlapDetection,
+            ),
+            retention: new RetentionOptions(
+                stateRetentionFile: $stateRetentionFile !== null && $stateRetentionFile !== ''
+                    ? $stateRetentionFile
+                    : RetentionOptions::DEFAULT_STATE_RETENTION_FILE,
             ),
         );
     }
