@@ -37,6 +37,7 @@ use App\MonitoringConfiguration\Domain\Exception\GorgoneNodesSyncFailedException
 use App\MonitoringConfiguration\Domain\Exception\PollerAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerTokenRepository;
+use App\MonitoringConfiguration\Domain\Service\BrokerCaProvider;
 use App\MonitoringConfiguration\Domain\Service\GorgoneNodesSynchronizer;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\BrokerCaOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\CreatePollerInput;
@@ -48,7 +49,6 @@ use App\Shared\Application\Command\CommandBus;
 use App\Shared\Domain\Repository\EngineSecretsRepository;
 use App\Shared\Infrastructure\Logging\ExceptionFormatter;
 use App\Shared\Infrastructure\TransformerInterface;
-use Core\RemoteChannel\Infrastructure\Broker\BrokerCaReader;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -77,7 +77,7 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
         private CentralUrlFactory $centralUrlFactory,
         #[Autowire(env: 'bool:default::IS_CLOUD_PLATFORM')]
         private bool $isCloudPlatform = false,
-        private ?BrokerCaReader $brokerCaReader = null,
+        private ?BrokerCaProvider $brokerCaProvider = null,
     ) {
     }
 
@@ -139,8 +139,8 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
 
         // MON-215450 phase 2d: the poller gets the central broker CA here, out of band of the BBDO stream.
         // Never fails the creation: the poller is already committed.
-        if ($this->brokerCaReader instanceof BrokerCaReader) {
-            ['ca' => $brokerCa, 'warning' => $warning] = $this->brokerCaReader->read();
+        if ($this->brokerCaProvider instanceof BrokerCaProvider) {
+            ['ca' => $brokerCa, 'warning' => $warning] = $this->brokerCaProvider->read();
             $resource->brokerCa = $brokerCa === null
                 ? null
                 : new BrokerCaOutput($brokerCa['pem'], $brokerCa['fingerprint_sha256']);

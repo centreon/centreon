@@ -304,6 +304,10 @@ services:
     Core\RemoteChannel\Infrastructure\Broker\BrokerApiClient:
         arguments: [null]
 
+    # Read from the App kernel through LegacyBrokerCaProvider (poller creation, MON-215450 phase 2d).
+    Core\RemoteChannel\Infrastructure\Broker\BrokerCaReader:
+        public: true
+
     Core\RemoteChannel\Infrastructure\Broker\BrokerConfigurationDeployer:
         arguments:
             $cacheDir: null
