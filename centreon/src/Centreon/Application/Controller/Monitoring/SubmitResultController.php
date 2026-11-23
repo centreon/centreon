@@ -87,8 +87,8 @@ class SubmitResultController extends AbstractController
 
         foreach ($payload['resources'] as $resource) {
             $result = (new SubmitResult($resource['id'], $resource['status']))
-                ->setOutput($resource['output'])
-                ->setPerformanceData($resource['performance_data']);
+                ->setOutput($resource['output'] ?? null)
+                ->setPerformanceData($resource['performance_data'] ?? null);
             try {
                 if ($resource['type'] === ResourceEntity::TYPE_SERVICE) {
                     $result->setParentResourceId($resource['parent']['id']);
@@ -141,8 +141,8 @@ class SubmitResultController extends AbstractController
              * the JSON sent with the JSON validator.
              */
             $result = (new SubmitResult($hostId, $payload['status']))
-                ->setOutput($payload['output'])
-                ->setPerformanceData($payload['performance_data']);
+                ->setOutput($payload['output'] ?? null)
+                ->setPerformanceData($payload['performance_data'] ?? null);
 
             $this->submitResultService
                 ->filterByContact($contact)
@@ -182,8 +182,8 @@ class SubmitResultController extends AbstractController
 
         if ($payload !== []) {
             $result = (new SubmitResult($serviceId, $payload['status']))
-                ->setOutput($payload['output'])
-                ->setPerformanceData($payload['performance_data'])
+                ->setOutput($payload['output'] ?? null)
+                ->setPerformanceData($payload['performance_data'] ?? null)
                 ->setParentResourceId($hostId);
 
             $this->submitResultService

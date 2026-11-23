@@ -24,6 +24,7 @@ namespace Tests\Centreon\Application\Controller\Monitoring;
 use Centreon\Application\Controller\Monitoring\SubmitResultController;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Monitoring\Resource;
+use Centreon\Domain\Monitoring\SubmitResult\SubmitResult;
 use Centreon\Domain\Monitoring\SubmitResult\SubmitResultService;
 use FOS\RestBundle\View\View;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -321,5 +322,102 @@ class SubmitResultControllerTest extends TestCase
         );
 
         $this->assertEquals($view, View::create(null, Response::HTTP_NO_CONTENT));
+    }
+
+    /**
+     * Testing that the optional output and performance_data properties can be omitted for submitResultResources
+     */
+    public function testSubmitResultResourcesWithoutOptionalProperties(): void
+    {
+        $this->submitResultService->expects($this->any())
+            ->method('filterByContact')
+            ->willReturn($this->submitResultService);
+        $this->submitResultService->expects($this->once())
+            ->method('submitHostResult')
+            ->with($this->callback($this->hasNoOutputNorPerformanceData(...)));
+        $this->submitResultService->expects($this->once())
+            ->method('submitServiceResult')
+            ->with($this->callback($this->hasNoOutputNorPerformanceData(...)));
+
+        $submitResultController = new SubmitResultController($this->submitResultService);
+        $submitResultController->setContainer($this->container);
+
+        $this->request->expects($this->any())
+            ->method('getContent')
+            ->willReturn(json_encode([
+                'resources' => [
+                    [
+                        'type' => 'host',
+                        'id' => 1,
+                        'parent' => null,
+                        'status' => 2,
+                    ],
+                    [
+                        'type' => 'service',
+                        'id' => 1,
+                        'parent' => ['id' => 1],
+                        'status' => 2,
+                    ],
+                ],
+            ], JSON_THROW_ON_ERROR));
+        $view = $submitResultController->submitResultResources($this->request);
+
+        $this->assertEquals($view, View::create(null, Response::HTTP_NO_CONTENT));
+    }
+
+    /**
+     * Testing that the optional output and performance_data properties can be omitted for submitResultHost
+     */
+    public function testSubmitResultHostWithoutOptionalProperties(): void
+    {
+        $this->submitResultService->expects($this->any())
+            ->method('filterByContact')
+            ->willReturn($this->submitResultService);
+        $this->submitResultService->expects($this->once())
+            ->method('submitHostResult')
+            ->with($this->callback($this->hasNoOutputNorPerformanceData(...)));
+
+        $submitResultController = new SubmitResultController($this->submitResultService);
+        $submitResultController->setContainer($this->container);
+
+        $this->request->expects($this->any())
+            ->method('getContent')
+            ->willReturn(json_encode(['status' => 2], JSON_THROW_ON_ERROR));
+        $view = $submitResultController->submitResultHost($this->request, $this->hostResource->getId());
+
+        $this->assertEquals($view, View::create(null, Response::HTTP_NO_CONTENT));
+    }
+
+    /**
+     * Testing that the optional output and performance_data properties can be omitted for submitResultService
+     */
+    public function testSubmitResultServiceWithoutOptionalProperties(): void
+    {
+        $this->submitResultService->expects($this->any())
+            ->method('filterByContact')
+            ->willReturn($this->submitResultService);
+        $this->submitResultService->expects($this->once())
+            ->method('submitServiceResult')
+            ->with($this->callback($this->hasNoOutputNorPerformanceData(...)));
+
+        $submitResultController = new SubmitResultController($this->submitResultService);
+        $submitResultController->setContainer($this->container);
+
+        $this->request->expects($this->any())
+            ->method('getContent')
+            ->willReturn(json_encode(['status' => 2], JSON_THROW_ON_ERROR));
+
+        $view = $submitResultController->submitResultService(
+            $this->request,
+            $this->serviceResource->getParent()->getId(),
+            $this->serviceResource->getId()
+        );
+
+        $this->assertEquals($view, View::create(null, Response::HTTP_NO_CONTENT));
+    }
+
+    private function hasNoOutputNorPerformanceData(SubmitResult $result): bool
+    {
+        return $result->getOutput() === null && $result->getPerformanceData() === null;
     }
 }
