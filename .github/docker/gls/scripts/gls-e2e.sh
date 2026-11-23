@@ -119,24 +119,32 @@ wait_log() { # wait_log <target> <since> <fixed string> <timeout>
 
 # ---------- up / bootstrap ----------
 
+CLAPI_LOG="$LOG_DIR/clapi.log"
+clapi_log() { echo "+ clapi $*" >>"$CLAPI_LOG"; clapi "$@" >>"$CLAPI_LOG" 2>&1; }
+
 add_host() { # add_host <name> <instance>
-  clapi -o HOST -a ADD -v "$1;$1;127.0.0.1;;$2;" >/dev/null 2>&1 || true
+  clapi_log -o HOST -a ADD -v "$1;$1;127.0.0.1;;$2;"
   local p
   for p in "max_check_attempts;1" "check_period;24x7" "check_interval;1" "retry_check_interval;1" \
            "active_checks_enabled;1" "passive_checks_enabled;1" "check_command;gls_check_dummy" \
            "check_command_arguments;!0!up"; do
-    clapi -o HOST -a setparam -v "$1;$p" >/dev/null
+    clapi_log -o HOST -a setparam -v "$1;$p"
+  done
+}
+
+add_service_template() { # CLAPI SERVICE ADD needs a template; STPL ADD does not.
+  clapi_log -o STPL -a ADD -v "gls-stpl;gls-stpl;"
+  local p
+  for p in "max_check_attempts;1" "check_period;24x7" "normal_check_interval;1" "retry_check_interval;1" \
+           "active_checks_enabled;1" "passive_checks_enabled;1" "check_command;gls_check_dummy"; do
+    clapi_log -o STPL -a setparam -v "gls-stpl;$p"
   done
 }
 
 add_service() { # add_service <host>
-  clapi -o SERVICE -a ADD -v "$1;gls-crit;" >/dev/null 2>&1 || true
-  local p
-  for p in "max_check_attempts;1" "check_period;24x7" "normal_check_interval;1" "retry_check_interval;1" \
-           "active_checks_enabled;1" "passive_checks_enabled;1" "check_command;gls_check_dummy" \
-           "check_command_arguments;!2!gls critical"; do
-    clapi -o SERVICE -a setparam -v "$1;gls-crit;$p" >/dev/null
-  done
+  clapi_log -o SERVICE -a ADD -v "$1;gls-crit;gls-stpl"
+  clapi_log -o SERVICE -a setparam -v "$1;gls-crit;check_command_arguments;!2!gls critical"
+  [[ -n "$(sql centreon "SELECT s.service_id FROM service s JOIN host_service_relation r ON r.service_service_id=s.service_id JOIN host h ON h.host_id=r.host_host_id WHERE h.host_name='$1' AND s.service_description='gls-crit'")" ]]
 }
 
 seed_poller() { # step 0 only: out-of-band copy of the web-generated poller config
@@ -192,10 +200,12 @@ cmd_up() {
     [[ -n "$pid" ]] && record "create poller ${POLLER_NAME}" ok "HTTP $code id=$pid" || { record "create poller" ko "HTTP $code"; return 1; }
   fi
 
-  add_host gls-hc Central
-  add_service gls-hc
-  add_host gls-hp "$POLLER_NAME"
-  add_service gls-hp
+  add_service_template
+  local h
+  for h in "gls-hc;Central" "gls-hp;${POLLER_NAME}"; do
+    add_host "${h%%;*}" "${h#*;}"
+    add_service "${h%%;*}" && record "fixture ${h%%;*}/gls-crit" ok || record "fixture ${h%%;*}/gls-crit" ko "see clapi.log"
+  done
 
   local code
   code=$(api GET /configuration/monitoring-servers/1/generate-and-reload)
