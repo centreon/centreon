@@ -385,7 +385,7 @@ is_explicit_error() { # is_explicit_error <mode> <check|reload> <HTTP code> (bod
   # contracts § 4: realtime NOT_CONNECTED=503, TIMEOUT=504; 502 = central cbd unreachable (not this case).
   if [[ "$2" == check ]]; then
     case "$1:$3" in
-      stop:503 | partition:503 | partition:504 | pause:503 | pause:504) return 0 ;;
+      stop:503 | stop:504 | partition:503 | partition:504 | pause:503 | pause:504) return 0 ;;
       *) return 1 ;;
     esac
   fi
