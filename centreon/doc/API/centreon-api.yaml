@@ -16471,6 +16471,7 @@ components:
             -
               type: 'null'
         notifications:
+          description: 'Not available on a Cloud platform, where notifications follow a different model.'
           anyOf:
             -
               $ref: '#/components/schemas/CreateHostTemplateNotificationsInput'
