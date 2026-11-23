@@ -57,6 +57,11 @@ it('ignores a meta-service id that is not a positive integer', function (string 
     'negative' => ['MS_15_-1'],
     'zero' => ['MS_15_0'],
     'decimal' => ['MS_15_4.2'],
+    'hexadecimal' => ['MS_15_0x2A'],
+    'expression' => ['MS_0) OR 1=1 OR (0'],
+    'scalar subquery' => ['MS_0) OR (SELECT 1) OR (0'],
+    'several statements' => ['MS_0))); SELECT SLEEP(2) #'],
+    'several statements with an update' => ["MS_0))); UPDATE contact SET contact_admin = '1' #"],
 ]);
 
 it('keeps a meta-service allowed by the ACL of a non-admin user', function (): void {
