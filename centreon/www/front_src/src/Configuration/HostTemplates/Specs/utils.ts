@@ -110,6 +110,15 @@ const hostTemplateDetails: Record<number, Record<string, unknown>> = {
     is_locked: false,
     linked_service_templates: [{ id: 31, name: 'generic-ping' }],
     name: 'generic-active-host-custom',
+    // `first_delay` and `recovery_delay` unset: left out.
+    notifications: {
+      contact_groups: [{ id: 3, name: 'Supervisors' }],
+      contacts: [{ id: 1, name: 'admin' }],
+      enabled: 'false',
+      interval: 3,
+      options: ['down', 'recovery'],
+      timeperiod: { id: 1, name: '24x7' }
+    },
     scheduling_options: {
       active_check_enabled: 'false',
       check_period: { id: 2, name: 'workhours' },
@@ -256,3 +265,15 @@ export const getTimezonesResponse = () => ({
   ]),
   '@id': '/centreon/api/configuration/timezones'
 });
+
+export const getFormContactsResponse = () =>
+  toCollection('contacts', [
+    { id: 1, name: 'admin' },
+    { id: 2, name: 'guest' }
+  ]);
+
+export const getFormContactGroupsResponse = () =>
+  toCollection('contact_groups', [
+    { id: 3, name: 'Supervisors' },
+    { id: 4, name: 'Guests' }
+  ]);

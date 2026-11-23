@@ -25,6 +25,10 @@ export const getDuplicateHostTemplateEndpoint = ({
 // the rights on the listed resource.
 export const hostTemplateFormCommandsEndpoint =
   '/configuration/host_templates/commands';
+export const hostTemplateFormContactsEndpoint =
+  '/configuration/host_templates/contacts';
+export const hostTemplateFormContactGroupsEndpoint =
+  '/configuration/host_templates/contact_groups';
 export const hostTemplateFormHostTemplatesEndpoint =
   '/configuration/host_templates/host_templates';
 export const hostTemplateFormHostCategoriesEndpoint =
