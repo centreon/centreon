@@ -134,7 +134,7 @@ class CentreonOpenticketHistory extends CentreonWebService
             } elseif (isset($link['hostname'])) {
                 $res = $this->pearDBMonitoring->execute($stmt_host, [$link['hostname'], ...$accessGroupIds]);
                 if ($row = $stmt_host->fetch()) {
-                    $links_ok[] = array_merge($link, ['host_id' => $row['host_id']]);
+                    $links_ok[] = array_merge($link, ['host_id' => $row['host_id'], 'service_id' => null]);
                 }
             }
         }
