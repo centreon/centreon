@@ -36,6 +36,7 @@ use Core\RemoteChannel\Infrastructure\Broker\BrokerApiClient;
 use Core\RemoteChannel\Infrastructure\Broker\BrokerConfigurationDeployer;
 use Core\RemoteChannel\Infrastructure\Broker\BrokerPollerCommandSender;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
@@ -113,6 +114,38 @@ class BrokerRemoteChannelTest extends TestCase
             $this->assertStringContainsString('"poller-2"', $ex->getMessage());
             $this->assertStringContainsString('not connected', $ex->getMessage());
         }
+    }
+
+    /**
+     * @param array<string, mixed> $item
+     */
+    #[DataProvider('provideNotConfirmedStatuses')]
+    public function testOnlyAppliedConfirmsACommand(array $item, string $expectedMessage): void
+    {
+        $sender = new BrokerPollerCommandSender(
+            $this->client(['POST /v1/commands' => [200, ['items' => $item === [] ? [] : [$item]]]]),
+            $this->repository(),
+        );
+
+        try {
+            $sender->send([['target' => $this->target(2, '900001'), 'commands' => ['[1] SCHEDULE_FORCED_HOST_CHECK;h1;1']]]);
+            $this->fail('An exception was expected');
+        } catch (RemoteChannelException $ex) {
+            $this->assertSame(504, $ex->getCode());
+            $this->assertStringContainsString($expectedMessage, $ex->getMessage());
+        }
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>, string}>
+     */
+    public static function provideNotConfirmedStatuses(): iterable
+    {
+        yield 'accepted' => [['poller_id' => '900001', 'status' => 'ACCEPTED'], 'status ACCEPTED'];
+        yield 'delivered' => [['poller_id' => '900001', 'status' => 'DELIVERED'], 'status DELIVERED'];
+        yield 'unknown status' => [['poller_id' => '900001', 'status' => 'WHATEVER'], 'status WHATEVER'];
+        yield 'no status' => [['poller_id' => '900001'], 'status (none)'];
+        yield 'missing item' => [[], 'no answer'];
     }
 
     public function testRejectedCommandCarriesTheEngineMessage(): void

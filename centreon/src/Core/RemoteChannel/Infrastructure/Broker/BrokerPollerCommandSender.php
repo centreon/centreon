@@ -28,6 +28,7 @@ use Core\RemoteChannel\Application\Repository\ReadPollerTargetRepositoryInterfac
 use Core\RemoteChannel\Domain\Exception\RemoteChannelException;
 use Core\RemoteChannel\Domain\Model\DispatchStatus;
 use Core\RemoteChannel\Domain\Model\PollerTarget;
+use Psr\Log\LoggerInterface;
 
 /**
  * Sends external commands through the central broker remote API (POST /v1/commands, synchronous).
@@ -44,6 +45,7 @@ final class BrokerPollerCommandSender implements PollerCommandSenderInterface
     public function __construct(
         private readonly BrokerApiClient $client,
         private readonly ReadPollerTargetRepositoryInterface $pollerTargetRepository,
+        private readonly ?LoggerInterface $logger = null,
     ) {
     }
 
@@ -67,11 +69,12 @@ final class BrokerPollerCommandSender implements PollerCommandSenderInterface
             return;
         }
 
+        $requestId = self::generateRequestId();
         $response = $this->client->call(
             'POST',
             '/v1/commands',
             [
-                'request_id' => self::generateRequestId(),
+                'request_id' => $requestId,
                 'timeout_ms' => self::COMMAND_TIMEOUT_MS,
                 'items' => $items,
             ],
@@ -86,18 +89,32 @@ final class BrokerPollerCommandSender implements PollerCommandSenderInterface
             }
             $uid = (string) ($item['poller_id'] ?? '');
             $answered[$uid] = true;
-            $status = DispatchStatus::tryFrom((string) ($item['status'] ?? '')) ?? DispatchStatus::Timeout;
-            if (! $status->isFailure()) {
+            $rawStatus = (string) ($item['status'] ?? '');
+            $this->logger?->info('Central broker remote API command result', [
+                'request_id' => $requestId,
+                'poller_id' => $uid,
+                'status' => $rawStatus,
+                'message' => self::describe($item),
+            ]);
+            $status = DispatchStatus::tryFrom($rawStatus);
+            // Synchronous endpoint: only APPLIED means the engine executed the commands. Anything else
+            // (ACCEPTED, DELIVERED, unknown...) is not a confirmation, its outcome is unknown.
+            if ($status === DispatchStatus::Applied) {
                 continue;
             }
-            $failures[] = RemoteChannelException::forPoller(
-                $targetsByUid[$uid]->name ?? $uid,
-                $status,
-                self::describe($item)
-            );
+            $detail = self::describe($item);
+            if ($status === null || ! $status->isFailure()) {
+                $detail = trim(sprintf('status %s %s', $rawStatus !== '' ? $rawStatus : '(none)', $detail));
+                $status = DispatchStatus::Timeout;
+            }
+            $failures[] = RemoteChannelException::forPoller($targetsByUid[$uid]->name ?? $uid, $status, $detail);
         }
         foreach ($targetsByUid as $uid => $target) {
             if (! isset($answered[$uid])) {
+                $this->logger?->warning('Central broker remote API answered nothing for a poller', [
+                    'request_id' => $requestId,
+                    'poller_id' => $uid,
+                ]);
                 $failures[] = RemoteChannelException::forPoller($target->name, DispatchStatus::Timeout, 'no answer');
             }
         }
