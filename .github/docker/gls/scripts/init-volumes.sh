@@ -15,6 +15,12 @@ chown 901:"$group" /mnt/engine-etc
 chown 902:"$group" /mnt/broker-etc
 chmod 2775 /mnt/engine-etc /mnt/broker-etc
 
+# Poller: the bootstrap writes the central CA (BROKER_CA_PEM) to certs/ca.crt (contracts § 8.3).
+if [ "$role" = poller ]; then
+  mkdir -p /mnt/broker-etc/certs
+  chown 902:"$group" /mnt/broker-etc/certs
+  chmod 2775 /mnt/broker-etc/certs
+fi
 # Central: fpm (12-install.sh) writes engine-context.json itself.
 if [ "$role" = poller ] && [ ! -s /mnt/engine-etc/engine-context.json ]; then
   printf '{"app_secret":"%s","salt":"%s"}\n' "${APP_SECRET:-}" "${SALT:-}" > /mnt/engine-etc/engine-context.json

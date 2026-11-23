@@ -314,6 +314,12 @@ cmd_up() {
     || record "new poller reconnected with a config version" ko
   cp_ exec -T poller-engine grep -q 'host_name *gls-hp' /etc/centreon-engine/hosts.cfg \
     && record "delivered config in place on the poller (gls-hp)" ok || record "delivered config in place on the poller (gls-hp)" ko
+  # The deploy must not touch certs/: the bootstrap CA is still there, same one.
+  local pfp
+  pfp=$(cp_ exec -T poller-engine cat /etc/centreon-broker/certs/ca.crt 2>/dev/null \
+    | openssl x509 -noout -fingerprint -sha256 2>/dev/null | sed 's/.*=//; s/://g' | tr 'A-F' 'a-f')
+  [[ -n "$pfp" && "$pfp" == "$ca_fp" ]] && record "poller CA kept after the first export (= creation answer)" ok \
+    || record "poller CA kept after the first export (= creation answer)" ko "${pfp:-no ca.crt} vs ${ca_fp:0:16}"
   wait_until 300 service_ready cp_ poller-engine && record "poller connected to centreon-broker:5669" ok \
     || record "poller connected to centreon-broker:5669" ko
 }
@@ -369,17 +375,28 @@ cmd_ca() {
   wait_until 300 poller_capable "$uid" && record "poller reconnected after a cbd recreate" ok || record "poller reconnected after a cbd recreate" ko
   fp1=$(cbd_ca_fp)
   [[ -n "$fp1" && "$fp1" == "$fp0" ]] && record "cbd recreate kept the CA" ok || record "cbd recreate kept the CA" ko "${fp0:0:16} -> ${fp1:0:16}"
-  # Bootstrap fails closed on a wrong fingerprint (throwaway container, empty config).
+  # Bootstrap with the CA from env, in a throwaway container laid out like the
+  # poller (empty config, certs/ dir): right fingerprint renders a config
+  # (control), wrong fingerprint exits before (fail closed).
   pem=$(cbd_get /v1/ca | jq -r '.pem // empty')
-  docker rm -f gls-ca-failclosed >/dev/null 2>&1
-  out=$(timeout 120 docker run --name gls-ca-failclosed --network none \
-    --tmpfs /etc/centreon-engine:mode=0777 --tmpfs /etc/centreon-broker:mode=0777 \
-    --tmpfs /var/lib/centreon-engine/rw:uid=901,gid=901,mode=0770 \
-    -e POLLER_NAME=gls-failclosed -e POLLER_ID=999 -e POLLER_UID=gls-failclosed -e CENTRAL_BROKER_HOST=centreon-broker \
-    -e BROKER_CA_PEM="$pem" -e BROKER_CA_FINGERPRINT="$(printf '0%.0s' {1..64})" \
+  local -a boot=(--network none
+    --tmpfs /etc/centreon-engine:mode=0777 --tmpfs /etc/centreon-broker:mode=0777
+    --tmpfs /etc/centreon-broker/certs:mode=0777 --tmpfs /var/lib/centreon-engine/rw:uid=901,gid=901,mode=0770
+    -e POLLER_NAME=gls-boot -e POLLER_ID=999 -e POLLER_UID=gls-boot -e CENTRAL_BROKER_HOST=centreon-broker
+    -e BROKER_CA_PEM="$pem")
+  docker rm -f gls-ca-boot >/dev/null 2>&1
+  docker run -d --name gls-ca-boot "${boot[@]}" -e BROKER_CA_FINGERPRINT="$fp1" "$REGISTRY/centreon-engine-trixie:$ENGINE_TAG" >/dev/null 2>&1
+  if wait_until 90 docker exec gls-ca-boot test -s /etc/centreon-engine/centengine.cfg; then
+    record "bootstrap accepts the CA with the right fingerprint (control)" ok
+  else
+    record "bootstrap accepts the CA with the right fingerprint (control)" ko "$(docker logs gls-ca-boot 2>&1 | tail -3 | tr '\n' ' ' | head -c 200)"
+  fi
+  docker logs gls-ca-boot >"$LOG_DIR/ca-boot-ok.log" 2>&1
+  docker rm -f gls-ca-boot >/dev/null 2>&1
+  out=$(timeout 120 docker run --name gls-ca-boot "${boot[@]}" -e BROKER_CA_FINGERPRINT="$(printf '0%.0s' {1..64})" \
     "$REGISTRY/centreon-engine-trixie:$ENGINE_TAG" 2>&1); rc=$?
-  docker rm -f gls-ca-failclosed >/dev/null 2>&1
-  echo "$out" >"$LOG_DIR/ca-failclosed.log"
+  docker rm -f gls-ca-boot >/dev/null 2>&1
+  echo "$out" >"$LOG_DIR/ca-boot-failclosed.log"
   [[ "$rc" != 0 && "$rc" != 124 ]] && grep -qi fingerprint <<<"$out" \
     && record "bootstrap refuses a CA with a wrong fingerprint (fail closed)" ok "exit $rc" \
     || record "bootstrap refuses a CA with a wrong fingerprint (fail closed)" ko "exit $rc: $(tail -3 <<<"$out" | tr '\n' ' ' | head -c 200)"

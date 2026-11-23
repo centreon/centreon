@@ -43,7 +43,7 @@ Contracts §7. Named volumes are prefixed by the project (`gls-central_`, `gls-p
 
 - **Docker Engine with compose v2, and bash, curl, jq, openssl.**
   - Windows: run from **WSL** (Ubuntu), with Docker Desktop's WSL integration enabled.
-  - Git Bash works but is less tested. openssl is only needed for the rogue certificate of `tls-negative`.
+  - Git Bash: untested end to end, WSL recommended. openssl is only needed for the rogue certificate of `tls-negative`.
 - **Registry access:** `docker login docker.centreon.com` with your Harbor credentials. The registry is internal, so you may need the VPN. Tags are pinned in `images.env`.
 - **RAM:** about 4 GB free for the 9 containers. This is an estimate, not measured. MariaDB and php-fpm take most of it.
 - **Free host port 18180.** Nothing else is published.
