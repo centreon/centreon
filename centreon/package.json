@@ -28,7 +28,7 @@
     "cypress:run:coverage": "TZ=Etc/UTC cypress run --component --browser=chromium --env codeCoverageTasksRegistered=true",
     "cypress:cli": "./cypress/scripts/cypress-cli.sh",
     "cypress:install": "cypress install",
-    "preview:api:doc": "pnpm --package=@redocly/cli dlx openapi preview-docs ./doc/API/centreon-api.yaml",
+    "preview:api:doc": "pnpm --filter redoc-centreon-web-openapi exec redocly preview",
     "install:arm:binaries": "pnpm i -D @swc/core-linux-arm64-gnu@1.13.3 @rspack/binding-linux-arm64-gnu@1.1.6 -w && pnpm remove @swc/core-linux-arm64-gnu @rspack/binding-linux-arm64-gnu"
   },
   "devDependencies": {

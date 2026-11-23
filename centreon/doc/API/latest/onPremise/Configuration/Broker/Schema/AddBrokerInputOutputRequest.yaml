@@ -57,4 +57,4 @@ properties:
           "name": "my-lua-param-2",
           "value": "qwerty"
         }
-      ]
+        ]

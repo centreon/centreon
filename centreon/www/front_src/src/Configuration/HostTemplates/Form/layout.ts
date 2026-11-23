@@ -1,6 +1,11 @@
 import type { TFunction } from 'i18next';
 
-import { twoColumns, twoColumnsFromWide } from '../../ResourceForm/grid';
+import {
+  stackedColumns,
+  twoColumns,
+  twoColumnsFromNarrow,
+  twoColumnsFromWide
+} from '../../ResourceForm/grid';
 import {
   getPlacedBlockIds as getLayoutBlockIds,
   type LayoutNode,
@@ -10,7 +15,8 @@ import {
 } from '../../ResourceForm/layout';
 import {
   labelGeneralInformation,
-  labelHostMonitoringProperties
+  labelHostMonitoringProperties,
+  labelRelations
 } from '../translatedLabels';
 import { type BlockId, type Blocks, hostTemplateResource } from './sections';
 
@@ -34,6 +40,28 @@ export const layout: Array<LayoutSection> = [
         columnSeparator: true,
         columns: ['templates', 'macros'],
         name: 'templates-layout'
+      }
+    ]
+  },
+  {
+    label: labelRelations,
+    nodes: [
+      {
+        className: twoColumnsFromNarrow,
+        columnSeparator: true,
+        columns: [
+          {
+            className: stackedColumns,
+            columns: ['linkedServiceTemplates'],
+            name: 'relations-left'
+          },
+          {
+            className: stackedColumns,
+            columns: ['categories', 'severity'],
+            name: 'relations-right'
+          }
+        ],
+        name: 'relations-layout'
       }
     ]
   }
