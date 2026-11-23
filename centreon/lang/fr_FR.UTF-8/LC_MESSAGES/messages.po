@@ -639,12 +639,10 @@ msgstr "Ajouter une vue"
 msgid "Add Widget"
 msgstr "Ajouter widget"
 
-#: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
 msgid "Add a Centreon Poller"
 msgstr "Ajouter un collecteur Centreon"
 
-#: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
 msgid "Add a Centreon Remote Server"
 msgstr "Ajouter un serveur distant Centreon"
@@ -780,10 +778,6 @@ msgstr "Ajouter une plage de maintenance"
 msgid "Add a global macro"
 msgstr "Ajouter une macro globale"
 
-#: centreon/www/install/front_translate.php
-msgid "Add a host"
-msgstr "Ajouter un hôte"
-
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
 msgid "Add a host category"
 msgstr "Ajouter une catégorie d'hôtes"
@@ -805,25 +799,9 @@ msgid "Add a template"
 msgstr "Ajouter un modèle"
 
 #: centreon/www/install/front_translate.php
-msgid "Add a token"
-msgstr "Ajouter un jeton"
-
-#: centreon/www/install/front_translate.php
 #: centreon/www/install/smarty_translate.php
 msgid "Add a widget"
 msgstr "Ajouter widget"
-
-#: centreon/www/install/front_translate.php
-msgid "Add additional configurations"
-msgstr "Ajouter des configurations additionnelles"
-
-#: centreon/www/install/front_translate.php
-msgid "Add advanced server configuration"
-msgstr "Ajouter une configuration avancée de serveur"
-
-#: centreon/www/install/front_translate.php
-msgid "Add agent configuration"
-msgstr "Ajouter une configuration d'agent"
 
 #: centreon/www/include/options/accessLists/menusACL/formMenusAccess.php
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
@@ -842,10 +820,6 @@ msgstr "Ajouter une escalade"
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
 msgid "Add an Extended Info"
 msgstr "Ajouter une information supplémentaire"
-
-#: centreon/www/install/front_translate.php
-msgid "Add an additional configuration"
-msgstr "Ajouter une configuration additionnelle"
 
 #: centreon/www/install/front_translate.php
 msgid "Add an advanced configuration"
@@ -891,14 +865,6 @@ msgid "Add metric"
 msgstr "Ajouter une métrique"
 
 #: centreon/www/install/front_translate.php
-msgid "Add new agent configuration"
-msgstr "Ajouter une nouvelle configuration d'agent"
-
-#: centreon/www/install/front_translate.php
-msgid "Add new dataset"
-msgstr "Ajouter un nouveau jeu de données"
-
-#: centreon/www/install/front_translate.php
 #: centreon/www/install/smarty_translate.php
 msgid "Add new entry"
 msgstr "Ajouter une nouvelle entrée"
@@ -907,20 +873,12 @@ msgstr "Ajouter une nouvelle entrée"
 msgid "Add new period"
 msgstr "Ajouter une nouvelle période"
 
-#: centreon/www/install/front_translate.php
-msgid "Add parameter"
-msgstr "Ajouter un paramètre"
-
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
 msgid "Add relations"
 msgstr "Ajouter des relations"
-
-#: centreon/www/install/front_translate.php
-msgid "Add resource datasets"
-msgstr "Ajouter des ressources"
 
 #: centreon/www/install/react_translation.php
 msgid "Add server with wizard"
@@ -937,10 +895,6 @@ msgstr "Ajouter aux groupes de contacts hérités"
 #: centreon/www/install/front_translate.php
 msgid "Add to inherited contacts"
 msgstr "Ajouter aux contacts hérités"
-
-#: centreon/www/install/front_translate.php
-msgid "Add vCenter/ESX"
-msgstr "Ajouter vCenter/ESX"
 
 #: centreon/www/install/smarty_translate.php
 msgid "Add view"
@@ -973,7 +927,6 @@ msgstr "Ajouté"
 msgid "Additional Addresses"
 msgstr "Adresses complémentaires"
 
-#: centreon/www/install/front_translate.php
 #: centreon/www/install/menu_translation.php
 msgid "Additional Configurations"
 msgstr "Configurations additionnelles"
@@ -995,14 +948,6 @@ msgstr "Configurations additionnelles"
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 msgid "Additional Information"
 msgstr "Informations supplémentaires"
-
-#: centreon/www/install/front_translate.php
-msgid "Additional configuration created"
-msgstr "Configuration additionnelle créée"
-
-#: centreon/www/install/front_translate.php
-msgid "Additional configuration updated"
-msgstr "Configuration additionnelle mise à jour"
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Additional freshness latency"
@@ -1105,12 +1050,10 @@ msgstr "Paramètres avancés"
 msgid "Advanced settings"
 msgstr "Paramètres avancés"
 
-#: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
 msgid "Advanced: gorgone - poller connects to the central"
 msgstr "Avancé : gorgone - le collecteur se connecte au central"
 
-#: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
 msgid "Advanced: reverse Centreon Broker communication flow"
 msgstr "Avancé : inverser le flux de communication du Broker Centreon"
@@ -1119,26 +1062,9 @@ msgstr "Avancé : inverser le flux de communication du Broker Centreon"
 msgid "After"
 msgstr "Après"
 
-#: centreon/www/install/front_translate.php
-msgid "Agent"
-msgstr "Agent"
-
-#: centreon/www/install/front_translate.php
-msgid "Agent configuration created"
-msgstr "Configuration d'agent créée"
-
-#: centreon/www/install/front_translate.php
-msgid "Agent configuration updated"
-msgstr "Configuration d'agent mise à jour"
-
-#: centreon/www/install/front_translate.php
 #: centreon/www/install/menu_translation.php
 msgid "Agent configurations"
 msgstr "Configurations d'agent"
-
-#: centreon/www/install/front_translate.php
-msgid "Agent type"
-msgstr "Type d'agent"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Aggregation frequency"
@@ -1231,10 +1157,6 @@ msgstr "Tous les groupes d'hôtes"
 msgid "All Hosts"
 msgstr "Tous les hôtes"
 
-#: centreon/www/install/front_translate.php
-msgid "All KPIs on this Business Activity are working fine."
-msgstr "Tous les KPI de cette activité métier fonctionnent correctement."
-
 #: centreon/www/include/configuration/configGenerateTraps/formGenerateTraps.php
 msgid "All Pollers"
 msgstr "Tous les collecteurs"
@@ -1252,14 +1174,6 @@ msgid "All alerts"
 msgstr "Toutes les alertes"
 
 #: centreon/www/install/front_translate.php
-msgid "All business views"
-msgstr "Toutes les vues métier"
-
-#: centreon/www/install/front_translate.php
-msgid "All business views selected"
-msgstr "Toutes les vues métier sont sélectionnées"
-
-#: centreon/www/install/front_translate.php
 msgid "All checks are disabled"
 msgstr "Tous les contrôles sont désactivés"
 
@@ -1267,50 +1181,9 @@ msgstr "Tous les contrôles sont désactivés"
 msgid "All columns"
 msgstr "Toutes les colonnes"
 
-#: centreon/www/install/front_translate.php
-msgid "All contact groups"
-msgstr "Tous les groupes de contacts"
-
-#: centreon/www/install/front_translate.php
-msgid "All contact groups selected"
-msgstr "Tous les groupes de contacts sont sélectionnés"
-
-#: centreon/www/install/front_translate.php
-msgid "All contacts"
-msgstr "Tous les contacts"
-
-#: centreon/www/install/front_translate.php
-msgid "All contacts selected"
-msgstr "Tous les contacts sont sélectionnés"
-
-#: centreon/www/install/front_translate.php
-msgid "All host groups"
-msgstr "Tous les groupes d'hôtes"
-
-#: centreon/www/install/front_translate.php
-msgid "All host groups selected"
-msgstr "Tous les groupes d'hôtes sont sélectionnés"
-
-#: centreon/www/install/front_translate.php
-msgid "All hosts"
-msgstr "Tous les hôtes"
-
-#: centreon/www/install/front_translate.php
-msgid "All hosts selected"
-msgstr "Tous les hôtes sont sélectionnés"
-
 #: centreon/www/include/options/accessLists/resourcesACL/listsResourcesAccess.php
-#: centreon/www/install/front_translate.php
 msgid "All image folders"
 msgstr "Tous les dossiers d'images"
-
-#: centreon/www/install/front_translate.php
-msgid "All image folders selected"
-msgstr "Tous les dossiers d'images sont sélectionnés"
-
-#: centreon/www/install/front_translate.php
-msgid "All metrics on this service are working fine."
-msgstr "Toutes les métriques de ce service fonctionnent correctement."
 
 #: centreon/www/install/front_translate.php
 msgid "All pages"
@@ -1323,26 +1196,6 @@ msgstr "Tous les collecteurs"
 #: centreon/www/install/front_translate.php
 msgid "All pollers:"
 msgstr "Tous les collecteurs :"
-
-#: centreon/www/install/front_translate.php
-msgid "All resources"
-msgstr "Toutes les ressources"
-
-#: centreon/www/install/front_translate.php
-msgid "All resources selected"
-msgstr "Toutes les ressources sont sélectionnées"
-
-#: centreon/www/install/front_translate.php
-msgid "All service groups"
-msgstr "Tous les groupes de services"
-
-#: centreon/www/install/front_translate.php
-msgid "All service groups selected"
-msgstr "Tous les groupes de services sont sélectionnés"
-
-#: centreon/www/install/front_translate.php
-msgid "All services on this host are working fine."
-msgstr "Tous les services de cet hôtes fonctionnent correctement."
 
 # centreon/www/include/options/session/connected_user.php
 #: centreon/www/include/options/session/connected_user.php
@@ -1385,10 +1238,6 @@ msgstr "Domaine alternatif pour ldap"
 msgid "An additional configuration of type '%s' is already associated with poller ID(s) '%s'"
 msgstr "Une configuration additionnelle de type '%s' est déjà associée à l'ID de collecteur '%s'"
 
-#: centreon/www/install/front_translate.php
-msgid "An agent is a piece of software you install on the host you want to monitor, that executes the checks."
-msgstr "Un agent est un logiciel que vous installez sur l’hôte à superviser, et qui exécute les contrôles."
-
 #: centreon/src/Core/Security/Authentication/Domain/Exception/SSOAuthenticationException.php
 msgid "An error occured while decoding Identity Provider ID Token"
 msgstr "Une erreur s'est produite lors du décodage du jeton d'identification du fournisseur d'identité"
@@ -1402,10 +1251,6 @@ msgstr "Une erreur s'est produite lors de la récupération des informations dé
 #: centreon/www/install/front_translate.php
 msgid "An error occurred"
 msgstr "Une erreur est survenue"
-
-#: centreon/www/install/front_translate.php
-msgid "An error occurred during authentication"
-msgstr "Une erreur est survenue durant l'authentification"
 
 #: centreon/src/Core/Security/Authentication/Application/UseCase/LogoutSession/LogoutSession.php
 msgid "An error occurred during session logout"
@@ -1557,10 +1402,6 @@ msgstr "Au moins une relation d'autorisation est requise"
 msgid "At least one column must be selected"
 msgstr "Au moins une colonne doit être sélectionnée"
 
-#: centreon/www/install/front_translate.php
-msgid "At least one connection mode must be enabled."
-msgstr "Au moins un des modes de connexion doit être activé."
-
 #: centreon/src/Core/ResourceAccess/Application/Exception/RuleException.php
 msgid "At least one contact or contactgroup should be linked to the rule"
 msgstr "Au moins un contact ou un groupe de contacts doit être lié à la règle."
@@ -1579,28 +1420,14 @@ msgstr "Au moins un caractère ne respecte pas la norme RFC dans le nom de domai
 msgid "At least one of the two following fields must be filled"
 msgstr "Au moins l'un des deux champs suivants doit être rempli"
 
-#: centreon/www/install/front_translate.php
-msgid "At least one poller is required"
-msgstr "Au moins un collecteur est requis"
-
-#: centreon/www/install/front_translate.php
-msgid "At least one vCenter is required"
-msgstr "Au moins un vCenter est requis"
-
-#: centreon/www/install/front_translate.php
-msgid "At least three columns must be selected"
-msgstr "Sélectionnez au moins 3 colonnes"
-
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "Attach additional Remote Servers"
 msgstr "Lier à des Remote Server additionnels"
 
-#: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
 msgid "Attach poller to a master remote server"
 msgstr "Attacher un collecteur à un remote server"
 
-#: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
 msgid "Attach poller to additional remote servers"
 msgstr "Attacher un collecteur à des remote servers additionels"
@@ -1643,10 +1470,6 @@ msgstr "Conditions d'authentification"
 msgid "Authentication debug"
 msgstr "Enregistrer les authentifications"
 
-#: centreon/www/install/front_translate.php
-msgid "Authentication denied"
-msgstr "Authentification refusée"
-
 #: centreon/src/Core/Security/Authentication/Domain/Exception/AuthenticationException.php
 #: centreon/www/include/Administration/myAccount/DB-Func.php
 #: centreon/www/include/configuration/configObject/contact/DB-Func.php
@@ -1661,10 +1484,6 @@ msgstr "Mode d'authentification"
 msgid "Authentication properties"
 msgstr "Propriétés d'authentification"
 
-#: centreon/www/install/front_translate.php
-msgid "Authentication token copied to the clipboard"
-msgstr "Jeton copié dans le presse-papiers"
-
 #: centreon/src/Centreon/Domain/Authentication/Exception/AuthenticationException.php
 msgid "Authentication token expired"
 msgstr "Le jeton d'authentification a expiré"
@@ -1672,10 +1491,6 @@ msgstr "Le jeton d'authentification a expiré"
 #: centreon/src/Centreon/Domain/Authentication/Exception/AuthenticationException.php
 msgid "Authentication token not found"
 msgstr "Jeton d'authentification non trouvé"
-
-#: centreon/www/install/front_translate.php
-msgid "Authentication tokens"
-msgstr "Jetons d'authentification"
 
 #: centreon/www/include/monitoring/acknowlegement/xml/broker/makeXMLForAck.php
 #: centreon/www/include/monitoring/downtime/listDowntime.php
@@ -2085,10 +1900,6 @@ msgstr "Vues métier"
 msgid "Business Views events"
 msgstr "Évènements des Vues Métier"
 
-#: centreon/www/install/front_translate.php
-msgid "Business view"
-msgstr "Vue métier"
-
 #: centreon/www/install/step_upgrade/step4.php
 msgid "But do not edit the SQL files unless you know what you are doing.Refresh this page when the problem is fixed."
 msgstr "N'éditez pas les fichiers SQL à moins que vous sachiez ce que vous faites. Rafraichissez cette page une fois le problème résolu."
@@ -2141,10 +1952,6 @@ msgstr "Par groupe de services"
 msgid "By Status"
 msgstr "Par statut"
 
-#: centreon/www/install/front_translate.php
-msgid "By agent"
-msgstr "Par l’agent"
-
 #: centreon/www/install/dashboard_widgets.php
 msgid "By default, the data of Business Views is aggregated monthly over the past 12 months (if available)."
 msgstr "Par défaut, les données des vues métier sont agrégées mensuellement sur les 12 derniers mois (si disponibles)."
@@ -2156,22 +1963,6 @@ msgstr "En exécutant ce script, votre plateforme sera verrouillée and vous ne 
 #: centreon/www/install/dashboard_widgets.php
 msgid "By name"
 msgstr "Par nom"
-
-#: centreon/www/install/front_translate.php
-msgid "By poller"
-msgstr "Par le collecteur"
-
-#: centreon/www/install/front_translate.php
-msgid "CA (.crt, .cert, .cer)"
-msgstr "CA (.crt, .cert, .cer)"
-
-#: centreon/www/install/front_translate.php
-msgid "CA Common Name (CN)"
-msgstr "Nom commun CA (CN)"
-
-#: centreon/www/install/front_translate.php
-msgid "CMA authentication token(s)"
-msgstr "Jeton(s) d'authentification CMA"
 
 #: centreon/www/include/monitoring/status/Services/xml/makeXMLForOneService.php
 #: centreon/www/include/reporting/dashboard/xmlInformations/initXmlFeed.php
@@ -2206,10 +1997,6 @@ msgstr "Contrôle de service en cache"
 #: centreon/www/include/configuration/configObject/meta_service/listMetaService.php
 msgid "Calculation Type"
 msgstr "Type de calcul"
-
-#: centreon/www/install/front_translate.php
-msgid "Calculation method"
-msgstr "Méthode de calcul"
 
 #: centreon/src/Centreon/Domain/MetaServiceConfiguration/Model/MetaServiceConfiguration.php
 #: centreon/tests/php/Centreon/Domain/MetaServiceConfiguration/Model/MetaServiceConfigurationTest.php
@@ -2283,10 +2070,6 @@ msgstr "Impossible de récupérer la version de Centreon"
 #: centreon/www/install/steps/process/insertBaseConf.php
 msgid "Cannot get timezone information"
 msgstr "Impossible de récupérer le fuseau horaire"
-
-#: centreon/www/install/front_translate.php
-msgid "Cannot load module"
-msgstr "Impossible de charger le module"
 
 #: centreon/www/include/Administration/brokerPerformance/brokerPerformance.php
 msgid "Cannot open statistics file"
@@ -2419,7 +2202,6 @@ msgstr "Le répertoire '%s' de configuration de Centreon Broker n'existe pas et 
 msgid "Centreon Central address, as seen by this poller"
 msgstr "Adresse du Central Centreon, telle que vue par ce collecteur"
 
-#: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
 msgid "Centreon Central address, as seen by this server"
 msgstr "Adresse du Central Centreon, telle que vue par ce serveur"
@@ -2449,10 +2231,6 @@ msgstr "Installation de Centreon"
 msgid "Centreon Logo"
 msgstr "Logo de Centreon"
 
-#: centreon/www/install/front_translate.php
-msgid "Centreon Monitoring Agent"
-msgstr "Agent de supervision Centreon"
-
 #: centreon/www/install/smarty_translate.php
 msgid "Centreon Storage Path"
 msgstr "Chemin du stockage Centreon"
@@ -2477,7 +2255,6 @@ msgstr "Interface Centreon uniquement"
 msgid "Centreon Upgrade"
 msgstr "Mise à jour de Centreon"
 
-#: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
 msgid "Centreon Web Folder on Remote"
 msgstr "Dossier Centreon web sur le serveur distant"
@@ -2498,10 +2275,6 @@ msgstr "Informations sur Centreon"
 #: centreon/www/install/front_translate.php
 msgid "Centreon is loading..."
 msgstr "Centreon est en cours de chargement..."
-
-#: centreon/www/install/front_translate.php
-msgid "Centreon wallpaper"
-msgstr "Arrière-plan Centreon"
 
 #: centreon/www/include/configuration/configCentreonBroker/formCentreonBroker.php
 msgid "Centreon-Broker "
@@ -2654,10 +2427,6 @@ msgid "Check command sent ! Please refresh the listing to update the data."
 msgstr "Commande de contrôle envoyée ! Veuillez actualiser le tableau pour mettre à jour les données."
 
 #: centreon/www/install/front_translate.php
-msgid "Check command sent!"
-msgstr "Commande de vérification envoyée !"
-
-#: centreon/www/install/front_translate.php
 msgid "Check duration"
 msgstr "Temps d'exécution"
 
@@ -2728,7 +2497,6 @@ msgstr "Veuillez choisir une durée entre 1 heure et 1 semaine"
 msgid "Choose a duration between 7 days and 12 months"
 msgstr "Veuillez choisir une durée entre 7 jours et 12 mois"
 
-#: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
 msgid "Choose a server type"
 msgstr "Choisissez un type de serveur"
@@ -2752,10 +2520,6 @@ msgstr "Veuillez sélectionner au moins 1 ressource"
 #: centreon/www/install/front_translate.php
 msgid "Choose at least 1 service group"
 msgstr "Veuillez sélectionner au moins 1 groupe de services"
-
-#: centreon/www/install/front_translate.php
-msgid "Choose at least one contact or contact group"
-msgstr "Choisissez au moins un contact ou groupe de contacts"
 
 #: centreon/www/install/front_translate.php
 msgid "Choose letter cases"
@@ -2815,10 +2579,6 @@ msgid "Clear filter"
 msgstr "Effacer le filtre"
 
 #: centreon/www/install/front_translate.php
-msgid "Click here for details"
-msgstr "Cliquez ici pour les détails"
-
-#: centreon/www/install/front_translate.php
 msgid "Click to generate the command. Once it's ready, copy it and run it in your environment."
 msgstr "Cliquez pour générer la commande. Une fois prête, copiez-la et exécutez-la dans votre environnement."
 
@@ -2848,10 +2608,6 @@ msgid "Close"
 msgstr "Fermer"
 
 #: centreon/www/install/front_translate.php
-msgid "Close a ticket"
-msgstr "Fermer un ticket"
-
-#: centreon/www/install/front_translate.php
 msgid "Close edit modal"
 msgstr "Fermer la fenêtre d'édition"
 
@@ -2859,17 +2615,9 @@ msgstr "Fermer la fenêtre d'édition"
 msgid "Close the panel"
 msgstr "Fermer le panneau"
 
-#: centreon/www/install/front_translate.php
-msgid "Close ticket"
-msgstr "Fermer le ticket"
-
 #: centreon/www/include/Administration/parameters/general/form.php
 msgid "Closest Value"
 msgstr "Valeur la plus proche"
-
-#: centreon/www/install/front_translate.php
-msgid "Collapse"
-msgstr "Réduire"
 
 #: centreon/www/install/front_translate.php
 msgid "Collapse information panel"
@@ -2911,10 +2659,6 @@ msgstr "Commande copiée"
 #: centreon/www/install/front_translate.php
 msgid "Command copied to clipboard"
 msgstr "Commande copiée dans le presse-papier"
-
-#: centreon/www/install/front_translate.php
-msgid "Command copied!"
-msgstr "Commande copiée !"
 
 #: centreon/www/include/monitoring/external_cmd/functions.php
 msgid "Command execution problem"
@@ -3251,10 +2995,6 @@ msgid "Configuration name"
 msgstr "Nom de la configuration"
 
 #: centreon/www/install/front_translate.php
-msgid "Configuration provider"
-msgstr "Fournisseur de configuration"
-
-#: centreon/www/install/front_translate.php
 msgid "Configure"
 msgstr "Configurer"
 
@@ -3288,10 +3028,6 @@ msgstr "Configurez les hôtes supervisés par votre plateforme."
 msgid "Configure the services monitored on your hosts"
 msgstr "Configurez les services supervisés sur vos hôtes"
 
-#: centreon/www/install/front_translate.php
-msgid "Confirm"
-msgstr "Confirmer"
-
 #: centreon/www/include/Administration/myAccount/formMyAccount.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "Confirm Password"
@@ -3314,10 +3050,6 @@ msgstr "Confirmer le mot de passe de l'utilisateur"
 msgid "Congratulations, you have successfully upgraded to Centreon version <b>%s</b>."
 msgstr "Félicitations, vous avez mis à jour avec succès Centreon en version <b>%s</b>."
 
-#: centreon/www/install/front_translate.php
-msgid "Connect"
-msgstr "Se connecter"
-
 #: centreon/www/include/options/accessLists/reloadACL/reloadACL.php
 msgid "Connected users"
 msgstr "Utilisateurs connectés"
@@ -3329,10 +3061,6 @@ msgstr "Connexion réussie"
 #: centreon/www/class/centreonDB.class.php
 msgid "Connection failed, please contact your administrator"
 msgstr "Connexion échouée, contactez votre administrateur"
-
-#: centreon/www/install/front_translate.php
-msgid "Connection initiated"
-msgstr "Connexion initiée"
 
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Connection port"
@@ -3373,7 +3101,6 @@ msgid "Contact Group Name"
 msgstr "Nom du groupe de contacts"
 
 #: centreon/www/include/options/accessLists/groupsACL/listGroupConfig.php
-#: centreon/www/install/front_translate.php
 #: centreon/www/install/menu_translation.php
 msgid "Contact Groups"
 msgstr "Groupes de contacts"
@@ -3480,10 +3207,6 @@ msgid "Contacts with the 'Reach Centreon Front-end' option enabled"
 msgstr "Contacts autorisés à se connecter à l'interface web"
 
 #: centreon/www/install/front_translate.php
-msgid "Contacts/Contact groups"
-msgstr "Contacts/Groupes de contacts"
-
-#: centreon/www/install/front_translate.php
 msgid "Container"
 msgstr "Conteneur"
 
@@ -3515,10 +3238,6 @@ msgstr "Copier le lien de connexion automatique"
 #: centreon/www/install/front_translate.php
 msgid "Copy breadcrumb"
 msgstr "Copier le fil d'Ariane"
-
-#: centreon/www/install/front_translate.php
-msgid "Copy command"
-msgstr "Copier la commande"
 
 #: centreon/www/install/smarty_translate.php
 msgid "Copy installation command"
@@ -3614,20 +3333,12 @@ msgid "Create a host template"
 msgstr "Créer un modèle d'hôte"
 
 #: centreon/www/install/front_translate.php
-msgid "Create a new resource access rule"
-msgstr "Créer une nouvelle règle d'accès aux ressources"
-
-#: centreon/www/install/front_translate.php
 msgid "Create a notification rule"
 msgstr "Créer une règle de notification"
 
 #: centreon/www/install/front_translate.php
 msgid "Create a service"
 msgstr "Créer un service"
-
-#: centreon/www/install/front_translate.php
-msgid "Create a ticket"
-msgstr "Créer un ticket"
 
 #: centreon/www/install/smarty_translate.php
 msgid "Create a view"
@@ -3638,26 +3349,9 @@ msgid "Create and edit pollers"
 msgstr "Créer et modifier des collecteurs"
 
 #: centreon/www/install/front_translate.php
-msgid "Create authentication token"
-msgstr "Créer un jeton d'authentification"
-
-#: centreon/www/install/front_translate.php
 msgid "Create dashboard"
 msgstr "Créer un tableau de bord"
 
-#: centreon/www/install/front_translate.php
-msgid "Create hosts automatically"
-msgstr "Créer les hôtes automatiquement"
-
-#: centreon/www/install/front_translate.php
-msgid "Create new CMA token"
-msgstr "Créer un nouveau jeton CMA"
-
-#: centreon/www/install/front_translate.php
-msgid "Create new Poller"
-msgstr "Créer un nouveau collecteur"
-
-#: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
 msgid "Create new Remote Server"
 msgstr "Créer un nouveau serveur distant"
@@ -3678,7 +3372,6 @@ msgstr "Créer une notification pour la première fois"
 msgid "Create wiki page"
 msgstr "Créer une page"
 
-#: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
 msgid "Creating Export Task"
 msgstr "Création d'une tâche d'exportation"
@@ -3731,10 +3424,6 @@ msgstr "Critique"
 #: centreon/www/include/views/componentTemplates/formComponentTemplate.php
 msgid "Critical Area color"
 msgstr "Couleur de la surface Critique"
-
-#: centreon/www/install/front_translate.php
-msgid "Critical KPIs"
-msgstr "Indicateurs critiques"
 
 #: centreon/www/include/configuration/configObject/meta_service/formMetaService.php
 #: centreon/www/include/configuration/configObject/meta_service/listMetaService.php
@@ -3861,10 +3550,6 @@ msgid "Custom refresh interval"
 msgstr "Intervalle de rafraîchissement personnalisé"
 
 #: centreon/www/install/front_translate.php
-msgid "Custom value"
-msgstr "Valeur personnalisée"
-
-#: centreon/www/install/front_translate.php
 msgid "Customize"
 msgstr "Personnaliser"
 
@@ -3896,10 +3581,6 @@ msgstr "Utilisateur pour se connecter à la base de données"
 #: centreon/www/include/views/virtualMetrics/listVirtualMetrics.php
 msgid "DEF Type"
 msgstr "Type DEF"
-
-#: centreon/www/install/front_translate.php
-msgid "DNS/IP"
-msgstr "DNS/IP"
 
 #: centreon/www/include/monitoring/status/Services/xml/makeXMLForOneHost.php
 #: centreon/www/include/reporting/dashboard/csvExport/csv_HostGroupLogs.php
@@ -4053,7 +3734,6 @@ msgstr "Information de la base de données"
 msgid "Database issue"
 msgstr "Incident sur la base de données"
 
-#: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
 msgid "Database password"
 msgstr "Mot de passe de l'utilisateur ayant accès à la base de données"
@@ -4066,7 +3746,6 @@ msgstr "Nom de l'utilisateur ayant accès à la base de données"
 msgid "Database user password"
 msgstr "Mot de passe de l'utilisateur de la base de données"
 
-#: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
 msgid "Database username"
 msgstr "Nom de l'utilisateur ayant accès à la base de données"
@@ -4295,14 +3974,6 @@ msgid "Delete View"
 msgstr "Supprimer une vue"
 
 #: centreon/www/install/front_translate.php
-msgid "Delete additional configuration"
-msgstr "Supprimer la configuration additionnelle"
-
-#: centreon/www/install/front_translate.php
-msgid "Delete agent configuration"
-msgstr "Supprimer une configuration d'agent"
-
-#: centreon/www/install/front_translate.php
 msgid "Delete dashboard"
 msgstr "Supprimer le tableau de bord"
 
@@ -4316,36 +3987,16 @@ msgid "Delete graphs"
 msgstr "Supprimer des graphiques"
 
 #: centreon/www/install/front_translate.php
-msgid "Delete multiple resource access rules"
-msgstr "Supprimer plusieurs règles d'accès aux ressources"
-
-#: centreon/www/install/front_translate.php
 msgid "Delete notification rule?"
 msgstr "Supprimer la règle de notification ?"
-
-#: centreon/www/install/front_translate.php
-msgid "Delete poller"
-msgstr "Supprimer un collecteur"
 
 #: centreon/www/include/options/accessLists/actionsACL/formActionsAccess.php
 msgid "Delete pollers"
 msgstr "Supprimer des collecteurs"
 
 #: centreon/www/install/front_translate.php
-msgid "Delete rule"
-msgstr "Supprimer la règle"
-
-#: centreon/www/install/front_translate.php
-msgid "Delete rules"
-msgstr "Supprimer les règles"
-
-#: centreon/www/install/front_translate.php
 msgid "Delete the relation"
 msgstr "Supprimer la relation"
-
-#: centreon/www/install/front_translate.php
-msgid "Delete token"
-msgstr "Supprimer le jeton"
 
 #: centreon/www/install/front_translate.php
 msgid "Delete user"
@@ -4606,10 +4257,6 @@ msgstr "Désactiver toutes les notifications de service pour cet hôte"
 #: centreon/www/install/front_translate.php
 msgid "Disable autorefresh"
 msgstr "Désactiver l'actualisation automatique"
-
-#: centreon/www/install/front_translate.php
-msgid "Disable token"
-msgstr "Désactiver le jeton"
 
 #: centreon/www/install/front_translate.php
 msgid "Disable verify peer"
@@ -4873,10 +4520,6 @@ msgid "Display ticket creation buttons"
 msgstr "Afficher les boutons de création de tickets"
 
 #: centreon/www/install/front_translate.php
-msgid "Display up to"
-msgstr "Afficher jusqu'à"
-
-#: centreon/www/install/front_translate.php
 msgid "Display view:"
 msgstr "Afficher la vue :"
 
@@ -4961,12 +4604,10 @@ msgid "Dissociate this view ?"
 msgstr "Supprimer l'associatino de cette vue ?"
 
 #: centreon/www/include/configuration/configServers/formServers.php
-#: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
 msgid "Do not check SSL certificate validation"
 msgstr "Ne pas vérifier la validation du certificat SSL"
 
-#: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
 msgid "Do not use configured proxy to connect to this server"
 msgstr "Ne pas utiliser le proxy configuré pour se connecter à ce serveur"
@@ -5082,10 +4723,6 @@ msgid "Do you want to quit the form without saving the changes?"
 msgstr "Souhaitez-vous quitter le formulaire sans enregistrer les modifications ?"
 
 #: centreon/www/install/front_translate.php
-msgid "Do you want to quit without saving the changes?"
-msgstr "Voulez-vous quitter sans enregistrer les modifications ?"
-
-#: centreon/www/install/front_translate.php
 msgid "Do you want to reset the form?"
 msgstr "Voulez-vous réinitialiser le formulaire ?"
 
@@ -5111,10 +4748,6 @@ msgstr "Documentation"
 #: centreon/www/install/front_translate.php
 msgid "Documentation & guides"
 msgstr "Documentation et guides"
-
-#: centreon/www/install/front_translate.php
-msgid "Done"
-msgstr "Terminé"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Donut chart"
@@ -5149,14 +4782,6 @@ msgstr "Indisponible (Temps connu)"
 #: centreon/www/install/front_translate.php
 msgid "Down status hosts"
 msgstr "Hôtes au statut Indisponible"
-
-#: centreon/www/install/front_translate.php
-msgid "Download"
-msgstr "Télécharger"
-
-#: centreon/www/install/front_translate.php
-msgid "Download the script"
-msgstr "Télécharger le script"
 
 #: centreon/src/Core/Metric/Application/Exception/MetricException.php
 msgid "Downloading the performance metrics is not allowed"
@@ -5344,10 +4969,6 @@ msgid "Edit anomaly detection data"
 msgstr "Modifier les données de détection d'anomalie"
 
 #: centreon/www/install/front_translate.php
-msgid "Edit connector configuration"
-msgstr "Modifier la configuration de connecteur"
-
-#: centreon/www/install/front_translate.php
 msgid "Edit dashboard"
 msgstr "Éditer le tableau de bord"
 
@@ -5364,10 +4985,6 @@ msgid "Edit name"
 msgstr "Modifier le nom"
 
 #: centreon/www/install/front_translate.php
-msgid "Edit password"
-msgstr "Modifier le mot de passe"
-
-#: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
 msgid "Edit profile"
 msgstr "Editer le profil"
@@ -5375,10 +4992,6 @@ msgstr "Editer le profil"
 #: centreon/www/install/front_translate.php
 msgid "Edit properties"
 msgstr "Éditer les propriétés"
-
-#: centreon/www/install/front_translate.php
-msgid "Edit resource access rule"
-msgstr "Modifier la règle d'accès aux ressources"
 
 #: centreon/www/install/smarty_translate.php
 msgid "Edit view"
@@ -5633,10 +5246,6 @@ msgid "Enable ticket management"
 msgstr "Activer la gestion des tickets"
 
 #: centreon/www/install/front_translate.php
-msgid "Enable token"
-msgstr "Activer le jeton"
-
-#: centreon/www/install/front_translate.php
 msgid "Enable/Disable"
 msgstr "Activer / Désactiver"
 
@@ -5792,10 +5401,6 @@ msgid "Enabled hosts"
 msgstr "Hôtes activés"
 
 #: centreon/www/install/front_translate.php
-msgid "Encryption level"
-msgstr "Niveau de chiffrement"
-
-#: centreon/www/install/front_translate.php
 #: centreon/www/widgets/host-monitoring/src/action.php
 #: centreon/www/widgets/service-monitoring/src/action.php
 msgid "End"
@@ -5823,10 +5428,6 @@ msgstr "Point d'entrée de fin de session"
 #: centreon/www/install/front_translate.php
 msgid "End time"
 msgstr "Heure de fin"
-
-#: centreon/www/install/front_translate.php
-msgid "Ends at"
-msgstr "Se termine à"
 
 #: centreon/www/include/Administration/configChangelog/viewLogs.php
 msgid "Engine"
@@ -6938,10 +6539,6 @@ msgid "Execute special command"
 msgstr "Executer une commande spéciale"
 
 #: centreon/www/install/front_translate.php
-msgid "Execute the script"
-msgstr "Exécuter le script"
-
-#: centreon/www/install/front_translate.php
 msgid "Execute this script as root on the central."
 msgstr "Exécuter ce script en tant que root sur le serveur central."
 
@@ -6992,10 +6589,6 @@ msgid "Existing or new directory"
 msgstr "Nouveau dossier ou dossier existant"
 
 #: centreon/www/install/front_translate.php
-msgid "Exit"
-msgstr "Quitter"
-
-#: centreon/www/install/front_translate.php
 msgid "Exit edition mode"
 msgstr "Quitter le mode édition"
 
@@ -7014,10 +6607,6 @@ msgstr "Agrandir"
 #: centreon/www/install/front_translate.php
 msgid "Expand information panel"
 msgstr "Agrandir le panneau d'informations"
-
-#: centreon/www/install/front_translate.php
-msgid "Expiration date"
-msgstr "Date d'expiration"
 
 #: centreon/www/include/configuration/configGenerate/formGenerateFiles.php
 #: centreon/www/install/front_translate.php
@@ -7051,10 +6640,6 @@ msgstr "Exporter en tant que"
 msgid "Export configuration"
 msgstr "Exporter la configuration"
 
-#: centreon/www/install/front_translate.php
-msgid "Export generation timeout"
-msgstr "Expiration du délai de génération de l'export"
-
 #: centreon/www/include/reporting/dashboard/viewHostGroupLog.php
 #: centreon/www/include/reporting/dashboard/viewHostLog.php
 #: centreon/www/include/reporting/dashboard/viewServicesGroupLog.php
@@ -7087,10 +6672,6 @@ msgid "Exporting and reloading the configuration. Please wait..."
 msgstr "La configuration est en train d'être exportée et rechargée. Veuillez patienter ..."
 
 #: centreon/www/install/front_translate.php
-msgid "Expression in"
-msgstr "Expression en"
-
-#: centreon/www/install/front_translate.php
 msgid "Extended"
 msgstr "Étendu"
 
@@ -7114,10 +6695,6 @@ msgstr "Informations supplémentaires"
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
 msgid "Extended status information"
 msgstr "Informations d'état étendues"
-
-#: centreon/www/install/front_translate.php
-msgid "Extension not allowed"
-msgstr "Extension non autorisée"
 
 #: centreon/www/install/menu_translation.php
 msgid "Extensions"
@@ -7178,10 +6755,6 @@ msgid "Failed to copy link"
 msgstr "Échec de la copie du lien"
 
 #: centreon/www/install/front_translate.php
-msgid "Failed to copy the command!"
-msgstr "Échec de la copie de la commande !"
-
-#: centreon/www/install/front_translate.php
 msgid "Failed to create poller"
 msgstr "Échec de la création du collecteur"
 
@@ -7206,16 +6779,8 @@ msgid "Failed to delete the notifications"
 msgstr "Les notifications n'ont pas pu être supprimées"
 
 #: centreon/www/install/front_translate.php
-msgid "Failed to delete the resource access rule"
-msgstr "La règle d'accès aux ressources n'a pas pu être supprimée"
-
-#: centreon/www/install/front_translate.php
 msgid "Failed to delete the selected notifications"
 msgstr "Échec de la suppression des notifications sélectionnées"
-
-#: centreon/www/install/front_translate.php
-msgid "Failed to delete the selected resource access rules"
-msgstr "Échec de la suppression des règles d'accès aux ressources sélectionnées"
 
 #: centreon/www/install/front_translate.php
 msgid "Failed to disable"
@@ -7232,10 +6797,6 @@ msgstr "Échec de la duplication du tableau de bord"
 #: centreon/www/install/front_translate.php
 msgid "Failed to duplicate the notification"
 msgstr "Échec de la duplication de la notification"
-
-#: centreon/www/install/front_translate.php
-msgid "Failed to duplicate the resource access rule"
-msgstr "Échec de la duplication de la règle d'accès aux ressources"
 
 #: centreon/www/install/front_translate.php
 msgid "Failed to enable"
@@ -7420,7 +6981,6 @@ msgstr "Filtre actualisé"
 msgid "Filters"
 msgstr "Filtres"
 
-#: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
 msgid "Finalizing Setup"
 msgstr "Finalisation de la configuration"
@@ -7533,14 +7093,6 @@ msgstr "Les modules suivants doivent être supprimés : %s"
 msgid "For further details on changes, please find the complete changelog on "
 msgstr "Pour plus d'informations, consultez les notes de version sur "
 
-#: centreon/www/install/front_translate.php
-msgid "For security reasons, the token can only be displayed once. Remember to store it well."
-msgstr "Pour des raisons de sécurité, le jeton ne peut être affiché qu'une seule fois. Pensez à bien le stocker."
-
-#: centreon/www/install/front_translate.php
-msgid "For some connectors, you must define on the poller the credentials required to access the monitored hosts. You can do it easily from here."
-msgstr "Pour certains connecteurs, vous devez définir sur le collecteur les identifiants nécessaires pour accéder aux hôtes supervisés. Vous pouvez le faire facilement depuis cette page."
-
 #: centreon/www/include/Administration/parameters/engine/form.php
 msgid "Force Active Checks"
 msgstr "Forcer les contrôles actifs"
@@ -7567,10 +7119,6 @@ msgstr "Commande de vérification forcée envoyée"
 #: centreon/www/install/front_translate.php
 msgid "Forced check command sent ! Please refresh the listing to update the data."
 msgstr "Commande de vérification forcée envoyée ! Veuillez actualiser le tableau pour mettre à jour les données."
-
-#: centreon/www/install/front_translate.php
-msgid "Forced check command sent!"
-msgstr "Commande de vérification forcée envoyée !"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Forecast based on past X days"
@@ -7762,19 +7310,10 @@ msgstr "Générer la configuration des traps SNMP"
 msgid "Generate installation command"
 msgstr "Générez la commande d'installation"
 
-#: centreon/www/install/front_translate.php
-msgid "Generate token"
-msgstr "Générer un jeton"
-
 #: centreon/www/include/configuration/configGenerateTraps/formGenerateTraps.php
 msgid "Generate trap database "
 msgstr "Générer la base de définition des traps SNMP "
 
-#: centreon/www/install/front_translate.php
-msgid "Generate your CMA installation command"
-msgstr "Générez votre commande d'installation CMA"
-
-#: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
 msgid "Generating Export Files"
 msgstr "Génération de fichiers d'exportation"
@@ -8044,10 +7583,6 @@ msgstr "États validés (Hard) seulement"
 #: centreon/www/include/monitoring/status/Services/xml/serviceXML.php
 msgid "Hard State Duration"
 msgstr "Validé depuis"
-
-#: centreon/www/install/front_translate.php
-msgid "Health"
-msgstr "Santé"
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Heartbeat Interval"
@@ -8931,10 +8466,6 @@ msgstr "Si pas de correspondance, ne pas envoyer le résultat"
 msgid "If no match, submit default status"
 msgstr "Si pas de correspondance, envoyer le résultat par défaut"
 
-#: centreon/www/install/front_translate.php
-msgid "If the agent is not allowed to connect to the poller for security reasons (e.g. when the poller is in a DMZ), you can use a poller-initiated connection."
-msgstr "Si l’agent n’est pas autorisé à se connecter au collecteur pour des raisons de sécurité (par exemple si le collecteur est en DMZ), vous pouvez utiliser une connexion initiée par le collecteur."
-
 # centreon/www/include/configuration/configObject/contact/listContact.php
 #: centreon/www/include/configuration/configObject/contact/listContact.php
 msgid "If the contact is connected, all his instances will be closed. Are you sure you want to request a data synchronization at the next login of this Contact ?"
@@ -9002,7 +8533,6 @@ msgid "Image Type"
 msgstr "Type d'image"
 
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
-#: centreon/www/install/front_translate.php
 msgid "Image folders"
 msgstr "Dossiers d'images"
 
@@ -9014,10 +8544,6 @@ msgstr "Image ou archive"
 #: centreon/www/install/menu_translation.php
 msgid "Images"
 msgstr "Images"
-
-#: centreon/www/install/front_translate.php
-msgid "Impact applied when:"
-msgstr "Impact appliqué quand :"
 
 #: centreon/www/install/smarty_translate.php
 msgid "Impacted Resources"
@@ -9138,7 +8664,6 @@ msgstr "Type de ressource incorrect : %s"
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
-#: centreon/www/install/front_translate.php
 msgid "Incremental"
 msgstr "Incrémentale"
 
@@ -9197,10 +8722,6 @@ msgstr "Entrée/sortie #%d introuvable pour la configuration Broker #%d"
 #: centreon/www/include/configuration/configCentreonBroker/listCentreonBroker.php
 msgid "Inputs"
 msgstr "Entrées"
-
-#: centreon/www/install/front_translate.php
-msgid "Insecure TLS"
-msgstr "TLS non sécurisé"
 
 #: centreon/www/install/front_translate.php
 msgid "Insert"
@@ -9301,10 +8822,6 @@ msgstr "Conditions d'authentification du fournisseur non valides"
 msgid "Invalid URL"
 msgstr "URL invalide"
 
-#: centreon/www/install/front_translate.php
-msgid "Invalid address"
-msgstr "Adresse invalide"
-
 #: centreon/src/Core/AdditionalConnectorConfiguration/Application/Exception/AccException.php
 #, php-format
 msgid "Invalid argument for '%s', expected type: %s"
@@ -9334,16 +8851,8 @@ msgid "Invalid event provided (%s)"
 msgstr "Evénement fourni invalide (%s)"
 
 #: centreon/www/install/front_translate.php
-msgid "Invalid extension"
-msgstr "Extension invalide"
-
-#: centreon/www/install/front_translate.php
 msgid "Invalid file type"
 msgstr "Type de fichier invalide"
-
-#: centreon/www/install/front_translate.php
-msgid "Invalid filename"
-msgstr "Nom de fichier invalide"
 
 #: centreon/www/install/front_translate.php
 msgid "Invalid format"
@@ -9385,14 +8894,6 @@ msgstr "Option de notification (%d) invalide"
 #, php-format
 msgid "Invalid page name. Valid page names are: %s"
 msgstr "Nom de page invalide. Les noms de page valides sont : %s"
-
-#: centreon/www/install/front_translate.php
-msgid "Invalid path"
-msgstr "Chemin invalide"
-
-#: centreon/www/install/front_translate.php
-msgid "Invalid port number"
-msgstr "Numéro de port invalide"
 
 #: centreon/www/install/front_translate.php
 msgid "Invalid regex"
@@ -9451,10 +8952,6 @@ msgstr "URL de l'émetteur (Entity ID)"
 #: centreon/www/install/step_upgrade/step1.php
 msgid "It is strongly recommended to make a backup of your databases before going any further."
 msgstr "Il est fortement recommandé de faire une sauvegarde de vos bases de données avant d'aller plus loin."
-
-#: centreon/www/install/front_translate.php
-msgid "It will be permanently deleted and users will no longer have this permission."
-msgstr "La règle sera définitivement supprimée et les utilisateurs ne disposeront plus de cette autorisation."
 
 #: centreon/www/install/front_translate.php
 msgid "It's possible to specify the criteria you precisely want to search, by using the following syntax:"
@@ -10078,10 +9575,6 @@ msgstr "Liens"
 msgid "Links Management"
 msgstr "Gestion des liaisons"
 
-#: centreon/www/install/front_translate.php
-msgid "Linux"
-msgstr "Linux"
-
 #: centreon/www/include/configuration/configNagios/formNagios.php
 #: centreon/www/include/configuration/configResources/formResources.php
 #: centreon/www/include/options/accessLists/groupsACL/formGroupConfig.php
@@ -10097,6 +9590,10 @@ msgstr "Adresse d'écoute (optionnel)"
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Listening port"
 msgstr "Port d'écoute"
+
+#: centreon/www/install/front_translate.php
+msgid "Lists set to Replace will overwrite the corresponding lists of all selected services. If you leave a list set to Replace blank, its existing entries will be deleted from all selected services. Entries you don't have access to are unaffected."
+msgstr "Les listes en mode Remplacer écraseront les listes correspondantes de tous les services sélectionnés. Si vous laissez vide une liste en mode Remplacer, ses entrées existantes seront supprimées de tous les services sélectionnés. Les entrées auxquelles vous n'avez pas accès ne sont pas modifiées."
 
 #: centreon/www/include/home/customViews/formLoad.php
 msgid "Load a public view"
@@ -10199,7 +9696,6 @@ msgstr "Options des logs"
 msgid "Logging level"
 msgstr "Niveau de journalisation"
 
-#: centreon/www/install/front_translate.php
 #: centreon/www/install/smarty_translate.php
 msgid "Login"
 msgstr "Connexion"
@@ -10215,14 +9711,6 @@ msgstr "Chemin de l'attribut d'identifiant"
 #: centreon/www/install/front_translate.php
 msgid "Login header attribute name"
 msgstr "Nom d'attribut d'en-tête de login"
-
-#: centreon/www/install/front_translate.php
-msgid "Login succeeded"
-msgstr "Connexion réussie"
-
-#: centreon/www/install/front_translate.php
-msgid "Login with"
-msgstr "Se connecter avec"
 
 #: centreon/www/include/common/mobile_menu.php
 #: centreon/www/install/front_translate.php
@@ -10252,10 +9740,6 @@ msgstr "Répertoire d'enregistrement des journaux"
 #: centreon/www/include/Administration/configChangelog/viewLogs.php
 msgid "Logs for "
 msgstr "Logs pour "
-
-#: centreon/www/install/front_translate.php
-msgid "Lost in space?"
-msgstr "Perdu(e) dans l'espace ?"
 
 #: centreon/www/include/configuration/configObject/contact/ldapImportContact.php
 msgid "Lotus Domino :"
@@ -10685,10 +10169,6 @@ msgstr "Méta-Service"
 msgid "Meta-service dependency"
 msgstr "Dépendance de méta-services"
 
-#: centreon/www/install/front_translate.php
-msgid "Metaservice"
-msgstr "Métaservice"
-
 #: centreon/www/include/configuration/configGenerate/formGenerateFiles.php
 msgid "Method"
 msgstr "Méthode"
@@ -10711,10 +10191,6 @@ msgstr "Unité de la métrique / courbe"
 #: centreon/www/install/dashboard_widgets.php
 msgid "Metric capacity planning"
 msgstr "Metric capacity planning"
-
-#: centreon/www/install/front_translate.php
-msgid "Metric name"
-msgstr "Nom de la métrique"
 
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Metric naming"
@@ -11090,10 +10566,6 @@ msgstr "Modifier une escalade"
 msgid "Modify an Extended Info"
 msgstr "Modifier une information supplémentaire"
 
-#: centreon/www/install/front_translate.php
-msgid "Modify an additional configuration"
-msgstr "Modifier une configuration additionnelle"
-
 #: centreon/www/include/options/media/images/formDirectory.php
 msgid "Modify directory"
 msgstr "Modifier le répertoire"
@@ -11142,10 +10614,6 @@ msgstr "Installation des modules"
 #: centreon/www/include/monitoring/recurrentDowntime/formDowntime.php
 msgid "Monday"
 msgstr "Lundi"
-
-#: centreon/www/install/front_translate.php
-msgid "Monitored hosts"
-msgstr "Hôtes supervisés"
 
 #: centreon/www/install/menu_translation.php
 msgid "Monitoring"
@@ -11332,10 +10800,6 @@ msgstr "Plus d'actions..."
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "More detailed information"
 msgstr "Informations détaillées"
-
-#: centreon/www/install/front_translate.php
-msgid "More filters"
-msgstr "Plus de filtres"
 
 #: centreon/www/install/front_translate.php
 msgid "More than 1,000 resources match your search. Click to compute the exact count."
@@ -11540,10 +11004,6 @@ msgstr "Besoin d'aide pour utiliser la barre de recherche?"
 msgid "Never Started"
 msgstr "Jamais démarré"
 
-#: centreon/www/install/front_translate.php
-msgid "Never expire"
-msgstr "N'expire jamais"
-
 #: centreon/www/include/options/media/images/syncDir.php
 msgid "New directory added :"
 msgstr "Nouveaux répertoires ajoutés :"
@@ -11571,10 +11031,6 @@ msgstr "Les nouveaux mots de passe doivent correspondre"
 #: centreon/www/include/Administration/myAccount/formMyAccount.php
 msgid "New version"
 msgstr "Nouvelle version"
-
-#: centreon/www/install/front_translate.php
-msgid "Next"
-msgstr "Suivant"
 
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
 #: centreon/www/include/monitoring/status/Services/xml/makeXMLForOneService.php
@@ -11634,10 +11090,6 @@ msgstr "Page suivante"
 msgid "No"
 msgstr "Non"
 
-#: centreon/www/install/front_translate.php
-msgid "No Business Activity found"
-msgstr "Aucune activité métier trouvée"
-
 #: centreon/src/CentreonRemote/Application/Webservice/CentreonConfigurationRemote.php
 msgid "No Central in topology,please edit it from Configuration > Pollers menu"
 msgstr "Pas de Central dans la topologie,Editez le depuis le menu Configurations > Collecteurs"
@@ -11646,10 +11098,6 @@ msgstr "Pas de Central dans la topologie,Editez le depuis le menu Configurations
 msgid "No Comment for services."
 msgstr "Pas de commentaires pour les services."
 
-#: centreon/www/install/front_translate.php
-msgid "No KPI found"
-msgstr "Aucun KPI trouvé"
-
 #: centreon/src/Centreon/Domain/PlatformTopology/PlatformTopologyService.php
 msgid "No Platform Topology found."
 msgstr "Aucune Topologie trouvée."
@@ -11657,10 +11105,6 @@ msgstr "Aucune Topologie trouvée."
 #: centreon/www/include/views/graphTemplates/formGraphTemplate.php
 msgid "No Step"
 msgstr "Sans étape"
-
-#: centreon/www/install/front_translate.php
-msgid "No TLS"
-msgstr "Sans TLS"
 
 #: centreon/www/include/options/accessLists/menusACL/formMenusAccess.php
 msgid "No access"
@@ -11710,10 +11154,6 @@ msgstr "Pas de données disponibles pour cette période"
 msgid "No data for"
 msgstr "Pas de données pour"
 
-#: centreon/www/install/front_translate.php
-msgid "No data found"
-msgstr "Aucune donnée trouvée"
-
 #: centreon/www/install/smarty_translate.php
 msgid "No downtime scheduled"
 msgstr "Pas de plage de maintenance programmée"
@@ -11721,10 +11161,6 @@ msgstr "Pas de plage de maintenance programmée"
 #: centreon/www/install/front_translate.php
 msgid "No event handler selected"
 msgstr "Aucun gestionnaire d’évènements sélectionné"
-
-#: centreon/www/install/front_translate.php
-msgid "No host found"
-msgstr "Aucun hôte trouvé"
 
 #: centreon/www/install/front_translate.php
 msgid "No hosts in this group are currently disabled."
@@ -11766,10 +11202,6 @@ msgstr "Aucun résultat trouvé"
 #: centreon/www/install/front_translate.php
 msgid "No results found"
 msgstr "Aucun résultat trouvé"
-
-#: centreon/www/install/front_translate.php
-msgid "No service found"
-msgstr "Aucun service trouvé"
 
 #: centreon/src/Core/Security/Authentication/Application/UseCase/LogoutSession/LogoutSession.php
 msgid "No session token provided"
@@ -11828,10 +11260,6 @@ msgstr "Aucun widget trouvé"
 #: centreon/www/include/configuration/configKnowledge/display-services.php
 msgid "No wiki page defined"
 msgstr "Aucune page définie"
-
-#: centreon/www/install/front_translate.php
-msgid "No {{type}} found with this status"
-msgstr "Aucun {{type}} n'a ce statut"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Non-workhours"
@@ -12201,14 +11629,6 @@ msgstr "OK : toutes les mises à jour des bases de données de vos collecteurs s
 msgid "OK: no latency detected on your platform"
 msgstr "OK : aucune latence détectée sur votre plateforme"
 
-#: centreon/www/install/front_translate.php
-msgid "OTLP Receiver"
-msgstr "Récepteur OTLP"
-
-#: centreon/www/install/front_translate.php
-msgid "OTLP receiver"
-msgstr "Receveur OTLP"
-
 #: centreon/www/include/Administration/configChangelog/viewLogs.php
 msgid "Object"
 msgstr "Objet"
@@ -12338,10 +11758,6 @@ msgid "Only services, servicegroups, hosts and hostgroups are taken in account i
 msgstr "Seuls les services, les groupes de services, les hôtes et les groupes d'hôtes sont pris en compte pour calculer ce statut. Si vous modifiez un modèle, il ne sera pas indiqué que la configuration a changé."
 
 #: centreon/www/install/front_translate.php
-msgid "Oops"
-msgstr "Oups"
-
-#: centreon/www/install/front_translate.php
 msgid "Oops !"
 msgstr "Oups !"
 
@@ -12362,14 +11778,6 @@ msgid "Open the repository"
 msgstr "Ouvrir le dépôt"
 
 #: centreon/www/install/front_translate.php
-msgid "Open ticket for host"
-msgstr "Ouvrir un ticket pour l'hôte"
-
-#: centreon/www/install/front_translate.php
-msgid "Open ticket for service"
-msgstr "Ouvrir un ticket pour le service"
-
-#: centreon/www/install/front_translate.php
 msgid "OpenID Connect Configuration"
 msgstr "Configuration OpenID Connect"
 
@@ -12384,10 +11792,6 @@ msgstr "OpenID Connect seulement"
 #: centreon/www/include/configuration/configObject/contact/ldapImportContact.php
 msgid "OpenLDAP :"
 msgstr "OpenLDAP :"
-
-#: centreon/www/install/front_translate.php
-msgid "Opened on"
-msgstr "Ouvert le"
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Opentelemetry"
@@ -12575,14 +11979,9 @@ msgstr "Le paramètre '%s' (%s) est invalide"
 msgid "Parameter '%s' of type %s is invalid"
 msgstr "Le paramètre '%s' de type %s est invalide"
 
-#: centreon/www/install/front_translate.php
 #: centreon/www/install/menu_translation.php
 msgid "Parameters"
 msgstr "Paramètres"
-
-#: centreon/www/install/front_translate.php
-msgid "Parameters tooltip"
-msgstr "Infobulle de paramètres"
 
 #: centreon/www/install/front_translate.php
 msgid "Parent"
@@ -12710,10 +12109,6 @@ msgstr "Politique d'expiration du mot de passe"
 #: centreon/www/install/front_translate.php
 msgid "Password expires after"
 msgstr "Le mot de passe expire après"
-
-#: centreon/www/install/front_translate.php
-msgid "Password has expired"
-msgstr "Votre mot de passe a expiré"
 
 #: centreon/src/Core/Security/Authentication/Domain/Exception/PasswordExpiredException.php
 msgid "Password is expired"
@@ -12936,14 +12331,6 @@ msgstr "Merci d'entrer un commentaire"
 msgid "Please enter a name for the duplicated notification"
 msgstr "Veuillez entrer un nom pour la notification dupliquée"
 
-#: centreon/www/install/front_translate.php
-msgid "Please enter a name for the duplicated resource access rule"
-msgstr "Veuillez saisir un nom pour la règle d'accès aux ressources dupliquée"
-
-#: centreon/www/install/front_translate.php
-msgid "Please enter a valid URL or IP address"
-msgstr "Entrez une URL ou une adresse IP valide"
-
 #: centreon/www/include/Administration/myAccount/DB-Func.php
 #: centreon/www/include/configuration/configObject/contact/DB-Func.php
 msgid "Please fill in all password fields"
@@ -13034,10 +12421,6 @@ msgstr "Veuillez utiliser l'interface Web pour mettre à jour Centreon."
 msgid "Please wait..."
 msgstr "Merci de patienter..."
 
-#: centreon/www/install/front_translate.php
-msgid "Please, select a valid countdown"
-msgstr "Veuillez définir une valeur de compte à rebours valide"
-
 #: centreon/www/include/configuration/configObject/command/minHelpCommand.php
 msgid "Plugin Help"
 msgstr "Aide de la sonde"
@@ -13064,18 +12447,9 @@ msgstr "Répertoire des sondes"
 #: centreon/www/include/monitoring/status/ServicesHostGroups/serviceSummaryByHG.php
 #: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceGridBySG.php
 #: centreon/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php
-#: centreon/www/install/front_translate.php
 #: centreon/www/install/smarty_translate.php
 msgid "Poller"
 msgstr "Collecteur"
-
-#: centreon/www/install/front_translate.php
-msgid "Poller CA certificate file name"
-msgstr "Nom du fichier du certificat de l'autorité de certification du collecteur"
-
-#: centreon/www/install/front_translate.php
-msgid "Poller CA name"
-msgstr "Nom du CA pour le collecteur"
 
 #: centreon/www/include/options/accessLists/actionsACL/formActionsAccess.php
 msgid "Poller Configuration Actions / Poller Management"
@@ -13102,10 +12476,6 @@ msgstr "Adresse du collecteur"
 #: centreon/src/Centreon/Domain/Repository/CfgCentreonBrokerRepository.php
 msgid "Poller broker config id not found"
 msgstr "L'ID de la configuration Broker pour ce collecteur n'a pas été trouvé"
-
-#: centreon/www/install/front_translate.php
-msgid "Poller configuration"
-msgstr "Configuration du collecteur"
 
 #: centreon/www/install/front_translate.php
 msgid "Poller global macros"
@@ -13187,10 +12557,6 @@ msgstr "Commande exécutée post-génération"
 msgid "Post-Restart command"
 msgstr "Commande exécutée post-génération"
 
-#: centreon/www/install/front_translate.php
-msgid "Powered by Centreon"
-msgstr "Propulsé par Centreon"
-
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 msgid "Pre execution commands"
 msgstr "Commande pré-traitement"
@@ -13219,10 +12585,6 @@ msgstr "Préférences"
 msgid "Preparing environment"
 msgstr "Préparation de l'environnement"
 
-#: centreon/www/install/front_translate.php
-msgid "Prerequisite: configure the central to accept PullWSS connections"
-msgstr "Prérequis : configurer le central pour accepter les connexions PullWSS"
-
 #: centreon/www/install/react_translation.php
 msgid "Prerequisite: configure the central to accept pullwss connections"
 msgstr "Prérequis : configurer le central pour accepter les connexions pullwss"
@@ -13230,10 +12592,6 @@ msgstr "Prérequis : configurer le central pour accepter les connexions pullwss"
 #: centreon/www/install/front_translate.php
 msgid "Press Enter to accept"
 msgstr "Appuyer sur Entrée pour accepter"
-
-#: centreon/www/install/front_translate.php
-msgid "Previous"
-msgstr "Précédent"
 
 #: centreon/www/include/common/pagination.php
 #: centreon/www/include/configuration/configKnowledge/pagination.php
@@ -13260,10 +12618,6 @@ msgstr "Afficher la valeur minimale"
 #: centreon/www/include/views/componentTemplates/formComponentTemplate.php
 msgid "Print Total Value"
 msgstr "Afficher la valeur totale"
-
-#: centreon/www/install/front_translate.php
-msgid "Private key (.key)"
-msgstr "Clé privée (.key)"
 
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Private key file."
@@ -13375,10 +12729,6 @@ msgstr "Public"
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Public certificate"
 msgstr "Certificat public"
-
-#: centreon/www/install/front_translate.php
-msgid "Public certificate (.crt, .cert, .cer)"
-msgstr "Certificat public (.crt, .cert, .cer)"
 
 #: centreon/www/include/home/customViews/formLoad.php
 msgid "Public views list"
@@ -13626,10 +12976,6 @@ msgstr "Relation"
 msgid "Relations"
 msgstr "Relations"
 
-#: centreon/www/install/front_translate.php
-msgid "Relative paths are not allowed"
-msgstr "Les chemins relatifs ne sont pas autorisés"
-
 #: centreon/www/install/step_upgrade/step3.php
 msgid "Release notes"
 msgstr "Notes de version"
@@ -13696,10 +13042,6 @@ msgid "Remove from favorites"
 msgstr "Retirer des favoris"
 
 #: centreon/www/install/front_translate.php
-msgid "Remove vCenter/ESX"
-msgstr "Supprimer vCenter/ESX"
-
-#: centreon/www/install/front_translate.php
 msgid "Removed"
 msgstr "Supprimé"
 
@@ -13711,13 +13053,16 @@ msgstr "Renommer"
 msgid "Reordering cancelled, row {{position}} returned to its original position"
 msgstr "Réorganisation annulée, la ligne {{position}} a retrouvé sa position d'origine"
 
+#: centreon/www/install/front_translate.php
+msgid "Replace"
+msgstr "Remplacer"
+
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 #: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
-#: centreon/www/install/front_translate.php
 msgid "Replacement"
 msgstr "Remplacement"
 
@@ -13981,10 +13326,6 @@ msgid "Resource access"
 msgstr "Accès aux ressources"
 
 #: centreon/www/install/front_translate.php
-msgid "Resource access rule name"
-msgstr "Nom de la règle d'accès aux ressources"
-
-#: centreon/www/install/front_translate.php
 msgid "Resource access rules"
 msgstr "Règles d'accès aux ressources"
 
@@ -14160,10 +13501,6 @@ msgstr "Rétablir le mot de passe précédent"
 msgid "Review form after save"
 msgstr "Revoir le formulaire après la sauvegarde"
 
-#: centreon/www/install/front_translate.php
-msgid "Revoked"
-msgstr "Révoqué"
-
 #: centreon/www/install/dashboard_widgets.php
 msgid "Right"
 msgstr "Droite"
@@ -14246,21 +13583,9 @@ msgstr "Lignes par page"
 msgid "Rule (ticket provider)"
 msgstr "Règle (fournisseur de tickets)"
 
-#: centreon/www/install/front_translate.php
-msgid "Rule properties"
-msgstr "Propriétés de la règle"
-
-#: centreon/www/install/front_translate.php
-msgid "Rules are used to allow users to access resources."
-msgstr "Les règles sont utilisées pour permettre aux utilisateurs d'accéder aux ressources."
-
 #: centreon/www/include/configuration/configGenerate/formGenerateFiles.php
 msgid "Run monitoring engine debug (-v)"
 msgstr "Lancer le débogage du moteur de supervision (-v)"
-
-#: centreon/www/install/front_translate.php
-msgid "Run the following command on each host you want to monitor with the agent."
-msgstr "Exécutez la commande suivante sur chaque hôte que vous souhaitez superviser avec l'agent."
 
 #: centreon/www/include/configuration/configGenerate/formGenerateFiles.php
 msgid "Running debug mode"
@@ -14670,14 +13995,6 @@ msgid "See miscellaneous commands"
 msgstr "Voir les commandes de type Divers"
 
 #: centreon/www/install/front_translate.php
-msgid "See more information in the geoview"
-msgstr "Voir plus d'informations dans la vue géographique"
-
-#: centreon/www/install/front_translate.php
-msgid "See more on the Resources Status page"
-msgstr "Voir plus dans la page Statut des ressources"
-
-#: centreon/www/install/front_translate.php
 msgid "See more on the {{ page }} page"
 msgstr "Plus d'informations à la page {{ page }}"
 
@@ -14693,11 +14010,6 @@ msgstr "Il semble que votre configuration Apache ne soit pas à jour"
 msgid "Select IP"
 msgstr "Sélectionnez une IP"
 
-#: centreon/www/install/front_translate.php
-msgid "Select Pending Poller IP"
-msgstr "Sélectionner l'IP du collecteur en attente"
-
-#: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
 msgid "Select Pending Remote Links"
 msgstr "Sélectionner les liens distants en attente"
@@ -14705,22 +14017,6 @@ msgstr "Sélectionner les liens distants en attente"
 #: centreon/www/include/configuration/configObject/timeperiod/renderTimeperiod.php
 msgid "Select Timeperiod..."
 msgstr "Choisissez la période de temps..."
-
-#: centreon/www/install/front_translate.php
-msgid "Select a Business Activity to display the preview."
-msgstr "Sélectionnez une activité métier pour afficher l'aperçu."
-
-#: centreon/www/install/front_translate.php
-msgid "Select a Poller"
-msgstr "Sélectionner un collecteur"
-
-#: centreon/www/install/front_translate.php
-msgid "Select a Remote Server"
-msgstr "Sélectionnez un serveur distant"
-
-#: centreon/www/install/front_translate.php
-msgid "Select a dataset to display the preview."
-msgstr "Sélectionnez un jeu de données pour afficher l'aperçu."
 
 #: centreon/www/install/front_translate.php
 msgid "Select a server type"
@@ -14756,21 +14052,9 @@ msgstr "Sélectionner les colonnes"
 msgid "Select criterias"
 msgstr "Sélectionner les critères"
 
-#: centreon/www/install/front_translate.php
-msgid "Select existing CMA token"
-msgstr "Sélectionner un jeton CMA existant"
-
-#: centreon/www/install/front_translate.php
-msgid "Select existing CMA token(s)"
-msgstr "Sélectionner des jetons CMA existants"
-
 #: centreon/www/install/dashboard_widgets.php
 msgid "Select field"
 msgstr "Sélectionner un champ"
-
-#: centreon/www/install/front_translate.php
-msgid "Select host"
-msgstr "Sélectionner un hôte"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Select host severities"
@@ -14792,15 +14076,6 @@ msgstr "Sélectionner une métrique"
 msgid "Select pages"
 msgstr "Sélectionner les pages"
 
-#: centreon/www/install/front_translate.php
-msgid "Select poller"
-msgstr "Sélectionner le collecteur"
-
-#: centreon/www/install/front_translate.php
-msgid "Select poller(s)"
-msgstr "Sélectionner le(s) collecteur(s)"
-
-#: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
 msgid "Select pollers to be attached to this new Remote Server"
 msgstr "Sélectionner les collecteurs à attacher à ce nouveau serveur distant"
@@ -14808,10 +14083,6 @@ msgstr "Sélectionner les collecteurs à attacher à ce nouveau serveur distant"
 #: centreon/www/install/front_translate.php
 msgid "Select resource"
 msgstr "Sélectionner une ressource"
-
-#: centreon/www/install/front_translate.php
-msgid "Select resource type"
-msgstr "Sélectionnez un type de ressource"
 
 #: centreon/www/install/front_translate.php
 msgid "Select resources and events"
@@ -14824,10 +14095,6 @@ msgstr "Sélectionner la règle (fournisseur de tickets)"
 #: centreon/www/install/dashboard_widgets.php
 msgid "Select service severities"
 msgstr "Sélectionner les sévérités des services"
-
-#: centreon/www/install/front_translate.php
-msgid "Select the poller that will monitor your hosts"
-msgstr "Sélectionnez le collecteur qui supervisera vos hôtes"
 
 #: centreon/www/install/front_translate.php
 msgid "Select time format"
@@ -14852,10 +14119,6 @@ msgstr "Sélectionner un type"
 #: centreon/www/install/front_translate.php
 msgid "Select users"
 msgstr "Sélectionner les utilisateurs"
-
-#: centreon/www/install/front_translate.php
-msgid "Select your hosts' operating system"
-msgstr "Sélectionnez le système d'exploitation de vos hôtes"
 
 #: centreon/www/install/front_translate.php
 msgid "Select your poller's environment"
@@ -14888,7 +14151,6 @@ msgstr "Séquentiellement"
 msgid "Serialization protocol"
 msgstr "Protocole de sérialisation"
 
-#: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
 msgid "Server Configuration"
 msgstr "Configuration du Serveur"
@@ -14901,13 +14163,11 @@ msgstr "Assistant de configuration du serveur"
 msgid "Server Information"
 msgstr "Informations sur le serveur"
 
-#: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
 msgid "Server Name"
 msgstr "Nom du serveur"
 
 #: centreon/www/install/centreon_broker_translation.php
-#: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
 msgid "Server address"
 msgstr "Adresse du serveur"
@@ -16019,10 +15279,6 @@ msgstr "Type d'état"
 msgid "State filter"
 msgstr "Filtre de statut"
 
-#: centreon/www/install/front_translate.php
-msgid "State information"
-msgstr "Information de l'état"
-
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "States Retention"
 msgstr "Rétention des états"
@@ -16192,10 +15448,6 @@ msgstr "Séries chronologiques des statuts"
 #: centreon/www/install/front_translate.php
 msgid "Status type"
 msgstr "Type de status"
-
-#: centreon/www/install/front_translate.php
-msgid "Status:"
-msgstr "Statut :"
 
 #: centreon/www/install/front_translate.php
 msgid "Stay"
@@ -16418,7 +15670,6 @@ msgid "System Logs"
 msgstr "Evenements liés à la collecte des données"
 
 #: centreon/www/include/Administration/parameters/ldap/form.php
-#: centreon/www/install/front_translate.php
 msgid "TLS"
 msgstr "TLS"
 
@@ -16585,10 +15836,6 @@ msgstr "Le format de la commande est invalide"
 msgid "The command is being generated…"
 msgstr "La commande est en cours de génération…"
 
-#: centreon/www/install/front_translate.php
-msgid "The command is only valid for hosts with an agent-initiated connection to this poller."
-msgstr "La commande n'est valide que pour les hôtes avec une connexion à ce collecteur initiée par l'agent."
-
 #: centreon/src/Centreon/Domain/Engine/EngineService.php
 msgid "The contact alias is empty"
 msgstr "L'alias du contact est vide"
@@ -16617,10 +15864,6 @@ msgstr "Les contacts suivants n'existent pas : [%s]"
 #, php-format
 msgid "The contacts [%s] do not have any dashboard Access rights"
 msgstr "Les contacts suivants n'ont pas le droit d'accéder aux tableaux de bord : [%s]"
-
-#: centreon/www/install/front_translate.php
-msgid "The corresponding connectors will not work anymore."
-msgstr "Les connecteurs correspondants ne fonctionneront plus."
 
 #: centreon/src/Core/Dashboard/Application/Exception/DashboardException.php
 #, php-format
@@ -16661,10 +15904,6 @@ msgstr "Le répertoire n'est pas valide"
 #: centreon/www/install/front_translate.php
 msgid "The duration must be less than a year"
 msgstr "La durée doit être inférieure à un an"
-
-#: centreon/www/install/front_translate.php
-msgid "The end date must be greater than the current date by at least one day"
-msgstr "La date de fin doit être supérieure à la date actuelle d'au moins un jour"
 
 #: centreon/www/install/front_translate.php
 msgid "The end date must be greater than the start date"
@@ -16774,10 +16013,6 @@ msgstr "La valeur minimale autorisée est 10"
 msgid "The name %s (original name: %s) already exists"
 msgstr "Le nom %s (nom original : %s) existe déjà"
 
-#: centreon/www/install/front_translate.php
-msgid "The name can be at most 50 characters long"
-msgstr "Le nom peut comporter au maximum 50 caractères"
-
 #: centreon/www/api/class/centreon_configuration_broker.class.php
 #: centreon/www/class/centreonConfigCentreonBroker.php
 msgid "The name of block configuration"
@@ -16786,14 +16021,6 @@ msgstr "Nom de l'objet configuré"
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "The name of the poller is mandatory"
 msgstr "Le nom du collecteur est obligatoire"
-
-#: centreon/www/install/front_translate.php
-msgid "The name of the vCenter should be unique"
-msgstr "Le nom du vCenter doit être unique"
-
-#: centreon/www/install/front_translate.php
-msgid "The name should be at least 3 characters long"
-msgstr "Le nom doit comporter au moins 3 caractères"
 
 #: centreon/www/install/front_translate.php
 msgid "The new password is the same as the old password"
@@ -16922,22 +16149,6 @@ msgstr "La demande d'association de rôles a échoué en interrogeant l'URL pers
 msgid "The requested_authn_context_comparison value is missing but is required when requested_authn_context is set to true"
 msgstr "La valeur de requested_authn_context_comparison est manquante, mais elle est requise lorsque requested_authn_context est à true"
 
-#: centreon/www/install/front_translate.php
-msgid "The resource access rule has been successfully deleted"
-msgstr "La règle d'accès aux ressources a bien été supprimée"
-
-#: centreon/www/install/front_translate.php
-msgid "The resource access rule has been successfully duplicated"
-msgstr "La règle d'accès aux ressources a été dupliquée avec succès"
-
-#: centreon/www/install/front_translate.php
-msgid "The resource access rule was successfully created"
-msgstr "La règle d'accès aux ressources a été créée avec succès"
-
-#: centreon/www/install/front_translate.php
-msgid "The resource access rule was successfully updated"
-msgstr "La règle d'accès aux ressources a été modifiée avec succès"
-
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "The script path is invalid"
 msgstr "Le chemin du script est invalide"
@@ -16949,10 +16160,6 @@ msgstr "Le modèle de service hérité sélectionné ne comporte pas de commande
 #: centreon/www/install/front_translate.php
 msgid "The selected notifications have been deleted successfully"
 msgstr "Les notifications sélectionnées ont été supprimées avec succès"
-
-#: centreon/www/install/front_translate.php
-msgid "The selected resource access rules have been deleted successfully"
-msgstr "Les règles d'accès aux ressources sélectionnées ont été supprimées avec succès"
 
 #: centreon/www/include/configuration/configObject/timeperiod/formTimeperiod.php
 msgid "The selected template has the same time period as a template"
@@ -16996,10 +16203,6 @@ msgstr "La liste de partages est vide"
 #, php-format
 msgid "The thumbnail provided for dashboard [%d] was not found"
 msgstr "La vignette du tableau de bord [%d] n'a pas été trouvée"
-
-#: centreon/www/install/front_translate.php
-msgid "The ticket with ID #{{id}} will be closed for the selected ticket provider."
-msgstr "Le ticket avec l'ID #{{id}} sera fermé pour le fournisseur de tickets sélectionné."
 
 #: centreon/www/install/front_translate.php
 msgid "The time period field should not be empty!"
@@ -17062,10 +16265,6 @@ msgid "The widget will be permanently deleted."
 msgstr "Le widget sera définitivement supprimé."
 
 #: centreon/www/install/front_translate.php
-msgid "The {{name}} additional configuration will be permanently deleted."
-msgstr "La configuration additionnelle {{name}} sera définitivement supprimée."
-
-#: centreon/www/install/front_translate.php
 msgid "The {{name}} dashboard is part of one or several playlists. It will be permanently deleted from any playlists it belongs to."
 msgstr "Le tableau de bord {{name}} fait partie d'une ou plusieurs listes de diffusion. Il sera définitivement supprimé des listes de diffusion auxquelles il appartient."
 
@@ -17085,10 +16284,6 @@ msgstr "Il n'y a pas assez d'arguments pour construire l'objet %s"
 #: centreon/www/install/dashboard_widgets.php
 msgid "These time periods are defined in MBI'S ETL options."
 msgstr "Ces périodes temporelles sont définies dans les options ETL de MBI."
-
-#: centreon/www/install/front_translate.php
-msgid "They will be permanently deleted and users will no longer have these permissions."
-msgstr "Elles seront définitivement supprimées et les utilisateurs n'auront plus ces accès."
 
 #: centreon/www/include/views/componentTemplates/formComponentTemplate.php
 #: centreon/www/include/views/componentTemplates/listComponentTemplates.php
@@ -17190,10 +16385,6 @@ msgstr "Description du widget input générique"
 msgid "This is the description of the text widget"
 msgstr "Description du widget texte"
 
-#: centreon/www/install/front_translate.php
-msgid "This is the most common case: the agent initiates the connection to the poller."
-msgstr "Il s’agit du cas le plus courant : l’agent initie la connexion vers le collecteur."
-
 #: centreon/www/install/dashboard_widgets.php
 msgid "This month"
 msgstr "Ce mois"
@@ -17218,10 +16409,6 @@ msgstr "Cette option doit être désactiver pour prévenir les problèmes liés 
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "This option must be enabled for Centreon Dashboard module."
 msgstr "Cette option doit être activée pour le module de Tableaux de bord Centreon."
-
-#: centreon/www/install/front_translate.php
-msgid "This page could not be found"
-msgstr "Cette page n'a pas pu être trouvée"
 
 #: centreon/src/Centreon/Domain/HostConfiguration/Exception/HostTemplateArgumentException.php
 #, php-format
@@ -17319,24 +16506,12 @@ msgid "Thursday"
 msgstr "Jeudi"
 
 #: centreon/www/install/front_translate.php
-msgid "Ticket ID"
-msgstr "ID du ticket"
-
-#: centreon/www/install/front_translate.php
 msgid "Ticket closed"
 msgstr "Ticket fermé"
 
 #: centreon/www/install/front_translate.php
 msgid "Ticket created"
 msgstr "Ticket créé"
-
-#: centreon/www/install/front_translate.php
-msgid "Ticket subject"
-msgstr "Sujet du ticket"
-
-#: centreon/www/install/front_translate.php
-msgid "Tickets"
-msgstr "Tickets"
 
 #: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/eventLogs/xml/data.php
@@ -17490,32 +16665,8 @@ msgid "Today's Host log"
 msgstr "Log du jour de l'hôte"
 
 #: centreon/www/install/front_translate.php
-msgid "Token"
-msgstr "Jeton"
-
-#: centreon/www/install/front_translate.php
-msgid "Token could not be copied"
-msgstr "Le jeton n'a pas pu être copié"
-
-#: centreon/www/install/front_translate.php
-msgid "Token deleted"
-msgstr "Jeton supprimé"
-
-#: centreon/www/install/front_translate.php
-msgid "Token disabled"
-msgstr "Jeton désactivé"
-
-#: centreon/www/install/front_translate.php
-msgid "Token enabled"
-msgstr "Jeton activé"
-
-#: centreon/www/install/front_translate.php
 msgid "Token endpoint"
 msgstr "Point d'entrée de jeton"
-
-#: centreon/www/install/front_translate.php
-msgid "Token has been created"
-msgstr "Le jeton a été créé"
 
 #: centreon/src/Core/Security/Token/Application/Exception/TokenException.php
 msgid "Token not found"
@@ -17925,10 +17076,6 @@ msgstr "Tout désélectionner"
 msgid "Unset Timerange"
 msgstr "Périodes temporelles indéfinies"
 
-#: centreon/www/install/front_translate.php
-msgid "Until"
-msgstr "Jusqu'à"
-
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/eventLogs/viewLog.php
 #: centreon/www/include/monitoring/status/Hosts/host.php
@@ -17959,10 +17106,6 @@ msgid "Update"
 msgstr "Mise à jour"
 
 #: centreon/www/install/front_translate.php
-msgid "Update agent configuration"
-msgstr "Mettre à jour la configuration d'agent"
-
-#: centreon/www/install/front_translate.php
 msgid "Update all"
 msgstr "Tout mettre à jour"
 
@@ -17987,10 +17130,6 @@ msgstr "Mode de mise à jour"
 #: centreon/www/install/front_translate.php
 msgid "Updated"
 msgstr "Mis à jour"
-
-#: centreon/www/install/front_translate.php
-msgid "Updated by"
-msgstr "Mis à jour par"
 
 #: centreon/www/install/step_upgrade/step5.php
 msgid "Upgrade finished"
@@ -18053,7 +17192,6 @@ msgid "Used by services"
 msgstr "Utilisée (services)"
 
 #: centreon/www/include/Administration/configChangelog/viewLogs.php
-#: centreon/www/install/front_translate.php
 msgid "User"
 msgstr "Utilisateur"
 
@@ -18131,7 +17269,6 @@ msgstr "Droits d'utilisateur"
 
 #: centreon/www/include/Administration/parameters/gorgone/gorgone.php
 #: centreon/www/include/Administration/parameters/remote/formRemote.php
-#: centreon/www/install/front_translate.php
 msgid "Username"
 msgstr "Utilisateur"
 
@@ -18186,14 +17323,6 @@ msgstr "Email valide"
 #: centreon/www/install/front_translate.php
 msgid "Value"
 msgstr "Valeur"
-
-#: centreon/www/install/front_translate.php
-msgid "Value defined by the {{metric}} metric"
-msgstr "Valeur définie par la métrique {{metric}}"
-
-#: centreon/www/install/front_translate.php
-msgid "Value defined by {{metric}} metric"
-msgstr "Valeur définie par la métrique {{metric}}"
 
 #: centreon/www/install/dashboard_widgets.php
 #: centreon/www/install/front_translate.php
@@ -18683,14 +17812,6 @@ msgstr "Web SSO seulement"
 msgid "Web page"
 msgstr "Page web"
 
-#: centreon/www/install/front_translate.php
-msgid "Web page preview"
-msgstr "Aperçu de la page web"
-
-#: centreon/www/install/front_translate.php
-msgid "Webpage Display"
-msgstr "Page web"
-
 #: centreon/www/include/Administration/parameters/backup/formBackup.php
 #: centreon/www/include/configuration/configObject/timeperiod/formTimeperiod.php
 #: centreon/www/include/configuration/configObject/timeperiod/renderTimeperiod.php
@@ -18729,24 +17850,16 @@ msgid "Welcome to the Services interface!"
 msgstr "Bienvenue dans l'interface des services !"
 
 #: centreon/www/install/front_translate.php
-msgid "Welcome to the additional configurations page"
-msgstr "Bienvenue sur la page des configurations additionnelles"
-
-#: centreon/www/install/front_translate.php
-msgid "Welcome to the agent configuration page"
-msgstr "Bienvenue sur la page des configurations d'agent"
-
-#: centreon/www/install/front_translate.php
-msgid "Welcome to the authentication tokens page"
-msgstr "Bienvenue sur la page des jetons d'authentification"
-
-#: centreon/www/install/front_translate.php
 msgid "Welcome to the host groups page"
 msgstr "Bienvenue sur la page des groupes d'hôtes"
 
 #: centreon/www/install/front_translate.php
 msgid "Welcome to the notifications interface"
 msgstr "Bienvenue dans l'interface de gestion des notifications"
+
+#: centreon/www/install/front_translate.php
+msgid "When services inherit contacts and contact groups only from their host, their own contacts and contact groups are removed. Only those you have access to are affected."
+msgstr "Lorsque les services héritent uniquement des contacts et groupes de contacts de leur hôte, leurs propres contacts et groupes de contacts sont supprimés. Seuls ceux auxquels vous avez accès sont concernés."
 
 #: centreon/www/install/front_translate.php
 msgid "Which endpoint does the conditions attribute path come from?"
@@ -18797,10 +17910,6 @@ msgstr "Largeur"
 #: centreon/www/include/configuration/configKnowledge/display-services.php
 msgid "Wiki page defined"
 msgstr "Page définie"
-
-#: centreon/www/install/front_translate.php
-msgid "Windows"
-msgstr "Windows"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Workhours"
@@ -18885,18 +17994,6 @@ msgid "You are about to delete one or more pollers.\\nThis action is IRREVERSIBL
 msgstr "Vous êtes sur le point de supprimer un ou plusieurs collecteurs.\\nCette action est IRREVERSIBLE.\\nConfirmez-vous la suppression ?"
 
 #: centreon/www/install/front_translate.php
-msgid "You are about to delete the <strong>{{tokenName}}</strong> token. This action cannot be undone. Do you want to delete this token anyway ? You must export the configuration for the change to be taken into account."
-msgstr "Vous êtes sur le point de supprimer le jeton <strong>{{tokenName}}</strong>. Cette action est irréversible. Voulez-vous vraiment supprimer ce jeton ? Vous devez exporter la configuration pour que le changement soit pris en compte."
-
-#: centreon/www/install/front_translate.php
-msgid "You are about to disable the <strong>{{tokenName}}</strong> token. If you disable it, all requests made with this token will be rejected. Do you want to disable it ? You must export the configuration for the change to be taken into account."
-msgstr "Vous êtes sur le point de désactiver le jeton <strong>{{tokenName}}</strong>. Si vous le désactivez, toutes les requêtes effectuées avec ce jeton seront rejetées. Voulez-vous vraiment le désactiver ? Vous devez exporter la configuration pour que le changement soit pris en compte."
-
-#: centreon/www/install/front_translate.php
-msgid "You are about to enable the <strong>{{tokenName}}</strong> token. You must export the configuration for the change to be taken into account."
-msgstr "Vous êtes sur le point d'activer le jeton <strong>{{tokenName}}</strong>. Vous devez exporter la configuration pour que le changement soit pris en compte."
-
-#: centreon/www/install/front_translate.php
 msgid "You are about to export the status of the resources you have filtered. You can export up to 10,000 rows."
 msgstr "Vous allez exporter le statut des ressources que vous avez filtrées. Vous pouvez exporter jusqu'à 10 000 lignes."
 
@@ -18905,20 +18002,8 @@ msgid "You are about to upgrade Centreon."
 msgstr "Vous êtes sur le point de mettre à jour Centreon."
 
 #: centreon/www/install/front_translate.php
-msgid "You are disconnected"
-msgstr "Vous êtes déconnecté"
-
-#: centreon/www/install/front_translate.php
 msgid "You are going to delete <strong>{{name}}</strong> from the user list. This user will no longer access the dashboard."
 msgstr "Vous allez supprimer <strong>{{nom}}</strong> de la liste des utilisateurs. Cet utilisateur n'aura plus accès au tableau de bord."
-
-#: centreon/www/install/front_translate.php
-msgid "You are going to delete the <strong>{{ agent }}</strong> agent configuration. All parameters for this agent configuration will be deleted. This action cannot be undone."
-msgstr "Vous allez supprimer la configuration de l'agent <strong>{{ agent }}</strong>. Tous les paramètres de configuration de cet agent seront supprimés. Cette action est irréversible."
-
-#: centreon/www/install/front_translate.php
-msgid "You are going to delete the configuration for the <strong>{{ poller }}</strong> poller from the <strong>{{ agent }}</strong> agent configuration. All configuration parameters for this poller will be deleted. This action cannot be undone."
-msgstr "Vous allez supprimer la configuration du collecteur <strong>{{ poller }}</strong> de l'agent <strong>{{ agent }}</strong>. Tous les paramètres de configuration de ce collecteur seront supprimés. Cette action est irréversible."
 
 #: centreon/src/Core/AdditionalConnectorConfiguration/Application/Exception/AccException.php
 msgid "You are not allowed to access additional configurations"
@@ -19205,10 +18290,6 @@ msgstr "Vous n'avez pas la permission de lister les configurations de notificati
 msgid "You are not allowed to list resource access rules"
 msgstr "Vous n'avez pas la permission de voir la liste des règles d'accès aux ressources"
 
-#: centreon/www/install/front_translate.php
-msgid "You are not allowed to log in"
-msgstr "Vous n'avez pas la permission de vous connecter"
-
 #: centreon/src/Core/Notification/Application/Exception/NotificationException.php
 msgid "You are not allowed to partially update a notification configuration"
 msgstr "Vous n'avez pas la permission d'effectuer la modification partielle d'une configuration de notification"
@@ -19238,10 +18319,6 @@ msgstr "Vous n'avez pas la permission de faire des opérations d'écriture sur l
 msgid "You are not allowed to reach this page"
 msgstr "Vous n'avez pas la permission d'accéder à cette page"
 
-#: centreon/www/install/front_translate.php
-msgid "You are not allowed to see this page"
-msgstr "Vous n'avez pas la permission de voir cette page"
-
 #: centreon/src/Core/ServiceTemplate/Application/Exception/ServiceTemplateException.php
 msgid "You are not allowed to update a service template"
 msgstr "Vous n'avez pas la permission de mettre à jour un modèle de service"
@@ -19269,10 +18346,6 @@ msgstr "Vous n'avez pas la permission d'accéder à la configuration"
 #: centreon/www/install/front_translate.php
 msgid "You can choose only one resource for each resource type."
 msgstr "Vous ne pouvez choisir qu'une seule ressource pour chaque type de ressource."
-
-#: centreon/www/install/front_translate.php
-msgid "You can create two types of tokens: API tokens to manipulate Centreon objects via the API, or CMA tokens to allow the CMA monitoring agent to authenticate to the corresponding poller."
-msgstr "Vous pouvez créer deux types de jetons : des jetons API pour manipuler les objets Centreon via l'API, ou des jetons CMA pour permettre à l'agent de supervision CMA de s’authentifier auprès du collecteur correspondant."
 
 #: centreon/www/install/front_translate.php
 msgid "You can use regular expression syntax to retrieve more relevant results"
@@ -19326,14 +18399,6 @@ msgstr "Vous ne disposez pas de droits suffisants pour cette action"
 #: centreon/www/install/front_translate.php
 msgid "You have been logged out"
 msgstr "Vous avez été déconnecté"
-
-#: centreon/www/install/front_translate.php
-msgid "You have selected No TLS for the encryption level."
-msgstr "Vous avez sélectionné Aucun TLS comme niveau de chiffrement."
-
-#: centreon/www/install/front_translate.php
-msgid "You have selected No TLS for the encryption level. This parameter is meant for test purposes only and is not allowed in production. The agent monitoring will stop after 1 hour."
-msgstr "Vous avez sélectionné Aucun TLS comme niveau de chiffrement. Ce paramètre est destiné uniquement aux tests et n’est pas autorisé en production. La supervision par l’agent s’arrêtera après 1 heure."
 
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "You have to keep at least one contact to access to Centreon"
@@ -19454,10 +18519,6 @@ msgstr "Votre tableau de bord a été sauvegardé"
 #: centreon/www/install/front_translate.php
 msgid "Your form has unsaved changes"
 msgstr "Votre formulaire comporte des modifications non enregistrées"
-
-#: centreon/www/install/front_translate.php
-msgid "Your form has unsaved changes. Do you want to quit the form without saving the changes?"
-msgstr "Votre formulaire a des modifications non enregistrées. Voulez-vous quitter le formulaire sans enregistrer les modifications ?"
 
 #: centreon/www/include/Administration/myAccount/DB-Func.php
 msgid "Your new password and autologin key must be different"
@@ -19683,10 +18744,6 @@ msgstr "et doit contenir"
 msgid "apiPath"
 msgstr "Chemin de l'API"
 
-#: centreon/www/install/front_translate.php
-msgid "are working fine."
-msgstr "fonctionnent correctement."
-
 #: centreon/www/install/dashboard_widgets.php
 msgid "areaOpacity"
 msgstr "areaOpacity"
@@ -19706,10 +18763,6 @@ msgstr "disponible"
 #: centreon/www/install/dashboard_widgets.php
 msgid "boundaries"
 msgstr "limites"
-
-#: centreon/www/install/front_translate.php
-msgid "business activity"
-msgstr "activité métier"
 
 #: centreon/www/install/front_translate.php
 msgid "by"
@@ -19771,7 +18824,6 @@ msgstr "Supprimer plusieurs notifications"
 msgid "disabled"
 msgstr "désactivé"
 
-#: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
 msgid "documentation"
 msgstr "documentation"
@@ -19847,10 +18899,6 @@ msgstr "est définie par défaut. Vous pouvez en définir une autre."
 #: centreon/www/install/front_translate.php
 msgid "is the selected metric by default. Refine filters to select another specific resource."
 msgstr "est la métrique sélectionnée par défaut. Affinez les filtres pour sélectionner une autre ressource spécifique."
-
-#: centreon/www/install/front_translate.php
-msgid "is used to allow users to access resources."
-msgstr "est utilisée pour permettre aux utilisateurs d'accéder aux resources."
 
 #: centreon/www/include/views/graphs/graph-periods.php
 msgid "last day"
@@ -19937,7 +18985,6 @@ msgstr "sur l'hôte"
 
 #: centreon/www/include/reporting/dashboard/initReport.php
 #: centreon/www/include/views/graphs/graphs.php
-#: centreon/www/install/front_translate.php
 msgid "or"
 msgstr "ou"
 
@@ -19993,7 +19040,6 @@ msgstr "secondes"
 msgid "select a file"
 msgstr "sélectionner un fichier"
 
-#: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
 msgid "services"
 msgstr "services"
@@ -20033,17 +19079,9 @@ msgstr "l'adresse %s est déjà utilisé comme addresse de proxy et ne peut pas 
 msgid "the address %s is already used in the topology and can't be provided as Central Server Address"
 msgstr "l'adresse %s est déjà utilisé dans la topology et ne peut pas être renseigné comme Adresse de Serveur Central"
 
-#: centreon/www/install/front_translate.php
-msgid "then copy the script to each host you want to monitor."
-msgstr "puis copiez le script sur chaque hôte que vous souhaitez superviser."
-
 #: centreon/www/install/dashboard_widgets.php
 msgid "threshold"
 msgstr "seuil"
-
-#: centreon/www/install/front_translate.php
-msgid "tiles"
-msgstr "tuiles"
 
 #: centreon/www/include/reporting/dashboard/initReport.php
 #: centreon/www/include/reporting/dashboard/viewHostGroupLog.php
@@ -20066,10 +19104,6 @@ msgstr "mis à jour"
 #: centreon/www/class/centreonContact.class.php
 msgid "uppercase characters"
 msgstr "caractères majuscules"
-
-#: centreon/www/install/front_translate.php
-msgid "vCenter/ESX"
-msgstr "vCenter/ESX"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "warningtext"
@@ -20130,6 +19164,10 @@ msgstr " élément(s) trouvé(s)"
 #: unknown
 msgid " elements to selection ?"
 msgstr " éléments à sélectionner ?"
+
+#: unknown
+msgid "\"None\" can't be combined with other options. Set this list to Replace, or services with other options won't be updated."
+msgstr "« Aucun » ne peut pas être combiné avec d'autres options. Passez cette liste en mode Remplacer, sinon les services ayant d'autres options ne seront pas mis à jour."
 
 #: unknown
 msgid "$HOSTADDRESS$"
@@ -20256,6 +19294,10 @@ msgid "Add a Service downtime"
 msgstr "Planifier pour un service"
 
 #: unknown
+msgid "Add a host"
+msgstr "Ajouter un hôte"
+
+#: unknown
 msgid "Add a host downtime"
 msgstr "Planifier pour un hôte"
 
@@ -20272,12 +19314,44 @@ msgid "Add a service downtime"
 msgstr "Planifier pour service"
 
 #: unknown
+msgid "Add a token"
+msgstr "Ajouter un jeton"
+
+#: unknown
+msgid "Add additional configurations"
+msgstr "Ajouter des configurations additionnelles"
+
+#: unknown
+msgid "Add advanced server configuration"
+msgstr "Ajouter une configuration avancée de serveur"
+
+#: unknown
+msgid "Add agent configuration"
+msgstr "Ajouter une configuration d'agent"
+
+#: unknown
+msgid "Add an additional configuration"
+msgstr "Ajouter une configuration additionnelle"
+
+#: unknown
 msgid "Add host"
 msgstr "Ajouter un hôte"
 
 #: unknown
+msgid "Add new agent configuration"
+msgstr "Ajouter une nouvelle configuration d'agent"
+
+#: unknown
+msgid "Add new dataset"
+msgstr "Ajouter un nouveau jeu de données"
+
+#: unknown
 msgid "Add open_files_limit=32000 in my.cnf file under the [mysqld] section and restart MySQL Server."
 msgstr "Ajouter la propriété open_files_limit=32000 dans le fichier my.cnf dans l'encart [mysql] et redémarrez le serveur MySQL."
+
+#: unknown
+msgid "Add parameter"
+msgstr "Ajouter un paramètre"
 
 #: unknown
 msgid "Add resource"
@@ -20288,8 +19362,20 @@ msgid "Add resource dataset"
 msgstr "Ajouter un jeu de données de ressources"
 
 #: unknown
+msgid "Add resource datasets"
+msgstr "Ajouter des ressources"
+
+#: unknown
+msgid "Add vCenter/ESX"
+msgstr "Ajouter vCenter/ESX"
+
+#: unknown
 msgid "Add viewer / viewer group"
 msgstr "Ajouter utilisateurs / groupes d'utilisateurs"
+
+#: unknown
+msgid "Additional configuration created"
+msgstr "Configuration additionnelle créée"
 
 #: unknown
 msgid "Additional configuration deleted"
@@ -20298,6 +19384,10 @@ msgstr "Configuration additionnelle supprimée"
 #: unknown
 msgid "Additional configuration duplicated"
 msgstr "Configuration additionnelle dupliquée"
+
+#: unknown
+msgid "Additional configuration updated"
+msgstr "Configuration additionnelle mise à jour"
 
 #: unknown
 msgid "Additional configurations"
@@ -20320,8 +19410,24 @@ msgid "Advanced mode"
 msgstr "Mode avancé"
 
 #: unknown
+msgid "Agent"
+msgstr "Agent"
+
+#: unknown
 msgid "Agent configuration"
 msgstr "Configuration d'agent"
+
+#: unknown
+msgid "Agent configuration created"
+msgstr "Configuration d'agent créée"
+
+#: unknown
+msgid "Agent configuration updated"
+msgstr "Configuration d'agent mise à jour"
+
+#: unknown
+msgid "Agent type"
+msgstr "Type d'agent"
 
 #: unknown
 msgid "Agent types"
@@ -20336,8 +19442,80 @@ msgid "All Graphs"
 msgstr "Tous les graphiques"
 
 #: unknown
+msgid "All KPIs on this Business Activity are working fine."
+msgstr "Tous les KPI de cette activité métier fonctionnent correctement."
+
+#: unknown
 msgid "All Logs"
 msgstr "Tous les logs"
+
+#: unknown
+msgid "All business views"
+msgstr "Toutes les vues métier"
+
+#: unknown
+msgid "All business views selected"
+msgstr "Toutes les vues métier sont sélectionnées"
+
+#: unknown
+msgid "All contact groups"
+msgstr "Tous les groupes de contacts"
+
+#: unknown
+msgid "All contact groups selected"
+msgstr "Tous les groupes de contacts sont sélectionnés"
+
+#: unknown
+msgid "All contacts"
+msgstr "Tous les contacts"
+
+#: unknown
+msgid "All contacts selected"
+msgstr "Tous les contacts sont sélectionnés"
+
+#: unknown
+msgid "All host groups"
+msgstr "Tous les groupes d'hôtes"
+
+#: unknown
+msgid "All host groups selected"
+msgstr "Tous les groupes d'hôtes sont sélectionnés"
+
+#: unknown
+msgid "All hosts"
+msgstr "Tous les hôtes"
+
+#: unknown
+msgid "All hosts selected"
+msgstr "Tous les hôtes sont sélectionnés"
+
+#: unknown
+msgid "All image folders selected"
+msgstr "Tous les dossiers d'images sont sélectionnés"
+
+#: unknown
+msgid "All metrics on this service are working fine."
+msgstr "Toutes les métriques de ce service fonctionnent correctement."
+
+#: unknown
+msgid "All resources"
+msgstr "Toutes les ressources"
+
+#: unknown
+msgid "All resources selected"
+msgstr "Toutes les ressources sont sélectionnées"
+
+#: unknown
+msgid "All service groups"
+msgstr "Tous les groupes de services"
+
+#: unknown
+msgid "All service groups selected"
+msgstr "Tous les groupes de services sont sélectionnés"
+
+#: unknown
+msgid "All services on this host are working fine."
+msgstr "Tous les services de cet hôtes fonctionnent correctement."
 
 #: unknown
 msgid "Allow self signed certificate."
@@ -20346,6 +19524,10 @@ msgstr "Autoriser le certificat auto-signé."
 #: unknown
 msgid "An additional configuration of type %s is already associated with poller ID(s) '%s'"
 msgstr "Une configuration additionnelle de type %s est déjà associée au(x) ID(s) de collecteur(s) '%s'"
+
+#: unknown
+msgid "An agent is a piece of software you install on the host you want to monitor, that executes the checks."
+msgstr "Un agent est un logiciel que vous installez sur l’hôte à superviser, et qui exécute les contrôles."
 
 #: unknown
 msgid "An error occured while converting your platform"
@@ -20382,6 +19564,10 @@ msgstr "Une erreur est survenue lors de la mise à jour de la topology de la pla
 #: unknown
 msgid "An error occured while your platform update"
 msgstr "Une erreur est survenue lors de la mise à jour de la platforme"
+
+#: unknown
+msgid "An error occurred during authentication"
+msgstr "Une erreur est survenue durant l'authentification"
 
 #: unknown
 msgid "An error occurred when applying post update actions"
@@ -20464,6 +19650,34 @@ msgstr "Couleur de la flèche des axes"
 #: unknown
 msgid "As displayed"
 msgstr "Image affichée"
+
+#: unknown
+msgid "At least one connection mode must be enabled."
+msgstr "Au moins un des modes de connexion doit être activé."
+
+#: unknown
+msgid "At least one poller is required"
+msgstr "Au moins un collecteur est requis"
+
+#: unknown
+msgid "At least one vCenter is required"
+msgstr "Au moins un vCenter est requis"
+
+#: unknown
+msgid "At least three columns must be selected"
+msgstr "Sélectionnez au moins 3 colonnes"
+
+#: unknown
+msgid "Authentication denied"
+msgstr "Authentification refusée"
+
+#: unknown
+msgid "Authentication token copied to the clipboard"
+msgstr "Jeton copié dans le presse-papiers"
+
+#: unknown
+msgid "Authentication tokens"
+msgstr "Jetons d'authentification"
 
 #: unknown
 msgid "Authorization Endpoint"
@@ -20566,6 +19780,18 @@ msgid "Business Intelligence"
 msgstr "Business Intelligence"
 
 #: unknown
+msgid "Business view"
+msgstr "Vue métier"
+
+#: unknown
+msgid "By agent"
+msgstr "Par l’agent"
+
+#: unknown
+msgid "By poller"
+msgstr "Par le collecteur"
+
+#: unknown
 msgid "By turning off this option, all links included in the widget will be opened in the same tab."
 msgstr "En désactivant cette option, tous les liens inclus dans le widget seront ouverts dans le même onglet."
 
@@ -20576,6 +19802,18 @@ msgstr "En désactivant cette option, tous les liens inclus dans le widget seron
 #: unknown
 msgid "C"
 msgstr "C"
+
+#: unknown
+msgid "CA (.crt, .cert, .cer)"
+msgstr "CA (.crt, .cert, .cer)"
+
+#: unknown
+msgid "CA Common Name (CN)"
+msgstr "Nom commun CA (CN)"
+
+#: unknown
+msgid "CMA authentication token(s)"
+msgstr "Jeton(s) d'authentification CMA"
 
 #: unknown
 msgid "CRITICAL Alerts"
@@ -20600,6 +19838,10 @@ msgstr "Fichier CSS"
 #: unknown
 msgid "CSS configuration"
 msgstr "Configuration CSS"
+
+#: unknown
+msgid "Calculation method"
+msgstr "Méthode de calcul"
 
 #: unknown
 msgid "Can't get file'"
@@ -20632,6 +19874,10 @@ msgstr "Impossible d'obtenir la dernière version"
 #: unknown
 msgid "Cannot link a 'remote': '%s'@'%s' to another Remote server type"
 msgstr "Il n'est pas possible de lier le serveur distant '%s'@'%s' à un autre serveur distant"
+
+#: unknown
+msgid "Cannot load module"
+msgstr "Impossible de charger le module"
 
 #: unknown
 msgid "Cannot retrieve the current version"
@@ -20731,12 +19977,20 @@ msgid "Centreon Map WS"
 msgstr "Centreon MAP WS"
 
 #: unknown
+msgid "Centreon Monitoring Agent"
+msgstr "Agent de supervision Centreon"
+
+#: unknown
 msgid "Centreon Users"
 msgstr "Utilisateurs Centreon"
 
 #: unknown
 msgid "Centreon is updated."
 msgstr "Centreon a été mis à jour."
+
+#: unknown
+msgid "Centreon wallpaper"
+msgstr "Arrière-plan Centreon"
 
 #: unknown
 msgid "Centreon website"
@@ -20811,6 +20065,10 @@ msgid "Check Version"
 msgstr "Vérifier la version"
 
 #: unknown
+msgid "Check command sent!"
+msgstr "Commande de vérification envoyée !"
+
+#: unknown
 msgid "Check patches"
 msgstr "Vérifier les mises à jour de correctifs"
 
@@ -20843,6 +20101,10 @@ msgid "Choose at least 1 user"
 msgstr "Veuillez sélectionner au moins 1 utilisateur"
 
 #: unknown
+msgid "Choose at least one contact or contact group"
+msgstr "Choisissez au moins un contact ou groupe de contacts"
+
+#: unknown
 msgid "Circular reference detected with host children : %s"
 msgstr "Référence circulaire détectée avec les hôtes enfants : %s"
 
@@ -20851,12 +20113,28 @@ msgid "Clear arguments"
 msgstr "Effacer les arguments"
 
 #: unknown
+msgid "Click here for details"
+msgstr "Cliquez ici pour les détails"
+
+#: unknown
 msgid "Client Secret"
 msgstr "Secret client"
 
 #: unknown
+msgid "Close a ticket"
+msgstr "Fermer un ticket"
+
+#: unknown
+msgid "Close ticket"
+msgstr "Fermer le ticket"
+
+#: unknown
 msgid "Cmd"
 msgstr "Commande"
+
+#: unknown
+msgid "Collapse"
+msgstr "Réduire"
 
 #: unknown
 msgid "Color for host Down (Service view)"
@@ -20873,6 +20151,10 @@ msgstr "Nom de commande"
 #: unknown
 msgid "Command Type"
 msgstr "Type de commande"
+
+#: unknown
+msgid "Command copied!"
+msgstr "Commande copiée !"
 
 #: unknown
 msgid "Command created"
@@ -20931,12 +20213,24 @@ msgid "Configuration UI behavior"
 msgstr "Configuration du comportement de l'interface"
 
 #: unknown
+msgid "Configuration provider"
+msgstr "Fournisseur de configuration"
+
+#: unknown
 msgid "Configuration saved."
 msgstr "Configuration sauvegardée."
 
 #: unknown
+msgid "Confirm"
+msgstr "Confirmer"
+
+#: unknown
 msgid "Congratulations, you have successfully installed Centreon!"
 msgstr "Félicitations, vous avez installé avec succès Centreon en version <b>%s</b> !"
+
+#: unknown
+msgid "Connect"
+msgstr "Se connecter"
 
 #: unknown
 msgid "Connected Users"
@@ -20945,6 +20239,10 @@ msgstr "Utilisateurs connectés"
 #: unknown
 msgid "Connection Error to NDO DataBase ! \n"
 msgstr "Erreur de connexion à la base de données NDO ! \n"
+
+#: unknown
+msgid "Connection initiated"
+msgstr "Connexion initiée"
 
 #: unknown
 msgid "Connection initiated by poller"
@@ -20975,8 +20273,16 @@ msgid "Contact templace"
 msgstr "Modèle de contacts"
 
 #: unknown
+msgid "Contacts/Contact groups"
+msgstr "Contacts/Groupes de contacts"
+
+#: unknown
 msgid "Contributors"
 msgstr "Contributeurs"
+
+#: unknown
+msgid "Copy command"
+msgstr "Copier la commande"
 
 #: unknown
 msgid "Correlation"
@@ -21032,8 +20338,32 @@ msgid "Could not import ndomod"
 msgstr "Impossible d'importer ndomod"
 
 #: unknown
+msgid "Create a new resource access rule"
+msgstr "Créer une nouvelle règle d'accès aux ressources"
+
+#: unknown
+msgid "Create a ticket"
+msgstr "Créer un ticket"
+
+#: unknown
 msgid "Create additional configuration"
 msgstr "Créer une configuration additionnelle"
+
+#: unknown
+msgid "Create authentication token"
+msgstr "Créer un jeton d'authentification"
+
+#: unknown
+msgid "Create hosts automatically"
+msgstr "Créer les hôtes automatiquement"
+
+#: unknown
+msgid "Create new CMA token"
+msgstr "Créer un nouveau jeton CMA"
+
+#: unknown
+msgid "Create new Poller"
+msgstr "Créer un nouveau collecteur"
 
 #: unknown
 msgid "Create new object with prefix"
@@ -21048,6 +20378,10 @@ msgid "Critical Alert"
 msgstr "Alerte Critique"
 
 #: unknown
+msgid "Critical KPIs"
+msgstr "Indicateurs critiques"
+
+#: unknown
 msgid "Critical Mean Time"
 msgstr "Critique (Temps connu)"
 
@@ -21058,6 +20392,14 @@ msgstr "Activation actuelle"
 #: unknown
 msgid "Currently running?"
 msgstr "En cours d'exécution ?"
+
+#: unknown
+msgid "Custom value"
+msgstr "Valeur personnalisée"
+
+#: unknown
+msgid "DNS/IP"
+msgstr "DNS/IP"
 
 #: unknown
 msgid "Daemon core dumps"
@@ -21120,6 +20462,14 @@ msgid "Delete a widget"
 msgstr "Supprimer un widget"
 
 #: unknown
+msgid "Delete additional configuration"
+msgstr "Supprimer la configuration additionnelle"
+
+#: unknown
+msgid "Delete agent configuration"
+msgstr "Supprimer une configuration d'agent"
+
+#: unknown
 msgid "Delete all configuration for the chosen type of files"
 msgstr "Supprimer toute la configuration des types de fichiers choisis"
 
@@ -21142,6 +20492,26 @@ msgstr "Supprimer le modèle d'hôte"
 #: unknown
 msgid "Delete host templates"
 msgstr "Supprimer les modèles d'hôtes"
+
+#: unknown
+msgid "Delete multiple resource access rules"
+msgstr "Supprimer plusieurs règles d'accès aux ressources"
+
+#: unknown
+msgid "Delete poller"
+msgstr "Supprimer un collecteur"
+
+#: unknown
+msgid "Delete rule"
+msgstr "Supprimer la règle"
+
+#: unknown
+msgid "Delete rules"
+msgstr "Supprimer les règles"
+
+#: unknown
+msgid "Delete token"
+msgstr "Supprimer le jeton"
 
 #: unknown
 msgid "Dependencies Management"
@@ -21208,6 +20578,10 @@ msgid "Disable submit result if no matched rules"
 msgstr "Désactiver la mise à jour du service si aucune règle n'est valide"
 
 #: unknown
+msgid "Disable token"
+msgstr "Désactiver le jeton"
+
+#: unknown
 msgid "Disabled HostGroups"
 msgstr "Désactiver le groupe d'hôtes"
 
@@ -21222,6 +20596,10 @@ msgstr "Utiliser le modèle"
 #: unknown
 msgid "Display type"
 msgstr "Type d'affichage"
+
+#: unknown
+msgid "Display up to"
+msgstr "Afficher jusqu'à"
 
 #: unknown
 msgid "Displays the availability history of a Business Activity or a Business View for a given period."
@@ -21252,8 +20630,16 @@ msgid "Do you want to delete this widget?"
 msgstr "Voulez-vous supprimer ce widget ?"
 
 #: unknown
+msgid "Do you want to quit without saving the changes?"
+msgstr "Voulez-vous quitter sans enregistrer les modifications ?"
+
+#: unknown
 msgid "Donate"
 msgstr "Donation"
+
+#: unknown
+msgid "Done"
+msgstr "Terminé"
 
 #: unknown
 msgid "Down Alerts"
@@ -21262,6 +20648,14 @@ msgstr "Alertes Indisponible"
 #: unknown
 msgid "Down Time"
 msgstr "Temps état indisponible"
+
+#: unknown
+msgid "Download"
+msgstr "Télécharger"
+
+#: unknown
+msgid "Download the script"
+msgstr "Télécharger le script"
 
 #: unknown
 msgid "Downtime host or service Color"
@@ -21320,6 +20714,18 @@ msgid "Edit"
 msgstr "Éditer"
 
 #: unknown
+msgid "Edit connector configuration"
+msgstr "Modifier la configuration de connecteur"
+
+#: unknown
+msgid "Edit password"
+msgstr "Modifier le mot de passe"
+
+#: unknown
+msgid "Edit resource access rule"
+msgstr "Modifier la règle d'accès aux ressources"
+
+#: unknown
 msgid "Embedded Perl initialisation file"
 msgstr "Interpréteur Perl intégré"
 
@@ -21376,8 +20782,16 @@ msgid "Enable the one-click export button for poller configuration"
 msgstr "Activer le bouton d’export de la configuration des collecteurs en un seul clic"
 
 #: unknown
+msgid "Enable token"
+msgstr "Activer le jeton"
+
+#: unknown
 msgid "Enabled HostGroups"
 msgstr "Activer le groupe d'hôtes"
+
+#: unknown
+msgid "Encryption level"
+msgstr "Niveau de chiffrement"
 
 #: unknown
 msgid "End Hour"
@@ -21394,6 +20808,10 @@ msgstr "La date de fin doit être supérieure à la date de début"
 #: unknown
 msgid "End date must be greater than start date."
 msgstr "La date de fin doit être supérieure à la date de début."
+
+#: unknown
+msgid "Ends at"
+msgstr "Se termine à"
 
 #: unknown
 msgid "Enter regex"
@@ -21596,8 +21014,20 @@ msgid "Exclude Timeperiods"
 msgstr "Exclure les périodes"
 
 #: unknown
+msgid "Execute the script"
+msgstr "Exécuter le script"
+
+#: unknown
 msgid "Execution start"
 msgstr "Début de l'exécution"
+
+#: unknown
+msgid "Exit"
+msgstr "Quitter"
+
+#: unknown
+msgid "Expiration date"
+msgstr "Date d'expiration"
 
 #: unknown
 msgid "Export XML"
@@ -21608,12 +21038,24 @@ msgid "Export format not supported"
 msgstr "Format d'export non supporté"
 
 #: unknown
+msgid "Export generation timeout"
+msgstr "Expiration du délai de génération de l'export"
+
+#: unknown
 msgid "Export in XML too"
 msgstr "Exporter également en XML"
 
 #: unknown
+msgid "Expression in"
+msgstr "Expression en"
+
+#: unknown
 msgid "Extended Information"
 msgstr "Informations additionnelles"
+
+#: unknown
+msgid "Extension not allowed"
+msgstr "Extension non autorisée"
 
 #: unknown
 msgid "External Command"
@@ -21622,6 +21064,10 @@ msgstr "Commande externe"
 #: unknown
 msgid "Extra"
 msgstr "Extra"
+
+#: unknown
+msgid "Failed to copy the command!"
+msgstr "Échec de la copie de la commande !"
 
 #: unknown
 msgid "Failed to copy the link."
@@ -21652,6 +21098,14 @@ msgid "Failed to delete the host templates"
 msgstr "Échec de la suppression des modèles d'hôtes"
 
 #: unknown
+msgid "Failed to delete the resource access rule"
+msgstr "La règle d'accès aux ressources n'a pas pu être supprimée"
+
+#: unknown
+msgid "Failed to delete the selected resource access rules"
+msgstr "Échec de la suppression des règles d'accès aux ressources sélectionnées"
+
+#: unknown
 msgid "Failed to disable the host group"
 msgstr "Échec de la désactivation du groupe d'hôtes"
 
@@ -21666,6 +21120,10 @@ msgstr "Échec de la duplication du modèle d'hôte"
 #: unknown
 msgid "Failed to duplicate the host templates"
 msgstr "Échec de la duplication des modèles d'hôtes"
+
+#: unknown
+msgid "Failed to duplicate the resource access rule"
+msgstr "Échec de la duplication de la règle d'accès aux ressources"
 
 #: unknown
 msgid "Failed to enable the host group"
@@ -21760,12 +21218,24 @@ msgid "For professional support subscription please contact the <a href=\"http:/
 msgstr "Pour la souscription à un support professionnel, contacter le <a href=\"http://support.centreon.com\">Centre de Support Centreon</a>."
 
 #: unknown
+msgid "For security reasons, the token can only be displayed once. Remember to store it well."
+msgstr "Pour des raisons de sécurité, le jeton ne peut être affiché qu'une seule fois. Pensez à bien le stocker."
+
+#: unknown
 msgid "For security reasons, the token can only be displayed once. Store it carefully."
 msgstr "Pour des raisons de sécurité, le jeton ne peut être affiché qu'une seule fois. Stockez-le soigneusement."
 
 #: unknown
+msgid "For some connectors, you must define on the poller the credentials required to access the monitored hosts. You can do it easily from here."
+msgstr "Pour certains connecteurs, vous devez définir sur le collecteur les identifiants nécessaires pour accéder aux hôtes supervisés. Vous pouvez le faire facilement depuis cette page."
+
+#: unknown
 msgid "Force Reload"
 msgstr "Forcer le rechargement"
+
+#: unknown
+msgid "Forced check command sent!"
+msgstr "Commande de vérification forcée envoyée !"
 
 #: unknown
 msgid "Forum"
@@ -21794,6 +21264,14 @@ msgstr "Générer les fichiers"
 #: unknown
 msgid "Generate new token"
 msgstr "Générer un nouveau jeton"
+
+#: unknown
+msgid "Generate token"
+msgstr "Générer un jeton"
+
+#: unknown
+msgid "Generate your CMA installation command"
+msgstr "Générez votre commande d'installation CMA"
 
 #: unknown
 msgid "Generated in "
@@ -21846,6 +21324,10 @@ msgstr "HTTP"
 #: unknown
 msgid "HTTPS"
 msgstr "HTTPS"
+
+#: unknown
+msgid "Health"
+msgstr "Santé"
 
 #: unknown
 msgid "Help Desk"
@@ -22072,12 +21554,20 @@ msgid "Huge"
 msgstr "Très grande"
 
 #: unknown
+msgid "If the agent is not allowed to connect to the poller for security reasons (e.g. when the poller is in a DMZ), you can use a poller-initiated connection."
+msgstr "Si l’agent n’est pas autorisé à se connecter au collecteur pour des raisons de sécurité (par exemple si le collecteur est en DMZ), vous pouvez utiliser une connexion initiée par le collecteur."
+
+#: unknown
 msgid "Images Directory"
 msgstr "Répertoire des images"
 
 #: unknown
 msgid "Images already uploaded."
 msgstr "Images déjà uploadés."
+
+#: unknown
+msgid "Impact applied when:"
+msgstr "Impact appliqué quand :"
 
 #: unknown
 msgid "Implied Host Groups"
@@ -22216,6 +21706,10 @@ msgid "Initial State Logging Option"
 msgstr "Journalisation des états initaux"
 
 #: unknown
+msgid "Insecure TLS"
+msgstr "TLS non sécurisé"
+
+#: unknown
 msgid "Install Module"
 msgstr "Installer le module"
 
@@ -22230,6 +21724,10 @@ msgstr "Vue interactive"
 #: unknown
 msgid "Introspection Token Endpoint"
 msgstr "Point de terminaison d'introspection du jeton"
+
+#: unknown
+msgid "Invalid address"
+msgstr "Adresse invalide"
 
 #: unknown
 msgid "Invalid credentials"
@@ -22248,6 +21746,22 @@ msgid "Invalid endpoint type specified"
 msgstr "Type d'endpoint spécifié invalide"
 
 #: unknown
+msgid "Invalid extension"
+msgstr "Extension invalide"
+
+#: unknown
+msgid "Invalid filename"
+msgstr "Nom de fichier invalide"
+
+#: unknown
+msgid "Invalid path"
+msgstr "Chemin invalide"
+
+#: unknown
+msgid "Invalid port number"
+msgstr "Numéro de port invalide"
+
+#: unknown
 msgid "Invalid property type %s for %s, type %s expected"
 msgstr "Type de propriétés invalide %s pour %s, type %s attendu"
 
@@ -22258,6 +21772,10 @@ msgstr "Il est recommandé d'envoyer d'abord les définitions de commandes en sp
 #: unknown
 msgid "It will be permanently deleted and users will no longer have this permission"
 msgstr "Elle sera définitivement supprimée et les utilisateurs n'auront plus ces accès"
+
+#: unknown
+msgid "It will be permanently deleted and users will no longer have this permission."
+msgstr "La règle sera définitivement supprimée et les utilisateurs ne disposeront plus de cette autorisation."
 
 #: unknown
 msgid "Job groups"
@@ -22373,6 +21891,10 @@ msgid "Linked with Servicegroups"
 msgstr "Lié avec les groupes de services"
 
 #: unknown
+msgid "Linux"
+msgstr "Linux"
+
+#: unknown
 msgid "List of known metrics"
 msgstr "Liste des métriques connues"
 
@@ -22413,6 +21935,14 @@ msgid "Login claim value"
 msgstr "Valeur de la déclaration de connexion"
 
 #: unknown
+msgid "Login succeeded"
+msgstr "Connexion réussie"
+
+#: unknown
+msgid "Login with"
+msgstr "Se connecter avec"
+
+#: unknown
 msgid "Login:"
 msgstr "Pseudo :"
 
@@ -22431,6 +21961,10 @@ msgstr "Durée de rétention des journaux"
 #: unknown
 msgid "Loop detected in file %s"
 msgstr "Boucle détectée dans le fichier %s"
+
+#: unknown
+msgid "Lost in space?"
+msgstr "Perdu(e) dans l'espace ?"
 
 #: unknown
 msgid "Low Flap threshold"
@@ -22514,8 +22048,16 @@ msgid "Meta Services Escalation"
 msgstr "Escalades des Méta-Services"
 
 #: unknown
+msgid "Metaservice"
+msgstr "Métaservice"
+
+#: unknown
 msgid "Metaservices"
 msgstr "Méta-Service"
+
+#: unknown
+msgid "Metric name"
+msgstr "Nom de la métrique"
 
 #: unknown
 msgid "Metrics dataset selection"
@@ -22550,6 +22092,10 @@ msgid "Modify a host template"
 msgstr "Modifier un modèle d'hôte"
 
 #: unknown
+msgid "Modify an additional configuration"
+msgstr "Modifier une configuration additionnelle"
+
+#: unknown
 msgid "Module Information"
 msgstr "Information sur le module"
 
@@ -22564,6 +22110,10 @@ msgstr "Option des modules"
 #: unknown
 msgid "Monitored from"
 msgstr "Surveillé depuis le collecteur"
+
+#: unknown
+msgid "Monitored hosts"
+msgstr "Hôtes supervisés"
 
 #: unknown
 msgid "Monitoring Connectors"
@@ -22614,12 +22164,28 @@ msgid "More Actions"
 msgstr "Plus d'actions"
 
 #: unknown
+msgid "More filters"
+msgstr "Plus de filtres"
+
+#: unknown
 msgid "NA"
 msgstr "NA"
 
 #: unknown
+msgid "Never expire"
+msgstr "N'expire jamais"
+
+#: unknown
 msgid "New Color"
 msgstr "Nouvelle couleur"
+
+#: unknown
+msgid "Next"
+msgstr "Suivant"
+
+#: unknown
+msgid "No Business Activity found"
+msgstr "Aucune activité métier trouvée"
 
 #: unknown
 msgid "No Comment for hosts."
@@ -22630,8 +22196,16 @@ msgid "No Data Available"
 msgstr "Pas de données disponibles"
 
 #: unknown
+msgid "No KPI found"
+msgstr "Aucun KPI trouvé"
+
+#: unknown
 msgid "No LDAP configuration enabled !"
 msgstr "Aucune configuration LDAP active !"
+
+#: unknown
+msgid "No TLS"
+msgstr "Sans TLS"
 
 #: unknown
 msgid "No active poller is defined in Centreon."
@@ -22646,6 +22220,10 @@ msgid "No data available"
 msgstr "Aucune donnée disponible"
 
 #: unknown
+msgid "No data found"
+msgstr "Aucune donnée trouvée"
+
+#: unknown
 msgid "No data is displayed because the selected resources have not been configured in any MBI report or do not contain enough data."
 msgstr "Aucune donnée n'est affichée car les ressources sélectionnées n'ont été configurées dans aucun rapport MBI ou ne contiennent pas suffisamment de données."
 
@@ -22656,6 +22234,10 @@ msgstr "Aucune plage de maintenance planifiée pour les hôtes"
 #: unknown
 msgid "No downtime scheduled for services"
 msgstr "Aucune plage de maintenance planifiée pour les services"
+
+#: unknown
+msgid "No host found"
+msgstr "Aucun hôte trouvé"
 
 #: unknown
 msgid "No provider presenters could be found"
@@ -22670,6 +22252,10 @@ msgid "No provider responses could be found"
 msgstr "Aucune réponse de fournisseur n'a pu être trouvée"
 
 #: unknown
+msgid "No service found"
+msgstr "Aucun service trouvé"
+
+#: unknown
 msgid "No unhandled host problem"
 msgstr "Aucun problème d'hôte non acquitté"
 
@@ -22680,6 +22266,10 @@ msgstr "Aucun problème de service non acquitté"
 #: unknown
 msgid "No {{resourcesType}} found with this status"
 msgstr "Aucun {{resourcesType}} trouvé avec ce statut"
+
+#: unknown
+msgid "No {{type}} found with this status"
+msgstr "Aucun {{type}} n'a ce statut"
 
 #: unknown
 msgid "Normal"
@@ -22724,6 +22314,14 @@ msgstr "Temps état OK"
 #: unknown
 msgid "OK: all pollers are running"
 msgstr "OK : tous les collecteurs sont en cours d'exécution"
+
+#: unknown
+msgid "OTLP Receiver"
+msgstr "Récepteur OTLP"
+
+#: unknown
+msgid "OTLP receiver"
+msgstr "Receveur OTLP"
 
 #: unknown
 msgid "Object Cache File"
@@ -22782,12 +22380,28 @@ msgid "Only services and hosts are taken in account in order to calculate this s
 msgstr "Seuls les modifications de configuration des hôtes et services sont prisent en compte pour calculer cet état. Si vous modifiez un modèle, aucun indicateur de modification de configuration n’apparaitra."
 
 #: unknown
+msgid "Oops"
+msgstr "Oups"
+
+#: unknown
 msgid "Open links in new tab"
 msgstr "Ouvrir les liens dans un nouvel onglet"
 
 #: unknown
 msgid "Open ticket"
 msgstr "Ouvrir un ticket"
+
+#: unknown
+msgid "Open ticket for host"
+msgstr "Ouvrir un ticket pour l'hôte"
+
+#: unknown
+msgid "Open ticket for service"
+msgstr "Ouvrir un ticket pour le service"
+
+#: unknown
+msgid "Opened on"
+msgstr "Ouvert le"
 
 #: unknown
 msgid "Optimize"
@@ -22828,6 +22442,10 @@ msgid "PHP version %s required (%s installed)"
 msgstr "La version %s de PHP est requise (%s installée)"
 
 #: unknown
+msgid "Parameters tooltip"
+msgstr "Infobulle de paramètres"
+
+#: unknown
 msgid "Parent Host Categories"
 msgstr "Catégorie d'hôtes parents"
 
@@ -22866,6 +22484,10 @@ msgstr "Options de contrôle passive des hôtes"
 #: unknown
 msgid "Password cases"
 msgstr "Casses du mot de passe"
+
+#: unknown
+msgid "Password has expired"
+msgstr "Votre mot de passe a expiré"
 
 #: unknown
 msgid "Patch Download path"
@@ -22928,8 +22550,16 @@ msgid "Please define autologin authentication key in your profile."
 msgstr "Merci de définir une clé d’autorisation de connexion automatique dans votre profil."
 
 #: unknown
+msgid "Please enter a name for the duplicated resource access rule"
+msgstr "Veuillez saisir un nom pour la règle d'accès aux ressources dupliquée"
+
+#: unknown
 msgid "Please enter a name for the resource access rule to duplicate"
 msgstr "Veuillez saisir un nom pour la règle d'accès aux ressources à dupliquer"
+
+#: unknown
+msgid "Please enter a valid URL or IP address"
+msgstr "Entrez une URL ou une adresse IP valide"
 
 #: unknown
 msgid "Please note that data aggregation may take several days."
@@ -22938,6 +22568,10 @@ msgstr "Veuillez noter que l'agrégation des données peut prendre plusieurs jou
 #: unknown
 msgid "Please select an user in order to display resources"
 msgstr "Merci de sélectionner un utilisateur pour afficher les ressources"
+
+#: unknown
+msgid "Please, select a valid countdown"
+msgstr "Veuillez définir une valeur de compte à rebours valide"
 
 #: unknown
 msgid "Plugin Test"
@@ -22956,12 +22590,24 @@ msgid "Poller :"
 msgstr "Collecteur :"
 
 #: unknown
+msgid "Poller CA certificate file name"
+msgstr "Nom du fichier du certificat de l'autorité de certification du collecteur"
+
+#: unknown
+msgid "Poller CA name"
+msgstr "Nom du CA pour le collecteur"
+
+#: unknown
 msgid "Poller States"
 msgstr "État des collecteurs"
 
 #: unknown
 msgid "Poller Statistics"
 msgstr "Statistiques des collecteurs"
+
+#: unknown
+msgid "Poller configuration"
+msgstr "Configuration du collecteur"
 
 #: unknown
 msgid "Poller/Centreon Server"
@@ -22984,6 +22630,10 @@ msgid "Post must start from 1"
 msgstr "Le numéro de port doit être au moins 1"
 
 #: unknown
+msgid "Powered by Centreon"
+msgstr "Propulsé par Centreon"
+
+#: unknown
 msgid "Pre-Update"
 msgstr "Pré-mise à jour"
 
@@ -22994,6 +22644,18 @@ msgstr "Fichier de pre-cache des objets"
 #: unknown
 msgid "Prefix"
 msgstr "Préfixe des tables"
+
+#: unknown
+msgid "Prerequisite: configure the central to accept PullWSS connections"
+msgstr "Prérequis : configurer le central pour accepter les connexions PullWSS"
+
+#: unknown
+msgid "Previous"
+msgstr "Précédent"
+
+#: unknown
+msgid "Private key (.key)"
+msgstr "Clé privée (.key)"
 
 #: unknown
 msgid "Private key file. "
@@ -23038,6 +22700,10 @@ msgstr "Le fournisseur %1 est chargé"
 #: unknown
 msgid "Proxy protocol"
 msgstr "Protocole du proxy Internet"
+
+#: unknown
+msgid "Public certificate (.crt, .cert, .cer)"
+msgstr "Certificat public (.crt, .cert, .cer)"
 
 #: unknown
 msgid "Public link"
@@ -23104,12 +22770,16 @@ msgid "Relations between Elements"
 msgstr "Relations entre les éléments"
 
 #: unknown
+msgid "Relative paths are not allowed"
+msgstr "Les chemins relatifs ne sont pas autorisés"
+
+#: unknown
 msgid "Release"
 msgstr "Version"
 
 #: unknown
-msgid "Replace"
-msgstr "Remplacer"
+msgid "Remove vCenter/ESX"
+msgstr "Supprimer vCenter/ESX"
 
 #: unknown
 msgid "Replace existing ones"
@@ -23158,6 +22828,10 @@ msgstr "Champs requis dans la liste des 'Hôtes' et des 'Services'"
 #: unknown
 msgid "Reset filters"
 msgstr "Remise à zéro des filtres"
+
+#: unknown
+msgid "Resource access rule name"
+msgstr "Nom de la règle d'accès aux ressources"
 
 #: unknown
 msgid "Resource selection"
@@ -23228,6 +22902,10 @@ msgid "Retry interval (in seconds)"
 msgstr "Intervalle entre deux tentatives (en secondes)"
 
 #: unknown
+msgid "Revoked"
+msgstr "Révoqué"
+
+#: unknown
 msgid "Right Click here to add an autologin link directly to your bookmarks"
 msgstr "Clic droit ici afin d'ajouter un lien de connexion automatique directement dans vos marques-pages"
 
@@ -23252,8 +22930,16 @@ msgid "Rrdcached configuration : work only with Centreon Broker"
 msgstr "Configuration du module RRDCached : fonctionne seulement avec Centreon Broker"
 
 #: unknown
+msgid "Rule properties"
+msgstr "Propriétés de la règle"
+
+#: unknown
 msgid "Rules"
 msgstr "Règles"
+
+#: unknown
+msgid "Rules are used to allow users to access resources."
+msgstr "Les règles sont utilisées pour permettre aux utilisateurs d'accéder aux ressources."
 
 #: unknown
 msgid "Run Optimisation test (-s)"
@@ -23262,6 +22948,10 @@ msgstr "Lancer un test d'Optimisation (-s)"
 #: unknown
 msgid "Run debug (-v)"
 msgstr "Lancer le débogage (-v)"
+
+#: unknown
+msgid "Run the following command on each host you want to monitor with the agent."
+msgstr "Exécutez la commande suivante sur chaque hôte que vous souhaitez superviser avec l'agent."
 
 #: unknown
 msgid "SNMP"
@@ -23360,8 +23050,36 @@ msgid "Security policy not found. Please verify that your installation is valid"
 msgstr "Politique de sécurité non trouvée. Veuillez vérifier que votre installation est valide"
 
 #: unknown
+msgid "See more information in the geoview"
+msgstr "Voir plus d'informations dans la vue géographique"
+
+#: unknown
+msgid "See more on the Resources Status page"
+msgstr "Voir plus dans la page Statut des ressources"
+
+#: unknown
+msgid "Select Pending Poller IP"
+msgstr "Sélectionner l'IP du collecteur en attente"
+
+#: unknown
+msgid "Select a Business Activity to display the preview."
+msgstr "Sélectionnez une activité métier pour afficher l'aperçu."
+
+#: unknown
+msgid "Select a Poller"
+msgstr "Sélectionner un collecteur"
+
+#: unknown
+msgid "Select a Remote Server"
+msgstr "Sélectionnez un serveur distant"
+
+#: unknown
 msgid "Select a connector..."
 msgstr "Sélectionner un connecteur..."
+
+#: unknown
+msgid "Select a dataset to display the preview."
+msgstr "Sélectionnez un jeu de données pour afficher l'aperçu."
 
 #: unknown
 msgid "Select a downtime type"
@@ -23378,6 +23096,38 @@ msgstr "Sélectionner une ressource"
 #: unknown
 msgid "Select contacts and contact groups"
 msgstr "Sélectionner les contacts et les groupes de contacts"
+
+#: unknown
+msgid "Select existing CMA token"
+msgstr "Sélectionner un jeton CMA existant"
+
+#: unknown
+msgid "Select existing CMA token(s)"
+msgstr "Sélectionner des jetons CMA existants"
+
+#: unknown
+msgid "Select host"
+msgstr "Sélectionner un hôte"
+
+#: unknown
+msgid "Select poller"
+msgstr "Sélectionner le collecteur"
+
+#: unknown
+msgid "Select poller(s)"
+msgstr "Sélectionner le(s) collecteur(s)"
+
+#: unknown
+msgid "Select resource type"
+msgstr "Sélectionnez un type de ressource"
+
+#: unknown
+msgid "Select the poller that will monitor your hosts"
+msgstr "Sélectionnez le collecteur qui supervisera vos hôtes"
+
+#: unknown
+msgid "Select your hosts' operating system"
+msgstr "Sélectionnez le système d'exploitation de vos hôtes"
 
 #: unknown
 msgid "Server Status"
@@ -23596,6 +23346,10 @@ msgid "Start the Monitoring Engine process"
 msgstr "Démarrer le moteur de supervision"
 
 #: unknown
+msgid "State information"
+msgstr "Information de l'état"
+
+#: unknown
 msgid "Status Color Properties"
 msgstr "Définition des couleurs"
 
@@ -23606,6 +23360,10 @@ msgstr "Information sur le statut"
 #: unknown
 msgid "Status summarized by Hostgroups"
 msgstr "Résumé des états par groupes d'hôtes"
+
+#: unknown
+msgid "Status:"
+msgstr "Statut :"
 
 #: unknown
 msgid "Stop accepting passive host checks"
@@ -23721,6 +23479,10 @@ msgid "The address of the parent platform '%s'@'%s' is not consistent"
 msgstr "L'adresse de la plateforme parente '%s'@'%s' n'est pas cohérente"
 
 #: unknown
+msgid "The command is only valid for hosts with an agent-initiated connection to this poller."
+msgstr "La commande n'est valide que pour les hôtes avec une connexion à ce collecteur initiée par l'agent."
+
+#: unknown
 msgid "The command line in the configuration is empty while in the monitoring it is not"
 msgstr "La ligne de commande dans la configuration est vide alors que celle de la supervision ne l'est pas"
 
@@ -23745,8 +23507,16 @@ msgid "The contact template '%s' doesn't exist"
 msgstr "Le modèle de contact '%s' n'existe pas"
 
 #: unknown
+msgid "The corresponding connectors will not work anymore."
+msgstr "Les connecteurs correspondants ne fonctionneront plus."
+
+#: unknown
 msgid "The duration must be lesser than a year"
 msgstr "La durée doit être inférieure à une année"
+
+#: unknown
+msgid "The end date must be greater than the current date by at least one day"
+msgstr "La date de fin doit être supérieure à la date actuelle d'au moins un jour"
 
 #: unknown
 msgid "The following contact does not exist: [%s]"
@@ -23793,6 +23563,18 @@ msgid "The list of pollers is <a href=\"./main.php?p=60901\">here</a>."
 msgstr "La liste des collecteur est disponible <a href=\"./main.php?p=60901\">ici</a>."
 
 #: unknown
+msgid "The name can be at most 50 characters long"
+msgstr "Le nom peut comporter au maximum 50 caractères"
+
+#: unknown
+msgid "The name of the vCenter should be unique"
+msgstr "Le nom du vCenter doit être unique"
+
+#: unknown
+msgid "The name should be at least 3 characters long"
+msgstr "Le nom doit comporter au moins 3 caractères"
+
+#: unknown
 msgid "The order in which dashboards are displayed must be unique."
 msgstr "L'ordre de diffusion des tableaux de bord doit être unique."
 
@@ -23801,12 +23583,32 @@ msgid "The port must be numeric"
 msgstr "La port doit être numérique"
 
 #: unknown
+msgid "The resource access rule has been successfully deleted"
+msgstr "La règle d'accès aux ressources a bien été supprimée"
+
+#: unknown
+msgid "The resource access rule has been successfully duplicated"
+msgstr "La règle d'accès aux ressources a été dupliquée avec succès"
+
+#: unknown
+msgid "The resource access rule was successfully created"
+msgstr "La règle d'accès aux ressources a été créée avec succès"
+
+#: unknown
 msgid "The resource access rule was successfully deleted"
 msgstr "La règle d'accès aux ressouces a été supprimée avec succès"
 
 #: unknown
+msgid "The resource access rule was successfully updated"
+msgstr "La règle d'accès aux ressources a été modifiée avec succès"
+
+#: unknown
 msgid "The rrdcached configuration must have a option."
 msgstr "La configuration du module RRDCached doit avoir une option"
+
+#: unknown
+msgid "The selected resource access rules have been deleted successfully"
+msgstr "Les règles d'accès aux ressources sélectionnées ont été supprimées avec succès"
 
 #: unknown
 msgid "The selected user didn't see any resources"
@@ -23823,6 +23625,10 @@ msgstr "L'id du service ne peut pas être null"
 #: unknown
 msgid "The ticket will be closed for the selected ticket provider"
 msgstr "Le ticket sera fermé pour le fournisseur de tickets sélectionné"
+
+#: unknown
+msgid "The ticket with ID #{{id}} will be closed for the selected ticket provider."
+msgstr "Le ticket avec l'ID #{{id}} sera fermé pour le fournisseur de tickets sélectionné."
 
 #: unknown
 msgid "The value %1 is only supported by the operators %2 and %3"
@@ -23845,6 +23651,10 @@ msgid "The {{module}} license will expire in {{expirationDate}} days"
 msgstr "La licence {{module}} expirera dans {{expirationDate}} jours"
 
 #: unknown
+msgid "The {{name}} additional configuration will be permanently deleted."
+msgstr "La configuration additionnelle {{name}} sera définitivement supprimée."
+
+#: unknown
 msgid "There are errors in the form."
 msgstr "Il y a des erreurs dans le formulaire."
 
@@ -23853,8 +23663,20 @@ msgid "There are errors in the form. Do you want to quit the form without resolv
 msgstr "Il y a des erreurs dans le formulaire. Voulez-vous quitter le formulaire sans résoudre les erreurs ?"
 
 #: unknown
+msgid "They will be permanently deleted and users will no longer have these permissions."
+msgstr "Elles seront définitivement supprimées et les utilisateurs n'auront plus ces accès."
+
+#: unknown
 msgid "This field is required"
 msgstr "Ce champ est obligatoire"
+
+#: unknown
+msgid "This is the most common case: the agent initiates the connection to the poller."
+msgstr "Il s’agit du cas le plus courant : l’agent initie la connexion vers le collecteur."
+
+#: unknown
+msgid "This page could not be found"
+msgstr "Cette page n'a pas pu être trouvée"
 
 #: unknown
 msgid "Threshold"
@@ -23865,12 +23687,24 @@ msgid "Thresholds can be hidden if the custom min and max values of the Y axis a
 msgstr "Les seuils peuvent être masqués si les valeurs minimales et maximales personnalisées de l'axe Y sont respectivement inférieures et supérieures aux seuils."
 
 #: unknown
+msgid "Ticket ID"
+msgstr "ID du ticket"
+
+#: unknown
 msgid "Ticket management"
 msgstr "Gestion des tickets"
 
 #: unknown
 msgid "Ticket provider"
 msgstr "Fournisseur de tickets"
+
+#: unknown
+msgid "Ticket subject"
+msgstr "Sujet du ticket"
+
+#: unknown
+msgid "Tickets"
+msgstr "Tickets"
 
 #: unknown
 msgid "Time range"
@@ -23881,6 +23715,10 @@ msgid "Title Properties"
 msgstr "Propriétés du titre"
 
 #: unknown
+msgid "Token"
+msgstr "Jeton"
+
+#: unknown
 msgid "Token Endpoint"
 msgstr "Point de terminaison de jeton"
 
@@ -23889,8 +23727,28 @@ msgid "Token can not empty, null or not defined"
 msgstr "Le token ne peut être ni null, ni vide ou non défini"
 
 #: unknown
+msgid "Token could not be copied"
+msgstr "Le jeton n'a pas pu être copié"
+
+#: unknown
+msgid "Token deleted"
+msgstr "Jeton supprimé"
+
+#: unknown
+msgid "Token disabled"
+msgstr "Jeton désactivé"
+
+#: unknown
+msgid "Token enabled"
+msgstr "Jeton activé"
+
+#: unknown
 msgid "Token expired."
 msgstr "Token expiré."
+
+#: unknown
+msgid "Token has been created"
+msgstr "Le jeton a été créé"
 
 #: unknown
 msgid "Too many elements to be displayed"
@@ -24029,6 +23887,10 @@ msgid "Unrecognized Command"
 msgstr "Commande non reconnue"
 
 #: unknown
+msgid "Until"
+msgstr "Jusqu'à"
+
+#: unknown
 msgid "Up Alerts"
 msgstr "Alertes Disponible"
 
@@ -24039,6 +23901,10 @@ msgstr "Temps état disponible"
 #: unknown
 msgid "Update additional configuration"
 msgstr "Mettre à jour la configuration additionnelle"
+
+#: unknown
+msgid "Update agent configuration"
+msgstr "Mettre à jour la configuration d'agent"
 
 #: unknown
 msgid "Update already in progress"
@@ -24055,6 +23921,10 @@ msgstr "Mettre à jour les informations"
 #: unknown
 msgid "Update patch available"
 msgstr "Correctif de mise à jour disponible"
+
+#: unknown
+msgid "Updated by"
+msgstr "Mis à jour par"
 
 #: unknown
 msgid "Updates not found"
@@ -24147,6 +24017,14 @@ msgstr "Image VRML"
 #: unknown
 msgid "Valid for an upgrade"
 msgstr "Valide pour une mise à jour"
+
+#: unknown
+msgid "Value defined by the {{metric}} metric"
+msgstr "Valeur définie par la métrique {{metric}}"
+
+#: unknown
+msgid "Value defined by {{metric}} metric"
+msgstr "Valeur définie par la métrique {{metric}}"
 
 #  msgid "Confirm"
 #  msgstr "Confirmer"
@@ -24251,6 +24129,14 @@ msgid "Web Site"
 msgstr "Site web"
 
 #: unknown
+msgid "Web page preview"
+msgstr "Aperçu de la page web"
+
+#: unknown
+msgid "Webpage Display"
+msgstr "Page web"
+
+#: unknown
 msgid "Weekly"
 msgstr "Hebdomadaire"
 
@@ -24261,6 +24147,18 @@ msgstr "Bienvenue"
 #: unknown
 msgid "Welcome to Centreon Broker configuration"
 msgstr "Bienvenu dans la configuration de Centreon Broker"
+
+#: unknown
+msgid "Welcome to the additional configurations page"
+msgstr "Bienvenue sur la page des configurations additionnelles"
+
+#: unknown
+msgid "Welcome to the agent configuration page"
+msgstr "Bienvenue sur la page des configurations d'agent"
+
+#: unknown
+msgid "Welcome to the authentication tokens page"
+msgstr "Bienvenue sur la page des jetons d'authentification"
 
 #: unknown
 msgid "Widget Information"
@@ -24281,6 +24179,10 @@ msgstr "Widgets"
 #: unknown
 msgid "Wiki"
 msgstr "Wiki"
+
+#: unknown
+msgid "Windows"
+msgstr "Windows"
 
 #: unknown
 msgid "Wizard"
@@ -24359,8 +24261,16 @@ msgid "You are about to delete the <strong>{{ name }}</strong> host template. Th
 msgstr "Vous êtes sur le point de supprimer le modèle d'hôte <strong>{{ name }}</strong>. Cette action est irréversible. Voulez-vous le supprimer ?"
 
 #: unknown
+msgid "You are about to delete the <strong>{{tokenName}}</strong> token. This action cannot be undone. Do you want to delete this token anyway ? You must export the configuration for the change to be taken into account."
+msgstr "Vous êtes sur le point de supprimer le jeton <strong>{{tokenName}}</strong>. Cette action est irréversible. Voulez-vous vraiment supprimer ce jeton ? Vous devez exporter la configuration pour que le changement soit pris en compte."
+
+#: unknown
 msgid "You are about to delete the token <b> {{tokenName}}</b>. This action <br> cannot be undone. If you proceed, all requests made using this token will be <br> rejected. Do you want to delete the token?"
 msgstr "Vous êtes sur le point de supprimer le jeton <b> {{tokenName}}</b>. Cette action est <br> irréversible. Si vous le supprimez, toutes les requêtes effectuées avec ce jeton seront <br> rejetées. Voulez-vous supprimer le jeton ?"
+
+#: unknown
+msgid "You are about to disable the <strong>{{tokenName}}</strong> token. If you disable it, all requests made with this token will be rejected. Do you want to disable it ? You must export the configuration for the change to be taken into account."
+msgstr "Vous êtes sur le point de désactiver le jeton <strong>{{tokenName}}</strong>. Si vous le désactivez, toutes les requêtes effectuées avec ce jeton seront rejetées. Voulez-vous vraiment le désactiver ? Vous devez exporter la configuration pour que le changement soit pris en compte."
 
 #: unknown
 msgid "You are about to duplicate <strong>{{ count }} host groups.</strong> How many duplications would you like to make?"
@@ -24383,8 +24293,24 @@ msgid "You are about to duplicate the <strong>{{ name }}</strong> host template.
 msgstr "Vous êtes sur le point de dupliquer le modèle d'hôte <strong>{{ name }}</strong>."
 
 #: unknown
+msgid "You are about to enable the <strong>{{tokenName}}</strong> token. You must export the configuration for the change to be taken into account."
+msgstr "Vous êtes sur le point d'activer le jeton <strong>{{tokenName}}</strong>. Vous devez exporter la configuration pour que le changement soit pris en compte."
+
+#: unknown
+msgid "You are disconnected"
+msgstr "Vous êtes déconnecté"
+
+#: unknown
 msgid "You are going to delete <strong>{{name}}</strong> from the user list. This user will no longer be able to access the dashboard."
 msgstr "Vous êtes sur le point de supprimer <strong>{{name}}</strong> de la liste des utilisateurs. Cet utilisateur n'aura plus accès au tableau de bord."
+
+#: unknown
+msgid "You are going to delete the <strong>{{ agent }}</strong> agent configuration. All parameters for this agent configuration will be deleted. This action cannot be undone."
+msgstr "Vous allez supprimer la configuration de l'agent <strong>{{ agent }}</strong>. Tous les paramètres de configuration de cet agent seront supprimés. Cette action est irréversible."
+
+#: unknown
+msgid "You are going to delete the configuration for the <strong>{{ poller }}</strong> poller from the <strong>{{ agent }}</strong> agent configuration. All configuration parameters for this poller will be deleted. This action cannot be undone."
+msgstr "Vous allez supprimer la configuration du collecteur <strong>{{ poller }}</strong> de l'agent <strong>{{ agent }}</strong>. Tous les paramètres de configuration de ce collecteur seront supprimés. Cette action est irréversible."
 
 #: unknown
 msgid "You are not allowed to access connectors"
@@ -24407,6 +24333,14 @@ msgid "You are not allowed to list authentication tokens"
 msgstr "Vous n'avez pas la permission de lister les jetons d'authentification"
 
 #: unknown
+msgid "You are not allowed to log in"
+msgstr "Vous n'avez pas la permission de vous connecter"
+
+#: unknown
+msgid "You are not allowed to see this page"
+msgstr "Vous n'avez pas la permission de voir cette page"
+
+#: unknown
 msgid "You are not authorized to access this resource"
 msgstr "Vous n'avez pas la permission d'accéder à cette ressource"
 
@@ -24417,6 +24351,10 @@ msgstr "Vous n'êtes pas dans un groupe d'accès"
 #: unknown
 msgid "You are not in the following contact group: [%s]"
 msgstr "Vous ne faites pas partie du groupe de contacts suivant : [%s]"
+
+#: unknown
+msgid "You can create two types of tokens: API tokens to manipulate Centreon objects via the API, or CMA tokens to allow the CMA monitoring agent to authenticate to the corresponding poller."
+msgstr "Vous pouvez créer deux types de jetons : des jetons API pour manipuler les objets Centreon via l'API, ou des jetons CMA pour permettre à l'agent de supervision CMA de s’authentifier auprès du collecteur correspondant."
 
 #: unknown
 msgid "You can see the full list by visiting the Centreon's Github"
@@ -24459,6 +24397,14 @@ msgid "You do not have editing rights on the following playlist: [%d]"
 msgstr "Vous n'avez pas les droits d'édition sur la liste de diffusion suivante : [%d]"
 
 #: unknown
+msgid "You have selected No TLS for the encryption level."
+msgstr "Vous avez sélectionné Aucun TLS comme niveau de chiffrement."
+
+#: unknown
+msgid "You have selected No TLS for the encryption level. This parameter is meant for test purposes only and is not allowed in production. The agent monitoring will stop after 1 hour."
+msgstr "Vous avez sélectionné Aucun TLS comme niveau de chiffrement. Ce paramètre est destiné uniquement aux tests et n’est pas autorisé en production. La supervision par l’agent s’arrêtera après 1 heure."
+
+#: unknown
 msgid "You have unsaved changes, do you want to proceed?"
 msgstr "Vous avez des modifications non enregistrées, voulez-vous continuer ?"
 
@@ -24487,6 +24433,10 @@ msgid "You must specify a username"
 msgstr "Vou devez spécifier un nom d'utilisateur"
 
 #: unknown
+msgid "Your form has unsaved changes. Do you want to quit the form without saving the changes?"
+msgstr "Votre formulaire a des modifications non enregistrées. Voulez-vous quitter le formulaire sans enregistrer les modifications ?"
+
+#: unknown
 msgid "Your session is expired."
 msgstr "Votre session a expiré"
 
@@ -24502,6 +24452,14 @@ msgstr "[%s] La valeur \"%s\" n'est pas une adresse IP ou un nom de domaine vali
 #: unknown
 msgid "and"
 msgstr "et"
+
+#: unknown
+msgid "are working fine."
+msgstr "fonctionnent correctement."
+
+#: unknown
+msgid "business activity"
+msgstr "activité métier"
 
 #: unknown
 msgid "cgi"
@@ -24578,6 +24536,10 @@ msgstr "en secondes - Doit être supérieur à 10"
 #: unknown
 msgid "in seconds - Must be higher than 2"
 msgstr "en secondes - Doit etre supérieur à 2"
+
+#: unknown
+msgid "is used to allow users to access resources."
+msgstr "est utilisée pour permettre aux utilisateurs d'accéder aux resources."
 
 #: unknown
 msgid "it's required"
@@ -24664,6 +24626,14 @@ msgid "the community"
 msgstr "la communauté"
 
 #: unknown
+msgid "then copy the script to each host you want to monitor."
+msgstr "puis copiez le script sur chaque hôte que vous souhaitez superviser."
+
+#: unknown
+msgid "tiles"
+msgstr "tuiles"
+
+#: unknown
 msgid "timeperiod"
 msgstr "période de temps"
 
@@ -24688,23 +24658,13 @@ msgid "vCenter name"
 msgstr "Nom du vCenter"
 
 #: unknown
+msgid "vCenter/ESX"
+msgstr "vCenter/ESX"
+
+#: unknown
 msgid "warning"
 msgstr "alerte"
 
 #: unknown
 msgid "will display resources with host name starting by'"
 msgstr "affichera les ressources avec un nom d'hôte commençant par"
-
-
-#: centreon/www/install/front_translate.php
-msgid "Lists set to Replace will overwrite the corresponding lists of all selected services. If you leave a list set to Replace blank, its existing entries will be deleted from all selected services. Entries you don't have access to are unaffected."
-msgstr "Les listes en mode Remplacer écraseront les listes correspondantes de tous les services sélectionnés. Si vous laissez vide une liste en mode Remplacer, ses entrées existantes seront supprimées de tous les services sélectionnés. Les entrées auxquelles vous n'avez pas accès ne sont pas modifiées."
-
-
-#: centreon/www/install/front_translate.php
-msgid "\"None\" can't be combined with other options. Set this list to Replace, or services with other options won't be updated."
-msgstr "« Aucun » ne peut pas être combiné avec d'autres options. Passez cette liste en mode Remplacer, sinon les services ayant d'autres options ne seront pas mis à jour."
-
-#: centreon/www/install/front_translate.php
-msgid "When services inherit contacts and contact groups only from their host, their own contacts and contact groups are removed. Only those you have access to are affected."
-msgstr "Lorsque les services héritent uniquement des contacts et groupes de contacts de leur hôte, leurs propres contacts et groupes de contacts sont supprimés. Seuls ceux auxquels vous avez accès sont concernés."
