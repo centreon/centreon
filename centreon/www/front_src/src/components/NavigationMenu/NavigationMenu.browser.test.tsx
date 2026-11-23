@@ -164,6 +164,32 @@ describe('NavigationMenu', () => {
       expect(onNavigate).toHaveBeenCalledWith('/hosts');
     });
 
+    it('hides the rail scrollbar and gives the popover an arrow-less translucent one', async () => {
+      renderMenu();
+
+      expect(getComputedStyle(screen.getByRole('list')).scrollbarWidth).toBe(
+        'none'
+      );
+
+      await userEvent.click(
+        screen.getByRole('button', { name: 'Configuration' })
+      );
+
+      const popover = getPopover();
+      const popoverStyle = getComputedStyle(popover);
+
+      // Chromium: the standard properties are reset so that the webkit
+      // pseudo-elements, without arrow buttons, style the scrollbar.
+      expect(popoverStyle.scrollbarWidth).toBe('auto');
+      expect(popoverStyle.scrollbarColor).toBe('auto');
+      expect(
+        getComputedStyle(popover, '::-webkit-scrollbar-button').display
+      ).toBe('none');
+      expect(
+        getComputedStyle(popover, '::-webkit-scrollbar-thumb').backgroundColor
+      ).toMatch(/^oklab\(0\.99\d* .* \/ 0\.25\)$/);
+    });
+
     it('closes the popover when the Escape key is pressed', async () => {
       renderMenu();
 

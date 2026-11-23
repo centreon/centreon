@@ -25,6 +25,27 @@ export const navigationMenuWidth = { closed: 48, open: 216 };
 const popoverGap = 8;
 const popoverMinHeight = 240;
 
+// The global scrollbar (grey thumb on a light track) is unreadable on the
+// menu background: a thin translucent thumb on a transparent track instead,
+// with a stable gutter so the content does not jump when it overflows.
+// Chromium draws its native scrollbar, arrows included, as soon as
+// scrollbar-color or scrollbar-width is set: where ::-webkit-scrollbar is
+// supported they are reset so that the arrow-less webkit styles apply.
+const scrollbarClassName = [
+  '[scrollbar-gutter:stable]',
+  '[scrollbar-color:rgb(255_255_255/0.25)_transparent] [scrollbar-width:thin] hover:[scrollbar-color:rgb(255_255_255/0.5)_transparent]',
+  'supports-[selector(::-webkit-scrollbar)]:[scrollbar-color:auto] supports-[selector(::-webkit-scrollbar)]:[scrollbar-width:auto] supports-[selector(::-webkit-scrollbar)]:hover:[scrollbar-color:auto]',
+  '[&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar]:bg-transparent',
+  '[&::-webkit-scrollbar-button]:hidden',
+  '[&::-webkit-scrollbar-track]:bg-transparent',
+  '[&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/25',
+  'hover:[&::-webkit-scrollbar-thumb]:bg-white/50'
+].join(' ');
+
+// Even a thin scrollbar would push the icons of the collapsed rail off
+// centre: it scrolls without a visible scrollbar.
+const hiddenScrollbarClassName = '[scrollbar-width:none]';
+
 export interface NavigationMenuProps {
   /** Displayed above the menu, for instance a logo. */
   header?: ReactNode;
@@ -167,7 +188,9 @@ const NavigationMenu = ({
           )}
         </button>
         <Divider className="mx-2 mb-1 border-white/20" />
-        <ul className="m-0 flex flex-1 list-none flex-col gap-0.5 overflow-x-hidden overflow-y-auto px-1 py-0">
+        <ul
+          className={`m-0 flex flex-1 list-none flex-col gap-0.5 overflow-x-hidden overflow-y-auto px-1 py-0 ${isOpen ? scrollbarClassName : hiddenScrollbarClassName}`}
+        >
           {routes.map((entry) => (
             <NavigationMenuItem
               actions={actions}
@@ -183,7 +206,7 @@ const NavigationMenu = ({
         {popover && (
           <section
             aria-label={popover.entry.label}
-            className="fixed z-[1000] flex w-64 flex-col overflow-y-auto rounded-lg bg-primary-main p-2 text-white shadow-lg dark:bg-black"
+            className={`fixed z-[1000] flex w-64 flex-col overflow-y-auto rounded-lg bg-primary-main p-2 text-white shadow-lg dark:bg-black ${scrollbarClassName}`}
             data-testid="navigation-menu-popover"
             style={{
               left: popover.left,
