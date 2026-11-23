@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2026 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,18 +35,18 @@ use Core\RemoteChannel\Domain\Model\RemoteChannel;
 use Core\RemoteChannel\Infrastructure\Broker\BrokerApiClient;
 use Core\RemoteChannel\Infrastructure\Broker\BrokerConfigurationDeployer;
 use Core\RemoteChannel\Infrastructure\Broker\BrokerPollerCommandSender;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 
 /**
  * Broker adapters against a stub of the central broker remote API (contracts.md § 1).
- *
- * @covers \Core\RemoteChannel\Infrastructure\Broker\BrokerPollerCommandSender
- * @covers \Core\RemoteChannel\Infrastructure\Broker\BrokerConfigurationDeployer
- * @covers \Core\RemoteChannel\Infrastructure\Broker\BrokerApiClient
- * @covers \Centreon\Infrastructure\Engine\EngineRepositoryRemoteChannel
  */
+#[CoversClass(BrokerPollerCommandSender::class)]
+#[CoversClass(BrokerConfigurationDeployer::class)]
+#[CoversClass(BrokerApiClient::class)]
+#[CoversClass(EngineRepositoryRemoteChannel::class)]
 class BrokerRemoteChannelTest extends TestCase
 {
     /** @var list<array{method: string, url: string, headers: list<string>, body: array<mixed>|null}> */
@@ -297,7 +297,7 @@ class BrokerRemoteChannelTest extends TestCase
 
     /**
      * @param array<string, array{int, array<mixed>}|list<array{int, array<mixed>}>> $routes by "METHOD path":
-     *                                                                                   one answer, or answers in turn (the last one repeats)
+     *                                                                                       one answer, or answers in turn (the last one repeats)
      */
     private function client(array $routes): BrokerApiClient
     {

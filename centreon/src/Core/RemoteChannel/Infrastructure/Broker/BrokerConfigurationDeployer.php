@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2026 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,6 @@ class BrokerConfigurationDeployer implements ConfigurationDeployerInterface
      */
     private const DEFAULT_RESULT_TIMEOUT = 50;
     private const RESULT_TIMEOUT_ENV = 'CENTREON_BROKER_API_RESULT_TIMEOUT';
-
     private const POLL_INTERVAL_US = 500000;
 
     /** A deployment POST carries the files: allow more than a status poll */
@@ -115,48 +114,6 @@ class BrokerConfigurationDeployer implements ConfigurationDeployerInterface
 
     /**
      * @throws RemoteChannelException
-     * @return string|null the request id to follow, null when the deployment is already final and successful
-     */
-    private function post(PollerTarget $target, DeploymentAction $action, bool $withFiles): ?string
-    {
-        $requestId = BrokerPollerCommandSender::generateRequestId();
-        $response = $this->client->call(
-            'POST',
-            '/v1/deployments',
-            [
-                'request_id' => $requestId,
-                'poller_id' => $target->uid,
-                'action' => $action->value,
-                'files' => $withFiles ? $this->collectFiles($target) : [],
-            ],
-            self::POST_HTTP_TIMEOUT
-        );
-        $status = DispatchStatus::tryFrom((string) ($response['status'] ?? '')) ?? DispatchStatus::Accepted;
-        if ($status->isFailure()) {
-            throw RemoteChannelException::forPoller($target->name, $status, (string) ($response['message'] ?? ''));
-        }
-
-        return (string) ($response['request_id'] ?? $requestId);
-    }
-
-    /**
-     * @throws RemoteChannelException on a failed final status
-     */
-    private function isFinished(string $requestId, PollerTarget $target, DeploymentAction $action): bool
-    {
-        $response = $this->client->call('GET', '/v1/deployments/' . rawurlencode($requestId));
-        $status = DispatchStatus::tryFrom((string) ($response['status'] ?? '')) ?? DispatchStatus::Accepted;
-        if ($status->isFailure()) {
-            throw RemoteChannelException::forPoller($target->name, $status, (string) ($response['message'] ?? ''));
-        }
-
-        // contracts.md: a restart ends at DELIVERED, the poller reconnects with its new configuration
-        return $status === DispatchStatus::Applied
-            || ($action === DeploymentAction::Restart && $status === DispatchStatus::Delivered);
-    }
-
-    /**
-     * @throws RemoteChannelException
      * @return list<array{target: string, path: string, sha256: string, content_b64: string}>
      */
     public function collectFiles(PollerTarget $target): array
@@ -196,6 +153,48 @@ class BrokerConfigurationDeployer implements ConfigurationDeployerInterface
         }
 
         return $files;
+    }
+
+    /**
+     * @throws RemoteChannelException
+     * @return string|null the request id to follow, null when the deployment is already final and successful
+     */
+    private function post(PollerTarget $target, DeploymentAction $action, bool $withFiles): ?string
+    {
+        $requestId = BrokerPollerCommandSender::generateRequestId();
+        $response = $this->client->call(
+            'POST',
+            '/v1/deployments',
+            [
+                'request_id' => $requestId,
+                'poller_id' => $target->uid,
+                'action' => $action->value,
+                'files' => $withFiles ? $this->collectFiles($target) : [],
+            ],
+            self::POST_HTTP_TIMEOUT
+        );
+        $status = DispatchStatus::tryFrom((string) ($response['status'] ?? '')) ?? DispatchStatus::Accepted;
+        if ($status->isFailure()) {
+            throw RemoteChannelException::forPoller($target->name, $status, (string) ($response['message'] ?? ''));
+        }
+
+        return (string) ($response['request_id'] ?? $requestId);
+    }
+
+    /**
+     * @throws RemoteChannelException on a failed final status
+     */
+    private function isFinished(string $requestId, PollerTarget $target, DeploymentAction $action): bool
+    {
+        $response = $this->client->call('GET', '/v1/deployments/' . rawurlencode($requestId));
+        $status = DispatchStatus::tryFrom((string) ($response['status'] ?? '')) ?? DispatchStatus::Accepted;
+        if ($status->isFailure()) {
+            throw RemoteChannelException::forPoller($target->name, $status, (string) ($response['message'] ?? ''));
+        }
+
+        // contracts.md: a restart ends at DELIVERED, the poller reconnects with its new configuration
+        return $status === DispatchStatus::Applied
+            || ($action === DeploymentAction::Restart && $status === DispatchStatus::Delivered);
     }
 
     private function getResultTimeout(): int

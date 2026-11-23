@@ -37,7 +37,7 @@ $errorMessage = '';
 // TODO add your functions here
 
 // Gorgone-less PoC (MON-215450): channel used to reach each poller
-$addRemoteChannelColumn = function () use ($pearDB, &$errorMessage, $version): void {
+$addRemoteChannelColumn = function () use ($pearDB, &$errorMessage): void {
     $errorMessage = 'Unable to add remote_channel column to nagios_server';
     if ($pearDB->columnExists(
         $pearDB->getConnectionConfig()->getDatabaseNameConfiguration(),

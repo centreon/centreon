@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2026 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -107,6 +107,15 @@ final class BrokerPollerCommandSender implements PollerCommandSenderInterface
         }
     }
 
+    public static function generateRequestId(): string
+    {
+        $bytes = random_bytes(16);
+        $bytes[6] = chr((ord($bytes[6]) & 0x0F) | 0x40);
+        $bytes[8] = chr((ord($bytes[8]) & 0x3F) | 0x80);
+
+        return vsprintf('%s%s-%s-%s-%s-%s%s%s', mb_str_split(bin2hex($bytes), 4));
+    }
+
     /**
      * Same protection as Gorgone legacycmd (illegal characters option) plus one command per line.
      */
@@ -158,14 +167,5 @@ final class BrokerPollerCommandSender implements PollerCommandSenderInterface
             $failures[0]->status,
             $failures[0]
         );
-    }
-
-    public static function generateRequestId(): string
-    {
-        $bytes = random_bytes(16);
-        $bytes[6] = chr((ord($bytes[6]) & 0x0F) | 0x40);
-        $bytes[8] = chr((ord($bytes[8]) & 0x3F) | 0x80);
-
-        return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($bytes), 4));
     }
 }
