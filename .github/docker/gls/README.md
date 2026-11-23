@@ -17,6 +17,8 @@ Exploratory PoC, not meant to be merged. Epic MON-215448. Interfaces: `contracts
 
 Contracts §7. Named volumes are prefixed by the project (`gls-central_`, `gls-poller_`).
 
+No helper container on the poller. Docker seeds each empty named volume from the image directory (owner, mode, package defaults), and the engine bootstrap writes the rest from env: config, `engine-context.json`, `certs/ca.crt` (contracts §8.A). On the central, a `volumes-init` container still prepares the two config volumes shared with fpm, until phase 2e.
+
 | Path | Service | Mount | Content |
 | --- | --- | --- | --- |
 | `/etc/centreon-engine`, `/etc/centreon-broker` | each engine; central cbd | `*-engine-etc`, `*-broker-etc` | Delivered configuration. The central ones are shared with fpm for the bootstrap local copy. |

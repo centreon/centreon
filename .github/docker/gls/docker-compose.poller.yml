@@ -5,27 +5,14 @@
 #   docker compose -p gls-poller -f docker-compose.poller.yml --env-file images.env up -d
 name: gls-poller
 
+# No helper container: the named volumes are seeded from the image directories
+# (owner, mode, package defaults) and the bootstrap writes the rest from env
+# (contracts § 8.A).
 services:
-  volumes-init:
-    image: "${REGISTRY}/centreon-engine-trixie:${ENGINE_TAG}"
-    user: "0"
-    entrypoint: ["/bin/sh", "/gls/init-volumes.sh", "poller"]
-    environment:
-      APP_SECRET: "${APP_SECRET:-9cd3e2ccf822916ec8fc5379f8abdaf277860415454f9b91c0913392d4b41f92}"
-      SALT: "${SALT:-84e9107f78239bdab2751c3321023a32c3716ed0724a4a8b13de8e7aed8d319d}"
-    volumes:
-      - ./scripts:/gls:ro
-      - poller-engine-etc:/mnt/engine-etc
-      - poller-broker-etc:/mnt/broker-etc
-    network_mode: none
-    restart: "no"
-
   poller-engine:
     image: "${REGISTRY}/centreon-engine-trixie:${ENGINE_TAG}"
     hostname: poller-engine
     restart: unless-stopped
-    depends_on:
-      volumes-init: {condition: service_completed_successfully}
     environment:
       TZ: "${TZ:-Europe/Paris}"
       NAME: "${POLLER_NAME:-gls-poller}"
@@ -44,17 +31,13 @@ services:
       BROKER_CA_FINGERPRINT: "${BROKER_CA_FINGERPRINT:-}"
       BROKER_CA_CERT: /etc/centreon-broker/certs/ca.crt
       BROKER_TLS_HOSTNAME: centreon-broker
+      # engine-context.json is written from these by the bootstrap (contracts § 8.A).
       APP_SECRET: "${APP_SECRET:-9cd3e2ccf822916ec8fc5379f8abdaf277860415454f9b91c0913392d4b41f92}"
       SALT: "${SALT:-84e9107f78239bdab2751c3321023a32c3716ed0724a4a8b13de8e7aed8d319d}"
     volumes:
-      - type: volume
-        source: poller-engine-etc
-        target: /etc/centreon-engine
-        volume: {nocopy: true}
-      - type: volume
-        source: poller-broker-etc
-        target: /etc/centreon-broker
-        volume: {nocopy: true}
+      - poller-engine-etc:/etc/centreon-engine
+      # Holds certs/ca.crt written by the bootstrap (contracts § 8.3).
+      - poller-broker-etc:/etc/centreon-broker
       # State (contracts § 7): cbmod cache_directory (queue while the central is
       # unreachable) + retention.dat. Logs stay in the container layer.
       - poller-engine-state:/var/lib/centreon-engine

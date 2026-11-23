@@ -327,7 +327,9 @@ cmd_up() {
 # ---------- negative TLS: central cert not signed by the pollers' CA ----------
 
 swap_central_cert() { # swap_central_cert rogue|clear (clear: cbd re-signs with its kept CA)
-  cc run --rm --no-deps -v "$GLS_CERTS_DIR:/certs-src:ro" --entrypoint /bin/sh volumes-init /gls/install-certs.sh "$1" \
+  docker run --rm --network none -u 0 -v gls-central_central-broker-certs:/mnt/broker-certs \
+    -v "$GLS_CERTS_DIR:/certs-src:ro" -v "$GLS_DIR/scripts:/gls:ro" --entrypoint /bin/sh \
+    "$REGISTRY/centreon-engine-trixie:$ENGINE_TAG" /gls/install-certs.sh "$1" \
     >>"$LOG_DIR/install-certs.log" 2>&1 && cc restart centreon-broker >/dev/null 2>&1
 }
 
@@ -432,6 +434,9 @@ cmd_step0() {
   local n
   n=$( { cc ps -a --format '{{.Image}}'; cp_ ps -a --format '{{.Image}}'; } | grep -cE '/centreon-gorgone[^/]*:')
   [[ "$n" == 0 ]] && record "no gorgone container" ok || record "no gorgone container" ko "$n"
+  cp_ ps -a --format '{{.Service}}' | grep -qx volumes-init \
+    && record "no helper container in gls-poller (volumes seeded by the image)" ko \
+    || record "no helper container in gls-poller (volumes seeded by the image)" ok
   local ports
   ports=$(cp_ ps --format '{{.Ports}}' | tr -d '[:space:]')
   [[ "$ports" != *"->"* ]] && record "poller publishes no port" ok || record "poller publishes no port" ko "$ports"
