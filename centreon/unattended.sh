@@ -58,6 +58,8 @@ dbms=${ENV_CENTREON_DBMS:-"MariaDB"}            #Default database system to be u
 operation=${ENV_CENTREON_OPERATION:-"install"}  #Default operation to be executed
 runtime_log_level=${ENV_LOG_LEVEL:-"INFO"}      #Default log level to be used
 selinux_mode=${ENV_SELINUX_MODE:-"permissive"}  #Default SELinux mode to be used
+selinux_mode=${selinux_mode,,}                  #Compared in lower case below
+selinux_enforcing_skipped="false"               #Set when enforcing is not applied (rules missing)
 wizard_autoplay=${ENV_WIZARD_AUTOPLAY:-"false"} #Default the install wizard is not run auto
 central_ip=${ENV_CENTRAL_IP:-$default_ip}       #Default central ip is the first of hostname -I
 tls=${ENV_DB_TLS:-"disabled"}                   #Default DB TLS mode
@@ -2382,7 +2384,6 @@ if [ ${#failed_services[@]} -gt 0 ]; then
 	fi
 	exit 2
 fi
-
 
 # Final notice on the console (the rest of the run is in the log file).
 if [ -n "${LOG_FILE:-}" ]; then
