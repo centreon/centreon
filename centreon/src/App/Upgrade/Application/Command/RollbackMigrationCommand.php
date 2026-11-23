@@ -21,19 +21,21 @@
 
 declare(strict_types=1);
 
-namespace App\Upgrade\Application;
+namespace App\Upgrade\Application\Command;
 
-interface UpdateLocker
+use App\Shared\Application\Command\NonTransactionalCommand;
+use App\Upgrade\Domain\Model\MigrationSet;
+
+final readonly class RollbackMigrationCommand implements NonTransactionalCommand
 {
     /**
-     * Acquire the update lock.
-     *
-     * @return bool true if acquired, false if already locked
+     * @param string $version the version to roll back to (kept applied), or an alias such as "prev"
+     * @param list<string> $expected the migrations to revert, as GetRollbackPlanQuery listed them to be confirmed
      */
-    public function lock(): bool;
-
-    /**
-     * Release the update lock.
-     */
-    public function unlock(): void;
+    public function __construct(
+        public MigrationSet $set,
+        public string $version,
+        public array $expected,
+    ) {
+    }
 }

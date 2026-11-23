@@ -21,12 +21,18 @@
 
 declare(strict_types=1);
 
-namespace App\Upgrade\Application;
+namespace Tests\App\Upgrade\Infrastructure\Double;
 
-interface EngineContextWriter
+use App\Upgrade\Application\DbmsVersionValidatorInterface;
+
+final class FakeDbmsVersionValidator implements DbmsVersionValidatorInterface
 {
-    /**
-     * Write the engine context file if it does not yet contain secrets.
-     */
-    public function writeIfMissing(): void;
+    public ?\Throwable $failure = null;
+
+    public function validateOrFail(): void
+    {
+        if ($this->failure instanceof \Throwable) {
+            throw $this->failure;
+        }
+    }
 }

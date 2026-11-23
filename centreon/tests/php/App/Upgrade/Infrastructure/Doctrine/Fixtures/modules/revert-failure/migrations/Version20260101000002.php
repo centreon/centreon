@@ -21,14 +21,25 @@
 
 declare(strict_types=1);
 
-namespace App\Upgrade\Application;
+namespace RevertFailure\Migrations;
 
-interface DbmsVersionValidator
+use App\Upgrade\Infrastructure\Migration\DmlMigration;
+use Doctrine\DBAL\Schema\Schema;
+
+final class Version20260101000002 extends DmlMigration
 {
-    /**
-     * Validate that the DBMS version meets the minimum requirements.
-     *
-     * @throws \RuntimeException when the version is unsupported or cannot be retrieved
-     */
-    public function validateOrFail(): void;
+    public function getDescription(): string
+    {
+        return 'Fixture revert-failure Version20260101000002';
+    }
+
+    public function up(Schema $schema): void
+    {
+        $this->addSql('INSERT INTO fx_revert_failure (id) VALUES (1)');
+    }
+
+    public function revert(Schema $schema): void
+    {
+        $this->addSql('DELETE FROM fx_revert_failure WHERE id = 1');
+    }
 }
