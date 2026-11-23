@@ -32,6 +32,7 @@ require_once _CENTREON_PATH_ . 'www/class/centreon.class.php';
 require_once __DIR__ . '/../../../../bootstrap.php';
 require_once __DIR__ . '/../Paginator.php';
 require_once __DIR__ . '/PaginationRenderer.php';
+require_once __DIR__ . '/LogIterator.php';
 require_once __DIR__ . '/../../../class/centreonLog.class.php';
 require_once __DIR__ . '/../../../class/exceptions/CentreonDbException.php';
 
@@ -647,6 +648,9 @@ $orderClause = 'ORDER BY logs.ctime DESC';
 // The engine logs page keeps its numbered pagination, based on the count.
 $isEventLogsPage = $engine != 'true';
 $pageNumber = max(1, (int) $num);
+// The Event Logs XML export, like the CSV one, keeps all the rows of the search: it reads and sends them
+// one by one, so that a large search does not exhaust the PHP memory.
+$streamsExport = $isEventLogsPage && $export;
 
 $limitClause = '';
 if (! $export) {
@@ -685,6 +689,11 @@ try {
         $pearDBO->closeQuery($countStatement);
     }
 
+    if ($streamsExport) {
+        // Without it, MySQL sends all the rows at once and PHP keeps them in memory.
+        $pearDBO->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
+    }
+
     // Prepare and execute the query using CentreonDB methods
     $statement = $pearDBO->prepareQuery($sqlQuery);
     $pearDBO->executePreparedQuery($statement, $queryValues, true);
@@ -701,8 +710,12 @@ try {
         $pearDBO->executePreparedQuery($statement, $queryValues, true);
     }
 
-    $logs = $pearDBO->fetchAll($statement);
-    $pearDBO->closeQuery($statement);
+    if ($streamsExport) {
+        $logs = new LogIterator($statement);
+    } else {
+        $logs = $pearDBO->fetchAll($statement);
+        $pearDBO->closeQuery($statement);
+    }
 } catch (CentreonDbException $e) {
     CentreonLog::create()->error(
         CentreonLog::TYPE_BUSINESS_LOG,
@@ -712,6 +725,11 @@ try {
     // Without it, the page would show the failed search as a search without results.
     http_response_code(500);
 }
+
+// XML tag, sent before the export rows that are flushed during the rendering
+stristr($_SERVER['HTTP_ACCEPT'], 'application/xhtml+xml')
+    ? header('Content-type: application/xhtml+xml') : header('Content-type: text/xml');
+header('Content-Disposition: attachment; filename="eventLogs-' . time() . '.xml"');
 
 // Render XML output
 $buffer->startElement('selectLimit');
@@ -736,9 +754,8 @@ if (! $isEventLogsPage) {
 
 // Display logs
 $cpts = 0;
-// The page query reads one more row than the page size. The Event Logs XML export, like the CSV one,
-// keeps all the rows of the search.
-$displayedLogs = $isEventLogsPage && $export ? $logs : array_slice($logs, 0, $limit);
+// The page query reads one more row than the page size.
+$displayedLogs = $streamsExport ? $logs : array_slice($logs, 0, $limit);
 foreach ($displayedLogs as $log) {
     $buffer->startElement('line');
     $buffer->writeElement('msg_type', $log['msg_type']);
@@ -885,6 +902,10 @@ foreach ($displayedLogs as $log) {
     $buffer->writeElement('contact_cmd', $log['notification_cmd'], false);
     $buffer->endElement();
     $cpts++;
+
+    if ($streamsExport && $cpts % 500 === 0) {
+        $buffer->flush();
+    }
 }
 
 // Translation for tables.
@@ -903,10 +924,5 @@ $buffer->writeElement('nextPage', _('Next page'), 0);
 
 $buffer->endElement();
 $buffer->endElement();
-
-// XML tag
-stristr($_SERVER['HTTP_ACCEPT'], 'application/xhtml+xml')
-    ? header('Content-type: application/xhtml+xml') : header('Content-type: text/xml');
-header('Content-Disposition: attachment; filename="eventLogs-' . time() . '.xml"');
 
 $buffer->output();
