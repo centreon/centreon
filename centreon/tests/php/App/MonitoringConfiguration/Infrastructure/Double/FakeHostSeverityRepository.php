@@ -35,6 +35,9 @@ final class FakeHostSeverityRepository implements HostSeverityRepository
     /** @var array<int, HostSeverityName> indexed by host severity id */
     public array $hostSeverities = [];
 
+    /** @var array<int, HostSeverity> indexed by host severity id, what findById() knows */
+    public array $severitiesById = [];
+
     public function findAll(HostSeverityCriteria $criteria): \IteratorAggregate&\Countable
     {
         return new Collection([], HostSeverity::class);
@@ -43,5 +46,10 @@ final class FakeHostSeverityRepository implements HostSeverityRepository
     public function findNameById(HostSeverityId $id): ?HostSeverityName
     {
         return $this->hostSeverities[$id->value] ?? null;
+    }
+
+    public function findById(HostSeverityId $id): ?HostSeverity
+    {
+        return $this->severitiesById[$id->value] ?? null;
     }
 }

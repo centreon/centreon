@@ -13729,6 +13729,8 @@ components:
           type: integer
         name:
           type: string
+        level:
+          type: integer
     HostSeverityOutput.jsonld:
       type: object
       properties:
@@ -13736,6 +13738,8 @@ components:
           type: integer
         name:
           type: string
+        level:
+          type: integer
     HostTimezoneOutput:
       type: object
       properties:
