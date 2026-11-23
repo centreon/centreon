@@ -467,6 +467,8 @@ class QueryGenerator
                 }
                 if ($str_unitH != '' || $str_unitSVC != '') {
                     $req .= ' AND (' . $str_unitH . $str_unitSVC . ')';
+                } else {
+                    $req .= ' AND 0 ';
                 }
             } else {
                 $req .= 'AND 0 ';
