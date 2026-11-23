@@ -385,12 +385,16 @@ cmd_ca() {
   docker network create --internal gls-ca-boot >/dev/null 2>&1
   local -a boot=(--network gls-ca-boot
     --tmpfs /etc/centreon-engine:mode=0777 --tmpfs /etc/centreon-broker:mode=0777
-    --tmpfs /etc/centreon-broker/certs:mode=0777 --tmpfs /var/lib/centreon-engine/rw:uid=901,gid=901,mode=0770
+    --tmpfs /etc/centreon-broker/certs:mode=0777 --tmpfs /var/lib/centreon-engine:uid=901,gid=901,mode=0770
+    --tmpfs /var/lib/centreon-engine/rw:uid=901,gid=901,mode=0770
     -e POLLER_NAME=gls-boot -e POLLER_ID=999 -e POLLER_UID=gls-boot -e CENTRAL_BROKER_HOST=centreon-broker
     -e BROKER_CA_PEM="$pem")
   docker rm -f gls-ca-boot >/dev/null 2>&1
   docker run -d --name gls-ca-boot "${boot[@]}" -e BROKER_CA_FINGERPRINT="$fp1" "$REGISTRY/centreon-engine-trixie:$ENGINE_TAG" >/dev/null 2>&1
-  if wait_until 240 docker exec gls-ca-boot test -s /etc/centreon-engine/centengine.cfg; then
+  # Past the bootstrap = the engine reads the rendered config (the container may
+  # stop later on its own: no central reachable, judged from the logs only).
+  if wait_until 240 eval 'docker logs gls-ca-boot 2>&1 | grep -qF "Processing object config file" \
+       && ! docker logs gls-ca-boot 2>&1 | grep -qi "fingerprint mismatch"'; then
     record "bootstrap accepts the CA with the right fingerprint (control)" ok
   else
     record "bootstrap accepts the CA with the right fingerprint (control)" ko "$(docker logs gls-ca-boot 2>&1 | tail -3 | tr '\n' ' ' | head -c 200)"
