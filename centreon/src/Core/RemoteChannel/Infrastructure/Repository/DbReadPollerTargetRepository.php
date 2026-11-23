@@ -73,6 +73,29 @@ final class DbReadPollerTargetRepository implements ReadPollerTargetRepositoryIn
         return $this->cache[$key] = $target;
     }
 
+    public function findStoppedBrokerPollerNameOfHost(int $hostId): ?string
+    {
+        $config = $this->connection->getConnectionConfig();
+        $name = $this->connection->fetchOne(
+            sprintf(
+                "SELECT i.name
+                FROM `%s`.hosts h
+                INNER JOIN `%s`.instances i ON i.instance_id = h.instance_id
+                INNER JOIN `%s`.nagios_server ns ON (ns.uid = i.instance_id OR ns.id = i.instance_id)
+                WHERE h.host_id = :hostId
+                AND ns.remote_channel = 'broker'
+                AND (i.running = 0 OR h.enabled = 0)
+                LIMIT 1",
+                $config->getDatabaseNameRealTime(),
+                $config->getDatabaseNameRealTime(),
+                $config->getDatabaseNameConfiguration()
+            ),
+            QueryParameters::create([QueryParameter::int('hostId', $hostId)])
+        );
+
+        return is_string($name) && $name !== '' ? $name : null;
+    }
+
     public function findIllegalCharacters(): string
     {
         if ($this->illegalCharacters === null) {

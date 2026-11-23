@@ -27,6 +27,7 @@ use Centreon\Domain\Engine\EngineException;
 use Centreon\Infrastructure\Engine\EngineRepositoryRemoteChannel;
 use Core\RemoteChannel\Application\PollerCommandSenderInterface;
 use Core\RemoteChannel\Application\Repository\ReadPollerTargetRepositoryInterface;
+use Core\RemoteChannel\Application\StoppedPollerGuard;
 use Core\RemoteChannel\Domain\Exception\RemoteChannelException;
 use Core\RemoteChannel\Domain\Model\DeploymentAction;
 use Core\RemoteChannel\Domain\Model\DispatchStatus;
@@ -48,6 +49,7 @@ use Symfony\Component\HttpClient\Response\MockResponse;
 #[CoversClass(BrokerConfigurationDeployer::class)]
 #[CoversClass(BrokerApiClient::class)]
 #[CoversClass(EngineRepositoryRemoteChannel::class)]
+#[CoversClass(StoppedPollerGuard::class)]
 class BrokerRemoteChannelTest extends TestCase
 {
     /** @var list<array{method: string, url: string, headers: list<string>, body: array<mixed>|null}> */
@@ -296,6 +298,18 @@ class BrokerRemoteChannelTest extends TestCase
         );
     }
 
+    public function testResourceOfAStoppedBrokerPollerIsNotConnected(): void
+    {
+        $guard = new StoppedPollerGuard($this->repository());
+        $guard->assertHostPollerRunning(12);
+        $guard->assertHostPollerRunning(null);
+
+        $this->expectException(RemoteChannelException::class);
+        $this->expectExceptionCode(503);
+        $this->expectExceptionMessage('"poller-2"');
+        $guard->assertHostPollerRunning(13);
+    }
+
     private function target(int $id, string $uid): PollerTarget
     {
         return new PollerTarget($id, $uid, 'poller-' . $id, RemoteChannel::Broker);
@@ -313,6 +327,11 @@ class BrokerRemoteChannelTest extends TestCase
                 return in_array((string) $key, ['2', '900002'], true)
                     ? new PollerTarget(2, '900002', 'poller-2', RemoteChannel::Broker)
                     : null;
+            }
+
+            public function findStoppedBrokerPollerNameOfHost(int $hostId): ?string
+            {
+                return $hostId === 13 ? 'poller-2' : null;
             }
 
             public function findIllegalCharacters(): string

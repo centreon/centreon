@@ -34,6 +34,7 @@ use Centreon\Domain\Monitoring\Interfaces\MonitoringRepositoryInterface;
 use Centreon\Domain\Monitoring\Resource as ResourceEntity;
 use Centreon\Domain\Monitoring\ResourceService;
 use Centreon\Domain\Service\AbstractCentreonService;
+use Core\RemoteChannel\Application\StoppedPollerGuard;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use JMS\Serializer\Exception\ValidationFailedException;
 
@@ -75,6 +76,7 @@ class AcknowledgementService extends AbstractCentreonService implements Acknowle
         MonitoringRepositoryInterface $monitoringRepository,
         EngineServiceInterface $engineService,
         EntityValidator $validator,
+        private readonly ?StoppedPollerGuard $stoppedPollerGuard = null,
     ) {
         $this->accessGroupRepository = $accessGroupRepository;
         $this->acknowledgementRepository = $acknowledgementRepository;
@@ -348,6 +350,9 @@ class AcknowledgementService extends AbstractCentreonService implements Acknowle
      */
     public function disacknowledgeResource(ResourceEntity $resource, Acknowledgement $ack): void
     {
+        if ($resource->getType() !== ResourceEntity::TYPE_META) {
+            $this->stoppedPollerGuard?->assertHostPollerRunning(ResourceService::generateHostIdByResource($resource));
+        }
         switch ($resource->getType()) {
             case ResourceEntity::TYPE_HOST:
                 $host = $this->monitoringRepository->findOneHost(ResourceService::generateHostIdByResource($resource));
@@ -411,6 +416,9 @@ class AcknowledgementService extends AbstractCentreonService implements Acknowle
      */
     public function acknowledgeResource(ResourceEntity $resource, Acknowledgement $ack): void
     {
+        if ($resource->getType() !== ResourceEntity::TYPE_META) {
+            $this->stoppedPollerGuard?->assertHostPollerRunning(ResourceService::generateHostIdByResource($resource));
+        }
         switch ($resource->getType()) {
             case ResourceEntity::TYPE_HOST:
                 $host = $this->monitoringRepository->findOneHost(ResourceService::generateHostIdByResource($resource));

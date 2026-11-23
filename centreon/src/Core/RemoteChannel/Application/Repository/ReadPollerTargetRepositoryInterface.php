@@ -33,6 +33,12 @@ interface ReadPollerTargetRepositoryInterface
     public function findByIdOrUid(int|string $key): ?PollerTarget;
 
     /**
+     * Name of the broker-channel poller of a host when that poller is stopped or disconnected (real-time instance
+     * not running, or the host disabled by the central broker), null otherwise.
+     */
+    public function findStoppedBrokerPollerNameOfHost(int $hostId): ?string;
+
+    /**
      * Illegal characters stripped from external commands (options.gorgone_illegal_characters).
      */
     public function findIllegalCharacters(): string;

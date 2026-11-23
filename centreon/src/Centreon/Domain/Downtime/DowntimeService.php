@@ -34,6 +34,7 @@ use Centreon\Domain\Monitoring\Resource as ResourceEntity;
 use Centreon\Domain\Monitoring\ResourceService;
 use Centreon\Domain\Monitoring\Service;
 use Centreon\Domain\Service\AbstractCentreonService;
+use Core\RemoteChannel\Application\StoppedPollerGuard;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
@@ -75,6 +76,7 @@ class DowntimeService extends AbstractCentreonService implements DowntimeService
         EngineServiceInterface $engineService,
         DowntimeRepositoryInterface $downtimeRepository,
         MonitoringRepositoryInterface $monitoringRepository,
+        private readonly ?StoppedPollerGuard $stoppedPollerGuard = null,
     ) {
         $this->accessGroupRepository = $accessGroupRepository;
         $this->engineService = $engineService;
@@ -266,6 +268,9 @@ class DowntimeService extends AbstractCentreonService implements DowntimeService
      */
     public function addResourceDowntime(ResourceEntity $resource, Downtime $downtime): void
     {
+        if ($resource->getType() !== ResourceEntity::TYPE_META) {
+            $this->stoppedPollerGuard?->assertHostPollerRunning(ResourceService::generateHostIdByResource($resource));
+        }
         switch ($resource->getType()) {
             case ResourceEntity::TYPE_HOST:
                 $host = $this->monitoringRepository->findOneHost(ResourceService::generateHostIdByResource($resource));
