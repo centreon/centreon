@@ -143,36 +143,20 @@ class CentreonOpenticketHistory extends CentreonWebService
             return ['code' => 1, 'message' => 'links parameters missing or wrong'];
         }
 
-        // Insert data
         $this->pearDBMonitoring->beginTransaction();
-        $res = $this->pearDBMonitoring->query(
-            'INSERT INTO mod_open_tickets (`timestamp`, `user`, `ticket_value`) VALUES ('
-                . $this->pearDBMonitoring->quote($timestamp) . ', '
-                . $this->pearDBMonitoring->quote($this->arguments['user']) . ', '
-                . $this->pearDBMonitoring->quote($this->arguments['ticket_id'])
-            . ')'
+        $stmt_ticket = $this->pearDBMonitoring->prepare(
+            'INSERT INTO mod_open_tickets (`timestamp`, `user`, `ticket_value`) VALUES (?, ?, ?)'
         );
-        if (PEAR::isError($res) === true) {
-            return ['code' => 1, 'message' => 'cannot insert in database'];
-        }
-
-        // Get Autoincrement
-        $res = $this->pearDBMonitoring->query('SELECT LAST_INSERT_ID() AS last_id');
-        if (PEAR::isError($res) === true || ! ($row = $res->fetch())) {
-            return ['code' => 1, 'message' => 'database issue'];
-        }
-        $auto_ticket = $row['last_id'];
-
-        // Insert data
-        $res = $this->pearDBMonitoring->query(
-            'INSERT INTO mod_open_tickets_data (`ticket_id`, `subject`) VALUES ('
-                . $this->pearDBMonitoring->quote($auto_ticket) . ', '
-                . $this->pearDBMonitoring->quote($this->arguments['subject'])
-            . ')'
+        $this->pearDBMonitoring->execute(
+            $stmt_ticket,
+            [$timestamp, $this->arguments['user'], $this->arguments['ticket_id']]
         );
-        if (PEAR::isError($res) === true) {
-            return ['code' => 1, 'message' => 'cannot insert in database'];
-        }
+        $auto_ticket = $this->pearDBMonitoring->lastInsertId();
+
+        $stmt_data = $this->pearDBMonitoring->prepare(
+            'INSERT INTO mod_open_tickets_data (`ticket_id`, `subject`) VALUES (?, ?)'
+        );
+        $this->pearDBMonitoring->execute($stmt_data, [$auto_ticket, $this->arguments['subject']]);
 
         $stmt_link = $this->pearDBMonitoring->prepare(
             'INSERT INTO mod_open_tickets_link
