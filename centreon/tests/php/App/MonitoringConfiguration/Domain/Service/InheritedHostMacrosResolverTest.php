@@ -126,6 +126,17 @@ final class InheritedHostMacrosResolverTest extends TestCase
         self::assertSame(['SHARED', 'FROMSERVICE'], $this->names($inherited));
     }
 
+    public function testATemplateOwnServiceTemplateCheckCommandsComeBeforeTheLineOnes(): void
+    {
+        $this->addCommand(8, '$USER1$/svc -a $_HOSTOWN$');
+        $this->addCommand(9, '$USER1$/svc -a $_HOSTPARENT$');
+        $this->addTemplate(1, serviceTemplateCheckCommandIds: [9]);
+
+        $inherited = $this->resolver->resolve($this->templateIds(1), null, new Collection([new CommandId(8)], CommandId::class));
+
+        self::assertSame(['OWN', 'PARENT'], $this->names($inherited));
+    }
+
     public function testServiceTemplateCheckCommandsFollowTheInheritanceLineOrder(): void
     {
         $this->addCommand(8, '$USER1$/svc -a $_HOSTFIRST$');

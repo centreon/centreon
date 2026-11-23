@@ -53,13 +53,14 @@ final readonly class InheritedHostMacrosResolver
     /**
      * @param Collection<HostTemplateId> $templateIds the host's direct templates, in order
      * @param ?CommandId $checkCommandId the host's own check command
+     * @param ?Collection<CommandId> $ownServiceTemplateCheckCommandIds a template's own linked service templates' check commands, before the line's
      */
-    public function resolve(Collection $templateIds, ?CommandId $checkCommandId): InheritedHostMacros
+    public function resolve(Collection $templateIds, ?CommandId $checkCommandId, ?Collection $ownServiceTemplateCheckCommandIds = null): InheritedHostMacros
     {
         /** @var list<HostTemplate> $inheritanceLine */
         $inheritanceLine = array_values($this->hostTemplateRepository->findInheritanceLine($templateIds)->toArray());
 
-        return $this->resolveLine($inheritanceLine, $checkCommandId);
+        return $this->resolveLine($inheritanceLine, $checkCommandId, $ownServiceTemplateCheckCommandIds);
     }
 
     /**
@@ -68,8 +69,9 @@ final readonly class InheritedHostMacrosResolver
      *
      * @param list<HostTemplate> $inheritanceLine the full template line, nearest to the host first
      * @param ?CommandId $checkCommandId the host's own check command
+     * @param ?Collection<CommandId> $ownServiceTemplateCheckCommandIds a template's own linked service templates' check commands, before the line's
      */
-    public function resolveLine(array $inheritanceLine, ?CommandId $checkCommandId): InheritedHostMacros
+    public function resolveLine(array $inheritanceLine, ?CommandId $checkCommandId, ?Collection $ownServiceTemplateCheckCommandIds = null): InheritedHostMacros
     {
         $commandIds = [];
         $checkCommandId ??= array_find(
@@ -78,6 +80,9 @@ final readonly class InheritedHostMacrosResolver
         )?->checkOptions->checkCommandId;
         if ($checkCommandId instanceof CommandId) {
             $commandIds[$checkCommandId->value] = $checkCommandId;
+        }
+        foreach ($ownServiceTemplateCheckCommandIds ?? [] as $commandId) {
+            $commandIds[$commandId->value] ??= $commandId;
         }
         foreach ($inheritanceLine as $template) {
             foreach ($template->serviceTemplateCheckCommandIds as $commandId) {
