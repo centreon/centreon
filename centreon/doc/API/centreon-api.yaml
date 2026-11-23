@@ -6613,7 +6613,7 @@ paths:
           description: 'Host template updated'
           links: {}
         '400':
-          description: 'The host template is locked'
+          description: 'The host template is locked, or the body is not a JSON object'
           content:
             application/ld+json:
               schema:
@@ -16581,7 +16581,6 @@ components:
             - 'null'
         alias:
           maxLength: 200
-          pattern: '^(((?![\x00-\x1F\x7F]).)*)$'
           type:
             - string
             - 'null'

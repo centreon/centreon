@@ -587,6 +587,10 @@ final class PatchHostTemplateProcessorTest extends ApiTestCase
 
         yield 'a name over 200' => [['name' => str_repeat('n', 201)], 'name'];
 
+        yield 'a name with a control character' => [['name' => "tpl\x01x"], 'name'];
+
+        yield 'a name with a tab' => [['name' => "tpl\tx"], 'name'];
+
         yield 'an alias over 200' => [['alias' => str_repeat('a', 201)], 'alias'];
 
         yield 'an unknown timezone' => [['timezone_id' => 2147483647], 'timezone_id'];

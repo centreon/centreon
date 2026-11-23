@@ -201,7 +201,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\Pa
                 description: 'A key left out leaves its value untouched; a key sent as null clears its value where it can be cleared.',
                 responses: [
                     204 => new Model\Response('Host template updated'),
-                    400 => new Model\Response('The host template is locked'),
+                    400 => new Model\Response('The host template is locked, or the body is not a JSON object'),
                     401 => new Model\Response('Authentication required'),
                     403 => new Model\Response('You are not allowed to update host templates'),
                     404 => new Model\Response('Host template not found'),
