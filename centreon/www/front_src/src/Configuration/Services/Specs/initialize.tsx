@@ -24,7 +24,6 @@ import Services from '..';
 import {
   getDuplicateServiceEndpoint,
   getServiceEndpoint,
-  getServiceTemplateMacrosEndpoint,
   serviceFormCommandsEndpoint,
   serviceFormContactGroupsEndpoint,
   serviceFormContactsEndpoint,
@@ -192,11 +191,11 @@ const initialize = ({
     response: getServiceFormCommandsResponse()
   });
 
-  // For when the template field (F03) can pick template 30.
+  // Literal, so the spec pins the route instead of echoing the builder.
   interceptAPIRequest({
     alias: 'getTemplateMacros30',
     method: Method.GET,
-    path: `**${getServiceTemplateMacrosEndpoint({ id: 30 })}`,
+    path: '**/configuration/services/service_templates/30/macros',
     response: getServiceTemplateMacrosResponse()
   });
 
@@ -235,18 +234,8 @@ const initialize = ({
     response: getContactGroupsResponse()
   });
 
-  // Service 0 carries notification settings, service 1 none, service 2 some.
-  [0, 1, 2].forEach((id) => {
-    interceptAPIRequest({
-      alias: `updateService${id}`,
-      method: Method.PUT,
-      path: `**${getServiceEndpoint({ id })}`,
-      response: {}
-    });
-  });
-
-  // Enable, disable and mass change are a partial update of the service, one
-  // request each.
+  // Save, enable, disable and mass change are a partial update of the service,
+  // one request each.
   patchableServiceIds.forEach((id) => {
     const fails = patchFails.includes(id);
 
@@ -292,7 +281,7 @@ const initialize = ({
       <SnackbarProvider>
         <QueryClientProvider client={queryClient}>
           <Provider store={store}>
-            <div style={{ height: '100vh' }}>
+            <div className="h-screen">
               <Services />
             </div>
           </Provider>

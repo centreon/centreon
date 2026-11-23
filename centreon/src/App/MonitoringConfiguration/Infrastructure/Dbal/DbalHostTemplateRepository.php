@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 use App\MonitoringConfiguration\Domain\Aggregate\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
@@ -34,16 +35,19 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
+use App\MonitoringConfiguration\Domain\Aggregate\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostTemplateCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
 use App\MonitoringConfiguration\Domain\Repository\ModuleRepository;
+use App\MonitoringConfiguration\Infrastructure\Service\CommandArgumentsFormatter;
 use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
+use App\Shared\Infrastructure\Dbal\TriStateColumnTrait;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use App\Shared\Infrastructure\TransformerInterface;
 use Doctrine\DBAL\ArrayParameterType;
@@ -53,6 +57,8 @@ use Doctrine\DBAL\Query\QueryBuilder;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
+ * @phpstan-import-type NotificationColumnsTypeAlias from NotificationsTransformer
+ *
  * @phpstan-type DbRowTypeAlias = array{
  *   host_id: int,
  *   host_name: string,
@@ -121,6 +127,7 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
 {
     use DbalCriteriaApplierTrait;
     use RemovesEmptiedDependenciesTrait;
+    use TriStateColumnTrait;
     public const TABLE_NAME = 'host';
 
     // host templates are host rows discriminated by host_register = '0'
@@ -132,6 +139,7 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
     /**
      * @param TransformerInterface<FindOneRowTypeAlias, HostTemplate> $transformer
      * @param TransformerInterface<RowTypeAlias, HostTemplate> $listingTransformer
+     * @param TransformerInterface<?Notifications, NotificationColumnsTypeAlias> $notificationsTransformer
      */
     public function __construct(
         #[Autowire(service: 'doctrine.dbal.default_connection')]
@@ -146,6 +154,9 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
         private AccessScopeResolver $accessScopes,
 
         private ModuleRepository $moduleRepository,
+
+        #[Autowire(service: NotificationsTransformer::class)]
+        private TransformerInterface $notificationsTransformer,
     ) {
     }
 
@@ -440,6 +451,94 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
         return (bool) $qb->executeQuery()->fetchOne();
     }
 
+    public function add(HostTemplate $hostTemplate): void
+    {
+        $informations = $hostTemplate->extendedInformations;
+        $scheduling = $hostTemplate->schedulingOptions;
+        $dataProcessing = $hostTemplate->dataProcessing;
+        $notifications = $hostTemplate->notifications;
+
+        $this->connection->insert(self::TABLE_NAME, [
+            'host_name' => $hostTemplate->name->value,
+            'host_alias' => $hostTemplate->alias?->value,
+            'host_register' => self::HOST_TEMPLATE_REGISTER,
+            'host_activate' => '1',
+            'host_locked' => 0,
+            'host_snmp_version' => $hostTemplate->snmpVersion?->value,
+            'host_snmp_community' => $hostTemplate->snmpCommunity?->value,
+            'host_location' => $hostTemplate->timezoneId?->value,
+            'host_comment' => $informations?->comment,
+            'command_command_id' => $hostTemplate->checkOptions->checkCommandId?->value,
+            'command_command_id_arg1' => CommandArgumentsFormatter::format($hostTemplate->checkOptions->args),
+            'timeperiod_tp_id' => $scheduling->checkTimeperiodId?->value,
+            'host_max_check_attempts' => $scheduling->maxCheckAttempts,
+            'host_check_interval' => $scheduling->normalCheckInterval,
+            'host_retry_check_interval' => $scheduling->retryCheckInterval,
+            'host_active_checks_enabled' => $this->triStateToColumn($scheduling->activeCheckEnabled),
+            'host_passive_checks_enabled' => $this->triStateToColumn($scheduling->passiveCheckEnabled),
+            'host_check_freshness' => $this->triStateToColumn($dataProcessing->checkFreshness),
+            'host_freshness_threshold' => $dataProcessing->freshnessThreshold,
+            'host_flap_detection_enabled' => $this->triStateToColumn($dataProcessing->flapDetectionEnabled),
+            'host_low_flap_threshold' => $dataProcessing->lowFlapThreshold,
+            'host_high_flap_threshold' => $dataProcessing->highFlapThreshold,
+            'host_event_handler_enabled' => $this->triStateToColumn($dataProcessing->eventHandlerEnabled),
+            'command_command_id2' => $dataProcessing->eventHandlerCommandId?->value,
+            'command_command_id_arg2' => CommandArgumentsFormatter::format($dataProcessing->eventHandlerArgs),
+            'host_acknowledgement_timeout' => $dataProcessing->acknowledgmentTimeout,
+            ...$this->notificationColumns($notifications),
+        ]);
+
+        $id = (int) $this->connection->lastInsertId();
+        if ($id === 0) {
+            throw new \RuntimeException(sprintf('Unable to retrieve last insert ID for "%s".', self::TABLE_NAME));
+        }
+        $this->setId($hostTemplate, new HostTemplateId($id));
+
+        // Every host row has its extended information row, empty or not.
+        $this->connection->insert('extended_host_information', [
+            'host_host_id' => $id,
+            'ehi_notes_url' => $informations?->noteUrl,
+            'ehi_notes' => $informations?->note,
+            'ehi_action_url' => $informations?->actionUrl,
+            'ehi_icon_image' => $informations?->iconId?->value,
+            'ehi_icon_image_alt' => $informations?->altIcon,
+        ]);
+
+        $order = 1;
+        foreach ($hostTemplate->parentTemplateIds as $parentId) {
+            $this->connection->insert('host_template_relation', ['host_host_id' => $id, 'host_tpl_id' => $parentId->value, '`order`' => $order++]);
+        }
+
+        $categoryIds = array_map(static fn (HostCategoryId $categoryId): int => $categoryId->value, $hostTemplate->categoryIds->toArray());
+        if ($hostTemplate->severityId instanceof HostSeverityId) {
+            $categoryIds[] = $hostTemplate->severityId->value;
+        }
+        foreach ($categoryIds as $categoryId) {
+            $this->connection->insert('hostcategories_relation', ['host_host_id' => $id, 'hostcategories_hc_id' => $categoryId]);
+        }
+
+        foreach ($notifications->contactIds ?? [] as $contactId) {
+            $this->connection->insert('contact_host_relation', ['host_host_id' => $id, 'contact_id' => $contactId->value]);
+        }
+        foreach ($notifications->contactGroupIds ?? [] as $contactGroupId) {
+            $this->connection->insert('contactgroup_host_relation', ['host_host_id' => $id, 'contactgroup_cg_id' => $contactGroupId->value]);
+        }
+
+        foreach ($hostTemplate->linkedServiceTemplateIds as $serviceTemplateId) {
+            $this->connection->insert('host_service_relation', ['host_host_id' => $id, 'service_service_id' => $serviceTemplateId->value]);
+        }
+
+        foreach ($hostTemplate->checkOptions->macros as $macro) {
+            $this->connection->insert('on_demand_macro_host', [
+                'host_host_id' => $id,
+                'host_macro_name' => $macro->name->toStorageName(),
+                'host_macro_value' => $macro->value,
+                // stored as 1 or NULL, never 0
+                'is_password' => $macro->isPassword ? 1 : null,
+            ]);
+        }
+    }
+
     public function addCopyOf(HostTemplate $copy, HostTemplateId $sourceId): void
     {
         $source = $sourceId->value;
@@ -610,6 +709,7 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
                     new CheckOptions(
                         $templates[$id]['command_id'] !== null ? new CommandId($templates[$id]['command_id']) : null,
                         macros: $macrosByOwner[$id] ?? [],
+                        commandMayBeInherited: true,
                     ),
                     new Collection(
                         array_map(static fn (int $commandId): CommandId => new CommandId($commandId), $serviceTemplateCommandIds[$id] ?? []),
@@ -968,6 +1068,25 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
             ),
             HostTemplate::class
         );
+    }
+
+    /**
+     * @return array<string, int|string|null>
+     */
+    private function notificationColumns(?Notifications $notifications): array
+    {
+        $columns = $this->notificationsTransformer->transform($notifications);
+
+        return [
+            'host_notifications_enabled' => $columns['notificationsEnabled'],
+            'host_notification_options' => $columns['notificationOptions'],
+            'host_notification_interval' => $columns['notificationInterval'],
+            'timeperiod_tp_id2' => $columns['notificationPeriodId'],
+            'host_first_notification_delay' => $columns['firstNotificationDelay'],
+            'host_recovery_notification_delay' => $columns['recoveryNotificationDelay'],
+            'contact_additive_inheritance' => (int) $columns['contactAdditiveInheritance'],
+            'cg_additive_inheritance' => (int) $columns['contactGroupAdditiveInheritance'],
+        ];
     }
 
     /**

@@ -46,7 +46,6 @@ interface ServiceIdentityDetail {
   host: NamedEntity | null;
   // Read for the panel header's switch, which enables and disables the service
   // on a request of its own: on a deep link there is no row to take it from.
-  // Sent back on an update, which replaces the whole service.
   isActivated?: boolean;
   name: string;
 }

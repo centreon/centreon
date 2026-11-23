@@ -32,6 +32,7 @@ use App\MonitoringConfiguration\Infrastructure\Dbal\ServiceCategoryTransformer;
 use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Domain\Collection;
+use App\Shared\Domain\Repository\Pagination;
 use App\Shared\Domain\Repository\Paginator;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -165,7 +166,7 @@ final class DbalServiceCategoryRepositoryTest extends KernelTestCase
 
         // page 2 @ 1 item/page proves the OFFSET arithmetic (a page-1 request cannot)
         $result = $this->repository->findAll(
-            ServiceCategoryCriteria::unscoped()->withName("pg-{$this->tag}-")->withPagination(2, 1)
+            ServiceCategoryCriteria::unscoped()->withName("pg-{$this->tag}-")->withPagination(new Pagination(2, 1))
         );
 
         self::assertInstanceOf(Paginator::class, $result);
@@ -208,7 +209,7 @@ final class DbalServiceCategoryRepositoryTest extends KernelTestCase
         $this->resourceAccessRepository->serviceCategoryScope = AccessScope::restrictedTo(ServiceCategoryId::class, []);
 
         $result = $this->repository->findAll(
-            ServiceCategoryCriteria::forActor(TestActingUsers::restricted(42))->withName($this->tag)->withPagination(1, 10)
+            ServiceCategoryCriteria::forActor(TestActingUsers::restricted(42))->withName($this->tag)->withPagination(new Pagination(1, 10))
         );
 
         self::assertInstanceOf(Paginator::class, $result);

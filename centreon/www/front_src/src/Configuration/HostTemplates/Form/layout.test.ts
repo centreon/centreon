@@ -2,7 +2,9 @@ import type { TFunction } from 'i18next';
 
 import {
   labelGeneralInformation,
-  labelHostMonitoringProperties
+  labelHostMonitoringProperties,
+  labelMonitoringEngineSchedulingOptions,
+  labelRelations
 } from '../translatedLabels';
 import { getPlacedBlockIds, placeBlocks } from './layout';
 import {
@@ -58,11 +60,15 @@ describe('layout', () => {
   it('shows the sections in the order of the design', () => {
     expect(getSectionLabels({ isCloudPlatform: false, t })).toEqual([
       labelGeneralInformation,
-      labelHostMonitoringProperties
+      labelHostMonitoringProperties,
+      labelRelations,
+      labelMonitoringEngineSchedulingOptions
     ]);
     expect(getSectionLabels({ isCloudPlatform: true, t })).toEqual([
       labelGeneralInformation,
-      labelHostMonitoringProperties
+      labelHostMonitoringProperties,
+      labelRelations,
+      labelMonitoringEngineSchedulingOptions
     ]);
   });
 

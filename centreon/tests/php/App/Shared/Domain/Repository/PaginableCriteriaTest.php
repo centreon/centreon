@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\App\Shared\Domain\Repository;
 
+use App\Shared\Domain\Repository\Pagination;
 use PHPUnit\Framework\TestCase;
 use Tests\App\Shared\Domain\Repository\Double\FakeCriteria;
 
@@ -34,7 +35,7 @@ final class PaginableCriteriaTest extends TestCase
     public function testWithPaginationReturnsANewInstance(): void
     {
         $original = new FakeCriteria();
-        $paginated = $original->withPagination(2, 10);
+        $paginated = $original->withPagination(new Pagination(2, 10));
 
         self::assertNotSame($original, $paginated);
         self::assertNull($original->getPagination());

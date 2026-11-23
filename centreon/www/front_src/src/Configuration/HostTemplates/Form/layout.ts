@@ -1,6 +1,12 @@
 import type { TFunction } from 'i18next';
 
-import { twoColumns, twoColumnsFromWide } from '../../ResourceForm/grid';
+import {
+  schedulingColumns,
+  stackedColumns,
+  twoColumns,
+  twoColumnsFromNarrow,
+  twoColumnsFromWide
+} from '../../ResourceForm/grid';
 import {
   getPlacedBlockIds as getLayoutBlockIds,
   type LayoutNode,
@@ -10,7 +16,11 @@ import {
 } from '../../ResourceForm/layout';
 import {
   labelGeneralInformation,
-  labelHostMonitoringProperties
+  labelHostDetails,
+  labelHostMonitoringProperties,
+  labelMonitoringEngineSchedulingOptions,
+  labelRelations,
+  labelSchedulingOptions
 } from '../translatedLabels';
 import { type BlockId, type Blocks, hostTemplateResource } from './sections';
 
@@ -34,6 +44,60 @@ export const layout: Array<LayoutSection> = [
         columnSeparator: true,
         columns: ['templates', 'macros'],
         name: 'templates-layout'
+      }
+    ]
+  },
+  {
+    label: labelRelations,
+    nodes: [
+      {
+        className: twoColumnsFromNarrow,
+        columnSeparator: true,
+        columns: [
+          {
+            className: stackedColumns,
+            columns: ['linkedServiceTemplates'],
+            name: 'relations-left'
+          },
+          {
+            className: stackedColumns,
+            columns: ['categories', 'severity'],
+            name: 'relations-right'
+          }
+        ],
+        name: 'relations-layout'
+      }
+    ]
+  },
+  {
+    label: labelMonitoringEngineSchedulingOptions,
+    nodes: [
+      {
+        className: twoColumnsFromNarrow,
+        columnSeparator: true,
+        columns: [
+          {
+            className: twoColumnsFromWide,
+            columns: [
+              'notesAndIcons',
+              {
+                className: stackedColumns,
+                columns: ['actionUrl', 'timezone'],
+                name: 'host-details-right'
+              }
+            ],
+            name: 'host-details',
+            title: labelHostDetails
+          },
+          {
+            className: schedulingColumns,
+            columnSeparator: true,
+            columns: ['checkPeriodAndIntervals', 'activeAndPassiveChecks'],
+            name: 'scheduling-options',
+            title: labelSchedulingOptions
+          }
+        ],
+        name: 'monitoring-layout'
       }
     ]
   }
