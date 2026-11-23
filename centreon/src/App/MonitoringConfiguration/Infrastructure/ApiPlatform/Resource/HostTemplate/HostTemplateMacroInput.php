@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTe
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroParentEnum;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostMacroInput;
 use App\MonitoringConfiguration\Infrastructure\Validator\ReservedMacroName;
 use App\Shared\Domain\Logging\Attribute\Sensitive;
 use App\Shared\Domain\VaultInterface;
@@ -35,10 +36,10 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 final readonly class HostTemplateMacroInput
 {
     public function __construct(
-        // The short name: the stored `$_HOST<NAME>$` must fit its column.
+        // The short name: the stored `$_HOST<NAME>$` must fit its column, measured upper-cased ("ß" becomes "SS").
         #[Assert\Sequentially([
             new Assert\NotBlank(normalizer: 'trim'),
-            new Assert\Length(max: HostMacroName::MAX_STORAGE_LENGTH - 7, normalizer: 'trim'),
+            new Assert\Length(max: HostMacroName::MAX_STORAGE_LENGTH - 7, normalizer: [HostMacroInput::class, 'normalizeName']),
             new ReservedMacroName(),
         ])]
         public string $name,

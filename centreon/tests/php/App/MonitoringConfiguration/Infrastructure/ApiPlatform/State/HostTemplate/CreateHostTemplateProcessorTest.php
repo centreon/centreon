@@ -292,37 +292,68 @@ final class CreateHostTemplateProcessorTest extends ApiTestCase
      * @param array<string, mixed> $body
      */
     #[DataProvider('provideRemovedKeys')]
-    public function testAKeyTheTemplateDoesNotHaveIsIgnored(array $body): void
+    public function testAKeyTheTemplateDoesNotHaveIsIgnored(array $body, string $query, ?string $expected): void
     {
         $this->login();
 
         $id = $this->create($body + ['name' => "tpl-{$this->tag}", 'alias' => 'alias']);
 
-        self::assertSame('0', $this->connection->fetchOne('SELECT host_register FROM host WHERE host_id = ?', [$id]));
+        self::assertSame($expected, $this->asNullableString($this->connection->fetchOne($query, [$id])));
     }
 
     /**
-     * @return iterable<string, array{array<string, mixed>}>
+     * @return iterable<string, array{array<string, mixed>, string, ?string}>
      */
     public static function provideRemovedKeys(): iterable
     {
-        yield 'address' => [['address' => '127.0.0.1']];
+        yield 'address' => [['address' => '127.0.0.1'], 'SELECT host_address FROM host WHERE host_id = ?', null];
 
-        yield 'poller_id' => [['poller_id' => 1]];
+        yield 'poller_id' => [['poller_id' => 1], 'SELECT COUNT(*) FROM ns_host_relation WHERE host_host_id = ?', '0'];
 
-        yield 'activated' => [['activated' => true]];
+        yield 'activated' => [['activated' => false], 'SELECT host_activate FROM host WHERE host_id = ?', '1'];
 
-        yield 'host_group_ids' => [['host_group_ids' => [1]]];
+        yield 'host_group_ids' => [['host_group_ids' => [1]], 'SELECT COUNT(*) FROM hostgroup_relation WHERE host_host_id = ?', '0'];
 
-        yield 'parent_host_ids' => [['parent_host_ids' => [1]]];
+        yield 'parent_host_ids' => [['parent_host_ids' => [1]], 'SELECT COUNT(*) FROM host_hostparent_relation WHERE host_host_id = ?', '0'];
 
-        yield 'child_host_ids' => [['child_host_ids' => [1]]];
+        yield 'child_host_ids' => [['child_host_ids' => [1]], 'SELECT COUNT(*) FROM host_hostparent_relation WHERE host_parent_hp_id = ?', '0'];
 
-        yield 'create_services_linked_to_templates' => [['create_services_linked_to_templates' => false]];
+        yield 'create_services_linked_to_templates' => [['create_services_linked_to_templates' => false], 'SELECT host_register FROM host WHERE host_id = ?', '0'];
 
-        yield 'is_locked' => [['is_locked' => true]];
+        yield 'is_locked' => [['is_locked' => true], 'SELECT host_locked FROM host WHERE host_id = ?', '0'];
 
-        yield 'extended_informations.geo_coordinates' => [['extended_informations' => ['geo_coordinates' => '48.8,2.3']]];
+        yield 'extended_informations.geo_coordinates' => [
+            ['extended_informations' => ['geo_coordinates' => '48.8,2.3']],
+            'SELECT geo_coords FROM host WHERE host_id = ?',
+            null,
+        ];
+    }
+
+    public function testARepeatedIdIsStoredOnce(): void
+    {
+        $parentId = $this->insertTemplate('repeated');
+        $categoryId = $this->insertRow('hostcategories', ['hc_name' => "repeated-{$this->tag}", 'hc_alias' => 'category', 'hc_activate' => '1']);
+        $linkedId = $this->insertRow('service', ['service_description' => "repeated-{$this->tag}", 'service_register' => '0']);
+        $contactId = $this->insertRow('contact', [
+            'contact_name' => "repeated-{$this->tag}",
+            'contact_alias' => "repeated-{$this->tag}",
+            'contact_register' => '1',
+            'contact_activate' => '1',
+        ]);
+        $this->login();
+
+        $id = $this->create([
+            'name' => "repeated-ids-{$this->tag}",
+            'alias' => 'alias',
+            'template_ids' => [$parentId, $parentId],
+            'category_ids' => [$categoryId, $categoryId],
+            'linked_service_template_ids' => [$linkedId, $linkedId],
+            'notifications' => ['contacts' => [$contactId, $contactId]],
+        ]);
+
+        foreach (['host_template_relation', 'hostcategories_relation', 'host_service_relation', 'contact_host_relation'] as $table) {
+            self::assertSame('1', $this->asNullableString($this->connection->fetchOne("SELECT COUNT(*) FROM {$table} WHERE host_host_id = ?", [$id])), $table);
+        }
     }
 
     public function testAnUnknownParentOrAHostAsParentIsRefused(): void
@@ -455,6 +486,19 @@ final class CreateHostTemplateProcessorTest extends ApiTestCase
         yield 'an alias over 200' => [['alias' => str_repeat('a', 201)], 'alias'];
 
         yield 'a name with a line break' => [['name' => "tpl\nx"], 'name'];
+
+        yield 'a name with a tab' => [['name' => "tpl\tx"], 'name'];
+
+        yield 'a name with a DEL' => [['name' => "tpl\x7Fx"], 'name'];
+
+        yield 'an alias with a line break' => [['alias' => "a\nb"], 'alias'];
+
+        yield 'an snmp community with a line break' => [['snmp_community' => "pub\nlic"], 'snmp_community'];
+
+        yield 'a macro name over 248 once upper-cased' => [
+            ['check_options' => ['macros' => [['name' => str_repeat('ß', 200), 'value' => 'x']]]],
+            'check_options.macros[0].name',
+        ];
 
         yield 'an snmp community that is a vault reference' => [
             ['snmp_community' => 'secret::vault::monitoring/hosts/x::_HOSTSNMPCOMMUNITY'],

@@ -16394,14 +16394,12 @@ components:
       properties:
         name:
           maxLength: 200
-          pattern: '^(((?![\x00-\x1F\x7F]).)*)$'
           description: 'Trimmed; inner spaces become underscores. Unique among hosts and host templates.'
           type:
             - string
             - 'null'
         alias:
           maxLength: 200
-          pattern: '^(((?![\x00-\x1F\x7F]).)*)$'
           type:
             - string
             - 'null'
