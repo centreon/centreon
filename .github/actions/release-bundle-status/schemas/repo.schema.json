@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "repos/<repo>.json",
+  "type": "object",
+  "required": ["schema_version", "bundle", "repo", "role", "branch", "commit", "run_url", "recorded_at",
+               "previous_stable_tag", "dispatch_content", "changed", "expected", "carried", "dispatched", "commits"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "bundle": {"type": "string", "pattern": "^testing-(cloud|onprem)-(release|hotfix)-[0-9]{8}-[0-9]{2}\\.[0-9]{2}-[1-9][0-9]*$"},
+    "repo": {"type": "string"}, "role": {"enum": ["opener", "joiner"]},
+    "branch": {"type": "string", "pattern": "^(release|hotfix)-[0-9]{2}\\.[0-9]{2}-next$"},
+    "commit": {"type": "string"}, "run_url": {"type": "string"},
+    "recorded_at": {"type": "string", "format": "date-time"},
+    "previous_stable_tag": {"type": "string"},
+    "dispatch_content": {"enum": ["REGULAR", "CHANGED_ONLY", "FULL"]},
+    "changed": {"type": "array", "items": {"type": "string"}},
+    "expected": {"type": "array", "items": {"type": "string"}},
+    "carried": {"type": "array", "items": {"type": "string"}},
+    "dispatched": {"type": "array", "items": {"type": "string"}},
+    "commits": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}}
+  }
+}

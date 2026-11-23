@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host;
 
 use ApiPlatform\Metadata\GetCollection;
-use ApiPlatform\State\Pagination\Pagination;
+use ApiPlatform\State\Pagination\Pagination as ApiPlatformPagination;
 use ApiPlatform\State\Pagination\TraversablePaginator;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Model\HostChoice;
@@ -39,6 +39,8 @@ use App\Security\Domain\Aggregate\Role;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Domain\Collection;
+use App\Shared\Domain\Repository\Pagination;
+use App\Shared\Infrastructure\ApiPlatform\State\PaginationResolver;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -48,6 +50,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostChoiceRepository;
+use Tests\App\Shared\Double\FakeOptionRepository;
 
 /**
  * Provider logic with an in-memory repository. The HTTP wiring is covered by ListHostsChoicesProviderTest.
@@ -66,7 +69,7 @@ final class ListHostsChoicesProviderLogicTest extends TestCase
     public function testItRejectsZeroItemsPerPage(): void
     {
         $this->expectException(BadRequestHttpException::class);
-        $this->expectExceptionMessage('itemsPerPage must be a positive integer.');
+        $this->expectExceptionMessage('The "itemsPerPage" parameter must be a positive integer.');
 
         $this->provide(['itemsPerPage' => '0']);
     }
@@ -128,7 +131,7 @@ final class ListHostsChoicesProviderLogicTest extends TestCase
         $this->provide([], $role);
 
         self::assertEquals(
-            HostChoiceCriteria::forActor(new ActingUser(new UserId(self::VIEWER_ID), $unrestricted))->withPagination(1, 30),
+            HostChoiceCriteria::forActor(new ActingUser(new UserId(self::VIEWER_ID), $unrestricted))->withPagination(new Pagination(1, 30)),
             $this->repository->receivedCriteria,
         );
     }
@@ -169,7 +172,7 @@ final class ListHostsChoicesProviderLogicTest extends TestCase
         $provider = new ListHostsChoicesProvider(
             new HostChoicesTransformer(),
             $this->repository,
-            new Pagination(['client_items_per_page' => true]),
+            new PaginationResolver(new ApiPlatformPagination(['client_items_per_page' => true]), new FakeOptionRepository(), fallbackItemsPerPage: 30),
             new Security($container),
         );
 
