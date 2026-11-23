@@ -21,15 +21,8 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Aggregate\Option;
+namespace App\Shared\Domain\Exception;
 
-final readonly class Option
+final class OptionDoesNotExistException extends AggregateNotFoundException
 {
-    public const PLUGIN_PATH_OPTION_NAME = 'nagios_path_plugins';
-
-    public function __construct(
-        public OptionName $name,
-        public OptionValue $value,
-    ) {
-    }
 }

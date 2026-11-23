@@ -48,7 +48,7 @@ properties:
           "username": "username2",
           "password": null
         }
-      ]
+        ]
   created_by:
     type:
       - object

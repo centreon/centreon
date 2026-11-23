@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\ServiceTemplate;
 
 use ApiPlatform\Metadata\GetCollection;
-use ApiPlatform\State\Pagination\Pagination;
+use ApiPlatform\State\Pagination\Pagination as ApiPlatformPagination;
 use ApiPlatform\State\Pagination\TraversablePaginator;
 use App\MonitoringConfiguration\Application\Service\HostLicenseLimit;
 use App\MonitoringConfiguration\Application\Service\UnlicensedServiceTemplates;
@@ -36,12 +36,15 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ServiceTempl
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\ServiceTemplate\ListServiceTemplatesChoicesProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\ServiceTemplate\ServiceTemplateChoicesTransformer;
 use App\Shared\Domain\Collection;
+use App\Shared\Domain\Repository\Pagination;
+use App\Shared\Infrastructure\ApiPlatform\State\PaginationResolver;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeModuleRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceTemplateRepository;
+use Tests\App\Shared\Double\FakeOptionRepository;
 
 /**
  * Provider logic with an in-memory repository. The HTTP wiring is covered by ListServiceTemplatesChoicesProviderTest.
@@ -59,7 +62,7 @@ final class ListServiceTemplatesChoicesProviderLogicTest extends TestCase
         $this->provider = new ListServiceTemplatesChoicesProvider(
             new ServiceTemplateChoicesTransformer(),
             $this->repository,
-            new Pagination(['client_items_per_page' => true]),
+            new PaginationResolver(new ApiPlatformPagination(['client_items_per_page' => true]), new FakeOptionRepository(), fallbackItemsPerPage: 30),
             // without the license services, the license host limit is reached
             new UnlicensedServiceTemplates(new HostLicenseLimit(new FakeModuleRepository(), new FakeHostRepository()), $this->repository),
         );
@@ -68,7 +71,7 @@ final class ListServiceTemplatesChoicesProviderLogicTest extends TestCase
     public function testItRejectsZeroItemsPerPage(): void
     {
         $this->expectException(BadRequestHttpException::class);
-        $this->expectExceptionMessage('itemsPerPage must be a positive integer.');
+        $this->expectExceptionMessage('The "itemsPerPage" parameter must be a positive integer.');
 
         $this->provide(['itemsPerPage' => '0']);
     }
@@ -128,7 +131,7 @@ final class ListServiceTemplatesChoicesProviderLogicTest extends TestCase
     {
         $this->provide([]);
 
-        self::assertEquals((new ServiceTemplateCriteria())->withPagination(1, 30), $this->repository->receivedCriteria);
+        self::assertEquals((new ServiceTemplateCriteria())->withPagination(new Pagination(1, 30)), $this->repository->receivedCriteria);
     }
 
     public function testItExcludesTheTemplatesTheLicenseNoLongerAllows(): void
