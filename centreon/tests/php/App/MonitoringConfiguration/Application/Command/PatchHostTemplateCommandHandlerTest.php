@@ -422,6 +422,25 @@ final class PatchHostTemplateCommandHandlerTest extends KernelTestCase
         self::assertSame([], $this->dispatchedClasses());
     }
 
+    public function testAFailingEventAfterTheSaveKeepsTheVaultEntryTheTemplateReferences(): void
+    {
+        $this->vault->vaultEnabled = true;
+        $this->addTemplate();
+        $this->eventBus->onFire = static function (): never {
+            throw new \RuntimeException('An event handler failed.');
+        };
+
+        try {
+            ($this->handler)($this->command(7, [], snmpCommunity: 'new-community'));
+            self::fail('The event failure must reach the caller.');
+        } catch (\RuntimeException $exception) {
+            self::assertSame('An event handler failed.', $exception->getMessage());
+        }
+
+        self::assertSame([7], $this->repository->updatedIds);
+        self::assertSame([], $this->vault->deleteCalls);
+    }
+
     public function testAFailedSaveAfterWritingTheExistingEntryLogsTheDivergence(): void
     {
         $this->vault->vaultEnabled = true;

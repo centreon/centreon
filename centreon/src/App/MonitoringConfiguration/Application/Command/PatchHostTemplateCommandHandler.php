@@ -138,11 +138,19 @@ final readonly class PatchHostTemplateCommandHandler
                 $vaultUuid ??= $changed->getVaultUuid($this->vault);
             }
 
-            $this->save($template, $changed, $command, $secretRewritten);
+            $loggedChange = $this->save($template, $changed, $command, $secretRewritten);
         } catch (\Throwable $exception) {
             $this->recoverTheVault($template, $command, $previousVaultUuid, $vaultUuid, $exception);
 
             throw $exception;
+        }
+
+        if ($loggedChange !== null) {
+            $this->eventBus->fire(new HostTemplateUpdated($changed, $command->actor->userId->value, loggable: $loggedChange));
+
+            if ($this->vault->isEnabled() && $changed->releasesVaultEntryOf($template, $this->vault)) {
+                $this->eventBus->fire(new HostTemplateVaultPurgeRequested($template, bestEffort: true));
+            }
         }
 
         return $changed;
@@ -163,7 +171,10 @@ final readonly class PatchHostTemplateCommandHandler
         }
     }
 
-    private function save(HostTemplate $template, HostTemplate $changed, PatchHostTemplateCommand $command, bool $secretRewritten): void
+    /**
+     * @return ?bool whether the saved change is logged, null when nothing is saved
+     */
+    private function save(HostTemplate $template, HostTemplate $changed, PatchHostTemplateCommand $command, bool $secretRewritten): ?bool
     {
         $passwordRewritten = $this->providesAPassword($command);
         $relationsChanged = ! $changed->hasSameRelationsAs($template) || ! $changed->hasSameContactsAs($template);
@@ -171,7 +182,7 @@ final readonly class PatchHostTemplateCommandHandler
         $loggedChange = $secretRewritten || ! $changed->hasSameLoggedConfigurationAs($template);
 
         if (! $loggedChange && ! $passwordRewritten && ! $relationsChanged && ! $macrosChanged) {
-            return;
+            return null;
         }
 
         $this->repository->update($changed);
@@ -182,11 +193,7 @@ final readonly class PatchHostTemplateCommandHandler
             $this->repository->replaceMacros($changed);
         }
 
-        $this->eventBus->fire(new HostTemplateUpdated($changed, $command->actor->userId->value, loggable: $loggedChange));
-
-        if ($this->vault->isEnabled() && $changed->releasesVaultEntryOf($template, $this->vault)) {
-            $this->eventBus->fire(new HostTemplateVaultPurgeRequested($template, bestEffort: true));
-        }
+        return $loggedChange;
     }
 
     /**
