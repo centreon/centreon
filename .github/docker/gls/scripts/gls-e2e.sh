@@ -400,7 +400,12 @@ cmd_c3() {
   read -r hid sid <<<"$(ids "$host")"
   res="[{\"type\":\"service\",\"id\":$sid,\"parent\":{\"id\":$hid}}]"
   service_ready cp_ poller-engine || { record "$mode: poller connected before" ko; return; }
-  t_dis=$(now)
+  # Window of the commands sent while disconnected, by their own timestamp
+  # argument (the web puts time() in it): a command sent just before, in the
+  # same second as the disruption, must not count as a replay.
+  sleep 2
+  local dis_epoch restore_epoch replayed
+  t_dis=$(now); dis_epoch=$(date +%s)
   disrupt "$mode"
   for what in check reload; do
     s=$(date +%s)
@@ -417,11 +422,14 @@ cmd_c3() {
       record "$mode: $what rejected explicitly <= ${MAX_ERROR_DELAY} s" ko "HTTP $code in ${el} s: $(head -c 150 "$LOG_DIR/last.json")"
     fi
   done
+  restore_epoch=$(date +%s)
   restore "$mode"
   wait_until 180 service_ready cp_ poller-engine && record "$mode: poller reconnected" ok || record "$mode: poller reconnected" ko
   sleep 30
-  engine_logs poller "$t_dis" | grep -qF "EXTERNAL COMMAND: SCHEDULE_FORCED_SVC_CHECK;$host;gls-crit;" \
-    && record "$mode: rejected command not replayed" ko || record "$mode: rejected command not replayed" ok
+  replayed=$(engine_logs poller "$t_dis" | grep -oE "EXTERNAL COMMAND: SCHEDULE_FORCED_SVC_CHECK;$host;gls-crit;[0-9]+" \
+    | awk -F';' -v a="$dis_epoch" -v b="$restore_epoch" '$NF >= a && $NF < b' | head -3 | tr '\n' ' ')
+  [[ -n "$replayed" ]] && record "$mode: rejected command not replayed" ko "$replayed" \
+    || record "$mode: rejected command not replayed" ok
   realtime poller "$mode: forced check after reconnect" /monitoring/resources/check \
     "{\"check\":{\"is_forced\":true},\"resources\":$res}" "EXTERNAL COMMAND: SCHEDULE_FORCED_SVC_CHECK;$host;gls-crit;"
 }
