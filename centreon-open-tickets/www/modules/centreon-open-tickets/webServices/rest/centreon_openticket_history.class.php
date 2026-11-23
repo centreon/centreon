@@ -46,6 +46,21 @@ class CentreonOpenticketHistory extends CentreonWebService
         parent::__construct();
     }
 
+    /**
+     * @param string $action
+     * @param CentreonUser $user
+     * @param bool $isInternal
+     *
+     * @return bool
+     */
+    public function authorize($action, $user, $isInternal = false)
+    {
+        return (bool) (
+            parent::authorize($action, $user, false)
+            || ($user && $user->access->page(60421) !== CentreonACL::ACL_ACCESS_NONE)
+        );
+    }
+
     public function postSaveHistory()
     {
         /* {
@@ -80,20 +95,35 @@ class CentreonOpenticketHistory extends CentreonWebService
             }
         }
 
+        $hostAclCondition = '';
+        $serviceAclCondition = '';
+        $accessGroupIds = [];
+        if (! $this->centreon->user->admin) {
+            $accessGroupIds = array_keys($this->centreon->user->access->getAccessGroups());
+            if ($accessGroupIds === []) {
+                return ['code' => 1, 'message' => 'links parameters missing or wrong'];
+            }
+            $groupPlaceholders = implode(', ', array_fill(0, count($accessGroupIds), '?'));
+            $hostAclCondition = ' AND EXISTS (SELECT 1 FROM centreon_acl acl WHERE acl.host_id = hosts.host_id'
+                . " AND acl.group_id IN ({$groupPlaceholders}))";
+            $serviceAclCondition = ' AND EXISTS (SELECT 1 FROM centreon_acl acl WHERE acl.host_id = hosts.host_id'
+                . " AND acl.service_id = services.service_id AND acl.group_id IN ({$groupPlaceholders}))";
+        }
+
         $links_ok = [];
-        $stmt_host = $this->pearDBMonitoring->prepare('SELECT host_id FROM hosts WHERE name = ?');
+        $stmt_host = $this->pearDBMonitoring->prepare('SELECT host_id FROM hosts WHERE name = ?' . $hostAclCondition);
         $stmt_service = $this->pearDBMonitoring->prepare(
             'SELECT hosts.host_id, services.service_id
             FROM hosts, services
             WHERE hosts.name = ?
             AND hosts.host_id = services.host_id
-            AND services.description = ?'
+            AND services.description = ?' . $serviceAclCondition
         );
         foreach ($this->arguments['links'] as $link) {
             if (isset($link['hostname'], $link['service_description'])) {
                 $res = $this->pearDBMonitoring->execute(
                     $stmt_service,
-                    [$link['hostname'], $link['service_description']]
+                    [$link['hostname'], $link['service_description'], ...$accessGroupIds]
                 );
                 if ($row = $stmt_service->fetch()) {
                     $links_ok[] = array_merge(
@@ -102,7 +132,7 @@ class CentreonOpenticketHistory extends CentreonWebService
                     );
                 }
             } elseif (isset($link['hostname'])) {
-                $res = $this->pearDBMonitoring->execute($stmt_host, [$link['hostname']]);
+                $res = $this->pearDBMonitoring->execute($stmt_host, [$link['hostname'], ...$accessGroupIds]);
                 if ($row = $stmt_host->fetch()) {
                     $links_ok[] = array_merge($link, ['host_id' => $row['host_id']]);
                 }
