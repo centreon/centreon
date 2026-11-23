@@ -36,10 +36,8 @@ use Centreon\Domain\HostConfiguration\HostMacro;
 use Centreon\Domain\HostConfiguration\Interfaces\HostConfigurationRepositoryInterface;
 use Centreon\Domain\MonitoringServer\MonitoringServer;
 use Centreon\Domain\Repository\RepositoryException;
-use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
-use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 
 /**
  * This class is designed to represent the MariaDb repository to manage host and host template
@@ -48,16 +46,9 @@ use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
  */
 class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements HostConfigurationRepositoryInterface
 {
-    /** @var SqlRequestParametersTranslator */
-    private $sqlRequestTranslator;
-
-    public function __construct(DatabaseConnection $db, SqlRequestParametersTranslator $sqlRequestTranslator)
+    public function __construct(DatabaseConnection $db)
     {
         $this->db = $db;
-        $this->sqlRequestTranslator = $sqlRequestTranslator;
-        $this->sqlRequestTranslator
-            ->getRequestParameters()
-            ->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
     }
 
     /**
