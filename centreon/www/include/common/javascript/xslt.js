@@ -76,6 +76,90 @@ var xslt_js = {
 };
 
 /**
+ * URL of the XSLT polyfill, resolved relative to this script so it works from any page;
+ * falls back to a path relative to the current page (main.php / main.get.php) when
+ * document.currentScript is unavailable.
+ *
+ * @type String
+ * @final
+ */
+var XSLT_POLYFILL_URL = (function () {
+    var polyfillPath = 'xslt-polyfill/xslt-polyfill-1.0.37.min.js';
+    if (document.currentScript && document.currentScript.src) {
+        return new URL(polyfillPath, document.currentScript.src).href;
+    }
+    return './include/common/javascript/' + polyfillPath;
+})();
+
+var xsltPolyfillPromise = null;
+
+/**
+ * Returns whether the browser itself can transform XML (native XSLTProcessor or MSXML).
+ * The polyfill's XSLTProcessor does not count: it is only usable once its module is ready.
+ *
+ * @return boolean
+ */
+function hasNativeXsltSupport() {
+    if (window.ActiveXObject || document.hasOwnProperty.call(window, "ActiveXObject")) {
+        return true;
+    }
+
+    if (typeof XSLTProcessor !== 'function' || XSLTProcessor.toString().indexOf('[native code]') === -1) {
+        return false;
+    }
+
+    // A browser can keep the native class but make it throw when XSLT is disabled.
+    try {
+        new XSLTProcessor();
+    } catch (error) {
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * Loads the XSLT polyfill once and resolves when its XSLTProcessor is ready to use.
+ * A network failure is not cached, so the next transformation tries again.
+ *
+ * @return Promise
+ */
+function loadXsltPolyfill() {
+    if (xsltPolyfillPromise !== null) {
+        return xsltPolyfillPromise;
+    }
+
+    xsltPolyfillPromise = new Promise(function (resolve, reject) {
+        // Polyfill options: never replace a native XSLTProcessor, never transform the
+        // current document, no install log.
+        window.xsltUsePolyfillOnlyIfNeeded = true;
+        window.xsltDontAutoloadXmlDocs = true;
+        window.xsltPolyfillQuiet = true;
+
+        var script = document.createElement('script');
+        script.src = XSLT_POLYFILL_URL;
+        // The WebAssembly module is embedded in the file and is only decoded correctly as UTF-8.
+        script.charset = 'utf-8';
+        script.onload = function () {
+            // A truncated or wrong file would otherwise leave every transformation pending.
+            if (typeof window.xsltPolyfillReady !== 'function') {
+                reject(new Error('The XSLT polyfill loaded from ' + XSLT_POLYFILL_URL + ' is not usable'));
+                return;
+            }
+            window.xsltPolyfillReady().then(resolve, reject);
+        };
+        script.onerror = function () {
+            xsltPolyfillPromise = null;
+            script.remove();
+            reject(new Error('Unable to load the XSLT polyfill from ' + XSLT_POLYFILL_URL));
+        };
+        document.head.appendChild(script);
+    });
+
+    return xsltPolyfillPromise;
+}
+
+/**
  * Constructor for client-side XSLT transformations.
  *
  * @author <a href="mailto:jb@eaio.com">Johann Burkard</a>
@@ -242,6 +326,28 @@ function Transformation() {
 	
     this.transform = function(target) {
         targetElem = target;
+        var t = this;
+
+        if (hasNativeXsltSupport()) {
+            startTransform.call(t, target);
+            return;
+        }
+
+        // No native XSLT (e.g. recent Chrome): transform once the polyfill is ready.
+        loadXsltPolyfill().then(
+            function () {
+                startTransform.call(t, target);
+            },
+            function (error) {
+                console.error('XSLT transformation of ' + xml + ' with ' + xslt + ' skipped', error);
+                if (typeof _clear == 'function') {
+                    _clear("centreonMsg");
+                }
+            }
+        );
+    }
+
+    var startTransform = function(target) {
         var t = this;
 
         if (!browserSupportsXSLT()) {
