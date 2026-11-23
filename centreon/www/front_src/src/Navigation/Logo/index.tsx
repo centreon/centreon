@@ -1,28 +1,19 @@
 import { IconButton, Image, ImageVariant, LoadingSkeleton } from '@centreon/ui';
 
 import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
 
-import centreonLogoWhite from '../../../assets/centreon-logo-white.svg';
-import centreonLogoWhiteMini from '../../../assets/centreon-logo-white-mini.svg';
-import {
-  labelCentreonLogo,
-  labelMiniCentreonLogo
-} from '../../translatedLabels';
+import centreonLogoWhite from '../../assets/centreon-logo-white.svg';
+import centreonLogoWhiteMini from '../../assets/centreon-logo-white-mini.svg';
+import { labelCentreonLogo, labelMiniCentreonLogo } from '../translatedLabels';
 
 interface Props {
   isMiniLogo: boolean;
   onClick: () => void;
 }
-const useStyles = makeStyles()((theme) => ({
-  logo: {
-    height: theme.spacing(4.2),
-    maxWidth: theme.spacing(16.9)
-  }
-}));
+
+const logoClassName = 'h-8.5 max-w-34';
 
 const Logo = ({ onClick, isMiniLogo }: Props): JSX.Element => {
-  const { classes } = useStyles();
   const { t } = useTranslation();
 
   const label = t(isMiniLogo ? labelMiniCentreonLogo : labelCentreonLogo);
@@ -31,9 +22,9 @@ const Logo = ({ onClick, isMiniLogo }: Props): JSX.Element => {
     <IconButton ariaLabel={label} onClick={onClick} title={label}>
       <Image
         alt={label}
-        className={classes.logo}
+        className={logoClassName}
         fallback={
-          <LoadingSkeleton className={classes.logo} variant="circular" />
+          <LoadingSkeleton className={logoClassName} variant="circular" />
         }
         imagePath={isMiniLogo ? centreonLogoWhiteMini : centreonLogoWhite}
         variant={ImageVariant.Contain}

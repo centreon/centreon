@@ -8,6 +8,7 @@ import { isNil } from 'ramda';
 import { useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { navigationMenuWidth } from '../../../../components/NavigationMenu';
 import { isSidebarOpenAtom } from '../../../../Navigation/navigationAtoms';
 import { useCanEditProperties } from '../hooks/useCanEditDashboard';
 import {
@@ -85,7 +86,9 @@ const AddWidgetModal = (): JSX.Element | null => {
       {({ dirty }) => (
         <Modal
           fullscreenMargins={{
-            left: isSidebarOpen ? 165 : 48,
+            left: isSidebarOpen
+              ? navigationMenuWidth.open
+              : navigationMenuWidth.closed,
             top: 90
           }}
           onClose={() => askBeforeCloseModal(dirty)}

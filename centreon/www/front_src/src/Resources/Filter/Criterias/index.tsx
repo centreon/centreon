@@ -9,7 +9,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
-import { hoveredNavigationItemsAtom } from '../../../Navigation/Sidebar/sideBarAtoms';
+import { isNavigationPopoverOpenAtom } from '../../../Navigation/navigationAtoms';
 import { labelSearchOptions } from '../../translatedLabels';
 import CriteriasNewInterface from '../criteriasNewInterface';
 import Actions from '../criteriasNewInterface/actions';
@@ -66,7 +66,7 @@ const CriteriasContent = ({
   const { t } = useTranslation();
   const [isCreatingFilter, setIsCreatingFilter] = useState(false);
 
-  const hoveredNavigationItem = useAtomValue(hoveredNavigationItemsAtom);
+  const isNavigationPopoverOpen = useAtomValue(isNavigationPopoverOpenAtom);
 
   const { newCriteriaValueName, newSelectableCriterias } = useFilterByModule();
 
@@ -82,7 +82,7 @@ const CriteriasContent = ({
 
   const applyCurrentFilter = useSetAtom(applyCurrentFilterDerivedAtom);
   const setIsCriteriasPanelOpen = useSetAtom(isCriteriasPanelOpenAtom);
-  const canOpenPopover = isNil(hoveredNavigationItem);
+  const canOpenPopover = !isNavigationPopoverOpen;
 
   const getSelectableCriterias = (): Array<CriteriaModel> => {
     const criteriasValue = filterByInstalledModulesWithParsedSearch({

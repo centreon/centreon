@@ -10,10 +10,6 @@ import { makeStyles } from 'tss-react/mui';
 
 import { logoutEndpoint } from '../api/endpoint';
 import { areUserParametersLoadedAtom } from '../Main/useUser';
-import {
-  hoveredNavigationItemsAtom,
-  selectedNavigationItemsAtom
-} from '../Navigation/Sidebar/sideBarAtoms';
 import { passwordResetInformationsAtom } from '../ResetPassword/passwordResetInformationsAtom';
 import { labelYouWillBeDisconnected } from './translatedLabels';
 
@@ -39,8 +35,6 @@ const Logout = (): JSX.Element => {
   const { t } = useTranslation();
 
   const setUser = useSetAtom(userAtom);
-  const setHoveredNavigationItems = useSetAtom(hoveredNavigationItemsAtom);
-  const setSelectedNavigationItems = useSetAtom(selectedNavigationItemsAtom);
   const setPasswordResetInformationsAtom = useSetAtom(
     passwordResetInformationsAtom
   );
@@ -50,8 +44,6 @@ const Logout = (): JSX.Element => {
     setTimeout(() => {
       setAreUserParametersLoaded(false);
       setPasswordResetInformationsAtom(null);
-      setSelectedNavigationItems(null);
-      setHoveredNavigationItems(null);
       setUser((currentUser) => ({
         ...currentUser,
         themeMode: ThemeMode.light

@@ -1,6 +1,6 @@
 import { equals, isNil } from 'ramda';
 
-import { Page } from '../../models';
+import { Page } from './models';
 
 export const getUrlFromEntry = ({
   page,
