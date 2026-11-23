@@ -48,8 +48,8 @@ docker login docker.centreon.com
 .github/docker/gls/scripts/gls-e2e.sh down      # removes only the gls-* projects, their volumes and gls-wan
 ```
 
-- Results are printed as `[ok]`/`[ko]` lines. Logs and API answers go to `/tmp/gls-e2e/`, override with `LOG_DIR`.
-- The new poller's `id` and `uid` are saved in `/tmp/gls-e2e/poller.env`.
+- Results are printed as `[ok]`/`[ko]` lines. Logs and API answers go to `$TMPDIR/gls-e2e/` (`/tmp/gls-e2e` on Linux/WSL, `C:/Users/<you>/AppData/Local/Temp/gls-e2e` from Git Bash), override with `LOG_DIR`.
+- The new poller's `id` and `uid` are saved in `poller.env` in that directory.
 - `up` expects a fresh stack: run `down` before running it again.
 
 ## UI and API

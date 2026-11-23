@@ -36,7 +36,9 @@ POLLER_NAME="${POLLER_NAME:-gls-poller}"
 GLS_CERTS_DIR=$(host_path "${GLS_CERTS_DIR:-$GLS_DIR/.certs}")
 set +a
 
-LOG_DIR="${LOG_DIR:-/tmp/gls-e2e}"
+# Host path for every native binary (curl -o, jq, openssl, docker -f/-v): on
+# Git Bash /tmp is converted to C:/.../Temp, elsewhere unchanged.
+LOG_DIR=$(host_path "${LOG_DIR:-${TMPDIR:-/tmp}/gls-e2e}")
 SUMMARY_FILE="${SUMMARY_FILE:-/dev/null}"
 ADMIN_PW="${ADMIN_PW:-Centreon!2021}"
 API="http://127.0.0.1:${HTTPD_PORT}/centreon/api/latest"
@@ -86,7 +88,16 @@ api() { # api <METHOD> <path> [json] -> prints HTTP code, body in $LOG_DIR/last.
   local method=$1 path=$2 body=${3:-}
   local args=(-s -o "$LOG_DIR/last.json" -w '%{http_code}' -X "$method" -H "X-AUTH-TOKEN: $TOKEN" --max-time "${API_MAX_TIME:-180}")
   [[ -n "$body" ]] && args+=(-H 'Content-Type: application/json' -d "$body")
-  curl "${args[@]}" "$API$path" || echo 000
+  # Exactly one code on stdout: curl's, or 000 when it got none. A curl error
+  # after a code (e.g. rc 23, body not written) is logged, not appended.
+  local code rc
+  code=$(curl "${args[@]}" "$API$path"); rc=$?
+  if (( rc != 0 )); then
+    echo "$(date -u +%FT%TZ) curl rc=$rc code=${code:-none} $method $path" >>"$LOG_DIR/curl-errors.log"
+    [[ -f "$LOG_DIR/last.json" ]] || : >"$LOG_DIR/last.json"
+  fi
+  [[ "$code" =~ ^[0-9]{3}$ ]] || code=000
+  printf '%s' "$code"
 }
 
 service_ready() { # service_ready <compose fn> <service>
