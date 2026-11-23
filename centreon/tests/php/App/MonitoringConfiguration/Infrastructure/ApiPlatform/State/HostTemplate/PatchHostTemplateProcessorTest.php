@@ -429,6 +429,69 @@ final class PatchHostTemplateProcessorTest extends ApiTestCase
         self::assertSame('0', $this->pollerUpdated($pollerId));
     }
 
+    public function testAKeyLeftOutKeepsEveryStoredColumn(): void
+    {
+        $commandId = $this->insertRow('command', ['command_name' => "check-{$this->tag}", 'command_line' => '$USER1$/check', 'command_type' => 2]);
+        $eventHandlerId = $this->insertRow('command', ['command_name' => "handler-{$this->tag}", 'command_line' => '$USER1$/handle', 'command_type' => 3]);
+        $periodId = $this->insertRow('timeperiod', ['tp_name' => "period-{$this->tag}", 'tp_alias' => 'period']);
+        $timezoneId = $this->insertRow('timezone', ['timezone_name' => "Zone/{$this->tag}", 'timezone_offset' => '+00:00', 'timezone_dst_offset' => '+00:00']);
+        $severityId = $this->insertRow('hostcategories', ['hc_name' => "severity-{$this->tag}", 'hc_alias' => 'severity', 'hc_activate' => '1', 'level' => 1]);
+        $iconId = $this->insertMedia("icon-{$this->tag}.png");
+        $id = $this->insertTemplate('filled', [
+            'host_alias' => 'Filled',
+            'host_snmp_version' => '2c',
+            'host_snmp_community' => 'public',
+            'host_location' => $timezoneId,
+            'host_comment' => 'A comment',
+            'command_command_id' => $commandId,
+            'command_command_id_arg1' => '!-w!80',
+            'timeperiod_tp_id' => $periodId,
+            'host_max_check_attempts' => 3,
+            'host_check_interval' => 5,
+            'host_retry_check_interval' => 1,
+            'host_active_checks_enabled' => '1',
+            'host_passive_checks_enabled' => '0',
+            'host_check_freshness' => '1',
+            'host_freshness_threshold' => 60,
+            'host_flap_detection_enabled' => '2',
+            'host_low_flap_threshold' => 10,
+            'host_high_flap_threshold' => 90,
+            'host_event_handler_enabled' => '0',
+            'command_command_id2' => $eventHandlerId,
+            'command_command_id_arg2' => '!a!b',
+            'host_acknowledgement_timeout' => 15,
+            'host_notifications_enabled' => '1',
+            'host_notification_options' => 'd,r',
+            'host_notification_interval' => 30,
+            'timeperiod_tp_id2' => $periodId,
+            'host_first_notification_delay' => 2,
+            'host_recovery_notification_delay' => 3,
+            'contact_additive_inheritance' => 0,
+            'cg_additive_inheritance' => 0,
+        ]);
+        $this->insertRow('extended_host_information', [
+            'host_host_id' => $id,
+            'ehi_notes' => 'A note',
+            'ehi_notes_url' => 'https://notes.example.com',
+            'ehi_action_url' => 'https://action.example.com',
+            'ehi_icon_image' => $iconId,
+            'ehi_icon_image_alt' => 'An icon',
+        ]);
+        $this->connection->insert('hostcategories_relation', ['host_host_id' => $id, 'hostcategories_hc_id' => $severityId]);
+        $hostBefore = $this->connection->fetchAssociative('SELECT * FROM host WHERE host_id = ?', [$id]);
+        $informationsBefore = $this->connection->fetchAssociative('SELECT * FROM extended_host_information WHERE host_host_id = ?', [$id]);
+        $this->login();
+
+        $this->patch($id, ['alias' => 'Renamed']);
+
+        self::assertResponseStatusCodeSame(204);
+        self::assertIsArray($hostBefore);
+        $hostBefore['host_alias'] = 'Renamed';
+        self::assertSame($hostBefore, $this->connection->fetchAssociative('SELECT * FROM host WHERE host_id = ?', [$id]));
+        self::assertSame($informationsBefore, $this->connection->fetchAssociative('SELECT * FROM extended_host_information WHERE host_host_id = ?', [$id]));
+        self::assertSame([$severityId], $this->categoryIds($id));
+    }
+
     public function testTheExtendedTextsAreStoredTrimmed(): void
     {
         $id = $this->insertTemplate('trimmed');

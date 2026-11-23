@@ -121,11 +121,11 @@ final readonly class PatchHostTemplateNotificationsInput
         #[Assert\Range(min: 0, max: HostTemplate::MAX_INTEGER)]
         public ?int $recoveryDelay = null,
 
-        #[ApiProperty(description: "Ignored unless the platform's inheritance mode enables additive inheritance.")]
+        #[ApiProperty(description: "Forced to false unless the platform's inheritance mode enables additive inheritance.")]
         #[NotNullWhenProvided]
         public ?bool $contactAdditiveInheritance = null,
 
-        #[ApiProperty(description: "Ignored unless the platform's inheritance mode enables additive inheritance.")]
+        #[ApiProperty(description: "Forced to false unless the platform's inheritance mode enables additive inheritance.")]
         #[NotNullWhenProvided]
         public ?bool $contactGroupAdditiveInheritance = null,
     ) {

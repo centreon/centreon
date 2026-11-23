@@ -144,8 +144,7 @@ interface HostTemplateRepository
     public function add(HostTemplate $hostTemplate): void;
 
     /**
-     * Saves the template's own fields, its extended information and its severity; never its activation,
-     * its lock, its relations or its macros.
+     * Saves its own columns, extended information and severity; never activation, lock, relations or macros.
      */
     public function update(HostTemplate $hostTemplate): void;
 

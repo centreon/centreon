@@ -23,8 +23,16 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Event;
 
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\Shared\Domain\Event\AggregateUpdated;
 
 final readonly class HostTemplateUpdated extends AggregateUpdated
 {
+    public function __construct(
+        public HostTemplate $hostTemplate,
+        int $creatorId,
+        bool $loggable = true,
+    ) {
+        parent::__construct($hostTemplate, $creatorId, loggable: $loggable);
+    }
 }

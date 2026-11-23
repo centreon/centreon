@@ -23,12 +23,10 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Application\EventHandler;
 
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Event\HostTemplateUpdated;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\Shared\Domain\Event\AsEventHandler;
-use Webmozart\Assert\Assert;
 
 /**
  * Any template change makes the inheriting hosts' pollers regenerate, whether it is logged or not.
@@ -44,10 +42,7 @@ final readonly class FlagHostTemplateInheritorsPollersEventHandler
 
     public function __invoke(HostTemplateUpdated $event): void
     {
-        $template = $event->aggregate;
-        Assert::isInstanceOf($template, HostTemplate::class);
-
-        foreach ($this->hostTemplateRepository->findPollerIdsOfInheritingHosts($template->id()) as $pollerId) {
+        foreach ($this->hostTemplateRepository->findPollerIdsOfInheritingHosts($event->hostTemplate->id()) as $pollerId) {
             $this->pollerRepository->flagIdAsChanged($pollerId);
         }
     }

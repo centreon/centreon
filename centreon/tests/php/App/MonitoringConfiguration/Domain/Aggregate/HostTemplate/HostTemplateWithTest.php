@@ -32,6 +32,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationOptionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\SchedulingOptions;
@@ -159,13 +160,63 @@ final class HostTemplateWithTest extends TestCase
 
         yield 'arguments' => [static fn (HostTemplate $template): HostTemplate => $template->with(checkOptions: $template->checkOptions->with(args: ['-c']))];
 
-        yield 'an extended text' => [static fn (HostTemplate $template): HostTemplate => $template->with(extendedInformations: new ExtendedInformations(note: 'another note'))];
+        yield 'note url' => [static fn (HostTemplate $template): HostTemplate => $template->with(extendedInformations: $template->extendedInformations?->with(noteUrl: 'https://example.com'))];
 
-        yield 'a scheduling option' => [static fn (HostTemplate $template): HostTemplate => $template->with(schedulingOptions: $template->schedulingOptions->with(activeCheckEnabled: TriStateEnum::False))];
+        yield 'note' => [static fn (HostTemplate $template): HostTemplate => $template->with(extendedInformations: $template->extendedInformations?->with(note: 'another note'))];
 
-        yield 'a data processing option' => [static fn (HostTemplate $template): HostTemplate => $template->with(dataProcessing: $template->dataProcessing->with(eventHandlerArgs: ['x']))];
+        yield 'action url' => [static fn (HostTemplate $template): HostTemplate => $template->with(extendedInformations: $template->extendedInformations?->with(actionUrl: 'https://example.com/a'))];
 
-        yield 'a notification setting' => [static fn (HostTemplate $template): HostTemplate => $template->with(notifications: $template->notifications?->with(contactAdditiveInheritance: true))];
+        yield 'icon' => [static fn (HostTemplate $template): HostTemplate => $template->with(extendedInformations: $template->extendedInformations?->with(iconId: new MediaId(3)))];
+
+        yield 'alternative icon text' => [static fn (HostTemplate $template): HostTemplate => $template->with(extendedInformations: $template->extendedInformations?->with(altIcon: 'alt'))];
+
+        yield 'comment' => [static fn (HostTemplate $template): HostTemplate => $template->with(extendedInformations: $template->extendedInformations?->with(comment: 'A comment'))];
+
+        yield 'check period' => [static fn (HostTemplate $template): HostTemplate => $template->with(schedulingOptions: $template->schedulingOptions->with(checkTimeperiodId: new TimePeriodId(9)))];
+
+        yield 'max check attempts' => [static fn (HostTemplate $template): HostTemplate => $template->with(schedulingOptions: $template->schedulingOptions->with(maxCheckAttempts: 4))];
+
+        yield 'normal check interval' => [static fn (HostTemplate $template): HostTemplate => $template->with(schedulingOptions: $template->schedulingOptions->with(normalCheckInterval: 5))];
+
+        yield 'retry check interval' => [static fn (HostTemplate $template): HostTemplate => $template->with(schedulingOptions: $template->schedulingOptions->with(retryCheckInterval: 1))];
+
+        yield 'active checks' => [static fn (HostTemplate $template): HostTemplate => $template->with(schedulingOptions: $template->schedulingOptions->with(activeCheckEnabled: TriStateEnum::False))];
+
+        yield 'passive checks' => [static fn (HostTemplate $template): HostTemplate => $template->with(schedulingOptions: $template->schedulingOptions->with(passiveCheckEnabled: TriStateEnum::False))];
+
+        yield 'freshness check' => [static fn (HostTemplate $template): HostTemplate => $template->with(dataProcessing: $template->dataProcessing->with(checkFreshness: TriStateEnum::True))];
+
+        yield 'freshness threshold' => [static fn (HostTemplate $template): HostTemplate => $template->with(dataProcessing: $template->dataProcessing->with(freshnessThreshold: 60))];
+
+        yield 'event handler enabled' => [static fn (HostTemplate $template): HostTemplate => $template->with(dataProcessing: $template->dataProcessing->with(eventHandlerEnabled: TriStateEnum::True))];
+
+        yield 'event handler command' => [static fn (HostTemplate $template): HostTemplate => $template->with(dataProcessing: $template->dataProcessing->with(eventHandlerCommandId: new CommandId(7)))];
+
+        yield 'event handler arguments' => [static fn (HostTemplate $template): HostTemplate => $template->with(dataProcessing: $template->dataProcessing->with(eventHandlerArgs: ['x']))];
+
+        yield 'acknowledgment timeout' => [static fn (HostTemplate $template): HostTemplate => $template->with(dataProcessing: $template->dataProcessing->with(acknowledgmentTimeout: 20))];
+
+        yield 'flap detection' => [static fn (HostTemplate $template): HostTemplate => $template->with(dataProcessing: $template->dataProcessing->with(flapDetectionEnabled: TriStateEnum::True))];
+
+        yield 'low flap threshold' => [static fn (HostTemplate $template): HostTemplate => $template->with(dataProcessing: $template->dataProcessing->with(lowFlapThreshold: 10))];
+
+        yield 'high flap threshold' => [static fn (HostTemplate $template): HostTemplate => $template->with(dataProcessing: $template->dataProcessing->with(highFlapThreshold: 40))];
+
+        yield 'notifications enabled' => [static fn (HostTemplate $template): HostTemplate => $template->with(notifications: $template->notifications?->with(enabled: TriStateEnum::False))];
+
+        yield 'notification options' => [static fn (HostTemplate $template): HostTemplate => $template->with(notifications: $template->notifications?->with(options: [NotificationOptionEnum::Recovery]))];
+
+        yield 'notification interval' => [static fn (HostTemplate $template): HostTemplate => $template->with(notifications: $template->notifications?->with(interval: 60))];
+
+        yield 'notification period' => [static fn (HostTemplate $template): HostTemplate => $template->with(notifications: $template->notifications?->with(periodId: new TimePeriodId(9)))];
+
+        yield 'first notification delay' => [static fn (HostTemplate $template): HostTemplate => $template->with(notifications: $template->notifications?->with(firstDelay: 5))];
+
+        yield 'recovery notification delay' => [static fn (HostTemplate $template): HostTemplate => $template->with(notifications: $template->notifications?->with(recoveryDelay: 5))];
+
+        yield 'contact additive inheritance' => [static fn (HostTemplate $template): HostTemplate => $template->with(notifications: $template->notifications?->with(contactAdditiveInheritance: true))];
+
+        yield 'contact group additive inheritance' => [static fn (HostTemplate $template): HostTemplate => $template->with(notifications: $template->notifications?->with(contactGroupAdditiveInheritance: true))];
     }
 
     public function testTheVaultEntryIsReleasedOnlyWhenNoSecretReferencesItAnyMore(): void
