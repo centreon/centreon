@@ -29,6 +29,10 @@ use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use App\Kernel;
 use Centreon\Domain\MonitoringServer\Exception\GorgoneDeliveryException;
 use Centreon\Infrastructure\Gorgone\Interfaces\ConfigurationLoaderApiInterface;
+use Centreon\Infrastructure\RemoteChannel\LegacyRemoteChannelBridge;
+use Core\RemoteChannel\Application\Repository\ReadPollerTargetRepositoryInterface;
+use Core\RemoteChannel\Domain\Exception\RemoteChannelException;
+use Core\RemoteChannel\Infrastructure\Broker\BrokerPollerCommandSender;
 use Symfony\Component\HttpClient\CurlHttpClient;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
@@ -117,9 +121,16 @@ class LegacyCommandSender
      */
     private ?array $nodeStatuses = null;
 
+    /**
+     * @param BrokerPollerCommandSender|null $brokerCommandSender MON-215450: EXTERNALCMD lines targeting a poller
+     *                                                            on the broker channel go through the central broker
+     * @param ReadPollerTargetRepositoryInterface|null $pollerTargetRepository channel of each poller
+     */
     public function __construct(
         private readonly ConfigurationLoaderApiInterface $configuration,
         private readonly ConnectionInterface $connection,
+        private readonly ?BrokerPollerCommandSender $brokerCommandSender = null,
+        private readonly ?ReadPollerTargetRepositoryInterface $pollerTargetRepository = null,
     ) {
         $this->client = new CurlHttpClient();
     }
@@ -410,8 +421,67 @@ class LegacyCommandSender
      *
      * @throws LegacyCommandException
      * @return string|null the Gorgone token, null when every command has been written into the centcore directory
+     *                     or sent through the central broker
      */
     private function send(array $commands, string $centcoreFileSuffix = self::CENTCORE_FILE_SUFFIX): ?string
+    {
+        [$commands, $brokerFailure] = $this->sendBrokerExternalCommands($commands);
+        $token = $commands === [] ? null : $this->sendToGorgone($commands, $centcoreFileSuffix);
+        if ($brokerFailure !== null) {
+            throw $brokerFailure;
+        }
+
+        return $token;
+    }
+
+    /**
+     * MON-215450: sends the EXTERNALCMD commands of the pollers on the broker channel (nagios_server.remote_channel)
+     * through the central broker remote API, and returns the other commands, left to Gorgone.
+     *
+     * @param list<array<string, mixed>> $commands
+     *
+     * @return array{list<array<string, mixed>>, LegacyCommandException|null} the commands left, the broker failure
+     */
+    private function sendBrokerExternalCommands(array $commands): array
+    {
+        if ($this->brokerCommandSender === null || $this->pollerTargetRepository === null) {
+            return [$commands, null];
+        }
+
+        $remaining = [];
+        $batches = [];
+        foreach ($commands as $command) {
+            $target = ($command['command'] ?? null) === 'EXTERNALCMD' && isset($command['param'])
+                ? $this->pollerTargetRepository->findByIdOrUid((string) $command['target'])
+                : null;
+            if ($target === null || ! $target->isBroker()) {
+                $remaining[] = $command;
+
+                continue;
+            }
+            $batches[$target->id] ??= ['target' => $target, 'commands' => []];
+            $batches[$target->id]['commands'][] = (string) $command['param'];
+        }
+        if ($batches === []) {
+            return [$commands, null];
+        }
+
+        try {
+            $this->brokerCommandSender->send(array_values($batches));
+        } catch (RemoteChannelException $ex) {
+            return [$remaining, LegacyRemoteChannelBridge::toLegacyFailure($ex)];
+        }
+
+        return [$remaining, null];
+    }
+
+    /**
+     * @param list<array<string, mixed>> $commands
+     *
+     * @throws LegacyCommandException
+     * @return string|null the Gorgone token, null when every command has been written into the centcore directory
+     */
+    private function sendToGorgone(array $commands, string $centcoreFileSuffix): ?string
     {
         $apiCommands = [];
         $centcoreLines = [];
