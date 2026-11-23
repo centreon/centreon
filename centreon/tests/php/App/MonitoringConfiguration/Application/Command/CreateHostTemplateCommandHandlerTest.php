@@ -65,7 +65,6 @@ use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostCategoryRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostSeverityRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
-use App\Shared\Domain\Repository\OptionRepository;
 use App\MonitoringConfiguration\Domain\Repository\ServiceTemplateRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
 use App\Security\Domain\Aggregate\AccessScope;
@@ -75,18 +74,19 @@ use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Event\EventBus;
+use App\Shared\Domain\Repository\OptionRepository;
 use App\Shared\Domain\VaultInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeCommandRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostCategoryRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostSeverityRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostTemplateRepository;
-use Tests\App\Shared\Double\FakeOptionRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceTemplateRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimezoneRepository;
 use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
 use Tests\App\Security\Infrastructure\Double\TestActingUsers;
 use Tests\App\Shared\Double\EventBusSpy;
+use Tests\App\Shared\Double\FakeOptionRepository;
 use Tests\App\Shared\Double\FakeVault;
 
 final class CreateHostTemplateCommandHandlerTest extends KernelTestCase
