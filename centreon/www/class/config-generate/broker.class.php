@@ -92,7 +92,8 @@ class Broker extends AbstractObjectJSON
         centreonbroker_module_path,
         centreonbroker_cfg_path,
         centreonbroker_logs_path,
-        poller_type
+        poller_type,
+        remote_channel
     ';
 
     /** @var string[] */
@@ -560,6 +561,8 @@ class Broker extends AbstractObjectJSON
                     }
                 }
             }
+            $object = $this->addRemoteChannelParameters($object, $row['daemon'] == '1', $shouldBeEncrypted);
+
             // Generate file
             $this->generateFile($object);
             $this->writeFile($this->backend_instance->getPath());
@@ -574,6 +577,52 @@ class Broker extends AbstractObjectJSON
         $this->generate_filename = 'watchdog.json';
         $this->generateFile($watchdog);
         $this->writeFile($this->backend_instance->getPath());
+    }
+
+    /**
+     * MON-215450 (gorgone-less PoC, contracts.md § 1 and § 2):
+     * - central broker daemon (the cbd with a unified_sql output): its remote API listener, generated whenever
+     *   CENTREON_BROKER_API_TOKEN is set (the web reaches every broker-channel poller through it);
+     * - engine module (cbmod) of a poller on the broker channel (nagios_server.remote_channel = 'broker'):
+     *   accept downstream remote actions; remote_actions_insecure (no TLS) only with
+     *   CENTREON_BROKER_REMOTE_ACTIONS_INSECURE, PoC escape hatch.
+     *
+     * @param array<string,mixed> $object
+     *
+     * @return array<string,mixed>
+     */
+    private function addRemoteChannelParameters(array $object, bool $isDaemon, bool $shouldBeEncrypted): array
+    {
+        if ($isDaemon) {
+            $token = trim((string) getenv('CENTREON_BROKER_API_TOKEN'));
+            $hasUnifiedSql = false;
+            foreach ($object['output'] ?? [] as $output) {
+                if (($output['type'] ?? null) === 'unified_sql') {
+                    $hasUnifiedSql = true;
+                    break;
+                }
+            }
+            if ($token === '' || ! $hasUnifiedSql) {
+                return $object;
+            }
+            $port = parse_url((string) getenv('CENTREON_BROKER_API_URL'), PHP_URL_PORT);
+            $object['remote_api'] = [
+                'listen_address' => trim((string) getenv('CENTREON_BROKER_API_LISTEN_ADDRESS')) ?: '0.0.0.0',
+                'port' => (string) (is_int($port) ? $port : 8099),
+                'token' => $shouldBeEncrypted ? 'encrypt::' . $this->engineContextEncryption->crypt($token) : $token,
+            ];
+
+            return $object;
+        }
+
+        if (($this->engine['remote_channel'] ?? 'gorgone') === 'broker') {
+            $object['remote_actions'] = 'yes';
+            if (filter_var(getenv('CENTREON_BROKER_REMOTE_ACTIONS_INSECURE'), FILTER_VALIDATE_BOOLEAN)) {
+                $object['remote_actions_insecure'] = 'yes';
+            }
+        }
+
+        return $object;
     }
 
     /**
@@ -646,6 +695,7 @@ class Broker extends AbstractObjectJSON
             $this->engine['broker_cfg_path'] = $row['centreonbroker_cfg_path'];
             $this->engine['broker_logs_path'] = $row['centreonbroker_logs_path'];
             $this->engine['poller_type'] = $row['poller_type'] ?: 'vm';
+            $this->engine['remote_channel'] = $row['remote_channel'] ?? 'gorgone';
         } catch (Exception $e) {
             throw new Exception('Exception received : ' . $e->getMessage() . "\n");
         }
