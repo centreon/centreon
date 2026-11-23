@@ -147,9 +147,16 @@ add_service() { # add_service <host>
   [[ -n "$(sql centreon "SELECT s.service_id FROM service s JOIN host_service_relation r ON r.service_service_id=s.service_id JOIN host h ON h.host_id=r.host_host_id WHERE h.host_name='$1' AND s.service_description='gls-crit'")" ]]
 }
 
+# Until the web generator writes them (contracts § 1, § 2), GLS_PATCH_REMOTE=1:
+# remote_api on the central cbd, remote_actions(+insecure, no TLS yet) on cbmod.
+patch_keys() { # patch_keys api|actions <glob evaluated inside fpm>
+  cc exec -T -u www-data fpm sh -c "php -- $1 $2" <"$(dirname "$0")/patch-remote-keys.php" >>"$LOG_DIR/patch-keys.log" 2>&1
+}
+
 seed_poller() { # step 0 only: out-of-band copy of the web-generated poller config
   local pid=$1
   clapi -a POLLERGENERATE -v "$pid" >"$LOG_DIR/pollergenerate.txt" 2>&1
+  [[ "${GLS_PATCH_REMOTE:-1}" == 1 ]] && { patch_keys actions "/var/cache/centreon/config/broker/$pid/*-module.json" || return 1; }
   local kind
   for kind in engine broker; do
     # Files only: a "." entry makes tar chmod the volume root, which it does not own.
@@ -211,6 +218,15 @@ cmd_up() {
   code=$(api GET /configuration/monitoring-servers/1/generate-and-reload)
   [[ "$code" == 204 ]] && record "central generate + local copy" ok "HTTP $code" \
     || record "central generate + local copy" ko "HTTP $code $(head -c 300 "$LOG_DIR/last.json")"
+  if [[ "${GLS_PATCH_REMOTE:-1}" == 1 ]]; then
+    if patch_keys api /etc/centreon-broker/central-broker.json && patch_keys actions "/etc/centreon-broker/*-module.json"; then
+      # cbd and cbmod read these at start: restart them on the patched files.
+      cc restart centreon-broker central-engine >/dev/null 2>&1
+      record "remote_api / remote_actions patched (until the web generates them)" ok
+    else
+      record "remote_api / remote_actions patched" ko "see patch-keys.log"
+    fi
+  fi
 
   cp_ up -d || true
   if [[ "${GLS_SEED_POLLER:-1}" == 1 ]]; then

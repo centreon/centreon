@@ -187,6 +187,7 @@ services:
     environment:
       <<: [*tz, *secrets]
       NAME: central
+      ENGINE_RPC_LISTEN_ADDRESS: "127.0.0.1"
     volumes:
       - type: volume
         source: central-engine-etc
