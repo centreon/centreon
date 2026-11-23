@@ -38,6 +38,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroParentEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
@@ -588,7 +589,7 @@ final class PatchHostTemplateRelationsAndMacrosTest extends KernelTestCase
         $this->addTemplate(7, parentIds: [1]);
 
         $template = ($this->handler)($this->command(macros: MacroChanges::upsert([
-            new HostMacroChange(new HostMacroName('pwd_copy'), null, true, new HostMacroId(10), \App\MonitoringConfiguration\Domain\Aggregate\HostMacroParentEnum::Template),
+            new HostMacroChange(new HostMacroName('pwd_copy'), null, true, new HostMacroId(10), HostMacroParentEnum::Template),
             new HostMacroChange(new HostMacroName('other'), 'x', true),
         ])));
 
@@ -614,7 +615,7 @@ final class PatchHostTemplateRelationsAndMacrosTest extends KernelTestCase
 
         try {
             ($this->handler)($this->command(macros: MacroChanges::upsert([
-                new HostMacroChange(new HostMacroName('pwd_copy'), null, true, new HostMacroId(10), \App\MonitoringConfiguration\Domain\Aggregate\HostMacroParentEnum::Template),
+                new HostMacroChange(new HostMacroName('pwd_copy'), null, true, new HostMacroId(10), HostMacroParentEnum::Template),
             ])));
             self::fail('A vault failure must stop the update.');
         } catch (VaultWriteFailedException) {
@@ -632,7 +633,7 @@ final class PatchHostTemplateRelationsAndMacrosTest extends KernelTestCase
 
         try {
             ($this->handler)($this->command(macros: MacroChanges::upsert([
-                new HostMacroChange(new HostMacroName('pwd_copy'), null, true, new HostMacroId(10), \App\MonitoringConfiguration\Domain\Aggregate\HostMacroParentEnum::Template),
+                new HostMacroChange(new HostMacroName('pwd_copy'), null, true, new HostMacroId(10), HostMacroParentEnum::Template),
             ])));
             self::fail('The save failure must reach the caller.');
         } catch (\RuntimeException $exception) {
