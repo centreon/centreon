@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTe
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Infrastructure\Validator\ExistingTimePeriod;
 use App\Shared\Domain\Aggregate\TriStateEnum;
+use App\Shared\Infrastructure\Validator\Constraints\NotProvided;
 use App\Shared\Infrastructure\Validator\Constraints\WhenPlatform;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -45,12 +46,18 @@ final readonly class CreateHostTemplateSchedulingOptionsInput
         public ?int $retryCheckInterval = null,
 
         #[WhenPlatform(forCloud: true, constraints: [
-            new Assert\IsNull(message: 'active_check_enabled is not available on a Cloud platform.'),
+            new Assert\Sequentially([
+                new Assert\IsNull(message: 'active_check_enabled is not available on a Cloud platform.'),
+                new NotProvided(message: 'active_check_enabled is not available on a Cloud platform.'),
+            ]),
         ])]
         public ?TriStateEnum $activeCheckEnabled = null,
 
         #[WhenPlatform(forCloud: true, constraints: [
-            new Assert\IsNull(message: 'passive_check_enabled is not available on a Cloud platform.'),
+            new Assert\Sequentially([
+                new Assert\IsNull(message: 'passive_check_enabled is not available on a Cloud platform.'),
+                new NotProvided(message: 'passive_check_enabled is not available on a Cloud platform.'),
+            ]),
         ])]
         public ?TriStateEnum $passiveCheckEnabled = null,
     ) {
