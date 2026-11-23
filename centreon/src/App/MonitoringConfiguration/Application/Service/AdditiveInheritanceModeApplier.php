@@ -24,10 +24,10 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Application\Service;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Notifications;
-use App\MonitoringConfiguration\Domain\Aggregate\Option\OptionName;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceNotifications;
-use App\MonitoringConfiguration\Domain\Exception\OptionDoesNotExistException;
-use App\MonitoringConfiguration\Domain\Repository\OptionRepository;
+use App\Shared\Domain\Aggregate\Option\OptionName;
+use App\Shared\Domain\Exception\OptionDoesNotExistException;
+use App\Shared\Domain\Repository\OptionRepository;
 
 /**
  * The additive-inheritance flags only mean something when the platform's `inheritance_mode`

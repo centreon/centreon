@@ -101,7 +101,6 @@ use App\MonitoringConfiguration\Domain\Repository\GraphTemplateRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
 use App\MonitoringConfiguration\Domain\Repository\NotificationContactRepository;
-use App\MonitoringConfiguration\Domain\Repository\OptionRepository;
 use App\MonitoringConfiguration\Domain\Repository\ServiceCategoryRepository;
 use App\MonitoringConfiguration\Domain\Repository\ServiceGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\ServiceRepository;
@@ -120,6 +119,7 @@ use App\Shared\Domain\Collection;
 use App\Shared\Domain\Event\EventBus;
 use App\Shared\Domain\Exception\AggregateConflictException;
 use App\Shared\Domain\Exception\AggregateNotFoundException;
+use App\Shared\Domain\Repository\OptionRepository;
 use App\Shared\Domain\VaultInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -129,7 +129,6 @@ use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeGraphTemplateRep
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeMediaRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeNotificationContactRepository;
-use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeOptionRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceCategoryRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceGroupRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceRepository;
@@ -141,6 +140,7 @@ use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTrapRepository;
 use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
 use Tests\App\Security\Infrastructure\Double\TestActingUsers;
 use Tests\App\Shared\Double\EventBusSpy;
+use Tests\App\Shared\Double\FakeOptionRepository;
 use Tests\App\Shared\Double\FakeVault;
 
 final class CreateServiceCommandHandlerTest extends KernelTestCase

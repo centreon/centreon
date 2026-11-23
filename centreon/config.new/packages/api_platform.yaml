@@ -27,6 +27,7 @@ api_platform:
         denormalization_context:
             collect_denormalization_errors: true
         pagination_client_items_per_page: true
+        pagination_maximum_items_per_page: !php/const App\Shared\Domain\Repository\Pagination::MAX_ITEMS_PER_PAGE # the default page size is resolved at runtime, see PaginationResolver
 
     mapping:
         paths:

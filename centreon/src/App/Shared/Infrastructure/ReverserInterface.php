@@ -21,25 +21,21 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\Dbal;
-
-use App\MonitoringConfiguration\Domain\Aggregate\Option\Option;
-use App\MonitoringConfiguration\Domain\Aggregate\Option\OptionName;
-use App\MonitoringConfiguration\Domain\Aggregate\Option\OptionValue;
-use App\Shared\Infrastructure\TransformerInterface;
+namespace App\Shared\Infrastructure;
 
 /**
- * @phpstan-import-type RowTypeAlias from DbalOptionRepository
+ * Reverse counterpart of {@see TransformerInterface}, implemented only by Transformers that also convert back.
+ * The templates keep the TransformerInterface orientation: reverse() goes from TTo to TFrom.
  *
- * @implements TransformerInterface<RowTypeAlias, Option>
+ * @template TFrom
+ * @template TTo
  */
-final readonly class OptionTransformer implements TransformerInterface
+interface ReverserInterface
 {
-    public function transform(mixed $from): Option
-    {
-        return new Option(
-            name: new OptionName($from['option_name']),
-            value: new OptionValue($from['option_value']),
-        );
-    }
+    /**
+     * @param TTo $from
+     *
+     * @return TFrom
+     */
+    public function reverse(mixed $from): mixed;
 }

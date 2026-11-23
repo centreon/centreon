@@ -32,6 +32,7 @@ use App\Security\Domain\Service\AccessScopeResolver;
 use App\Security\Infrastructure\Dbal\DbalAccessGroupRepository;
 use App\Security\Infrastructure\Dbal\DbalResourceAccessRepository;
 use App\Shared\Domain\Collection;
+use App\Shared\Domain\Repository\Pagination;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -120,7 +121,7 @@ final class DbalHostGroupRepositoryTest extends KernelTestCase
         $this->insertHostGroup(302, 'HostGroup-B');
         $this->insertHostGroup(303, 'HostGroup-C');
 
-        $criteria = HostGroupCriteria::unscoped()->withPagination(page: 2, itemsPerPage: 1);
+        $criteria = HostGroupCriteria::unscoped()->withPagination(new Pagination(2, 1));
 
         $paginator = $this->repository->findAll($criteria);
 
@@ -157,7 +158,7 @@ final class DbalHostGroupRepositoryTest extends KernelTestCase
 
         self::assertCount(0, iterator_to_array($this->repository->findAll($criteria)));
 
-        $paginated = $this->repository->findAll($criteria->withPagination(1, 10));
+        $paginated = $this->repository->findAll($criteria->withPagination(new Pagination(1, 10)));
         self::assertInstanceOf(InMemoryPaginator::class, $paginated, 'Pagination metadata must survive an empty ACL result.');
         self::assertSame(0, $paginated->getTotalItems());
         self::assertCount(0, iterator_to_array($paginated));

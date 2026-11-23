@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\ServiceTemplate;
 
 use ApiPlatform\Metadata\Operation;
-use ApiPlatform\State\Pagination\Pagination;
 use ApiPlatform\State\Pagination\TraversablePaginator;
 use ApiPlatform\State\ProviderInterface;
 use App\MonitoringConfiguration\Application\Service\UnlicensedServiceTemplates;
@@ -32,11 +31,12 @@ use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplate
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceTemplateCriteria;
 use App\MonitoringConfiguration\Domain\Repository\ServiceTemplateRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ServiceTemplate\ServiceTemplateChoicesOutput;
+use App\Shared\Domain\Repository\Pagination;
 use App\Shared\Domain\Repository\Paginator;
 use App\Shared\Infrastructure\ApiPlatform\State\FilterAwareProviderTrait;
+use App\Shared\Infrastructure\ApiPlatform\State\PaginationResolver;
 use App\Shared\Infrastructure\TransformerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * @implements ProviderInterface<ServiceTemplateChoicesOutput>
@@ -52,7 +52,7 @@ final readonly class ListServiceTemplatesChoicesProvider implements ProviderInte
         #[Autowire(service: ServiceTemplateChoicesTransformer::class)]
         private TransformerInterface $transformer,
         private ServiceTemplateRepository $repository,
-        private Pagination $pagination,
+        private PaginationResolver $paginationResolver,
         private UnlicensedServiceTemplates $unlicensedServiceTemplates,
     ) {
     }
@@ -66,12 +66,8 @@ final readonly class ListServiceTemplatesChoicesProvider implements ProviderInte
         // Unlike legacy, which never filters service templates on the license, the templates coming from
         // Monitoring Connectors are excluded once the license host limit is reached, as the host form does.
         $criteria = new ServiceTemplateCriteria();
-        if ($this->pagination->isEnabled($operation, $context)) {
-            $itemsPerPage = $this->pagination->getLimit($operation, $context);
-            if ($itemsPerPage <= 0) {
-                throw new BadRequestHttpException('itemsPerPage must be a positive integer.');
-            }
-            $criteria = $criteria->withPagination($this->pagination->getPage($context), $itemsPerPage);
+        if (($pagination = $this->paginationResolver->resolve($operation, $context)) instanceof Pagination) {
+            $criteria = $criteria->withPagination($pagination);
         }
 
         /** @var array{name?: mixed} $filters */

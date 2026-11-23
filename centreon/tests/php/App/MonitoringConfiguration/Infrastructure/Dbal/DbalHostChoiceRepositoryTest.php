@@ -30,6 +30,7 @@ use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostChoiceRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\HostChoiceTransformer;
 use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Domain\Collection;
+use App\Shared\Domain\Repository\Pagination;
 use App\Shared\Domain\Repository\Paginator;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -150,7 +151,7 @@ final class DbalHostChoiceRepositoryTest extends KernelTestCase
 
         // page 2 @ 1 item/page proves the OFFSET arithmetic (a page-1 request cannot)
         $result = $this->repository->findAll(
-            HostChoiceCriteria::unscoped()->withName("pg-{$this->tag}-")->withPagination(2, 1)
+            HostChoiceCriteria::unscoped()->withName("pg-{$this->tag}-")->withPagination(new Pagination(2, 1))
         );
 
         self::assertInstanceOf(Paginator::class, $result);
@@ -192,7 +193,7 @@ final class DbalHostChoiceRepositoryTest extends KernelTestCase
         $this->resourceAccessRepository->accessibleHostIds = new Collection([], HostId::class);
 
         $result = $this->repository->findAll(
-            HostChoiceCriteria::forActor(TestActingUsers::restricted(42))->withName($this->tag)->withPagination(1, 10)
+            HostChoiceCriteria::forActor(TestActingUsers::restricted(42))->withName($this->tag)->withPagination(new Pagination(1, 10))
         );
 
         self::assertInstanceOf(Paginator::class, $result);
