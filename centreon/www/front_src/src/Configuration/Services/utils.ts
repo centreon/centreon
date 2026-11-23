@@ -37,8 +37,6 @@ export const getServiceRowId = (row: ResourceRow): string => {
 // The React Services page, reachable once the menu grants it.
 export const servicesPagePath = '/configuration/services';
 
-// The query parameter that opens the listing on one host's services: it
-// replaces the filters with a host name filter, then leaves the URL.
 export const hostNameSearchParameter = 'host';
 
 export const getServicesOfHostPath = (hostName: string): string =>

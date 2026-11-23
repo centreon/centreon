@@ -76,6 +76,35 @@ export default () => {
       );
     });
 
+    it('keeps the legacy host form when only another page under the hosts is granted', async () => {
+      await initializeListing({
+        allowedPages: ['/configuration/hosts/groups']
+      });
+
+      expect(screen.getByTestId('service-host-link_0')).toHaveAttribute(
+        'href',
+        '/main.php?p=60101&o=c&host_id=10'
+      );
+    });
+
+    it('opens the host form in the Hosts page, not the service, when the host link is clicked', async () => {
+      const { pathname } = window.location;
+
+      await initializeListing({ allowedPages: ['/configuration/hosts'] });
+
+      await userEvent.click(screen.getByTestId('service-host-link_0'));
+
+      try {
+        await waitFor(() =>
+          expect(window.location.pathname).toBe('/configuration/hosts')
+        );
+        expect(window.location.search).toBe('?mode=edit&id=10');
+      } finally {
+        // The page is not reloaded between tests.
+        window.history.pushState({}, '', pathname);
+      }
+    });
+
     it('opens the service when its host cell is clicked outside the link', async () => {
       await initializeListing();
 

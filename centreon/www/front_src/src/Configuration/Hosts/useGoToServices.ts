@@ -5,8 +5,6 @@ import { getServicesOfHostPath, servicesPagePath } from '../Services/utils';
 import { useIsPageAllowed } from '../useIsPageAllowed';
 import { getHostServicesUrl } from './utils';
 
-// Opens the services of a host: the React Services page filtered on that
-// host when the user can reach it, the legacy listing otherwise.
 export const useGoToServices = (): ((hostName: string) => void) => {
   const navigate = useNavigate();
   const isServicesPageAllowed = useIsPageAllowed(servicesPagePath);

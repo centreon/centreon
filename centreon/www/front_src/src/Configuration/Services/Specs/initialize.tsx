@@ -20,6 +20,7 @@ import { initReactI18next } from 'react-i18next';
 import { BrowserRouter as Router } from 'react-router';
 
 import navigationAtom from '../../../Navigation/navigationAtoms';
+import { pageAtom } from '../../ConfigurationBase/Listing/atoms';
 import Services from '..';
 import {
   getDuplicateServiceEndpoint,
@@ -73,6 +74,8 @@ interface Props {
   listingResponse?: object;
   // The services whose partial update the API refuses.
   patchFails?: Array<number>;
+  // The listing page another listing left in the shared atom.
+  page?: number;
   // Opens the page on a deep link, such as `?mode=edit&id=0`.
   searchParams?: string;
 }
@@ -85,6 +88,7 @@ const initialize = ({
   isAdditiveInheritanceEnabled = false,
   isCloudPlatform = false,
   listingResponse = getListingResponse(),
+  page,
   patchFails = [],
   searchParams = ''
 }: Props = {}): RenderResult => {
@@ -108,6 +112,7 @@ const initialize = ({
   } as UserPermissions);
   store.set(intervalLengthAtom, intervalLength);
   store.set(defaultLimitPerPageAtom, 10);
+  store.set(pageAtom, page);
   store.set(navigationAtom, {
     result: allowedPages.map((url) => ({ is_react: true, label: url, url })),
     status: true
