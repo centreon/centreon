@@ -78,6 +78,7 @@ final readonly class HostTemplateTransformer implements TransformerInterface
                 $this->commandId($from['check_command_id']),
                 CommandArgumentsFormatter::parse($from['check_command_args']),
                 $from['macros'],
+                commandMayBeInherited: true,
             ),
             serviceTemplateCheckCommandIds: new Collection($this->ids($from['service_template_check_command_ids'], CommandId::class), CommandId::class),
             alias: $alias !== null ? new HostAlias($alias) : null,
