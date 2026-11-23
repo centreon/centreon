@@ -12255,6 +12255,17 @@ components:
         installation_command:
           type: string
           example: 'curl -fsSL <central_url>/poller/install.sh | bash -s -- --poller_token <token_name>:<token_value> --uid <uid> --name <name> --type <vm|docker> --central_url <central_url> --appsecret <app_secret> --salt <salt>'
+        broker_ca:
+          anyOf:
+            -
+              $ref: '#/components/schemas/BrokerCaOutput'
+            -
+              type: 'null'
+        broker_ca_warning:
+          description: 'Set when a central broker API is configured but its CA could not be read; the poller is created anyway'
+          type:
+            - string
+            - 'null'
     Poller.CreatePollerInput:
       type: object
       properties:
@@ -12329,6 +12340,17 @@ components:
             installation_command:
               type: string
               example: 'curl -fsSL <central_url>/poller/install.sh | bash -s -- --poller_token <token_name>:<token_value> --uid <uid> --name <name> --type <vm|docker> --central_url <central_url> --appsecret <app_secret> --salt <salt>'
+            broker_ca:
+              anyOf:
+                -
+                  $ref: '#/components/schemas/BrokerCaOutput.jsonld'
+                -
+                  type: 'null'
+            broker_ca_warning:
+              description: 'Set when a central broker API is configured but its CA could not be read; the poller is created anyway'
+              type:
+                - string
+                - 'null'
     HostGroup.HostGroupCollectionOutput:
       type: object
       properties:
@@ -16098,3 +16120,31 @@ components:
           type:
             - integer
             - 'null'
+    BrokerCaOutput:
+      type: object
+      properties:
+        pem:
+          description: 'CA certificate (PEM) the poller uses to verify the central broker'
+          type: string
+          example: |
+            -----BEGIN CERTIFICATE-----
+            ...
+            -----END CERTIFICATE-----
+        fingerprint_sha256:
+          description: 'SHA-256 of the DER certificate, 64 lowercase hex characters'
+          type: string
+          example: 3f2a...e9
+    BrokerCaOutput.jsonld:
+      type: object
+      properties:
+        pem:
+          description: 'CA certificate (PEM) the poller uses to verify the central broker'
+          type: string
+          example: |
+            -----BEGIN CERTIFICATE-----
+            ...
+            -----END CERTIFICATE-----
+        fingerprint_sha256:
+          description: 'SHA-256 of the DER certificate, 64 lowercase hex characters'
+          type: string
+          example: 3f2a...e9
