@@ -44,7 +44,6 @@ use App\MonitoringConfiguration\Domain\Repository\ModuleRepository;
 use App\MonitoringConfiguration\Infrastructure\Service\CommandArgumentsFormatter;
 use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Service\AccessScopeResolver;
-use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
@@ -58,6 +57,8 @@ use Doctrine\DBAL\Query\QueryBuilder;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
+ * @phpstan-import-type NotificationColumnsTypeAlias from NotificationsTransformer
+ *
  * @phpstan-type DbRowTypeAlias = array{
  *   host_id: int,
  *   host_name: string,
@@ -138,6 +139,7 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
     /**
      * @param TransformerInterface<FindOneRowTypeAlias, HostTemplate> $transformer
      * @param TransformerInterface<RowTypeAlias, HostTemplate> $listingTransformer
+     * @param TransformerInterface<?Notifications, NotificationColumnsTypeAlias> $notificationsTransformer
      */
     public function __construct(
         #[Autowire(service: 'doctrine.dbal.default_connection')]
@@ -152,6 +154,9 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
         private AccessScopeResolver $accessScopes,
 
         private ModuleRepository $moduleRepository,
+
+        #[Autowire(service: NotificationsTransformer::class)]
+        private TransformerInterface $notificationsTransformer,
     ) {
     }
 
@@ -1066,21 +1071,21 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
     }
 
     /**
-     * A template without notification settings stores the default tri-state and no option.
-     *
      * @return array<string, int|string|null>
      */
     private function notificationColumns(?Notifications $notifications): array
     {
+        $columns = $this->notificationsTransformer->transform($notifications);
+
         return [
-            'host_notifications_enabled' => $this->triStateToColumn($notifications->enabled ?? TriStateEnum::UseDefault),
-            'host_notification_options' => NotificationsTransformer::options($notifications->options ?? []),
-            'host_notification_interval' => $notifications?->interval,
-            'timeperiod_tp_id2' => $notifications?->periodId?->value,
-            'host_first_notification_delay' => $notifications?->firstDelay,
-            'host_recovery_notification_delay' => $notifications?->recoveryDelay,
-            'contact_additive_inheritance' => (int) ($notifications->contactAdditiveInheritance ?? false),
-            'cg_additive_inheritance' => (int) ($notifications->contactGroupAdditiveInheritance ?? false),
+            'host_notifications_enabled' => $columns['notificationsEnabled'],
+            'host_notification_options' => $columns['notificationOptions'],
+            'host_notification_interval' => $columns['notificationInterval'],
+            'timeperiod_tp_id2' => $columns['notificationPeriodId'],
+            'host_first_notification_delay' => $columns['firstNotificationDelay'],
+            'host_recovery_notification_delay' => $columns['recoveryNotificationDelay'],
+            'contact_additive_inheritance' => (int) $columns['contactAdditiveInheritance'],
+            'cg_additive_inheritance' => (int) $columns['contactGroupAdditiveInheritance'],
         ];
     }
 
