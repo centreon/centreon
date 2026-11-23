@@ -3,6 +3,7 @@ import type { TFunction } from 'i18next';
 import {
   labelGeneralInformation,
   labelHostMonitoringProperties,
+  labelMonitoringEngineSchedulingOptions,
   labelRelations
 } from '../translatedLabels';
 import { getPlacedBlockIds, placeBlocks } from './layout';
@@ -60,12 +61,14 @@ describe('layout', () => {
     expect(getSectionLabels({ isCloudPlatform: false, t })).toEqual([
       labelGeneralInformation,
       labelHostMonitoringProperties,
-      labelRelations
+      labelRelations,
+      labelMonitoringEngineSchedulingOptions
     ]);
     expect(getSectionLabels({ isCloudPlatform: true, t })).toEqual([
       labelGeneralInformation,
       labelHostMonitoringProperties,
-      labelRelations
+      labelRelations,
+      labelMonitoringEngineSchedulingOptions
     ]);
   });
 

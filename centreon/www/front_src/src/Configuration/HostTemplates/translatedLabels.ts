@@ -14,8 +14,12 @@ export const labelCreateHostTemplate = 'Create a host template';
 export const labelGeneralInformation = 'General information';
 export const labelHostMonitoringProperties = 'Host monitoring properties';
 export const labelRelations = 'Relations';
+export const labelMonitoringEngineSchedulingOptions =
+  'Monitoring engine / Scheduling options';
 export const labelHostBasicInformation = 'Host basic information';
 export const labelHostCheckOptions = 'Host check options';
+export const labelHostDetails = 'Host details';
+export const labelSchedulingOptions = 'Scheduling options';
 
 // Relations
 export const labelHostCategories = 'Host categories';
