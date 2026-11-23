@@ -171,7 +171,8 @@ export const blocks = [
   getSeverityBlock({
     endpoint: hostFormHostSeveritiesEndpoint,
     label: labelHostSeverity,
-    resource
+    resource,
+    withLevel: true
   }),
   getEventHandlerBlock({
     commandsEndpoint: hostFormCommandsEndpoint,
