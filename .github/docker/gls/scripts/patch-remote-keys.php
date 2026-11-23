@@ -2,7 +2,7 @@
 
 // gls PoC only, until the web generator writes them (contracts.md § 1, § 2):
 //   api <central-broker.json>   adds centreonBroker.remote_api
-//   actions <*-module.json>...  adds remote_actions + remote_actions_insecure (no TLS yet, flagged)
+//   actions <*-module.json>...  adds remote_actions (bootstrap of the central poller only; never _insecure)
 declare(strict_types=1);
 
 [$self, $mode] = [$argv[0], $argv[1] ?? ''];
@@ -26,7 +26,7 @@ foreach ($files as $file) {
         ];
     } else {
         $json['centreonBroker']['remote_actions'] = 'yes';
-        $json['centreonBroker']['remote_actions_insecure'] = 'yes';
+        unset($json["centreonBroker"]["remote_actions_insecure"]);
     }
     if (file_put_contents($file, json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n") === false) {
         fwrite(STDERR, "{$file}: write failed\n");

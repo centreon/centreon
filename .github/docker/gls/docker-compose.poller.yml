@@ -30,6 +30,16 @@ services:
       TZ: "${TZ:-Europe/Paris}"
       NAME: "${POLLER_NAME:-gls-poller}"
       ENGINE_RPC_LISTEN_ADDRESS: "127.0.0.1"
+      # Bootstrap from env only (contracts § 6.3): rendered when no config exists,
+      # never over a delivered one. POLLER_ID / POLLER_UID come from the poller
+      # creation API answer (gls-e2e.sh up).
+      CENTRAL_BROKER_HOST: centreon-broker
+      CENTRAL_BROKER_PORT: "5669"
+      POLLER_NAME: "${POLLER_NAME:-gls-poller}"
+      POLLER_ID: "${POLLER_ID:-}"
+      POLLER_UID: "${POLLER_UID:-}"
+      BROKER_CA_CERT: /etc/centreon-broker/certs/ca.crt
+      BROKER_TLS_HOSTNAME: centreon-broker
       APP_SECRET: "${APP_SECRET:-9cd3e2ccf822916ec8fc5379f8abdaf277860415454f9b91c0913392d4b41f92}"
       SALT: "${SALT:-84e9107f78239bdab2751c3321023a32c3716ed0724a4a8b13de8e7aed8d319d}"
     volumes:
@@ -41,6 +51,8 @@ services:
         source: poller-broker-etc
         target: /etc/centreon-broker
         volume: {nocopy: true}
+      # CA of the central cbd (contracts § 6.2), run-time throwaway.
+      - ${GLS_CERTS_DIR:-./.certs}/ca.crt:/etc/centreon-broker/certs/ca.crt:ro
       - poller-engine-varlib:/var/lib/centreon-engine
       - poller-engine-log:/var/log/centreon-engine
       - ./overrides/05-engine-config.sh:/usr/local/lib/centreon-engine/container.d/05-engine-config.sh:ro

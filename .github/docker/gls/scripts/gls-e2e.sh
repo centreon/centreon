@@ -1,18 +1,19 @@
 #!/usr/bin/env bash
 # Gorgone-less light Central PoC (MON-215451): stack driver and e2e harness.
 #
-#   gls-e2e.sh up                 start gls-central + gls-poller, bootstrap, seed the poller
+#   gls-e2e.sh up                 certs, gls-central, new poller from env only, first export through the channel
 #   gls-e2e.sh step0              no gorgone, upstream data in centreon_storage, poller outbound-only
 #   gls-e2e.sh c1 central|poller  realtime actions (forced check, downtime, ack) in centengine.log
 #   gls-e2e.sh c2 central|poller  export + reload applied (marker host, no error, after T0)
 #   gls-e2e.sh c3 stop|partition|pause   explicit error <= 30 s on a disconnected poller, no replay
 #   gls-e2e.sh plugins            packages listed in the poller plugins.json get installed
+#   gls-e2e.sh tls-negative       central cert not signed by the CA: poller refuses, web answers 503/504
+#   gls-e2e.sh certs              run-time throwaway PKI only
 #   gls-e2e.sh logs | down
 #
 # Env: GLS_REGISTRY, GLS_WEB_TAG, GLS_ENGINE_TAG, GLS_BROKER_TAG override images.env;
 # LOG_DIR (default /tmp/gls-e2e), SUMMARY_FILE (markdown summary, default none),
-# GLS_SEED_POLLER=1 (default): copy the web-generated poller config out of band
-# (step 0, no downstream channel yet). Set 0 once the BBDO channel delivers it.
+# GLS_CERTS_DIR (default <gls>/.certs).
 set -uo pipefail
 
 GLS_DIR=$(cd "$(dirname "$0")/.." && pwd)
@@ -25,6 +26,8 @@ ENGINE_TAG="${GLS_ENGINE_TAG:-$ENGINE_TAG}"
 BROKER_TAG="${GLS_BROKER_TAG:-$BROKER_TAG}"
 HTTPD_PORT="${HTTPD_PORT:-18180}"
 POLLER_NAME="${POLLER_NAME:-gls-poller}"
+# Run-time throwaway PKI, mounted by both compose files (gitignored).
+GLS_CERTS_DIR="${GLS_CERTS_DIR:-$GLS_DIR/.certs}"
 set +a
 
 LOG_DIR="${LOG_DIR:-/tmp/gls-e2e}"
@@ -147,23 +150,56 @@ add_service() { # add_service <host>
   [[ -n "$(sql centreon "SELECT s.service_id FROM service s JOIN host_service_relation r ON r.service_service_id=s.service_id JOIN host h ON h.host_id=r.host_host_id WHERE h.host_name='$1' AND s.service_description='gls-crit'")" ]]
 }
 
-# Until the web generator writes them (contracts § 1, § 2), GLS_PATCH_REMOTE=1:
-# remote_api on the central cbd, remote_actions(+insecure, no TLS yet) on cbmod.
+# Central poller bootstrap only (contracts § 6.S): its first config is the
+# web's local copy, made while it is still on the gorgone channel (cbd is not
+# running yet), so its cbmod lacks remote_actions. Never _insecure.
 patch_keys() { # patch_keys api|actions <glob evaluated inside fpm>
   cc exec -T -u www-data fpm sh -c "php -- $1 $2" <"$(dirname "$0")/patch-remote-keys.php" >>"$LOG_DIR/patch-keys.log" 2>&1
 }
 
-seed_poller() { # step 0 only: out-of-band copy of the web-generated poller config
-  local pid=$1
-  clapi -a POLLERGENERATE -v "$pid" >"$LOG_DIR/pollergenerate.txt" 2>&1
-  [[ "${GLS_PATCH_REMOTE:-1}" == 1 ]] && { patch_keys actions "/var/cache/centreon/config/broker/$pid/*-module.json" || return 1; }
-  local kind
-  for kind in engine broker; do
-    # Files only: a "." entry makes tar chmod the volume root, which it does not own.
-    cc exec -T fpm sh -c 'cd "/var/cache/centreon/config/$1/$0" && tar -cf - -- *' "$pid" "$kind" \
-      | cp_ exec -T poller-engine tar -C "/etc/centreon-$kind" -xf - || return 1
+# Run-time throwaway PKI (contracts § 6.2), never committed: CA + central cbd
+# cert (CN/SAN centreon-broker), and a rogue CA + cert with the same name.
+cmd_certs() {
+  local d="$GLS_CERTS_DIR" set ca
+  [[ -s "$d/central.crt" && -s "$d/rogue.crt" ]] && return 0
+  mkdir -p "$d"
+  # Self-contained openssl config: independent of the host defaults.
+  cat >"$d/openssl.cnf" <<'EOF'
+[req]
+distinguished_name = dn
+prompt = no
+[dn]
+CN = unused
+[ca_ext]
+basicConstraints = critical,CA:TRUE
+keyUsage = critical,keyCertSign,cRLSign
+[srv_ext]
+subjectAltName = DNS:centreon-broker
+extendedKeyUsage = serverAuth
+EOF
+  for ca in ca rogue-ca; do
+    openssl req -config "$d/openssl.cnf" -extensions ca_ext -x509 -newkey rsa:2048 -nodes -days 1 \
+      -subj "/CN=gls-poc-$ca" -keyout "$d/$ca.key" -out "$d/$ca.crt" 2>>"$LOG_DIR/certs.log" || return 1
   done
+  for set in central rogue; do
+    ca=ca; [[ $set == rogue ]] && ca=rogue-ca
+    openssl req -config "$d/openssl.cnf" -newkey rsa:2048 -nodes -subj "/CN=centreon-broker" \
+      -keyout "$d/$set.key" -out "$d/$set.csr" 2>>"$LOG_DIR/certs.log" &&
+      openssl x509 -req -in "$d/$set.csr" -CA "$d/$ca.crt" -CAkey "$d/$ca.key" -CAcreateserial -days 1 \
+        -extfile "$d/openssl.cnf" -extensions srv_ext -out "$d/$set.crt" 2>>"$LOG_DIR/certs.log" || return 1
+  done
+  rm -f "$d"/*.csr "$d"/*.srl "$d/openssl.cnf"
+  chmod 0644 "$d"/*.crt; chmod 0600 "$d"/*.key
+  # The CA key stays on the runner only; containers get ca.crt + the server pair.
 }
+
+cbd_pollers() { # GET /v1/pollers of the central cbd, through fpm (internal network)
+  cc exec -T fpm php -d allow_url_fopen=On -r '
+    $c = stream_context_create(["http" => ["header" => "Authorization: Bearer " . getenv("CENTREON_BROKER_API_TOKEN"), "timeout" => 5]]);
+    echo @file_get_contents(getenv("CENTREON_BROKER_API_URL") . "/v1/pollers", false, $c);'
+}
+poller_capable() { cbd_pollers | jq -e --arg u "$1" '.pollers[] | select(.poller_id == $u and .remote_actions == true)' >/dev/null 2>&1; }
+poller_config_version() { cbd_pollers | jq -r --arg u "$1" '.pollers[] | select(.poller_id == $u) | .config_version // ""' 2>/dev/null; }
 
 # Legacy export chain (what the UI export page calls), driven over HTTP with
 # the REST token: generate, optional hook on the generated files, move, reload.
@@ -174,17 +210,13 @@ legacy_xml() { # legacy_xml <script> <body> -> 0 when statuscode is 0
   grep -qF -e "<statuscode><![CDATA[0]]></statuscode>" -e "<statuscode>0</statuscode>" "$out"
 }
 
-use_broker_channel() { # web-sender images only: per-poller channel switch (contracts § 4)
-  if [[ -n "$(sql centreon "SHOW COLUMNS FROM nagios_server LIKE 'remote_channel'")" ]]; then
-    sql centreon "UPDATE nagios_server SET remote_channel='broker' WHERE localhost='1' OR name='${POLLER_NAME}'"
-    record "remote_channel=broker for Central and ${POLLER_NAME}" ok
-  else
-    record "remote_channel column absent (step 0 images), channel unchanged" ok
-  fi
+use_broker_channel() { # use_broker_channel <SQL condition> (contracts § 4)
+  sql centreon "UPDATE nagios_server SET remote_channel='broker' WHERE $1"
 }
 
 cmd_up() {
   docker network inspect gls-wan >/dev/null 2>&1 || docker network create gls-wan >/dev/null
+  cmd_certs && record "throwaway PKI generated (run time)" ok || { record "throwaway PKI" ko; return 1; }
   cc pull --quiet && cp_ pull --quiet || { record "pull images" ko; return 1; }
   cc up -d || true
   if wait_until 1200 service_ready cc httpd; then record "central web up" ok; else record "central web up" ko; return 1; fi
@@ -196,16 +228,22 @@ cmd_up() {
 
   clapi -o CMD -a ADD -v 'gls_check_dummy;check;$USER1$/check_dummy $ARG1$ "$ARG2$"' >/dev/null 2>&1 || true
 
-  local pid
+  # New poller: id and uid (the key the central routes on) from the API answer.
+  local pid uid
   pid=$(poller_id)
   if [[ -z "$pid" ]]; then
     api POST /administration/tokens '{"name":"gls-poller-token","type":"poller","expiration_date":null}' >/dev/null
     local code
     code=$(api POST /configuration/pollers "{\"name\":\"${POLLER_NAME}\",\"poller_type\":\"vm\",\"address\":\"poller-engine\",\"poller_token_name\":\"gls-poller-token\",\"central_address\":\"centreon-broker\"}")
     cp "$LOG_DIR/last.json" "$LOG_DIR/create-poller.json"
-    pid=$(poller_id)
-    [[ -n "$pid" ]] && record "create poller ${POLLER_NAME}" ok "HTTP $code id=$pid" || { record "create poller" ko "HTTP $code"; return 1; }
+    pid=$(jq -r '.id // empty' "$LOG_DIR/create-poller.json"); uid=$(jq -r '.uid // empty' "$LOG_DIR/create-poller.json")
+    [[ -n "$pid" && -n "$uid" ]] && record "create poller ${POLLER_NAME} (API)" ok "HTTP $code id=$pid uid=$uid" \
+      || { record "create poller (API id + uid)" ko "HTTP $code $(head -c 200 "$LOG_DIR/create-poller.json")"; return 1; }
+  else
+    uid=$(sql centreon "SELECT uid FROM nagios_server WHERE id=$pid")
   fi
+  use_broker_channel "id=$pid"
+  printf 'POLLER_ID=%s\nPOLLER_UID=%s\n' "$pid" "$uid" >"$LOG_DIR/poller.env"
 
   add_service_template
   local h
@@ -218,27 +256,71 @@ cmd_up() {
   code=$(api GET /configuration/monitoring-servers/1/generate-and-reload)
   [[ "$code" == 204 ]] && record "central generate + local copy" ok "HTTP $code" \
     || record "central generate + local copy" ko "HTTP $code $(head -c 300 "$LOG_DIR/last.json")"
-  if [[ "${GLS_PATCH_REMOTE:-1}" == 1 ]]; then
-    if patch_keys api /etc/centreon-broker/central-broker.json && patch_keys actions "/etc/centreon-broker/*-module.json"; then
-      # cbd and cbmod read these at start: restart them on the patched files.
-      cc restart centreon-broker central-engine >/dev/null 2>&1
-      record "remote_api / remote_actions patched (until the web generates them)" ok
-    else
-      record "remote_api / remote_actions patched" ko "see patch-keys.log"
-    fi
-  fi
-
-  cp_ up -d || true
-  if [[ "${GLS_SEED_POLLER:-1}" == 1 ]]; then
-    wait_until 300 service_ready_running cp_ poller-engine
-    seed_poller "$pid" && record "poller config seeded (out of band, step 0)" ok "poller id $pid" \
-      || record "poller config seeded" ko
+  if patch_keys actions "/etc/centreon-broker/*-module.json"; then
+    # cbmod reads it at start: restart the central engine on the patched file.
+    cc restart central-engine >/dev/null 2>&1
+    record "central cbmod remote_actions (bootstrap only)" ok
+  else
+    record "central cbmod remote_actions (bootstrap only)" ko "see patch-keys.log"
   fi
   wait_until 600 service_ready cc centreon-broker && record "centreon-broker running" ok || record "centreon-broker running" ko
-  wait_until 600 service_ready cp_ poller-engine && record "poller connected to centreon-broker:5669" ok \
+  local cuid
+  cuid=$(sql centreon "SELECT uid FROM nagios_server WHERE localhost='1'")
+  wait_until 300 poller_capable "$cuid" && record "central engine connected over TLS, capable" ok || record "central engine connected over TLS, capable" ko
+  # The central's first delivery had to be the local copy (cbd not running before it).
+  use_broker_channel "localhost='1'"
+
+  # New poller from env only (contracts § 6.3): no seed, no config volume content.
+  POLLER_ID=$pid POLLER_UID=$uid cp_ up -d || true
+  if wait_until 600 poller_capable "$uid"; then
+    record "new poller connected over TLS from its bootstrap, capable" ok "uid $uid"
+  else
+    record "new poller connected over TLS from its bootstrap, capable" ko "$(cbd_pollers | head -c 300)"; return 1
+  fi
+  [[ -z "$(poller_config_version "$uid")" ]] && record "new poller has no config version before the first export" ok \
+    || record "new poller has no config version before the first export" ko
+
+  # First config through the channel: an explicit export (restart: cbmod config changes).
+  code=$(api GET "/configuration/monitoring-servers/$pid/generate-and-reload")
+  [[ "$code" == 204 ]] && record "first export to the new poller" ok "HTTP $code" \
+    || record "first export to the new poller" ko "HTTP $code $(head -c 300 "$LOG_DIR/last.json")"
+  wait_until 300 eval '[[ -n "$(poller_config_version "$uid")" ]]' \
+    && record "new poller reconnected with a config version" ok "$(poller_config_version "$uid" | cut -c1-12)" \
+    || record "new poller reconnected with a config version" ko
+  cp_ exec -T poller-engine grep -q 'host_name *gls-hp' /etc/centreon-engine/hosts.cfg \
+    && record "delivered config in place on the poller (gls-hp)" ok || record "delivered config in place on the poller (gls-hp)" ko
+  wait_until 300 service_ready cp_ poller-engine && record "poller connected to centreon-broker:5669" ok \
     || record "poller connected to centreon-broker:5669" ko
-  # The first central delivery had to be the local copy (cbd not running before it).
-  use_broker_channel
+}
+
+# ---------- negative TLS: central cert not signed by the pollers' CA ----------
+
+swap_central_cert() { # swap_central_cert central|rogue
+  cc run --rm --no-deps --entrypoint /bin/sh volumes-init /gls/install-certs.sh "$1" >>"$LOG_DIR/install-certs.log" 2>&1 \
+    && cc restart centreon-broker >/dev/null 2>&1
+}
+
+cmd_tls_negative() {
+  local host=gls-hp hid sid res s el code uid
+  uid=$(sql centreon "SELECT uid FROM nagios_server WHERE name='${POLLER_NAME}'")
+  login || { record "login" ko; return; }
+  read -r hid sid <<<"$(ids "$host")"
+  res="[{\"type\":\"service\",\"id\":$sid,\"parent\":{\"id\":$hid}}]"
+  swap_central_cert rogue && record "central cbd restarted with a rogue cert" ok || { record "rogue cert installed" ko; return; }
+  sleep 15
+  poller_capable "$uid" && record "poller refuses the rogue central (no capable stream)" ko "$(cbd_pollers | head -c 200)" \
+    || record "poller refuses the rogue central (no capable stream)" ok
+  s=$(date +%s)
+  code=$(API_MAX_TIME=$((MAX_ERROR_DELAY + 15)) api POST /monitoring/resources/check "{\"check\":{\"is_forced\":true},\"resources\":$res}")
+  el=$(( $(date +%s) - s ))
+  cp "$LOG_DIR/last.json" "$LOG_DIR/tls-negative-check.json"
+  if [[ "$code" == 503 || "$code" == 504 ]] && grep -qF "$POLLER_NAME" "$LOG_DIR/last.json" && (( el <= MAX_ERROR_DELAY )); then
+    record "realtime on the poller rejected explicitly" ok "HTTP $code in ${el} s"
+  else
+    record "realtime on the poller rejected explicitly <= ${MAX_ERROR_DELAY} s" ko "HTTP $code in ${el} s: $(head -c 150 "$LOG_DIR/last.json")"
+  fi
+  swap_central_cert central && record "central cbd restored with its CA-signed cert" ok || record "central cert restored" ko
+  wait_until 300 poller_capable "$uid" && record "poller reconnected over TLS after restore" ok || record "poller reconnected over TLS after restore" ko
 }
 
 service_ready_running() { local id; id=$("$1" ps -q "$2" | head -1); [[ -n "$id" ]] && [[ "$(docker inspect -f '{{.State.Status}}' "$id")" == running ]]; }
@@ -483,6 +565,8 @@ case "$cmd" in
   c2) cmd_c2 "$@" ;;
   c3) cmd_c3 "$@" ;;
   plugins) cmd_plugins ;;
+  certs) cmd_certs; exit $? ;;
+  tls-negative) cmd_tls_negative ;;
   logs) cmd_logs; exit 0 ;;
   down) cmd_down; exit 0 ;;
   *) sed -n '2,16p' "$0"; exit 2 ;;

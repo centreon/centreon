@@ -21,4 +21,8 @@ if [ "$role" = poller ] && [ ! -s /mnt/engine-etc/engine-context.json ]; then
   chown 901:"$group" /mnt/engine-etc/engine-context.json
   chmod 640 /mnt/engine-etc/engine-context.json
 fi
+# Central: cbd TLS identity (contracts § 6.2).
+if [ "$role" = central ] && [ -d /mnt/broker-certs ]; then
+  sh /gls/install-certs.sh central
+fi
 ls -lan /mnt/engine-etc /mnt/broker-etc

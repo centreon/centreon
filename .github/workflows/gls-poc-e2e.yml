@@ -113,6 +113,12 @@ jobs:
         run: SUMMARY_FILE="$GITHUB_STEP_SUMMARY" "$SCRIPT" c3 pause
         shell: bash
 
+      - name: "TLS: central cert not signed by the pollers' CA"
+        if: ${{ !cancelled() }}
+        continue-on-error: ${{ env.GLS_GATE_CRITERIA != 'true' }}
+        run: SUMMARY_FILE="$GITHUB_STEP_SUMMARY" "$SCRIPT" tls-negative
+        shell: bash
+
       - name: Collect logs
         if: always()
         run: |

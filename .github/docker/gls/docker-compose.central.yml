@@ -31,6 +31,8 @@ services:
       - ./scripts:/gls:ro
       - central-engine-etc:/mnt/engine-etc
       - central-broker-etc:/mnt/broker-etc
+      - central-broker-certs:/mnt/broker-certs
+      - ${GLS_CERTS_DIR:-./.certs}:/certs-src:ro
     restart: "no"
 
   db:
@@ -86,8 +88,10 @@ services:
       # Web -> central cbd remote API (contracts.md §1). Unused by step 0 images.
       CENTREON_BROKER_API_URL: "http://centreon-broker:8099"
       CENTREON_BROKER_API_TOKEN: "${CENTREON_BROKER_API_TOKEN:-gls-poc-token}"
-      # PoC only, no TLS on the stream yet: the generator writes remote_actions_insecure (flagged).
-      CENTREON_BROKER_REMOTE_ACTIONS_INSECURE: "1"
+      # gRPC TLS on every cbmod output and on the central input (contracts § 6.W2),
+      # paths = § 6.2 defaults. No remote_actions_insecure anywhere.
+      CENTREON_BROKER_TLS: "1"
+      CENTREON_BROKER_TLS_HOSTNAME: centreon-broker
     volumes:
       - centreon-status:/var/lib/centreon/status
       - centreon-metrics:/var/lib/centreon/metrics
@@ -170,6 +174,8 @@ services:
         source: central-broker-etc
         target: /etc/centreon-broker
         volume: {nocopy: true}
+      # TLS identity of the BBDO input (contracts § 6.2), installed by volumes-init.
+      - central-broker-certs:/etc/centreon-broker/certs:ro
       - centreon-status:/var/lib/centreon/status
       - centreon-metrics:/var/lib/centreon/metrics
     expose: ["5669", "8099"]
@@ -199,6 +205,8 @@ services:
         source: central-broker-etc
         target: /etc/centreon-broker
         volume: {nocopy: true}
+      # CA that signs the central cbd cert (cbmod verifies it).
+      - central-broker-certs:/etc/centreon-broker/certs:ro
       - central-engine-varlib:/var/lib/centreon-engine
       - central-engine-log:/var/log/centreon-engine
       # Keeps the engine gRPC on what the config says (127.0.0.1 for vm pollers).
@@ -218,5 +226,6 @@ volumes:
   centreon-license:
   central-engine-etc:
   central-broker-etc:
+  central-broker-certs:
   central-engine-varlib:
   central-engine-log:
