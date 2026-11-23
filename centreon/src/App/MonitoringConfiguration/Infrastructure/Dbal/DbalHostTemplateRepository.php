@@ -550,9 +550,28 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
             return;
         }
 
-        foreach (['host_template_relation', 'contact_host_relation', 'contactgroup_host_relation', 'host_service_relation'] as $table) {
+        foreach (['contact_host_relation', 'contactgroup_host_relation'] as $table) {
             $this->connection->delete($table, ['host_host_id' => $id], ['host_host_id' => ParameterType::INTEGER]);
         }
+        // Only the parent templates and the service templates: legacy rows to a host or a service stay.
+        $this->connection->executeStatement(
+            <<<'SQL'
+                DELETE htr FROM host_template_relation htr
+                INNER JOIN host parent ON parent.host_id = htr.host_tpl_id AND parent.host_register = '0'
+                WHERE htr.host_host_id = :id
+                SQL,
+            ['id' => $id],
+            ['id' => ParameterType::INTEGER],
+        );
+        $this->connection->executeStatement(
+            <<<'SQL'
+                DELETE hsr FROM host_service_relation hsr
+                INNER JOIN service s ON s.service_id = hsr.service_service_id AND s.service_register = '0'
+                WHERE hsr.host_host_id = :id
+                SQL,
+            ['id' => $id],
+            ['id' => ParameterType::INTEGER],
+        );
         // The severity shares the table with the categories, told apart by the category level.
         $this->connection->executeStatement(
             <<<'SQL'
@@ -575,7 +594,7 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
         }
 
         $storedIds = array_map(
-            static fn (mixed $id): int => is_numeric($id) ? (int) $id : 0,
+            static fn (mixed $macroId): int => is_numeric($macroId) ? (int) $macroId : 0,
             $this->connection->fetchFirstColumn(
                 'SELECT host_macro_id FROM on_demand_macro_host WHERE host_host_id = :id',
                 ['id' => $id],

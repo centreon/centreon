@@ -80,9 +80,9 @@ final readonly class HostTemplateRelationsUpdater
                 $this->templateLicenseGuard->assertLicensed(new Collection($ids, HostTemplateId::class), $template->parentTemplateIds);
             },
         );
-        if ($parentIds instanceof Collection) {
-            // On the resulting list: a loop already stored through the template is refused as long as
-            // the save keeps its back edge.
+        // A removal cannot create a loop. On the resulting list otherwise: a loop already stored through the
+        // template is refused as long as the save keeps its back edge.
+        if ($parentIds instanceof Collection && ! ($command->templateIds instanceof ListChange && $command->templateIds->mode === ListChangeModeEnum::Remove)) {
             $this->inheritance->assertNoLoop($template->id(), $parentIds, $this->hostTemplateRepository->findTemplateParentIds());
         }
 

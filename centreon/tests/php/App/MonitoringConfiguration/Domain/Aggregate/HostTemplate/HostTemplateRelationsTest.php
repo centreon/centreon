@@ -103,7 +103,7 @@ final class HostTemplateRelationsTest extends TestCase
 
         $changed = $template->with(notifications: $template->notifications?->with(contactGroupIds: new Collection([], ContactGroupId::class)));
 
-        self::assertFalse($changed->hasSameConfigurationAs($template));
+        self::assertFalse($changed->hasSameContactsAs($template));
         self::assertTrue($changed->hasSameLoggedConfigurationAs($template));
         self::assertTrue($changed->hasSameRelationsAs($template));
     }
@@ -126,7 +126,7 @@ final class HostTemplateRelationsTest extends TestCase
         $reordered = $template->with(notifications: $template->notifications?->with(options: [NotificationOptionEnum::Recovery, NotificationOptionEnum::Down]));
         $changed = $template->with(notifications: $template->notifications?->with(options: [NotificationOptionEnum::Down]));
 
-        self::assertTrue($reordered->hasSameConfigurationAs($template));
+        self::assertTrue($reordered->hasSameLoggedConfigurationAs($template));
         self::assertFalse($changed->hasSameLoggedConfigurationAs($template));
     }
 

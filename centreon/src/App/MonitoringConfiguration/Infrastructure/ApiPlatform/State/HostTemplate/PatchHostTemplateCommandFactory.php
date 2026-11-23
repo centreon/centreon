@@ -93,10 +93,9 @@ final readonly class PatchHostTemplateCommandFactory
                 $this->required($input->dataProcessing),
                 $payload->section('data_processing'),
             )),
-            notifications: $this->provided($payload, 'notifications', fn (): NotificationsChanges => $this->notifications(
-                $this->required($input->notifications),
-                $payload->section('notifications'),
-            )),
+            notifications: $this->sendsNotificationSettings($payload)
+                ? $this->notifications($this->required($input->notifications), $payload->section('notifications'))
+                : new NoValue(),
             snmpCommunity: $this->provided($payload, 'snmp_community', fn (): ?string => $this->trimmedOrNull($input->snmpCommunity)),
             templateIds: $this->listChange($payload, 'template_ids', $input->templateIds, $input->templateIdsToAdd, $input->templateIdsToRemove, static fn (int $id): HostTemplateId => new HostTemplateId($id)),
             categoryIds: $this->listChange($payload, 'category_ids', $input->categoryIds, $input->categoryIdsToAdd, $input->categoryIdsToRemove, static fn (int $id): HostCategoryId => new HostCategoryId($id)),
@@ -218,6 +217,26 @@ final readonly class PatchHostTemplateCommandFactory
             highFlapThreshold: $this->provided($sent, 'high_flap_threshold', static fn (): ?int => $data->highFlapThreshold),
             eventHandlerCommandId: $this->provided($sent, 'event_handler_command_id', static fn (): ?CommandId => $data->eventHandlerCommandId !== null ? new CommandId($data->eventHandlerCommandId) : null),
             eventHandlerArgs: $this->provided($sent, 'event_handler_args', static fn (): array => array_values($data->eventHandlerArgs)),
+        );
+    }
+
+    /**
+     * The contacts and contact groups alone are relations: they leave the notification settings untouched.
+     */
+    private function sendsNotificationSettings(RequestPayload $payload): bool
+    {
+        if (! $payload->has('notifications')) {
+            return false;
+        }
+
+        $sent = $payload->section('notifications');
+        if ($payload->isNull('notifications')) {
+            return true;
+        }
+
+        return array_any(
+            ['enabled', 'options', 'options_to_add', 'options_to_remove', 'interval', 'timeperiod_id', 'first_delay', 'recovery_delay', 'contact_additive_inheritance', 'contact_group_additive_inheritance'],
+            static fn (string $key): bool => $sent->has($key),
         );
     }
 

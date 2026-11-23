@@ -214,14 +214,6 @@ final class HostTemplate extends AggregateRoot
     }
 
     /**
-     * Every field but the relations and the macros; contacts and contact groups count through the notifications.
-     */
-    public function hasSameConfigurationAs(self $other): bool
-    {
-        return $this->hasSameLoggedConfigurationAs($other) && $this->hasSameContactsAs($other);
-    }
-
-    /**
      * The fields the activity log records: the configuration without the contacts and contact groups.
      */
     public function hasSameLoggedConfigurationAs(self $other): bool

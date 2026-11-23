@@ -34,7 +34,7 @@ final readonly class HostTemplateInheritance
 {
     /**
      * Refuses the parents that are the template itself or one of its descendants. The descendants are
-     * walked with a queue and a visited set: no recursion, so no depth limit, and a loop already stored
+     * walked with a stack and a visited set: no recursion, so no depth limit, and a loop already stored
      * elsewhere in the graph cannot keep the walk going.
      *
      * @param Collection<HostTemplateId> $parentIds the parents the template is about to have
@@ -52,13 +52,13 @@ final readonly class HostTemplateInheritance
         }
 
         $reached = [$self->value => true];
-        $queue = [$self->value];
-        while ($queue !== []) {
-            $id = array_pop($queue);
+        $stack = [$self->value];
+        while ($stack !== []) {
+            $id = array_pop($stack);
             foreach ($childIdsByTemplate[$id] ?? [] as $childId) {
                 if (! isset($reached[$childId])) {
                     $reached[$childId] = true;
-                    $queue[] = $childId;
+                    $stack[] = $childId;
                 }
             }
         }

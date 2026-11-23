@@ -534,6 +534,116 @@ final class PatchHostTemplateRelationsProcessorTest extends ApiTestCase
         self::assertSame([], $this->macros($id));
     }
 
+    /**
+     * @param 'template_ids'|'template_ids_to_add' $key
+     */
+    #[DataProvider('provideParentKeys')]
+    public function testAHostCannotBecomeAParent(string $key): void
+    {
+        $hostId = $this->insertRow('host', ['host_name' => "host-{$this->tag}-" . Uuid::v4()->toBase58(), 'host_register' => '1', 'host_activate' => '1']);
+        $id = $this->insertTemplate('child');
+        $this->login();
+
+        $response = $this->patch($id, [$key => [$hostId]]);
+
+        self::assertResponseStatusCodeSame(422);
+        $this->assertRefusedOn($key, $response);
+        self::assertSame([], $this->parentIds($id));
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function provideParentKeys(): iterable
+    {
+        yield 'replaced' => ['template_ids'];
+
+        yield 'added' => ['template_ids_to_add'];
+    }
+
+    public function testTheLinkedServiceTemplatesKeepTheOrderGiven(): void
+    {
+        $id = $this->insertTemplate('ordered');
+        [$linkedA, $linkedB, $linkedC] = [$this->insertServiceTemplate('a'), $this->insertServiceTemplate('b'), $this->insertServiceTemplate('c')];
+        $this->login();
+
+        $this->patch($id, ['linked_service_template_ids' => [$linkedB, $linkedA]]);
+        self::assertSame([$linkedB, $linkedA], $this->linkedServiceTemplateIds($id));
+
+        $this->patch($id, ['linked_service_template_ids_to_add' => [$linkedC]]);
+        self::assertSame([$linkedB, $linkedA, $linkedC], $this->linkedServiceTemplateIds($id));
+    }
+
+    /**
+     * @param 'contacts_to_add'|'contact_groups_to_add' $key
+     */
+    #[DataProvider('provideContactKeys')]
+    public function testAnUnknownContactOrContactGroupAddedIsRefused(string $key): void
+    {
+        $id = $this->insertTemplate('contacts');
+        $this->login();
+
+        $response = $this->patch($id, ['notifications' => [$key => [2147483647]]]);
+
+        self::assertResponseStatusCodeSame(422);
+        $this->assertRefusedOn("notifications.{$key}", $response);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function provideContactKeys(): iterable
+    {
+        yield 'contacts' => ['contacts_to_add'];
+
+        yield 'contact groups' => ['contact_groups_to_add'];
+    }
+
+    public function testRemovingAParentIsAcceptedWithALoopStoredThroughTheTemplate(): void
+    {
+        $id = $this->insertTemplate('looped');
+        [$other, $unrelated] = [$this->insertTemplate('other'), $this->insertTemplate('unrelated')];
+        $this->link($id, $other, 1);
+        $this->link($id, $unrelated, 2);
+        $this->link($other, $id, 1);
+        $this->login();
+
+        $this->patch($id, ['template_ids_to_remove' => [$unrelated]]);
+
+        self::assertResponseStatusCodeSame(204);
+        self::assertSame([$other], $this->parentIds($id));
+    }
+
+    public function testAListChangeKeepsTheLegacyRowsToAHostOrAService(): void
+    {
+        $id = $this->insertTemplate('legacy');
+        $hostParentId = $this->insertRow('host', ['host_name' => "host-{$this->tag}-" . Uuid::v4()->toBase58(), 'host_register' => '1', 'host_activate' => '1']);
+        $serviceId = $this->insertRow('service', ['service_description' => 'plain-' . Uuid::v4()->toBase58(), 'service_register' => '1']);
+        $this->link($id, $hostParentId, 1);
+        $this->connection->insert('host_service_relation', ['host_host_id' => $id, 'service_service_id' => $serviceId]);
+        [$parent, $linked] = [$this->insertTemplate('parent'), $this->insertServiceTemplate('linked')];
+        $this->login();
+
+        $this->patch($id, ['template_ids' => [$parent], 'linked_service_template_ids' => [$linked]]);
+
+        self::assertResponseStatusCodeSame(204);
+        self::assertContains($hostParentId, $this->ids('SELECT host_tpl_id FROM host_template_relation WHERE host_host_id = ?', $id));
+        self::assertContains($serviceId, $this->ids('SELECT service_service_id FROM host_service_relation WHERE host_host_id = ?', $id));
+    }
+
+    public function testAContactsOnlyChangeKeepsTheStoredAdditiveFlags(): void
+    {
+        $id = $this->insertTemplate('flags', ['contact_additive_inheritance' => 1, 'cg_additive_inheritance' => 1]);
+        $contactId = $this->insertContact('contact');
+        $this->login();
+
+        $this->patch($id, ['notifications' => ['contacts' => [$contactId]]]);
+
+        self::assertResponseStatusCodeSame(204);
+        self::assertEquals(['contact_additive_inheritance' => 1, 'cg_additive_inheritance' => 1], $this->connection->fetchAssociative('SELECT contact_additive_inheritance, cg_additive_inheritance FROM host WHERE host_id = ?', [$id]));
+        self::assertSame(0, $this->logRowCount($id));
+    }
+
     public function testAReplacementKeepsTheCategoriesARestrictedUserCannotSee(): void
     {
         [$visible, $hidden, $added] = [$this->insertCategory('visible'), $this->insertCategory('hidden'), $this->insertCategory('added')];
@@ -903,6 +1013,16 @@ final class PatchHostTemplateRelationsProcessorTest extends ApiTestCase
     private function idsOf(mixed $items): array
     {
         return array_map(fn (array $item): int => $this->asInt($item['id'] ?? null), $this->listOf($items));
+    }
+
+    /**
+     * @return list<int> in the order the detail reads them back
+     */
+    private function linkedServiceTemplateIds(int $id): array
+    {
+        $detail = $this->request('GET', self::URI . "/{$id}", ['headers' => ['accept' => 'application/json']])->toArray();
+
+        return $this->idsOf($detail['linked_service_templates'] ?? []);
     }
 
     private function asInt(mixed $value): int
