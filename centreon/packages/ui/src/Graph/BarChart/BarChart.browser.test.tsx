@@ -154,15 +154,20 @@ const expectBarDirection = ({
   expect(width).toBeGreaterThan(height);
 };
 
-const getTooltip = async (): Promise<HTMLElement> => {
-  const tooltip = await screen.findByRole('tooltip');
-  await waitFor(() => expect(tooltip).toBeVisible());
-
-  return tooltip;
+// The chart replaces its bars and tooltip once it has measured itself: every
+// check queries the page again until it passes.
+const expectVisibleTestId = async (testId: string): Promise<void> => {
+  await waitFor(() => expect(screen.getByTestId(testId)).toBeVisible());
 };
 
-// Under load, the chart can replace a bar right after it appears and a hover on
-// the old one is lost: hover again until the tooltip shows.
+const getTooltip = async (): Promise<HTMLElement> => {
+  await waitFor(() => expect(screen.getByRole('tooltip')).toBeVisible());
+
+  return screen.getByRole('tooltip');
+};
+
+// A hover on a bar the chart has just replaced is lost: hover again until the
+// tooltip shows.
 const hoverBarUntilTooltip = async (testId: string): Promise<HTMLElement> => {
   await waitFor(
     async () => {
@@ -237,9 +242,7 @@ describe('Bar chart', () => {
       await checkWidth();
       await checkAxes();
 
-      expect(
-        await screen.findByTestId('stacked-bar-3-0-0.08084')
-      ).toBeVisible();
+      await expectVisibleTestId('stacked-bar-3-0-0.08084');
       expectBarDirection({ orientation, testId: 'stacked-bar-3-0-0.08084' });
       expect(screen.queryAllByText(/^-[\d.]+ ms$/)).toHaveLength(0);
       expect(getNormalizedChart()).toMatchSnapshot();
@@ -251,9 +254,7 @@ describe('Bar chart', () => {
       await checkWidth();
       await checkAxes();
 
-      expect(
-        await screen.findByTestId('stacked-bar-3-0-0.08084')
-      ).toBeVisible();
+      await expectVisibleTestId('stacked-bar-3-0-0.08084');
       expectBarDirection({ orientation, testId: 'stacked-bar-3-0-0.08084' });
       expect(screen.getAllByText(/^-[\d.]+ ms$/).length).toBeGreaterThan(0);
       expect(getNormalizedChart()).toMatchSnapshot();
@@ -265,9 +266,7 @@ describe('Bar chart', () => {
       await checkWidth();
       await checkAxes();
 
-      expect(
-        await screen.findByTestId('stacked-bar-3-0-0.16196')
-      ).toBeVisible();
+      await expectVisibleTestId('stacked-bar-3-0-0.16196');
       expectSameStack({
         orientation,
         testIdPrefixes: [
@@ -285,9 +284,7 @@ describe('Bar chart', () => {
       await checkWidth();
       await checkAxes();
 
-      expect(
-        await screen.findByTestId('stacked-bar-3-0-0.08644')
-      ).toBeVisible();
+      await expectVisibleTestId('stacked-bar-3-0-0.08644');
     });
 
     it(`displays the stacked bar chart ${orientation}ly centered in zero`, async () => {
@@ -300,9 +297,7 @@ describe('Bar chart', () => {
       await checkWidth();
       await checkAxes();
 
-      expect(
-        await screen.findByTestId('stacked-bar-3-0-0.16196')
-      ).toBeVisible();
+      await expectVisibleTestId('stacked-bar-3-0-0.16196');
     });
 
     it(`displays bar chart ${orientation}ly with a mix of stacked and non-stacked data centered in zero`, async () => {
@@ -315,9 +310,7 @@ describe('Bar chart', () => {
       await checkWidth();
       await checkAxes();
 
-      expect(
-        await screen.findByTestId('stacked-bar-3-0-0.08644')
-      ).toBeVisible();
+      await expectVisibleTestId('stacked-bar-3-0-0.08644');
     });
 
     it(`displays bar chart ${orientation}ly with a custom style`, async () => {
@@ -330,9 +323,7 @@ describe('Bar chart', () => {
       await checkWidth();
       await checkAxes();
 
-      expect(
-        await screen.findByTestId('stacked-bar-3-0-0.08644')
-      ).toBeVisible();
+      await expectVisibleTestId('stacked-bar-3-0-0.08644');
     });
   });
 
@@ -448,19 +439,17 @@ describe('Bar chart', () => {
   it('displays the stacked bar chart correctly when a point is missing compare to the time serie', async () => {
     initialize({ data: dataMissingPoint });
 
-    const lastBar = await screen.findByTestId('stacked-bar-2-0-139');
-    expect(lastBar).toBeVisible();
-    expect(lastBar.getBoundingClientRect().bottom).toBeCloseTo(
-      getBar('stacked-bar-1-0-').getBoundingClientRect().bottom,
-      0
-    );
+    await expectVisibleTestId('stacked-bar-2-0-139');
+    expect(
+      screen.getByTestId('stacked-bar-2-0-139').getBoundingClientRect().bottom
+    ).toBeCloseTo(getBar('stacked-bar-1-0-').getBoundingClientRect().bottom, 0);
     expect(getNormalizedChart()).toMatchSnapshot();
   });
 
   it('displays the stacked bar chart with bars stacked together', async () => {
     initialize({ data: dataPingServiceLinesStackKeys });
 
-    expect(await screen.findByTestId('stacked-bar-3-0-0.05336')).toBeVisible();
+    await expectVisibleTestId('stacked-bar-3-0-0.05336');
     expect(screen.getByTestId('stacked-bar-4-0-0.06684')).toBeVisible();
     expectSameStack({
       orientation: 'horizontal',
@@ -505,20 +494,24 @@ describe('Bar chart time areas', () => {
   it('draws a time area along the time axis of a horizontal bar chart', async () => {
     initialize({ orientation: 'horizontal', timeAreas });
 
-    const area = (await screen.findByTestId('time-area')).querySelector('rect');
+    await waitFor(() => {
+      const area = screen.getByTestId('time-area').querySelector('rect');
 
-    expect(area).toHaveAttribute('y', '0');
-    expect(Number(area?.getAttribute('x'))).toBeGreaterThan(0);
+      expect(area).toHaveAttribute('y', '0');
+      expect(Number(area?.getAttribute('x'))).toBeGreaterThan(0);
+    });
     expect(getNormalizedChart()).toMatchSnapshot();
   });
 
   it('draws a time area along the time axis of a vertical bar chart', async () => {
     initialize({ orientation: 'vertical', timeAreas });
 
-    const area = (await screen.findByTestId('time-area')).querySelector('rect');
+    await waitFor(() => {
+      const area = screen.getByTestId('time-area').querySelector('rect');
 
-    expect(area).toHaveAttribute('x', '0');
-    expect(Number(area?.getAttribute('y'))).toBeGreaterThan(0);
+      expect(area).toHaveAttribute('x', '0');
+      expect(Number(area?.getAttribute('y'))).toBeGreaterThan(0);
+    });
     expect(getNormalizedChart()).toMatchSnapshot();
   });
 });

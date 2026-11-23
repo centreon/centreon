@@ -718,27 +718,31 @@ describe('Time areas', () => {
       ]
     });
 
-    const [purged, other] = await screen.findAllByTestId('time-area');
+    // The chart redraws once it has measured itself: query the areas again
+    // until the checks pass.
+    await waitFor(() => {
+      const [purged, other] = screen.getAllByTestId('time-area');
 
-    expect(screen.getAllByTestId('time-area')).toHaveLength(2);
+      expect(screen.getAllByTestId('time-area')).toHaveLength(2);
+      expect(
+        purged.querySelector('rect[fill="rgb(255, 0, 0)"]')
+      ).toHaveAttribute('x', '0');
+      expect(purged.querySelector('pattern path')).toHaveAttribute(
+        'stroke',
+        'rgb(0, 0, 255)'
+      );
+      expect(
+        purged.querySelector('rect[fill^="url(#time-area-"]')
+      ).toBeInTheDocument();
 
-    expect(purged.querySelector('rect[fill="rgb(255, 0, 0)"]')).toHaveAttribute(
-      'x',
-      '0'
+      const otherRects = other.querySelectorAll('rect');
+
+      expect(otherRects).toHaveLength(1);
+      expect(otherRects[0]).toHaveAttribute('fill', 'rgb(0, 128, 0)');
+    });
+    await expectVisible(() =>
+      within(screen.getAllByTestId('time-area')[0]).getByText('Purged')
     );
-    expect(purged.querySelector('pattern path')).toHaveAttribute(
-      'stroke',
-      'rgb(0, 0, 255)'
-    );
-    expect(
-      purged.querySelector('rect[fill^="url(#time-area-"]')
-    ).toBeInTheDocument();
-    await expectVisible(() => within(purged).getByText('Purged'));
-
-    const otherRects = other.querySelectorAll('rect');
-
-    expect(otherRects).toHaveLength(1);
-    expect(otherRects[0]).toHaveAttribute('fill', 'rgb(0, 128, 0)');
     expect(getNormalizedChart()).toMatchSnapshot();
   });
 });
