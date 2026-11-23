@@ -4,6 +4,22 @@
 // extensions of ReactJS files, used when going through a directory
 $extensions = ['ts', 'tsx'];
 
+// converts the content of a TypeScript string literal into the content of a PHP double-quoted string
+function to_php_string(string $label): string
+{
+    return preg_replace_callback(
+        '/\\\\(.)|"/s',
+        static function (array $match): string {
+            if (! isset($match[1]) || $match[1] === '') {
+                return '\\' . $match[0];
+            }
+
+            return in_array($match[1], ["'", '`'], true) ? $match[1] : $match[0];
+        },
+        $label
+    );
+}
+
 // rips gettext strings from $file and prints them in C format
 function do_file($file)
 {
@@ -19,7 +35,7 @@ function do_file($file)
         echo "/* $file */\n";
     }
     for ($i=0; $i < count($matches[0]); $i++) {
-        echo '_("' . trim($matches[1][$i],'\'"') .'");' . "\n";
+        echo '_("' . to_php_string($matches[1][$i]) . '");' . "\n";
     }
 }
 
