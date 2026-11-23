@@ -511,6 +511,14 @@ final class CreateHostTemplateProcessorTest extends ApiTestCase
         ];
 
         yield 'a comment over 65535 bytes' => [['extended_informations' => ['comment' => str_repeat('é', 40000)]], 'extended_informations.comment'];
+
+        yield 'a note made of a control character' => [['extended_informations' => ['note' => "\x01"]], 'extended_informations.note'];
+
+        yield 'a note url with a line break' => [['extended_informations' => ['note_url' => "a\nb"]], 'extended_informations.note_url'];
+
+        yield 'an action url with a line break' => [['extended_informations' => ['action_url' => "a\nb"]], 'extended_informations.action_url'];
+
+        yield 'an alt icon with a line break' => [['extended_informations' => ['alt_icon' => "a\nb"]], 'extended_informations.alt_icon'];
     }
 
     /**

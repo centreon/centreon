@@ -25,6 +25,7 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTe
 
 use App\MonitoringConfiguration\Domain\Aggregate\ExtendedInformations;
 use App\MonitoringConfiguration\Infrastructure\Validator\ExistingMedia;
+use App\MonitoringConfiguration\Infrastructure\Validator\NoControlCharacters;
 use App\Shared\Infrastructure\Validator\Constraints\WhenPlatform;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -34,18 +35,21 @@ final readonly class CreateHostTemplateExtendedInformationsInput
         #[Assert\Sequentially([
             new Assert\NotBlank(allowNull: true, normalizer: 'trim'),
             new Assert\Length(max: ExtendedInformations::MAX_NOTE_URL_LENGTH, normalizer: 'trim'),
+            new NoControlCharacters(),
         ])]
         public ?string $noteUrl = null,
 
         #[Assert\Sequentially([
             new Assert\NotBlank(allowNull: true, normalizer: 'trim'),
             new Assert\Length(max: ExtendedInformations::MAX_NOTE_LENGTH, normalizer: 'trim'),
+            new NoControlCharacters(),
         ])]
         public ?string $note = null,
 
         #[Assert\Sequentially([
             new Assert\NotBlank(allowNull: true, normalizer: 'trim'),
             new Assert\Length(max: ExtendedInformations::MAX_ACTION_URL_LENGTH, normalizer: 'trim'),
+            new NoControlCharacters(),
         ])]
         public ?string $actionUrl = null,
 
@@ -55,6 +59,7 @@ final readonly class CreateHostTemplateExtendedInformationsInput
         #[Assert\Sequentially([
             new Assert\NotBlank(allowNull: true, normalizer: 'trim'),
             new Assert\Length(max: ExtendedInformations::MAX_ALT_ICON_LENGTH, normalizer: 'trim'),
+            new NoControlCharacters(),
         ])]
         #[WhenPlatform(forCloud: true, constraints: [
             new Assert\Blank(message: 'This field is not available on a Cloud platform.'),
