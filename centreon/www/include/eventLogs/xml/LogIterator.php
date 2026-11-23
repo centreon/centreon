@@ -35,7 +35,7 @@ readonly class LogIterator implements IteratorAggregate
     }
 
     /**
-     * @throws PDOException
+     * @throws CentreonDbException
      *
      * @return Generator<int, array<string, mixed>>
      */
@@ -45,6 +45,13 @@ readonly class LogIterator implements IteratorAggregate
             while (($log = $this->statement->fetch(PDO::FETCH_ASSOC)) !== false) {
                 yield $log;
             }
+        } catch (PDOException $e) {
+            // Same exception as the other queries of the page, so the same error handling applies.
+            throw new CentreonDbException(
+                'Error while reading the logs: ' . $e->getMessage(),
+                ['query' => $this->statement->queryString],
+                $e
+            );
         } finally {
             // An unbuffered query blocks its connection until its cursor is closed.
             $this->statement->closeCursor();

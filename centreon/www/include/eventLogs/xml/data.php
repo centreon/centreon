@@ -37,7 +37,9 @@ require_once __DIR__ . '/../../../class/centreonLog.class.php';
 require_once __DIR__ . '/../../../class/exceptions/CentreonDbException.php';
 
 // Connect to DB
+/** @var CentreonDB $pearDB */
 $pearDB = $dependencyInjector['configuration_db'];
+/** @var CentreonDB $pearDBO */
 $pearDBO = $dependencyInjector['realtime_db'];
 
 // Check Session
@@ -711,7 +713,14 @@ try {
     }
 
     if ($streamsExport) {
-        $logs = new LogIterator($statement);
+        $logs = (new LogIterator($statement))->getIterator();
+        // Reads the first row here, before the headers are sent: with an unbuffered query, MySQL can report
+        // an error of the query (a timeout while sorting the rows, for example) only when the first row is read.
+        $logs->current();
+        if (! $logs->valid()) {
+            // A search without results has already ended the generator, which cannot be iterated any more.
+            $logs = [];
+        }
     } else {
         $logs = $pearDBO->fetchAll($statement);
         $pearDBO->closeQuery($statement);
@@ -720,8 +729,11 @@ try {
     CentreonLog::create()->error(
         CentreonLog::TYPE_BUSINESS_LOG,
         'Error while fetching logs',
-        $e->getContext()
+        $e->getContext(),
+        $e
     );
+    // An export that failed on its first row leaves an ended generator, which cannot be iterated.
+    $logs = [];
     // Without it, the page would show the failed search as a search without results.
     http_response_code(500);
 }
@@ -752,10 +764,35 @@ if (! $isEventLogsPage) {
     }
 }
 
+/**
+ * Stops the export at a database error, so that PHP does not write the error into the file and the document
+ * still ends. Answers HTTP 500 while nothing was sent yet (the rows are sent every 500); after that, the file
+ * is truncated and only the log tells it.
+ *
+ * @param iterable<int, array<string, mixed>> $logs
+ *
+ * @return Generator<int, array<string, mixed>>
+ */
+$stopExportOnError = static function (iterable $logs): Generator {
+    try {
+        yield from $logs;
+    } catch (CentreonDbException $e) {
+        CentreonLog::create()->error(
+            CentreonLog::TYPE_BUSINESS_LOG,
+            'Error while exporting logs',
+            $e->getContext(),
+            $e
+        );
+        if (! headers_sent()) {
+            http_response_code(500);
+        }
+    }
+};
+
 // Display logs
 $cpts = 0;
 // The page query reads one more row than the page size.
-$displayedLogs = $streamsExport ? $logs : array_slice($logs, 0, $limit);
+$displayedLogs = $streamsExport ? $stopExportOnError($logs) : array_slice($logs, 0, $limit);
 foreach ($displayedLogs as $log) {
     $buffer->startElement('line');
     $buffer->writeElement('msg_type', $log['msg_type']);
