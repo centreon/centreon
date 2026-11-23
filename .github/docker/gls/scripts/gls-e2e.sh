@@ -16,7 +16,13 @@
 # GLS_CERTS_DIR (default <gls>/.certs).
 set -uo pipefail
 
-GLS_DIR=$(cd "$(dirname "$0")/.." && pwd)
+# Git Bash (MSYS) on Windows rewrites arguments that look like POSIX paths
+# ("/CN=..." for openssl, container paths for docker exec). Turn it off, and
+# hand Windows binaries (openssl, docker) mixed C:/... paths for host files.
+export MSYS_NO_PATHCONV=1 MSYS2_ARG_CONV_EXCL="*"
+host_path() { if command -v cygpath >/dev/null 2>&1; then cygpath -m "$1"; else printf '%s' "$1"; fi; }
+
+GLS_DIR=$(host_path "$(cd "$(dirname "$0")/.." && pwd)")
 set -a
 # shellcheck disable=SC1091
 . "$GLS_DIR/images.env"
@@ -27,7 +33,7 @@ BROKER_TAG="${GLS_BROKER_TAG:-$BROKER_TAG}"
 HTTPD_PORT="${HTTPD_PORT:-18180}"
 POLLER_NAME="${POLLER_NAME:-gls-poller}"
 # Run-time throwaway PKI, mounted by both compose files (gitignored).
-GLS_CERTS_DIR="${GLS_CERTS_DIR:-$GLS_DIR/.certs}"
+GLS_CERTS_DIR=$(host_path "${GLS_CERTS_DIR:-$GLS_DIR/.certs}")
 set +a
 
 LOG_DIR="${LOG_DIR:-/tmp/gls-e2e}"
@@ -160,9 +166,23 @@ patch_keys() { # patch_keys api|actions <glob evaluated inside fpm>
 # Run-time throwaway PKI (contracts § 6.2), never committed: CA + central cbd
 # cert (CN/SAN centreon-broker), and a rogue CA + cert with the same name.
 cmd_certs() {
-  local d="$GLS_CERTS_DIR" set ca
-  [[ -s "$d/central.crt" && -s "$d/rogue.crt" ]] && return 0
-  mkdir -p "$d"
+  local d="$GLS_CERTS_DIR" f
+  [[ -s "$d/ca.crt" && -s "$d/central.crt" && -s "$d/central.key" && -s "$d/rogue.crt" && -s "$d/rogue.key" ]] && return 0
+  # Never keep a half PKI from an earlier failed run.
+  rm -rf "$d"; mkdir -p "$d" "$LOG_DIR"; : >"$LOG_DIR/certs.log"
+  if ! make_certs "$d"; then
+    echo "::error::gls: PKI generation failed in $d, openssl output:" >&2
+    cat "$LOG_DIR/certs.log" >&2
+    rm -rf "$d"
+    return 1
+  fi
+  for f in ca.crt central.crt central.key rogue.crt rogue.key; do
+    [[ -s "$d/$f" ]] || { echo "::error::gls: $d/$f missing after PKI generation" >&2; cat "$LOG_DIR/certs.log" >&2; rm -rf "$d"; return 1; }
+  done
+}
+
+make_certs() {
+  local d=$1 set ca
   # Self-contained openssl config: independent of the host defaults.
   cat >"$d/openssl.cnf" <<'EOF'
 [req]
