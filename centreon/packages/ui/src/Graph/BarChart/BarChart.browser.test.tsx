@@ -161,6 +161,20 @@ const getTooltip = async (): Promise<HTMLElement> => {
   return tooltip;
 };
 
+// Under load, the chart can replace a bar right after it appears and a hover on
+// the old one is lost: hover again until the tooltip shows.
+const hoverBarUntilTooltip = async (testId: string): Promise<HTMLElement> => {
+  await waitFor(
+    async () => {
+      await userEvent.hover(screen.getByTestId(testId));
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+    },
+    { timeout: 5000 }
+  );
+
+  return getTooltip();
+};
+
 beforeEach(() => {
   expect.hasAssertions();
 });
@@ -174,11 +188,9 @@ describe('Bar chart', () => {
     await checkWidth();
     await checkAxes();
 
-    await userEvent.hover(
-      await screen.findByTestId('stacked-bar-10-0-7650.368581547736')
+    const tooltip = await hoverBarUntilTooltip(
+      'stacked-bar-10-0-7650.368581547736'
     );
-
-    const tooltip = await getTooltip();
     expect(within(tooltip).getByText(/06\/19\/2024/)).toBeVisible();
     await expectVisibleText(/Centreon-Server: Round-Trip Maximum Time/);
     expect(within(tooltip).getByText(/7.47 KiB/)).toBeVisible();
@@ -198,9 +210,7 @@ describe('Bar chart', () => {
     await checkWidth();
     await checkAxes();
 
-    await userEvent.hover(await screen.findByTestId('stacked-bar-1-0-0.05296'));
-
-    const tooltip = await getTooltip();
+    const tooltip = await hoverBarUntilTooltip('stacked-bar-1-0-0.05296');
     expect(within(tooltip).getByText(/06\/19\/2024/)).toBeVisible();
     expect(
       within(tooltip).getByText(/Centreon-Server: Round-Trip Maximum Time/)
@@ -340,9 +350,7 @@ describe('Bar chart', () => {
     await expectVisibleText(/0 ms/);
     await expectVisibleText(/:40 AM/);
 
-    await userEvent.hover(await screen.findByTestId('stacked-bar-1-0-0.05296'));
-
-    const tooltip = await getTooltip();
+    const tooltip = await hoverBarUntilTooltip('stacked-bar-1-0-0.05296');
     expect(within(tooltip).getByText(/06\/19\/2024/)).toBeVisible();
 
     expect(
@@ -376,9 +384,7 @@ describe('Bar chart', () => {
     await expectVisibleText(/0 ms/);
     await expectVisibleText(/:40 AM/);
 
-    await userEvent.hover(await screen.findByTestId('stacked-bar-1-0-0.05296'));
-
-    const tooltip = await getTooltip();
+    const tooltip = await hoverBarUntilTooltip('stacked-bar-1-0-0.05296');
     expect(within(tooltip).getByText(/06\/19\/2024/)).toBeVisible();
 
     expect(
