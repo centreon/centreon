@@ -32,7 +32,7 @@ use Core\RemoteChannel\Domain\Model\RemoteChannel;
 
 final class DbReadPollerTargetRepository implements ReadPollerTargetRepositoryInterface
 {
-    /** @var array<string, PollerTarget|null> */
+    /** @var array<int|string, PollerTarget|null> */
     private array $cache = [];
 
     private ?string $illegalCharacters = null;

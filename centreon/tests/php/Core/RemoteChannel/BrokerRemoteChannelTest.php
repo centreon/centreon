@@ -348,7 +348,10 @@ class BrokerRemoteChannelTest extends TestCase
      */
     private function sortFiles(array $files): array
     {
-        usort($files, static fn (array $a, array $b): int => [$a['target'], $a['path']] <=> [$b['target'], $b['path']]);
+        usort(
+            $files,
+            static fn (array $first, array $second): int => [$first['target'], $first['path']] <=> [$second['target'], $second['path']]
+        );
 
         return $files;
     }

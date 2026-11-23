@@ -72,10 +72,7 @@ class BrokerConfigurationDeployer implements ConfigurationDeployerInterface
         $pending = [];
         foreach ($targets as $target) {
             try {
-                $requestId = $this->post($target, $action, $withFiles);
-                if ($requestId !== null) {
-                    $pending[$requestId] = $target;
-                }
+                $pending[$this->post($target, $action, $withFiles)] = $target;
             } catch (RemoteChannelException $ex) {
                 $failures[$target->id] = $ex;
             }
@@ -157,9 +154,9 @@ class BrokerConfigurationDeployer implements ConfigurationDeployerInterface
 
     /**
      * @throws RemoteChannelException
-     * @return string|null the request id to follow, null when the deployment is already final and successful
+     * @return string the request id to follow
      */
-    private function post(PollerTarget $target, DeploymentAction $action, bool $withFiles): ?string
+    private function post(PollerTarget $target, DeploymentAction $action, bool $withFiles): string
     {
         $requestId = BrokerPollerCommandSender::generateRequestId();
         $response = $this->client->call(
