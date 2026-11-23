@@ -199,14 +199,18 @@ class BrokerRemoteChannelTest extends TestCase
         $this->assertSame('reload', $this->requests[1]['body']['action']);
     }
 
-    public function testRestartEndsAtDelivered(): void
+    public function testRestartEndsAtApplied(): void
     {
         $deployer = $this->deployer([
             'POST /v1/deployments' => [202, ['request_id' => 'r1', 'status' => 'ACCEPTED']],
-            'GET /v1/deployments/r1' => [200, ['request_id' => 'r1', 'status' => 'DELIVERED']],
+            'GET /v1/deployments/r1' => [
+                [200, ['request_id' => 'r1', 'status' => 'DELIVERED']],
+                [200, ['request_id' => 'r1', 'status' => 'APPLIED', 'message' => 'restart requested']],
+            ],
         ]);
 
         $this->assertSame([], $deployer->deploy([$this->target(2, '900001')], DeploymentAction::Restart, false));
+        $this->assertCount(3, $this->requests);
     }
 
     public function testNoFinalStatusInTimeIsATimeout(): void

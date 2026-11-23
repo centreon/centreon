@@ -48,6 +48,11 @@ class CentreonBroker
      */
     public function reload(): void
     {
+        if ($this->isCentralOnBrokerChannel()) {
+            // MON-215450: the central broker reloads itself once its configuration is deployed (contracts § 5.3)
+            return;
+        }
+
         $containerizedCentralId = $this->getContainerizedCentralId();
         if ($containerizedCentralId !== null) {
             Centreon\Infrastructure\Gorgone\LegacyCommandSender::create()
@@ -90,6 +95,25 @@ class CentreonBroker
         }
 
         return null;
+    }
+
+    /**
+     * Tell whether the central poller is reached through the central broker remote API
+     * (nagios_server.remote_channel = 'broker'), same central selection as getContainerizedCentralId().
+     *
+     * @throws PDOException
+     */
+    private function isCentralOnBrokerChannel(): bool
+    {
+        $result = $this->db->query(
+            "SELECT ns.remote_channel
+            FROM nagios_server ns
+            LEFT JOIN platform_topology pt ON pt.server_id = ns.id AND pt.type = 'central'
+            ORDER BY pt.id IS NULL, ns.localhost DESC, ns.id ASC
+            LIMIT 1"
+        );
+
+        return ($row = $result->fetch()) && $row['remote_channel'] === 'broker';
     }
 
     /**

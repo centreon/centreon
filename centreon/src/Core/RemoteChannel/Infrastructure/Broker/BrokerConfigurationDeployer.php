@@ -85,7 +85,7 @@ class BrokerConfigurationDeployer implements ConfigurationDeployerInterface
         while ($pending !== []) {
             foreach ($pending as $requestId => $target) {
                 try {
-                    if ($this->isFinished((string) $requestId, $target, $action)) {
+                    if ($this->isFinished((string) $requestId, $target)) {
                         unset($pending[$requestId]);
                     }
                 } catch (RemoteChannelException $ex) {
@@ -184,7 +184,7 @@ class BrokerConfigurationDeployer implements ConfigurationDeployerInterface
     /**
      * @throws RemoteChannelException on a failed final status
      */
-    private function isFinished(string $requestId, PollerTarget $target, DeploymentAction $action): bool
+    private function isFinished(string $requestId, PollerTarget $target): bool
     {
         $response = $this->client->call('GET', '/v1/deployments/' . rawurlencode($requestId));
         $status = DispatchStatus::tryFrom((string) ($response['status'] ?? '')) ?? DispatchStatus::Accepted;
@@ -192,9 +192,8 @@ class BrokerConfigurationDeployer implements ConfigurationDeployerInterface
             throw RemoteChannelException::forPoller($target->name, $status, (string) ($response['message'] ?? ''));
         }
 
-        // contracts.md: a restart ends at DELIVERED, the poller reconnects with its new configuration
-        return $status === DispatchStatus::Applied
-            || ($action === DeploymentAction::Restart && $status === DispatchStatus::Delivered);
+        // contracts.md § 5: every action ends at APPLIED (restart: files swapped, engine exit requested)
+        return $status === DispatchStatus::Applied;
     }
 
     private function getResultTimeout(): int

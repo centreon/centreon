@@ -28,7 +28,9 @@ use Centreon\Domain\MonitoringServer\Exception\IncompleteGenerationException;
 use Centreon\Infrastructure\Gorgone\LegacyCommandException;
 use Centreon\Infrastructure\Gorgone\LegacyCommandSender;
 use Centreon\Infrastructure\MonitoringServer\ConfigurationGenerationStatus;
+use Centreon\Infrastructure\RemoteChannel\LegacyRemoteChannelBridge;
 use Core\Domain\Engine\Model\EngineCommandGenerator;
+use Core\RemoteChannel\Domain\Model\DeploymentAction;
 
 require_once realpath(__DIR__ . '/../../../../../config/centreon.config.php');
 require_once realpath(__DIR__ . '/../../../../../config/bootstrap.php');
@@ -243,13 +245,25 @@ try {
 
     // MON-214479: every poller is reloaded (or restarted) at once, not one after the other. A poller which is not
     // reached (not connected, failure, no confirmation in time) does not stop the others.
+    // MON-215450: the pollers reached through the central broker (central poller included) are reloaded or
+    // restarted through its remote API, the others through Gorgone.
+    $remoteChannelBridge = LegacyRemoteChannelBridge::create();
+    $brokerPollers = $remoteChannelBridge->findBrokerPollers(array_keys(array_diff_key($poller ?? [], $failures)));
+    $brokerAction = match ((int) $ret['restart_mode']) {
+        1 => DeploymentAction::Reload,
+        2 => DeploymentAction::Restart,
+        default => null,
+    };
     $deliveries = [];
-    foreach (array_diff_key($poller ?? [], $failures) as $host) {
+    foreach (array_diff_key($poller ?? [], $failures, $brokerPollers) as $host) {
         $deliveries[(int) $host['id']] = $engineCommand === null
             ? static fn () => null
             : static fn () => $legacyCommandSender->sendCommand($engineCommand, (int) $host['id']);
     }
     $failures += $legacyCommandSender->deliverToPollers($deliveries);
+    if ($brokerAction !== null) {
+        $failures += $remoteChannelBridge->deploy($brokerPollers, $brokerAction, false);
+    }
 
     foreach ($poller ?? [] as $host) {
         if (isset($failures[(int) $host['id']])) {
