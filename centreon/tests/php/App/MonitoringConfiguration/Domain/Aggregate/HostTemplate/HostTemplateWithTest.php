@@ -128,6 +128,13 @@ final class HostTemplateWithTest extends TestCase
         self::assertTrue($changed->hasSameConfigurationAs($template));
     }
 
+    public function testNoNotificationsCompareAsTheDefaultNotifications(): void
+    {
+        $template = new HostTemplate(new HostTemplateId(1), new HostTemplateName('tpl'), new CheckOptions(null), notifications: null);
+
+        self::assertTrue($template->with(notifications: Notifications::default())->hasSameConfigurationAs($template));
+    }
+
     /**
      * @param \Closure(HostTemplate): HostTemplate $change
      */

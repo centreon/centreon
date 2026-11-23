@@ -347,13 +347,10 @@ final readonly class PatchHostTemplateCommandHandler
 
         if ($previousVaultUuid !== null || $vaultUuid === null) {
             if ($previousVaultUuid !== null && (! $command->snmpCommunity instanceof NoValue || $command->macros instanceof MacroChanges)) {
-                try {
-                    $this->logger->warning(
-                        'A host template update failed after writing to its vault entry: the vault may now diverge from the host template stored in the database.',
-                        ['host_template_id' => $template->id()->value, 'exception' => $cause],
-                    );
-                } catch (\Throwable) {
-                }
+                $this->logger->warning(
+                    'A host template update failed after writing to its vault entry: the vault may now diverge from the host template stored in the database.',
+                    ['host_template_id' => $template->id()->value, 'exception' => $cause],
+                );
             }
 
             return;
@@ -362,13 +359,10 @@ final readonly class PatchHostTemplateCommandHandler
         try {
             $this->vaultCredentialWriter->delete(VaultPathEnum::MonitoringHosts, $vaultUuid);
         } catch (\Throwable $recoveryException) {
-            try {
-                $this->logger->warning('The vault entry minted for a failed host template update could not be purged.', [
-                    'host_template_id' => $template->id()->value,
-                    'exception' => $recoveryException,
-                ]);
-            } catch (\Throwable) {
-            }
+            $this->logger->warning('The vault entry minted for a failed host template update could not be purged.', [
+                'host_template_id' => $template->id()->value,
+                'exception' => $recoveryException,
+            ]);
         }
     }
 
