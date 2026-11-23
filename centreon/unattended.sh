@@ -954,10 +954,21 @@ function centreon_selinux_modules_loaded() {
 			return 1
 		fi
 	done
+	if [ ! -f "$_web_pp" ] && [[ " ${CENTREON_SELINUX_MODULES[*]} " == *" centreon-web "* ]]; then
+		log "WARN" "centreon-web SELinux package file is missing: cannot confirm the tcp/9042 label"
+		return 1
+	fi
 	# older centreon-web modules allow every unreserved port and need no label
 	if [ -f "$_web_pp" ] && grep -aq centreon_php_fpm_port_t "$_web_pp"; then
 		_ports=$(semanage port -l -C -n 2>/dev/null) || _ports=""
-		grep -qE '^centreon_php_fpm_port_t +tcp +([0-9-]+, )*9042(,|$)' <<<"$_ports" && return 0
+		awk -v p=9042 '$1 == "centreon_php_fpm_port_t" && $2 == "tcp" {
+			for (i = 3; i <= NF; i++) {
+				f = $i; sub(/,$/, "", f)
+				if (split(f, r, "-") == 2 && r[1] + 0 <= p && p <= r[2] + 0) found = 1
+				else if (f == p) found = 1
+			}
+		}
+		END { exit !found }' <<<"$_ports" && return 0
 		log "WARN" "tcp/9042 is not labelled centreon_php_fpm_port_t"
 		return 1
 	fi
@@ -2359,7 +2370,7 @@ fi
 
 # The admin asked for enforcing: say it on the console (fd 3), not only in the log file.
 if [ "${selinux_enforcing_skipped:-}" == "true" ]; then
-	echo "WARNING: SELinux left in [permissive] mode instead of [enforcing]: Centreon SELinux rules are missing${LOG_FILE:+ - see $LOG_FILE}" >&3
+	echo "WARNING: SELinux left in [permissive] mode instead of [enforcing]: Centreon SELinux rules or the php-fpm port label are missing${LOG_FILE:+ - see $LOG_FILE}" >&3
 fi
 
 # A service left down must fail the run (non-zero exit) so CI and callers notice it;
