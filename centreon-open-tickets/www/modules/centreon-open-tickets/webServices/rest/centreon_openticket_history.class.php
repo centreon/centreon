@@ -73,6 +73,13 @@ class CentreonOpenticketHistory extends CentreonWebService
             $timestamp = $this->arguments['timestamp'];
         }
 
+        $allowedLinkKeys = ['hostname', 'service_description', 'host_state', 'service_state', 'host_id', 'service_id'];
+        foreach ($this->arguments['links'] as $link) {
+            if (is_array($link) && array_diff(array_keys($link), $allowedLinkKeys) !== []) {
+                return ['code' => 1, 'message' => 'links parameters missing or wrong'];
+            }
+        }
+
         $links_ok = [];
         $stmt_host = $this->pearDBMonitoring->prepare('SELECT host_id FROM hosts WHERE name = ?');
         $stmt_service = $this->pearDBMonitoring->prepare(
@@ -137,25 +144,24 @@ class CentreonOpenticketHistory extends CentreonWebService
             return ['code' => 1, 'message' => 'cannot insert in database'];
         }
 
-        // Insert data
+        $stmt_link = $this->pearDBMonitoring->prepare(
+            'INSERT INTO mod_open_tickets_link
+            (`ticket_id`, `host_id`, `service_id`, `host_state`, `service_state`, `hostname`, `service_description`)
+            VALUES (?, ?, ?, ?, ?, ?, ?)'
+        );
         foreach ($links_ok as $link_ok) {
-            $names = '';
-            $values = '';
-            $append = '';
-            foreach ($link_ok as $key => $value) {
-                $names .= $append . $key;
-                $values .= $append . $this->pearDBMonitoring->quote($value);
-                $append = ', ';
-            }
-            $res = $this->pearDBMonitoring->query(
-                "INSERT INTO mod_open_tickets_link (`ticket_id`, {$names}) VALUES ("
-                    . $this->pearDBMonitoring->quote($auto_ticket) . ', '
-                    . $values
-                . ')'
+            $this->pearDBMonitoring->execute(
+                $stmt_link,
+                [
+                    $auto_ticket,
+                    $link_ok['host_id'],
+                    $link_ok['service_id'] ?? null,
+                    $link_ok['host_state'] ?? null,
+                    $link_ok['service_state'] ?? null,
+                    $link_ok['hostname'],
+                    $link_ok['service_description'] ?? null,
+                ]
             );
-            if (PEAR::isError($res) === true) {
-                return ['code' => 1, 'message' => 'cannot insert in database'];
-            }
         }
 
         $this->pearDBMonitoring->commit();
