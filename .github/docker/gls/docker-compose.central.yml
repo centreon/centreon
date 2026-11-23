@@ -92,6 +92,9 @@ services:
       # paths = § 6.2 defaults. No remote_actions_insecure anywhere.
       CENTREON_BROKER_TLS: "1"
       CENTREON_BROKER_TLS_HOSTNAME: centreon-broker
+      # Engine retention on the state volume (contracts § 7), default for the
+      # central (install) and for pollers created through the API.
+      ENGINE_STATE_RETENTION_FILE: /var/lib/centreon-engine/retention.dat
     volumes:
       - centreon-status:/var/lib/centreon/status
       - centreon-metrics:/var/lib/centreon/metrics
@@ -178,6 +181,8 @@ services:
       - central-broker-certs:/etc/centreon-broker/certs:ro
       - centreon-status:/var/lib/centreon/status
       - centreon-metrics:/var/lib/centreon/metrics
+      # cbd cache_directory (failover queue, command.sock), contracts § 7.
+      - central-broker-state:/var/lib/centreon-broker
     expose: ["5669", "8099"]
     networks:
       central: {}
@@ -207,10 +212,14 @@ services:
         volume: {nocopy: true}
       # CA that signs the central cbd cert (cbmod verifies it).
       - central-broker-certs:/etc/centreon-broker/certs:ro
-      - central-engine-varlib:/var/lib/centreon-engine
-      - central-engine-log:/var/log/centreon-engine
+      # State (contracts § 7): cbmod cache_directory + retention.dat. Logs stay
+      # in the container layer.
+      - central-engine-state:/var/lib/centreon-engine
       # Keeps the engine gRPC on what the config says (127.0.0.1 for vm pollers).
       - ./overrides/05-engine-config.sh:/usr/local/lib/centreon-engine/container.d/05-engine-config.sh:ro
+    # command_file FIFO: only the engine uses it now (no gorgone).
+    tmpfs:
+      - /var/lib/centreon-engine/rw:uid=901,gid=901,mode=0770
     networks: [central]
 
 networks:
@@ -227,5 +236,5 @@ volumes:
   central-engine-etc:
   central-broker-etc:
   central-broker-certs:
-  central-engine-varlib:
-  central-engine-log:
+  central-engine-state:
+  central-broker-state:

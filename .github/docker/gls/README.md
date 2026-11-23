@@ -13,6 +13,22 @@ Exploratory PoC, not meant to be merged. Epic MON-215448. Interfaces: `contracts
 - **TLS:** the poller holds only the CA (`/etc/centreon-broker/certs/ca.crt`). It checks that the central's certificate is named `centreon-broker`. There is no insecure mode.
 - **Web to cbd:** fpm talks to the central cbd remote API (`http://centreon-broker:8099`, bearer token) on the internal network only.
 
+## Volumes (engine and broker)
+
+Contracts §7. Named volumes are prefixed by the project (`gls-central_`, `gls-poller_`).
+
+| Path | Service | Mount | Content |
+| --- | --- | --- | --- |
+| `/etc/centreon-engine`, `/etc/centreon-broker` | each engine; central cbd | `*-engine-etc`, `*-broker-etc` | Delivered configuration. The central ones are shared with fpm for the bootstrap local copy. |
+| `/var/lib/centreon-engine` | each engine | `central-engine-state`, `poller-engine-state` | cbmod `cache_directory` (events kept while the central is unreachable) and `retention.dat` (downtimes, acks, states). |
+| `/var/lib/centreon-engine/rw` | each engine | tmpfs `uid=901,gid=901,mode=0770` | `centengine.cmd` FIFO, used only by the engine itself. |
+| `/var/log/centreon-engine` | each engine | none (container layer) | `centengine.log`, `status.dat`. Lost on recreate. |
+| `/var/lib/centreon-broker` | central cbd | `central-broker-state` | cbd `cache_directory` (failover queue, `command.sock`). |
+| `/etc/centreon-broker/certs` | central cbd; engines | `central-broker-certs`; `ca.crt` bind | TLS identity, generated at run time. |
+
+- fpm sets `ENGINE_STATE_RETENTION_FILE=/var/lib/centreon-engine/retention.dat`, so the web generates that path for the central and for pollers created through the API.
+- `gls-e2e.sh state` checks the layout, that a downtime survives `up -d --force-recreate poller-engine`, and that the cbmod writes `<poller>-module.memory.*` to `poller-engine-state` while the central cbd is down.
+
 ## How the stack starts (`gls-e2e.sh up`)
 
 1. **PKI:** a throwaway PKI is generated at run time in `.certs/` (gitignored, valid 1 day): a CA, the central cbd certificate, and a rogue CA plus certificate with the same name for the negative test. Nothing is committed.
@@ -45,6 +61,7 @@ docker login docker.centreon.com
 .github/docker/gls/scripts/gls-e2e.sh plugins   # plugins.json deployed and the package installed
 .github/docker/gls/scripts/gls-e2e.sh c3 stop   # disconnected poller: explicit error <= 30 s (also: partition, pause)
 .github/docker/gls/scripts/gls-e2e.sh tls-negative
+.github/docker/gls/scripts/gls-e2e.sh state     # state volumes: retention after recreate, cbmod queue
 .github/docker/gls/scripts/gls-e2e.sh down      # removes only the gls-* projects, their volumes and gls-wan
 ```
 

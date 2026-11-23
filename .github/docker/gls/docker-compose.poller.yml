@@ -53,9 +53,12 @@ services:
         volume: {nocopy: true}
       # CA of the central cbd (contracts § 6.2), run-time throwaway.
       - ${GLS_CERTS_DIR:-./.certs}/ca.crt:/etc/centreon-broker/certs/ca.crt:ro
-      - poller-engine-varlib:/var/lib/centreon-engine
-      - poller-engine-log:/var/log/centreon-engine
+      # State (contracts § 7): cbmod cache_directory (queue while the central is
+      # unreachable) + retention.dat. Logs stay in the container layer.
+      - poller-engine-state:/var/lib/centreon-engine
       - ./overrides/05-engine-config.sh:/usr/local/lib/centreon-engine/container.d/05-engine-config.sh:ro
+    tmpfs:
+      - /var/lib/centreon-engine/rw:uid=901,gid=901,mode=0770
     # Connected = an established outbound socket to port 5669 (0x1625).
     healthcheck:
       test: ["CMD-SHELL", "grep -q ':1625 01' /proc/net/tcp /proc/net/tcp6 2>/dev/null"]
@@ -73,5 +76,4 @@ networks:
 volumes:
   poller-engine-etc:
   poller-broker-etc:
-  poller-engine-varlib:
-  poller-engine-log:
+  poller-engine-state:

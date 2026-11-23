@@ -8,6 +8,7 @@
 #   gls-e2e.sh c3 stop|partition|pause   explicit error <= 30 s on a disconnected poller, no replay
 #   gls-e2e.sh plugins            packages listed in the poller plugins.json get installed
 #   gls-e2e.sh tls-negative       central cert not signed by the CA: poller refuses, web answers 503/504
+#   gls-e2e.sh state              state volumes: layout, retention after recreate, cbmod queue while the central is down
 #   gls-e2e.sh certs              run-time throwaway PKI only
 #   gls-e2e.sh logs | down
 #
@@ -555,6 +556,105 @@ cmd_c3() {
     "{\"check\":{\"is_forced\":true},\"resources\":$res}" "EXTERNAL COMMAND: SCHEDULE_FORCED_SVC_CHECK;$host;gls-crit;"
 }
 
+# ---------- state volumes (contracts § 7) ----------
+
+engine_layout() { # engine_layout <compose fn> <service>: prints the retention path, fails with a reason
+  "$1" exec -T "$2" sh -c '
+    m=/proc/mounts
+    grep -q " /var/lib/centreon-engine " $m || { echo "no state volume on /var/lib/centreon-engine"; exit 1; }
+    grep -q " /var/lib/centreon-engine/rw tmpfs " $m || { echo "rw is not a tmpfs"; exit 1; }
+    ! grep -q " /var/log/centreon-engine " $m || { echo "/var/log/centreon-engine is still a mount"; exit 1; }
+    test -p /var/lib/centreon-engine/rw/centengine.cmd || { echo "no command FIFO in rw"; exit 1; }
+    grep -h "state_retention_file" /etc/centreon-engine/centengine.cfg | grep -oE "/[^\" ,]+" | head -1' 2>&1
+}
+
+svc_downtime_after() { # svc_downtime_after <host> <epoch>: status newer than epoch, still in downtime
+  [[ "$(sql centreon_storage "SELECT COUNT(*) FROM services s JOIN hosts h ON h.host_id=s.host_id WHERE h.name='$1' AND s.description='gls-crit' AND s.last_check>$2 AND s.scheduled_downtime_depth>0")" -ge 1 ]]
+}
+
+state_files() { # state_files <volume>: listing of a stopped engine's state volume
+  docker run --rm --network none -u 0 -v "$1:/s:ro" --entrypoint /bin/ls "$REGISTRY/centreon-engine-trixie:$ENGINE_TAG" -la /s 2>&1
+}
+
+cmd_state() {
+  local host=gls-hp hid sid res uid out t s e code old new t_re vol files fn svc
+  uid=$(sql centreon "SELECT uid FROM nagios_server WHERE name='${POLLER_NAME}'")
+  login || { record "login" ko; return; }
+  read -r hid sid <<<"$(ids "$host")"
+  res="[{\"type\":\"service\",\"id\":$sid,\"parent\":{\"id\":$hid}}]"
+
+  # Layout: state volume, rw on tmpfs with the FIFO, no log volume, retention in the state volume.
+  for t in central poller; do
+    read -r fn svc <<<"$(target_container "$t")"
+    if out=$(engine_layout "$fn" "$svc") && [[ "$out" == /var/lib/centreon-engine/* ]]; then
+      record "$t: state volume, rw tmpfs, no log volume, retention in the state volume" ok "$out"
+    else
+      record "$t: state volume, rw tmpfs, no log volume, retention in the state volume" ko "$(tr '\n' ' ' <<<"$out")"
+    fi
+  done
+  out=$(cc exec -T centreon-broker sh -c 'grep -q " /var/lib/centreon-broker " /proc/mounts && test -w /var/lib/centreon-broker && cat /etc/centreon-broker/central-broker.json' 2>/dev/null \
+    | jq -r '.centreonBroker.cache_directory // empty' 2>/dev/null)
+  [[ "${out%/}" == /var/lib/centreon-broker ]] && record "central cbd: cache_directory on central-broker-state" ok "$out" \
+    || record "central cbd: cache_directory on central-broker-state" ko "cache_directory=${out:-none} or not a writable mount"
+
+  # Retention survives a recreate: downtime set, container recreated, the new
+  # engine reports the service still in downtime.
+  s=$(date -u +%Y-%m-%dT%H:%M:%S+00:00); e=$(date -u -d '+2 hour' +%Y-%m-%dT%H:%M:%S+00:00); t=$(now)
+  code=$(api POST /monitoring/resources/downtime \
+    "{\"downtime\":{\"start_time\":\"$s\",\"end_time\":\"$e\",\"is_fixed\":true,\"duration\":7200,\"comment\":\"gls retention\",\"with_services\":false},\"resources\":$res}")
+  if [[ "$code" == 2* ]] && wait_log poller "$t" "EXTERNAL COMMAND: SCHEDULE_SVC_DOWNTIME;$host;gls-crit;" 30; then
+    record "retention: downtime set on the poller" ok "HTTP $code"
+  else
+    record "retention: downtime set on the poller" ko "HTTP $code"; return
+  fi
+  old=$(cp_ ps -q poller-engine)
+  # The recreate drops the container logs: keep them for the artifact.
+  cp_ logs --no-color --timestamps poller-engine >"$LOG_DIR/poller-before-recreate.log" 2>&1
+  # retention.dat is written at shutdown: stop cleanly first (exit 0, not a SIGKILL).
+  cp_ stop -t 60 poller-engine >>"$LOG_DIR/state.log" 2>&1
+  code=$(docker inspect -f '{{.State.ExitCode}}' "$old" 2>/dev/null)
+  [[ "$code" == 0 ]] && record "retention: poller engine stopped cleanly" ok "exit $code" \
+    || record "retention: poller engine stopped cleanly" ko "exit ${code:-?}"
+  ( set -a; . "$LOG_DIR/poller.env"; set +a; cp_ up -d --force-recreate -t 60 poller-engine ) >>"$LOG_DIR/state.log" 2>&1
+  t_re=$(date +%s); new=$(cp_ ps -q poller-engine)
+  [[ -n "$new" && "$new" != "$old" ]] && record "retention: poller-engine recreated" ok "${old:0:12} -> ${new:0:12}" \
+    || record "retention: poller-engine recreated" ko "${old:0:12} -> ${new:0:12}"
+  wait_until 300 poller_capable "$uid" && record "retention: poller reconnected after recreate" ok \
+    || { record "retention: poller reconnected after recreate" ko; return; }
+  cp_ exec -T poller-engine grep -qF "gls retention" /var/lib/centreon-engine/retention.dat \
+    && record "retention: downtime in retention.dat on the state volume" ok || record "retention: downtime in retention.dat on the state volume" ko
+  api POST /monitoring/resources/check "{\"check\":{\"is_forced\":true},\"resources\":$res}" >/dev/null
+  wait_until 240 svc_downtime_after "$host" "$t_re" \
+    && record "retention: service still in downtime after recreate (fresh status)" ok \
+    || record "retention: service still in downtime after recreate (fresh status)" ko "$(sql centreon_storage "SELECT s.last_check, s.scheduled_downtime_depth FROM services s JOIN hosts h ON h.host_id=s.host_id WHERE h.name='$host' AND s.description='gls-crit'")"
+
+  # cbmod queue: central cbd down, poller stopped cleanly -> unacked events in
+  # <cache_directory>/<broker_name>.{memory,queue}.<output> on the state volume.
+  local mod bname cdir qre
+  mod=$(cp_ exec -T poller-engine sh -c 'cat /etc/centreon-broker/*-module.json' 2>/dev/null)
+  bname=$(jq -r '.centreonBroker.broker_name // empty' <<<"$mod" 2>/dev/null)
+  cdir=$(jq -r '.centreonBroker.cache_directory // empty' <<<"$mod" 2>/dev/null)
+  [[ "${cdir%/}" == /var/lib/centreon-engine && -n "$bname" ]] \
+    && record "queue: poller cbmod cache_directory on the state volume" ok "$cdir, broker_name $bname" \
+    || { record "queue: poller cbmod cache_directory on the state volume" ko "cache_directory=${cdir:-none} broker_name=${bname:-none}"; return; }
+  qre="${bname//./\\.}\\.(memory|queue)\\."
+  vol=gls-poller_poller-engine-state
+  cc stop -t 30 centreon-broker >>"$LOG_DIR/state.log" 2>&1
+  sleep 20
+  cp_ stop -t 60 poller-engine >>"$LOG_DIR/state.log" 2>&1
+  files=$(state_files "$vol"); echo "$files" >"$LOG_DIR/state-queue-ls.txt"
+  grep -qE " $qre" <<<"$files" \
+    && record "queue: cbmod failover files in poller-engine-state while the central is down" ok "$(grep -oE "$qre[^ ]+" <<<"$files" | tr '\n' ' ')" \
+    || record "queue: cbmod failover files in poller-engine-state while the central is down" ko "$(tr '\n' ' ' <<<"$files" | head -c 300)"
+  cc start centreon-broker >>"$LOG_DIR/state.log" 2>&1
+  cp_ start poller-engine >>"$LOG_DIR/state.log" 2>&1
+  wait_until 300 poller_capable "$uid" && record "queue: poller reconnected after the central restart" ok \
+    || { record "queue: poller reconnected after the central restart" ko; return; }
+  wait_until 180 eval '! cp_ exec -T poller-engine ls /var/lib/centreon-engine 2>/dev/null | grep -qE "^$qre"' \
+    && record "queue: failover files drained after reconnect" ok \
+    || record "queue: failover files drained after reconnect" ko "$(cp_ exec -T poller-engine ls -la /var/lib/centreon-engine 2>&1 | tr '\n' ' ' | head -c 300)"
+}
+
 # ---------- plugins.json ----------
 
 pkg_ok() { cp_ exec -T poller-engine dpkg-query -W -f '${Status}' "$1" 2>/dev/null | grep -q 'install ok installed'; }
@@ -607,9 +707,10 @@ case "$cmd" in
   plugins) cmd_plugins ;;
   certs) cmd_certs; exit $? ;;
   tls-negative) cmd_tls_negative ;;
+  state) cmd_state ;;
   logs) cmd_logs; exit 0 ;;
   down) cmd_down; exit 0 ;;
-  *) sed -n '2,16p' "$0"; exit 2 ;;
+  *) sed -n '2,17p' "$0"; exit 2 ;;
 esac
 summary "$cmd $*"
 exit $(( failures > 0 ))
