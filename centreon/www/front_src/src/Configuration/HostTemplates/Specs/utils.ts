@@ -117,7 +117,7 @@ const hostTemplateDetails: Record<number, Record<string, unknown>> = {
       normal_check_interval: 5,
       passive_check_enabled: 'true'
     },
-    severity: { id: 2, name: 'Minor' },
+    severity: { id: 2, level: 3, name: 'Minor' },
     snmp_version: '2c',
     templates: [{ id: 2, name: 'generic-active-host' }],
     timezone: { id: 7, name: 'Europe/Paris' }
@@ -227,8 +227,10 @@ export const getFormHostCategoriesResponse = () =>
 
 export const getFormHostSeveritiesResponse = () =>
   toCollection('host_severities', [
-    { id: 1, name: 'Critical' },
-    { id: 2, name: 'Minor' }
+    { id: 1, level: 1, name: 'Critical' },
+    { id: 2, level: 3, name: 'Minor' },
+    // No level sent: shown by its name alone.
+    { id: 3, name: 'Trivial' }
   ]);
 
 export const getFormServiceTemplatesResponse = () =>
