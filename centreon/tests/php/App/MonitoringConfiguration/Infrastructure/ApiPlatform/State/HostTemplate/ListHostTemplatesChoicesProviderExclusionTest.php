@@ -31,10 +31,12 @@ use App\MonitoringConfiguration\Application\Service\UnlicensedHostTemplates;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostTemplateCriteria;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\HostTemplateChoicesTransformer;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\ListHostTemplatesChoicesProvider;
+use App\Shared\Infrastructure\ApiPlatform\State\PaginationResolver;
 use PHPUnit\Framework\TestCase;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostTemplateRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeModuleRepository;
+use Tests\App\Shared\Double\FakeOptionRepository;
 
 /**
  * The ids exclude_template_id adds to the excluded ones; the query is tested in the Dbal test.
@@ -52,7 +54,7 @@ final class ListHostTemplatesChoicesProviderExclusionTest extends TestCase
         $this->provider = new ListHostTemplatesChoicesProvider(
             new HostTemplateChoicesTransformer(),
             $this->repository,
-            new Pagination(),
+            new PaginationResolver(new Pagination(), new FakeOptionRepository(), fallbackItemsPerPage: 30),
             new UnlicensedHostTemplates(new HostLicenseLimit(new FakeModuleRepository(), new FakeHostRepository()), $this->repository),
         );
     }

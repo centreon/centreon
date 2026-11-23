@@ -33,6 +33,7 @@ use App\MonitoringConfiguration\Infrastructure\Validator\AccessibleHostSeverity;
 use App\MonitoringConfiguration\Infrastructure\Validator\ExistingHostTemplates;
 use App\MonitoringConfiguration\Infrastructure\Validator\ExistingServiceTemplates;
 use App\MonitoringConfiguration\Infrastructure\Validator\ExistingTimezone;
+use App\MonitoringConfiguration\Infrastructure\Validator\NoControlCharacters;
 use App\Shared\Domain\Logging\Attribute\Sensitive;
 use App\Shared\Domain\VaultInterface;
 use App\Shared\Infrastructure\Validator\Constraints\IdList;
@@ -42,8 +43,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 final readonly class CreateHostTemplateInput
 {
-    private const CONTROL_CHARACTERS = '/[\x00-\x1F\x7F]/';
-
     /**
      * @param list<int> $templateIds
      * @param list<int> $categoryIds
@@ -54,14 +53,14 @@ final readonly class CreateHostTemplateInput
         #[Assert\Sequentially([
             new Assert\NotBlank(normalizer: 'trim'),
             new Assert\Length(max: HostTemplateName::MAX_LENGTH, normalizer: 'trim'),
-            new Assert\Regex(pattern: self::CONTROL_CHARACTERS, message: 'This value must not contain control characters.', match: false),
+            new NoControlCharacters(),
         ])]
         public ?string $name = null,
 
         #[Assert\Sequentially([
             new Assert\NotBlank(normalizer: 'trim'),
             new Assert\Length(max: HostAlias::MAX_LENGTH, normalizer: 'trim'),
-            new Assert\Regex(pattern: self::CONTROL_CHARACTERS, message: 'This value must not contain control characters.', match: false),
+            new NoControlCharacters(),
         ])]
         public ?string $alias = null,
 
@@ -78,7 +77,7 @@ final readonly class CreateHostTemplateInput
             message: 'The SNMP community cannot be a vault reference.',
             normalizer: 'trim',
         )]
-        #[Assert\Regex(pattern: self::CONTROL_CHARACTERS, message: 'This value must not contain control characters.', match: false)]
+        #[NoControlCharacters]
         #[Sensitive]
         public ?string $snmpCommunity = null,
 

@@ -24,15 +24,16 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State;
 
 use ApiPlatform\Metadata\Operation;
-use ApiPlatform\State\Pagination\Pagination;
 use ApiPlatform\State\Pagination\TraversablePaginator;
 use ApiPlatform\State\ProviderInterface;
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\Connector;
 use App\MonitoringConfiguration\Domain\Repository\ConnectorRepository;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ConnectorCriteria;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ConnectorResource;
+use App\Shared\Domain\Repository\Pagination;
 use App\Shared\Domain\Repository\Paginator;
 use App\Shared\Infrastructure\ApiPlatform\State\FilterAwareProviderTrait;
+use App\Shared\Infrastructure\ApiPlatform\State\PaginationResolver;
 use App\Shared\Infrastructure\TransformerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
@@ -50,7 +51,7 @@ final readonly class ListConnectorsProvider implements ProviderInterface
         #[Autowire(service: ResourceConnectorTransformer::class)]
         private TransformerInterface $transformer,
         private ConnectorRepository $repository,
-        private Pagination $pagination,
+        private PaginationResolver $paginationResolver,
     ) {
     }
 
@@ -60,11 +61,8 @@ final readonly class ListConnectorsProvider implements ProviderInterface
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): iterable
     {
         $criteria = new ConnectorCriteria();
-        if ($this->pagination->isEnabled($operation, $context)) {
-            $criteria = $criteria->withPagination(
-                $this->pagination->getPage($context),
-                $this->pagination->getLimit($operation, $context)
-            );
+        if (($pagination = $this->paginationResolver->resolve($operation, $context)) instanceof Pagination) {
+            $criteria = $criteria->withPagination($pagination);
         }
 
         /** @var array<string, mixed> $filters */

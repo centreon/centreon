@@ -61,6 +61,7 @@ use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Domain\Aggregate\AggregateRootId;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
+use App\Shared\Domain\Repository\Pagination;
 use App\Shared\Domain\Repository\Paginator;
 use App\Shared\Domain\Repository\SortDirectionEnum;
 use Doctrine\DBAL\Connection;
@@ -505,7 +506,7 @@ final class DbalServiceRepositoryTest extends KernelTestCase
         $this->grant(11, $hostId, $granted);
         $this->grant(99, $hostId, $grantedToAnotherGroup);
 
-        $page = $this->findAll($this->restricted()->withPagination(1, 10));
+        $page = $this->findAll($this->restricted()->withPagination(new Pagination(1, 10)));
 
         self::assertSame([[$hostId, $granted]], $this->pairs($page));
         self::assertSame(1, $this->totalItems($page));
@@ -519,7 +520,7 @@ final class DbalServiceRepositoryTest extends KernelTestCase
         $this->grant(11, $hostId, $serviceId);
         $this->grant(12, $hostId, $serviceId);
 
-        $page = $this->findAll($this->restricted()->withPagination(1, 10));
+        $page = $this->findAll($this->restricted()->withPagination(new Pagination(1, 10)));
 
         self::assertSame([[$hostId, $serviceId]], $this->pairs($page));
         self::assertSame(1, $this->totalItems($page));
@@ -545,7 +546,7 @@ final class DbalServiceRepositoryTest extends KernelTestCase
         $serviceId = $this->insertListedService('ping', $hostId);
         $this->grant(11, $hostId, $serviceId);
 
-        $page = $this->findAll($this->restricted()->withPagination(2, 10));
+        $page = $this->findAll($this->restricted()->withPagination(new Pagination(2, 10)));
 
         self::assertInstanceOf(Paginator::class, $page);
         self::assertSame([], $this->pairs($page));
@@ -574,7 +575,7 @@ final class DbalServiceRepositoryTest extends KernelTestCase
         $this->insertListedService(null, $hostId);
         $this->insertListedService('', $hostId);
 
-        $page = $this->findAll($this->unrestricted()->withPagination(1, 10));
+        $page = $this->findAll($this->unrestricted()->withPagination(new Pagination(1, 10)));
 
         self::assertSame([[$hostId, $listed]], $this->pairs($page));
         self::assertSame(1, $this->totalItems($page));
@@ -606,7 +607,7 @@ final class DbalServiceRepositoryTest extends KernelTestCase
         $this->grant(11, $hostId, $listed);
         $this->grant(11, $hostId, $mixed);
 
-        $page = $this->findAll($this->restricted()->withPagination(1, 10));
+        $page = $this->findAll($this->restricted()->withPagination(new Pagination(1, 10)));
 
         self::assertSame([[$hostId, $listed]], $this->pairs($page));
         self::assertSame(1, $this->totalItems($page));
@@ -621,7 +622,7 @@ final class DbalServiceRepositoryTest extends KernelTestCase
         // A duplicated link row is still one pair.
         $this->linkServiceToHost($serviceId, $firstHostId);
 
-        $page = $this->findAll($this->unrestricted()->withPagination(1, 10));
+        $page = $this->findAll($this->unrestricted()->withPagination(new Pagination(1, 10)));
 
         self::assertSame([[$firstHostId, $serviceId], [$secondHostId, $serviceId]], $this->pairs($page));
         self::assertSame(2, $this->totalItems($page));
@@ -754,13 +755,13 @@ final class DbalServiceRepositoryTest extends KernelTestCase
             $serviceIds[] = $this->insertListedService($name, $hostId);
         }
 
-        $page = $this->findAll($this->unrestricted()->withPagination(2, 2));
+        $page = $this->findAll($this->unrestricted()->withPagination(new Pagination(2, 2)));
 
         self::assertSame([[$hostId, $serviceIds[2]], [$hostId, $serviceIds[3]]], $this->pairs($page));
         self::assertSame(5, $this->totalItems($page));
 
         // A page past the end is empty, it is not replaced by the last page.
-        $pastTheEnd = $this->findAll($this->unrestricted()->withPagination(4, 2));
+        $pastTheEnd = $this->findAll($this->unrestricted()->withPagination(new Pagination(4, 2)));
         self::assertSame([], $this->pairs($pastTheEnd));
         self::assertSame(5, $this->totalItems($pastTheEnd));
     }

@@ -28,6 +28,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\TimezoneCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalTimezoneRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\TimezoneTransformer;
+use App\Shared\Domain\Repository\Pagination;
 use App\Shared\Domain\Repository\Paginator;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -96,7 +97,7 @@ final class DbalTimezoneRepositoryTest extends KernelTestCase
         // scope to our own rows via the name filter so pre-seeded timezones cannot skew the total.
         // page 2 @ 1 item/page proves the OFFSET arithmetic (a page-1 request cannot).
         $result = $this->repository->findAll(
-            (new TimezoneCriteria())->withName("Pg/{$this->tag}-")->withPagination(2, 1)
+            (new TimezoneCriteria())->withName("Pg/{$this->tag}-")->withPagination(new Pagination(2, 1))
         );
 
         self::assertInstanceOf(Paginator::class, $result);

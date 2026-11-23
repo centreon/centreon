@@ -27,6 +27,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\GlobalMacroCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalGlobalMacroRepository;
 use App\Shared\Domain\Collection;
+use App\Shared\Domain\Repository\Pagination;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -82,7 +83,7 @@ final class DbalGlobalMacroRepositoryTest extends KernelTestCase
     public function testFindAllWithPagination(): void
     {
         $criteria = new GlobalMacroCriteria();
-        $criteria = $criteria->withPagination(page: 1, itemsPerPage: 1);
+        $criteria = $criteria->withPagination(new Pagination(1, 1));
 
         $paginator = $this->repository->findAll($criteria);
         self::assertInstanceOf(InMemoryPaginator::class, $paginator);
@@ -98,7 +99,7 @@ final class DbalGlobalMacroRepositoryTest extends KernelTestCase
         $criteria = new GlobalMacroCriteria();
         $criteria = $criteria->withName('USER', GlobalMacroCriteria::OPERATOR_LIKE);
         $criteria = $criteria->withName('PLUGINS', GlobalMacroCriteria::OPERATOR_LIKE);
-        $criteria = $criteria->withPagination(page: 1, itemsPerPage: 2);
+        $criteria = $criteria->withPagination(new Pagination(1, 2));
 
         $paginator = $this->repository->findAll($criteria);
         self::assertInstanceOf(InMemoryPaginator::class, $paginator);
@@ -111,7 +112,7 @@ final class DbalGlobalMacroRepositoryTest extends KernelTestCase
         $criteria = new GlobalMacroCriteria();
         $criteria = $criteria->withName('$USER1$', GlobalMacroCriteria::OPERATOR_EQUAL);
         $criteria = $criteria->withName('$CENTREONPLUGINS$', GlobalMacroCriteria::OPERATOR_EQUAL);
-        $criteria = $criteria->withPagination(page: 1, itemsPerPage: 2);
+        $criteria = $criteria->withPagination(new Pagination(1, 2));
 
         $paginator = $this->repository->findAll($criteria);
         self::assertInstanceOf(InMemoryPaginator::class, $paginator);
