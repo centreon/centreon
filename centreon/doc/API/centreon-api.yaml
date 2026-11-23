@@ -16649,12 +16649,12 @@ components:
         command_id:
           minimum: 0
           exclusiveMinimum: 0
-          description: 'null removes the command; the arguments stay for the command of the parents'
+          description: 'null removes the command; the arguments are kept unless sent'
           type:
             - integer
             - 'null'
         args:
-          description: 'an empty list clears them; kept without a check command'
+          description: 'an empty list clears the arguments; accepted without a command'
           type: array
           items:
             type: string
@@ -16696,12 +16696,12 @@ components:
             - integer
             - 'null'
         contact_additive_inheritance:
-          description: "Ignored unless the platform's inheritance mode enables additive inheritance."
+          description: "Forced to false unless the platform's inheritance mode enables additive inheritance."
           type:
             - boolean
             - 'null'
         contact_group_additive_inheritance:
-          description: "Ignored unless the platform's inheritance mode enables additive inheritance."
+          description: "Forced to false unless the platform's inheritance mode enables additive inheritance."
           type:
             - boolean
             - 'null'

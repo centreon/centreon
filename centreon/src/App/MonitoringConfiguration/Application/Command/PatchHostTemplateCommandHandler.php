@@ -36,6 +36,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\MonitoringConfiguration\Domain\Event\HostTemplateUpdated;
 use App\MonitoringConfiguration\Domain\Event\HostTemplateVaultPurgeRequested;
+use App\MonitoringConfiguration\Domain\Exception\CommandNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\VaultWriteFailedException;
@@ -69,8 +70,7 @@ final readonly class PatchHostTemplateCommandHandler
     }
 
     /**
-     * Every check runs before the vault is written, so a refused write leaves no secret behind. A write
-     * that changes nothing saves nothing and fires nothing.
+     * Every check runs before the vault write; a write that changes nothing saves and fires nothing.
      */
     public function __invoke(PatchHostTemplateCommand $command): HostTemplate
     {
@@ -79,7 +79,7 @@ final readonly class PatchHostTemplateCommandHandler
             throw new HostTemplateNotFoundException([$command->id->value], 'id');
         }
 
-        // The lock is refused before this handler checks any reference.
+        // A locked template is refused whatever else is wrong.
         $template->assertUnlocked();
 
         $this->assertReferencesExist($command);
@@ -101,8 +101,7 @@ final readonly class PatchHostTemplateCommandHandler
                 ? new NoValue()
                 : $command->schedulingOptions->applyTo($template->schedulingOptions),
             dataProcessing: $this->dataProcessing($template, $command),
-            // With the platform option disabled, the additive inheritance flags the template already has are
-            // reset along with any notification change.
+            // Inheritance mode off: any notification change also resets the stored additive-inheritance flags.
             notifications: $command->notifications instanceof NoValue
                 ? new NoValue()
                 : $this->additiveInheritanceModeApplier->apply($command->notifications->applyTo($template->notifications)),
@@ -135,8 +134,7 @@ final readonly class PatchHostTemplateCommandHandler
     }
 
     /**
-     * The input ran the same rules earlier: this is the authoritative check, against what exists now.
-     * The check command is checked when the Centreon Monitoring Agent rule loads it.
+     * Re-checks references against what exists now; the check command is checked in dataProcessing().
      */
     private function assertReferencesExist(PatchHostTemplateCommand $command): void
     {
@@ -193,8 +191,9 @@ final readonly class PatchHostTemplateCommandHandler
     }
 
     /**
-     * A template checked by a Centreon Monitoring Agent pushes its results: freshness is always checked,
-     * with a fixed threshold. Throws CommandNotFoundException when the check command given does not exist.
+     * A Centreon Monitoring Agent pushes its results: freshness is forced on with the fixed threshold.
+     *
+     * @throws CommandNotFoundException
      */
     private function dataProcessing(HostTemplate $template, PatchHostTemplateCommand $command): NoValue|DataProcessing
     {
@@ -214,8 +213,7 @@ final readonly class PatchHostTemplateCommandHandler
     }
 
     /**
-     * A vault reference is ignored: none is ever returned, so none can come back legitimately. A secret
-     * written counts as a change even when its reference stays the same (same entry, same key).
+     * A vault reference sent back is ignored; a rewritten secret counts as a change even under the same reference.
      *
      * @return array{community: NoValue|SnmpCommunity|null, secretRewritten: bool, vaultWritten: bool}
      */
@@ -250,23 +248,25 @@ final readonly class PatchHostTemplateCommandHandler
     }
 
     /**
-     * Best effort, never thrown over the cause: an entry minted by this write is purged; an existing one
-     * cannot be restored, so its divergence from the database is logged.
+     * Best effort, never masks $cause: purges an entry this write minted, else logs the divergence.
      */
     private function undoTheVaultWrite(HostTemplate $before, HostTemplate $changed, \Throwable $cause): void
     {
-        try {
-            $mintedUuid = $before->getVaultUuid($this->vault) === null ? $changed->getVaultUuid($this->vault) : null;
-            if ($mintedUuid !== null) {
-                $this->vaultCredentialWriter->delete(VaultPathEnum::MonitoringHosts, $mintedUuid);
-
-                return;
+        $mintedUuid = $before->getVaultUuid($this->vault) === null ? $changed->getVaultUuid($this->vault) : null;
+        if ($mintedUuid === null) {
+            try {
+                $this->logger->warning(
+                    'A host template update failed after writing to its vault entry: the vault may now diverge from the host template stored in the database.',
+                    ['host_template_id' => $before->id()->value, 'exception' => $cause],
+                );
+            } catch (\Throwable) {
             }
 
-            $this->logger->warning(
-                'A host template update failed after writing to its vault entry: the vault may now diverge from the host template stored in the database.',
-                ['host_template_id' => $before->id()->value, 'exception' => $cause],
-            );
+            return;
+        }
+
+        try {
+            $this->vaultCredentialWriter->delete(VaultPathEnum::MonitoringHosts, $mintedUuid);
         } catch (\Throwable $vaultException) {
             try {
                 $this->logger->warning('The vault entry minted for a failed host template update could not be purged.', [

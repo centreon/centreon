@@ -39,7 +39,7 @@ use App\Shared\Domain\NoValue;
 final readonly class PatchHostTemplateCommand
 {
     /**
-     * @param NoValue|string|null $snmpCommunity a string replaces it; plaintext until the handler vaults it
+     * @param NoValue|string|null $snmpCommunity plaintext; NoValue keeps it, null clears it, a vault reference is ignored
      */
     public function __construct(
         public HostTemplateId $id,

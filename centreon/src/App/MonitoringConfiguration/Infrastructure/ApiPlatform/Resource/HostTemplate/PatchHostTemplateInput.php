@@ -33,25 +33,20 @@ use App\MonitoringConfiguration\Infrastructure\Validator\ExistingTimezone;
 use App\MonitoringConfiguration\Infrastructure\Validator\NoControlCharacters;
 use App\Shared\Domain\Logging\Attribute\Sensitive;
 use App\Shared\Domain\VaultInterface;
-use App\Shared\Infrastructure\ApiPlatform\RequestPayload;
 use App\Shared\Infrastructure\Validator\Constraints\NotNullWhenProvided;
 use App\Shared\Infrastructure\Validator\Constraints\WhenPlatform;
 use App\Shared\Infrastructure\Validator\Constraints\WhenVault;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Every key is optional: a key left out leaves the value untouched, a key sent as null clears it where a
- * value can be cleared. The properties that cannot be null carry {@see NotNullWhenProvided}, since this
- * DTO reads both cases as null (see {@see RequestPayload}).
+ * A key left out stays untouched, null clears it; non-nullable keys carry {@see NotNullWhenProvided}.
  *
- * Do not add an `id` property here: it would turn a missing template's 404 into a 422 through
- * InvalidReferenceExceptionListener.
+ * No `id` property: a missing template's 404 would become a 422.
  */
 final readonly class PatchHostTemplateInput
 {
     public function __construct(
-        // Unique among hosts and templates: the check needs the template being changed, so it lives
-        // in the command handler.
+        // Uniqueness is checked in the handler, which knows the template being renamed.
         #[ApiProperty(description: 'Trimmed; inner spaces become underscores.')]
         #[NotNullWhenProvided]
         #[Assert\Sequentially([

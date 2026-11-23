@@ -206,8 +206,7 @@ final class HostTemplate extends AggregateRoot
     }
 
     /**
-     * Whether $before kept its secrets in a vault entry this template no longer references: the entry
-     * can then be deleted once the write is committed.
+     * Whether $before's vault entry is no longer referenced, so it can be purged once committed.
      */
     public function releasesVaultEntryOf(self $before, VaultInterface $vault): bool
     {

@@ -28,14 +28,12 @@ use App\Shared\Domain\Event\DeliveredAfterCommitInterface;
 use App\Shared\Domain\Event\EventInterface;
 
 /**
- * Deferred: a vault purge cannot be rolled back, so it runs once the write that makes it safe is
- * committed. $hostTemplate is the template as it was, the one still pointing to the entry.
+ * Deferred until the write is committed, a vault purge cannot be rolled back; $hostTemplate is the template as it was.
  */
 final readonly class HostTemplateVaultPurgeRequested implements DeliveredAfterCommitInterface, EventInterface
 {
     /**
-     * @param bool $bestEffort a failed purge is only logged: set when it tidies up after a successful
-     *                         save, an orphan secret being harmless
+     * @param bool $bestEffort a failed purge is only logged, never thrown
      */
     public function __construct(
         public HostTemplate $hostTemplate,
