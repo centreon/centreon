@@ -1,9 +1,11 @@
+import { type MockInstance, rs } from '@rstest/core';
 import { interceptRequest, Method, waitForRequest } from '@test-setup/api';
 import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { HttpResponse } from 'msw';
 
 import { panelDataTestIds } from '../../ConfigurationBase/Panel/dataTestIds';
+import { labelResourceUpdated } from '../../ConfigurationBase/translatedLabels';
 import { labelRequired } from '../../ResourceForm/translatedLabels';
 import { labelNameContainsForbiddenCharacters } from '../translatedLabels';
 import initialize from './initialize';
@@ -87,6 +89,16 @@ const getFieldError = (element: HTMLElement, message: string) =>
   within(element.closest('.MuiFormControl-root') as HTMLElement).findByText(
     message
   );
+
+const getPatchContentType = (
+  fetchSpy: MockInstance<typeof fetch>
+): string | null => {
+  const [, init] =
+    fetchSpy.mock.calls.find(([, options]) => options?.method === 'PATCH') ??
+    [];
+
+  return new Headers(init?.headers).get('Content-Type');
+};
 
 const getRequestBody = async (alias: string): Promise<RequestBody> => {
   const { request } = await waitForRequest(alias);
@@ -198,6 +210,8 @@ export default () => {
     });
 
     it('updates a service with the whole form', async () => {
+      const fetchSpy = rs.spyOn(window, 'fetch');
+
       await openService();
 
       const name = await getInput('service-form-name');
@@ -208,12 +222,14 @@ export default () => {
 
       await save();
 
-      const { request } = await waitForRequest('@updateService0');
+      const { request } = await waitForRequest('@patchService0');
 
-      expect(request.method).toBe('PUT');
-      // The whole service is replaced, its activation included. The other
-      // sections' keys are their own specs'; the notifications here, as
-      // opened.
+      expect(request.method).toBe('PATCH');
+      expect(getPatchContentType(fetchSpy)).toBe(
+        'application/merge-patch+json'
+      );
+      // The other sections' keys are their own specs'; the notifications here,
+      // as opened.
       expect(request.body).toMatchObject({
         activated: true,
         check_options: {
@@ -242,6 +258,12 @@ export default () => {
       expect((request.body as RequestBody).notifications).toEqual(
         openedNotificationsPayload
       );
+      expect(
+        await screen.findByText(labelResourceUpdated('Service'))
+      ).toBeInTheDocument();
+      await waitFor(() => expect(getSaveButton()).not.toBeInTheDocument());
+
+      fetchSpy.mockRestore();
     });
 
     it('keeps the activation the panel switch set when the service is saved', async () => {
@@ -265,7 +287,7 @@ export default () => {
 
       await save();
 
-      expect(await getRequestBody('@updateService0')).toMatchObject({
+      expect(await getRequestBody('@patchService0')).toMatchObject({
         activated: false,
         host_id: 10,
         name: 'cpu load'
@@ -416,9 +438,9 @@ export default () => {
 
       await save();
 
-      const { request } = await waitForRequest('@updateService0');
+      const { request } = await waitForRequest('@patchService0');
 
-      expect(request.method).toBe('PUT');
+      expect(request.method).toBe('PATCH');
       expect(request.body).toEqual({
         activated: true,
         advanced: {

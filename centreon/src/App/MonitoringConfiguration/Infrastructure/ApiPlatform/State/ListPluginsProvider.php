@@ -25,12 +25,12 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
-use App\MonitoringConfiguration\Domain\Aggregate\Option\Option;
-use App\MonitoringConfiguration\Domain\Aggregate\Option\OptionName;
 use App\MonitoringConfiguration\Domain\Aggregate\Plugin\Plugin;
-use App\MonitoringConfiguration\Domain\Repository\OptionRepository;
 use App\MonitoringConfiguration\Domain\Repository\PluginRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ListPluginResource;
+use App\Shared\Domain\Aggregate\Option\Option;
+use App\Shared\Domain\Aggregate\Option\OptionName;
+use App\Shared\Domain\Repository\OptionRepository;
 use App\Shared\Infrastructure\TransformerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 

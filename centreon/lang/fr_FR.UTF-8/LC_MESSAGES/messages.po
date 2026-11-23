@@ -39,6 +39,10 @@ msgstr " Le fuseau horaire utilisé est celui configuré dans vos paramètres ut
 msgid " to "
 msgstr " à la "
 
+#: centreon/www/install/front_translate.php
+msgid "\"None\" can't be combined with other options. Set this list to Replace, or services with other options won't be updated."
+msgstr "« Aucun » ne peut pas être combiné avec d'autres options. Passez cette liste en mode Remplacer, sinon les services ayant d'autres options ne seront pas mis à jour."
+
 #: centreon/www/install/react_translation.php
 #, php-format
 msgid "%s is not valid."
@@ -9138,7 +9142,6 @@ msgstr "Type de ressource incorrect : %s"
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
-#: centreon/www/install/front_translate.php
 msgid "Incremental"
 msgstr "Incrémentale"
 
@@ -10097,6 +10100,10 @@ msgstr "Adresse d'écoute (optionnel)"
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Listening port"
 msgstr "Port d'écoute"
+
+#: centreon/www/install/front_translate.php
+msgid "Lists set to Replace will overwrite the corresponding lists of all selected services. If you leave a list set to Replace blank, its existing entries will be deleted from all selected services. Entries you don't have access to are unaffected."
+msgstr "Les listes en mode Remplacer écraseront les listes correspondantes de tous les services sélectionnés. Si vous laissez vide une liste en mode Remplacer, ses entrées existantes seront supprimées de tous les services sélectionnés. Les entrées auxquelles vous n'avez pas accès ne sont pas modifiées."
 
 #: centreon/www/include/home/customViews/formLoad.php
 msgid "Load a public view"
@@ -13711,13 +13718,16 @@ msgstr "Renommer"
 msgid "Reordering cancelled, row {{position}} returned to its original position"
 msgstr "Réorganisation annulée, la ligne {{position}} a retrouvé sa position d'origine"
 
+#: centreon/www/install/front_translate.php
+msgid "Replace"
+msgstr "Remplacer"
+
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 #: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
-#: centreon/www/install/front_translate.php
 msgid "Replacement"
 msgstr "Remplacement"
 
@@ -18757,6 +18767,10 @@ msgid "Welcome to the notifications interface"
 msgstr "Bienvenue dans l'interface de gestion des notifications"
 
 #: centreon/www/install/front_translate.php
+msgid "When services inherit contacts and contact groups only from their host, their own contacts and contact groups are removed. Only those you have access to are affected."
+msgstr "Lorsque les services héritent uniquement des contacts et groupes de contacts de leur hôte, leurs propres contacts et groupes de contacts sont supprimés. Seuls ceux auxquels vous avez accès sont concernés."
+
+#: centreon/www/install/front_translate.php
 msgid "Which endpoint does the conditions attribute path come from?"
 msgstr "De quel point d'entrée provient le chemin de l'attribut des conditions ?"
 
@@ -23126,10 +23140,6 @@ msgstr "Relations entre les éléments"
 #: unknown
 msgid "Release"
 msgstr "Version"
-
-#: unknown
-msgid "Replace"
-msgstr "Remplacement"
 
 #: unknown
 msgid "Replace existing ones"

@@ -27,6 +27,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostState;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectoryId;
@@ -42,6 +43,7 @@ use App\Security\Infrastructure\Dbal\DbalResourceAccessRepository;
 use App\Shared\Domain\Aggregate\AclScopedInterface;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Collection;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
@@ -126,13 +128,14 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
      */
     public function testGrantResourceAccessForAMovedService(): void
     {
-        $service = (new Service(
+        $service = new Service(
             id: new ServiceId(9003),
             name: new ServiceName('ping'),
             hostId: new HostId(9001),
             hostActivated: true,
             hostPollerId: new PollerId(1),
-        ))->with(hostId: new HostId(9004), hostPollerId: new PollerId(2));
+        );
+        $service->moveToHost(new HostId(9004), new HostState(true, new PollerId(2)));
 
         $this->repository->grantResourceAccess($service, new Collection([new AccessGroupId(10)], AccessGroupId::class));
 
@@ -146,6 +149,48 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
             [[10, 9004, 9003]],
             array_map(static fn (array $row): array => [(int) $row['group_id'], (int) $row['host_id'], (int) $row['service_id']], $rows),
         );
+    }
+
+    public function testGrantServiceAccessByIds(): void
+    {
+        $this->repository->grantServiceAccess(new HostId(9004), new ServiceId(9005), new Collection([new AccessGroupId(10), new AccessGroupId(20)], AccessGroupId::class));
+
+        /** @var list<array{group_id: int|string, host_id: int|string, service_id: int|string|null}> $rows */
+        $rows = $this->realTimeConnection->fetchAllAssociative(
+            'SELECT group_id, host_id, service_id FROM centreon_acl WHERE service_id = ? ORDER BY group_id',
+            [9005],
+        );
+
+        self::assertSame(
+            [[10, 9004, 9005], [20, 9004, 9005]],
+            array_map(static fn (array $row): array => [(int) $row['group_id'], (int) $row['host_id'], (int) $row['service_id']], $rows),
+        );
+    }
+
+    /**
+     * The groups granted the service on one of the hosts given, each once, lowest first: a grant of the service on
+     * another host, of another service on those hosts, or of the host alone is left out.
+     */
+    public function testFindAccessGroupIdsGrantingServiceReadsThePairsOnTheHostsGiven(): void
+    {
+        $this->realTimeConnection->executeStatement(
+            'INSERT INTO centreon_acl (group_id, host_id, service_id)
+                VALUES (30, 9101, 9100), (10, 9102, 9100), (30, 9102, 9100), (40, 9103, 9100), (50, 9101, 9104), (60, 9101, NULL)',
+        );
+
+        $groupIds = $this->repository->findAccessGroupIdsGrantingService(
+            new ServiceId(9100),
+            new Collection([new HostId(9101), new HostId(9102)], HostId::class),
+        );
+
+        self::assertSame([10, 30], array_map(static fn (AccessGroupId $id): int => $id->value, $groupIds->toArray()));
+    }
+
+    public function testFindAccessGroupIdsGrantingServiceOnNoHostFindsNone(): void
+    {
+        $this->realTimeConnection->executeStatement('INSERT INTO centreon_acl (group_id, host_id, service_id) VALUES (10, 9101, 9100)');
+
+        self::assertCount(0, $this->repository->findAccessGroupIdsGrantingService(new ServiceId(9100), new Collection([], HostId::class)));
     }
 
     /**
@@ -191,6 +236,43 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         $this->expectExceptionMessage('No ACL grant mapping for aggregate');
 
         $this->repository->grantResourceAccess($resource, new Collection([new AccessGroupId(10)], AccessGroupId::class));
+    }
+
+    public function testGrantResourceAccessRemovesTheFingerprintOfEachGivenGroup(): void
+    {
+        // centAcl.php skips a group whose fingerprint still matches: the next run must recompute the granted groups.
+        $this->insertAclFingerprints([10, 20, 30]);
+
+        $this->repository->grantResourceAccess($this->buildHost(9001), new Collection([new AccessGroupId(10), new AccessGroupId(20)], AccessGroupId::class));
+
+        self::assertSame([30], $this->aclFingerprintGroupIds([10, 20, 30]));
+    }
+
+    public function testDuplicateHostAccessRemovesTheFingerprintOfTheGroupsThatSeeTheCopy(): void
+    {
+        $this->realTimeConnection->insert('centreon_acl', ['group_id' => 10, 'host_id' => 9101, 'service_id' => null]);
+        $this->realTimeConnection->insert('centreon_acl', ['group_id' => 20, 'host_id' => 9101, 'service_id' => null]);
+        $this->insertAclFingerprints([10, 20, 30]);
+
+        $this->repository->duplicateHostAccess(new HostId(9101), new HostId(9102));
+
+        self::assertSame([30], $this->aclFingerprintGroupIds([10, 20, 30]));
+    }
+
+    public function testDuplicateHostServiceAccessRemovesTheFingerprintOfTheGroupsThatSeeTheCopy(): void
+    {
+        $this->connection->insert('host', ['host_name' => 'copy-01', 'host_address' => '127.0.0.1', 'host_activate' => '1', 'host_register' => '1']);
+        $copyId = (int) $this->connection->lastInsertId();
+        $this->connection->insert('service', ['service_description' => 'copied-service', 'service_register' => '1']);
+        $this->connection->insert('host_service_relation', ['host_host_id' => $copyId, 'service_service_id' => (int) $this->connection->lastInsertId()]);
+
+        $this->realTimeConnection->insert('centreon_acl', ['group_id' => 10, 'host_id' => 9101, 'service_id' => null]);
+        $this->realTimeConnection->insert('centreon_acl', ['group_id' => 20, 'host_id' => 9101, 'service_id' => null]);
+        $this->insertAclFingerprints([10, 20, 30]);
+
+        $this->repository->duplicateHostServiceAccess(new HostId(9101), new HostId($copyId));
+
+        self::assertSame([30], $this->aclFingerprintGroupIds([10, 20, 30]));
     }
 
     public function testFlagAllResourcesAsChangedFlagsEveryAclResource(): void
@@ -1313,6 +1395,33 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         $reflection->setValue($host, new HostId($id));
 
         return $host;
+    }
+
+    /**
+     * @param list<int> $groupIds
+     */
+    private function insertAclFingerprints(array $groupIds): void
+    {
+        foreach ($groupIds as $groupId) {
+            $this->realTimeConnection->insert('centreon_acl_checksum', ['group_id' => $groupId, 'checksum' => str_repeat('0', 32)]);
+        }
+    }
+
+    /**
+     * @param list<int> $amongGroupIds
+     *
+     * @return list<int> the groups, among the given ones, that still have a fingerprint
+     */
+    private function aclFingerprintGroupIds(array $amongGroupIds): array
+    {
+        /** @var list<int|string> $groupIds */
+        $groupIds = $this->realTimeConnection->fetchFirstColumn(
+            'SELECT group_id FROM centreon_acl_checksum WHERE group_id IN (?) ORDER BY group_id',
+            [$amongGroupIds],
+            [ArrayParameterType::INTEGER],
+        );
+
+        return array_map('intval', $groupIds);
     }
 
     private function insertHostSeverity(string $name): int

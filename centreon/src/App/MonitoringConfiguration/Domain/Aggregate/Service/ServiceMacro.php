@@ -105,4 +105,13 @@ final readonly class ServiceMacro
     {
         return new self($this->name, $value, $isPassword, $this->description, $this->id, $this->parent);
     }
+
+    /**
+     * A new own row keeping the name and password flag, with $value or the current value; the id, the origin and
+     * the description are dropped.
+     */
+    public function copyWithoutIdentity(?string $value = null): self
+    {
+        return new self($this->name, $value ?? $this->value, $this->isPassword);
+    }
 }

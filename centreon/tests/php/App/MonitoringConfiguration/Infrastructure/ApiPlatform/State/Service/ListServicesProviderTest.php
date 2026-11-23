@@ -219,10 +219,8 @@ final class ListServicesProviderTest extends ApiTestCase
         self::assertSame([$serviceId], array_column($member, 'id'));
     }
 
-    public function testThePlatformSettingForConfigurationListingsDoesNotSizeThePage(): void
+    public function testThePlatformSettingForConfigurationListingsSizesThePage(): void
     {
-        // Without itemsPerPage the page holds the platform default of 30 items, as for hosts: the front sends the
-        // configuration listing setting itself.
         $this->connection->executeStatement('DELETE FROM options WHERE `key` = :key', ['key' => 'maxViewConfiguration']);
         $this->connection->executeStatement('INSERT INTO options (`key`, `value`) VALUES (:key, :value)', ['key' => 'maxViewConfiguration', 'value' => '5']);
 
@@ -238,7 +236,17 @@ final class ListServicesProviderTest extends ApiTestCase
         $body = $response->toArray();
         self::assertSame(6, $body['totalItems']);
         Assert::isArray($body['member']);
-        self::assertCount(6, $body['member']);
+        self::assertCount(5, $body['member']);
+    }
+
+    public function testInvalidPaginationAnswersABadRequest(): void
+    {
+        $this->login();
+
+        $this->request('GET', self::BASE_ENDPOINT, ['query' => ['page' => '0']]);
+
+        self::assertResponseStatusCodeSame(400);
+        self::assertJsonEquals(['code' => 0, 'message' => 'The "page" parameter must be a positive integer.']);
     }
 
     public function testAMalformedParameterAnswersWithTheErrorBody(): void
@@ -249,7 +257,7 @@ final class ListServicesProviderTest extends ApiTestCase
         $this->request('GET', self::BASE_ENDPOINT, ['query' => ['itemsPerPage' => '0']]);
 
         self::assertResponseStatusCodeSame(400);
-        self::assertJsonEquals(['code' => 0, 'message' => 'itemsPerPage must be a positive integer.']);
+        self::assertJsonEquals(['code' => 0, 'message' => 'The "itemsPerPage" parameter must be a positive integer.']);
     }
 
     /**

@@ -94,7 +94,6 @@ use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostSeverityRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
-use App\MonitoringConfiguration\Domain\Repository\OptionRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
 use App\Security\Domain\Aggregate\AccessScope;
@@ -106,6 +105,7 @@ use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Event\EventBus;
+use App\Shared\Domain\Repository\OptionRepository;
 use App\Shared\Domain\Vault\VaultPathEnum;
 use App\Shared\Domain\VaultInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -115,12 +115,12 @@ use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostGroupReposit
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostSeverityRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostTemplateRepository;
-use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeOptionRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakePollerRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimezoneRepository;
 use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
 use Tests\App\Security\Infrastructure\Double\TestActingUsers;
 use Tests\App\Shared\Double\EventBusSpy;
+use Tests\App\Shared\Double\FakeOptionRepository;
 use Tests\App\Shared\Double\FakeVault;
 
 final class CreateHostCommandHandlerTest extends KernelTestCase
@@ -1080,10 +1080,21 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         self::assertFalse($this->eventBus->shouldHaveDispatched(HostServicesDeploymentRequested::class));
     }
 
-    /**
-     * Legacy resolves what to deploy by walking host_template_relation, so without templates there
-     * is nothing to do — and reaching it would boot a second Symfony kernel for nothing.
-     */
+    public function testTheServicesDeploymentIsRequestedForTheActingUser(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->hostTemplateRepository->hostTemplates[3] = new HostTemplate(new HostTemplateId(3), new HostTemplateName('generic-active-host'));
+        $actor = TestActingUsers::unrestricted(9);
+
+        $host = ($this->handler)($this->relationCommand($poller->id(), templateIds: [3], actor: $actor));
+
+        /** @var list<HostServicesDeploymentRequested> $requests */
+        $requests = $this->eventBus->getDispatchedEvents(HostServicesDeploymentRequested::class);
+        self::assertCount(1, $requests);
+        self::assertSame($host->id()->value, $requests[0]->hostId->value);
+        self::assertSame($actor, $requests[0]->actor);
+    }
+
     public function testItDoesNotRequestServiceDeploymentWithoutTemplates(): void
     {
         $poller = $this->addPoller($this->pollerRepository, 1);

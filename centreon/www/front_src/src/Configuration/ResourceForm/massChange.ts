@@ -1,5 +1,13 @@
-import type { TFunction } from 'i18next';
-import { assocPath, path as getPath, map, mergeDeepRight } from 'ramda';
+import {
+  assocPath,
+  path as getPath,
+  isNil,
+  join,
+  map,
+  mergeDeepRight,
+  pipe,
+  reject
+} from 'ramda';
 
 import { getChangedFields } from '../ConfigurationBase/Form';
 import {
@@ -8,7 +16,12 @@ import {
   getDefaultValues,
   getPayload
 } from './blocks';
-import type { FormValues, PlatformContext, UpdateModePaths } from './models';
+import type {
+  FormValues,
+  MassChangeWarningContext,
+  PlatformContext,
+  UpdateModePaths
+} from './models';
 import { type UpdateMode, updateModeSuffixes } from './updateMode';
 
 type Path = ReadonlyArray<string>;
@@ -58,16 +71,19 @@ export const getMassChangeDefaultValues = (
   };
 };
 
-// The first warning a block raises for the values, if any.
-export const getMassChangeWarning =
-  (blocks: ReadonlyArray<AnyFieldBlock>) =>
-  (t: TFunction) =>
-  (values: FormValues): string | null =>
-    blocks.reduce<string | null>(
-      (warning, block) =>
-        warning ?? block.massChange?.getWarning?.(t)(values) ?? null,
-      null
-    );
+// The warnings the blocks raise for the values.
+export const getBlockWarnings = ({
+  blocks,
+  t,
+  values
+}: MassChangeWarningContext & {
+  blocks: ReadonlyArray<AnyFieldBlock>;
+}): Array<string | null> =>
+  blocks.map((block) => block.massChange?.getWarning?.({ t, values }) ?? null);
+
+// One confirmation text out of the warnings raised, or none.
+export const joinWarnings: (warnings: Array<string | null>) => string | null =
+  pipe(reject(isNil), join(' '), (text: string) => text || null);
 
 const appendToKey = (path: Path, suffix: string) => [
   ...path.slice(0, -1),

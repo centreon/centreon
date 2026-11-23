@@ -132,23 +132,34 @@ final class PatchHostRelationsProcessorTest extends ApiTestCase
         self::assertSame([$kept], $this->templateIds());
     }
 
-    public function testRemovingATemplateDeletesTheServicesOnlyItProvides(): void
+    /**
+     * The services only the removed template provides are removed before the added template's are deployed: its
+     * `Ping` replaces the removed `Ping` instead of being skipped as a name already on the host, and the kept
+     * template's service, whose alias is its name, is not deployed twice.
+     */
+    public function testReplacingATemplateRemovesItsServicesBeforeDeployingTheNewOnes(): void
     {
         $kept = $this->insertHostTemplate();
         $lost = $this->insertHostTemplate();
-        $keptServiceTemplate = $this->insertServiceTemplate($kept);
-        $lostServiceTemplate = $this->insertServiceTemplate($lost);
+        $added = $this->insertHostTemplate();
+        $keptName = $this->uniqueName('kept');
+        $keptServiceTemplate = $this->insertServiceTemplate($kept, alias: $keptName);
+        $lostServiceTemplate = $this->insertServiceTemplate($lost, alias: 'Ping');
+        $addedServiceTemplate = $this->insertServiceTemplate($added, alias: 'Ping');
         $this->connection->insert('host_template_relation', ['host_host_id' => $this->hostId, 'host_tpl_id' => $kept, '`order`' => 0]);
         $this->connection->insert('host_template_relation', ['host_host_id' => $this->hostId, 'host_tpl_id' => $lost, '`order`' => 1]);
 
-        $keptService = $this->insertServiceOfHost($keptServiceTemplate);
-        $lostService = $this->insertServiceOfHost($lostServiceTemplate);
+        $keptService = $this->insertServiceOfHost($keptServiceTemplate, $keptName);
+        $lostService = $this->insertServiceOfHost($lostServiceTemplate, 'Ping');
 
-        $this->patch(['template_ids_to_remove' => [$lost]]);
+        $this->patch(['template_ids' => [$kept, $added], 'create_services_linked_to_templates' => true]);
 
-        self::assertSame([$kept], $this->templateIds());
-        self::assertSame(1, $this->serviceCount($keptService));
+        self::assertSame([$kept, $added], $this->templateIds());
         self::assertSame(0, $this->serviceCount($lostService));
+        $services = $this->servicesOfTheHost();
+        self::assertCount(2, $services);
+        self::assertSame([$keptService, $keptName, $keptServiceTemplate], $services[0]);
+        self::assertSame(['Ping', $addedServiceTemplate], array_slice($services[1], 1));
     }
 
     public function testTheParentsAndTheChildrenAreChanged(): void
@@ -343,19 +354,23 @@ final class PatchHostRelationsProcessorTest extends ApiTestCase
         return (int) $this->connection->lastInsertId();
     }
 
-    private function insertServiceTemplate(int $hostTemplateId): int
+    private function insertServiceTemplate(int $hostTemplateId, ?string $alias = null): int
     {
-        $this->connection->insert('service', ['service_description' => $this->uniqueName('service-template'), 'service_register' => '0']);
+        $this->connection->insert('service', [
+            'service_description' => $this->uniqueName('service-template'),
+            'service_alias' => $alias,
+            'service_register' => '0',
+        ]);
         $serviceTemplateId = (int) $this->connection->lastInsertId();
         $this->connection->insert('host_service_relation', ['host_host_id' => $hostTemplateId, 'service_service_id' => $serviceTemplateId]);
 
         return $serviceTemplateId;
     }
 
-    private function insertServiceOfHost(int $serviceTemplateId): int
+    private function insertServiceOfHost(int $serviceTemplateId, string $name): int
     {
         $this->connection->insert('service', [
-            'service_description' => $this->uniqueName('service'),
+            'service_description' => $name,
             'service_register' => '1',
             'service_template_model_stm_id' => $serviceTemplateId,
         ]);
@@ -363,6 +378,27 @@ final class PatchHostRelationsProcessorTest extends ApiTestCase
         $this->connection->insert('host_service_relation', ['host_host_id' => $this->hostId, 'service_service_id' => $serviceId]);
 
         return $serviceId;
+    }
+
+    /**
+     * @return list<array{int, string, int}> id, name and template of each service of the host, by id
+     */
+    private function servicesOfTheHost(): array
+    {
+        /** @var list<array{service_id: int|string, service_description: string, service_template_model_stm_id: int|string}> $rows */
+        $rows = $this->connection->fetchAllAssociative(
+            'SELECT s.service_id, s.service_description, s.service_template_model_stm_id
+                FROM service s
+                JOIN host_service_relation hsr ON hsr.service_service_id = s.service_id
+                WHERE hsr.host_host_id = ?
+                ORDER BY s.service_id',
+            [$this->hostId],
+        );
+
+        return array_map(
+            static fn (array $row): array => [(int) $row['service_id'], $row['service_description'], (int) $row['service_template_model_stm_id']],
+            $rows,
+        );
     }
 
     private function insertContact(): int

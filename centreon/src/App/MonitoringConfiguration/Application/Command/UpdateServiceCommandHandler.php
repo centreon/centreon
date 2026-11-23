@@ -35,6 +35,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostState;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\DroppedHostLinks;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceCheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceExtendedInformations;
@@ -108,9 +109,9 @@ use App\Shared\Domain\VaultInterface;
 use Psr\Log\LoggerInterface;
 
 /**
- * Full replace (PUT) of a service; an update that changes nothing writes nothing and fires nothing. Duplicates
- * {@see CreateServiceCommandHandler}'s checks, in the same order, rather than sharing them, so a change made for
- * the update never reaches the create path.
+ * Full replace of a service; an update that changes nothing writes nothing and fires nothing. Duplicates
+ * {@see CreateServiceCommandHandler}'s checks, in the same order, so a change made for the update never reaches the
+ * create path.
  */
 #[AsCommandHandler]
 final readonly class UpdateServiceCommandHandler
@@ -247,8 +248,8 @@ final readonly class UpdateServiceCommandHandler
             : new NoValue();
         $severityId = $this->preserveInaccessibleSeverity($command->severityId, $existing->severityId, $severityScope);
         // A legacy service may hold several severities, which the service as loaded does not show (it carries the
-        // lowest): the write leaves the single one kept, so extra ones are a change.
-        $storedSeverityIds = $this->repository->findSeverityIds($existing->id());
+        // one read): the write leaves the single one kept, so extra ones are a change.
+        $extraSeverities = $this->repository->hasExtraSeverities($existing->id(), $severityId);
         // A restricted actor never sees, so never resends, the groups and categories outside their scope: they are
         // kept rather than dropped by the full replace.
         $serviceGroupIds = $this->preserveInaccessible($command->serviceGroupIds, $existing->serviceGroupIds, $serviceGroupScope, ServiceGroupId::class);
@@ -258,30 +259,27 @@ final readonly class UpdateServiceCommandHandler
         [$macros, $passwordRewritten, $vaultWritten] = $this->vaultPasswords($existing, $resolvedMacros);
 
         try {
-            $service = $existing->with(
-                name: $command->name,
-                hostId: $command->hostId,
-                hostActivated: $host->activated,
-                hostPollerId: $host->pollerId,
-                activated: $command->activated,
-                templateId: $command->templateId,
-                checkOptions: new ServiceCheckOptions($command->checkCommandId, $command->checkCommandArgs, $macros),
-                schedulingOptions: $command->schedulingOptions,
-                notifications: $notifications,
-                // A Centreon Monitoring Agent command set on the service pushes its results: its freshness is
-                // always checked. One inherited from the template does not count, as legacy.
-                dataProcessing: $checkCommand?->isCentreonMonitoringAgent() === true
+            $service = clone $existing;
+            $service->rename($command->name);
+            $service->moveToHost($command->hostId, $host);
+            $command->activated ? $service->enable() : $service->disable();
+            $service->changeTemplate($command->templateId);
+            $service->changeCheckOptions(new ServiceCheckOptions($command->checkCommandId, $command->checkCommandArgs, $macros));
+            $service->changeSchedulingOptions($command->schedulingOptions);
+            if (! $notifications instanceof NoValue) {
+                $service->changeNotifications($notifications);
+            }
+            // A Centreon Monitoring Agent check command set here forces the freshness check; one inherited does not.
+            $service->changeDataProcessing(
+                $checkCommand?->isCentreonMonitoringAgent() === true
                     ? $command->dataProcessing->withCentreonMonitoringAgentFreshness()
                     : $command->dataProcessing,
-                extendedInformations: $command->extendedInformations,
-                graphTemplateId: $command->graphTemplateId,
-                severityId: $severityId,
-                serviceGroupIds: $serviceGroupIds,
-                categoryIds: $categoryIds,
-                trapIds: $command->trapIds,
             );
+            $service->changeExtendedInformations($command->extendedInformations);
+            $service->changeGraphTemplate($command->graphTemplateId);
+            $service->changeRelations($severityId, $serviceGroupIds, $categoryIds, $command->trapIds);
 
-            return $this->save($command, $existing, $service, $passwordRewritten, $this->keepsTheStoredSeverities($storedSeverityIds, $severityId));
+            return $this->save($command, $existing, $service, $passwordRewritten, $extraSeverities);
         } catch (\Throwable $exception) {
             if ($vaultWritten) {
                 $this->logger->error(
@@ -299,20 +297,20 @@ final readonly class UpdateServiceCommandHandler
      *
      * @param bool $passwordRewritten whether a password was rewritten in the vault, which leaves the very same
      *                                reference on the service
-     * @param bool $severitiesKept whether the stored severities are exactly the one the service keeps
+     * @param bool $extraSeverities whether legacy left severities other than the one the service keeps
      */
     private function save(
         UpdateServiceCommand $command,
         Service $existing,
         Service $service,
         bool $passwordRewritten,
-        bool $severitiesKept,
+        bool $extraSeverities,
     ): Service {
         $activationFlipped = $existing->activated !== $service->activated;
         $loggedChange = $this->hasLoggedChange($existing, $service);
         // Unlogged changes: macros, contacts, relations, a rewritten secret, extra legacy severities.
         $unloggedChange = $passwordRewritten
-            || ! $severitiesKept
+            || $extraSeverities
             || ! $service->hasSameConfigurationAs($existing)
             || ! $service->hasSameRelationsAs($existing);
 
@@ -320,6 +318,7 @@ final readonly class UpdateServiceCommandHandler
             return $service;
         }
 
+        $droppedHostLinks = DroppedHostLinks::of($this->repository->findLinkedHostStates($service->id()), $existing, $service);
         $this->repository->update($service);
         $this->repository->replaceRelationsAndMacros($service);
 
@@ -341,11 +340,12 @@ final readonly class UpdateServiceCommandHandler
                 $command->actor->userId->value,
                 previousPollerId: $hostChanged ? $this->previousPollerToFlag($existing, $service) : null,
                 previousHostId: $hostChanged ? $existing->hostId : null,
+                droppedHostLinks: $droppedHostLinks,
             ));
-        } elseif (! $activationFlipped) {
+        } elseif (! $activationFlipped || $droppedHostLinks->hostIds !== []) {
             // Only properties the log leaves out changed: the side effects must still run, without a log line.
-            // (When the activation also flipped, the enable/disable event above already runs them.)
-            $this->eventBus->fire(new ServiceUpdated($service, $command->actor->userId->value, loggable: false));
+            // When the activation also flipped, the enable/disable event above runs them, but not for dropped links.
+            $this->eventBus->fire(new ServiceUpdated($service, $command->actor->userId->value, loggable: false, droppedHostLinks: $droppedHostLinks));
         }
 
         // Deferred (post-commit) purge of the vault entry this update left without any secret: the stored service
@@ -356,18 +356,6 @@ final readonly class UpdateServiceCommandHandler
         }
 
         return $service;
-    }
-
-    /**
-     * Whether the levelled rows stored for the service are exactly the one severity it keeps (or none).
-     *
-     * @param Collection<ServiceSeverityId> $stored
-     */
-    private function keepsTheStoredSeverities(Collection $stored, ?ServiceSeverityId $kept): bool
-    {
-        $storedValues = array_values(array_unique(array_map(static fn (ServiceSeverityId $id): int => $id->value, $stored->toArray())));
-
-        return $storedValues === ($kept instanceof ServiceSeverityId ? [$kept->value] : []);
     }
 
     /**
@@ -386,13 +374,12 @@ final readonly class UpdateServiceCommandHandler
      */
     private function hasLoggedChange(Service $before, Service $after): bool
     {
-        $comparable = $after->with(
-            checkOptions: new ServiceCheckOptions($after->checkOptions->checkCommandId, $after->checkOptions->args, $before->checkOptions->macros),
-            notifications: $after->notifications?->withContacts(
-                $before->notifications->contactIds ?? new Collection([], NotificationContactId::class),
-                $before->notifications->contactGroupIds ?? new Collection([], ContactGroupId::class),
-            ),
-        );
+        $comparable = clone $after;
+        $comparable->changeCheckOptions(new ServiceCheckOptions($after->checkOptions->checkCommandId, $after->checkOptions->args, $before->checkOptions->macros));
+        $comparable->changeNotifications($after->notifications?->withContacts(
+            $before->notifications->contactIds ?? new Collection([], NotificationContactId::class),
+            $before->notifications->contactGroupIds ?? new Collection([], ContactGroupId::class),
+        ));
 
         return ! $comparable->hasSameConfigurationAs($before);
     }

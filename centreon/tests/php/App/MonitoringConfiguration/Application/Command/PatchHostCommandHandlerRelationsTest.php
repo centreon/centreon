@@ -95,7 +95,6 @@ use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostTemplateRepo
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeMediaRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeModuleRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeNotificationContactRepository;
-use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeOptionRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakePollerRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeStandardMacroRepository;
@@ -104,6 +103,7 @@ use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimezoneReposito
 use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
 use Tests\App\Security\Infrastructure\Double\TestActingUsers;
 use Tests\App\Shared\Double\EventBusSpy;
+use Tests\App\Shared\Double\FakeOptionRepository;
 use Tests\App\Shared\Double\FakeVault;
 use Tests\App\Shared\Infrastructure\Messenger\Double\LoggerSpy;
 
@@ -187,6 +187,7 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
             new AdditiveInheritanceModeApplier(new FakeOptionRepository()),
             $this->eventBus,
             $logger,
+            new AccessScopeResolver($this->resourceAccessRepository),
         );
 
         foreach ([1, 2, 3] as $id) {
@@ -694,6 +695,20 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
         ($this->handler)($this->command(alias: new HostAlias('front'), deployServicesFromTemplates: true));
 
         self::assertTrue($this->eventBus->shouldHaveDispatched(HostServicesDeploymentRequested::class, 1));
+    }
+
+    public function testTheServicesDeploymentIsRequestedForTheActingUser(): void
+    {
+        $this->seedHost(templateIds: [1]);
+        $actor = TestActingUsers::unrestricted(9);
+
+        ($this->handler)($this->command(alias: new HostAlias('front'), deployServicesFromTemplates: true, actor: $actor));
+
+        /** @var list<HostServicesDeploymentRequested> $requests */
+        $requests = $this->eventBus->getDispatchedEvents(HostServicesDeploymentRequested::class);
+        self::assertCount(1, $requests);
+        self::assertSame(self::HOST_ID, $requests[0]->hostId->value);
+        self::assertSame($actor, $requests[0]->actor);
     }
 
     public function testNothingIsDeployedUnlessAskedOrWithoutTemplates(): void

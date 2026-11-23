@@ -48,4 +48,14 @@ final class VaultWriteFailedExceptionTest extends TestCase
         self::assertSame('Service 42 was not updated: its credentials could not be written to the vault.', $exception->getMessage());
         self::assertSame($previous, $exception->getPrevious());
     }
+
+    public function testItReportsAServiceThatCouldNotBeDuplicated(): void
+    {
+        $previous = new \RuntimeException('vault unreachable');
+
+        $exception = VaultWriteFailedException::forServiceCopy(new ServiceId(42), $previous);
+
+        self::assertSame('Service 42 was not duplicated: its credentials could not be read from or written to the vault.', $exception->getMessage());
+        self::assertSame($previous, $exception->getPrevious());
+    }
 }

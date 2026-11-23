@@ -1,6 +1,6 @@
 api_platform:
     title: Centreon
-    version: 27.01.0
+    version: '%centreon.version%'
     show_webby: false
 
     name_converter: 'serializer.name_converter.camel_case_to_snake_case'
@@ -27,6 +27,7 @@ api_platform:
         denormalization_context:
             collect_denormalization_errors: true
         pagination_client_items_per_page: true
+        pagination_maximum_items_per_page: !php/const App\Shared\Domain\Repository\Pagination::MAX_ITEMS_PER_PAGE # the default page size is resolved at runtime, see PaginationResolver
 
     mapping:
         paths:

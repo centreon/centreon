@@ -23,6 +23,7 @@ parameters:
 
     paths:
         - config.new
+        - migrations
         - src/Adaptation
         - src/App
 
@@ -39,6 +40,7 @@ services:
               - ApiPlatform\Metadata\ApiResource
           classes:
               - ApiPlatform\State\ProcessorInterface
+              - App\Shared\Infrastructure\ReverserInterface
               - App\Shared\Infrastructure\TransformerInterface
               - Symfony\Component\Security\Core\Authorization\Voter\Voter
       tags: [phpstan.rules.rule]

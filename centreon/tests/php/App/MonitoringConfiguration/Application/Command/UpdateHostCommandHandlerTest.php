@@ -47,6 +47,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroParentEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
@@ -87,7 +88,6 @@ use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostSeverityRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
-use App\MonitoringConfiguration\Domain\Repository\OptionRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
 use App\Security\Domain\Aggregate\AccessScope;
@@ -100,6 +100,7 @@ use App\Shared\Domain\Aggregate\AggregateRootId;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Event\EventBus;
+use App\Shared\Domain\Repository\OptionRepository;
 use App\Shared\Domain\VaultInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -109,12 +110,12 @@ use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostGroupReposit
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostSeverityRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostTemplateRepository;
-use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeOptionRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakePollerRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimezoneRepository;
 use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
 use Tests\App\Security\Infrastructure\Double\TestActingUsers;
 use Tests\App\Shared\Double\EventBusSpy;
+use Tests\App\Shared\Double\FakeOptionRepository;
 use Tests\App\Shared\Double\FakeVault;
 use Tests\App\Shared\Infrastructure\Messenger\Double\LoggerSpy;
 
@@ -1052,6 +1053,57 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         self::assertTrue($this->eventBus->shouldHaveDispatched(HostServicesDeploymentRequested::class));
     }
 
+    public function testTheServicesDeploymentIsRequestedForTheActingUser(): void
+    {
+        $this->addPoller(1);
+        $this->hostTemplateRepository->hostTemplates[7] = new HostTemplate(new HostTemplateId(7), new HostTemplateName('generic-host'));
+        $this->seedHost(10);
+        $actor = TestActingUsers::unrestricted(9);
+
+        ($this->handler)($this->command(10, templateIds: new Collection([new HostTemplateId(7)], HostTemplateId::class), actor: $actor));
+
+        /** @var list<HostServicesDeploymentRequested> $requests */
+        $requests = $this->eventBus->getDispatchedEvents(HostServicesDeploymentRequested::class);
+        self::assertCount(1, $requests);
+        self::assertSame(10, $requests[0]->hostId->value);
+        self::assertSame($actor, $requests[0]->actor);
+    }
+
+    /**
+     * @return iterable<string, array{list<int>, list<int>, bool}>
+     */
+    public static function noDeploymentProvider(): iterable
+    {
+        yield 'unchanged host with the flag on' => [[7], [7], true];
+
+        yield 'flag off' => [[], [7], false];
+
+        yield 'no template left' => [[7], [], true];
+    }
+
+    /**
+     * @param list<int> $storedTemplateIds
+     * @param list<int> $submittedTemplateIds
+     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('noDeploymentProvider')]
+    public function testItRequestsNoDeploymentWhenNothingIsSavedOrNotAsked(
+        array $storedTemplateIds,
+        array $submittedTemplateIds,
+        bool $deployServicesFromTemplates,
+    ): void {
+        $this->addPoller(1);
+        $this->hostTemplateRepository->hostTemplates[7] = new HostTemplate(new HostTemplateId(7), new HostTemplateName('generic-host'));
+        $this->seedHost(10, templateIds: $this->templateIdCollection($storedTemplateIds));
+
+        ($this->handler)($this->command(
+            10,
+            templateIds: $this->templateIdCollection($submittedTemplateIds),
+            deployServicesFromTemplates: $deployServicesFromTemplates,
+        ));
+
+        self::assertTrue($this->eventBus->shouldNotHaveDispatched(HostServicesDeploymentRequested::class));
+    }
+
     public function testItReportsAnUnknownTemplateSubmittedTwiceOnce(): void
     {
         $this->addPoller(1);
@@ -1145,6 +1197,57 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         $host = ($this->handler)($this->command(10, actor: TestActingUsers::restricted(42)));
 
         self::assertSame(2, $host->severityId?->value);
+        self::assertSame([], $this->hostRepository->updatedHosts);
+    }
+
+    /**
+     * The extra severities legacy may have left are dropped whatever the actor may see; the main one (the
+     * one read) is kept when the actor cannot see it.
+     */
+    public function testItKeepsAnOutOfScopeMainSeverityAndDropsTheExtraOnes(): void
+    {
+        $this->addPoller(1);
+        $this->resourceAccessRepository->hostSeverityScope = AccessScope::restrictedTo(HostSeverityId::class, [new HostSeverityId(1)]);
+        $this->seedHost(10, severityId: new HostSeverityId(2));
+        $this->hostRepository->storedSeverityIds[10] = [2, 3];
+
+        $host = ($this->handler)($this->command(10, actor: TestActingUsers::restricted(42)));
+
+        self::assertSame(2, $host->severityId?->value);
+        self::assertSame([$host], $this->hostRepository->updatedHosts);
+    }
+
+    /**
+     * A host holding several severities (legacy) keeps only one after an update, even when the one resent is
+     * the one it already shows.
+     */
+    public function testResendingTheSeverityOfAHostHoldingSeveralIsAWrite(): void
+    {
+        $this->addPoller(1);
+        $this->hostSeverityRepository->hostSeverities[1] = new HostSeverityName('Critical');
+        $this->seedHost(10, severityId: new HostSeverityId(1));
+        $this->hostRepository->storedSeverityIds[10] = [1, 2];
+
+        $host = ($this->handler)($this->command(10, severityId: new HostSeverityId(1)));
+
+        self::assertSame(1, $host->severityId?->value);
+        self::assertSame([$host], $this->hostRepository->updatedHosts);
+    }
+
+    /**
+     * Only the severity the host shows is protected: hidden extra ones are legacy leftovers, dropped as well.
+     */
+    public function testClearingTheShownSeverityAlsoDropsAHiddenExtraOne(): void
+    {
+        $this->addPoller(1);
+        $this->resourceAccessRepository->hostSeverityScope = AccessScope::restrictedTo(HostSeverityId::class, [new HostSeverityId(1)]);
+        $this->seedHost(10, severityId: new HostSeverityId(1));
+        $this->hostRepository->storedSeverityIds[10] = [1, 2];
+
+        $host = ($this->handler)($this->command(10, actor: TestActingUsers::restricted(42)));
+
+        self::assertNull($host->severityId);
+        self::assertSame([$host], $this->hostRepository->updatedHosts);
     }
 
     public function testItPreservesOutOfScopeParentAndChildHostsForARestrictedActor(): void
@@ -1370,6 +1473,7 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         DataProcessing $dataProcessing = new DataProcessing(),
         ?Collection $parentHostIds = null,
         ?Collection $childHostIds = null,
+        bool $deployServicesFromTemplates = true,
     ): UpdateHostCommand {
         return new UpdateHostCommand(
             id: new HostId($id),
@@ -1388,6 +1492,7 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
             dataProcessing: $dataProcessing,
             parentHostIds: $parentHostIds ?? new Collection([], HostId::class),
             childHostIds: $childHostIds ?? new Collection([], HostId::class),
+            deployServicesFromTemplates: $deployServicesFromTemplates,
         );
     }
 
@@ -1430,6 +1535,16 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         );
 
         return $this->hostRepository->seed($host, $id);
+    }
+
+    /**
+     * @param list<int> $ids
+     *
+     * @return Collection<HostTemplateId>
+     */
+    private function templateIdCollection(array $ids): Collection
+    {
+        return new Collection(array_map(static fn (int $id): HostTemplateId => new HostTemplateId($id), $ids), HostTemplateId::class);
     }
 
     /**

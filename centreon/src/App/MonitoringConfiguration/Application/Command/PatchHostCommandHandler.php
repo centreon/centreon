@@ -55,6 +55,7 @@ use App\MonitoringConfiguration\Domain\Exception\VaultWriteFailedException;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\Security\Domain\Aggregate\UserId;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Application\Command\AsCommandHandler;
 use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Event\EventBus;
@@ -80,6 +81,7 @@ final readonly class PatchHostCommandHandler
         private AdditiveInheritanceModeApplier $additiveInheritanceModeApplier,
         private EventBus $eventBus,
         private LoggerInterface $logger,
+        private AccessScopeResolver $accessScopes,
     ) {
     }
 
@@ -111,7 +113,13 @@ final readonly class PatchHostCommandHandler
         $updatedHost = $this->moveSecretsToTheVault($host, $updatedHost, $command, macrosChanged: $macros !== null);
 
         try {
-            $this->saveAndNotify($host, $updatedHost, $command->actor->userId->value, secretRewritten: $this->providesASecret($command));
+            $this->saveAndNotify(
+                $host,
+                $updatedHost,
+                $command->actor->userId->value,
+                secretRewritten: $this->providesASecret($command),
+                extraSeverities: $this->repository->hasExtraSeverities($host->id(), $updatedHost->severityId),
+            );
         } catch (\Throwable $exception) {
             if ($this->touchesTheVault($host, $updatedHost, $command)) {
                 $this->logger->warning(
@@ -124,7 +132,7 @@ final readonly class PatchHostCommandHandler
         }
 
         if ($command->deployServicesFromTemplates && count($updatedHost->templateIds) > 0) {
-            $this->eventBus->fire(new HostServicesDeploymentRequested($updatedHost->id(), $command->actor->userId));
+            $this->eventBus->fire(new HostServicesDeploymentRequested($updatedHost->id(), $command->actor));
         }
 
         return $updatedHost;
@@ -216,7 +224,7 @@ final readonly class PatchHostCommandHandler
             alias: $command->alias,
             snmpVersion: $command->snmpVersion,
             timezoneId: $command->timezoneId,
-            severityId: $command->severityId,
+            severityId: $this->severity($host, $command),
             extendedInformations: $command->extendedInformations instanceof NoValue
                 ? new NoValue()
                 : $command->extendedInformations->applyTo($host->extendedInformations),
@@ -347,16 +355,34 @@ final readonly class PatchHostCommandHandler
     }
 
     /**
+     * A severity the actor cannot see is not theirs to remove: an explicit null keeps it.
+     */
+    private function severity(Host $host, PatchHostCommand $command): NoValue|HostSeverityId|null
+    {
+        if (
+            $command->severityId === null
+            && $host->severityId instanceof HostSeverityId
+            && ! $this->accessScopes->hostSeverities($command->actor)->allows($host->severityId)
+        ) {
+            return $host->severityId;
+        }
+
+        return $command->severityId;
+    }
+
+    /**
      * Nothing is written when nothing changed. A plain enable/disable keeps the narrow write and its
      * own event; anything else is a mass change, which carries the previous poller so that it is
      * flagged too. A secret rewritten in the vault counts as a change even when the host keeps the very
      * same reference, since the path of a vaulted value only depends on its entry and its key.
+     *
+     * @param bool $extraSeverities true when legacy left several severities on the host
      */
-    private function saveAndNotify(Host $hostBefore, Host $hostAfter, int $updatedBy, bool $secretRewritten): void
+    private function saveAndNotify(Host $hostBefore, Host $hostAfter, int $updatedBy, bool $secretRewritten, bool $extraSeverities): void
     {
         $relationsChanged = ! $hostAfter->hasSameRelationsAs($hostBefore) || ! $this->hasSameContactsAs($hostAfter, $hostBefore);
 
-        if ($secretRewritten || $relationsChanged || ! $hostAfter->hasSameConfigurationAs($hostBefore)) {
+        if ($secretRewritten || $extraSeverities || $relationsChanged || ! $hostAfter->hasSameConfigurationAs($hostBefore)) {
             $this->repository->update($hostAfter);
             if ($relationsChanged) {
                 $this->repository->replaceRelations($hostAfter);

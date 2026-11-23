@@ -80,7 +80,9 @@ import ServiceMacros from '../ServiceMacros';
 
 export const serviceResource: ResourceOptions = {
   baseEndpoint: servicesBaseEndpoint,
-  idPrefix: 'service-form'
+  idPrefix: 'service-form',
+  // The services PATCH also takes `x_to_remove` on its relation lists.
+  relationUpdateModes: ['incremental', 'replacement', 'removal']
 };
 
 const resource = serviceResource;

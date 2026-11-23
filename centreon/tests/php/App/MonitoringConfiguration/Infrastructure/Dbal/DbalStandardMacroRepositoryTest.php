@@ -26,6 +26,7 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 use App\MonitoringConfiguration\Domain\Aggregate\StandardMacro\StandardMacro;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\StandardMacroCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalStandardMacroRepository;
+use App\Shared\Domain\Repository\Pagination;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -86,7 +87,7 @@ final class DbalStandardMacroRepositoryTest extends KernelTestCase
     public function testFindAllWithPagination(): void
     {
         $criteria = new StandardMacroCriteria();
-        $criteria = $criteria->withPagination(page: 1, itemsPerPage: 1);
+        $criteria = $criteria->withPagination(new Pagination(1, 1));
 
         $paginator = $this->repository->findAll($criteria);
         self::assertInstanceOf(InMemoryPaginator::class, $paginator);
@@ -102,7 +103,7 @@ final class DbalStandardMacroRepositoryTest extends KernelTestCase
         $criteria = new StandardMacroCriteria();
         $criteria = $criteria->withName('NAME', StandardMacroCriteria::OPERATOR_LIKE);
         $criteria = $criteria->withName('ALIAS', StandardMacroCriteria::OPERATOR_LIKE);
-        $criteria = $criteria->withPagination(page: 1, itemsPerPage: 2);
+        $criteria = $criteria->withPagination(new Pagination(1, 2));
 
         $paginator = $this->repository->findAll($criteria);
         self::assertInstanceOf(InMemoryPaginator::class, $paginator);
@@ -115,7 +116,7 @@ final class DbalStandardMacroRepositoryTest extends KernelTestCase
         $criteria = new StandardMacroCriteria();
         $criteria = $criteria->withName('$HOSTALIAS$', StandardMacroCriteria::OPERATOR_EQUAL);
         $criteria = $criteria->withName('$HOSTNAME$', StandardMacroCriteria::OPERATOR_EQUAL);
-        $criteria = $criteria->withPagination(page: 1, itemsPerPage: 2);
+        $criteria = $criteria->withPagination(new Pagination(1, 2));
 
         $paginator = $this->repository->findAll($criteria);
         self::assertInstanceOf(InMemoryPaginator::class, $paginator);

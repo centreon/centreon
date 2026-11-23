@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Repository;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostState;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacro;
@@ -53,13 +54,16 @@ interface ServiceRepository
     public function replaceRelationsAndMacros(Service $service): void;
 
     /**
-     * The levelled categories (severities) the service is linked to, lowest id first, whatever the actor may see:
-     * {@see findOne()} reads only the lowest, so a write needs this read to resolve the extra ones legacy may have
-     * left, a service holding a single severity.
-     *
-     * @return Collection<ServiceSeverityId>
+     * Whether the service is linked to a severity other than the one it keeps, whatever the actor may see.
      */
-    public function findSeverityIds(ServiceId $id): Collection;
+    public function hasExtraSeverities(ServiceId $id, ?ServiceSeverityId $kept): bool;
+
+    /**
+     * Every direct host link of the service, lowest id first, ignoring ACL; read before a save to know what it drops.
+     *
+     * @return Collection<HostState> indexed by host id
+     */
+    public function findLinkedHostStates(ServiceId $id): Collection;
 
     /**
      * Compared as legacy does: case-insensitive, whatever the actor's scope or the service's activation. A service
@@ -78,6 +82,26 @@ interface ServiceRepository
      * @return Collection<Service>
      */
     public function findExclusivelyLinkedToHostId(HostId $hostId): Collection;
+
+    /**
+     * The ids of the services {@see findExclusivelyLinkedToHostId()} returns, nothing hydrated.
+     *
+     * @return Collection<ServiceId>
+     */
+    public function findIdsExclusivelyLinkedToHostId(HostId $hostId): Collection;
+
+    /**
+     * The services directly attached to this host that have more than one relation row in total (another host or
+     * a hostgroup): the complement of {@see findExclusivelyLinkedToHostId()} among the host's services.
+     *
+     * @return Collection<ServiceId>
+     */
+    public function findIdsSharedWithOthers(HostId $hostId): Collection;
+
+    /**
+     * Links an existing service directly to this host as well, its other links being left as they are.
+     */
+    public function addHostLink(ServiceId $id, HostId $hostId): void;
 
     /**
      * The ids of the services of this host that come from one of the given service templates, the ones a host

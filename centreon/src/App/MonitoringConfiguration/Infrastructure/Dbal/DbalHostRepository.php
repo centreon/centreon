@@ -291,10 +291,13 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
                 FROM hostcategories_relation hcr
                 INNER JOIN hostcategories hc ON hc.hc_id = hcr.hostcategories_hc_id
                 WHERE hcr.host_host_id = h.host_id AND hc.level IS NULL) AS category_ids',
+            // A host holds a single severity; legacy may have left several, of which the lowest level
+            // (then the lowest id) is read, as the legacy form and the host templates do.
             '(SELECT hcr.hostcategories_hc_id
                 FROM hostcategories_relation hcr
                 INNER JOIN hostcategories hc ON hc.hc_id = hcr.hostcategories_hc_id
                 WHERE hcr.host_host_id = h.host_id AND hc.level IS NOT NULL
+                ORDER BY hc.level ASC, hc.hc_id ASC
                 LIMIT 1) AS severity_id',
             '(SELECT GROUP_CONCAT(hhr.host_parent_hp_id)
                 FROM host_hostparent_relation hhr
@@ -360,6 +363,22 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             array_map(HostTransformer::createMacro(...), $this->findMacroRows($id->value)),
             HostMacro::class,
         );
+    }
+
+    public function hasExtraSeverities(HostId $id, ?HostSeverityId $kept): bool
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('1')
+            ->from('hostcategories_relation', 'hcr')
+            ->innerJoin('hcr', 'hostcategories', 'hc', 'hc.hc_id = hcr.hostcategories_hc_id')
+            ->where($qb->expr()->eq('hcr.host_host_id', $qb->createNamedParameter($id->value, ParameterType::INTEGER)))
+            ->andWhere('hc.level IS NOT NULL')
+            ->setMaxResults(1);
+        if ($kept instanceof HostSeverityId) {
+            $qb->andWhere($qb->expr()->neq('hcr.hostcategories_hc_id', $qb->createNamedParameter($kept->value, ParameterType::INTEGER)));
+        }
+
+        return $qb->executeQuery()->fetchOne() !== false;
     }
 
     public function remove(Host $host): void

@@ -34,6 +34,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceGroup\ServiceGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityId;
@@ -48,6 +49,7 @@ use App\Shared\Domain\Aggregate\AggregateRootId;
 use App\Shared\Domain\Collection;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
@@ -75,15 +77,40 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
             default => throw new \LogicException(sprintf('No ACL grant mapping for aggregate %s.', $resource::class)),
         };
 
-        // A pair may already be granted: a service moved back to a host before the cache is recomputed keeps the row
-        // of its first stay there, which the unique key of the table would refuse to insert again.
-        foreach ($accessGroupIds as $accessGroupId) {
-            $this->realTimeConnection->executeStatement(
-                'INSERT INTO centreon_acl (group_id, host_id, service_id) VALUES (:groupId, :hostId, :serviceId)
-                    ON DUPLICATE KEY UPDATE group_id = group_id',
-                ['groupId' => $accessGroupId->value, 'hostId' => $hostId, 'serviceId' => $serviceId],
-            );
+        $this->grant($hostId, $serviceId, $accessGroupIds);
+    }
+
+    public function grantServiceAccess(HostId $hostId, ServiceId $serviceId, Collection $accessGroupIds): void
+    {
+        $this->grant($hostId->value, $serviceId->value, $accessGroupIds);
+    }
+
+    public function findAccessGroupIdsGrantingService(ServiceId $serviceId, Collection $hostIds): Collection
+    {
+        if ($hostIds->count() === 0) {
+            return new Collection([], AccessGroupId::class);
         }
+
+        $qb = $this->realTimeConnection->createQueryBuilder();
+        $qb->select('DISTINCT group_id')
+            ->from('centreon_acl')
+            ->where($qb->expr()->eq('service_id', $qb->createNamedParameter($serviceId->value, ParameterType::INTEGER)))
+            ->andWhere($qb->expr()->in(
+                'host_id',
+                $qb->createNamedParameter(
+                    array_values(array_map(static fn (HostId $id): int => $id->value, $hostIds->toArray())),
+                    ArrayParameterType::INTEGER,
+                ),
+            ))
+            ->orderBy('group_id', 'ASC');
+
+        /** @var list<int|string> $groupIds */
+        $groupIds = $qb->executeQuery()->fetchFirstColumn();
+
+        return new Collection(
+            array_map(static fn (int|string $id): AccessGroupId => new AccessGroupId((int) $id), $groupIds),
+            AccessGroupId::class,
+        );
     }
 
     public function flagAllResourcesAsChanged(): void
@@ -118,6 +145,13 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
                 WHERE host_id = :sourceHostId AND service_id IS NULL',
             ['newHostId' => $newHostId->value, 'sourceHostId' => $sourceHostId->value],
         );
+
+        /** @var list<int|string> $groupIds */
+        $groupIds = $this->realTimeConnection->fetchFirstColumn(
+            'SELECT DISTINCT group_id FROM centreon_acl WHERE host_id = :newHostId AND service_id IS NULL',
+            ['newHostId' => $newHostId->value],
+        );
+        $this->invalidateAclFingerprints(array_map('intval', $groupIds));
     }
 
     public function duplicateHostServiceAccess(HostId $sourceHostId, HostId $newHostId): void
@@ -150,6 +184,7 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
                 );
             }
         }
+        $this->invalidateAclFingerprints(array_map('intval', $groupIds));
     }
 
     public function hasAccessToAllPollers(UserId $userId): bool
@@ -608,6 +643,45 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
     public function findServiceAccessGroupScope(UserId $userId): AccessScope
     {
         return AccessScope::restrictedTo(AccessGroupId::class, $this->accessGroupRepository->findActiveGroupIdsForUser($userId));
+    }
+
+    /**
+     * @param Collection<AccessGroupId> $accessGroupIds
+     */
+    private function grant(int $hostId, ?int $serviceId, Collection $accessGroupIds): void
+    {
+        $groupIds = [];
+        // A pair may already be granted: a service moved back to a host before the cache is recomputed keeps the row
+        // of its first stay there, which the unique key of the table would refuse to insert again.
+        foreach ($accessGroupIds as $accessGroupId) {
+            $this->realTimeConnection->executeStatement(
+                'INSERT INTO centreon_acl (group_id, host_id, service_id) VALUES (:groupId, :hostId, :serviceId)
+                    ON DUPLICATE KEY UPDATE group_id = group_id',
+                ['groupId' => $accessGroupId->value, 'hostId' => $hostId, 'serviceId' => $serviceId],
+            );
+            $groupIds[] = $accessGroupId->value;
+        }
+        $this->invalidateAclFingerprints($groupIds);
+    }
+
+    /**
+     * cron/centAcl.php skips an access group whose fingerprint still matches the rows it computes for it. A row
+     * written here, outside the cron, removes that fingerprint, so that the next recompute of the group compares its
+     * rows instead of skipping it.
+     *
+     * @param list<int> $groupIds
+     */
+    private function invalidateAclFingerprints(array $groupIds): void
+    {
+        if ($groupIds === []) {
+            return;
+        }
+
+        $this->realTimeConnection->executeStatement(
+            'DELETE FROM centreon_acl_checksum WHERE group_id IN (:groupIds)',
+            ['groupIds' => $groupIds],
+            ['groupIds' => ArrayParameterType::INTEGER],
+        );
     }
 
     /**

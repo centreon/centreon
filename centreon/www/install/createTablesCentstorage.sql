@@ -26,6 +26,16 @@ LOCK TABLES `centreon_acl` WRITE;
 UNLOCK TABLES;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
+-- Fingerprint of the centreon_acl rows of each access group, written by cron/centAcl.php:
+-- a group whose computed rows have the same fingerprint is skipped.
+CREATE TABLE `centreon_acl_checksum` (
+  `group_id` int(11) NOT NULL,
+  `checksum` char(32) NOT NULL,
+  PRIMARY KEY (`group_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `config` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `RRDdatabase_path` varchar(255) DEFAULT NULL,

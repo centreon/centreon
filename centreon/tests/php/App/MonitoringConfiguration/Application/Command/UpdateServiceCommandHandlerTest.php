@@ -98,7 +98,6 @@ use App\MonitoringConfiguration\Domain\Repository\GraphTemplateRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
 use App\MonitoringConfiguration\Domain\Repository\NotificationContactRepository;
-use App\MonitoringConfiguration\Domain\Repository\OptionRepository;
 use App\MonitoringConfiguration\Domain\Repository\ServiceCategoryRepository;
 use App\MonitoringConfiguration\Domain\Repository\ServiceGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\ServiceRepository;
@@ -116,6 +115,7 @@ use App\Shared\Domain\Collection;
 use App\Shared\Domain\Event\EventBus;
 use App\Shared\Domain\Exception\AggregateConflictException;
 use App\Shared\Domain\Exception\AggregateNotFoundException;
+use App\Shared\Domain\Repository\OptionRepository;
 use App\Shared\Domain\VaultInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Psr\Log\LoggerInterface;
@@ -126,7 +126,6 @@ use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeGraphTemplateRep
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeMediaRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeNotificationContactRepository;
-use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeOptionRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceCategoryRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceGroupRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceRepository;
@@ -138,6 +137,7 @@ use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTrapRepository;
 use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
 use Tests\App\Security\Infrastructure\Double\TestActingUsers;
 use Tests\App\Shared\Double\EventBusSpy;
+use Tests\App\Shared\Double\FakeOptionRepository;
 use Tests\App\Shared\Double\FakeVault;
 use Tests\App\Shared\Infrastructure\Messenger\Double\LoggerSpy;
 
@@ -690,7 +690,7 @@ final class UpdateServiceCommandHandlerTest extends KernelTestCase
     }
 
     /**
-     * No severity submitted: the main severity (the lowest, as read) is cleared when the actor can see it, and the
+     * No severity submitted: the main severity (the one read) is cleared when the actor can see it, and the
      * extra ones go with it.
      */
     public function testNoSeverityClearsAVisibleMainOneAndTheExtraOnes(): void
@@ -712,7 +712,7 @@ final class UpdateServiceCommandHandlerTest extends KernelTestCase
     public function testNoSeverityKeepsAHiddenMainOneAndDropsTheExtraOnes(): void
     {
         $this->seedEveryReference();
-        $this->serviceRepository->storedSeverityIds[self::SERVICE_ID] = [72, 71];
+        $this->serviceRepository->storedSeverityIds[self::SERVICE_ID] = [71, 72];
         $this->restrictTheActor();
 
         $service = ($this->handler)($this->command(actorId: self::RESTRICTED_USER_ID));
@@ -880,6 +880,45 @@ final class UpdateServiceCommandHandlerTest extends KernelTestCase
 
         $events = $this->eventBus->getDispatchedEvents(ServiceUpdated::class);
         self::assertSame(self::POLLER_ID, $events[0]->previousPollerId?->value);
+    }
+
+    public function testASaveCarriesTheOtherHostLinksItDrops(): void
+    {
+        $this->serviceRepository->linkedHostStates[self::SERVICE_ID] = [
+            self::HOST_ID => new HostState(true, new PollerId(self::POLLER_ID)),
+            self::OTHER_HOST_ID => new HostState(true, new PollerId(self::OTHER_POLLER_ID)),
+            13 => new HostState(true, new PollerId(self::POLLER_ID)),
+            14 => new HostState(false, new PollerId(5)),
+            15 => new HostState(true, new PollerId(self::OTHER_POLLER_ID)),
+        ];
+
+        ($this->handler)($this->command(name: 'pong'));
+
+        $events = $this->eventBus->getDispatchedEvents(ServiceUpdated::class);
+        self::assertCount(1, $events);
+        self::assertNull($events[0]->previousPollerId);
+        self::assertSame([self::OTHER_HOST_ID, 13, 14, 15], array_map(static fn (HostId $id): int => $id->value, $events[0]->droppedHostLinks->hostIds));
+        self::assertSame([self::OTHER_POLLER_ID], array_map(static fn (PollerId $id): int => $id->value, $events[0]->droppedHostLinks->pollerIds));
+    }
+
+    /**
+     * The enable/disable event of a flip alone does not carry the dropped links: an update without a log line does.
+     */
+    public function testAnActivationFlipAloneCarriesTheHostLinksItDrops(): void
+    {
+        $this->serviceRepository->linkedHostStates[self::SERVICE_ID] = [
+            self::HOST_ID => new HostState(true, new PollerId(self::POLLER_ID)),
+            self::OTHER_HOST_ID => new HostState(true, new PollerId(self::OTHER_POLLER_ID)),
+        ];
+
+        ($this->handler)($this->command(activated: false));
+
+        self::assertCount(1, $this->eventBus->getDispatchedEvents(ServiceDisabled::class));
+        $events = $this->eventBus->getDispatchedEvents(ServiceUpdated::class);
+        self::assertCount(1, $events);
+        self::assertFalse($events[0]->loggable);
+        self::assertSame([self::OTHER_HOST_ID], array_map(static fn (HostId $id): int => $id->value, $events[0]->droppedHostLinks->hostIds));
+        self::assertSame([self::OTHER_POLLER_ID], array_map(static fn (PollerId $id): int => $id->value, $events[0]->droppedHostLinks->pollerIds));
     }
 
     /**
