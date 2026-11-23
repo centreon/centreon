@@ -3,6 +3,7 @@ import type { TFunction } from 'i18next';
 import {
   schedulingColumns,
   stackedColumns,
+  threeColumnsFromWide,
   twoColumns,
   twoColumnsFromNarrow,
   twoColumnsFromWide
@@ -15,6 +16,7 @@ import {
   placeBlocks as placeLayoutBlocks
 } from '../../ResourceForm/layout';
 import {
+  labelAdvanced,
   labelGeneralInformation,
   labelHostDetails,
   labelHostMonitoringProperties,
@@ -118,6 +120,27 @@ export const layout: Array<LayoutSection> = [
         ],
         name: 'notifications-layout'
       }
+    ]
+  },
+  {
+    label: labelAdvanced,
+    nodes: [
+      {
+        className: (count) =>
+          count === 3 ? threeColumnsFromWide : twoColumnsFromWide,
+        columnSeparator: true,
+        columns: [
+          'eventHandler',
+          {
+            className: stackedColumns,
+            columns: ['freshness', 'acknowledgmentTimeout'],
+            name: 'freshness-layout'
+          },
+          'flapping'
+        ],
+        name: 'advanced-layout'
+      },
+      'comment'
     ]
   }
 ];
