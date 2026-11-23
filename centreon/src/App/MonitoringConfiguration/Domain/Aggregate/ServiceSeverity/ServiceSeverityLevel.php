@@ -26,7 +26,8 @@ namespace App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity;
 use Webmozart\Assert\Assert;
 
 /**
- * Bounds follow the signed `service_categories.level` TINYINT column.
+ * Bounds follow the signed `service_categories.level` TINYINT column, not the legacy form's 1..127: CLAPI,
+ * the Core API and the form before that rule stored levels of 0 or below, which must still be readable.
  */
 final readonly class ServiceSeverityLevel
 {
