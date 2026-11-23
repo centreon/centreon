@@ -117,7 +117,9 @@ export default () => {
 
       await waitFor(() => expect(getPopper()).not.toBeNull());
 
-      expect(await within(getPopper()).findByText('Critical (1)')).toBeVisible();
+      expect(
+        await within(getPopper()).findByText('Critical (1)')
+      ).toBeVisible();
       expect(within(getPopper()).getByText('Minor (3)')).toBeVisible();
       expect(within(getPopper()).getByText('Trivial')).toBeVisible();
     });
