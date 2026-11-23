@@ -182,73 +182,14 @@ services:
       # image, confirmed by comparing this exact path on both containers
       # directly.
       - centreon-media:/usr/share/centreon/www/img/media
-      # Uploaded license files (Administration > Parameters > License) — the
-      # autodisco-save-worker service below (MON-213829) reads this read-only:
-      # its auto-discovery license check needs to see whatever fpm last wrote
-      # here, not a build-time snapshot of its own image layer.
+      # Uploaded license files (Administration > Parameters > License).
+      # MON-215450 PoC: package-less images, no autodisco-save-worker anymore.
       - centreon-license:/etc/centreon/license.d
     healthcheck:
       test: ["CMD-SHELL", "test -f /tmp/docker.ready"]
       interval: 5s
       timeout: 5s
       retries: 60
-
-  # Drains mod_auto_disco_save_request, writing discovered hosts/macros
-  # straight to the database (MON-213829) — a dedicated container from the
-  # same fpm image/entrypoint pipeline, running centreon-autodiscovery's
-  # save-worker console command instead of php-fpm. A config-only replica
-  # of fpm (RUN_INSTALL=true, INSTALL_DB_STEPS=false,
-  # RUN_CONFIG_DELIVERY=false): same pattern 12-install.sh already
-  # documents for N fpm replicas sharing one install. Needs the
-  # centreon-autodisco SourceGuardian module baked into AUTODISCO_TAG (C5)
-  # and the internal API URL fix from C8 for its own scheduled-job
-  # export/reload calls.
-  autodisco-save-worker:
-    build:
-      context: ../../..
-      dockerfile: .github/docker/centreon-web-split/trixie/Dockerfile
-      target: fpm
-    env_file:
-      - ../.env
-    depends_on:
-      db:
-        condition: service_healthy
-      fpm:
-        condition: service_healthy
-    environment:
-      RUN_INSTALL: "true"
-      INSTALL_DB_STEPS: "false"
-      RUN_CONFIG_DELIVERY: "false"
-      # fpm already chowns these (03-rrd-volumes.sh) — this replica mounts
-      # /var/lib/centreon read-only below, so it can't do it itself, and
-      # doesn't need to: it never touches .rrd files.
-      RRD_VOLUMES_CHOWN: "false"
-      MYSQL_HOST: db
-      MYSQL_PORT: "${MYSQL_PORT:-3306}"
-      CENTREON_INTERNAL_API_BASE_URL: "http://httpd:80"
-      CENTREON_API_USERNAME: centreon-gorgone
-      CENTREON_API_PASSWORD: "${GORGONE_API_PASSWORD:-centreon-gorgone}"
-      # Same pair as fpm's — this replica decrypts the same
-      # engine-context.json/centreon.conf.php secrets fpm's own install run
-      # produces, not independent placeholders.
-      APP_SECRET: "${APP_SECRET:-9cd3e2ccf822916ec8fc5379f8abdaf277860415454f9b91c0913392d4b41f92}"
-      SALT: "${SALT:-84e9107f78239bdab2751c3321023a32c3716ed0724a4a8b13de8e7aed8d319d}"
-      # MON-214629: see fpm's own PHP_TIMEZONE/TZ comments — must match fpm.
-      PHP_TIMEZONE: "${TZ:-Europe/Paris}"
-      TZ: "${TZ:-Europe/Paris}"
-    command: >-
-      su -s /bin/sh www-data -c
-      "exec /usr/share/centreon/bin/console centreon-autodiscovery:save-worker"
-    volumes:
-      - centreon-license:/etc/centreon/license.d:ro
-    healthcheck:
-      # save-worker touches this file at the end of every successful poll
-      # loop (see centreon-autodisco's own --heartbeat-file default).
-      test: ["CMD-SHELL", "find /tmp/autodiscovery-worker.alive -mmin -10 | grep -q ."]
-      interval: 30s
-      timeout: 5s
-      start_period: 2m
-      retries: 3
 
   httpd:
     build:
@@ -575,7 +516,7 @@ services:
   # see trixie/entrypoint/cron/container.sh for why that would be a real
   # regression risk (fpm's own "already installed" guard on
   # /etc/centreon/centreon.conf.php). MON-214281: depends_on fpm below
-  # (service_healthy, same as httpd/gorgone-central/autodisco-save-worker)
+  # (service_healthy, same as httpd/gorgone-central)
   # instead of a job racing fpm's install and hitting a real "1044 Access
   # denied" before its GRANT lands — fpm is only healthy once that install
   # (and its GRANT) has finished.

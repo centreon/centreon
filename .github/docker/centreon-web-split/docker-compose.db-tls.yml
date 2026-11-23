@@ -93,14 +93,6 @@ services:
     volumes:
       - db-tls-ca:/certs/ca:ro
 
-  autodisco-save-worker:
-    environment:
-      DATABASE_SSL_ENABLED: "1"
-      DATABASE_VERIFY_SERVER_CERT: "1"
-      DATABASE_CA_PATH: "/certs/ca/ca.pem"
-    volumes:
-      - db-tls-ca:/certs/ca:ro
-
   centreon-cron:
     environment:
       DATABASE_SSL_ENABLED: "1"
