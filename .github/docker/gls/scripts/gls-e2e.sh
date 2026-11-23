@@ -164,7 +164,7 @@ legacy_xml() { # legacy_xml <script> <body> -> 0 when statuscode is 0
   local out="$LOG_DIR/legacy-${1%.php}.xml"
   curl -s -o "$out" --max-time 180 -H "X-AUTH-TOKEN: $TOKEN" -d "$2" \
     "http://127.0.0.1:${HTTPD_PORT}/centreon/include/configuration/configGenerate/xml/$1" || return 1
-  grep -q '<statuscode>0</statuscode>' "$out"
+  grep -qF -e "<statuscode><![CDATA[0]]></statuscode>" -e "<statuscode>0</statuscode>" "$out"
 }
 
 use_broker_channel() { # web-sender images only: per-poller channel switch (contracts § 4)
@@ -237,7 +237,8 @@ service_critical() {
 outbound_only() { # every non-loopback LISTEN is a failure, every established socket on a listening port too
   cp_ exec -T poller-engine cat /proc/net/tcp /proc/net/tcp6 >"$LOG_DIR/poller-proc-net-tcp.txt" 2>/dev/null || return 1
   awk '
-    function loop(a) { return a ~ /^(0100007F|00000000000000000000000001000000|0000000000000000FFFF00000100007F)$/ }
+    # 127.0.0.0/8 (incl. Docker DNS 127.0.0.11), ::1, ::ffff:127.x (little-endian hex)
+    function loop(a) { return a ~ /^[0-9A-F]{6}7F$/ || a == "00000000000000000000000001000000" || a ~ /^0000000000000000FFFF0000[0-9A-F]{6}7F$/ }
     $1 ~ /^[0-9]+:$/ {
       split($2, l, ":"); split($3, r, ":"); st = $4
       if (st == "0A") { lp[l[2]] = 1; if (!loop(l[1])) { print "listen on non-loopback: " $2; bad++ } }
@@ -252,7 +253,7 @@ outbound_only() { # every non-loopback LISTEN is a failure, every established so
 
 cmd_step0() {
   local n
-  n=$( { cc ps -a --format '{{.Image}}'; cp_ ps -a --format '{{.Image}}'; } | grep -c gorgone)
+  n=$( { cc ps -a --format '{{.Image}}'; cp_ ps -a --format '{{.Image}}'; } | grep -cE '/centreon-gorgone[^/]*:')
   [[ "$n" == 0 ]] && record "no gorgone container" ok || record "no gorgone container" ko "$n"
   local ports
   ports=$(cp_ ps --format '{{.Ports}}' | tr -d '[:space:]')
