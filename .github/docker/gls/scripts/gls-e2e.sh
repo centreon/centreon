@@ -142,10 +142,30 @@ add_service() { # add_service <host>
 seed_poller() { # step 0 only: out-of-band copy of the web-generated poller config
   local pid=$1
   clapi -a POLLERGENERATE -v "$pid" >"$LOG_DIR/pollergenerate.txt" 2>&1
-  cc exec -T fpm sh -c 'tar -C "/var/cache/centreon/config/engine/$0" -cf - .' "$pid" \
-    | cp_ exec -T poller-engine tar --no-overwrite-dir -C /etc/centreon-engine -xf - || return 1
-  cc exec -T fpm sh -c 'tar -C "/var/cache/centreon/config/broker/$0" -cf - .' "$pid" \
-    | cp_ exec -T poller-engine tar --no-overwrite-dir -C /etc/centreon-broker -xf - || return 1
+  local kind
+  for kind in engine broker; do
+    # Files only: a "." entry makes tar chmod the volume root, which it does not own.
+    cc exec -T fpm sh -c 'cd "/var/cache/centreon/config/$1/$0" && tar -cf - -- *' "$pid" "$kind" \
+      | cp_ exec -T poller-engine tar -C "/etc/centreon-$kind" -xf - || return 1
+  done
+}
+
+# Legacy export chain (what the UI export page calls), driven over HTTP with
+# the REST token: generate, optional hook on the generated files, move, reload.
+legacy_xml() { # legacy_xml <script> <body> -> 0 when statuscode is 0
+  local out="$LOG_DIR/legacy-${1%.php}.xml"
+  curl -s -o "$out" --max-time 180 -H "X-AUTH-TOKEN: $TOKEN" -d "$2" \
+    "http://127.0.0.1:${HTTPD_PORT}/centreon/include/configuration/configGenerate/xml/$1" || return 1
+  grep -q '<statuscode>0</statuscode>' "$out"
+}
+
+use_broker_channel() { # web-sender images only: per-poller channel switch (contracts § 4)
+  if [[ -n "$(sql centreon "SHOW COLUMNS FROM nagios_server LIKE 'remote_channel'")" ]]; then
+    sql centreon "UPDATE nagios_server SET remote_channel='broker' WHERE localhost='1' OR name='${POLLER_NAME}'"
+    record "remote_channel=broker for Central and ${POLLER_NAME}" ok
+  else
+    record "remote_channel column absent (step 0 images), channel unchanged" ok
+  fi
 }
 
 cmd_up() {
@@ -191,6 +211,8 @@ cmd_up() {
   wait_until 600 service_ready cc centreon-broker && record "centreon-broker running" ok || record "centreon-broker running" ko
   wait_until 600 service_ready cp_ poller-engine && record "poller connected to centreon-broker:5669" ok \
     || record "poller connected to centreon-broker:5669" ko
+  # The first central delivery had to be the local copy (cbd not running before it).
+  use_broker_channel
 }
 
 service_ready_running() { local id; id=$("$1" ps -q "$2" | head -1); [[ -n "$id" ]] && [[ "$(docker inspect -f '{{.State.Status}}' "$id")" == running ]]; }
@@ -332,8 +354,16 @@ restore() {
   esac
 }
 
-is_explicit_error() { # HTTP code + body of the last call
-  [[ "$1" != 2* ]] || grep -qE 'NOT_CONNECTED|TIMEOUT|not connected' "$LOG_DIR/last.json"
+is_explicit_error() { # is_explicit_error <mode> <check|reload> <HTTP code> (body in last.json)
+  # contracts § 4: realtime NOT_CONNECTED=503, TIMEOUT=504; 502 = central cbd unreachable (not this case).
+  if [[ "$2" == check ]]; then
+    case "$1:$3" in
+      stop:503 | partition:503 | partition:504 | pause:503 | pause:504) return 0 ;;
+      *) return 1 ;;
+    esac
+  fi
+  # Export path: codes not pinned yet (web-sender), any non-2xx except 502 naming the poller.
+  [[ "$3" != 2* && "$3" != 502 && "$3" != 000 ]] && grep -qF "$POLLER_NAME" "$LOG_DIR/last.json"
 }
 
 cmd_c3() {
@@ -354,7 +384,7 @@ cmd_c3() {
     fi
     e=$(date +%s); el=$((e - s))
     cp "$LOG_DIR/last.json" "$LOG_DIR/c3-$mode-$what.json"
-    if is_explicit_error "$code" && (( el <= MAX_ERROR_DELAY )); then
+    if is_explicit_error "$mode" "$what" "$code" && (( el <= MAX_ERROR_DELAY )); then
       record "$mode: $what rejected explicitly" ok "HTTP $code in ${el} s: $(head -c 150 "$LOG_DIR/last.json")"
     else
       record "$mode: $what rejected explicitly <= ${MAX_ERROR_DELAY} s" ko "HTTP $code in ${el} s: $(head -c 150 "$LOG_DIR/last.json")"
@@ -371,14 +401,28 @@ cmd_c3() {
 
 # ---------- plugins.json ----------
 
+pkg_ok() { cp_ exec -T poller-engine dpkg-query -W -f '${Status}' "$1" 2>/dev/null | grep -q 'install ok installed'; }
+
 cmd_plugins() {
-  local pkgs missing
-  pkgs=$(cp_ exec -T poller-engine sh -c 'cat /etc/centreon-engine/plugins.json 2>/dev/null' | jq -r 'if type=="object" then keys[] else .[] end' 2>/dev/null)
-  [[ -n "$pkgs" ]] && record "plugins.json delivered to the poller" ok "$(echo $pkgs)" || { record "plugins.json delivered to the poller" ko; return; }
-  pkg_ok() { cp_ exec -T poller-engine dpkg-query -W -f '${Status}' "$1" 2>/dev/null | grep -q 'install ok installed'; }
-  for p in $pkgs ${GLS_PLUGIN_PKG:-}; do
-    wait_until 600 pkg_ok "$p" && record "package $p installed on the poller" ok || record "package $p installed on the poller" ko
-  done
+  # OSS web does not generate plugins.json (module hook): drop one into the
+  # generated files between "generate" and "move", like a module would.
+  # Generation wipes the cache dir, hence the legacy chain, not generate-and-reload.
+  local pkg="${GLS_PLUGIN_PKG:-centreon-plugin-applications-protocol-ftp}" pid
+  pid=$(poller_id)
+  login || { record "login" ko; return; }
+  pkg_ok "$pkg" && { record "$pkg absent from the image before deploy" ko "already installed"; return; }
+  record "$pkg absent from the image before deploy" ok
+  legacy_xml generateFiles.php "generate=true&debug=true&poller=$pid" \
+    && record "legacy generate" ok || { record "legacy generate" ko "$(head -c 200 "$LOG_DIR/legacy-generateFiles.xml")"; return; }
+  printf '{"%s": ""}\n' "$pkg" | cc exec -T -u www-data fpm sh -c 'cat > "/var/cache/centreon/config/engine/$0/plugins.json"' "$pid"
+  legacy_xml moveFiles.php "poller=$pid" && record "legacy move (deploy, plugins.json included)" ok \
+    || record "legacy move (deploy)" ko "$(head -c 200 "$LOG_DIR/legacy-moveFiles.xml")"
+  legacy_xml restartPollers.php "mode=1&poller=$pid" && record "legacy reload" ok \
+    || record "legacy reload" ko "$(head -c 200 "$LOG_DIR/legacy-restartPollers.xml")"
+  wait_until 60 eval "cp_ exec -T poller-engine grep -qF '$pkg' /etc/centreon-engine/plugins.json" \
+    && record "plugins.json delivered to the poller" ok || { record "plugins.json delivered to the poller" ko; return; }
+  wait_until 600 pkg_ok "$pkg" && record "$pkg installed on the poller (dpkg-query)" ok \
+    || record "$pkg installed on the poller (dpkg-query)" ko
 }
 
 cmd_logs() {

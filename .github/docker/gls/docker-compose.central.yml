@@ -92,8 +92,14 @@ services:
       - centreon-media:/usr/share/centreon/www/img/media
       - centreon-license:/etc/centreon/license.d
       # Bootstrap-only (central poller local copy), see header.
-      - central-engine-etc:/etc/centreon-engine
-      - central-broker-etc:/etc/centreon-broker
+      - type: volume
+        source: central-engine-etc
+        target: /etc/centreon-engine
+        volume: {nocopy: true}
+      - type: volume
+        source: central-broker-etc
+        target: /etc/centreon-broker
+        volume: {nocopy: true}
     healthcheck:
       test: ["CMD-SHELL", "test -f /tmp/docker.ready"]
       interval: 5s
@@ -157,7 +163,10 @@ services:
     environment:
       <<: [*tz, *secrets]
     volumes:
-      - central-broker-etc:/etc/centreon-broker
+      - type: volume
+        source: central-broker-etc
+        target: /etc/centreon-broker
+        volume: {nocopy: true}
       - centreon-status:/var/lib/centreon/status
       - centreon-metrics:/var/lib/centreon/metrics
     expose: ["5669", "8099"]
@@ -178,8 +187,14 @@ services:
       <<: [*tz, *secrets]
       NAME: central
     volumes:
-      - central-engine-etc:/etc/centreon-engine
-      - central-broker-etc:/etc/centreon-broker
+      - type: volume
+        source: central-engine-etc
+        target: /etc/centreon-engine
+        volume: {nocopy: true}
+      - type: volume
+        source: central-broker-etc
+        target: /etc/centreon-broker
+        volume: {nocopy: true}
       - central-engine-varlib:/var/lib/centreon-engine
       - central-engine-log:/var/log/centreon-engine
       # Keeps the engine gRPC on what the config says (127.0.0.1 for vm pollers).

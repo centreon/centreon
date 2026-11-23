@@ -32,8 +32,14 @@ services:
       APP_SECRET: "${APP_SECRET:-9cd3e2ccf822916ec8fc5379f8abdaf277860415454f9b91c0913392d4b41f92}"
       SALT: "${SALT:-84e9107f78239bdab2751c3321023a32c3716ed0724a4a8b13de8e7aed8d319d}"
     volumes:
-      - poller-engine-etc:/etc/centreon-engine
-      - poller-broker-etc:/etc/centreon-broker
+      - type: volume
+        source: poller-engine-etc
+        target: /etc/centreon-engine
+        volume: {nocopy: true}
+      - type: volume
+        source: poller-broker-etc
+        target: /etc/centreon-broker
+        volume: {nocopy: true}
       - poller-engine-varlib:/var/lib/centreon-engine
       - poller-engine-log:/var/log/centreon-engine
       - ./overrides/05-engine-config.sh:/usr/local/lib/centreon-engine/container.d/05-engine-config.sh:ro
