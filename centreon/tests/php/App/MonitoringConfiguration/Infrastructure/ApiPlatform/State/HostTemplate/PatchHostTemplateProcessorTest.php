@@ -492,6 +492,25 @@ final class PatchHostTemplateProcessorTest extends ApiTestCase
         self::assertSame([$severityId], $this->categoryIds($id));
     }
 
+    public function testAnEmptyBodyChangesNothing(): void
+    {
+        $id = $this->insertTemplate('empty-body', ['host_alias' => 'Kept', 'host_snmp_community' => 'public', 'host_max_check_attempts' => 3, 'host_comment' => 'A comment']);
+        $this->insertRow('extended_host_information', ['host_host_id' => $id, 'ehi_notes' => 'A note']);
+        $pollerId = $this->insertPoller();
+        $this->insertHostOn($id, $pollerId);
+        $hostBefore = $this->connection->fetchAssociative('SELECT * FROM host WHERE host_id = ?', [$id]);
+        $informationsBefore = $this->connection->fetchAssociative('SELECT * FROM extended_host_information WHERE host_host_id = ?', [$id]);
+        $this->login();
+
+        $this->patch($id, []);
+
+        self::assertResponseStatusCodeSame(204);
+        self::assertSame($hostBefore, $this->connection->fetchAssociative('SELECT * FROM host WHERE host_id = ?', [$id]));
+        self::assertSame($informationsBefore, $this->connection->fetchAssociative('SELECT * FROM extended_host_information WHERE host_host_id = ?', [$id]));
+        self::assertSame(0, $this->logRowCount($id));
+        self::assertSame('0', $this->pollerUpdated($pollerId));
+    }
+
     public function testTheExtendedTextsAreStoredTrimmed(): void
     {
         $id = $this->insertTemplate('trimmed');
@@ -733,6 +752,19 @@ final class PatchHostTemplateProcessorTest extends ApiTestCase
         $this->login();
 
         $this->patch($id, ['name' => " taken-{$this->tag} "]);
+
+        self::assertResponseStatusCodeSame(409);
+        self::assertSame("renamed-{$this->tag}", $this->connection->fetchOne('SELECT host_name FROM host WHERE host_id = ?', [$id]));
+    }
+
+    #[DataProvider('provideNameOwners')]
+    public function testANameDifferingOnlyByCaseFromAHostOrAnotherTemplateIsAConflict(string $register): void
+    {
+        $this->insertRow('host', ['host_name' => "taken-{$this->tag}", 'host_register' => $register]);
+        $id = $this->insertTemplate('renamed');
+        $this->login();
+
+        $this->patch($id, ['name' => mb_strtoupper("taken-{$this->tag}")]);
 
         self::assertResponseStatusCodeSame(409);
         self::assertSame("renamed-{$this->tag}", $this->connection->fetchOne('SELECT host_name FROM host WHERE host_id = ?', [$id]));
