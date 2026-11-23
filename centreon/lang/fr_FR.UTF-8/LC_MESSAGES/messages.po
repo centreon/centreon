@@ -22969,7 +22969,7 @@ msgstr "Version"
 
 #: unknown
 msgid "Replace"
-msgstr "Remplacement"
+msgstr "Remplacer"
 
 #: unknown
 msgid "Replace existing ones"
@@ -24572,3 +24572,131 @@ msgstr "alerte"
 #: unknown
 msgid "will display resources with host name starting by'"
 msgstr "affichera les ressources avec un nom d'hôte commençant par"
+
+#: centreon/www/install/front_translate.php
+msgid "Configure the services monitored on your hosts"
+msgstr "Configurez les services supervisés sur vos hôtes"
+
+#: centreon/www/install/front_translate.php
+msgid "Create a service"
+msgstr "Créer un service"
+
+#: centreon/www/install/front_translate.php
+msgid "Include disabled hosts"
+msgstr "Inclure les hôtes désactivés"
+
+#: centreon/www/install/front_translate.php
+msgid "Welcome to the Services interface!"
+msgstr "Bienvenue dans l'interface des services !"
+
+#: centreon/www/install/front_translate.php
+msgid "{{count}} min"
+msgstr "{{count}} min"
+
+#: centreon/www/install/front_translate.php
+msgid "{{count}} sec"
+msgstr "{{count}} s"
+
+#: centreon/www/install/front_translate.php
+msgid "Arguments must not contain #BR#, #T# or #R#"
+msgstr "Les arguments ne doivent pas contenir #BR#, #T# ou #R#"
+
+#: centreon/www/install/front_translate.php
+msgid "Service monitoring properties"
+msgstr "Propriétés de supervision du service"
+
+#: centreon/www/install/front_translate.php
+msgid "{{name}} ({{level}})"
+msgstr "{{name}} ({{level}})"
+
+#: centreon/www/install/front_translate.php
+msgid "No event handler selected"
+msgstr "Aucun gestionnaire d’évènements sélectionné"
+
+#: centreon/www/install/front_translate.php
+msgid "Must be an integer between 0 and 100"
+msgstr "Doit être un entier compris entre 0 et 100"
+
+#: centreon/www/install/front_translate.php
+msgid "The following arguments are not valid: {{arguments}}"
+msgstr "Les arguments suivants ne sont pas valides : {{arguments}}"
+
+msgid "Delete host template"
+msgstr "Supprimer le modèle d'hôte"
+
+msgid "Delete host templates"
+msgstr "Supprimer les modèles d'hôtes"
+
+msgid "Duplicate host template"
+msgstr "Dupliquer le modèle d'hôte"
+
+msgid "Duplicate host templates"
+msgstr "Dupliquer les modèles d'hôtes"
+
+msgid "Host template deleted"
+msgstr "Modèle d'hôte supprimé"
+
+msgid "Host templates deleted"
+msgstr "Modèles d'hôtes supprimés"
+
+msgid "Host template duplicated"
+msgstr "Modèle d'hôte dupliqué"
+
+msgid "Host templates duplicated"
+msgstr "Modèles d'hôtes dupliqués"
+
+msgid "Failed to delete the host template"
+msgstr "Échec de la suppression du modèle d'hôte"
+
+msgid "Failed to delete the host templates"
+msgstr "Échec de la suppression des modèles d'hôtes"
+
+msgid "Failed to duplicate the host template"
+msgstr "Échec de la duplication du modèle d'hôte"
+
+msgid "Failed to duplicate the host templates"
+msgstr "Échec de la duplication des modèles d'hôtes"
+
+msgid "You are about to delete the <strong>{{ name }}</strong> host template. This action cannot be undone. Do you want to delete it?"
+msgstr "Vous êtes sur le point de supprimer le modèle d'hôte <strong>{{ name }}</strong>. Cette action est irréversible. Voulez-vous le supprimer ?"
+
+msgid "You are about to delete <strong>{{ count }} host templates.</strong> This action cannot be undone. Do you want to delete them?"
+msgstr "Vous êtes sur le point de supprimer <strong>{{ count }} modèles d'hôtes.</strong> Cette action est irréversible. Voulez-vous les supprimer ?"
+
+msgid "You are about to duplicate the <strong>{{ name }}</strong> host template."
+msgstr "Vous êtes sur le point de dupliquer le modèle d'hôte <strong>{{ name }}</strong>."
+
+msgid "You are about to duplicate <strong>{{ count }} host templates.</strong>"
+msgstr "Vous êtes sur le point de dupliquer <strong>{{ count }} modèles d'hôtes.</strong>"
+
+#: centreon/www/install/front_translate.php
+msgid "Add a host template"
+msgstr "Ajouter un modèle d'hôte"
+
+#: centreon/www/install/front_translate.php
+msgid "Modify a host template"
+msgstr "Modifier un modèle d'hôte"
+
+#: centreon/www/install/front_translate.php
+msgid "View a host template"
+msgstr "Voir un modèle d'hôte"
+
+#: centreon/www/install/front_translate.php
+msgid "Host template created"
+msgstr "Modèle d'hôte créé"
+
+#: centreon/www/install/front_translate.php
+msgid "Host template updated"
+msgstr "Modèle d'hôte mis à jour"
+
+#: centreon/www/install/front_translate.php
+msgid "Lists set to Replace will overwrite the corresponding lists of all selected services. If you leave a list set to Replace blank, its existing entries will be deleted from all selected services. Entries you don't have access to are unaffected."
+msgstr "Les listes en mode Remplacer écraseront les listes correspondantes de tous les services sélectionnés. Si vous laissez vide une liste en mode Remplacer, ses entrées existantes seront supprimées de tous les services sélectionnés. Les entrées auxquelles vous n'avez pas accès ne sont pas modifiées."
+
+#: centreon/www/install/front_translate.php
+msgid "\"None\" can't be combined with other options. Set this list to Replace, or services with other options won't be updated."
+msgstr "« Aucun » ne peut pas être combiné avec d'autres options. Passez cette liste en mode Remplacer, sinon les services ayant d'autres options ne seront pas mis à jour."
+
+#: centreon/www/install/front_translate.php
+msgid "When services inherit contacts and contact groups only from their host, their own contacts and contact groups are removed. Only those you have access to are affected."
+msgstr "Lorsque les services héritent uniquement des contacts et groupes de contacts de leur hôte, leurs propres contacts et groupes de contacts sont supprimés. Seuls ceux auxquels vous avez accès sont concernés."

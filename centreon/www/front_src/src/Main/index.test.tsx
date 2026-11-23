@@ -4,7 +4,11 @@ import {
   screen,
   waitFor
 } from '@centreon/ui/test/testRenderer';
-import { isAdditiveInheritanceEnabledAtom } from '@centreon/ui-context';
+import {
+  defaultLimitPerPageAtom,
+  intervalLengthAtom,
+  isAdditiveInheritanceEnabledAtom
+} from '@centreon/ui-context';
 
 import axios from 'axios';
 
@@ -14,7 +18,9 @@ import {
   internalTranslationEndpoint,
   parametersEndpoint
 } from '../App/endpoint';
+import { labelYouAreDisconnected } from '../App/translatedLabels';
 import {
+  logoutEndpoint,
   platformInstallationStatusEndpoint,
   userEndpoint
 } from '../api/endpoint';
@@ -34,6 +40,7 @@ import {
   retrievedWeb
 } from './testUtils';
 import { labelCentreonIsLoading } from './translatedLabels';
+import { areUserParametersLoadedAtom } from './useUser';
 
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
@@ -104,7 +111,11 @@ const mockDefaultGetRequests = (): void => {
 
 // Answered by URL rather than in call order, so a request added or moved in
 // the start-up sequence cannot hand one endpoint another one's response.
-const mockGetRequestsByUrl = (parameters: object): void => {
+const mockGetRequestsByUrl = (
+  parameters: object,
+  // The status the parameters endpoint fails with, if it fails.
+  { parametersStatus }: { parametersStatus?: number } = {}
+): void => {
   const responses: Array<[string, unknown]> = [
     [
       platformInstallationStatusEndpoint,
@@ -120,9 +131,12 @@ const mockGetRequestsByUrl = (parameters: object): void => {
   ];
 
   mockedAxios.get.mockImplementation((url: string) =>
-    Promise.resolve({
-      data: responses.find(([endpoint]) => url.includes(endpoint))?.[1] ?? null
-    })
+    parametersStatus && url.includes(parametersEndpoint)
+      ? Promise.reject({ response: { status: parametersStatus } })
+      : Promise.resolve({
+          data:
+            responses.find(([endpoint]) => url.includes(endpoint))?.[1] ?? null
+        })
   );
 };
 
@@ -263,6 +277,8 @@ describe('Main', () => {
     // Provider.tsx's jotai store is a module-level singleton shared across
     // every render() in this file, so state set by one test leaks into the next.
     store.set(isAdditiveInheritanceEnabledAtom, false);
+    store.set(defaultLimitPerPageAtom, null);
+    store.set(intervalLengthAtom, 60);
   });
 
   // biome-ignore lint/suspicious/noFocusedTests: To migrate to Cypress
@@ -452,6 +468,109 @@ describe('Main', () => {
     await waitFor(() => {
       expect(store.get(isAdditiveInheritanceEnabledAtom)).toBe(true);
     });
+  });
+
+  it('sets the interval length from the platform parameters', async () => {
+    mockGetRequestsByUrl({
+      ...retrievedParameters,
+      monitoring_interval_length: 30
+    });
+
+    renderMain();
+
+    await waitFor(() => {
+      expect(store.get(intervalLengthAtom)).toBe(30);
+    });
+  });
+
+  it('keeps an interval length of 60 when the platform parameters do not have one', async () => {
+    const { monitoring_interval_length, ...parametersWithoutInterval } = {
+      ...retrievedParameters,
+      monitoring_interval_length: 30
+    };
+    mockGetRequestsByUrl(parametersWithoutInterval);
+
+    renderMain();
+
+    // Set in the same callback, once the parameters are read.
+    await waitFor(() => {
+      expect(store.get(defaultLimitPerPageAtom)).toBe(30);
+    });
+    expect(store.get(intervalLengthAtom)).toBe(60);
+  });
+
+  // 50, not 30: 30 is also the fallback, which would pass this test without
+  // the platform value.
+  it('sets the default page size of listings from the platform parameters', async () => {
+    mockGetRequestsByUrl({
+      ...retrievedParameters,
+      default_limit_per_page: 50
+    });
+
+    renderMain();
+
+    await waitFor(() => {
+      expect(store.get(defaultLimitPerPageAtom)).toBe(50);
+    });
+  });
+
+  it('falls back to a default page size of 30 when the platform parameters do not have one', async () => {
+    mockGetRequestsByUrl(retrievedParameters);
+
+    renderMain();
+
+    await waitFor(() => {
+      expect(store.get(defaultLimitPerPageAtom)).toBe(30);
+    });
+  });
+
+  it.each([
+    0,
+    -5,
+    '30',
+    12.5,
+    null
+  ])('falls back to a default page size of 30 when the platform parameters have %p', async (defaultLimitPerPage) => {
+    mockGetRequestsByUrl({
+      ...retrievedParameters,
+      default_limit_per_page: defaultLimitPerPage
+    });
+
+    renderMain();
+
+    await waitFor(() => {
+      expect(store.get(defaultLimitPerPageAtom)).toBe(30);
+    });
+  });
+
+  it('falls back to a default page size of 30 when the platform parameters cannot be retrieved', async () => {
+    mockGetRequestsByUrl(retrievedParameters, { parametersStatus: 500 });
+
+    renderMain();
+
+    await waitFor(() => {
+      expect(store.get(defaultLimitPerPageAtom)).toBe(30);
+    });
+  });
+
+  it('logs the user out and falls back to a default page size of 30 when the platform parameters answer 401', async () => {
+    mockGetRequestsByUrl(retrievedParameters, { parametersStatus: 401 });
+
+    renderMain();
+
+    await waitFor(() => {
+      expect(mockedAxios.get).toHaveBeenCalledWith(
+        logoutEndpoint,
+        cancelTokenRequestParam
+      );
+    });
+    expect(store.get(defaultLimitPerPageAtom)).toBe(30);
+
+    await waitFor(() => {
+      expect(screen.getByText(labelYouAreDisconnected)).toBeInTheDocument();
+    });
+    expect(window.location.pathname).toBe('/login');
+    expect(store.get(areUserParametersLoadedAtom)).toBe(false);
   });
 
   it('redirects the user to his default page when the current location is the login page and the user is connected', async () => {

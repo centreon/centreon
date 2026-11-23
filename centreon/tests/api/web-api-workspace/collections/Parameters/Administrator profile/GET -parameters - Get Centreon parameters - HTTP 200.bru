@@ -35,6 +35,16 @@ tests {
     expect(refreshInterval).to.be.a("number");
     expect(Number.isInteger(refreshInterval)).to.equal(true);
   });
+
+  test("Default limit per page is exposed as an integer.", function () {
+    const limitPerPage = res.getBody().default_limit_per_page;
+    expect(limitPerPage).to.be.a("number");
+    expect(Number.isInteger(limitPerPage)).to.equal(true);
+  });
+
+  test("Default limit per page matches the platform setting.", function () {
+    expect(res.getBody().default_limit_per_page).to.equal(30);
+  });
 }
 
 settings {
