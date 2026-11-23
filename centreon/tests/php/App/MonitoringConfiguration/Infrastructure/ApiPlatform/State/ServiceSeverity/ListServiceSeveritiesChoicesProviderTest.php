@@ -61,7 +61,7 @@ final class ListServiceSeveritiesChoicesProviderTest extends ApiTestCase
     public function testItListsForAServiceReadWriteUser(): void
     {
         $name = "sv-{$this->tag}";
-        $severityId = $this->insertServiceCategory($name, level: 1);
+        $severityId = $this->insertServiceCategory($name, level: 3);
         $this->insertServiceCategory("not-granted-{$this->tag}", level: 2);
         $this->loginWithGrantedServiceCategories([$severityId]);
 
@@ -71,9 +71,10 @@ final class ListServiceSeveritiesChoicesProviderTest extends ApiTestCase
         /** @var list<array<string, mixed>> $member */
         $member = $response->toArray()['member'];
         self::assertSame([$severityId], array_column($member, 'id'), 'The severity the user is not granted is absent.');
-        self::assertEqualsCanonicalizing(['@id', '@type', 'id', 'name'], array_keys($member[0]));
+        self::assertEqualsCanonicalizing(['@id', '@type', 'id', 'name', 'level'], array_keys($member[0]));
         self::assertSame("/api/configuration/service_severities/{$severityId}", $member[0]['@id']);
         self::assertSame($name, $member[0]['name']);
+        self::assertSame(3, $member[0]['level']);
     }
 
     /**

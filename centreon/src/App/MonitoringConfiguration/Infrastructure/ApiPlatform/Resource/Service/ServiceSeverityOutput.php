@@ -24,13 +24,14 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Service;
 
 /**
- * The severity of a service, as `{id, name}`.
+ * The severity of a service, as `{id, name, level}`.
  */
 final readonly class ServiceSeverityOutput
 {
     public function __construct(
         public int $id,
         public string $name,
+        public int $level,
     ) {
     }
 }
