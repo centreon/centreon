@@ -139,7 +139,7 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
 
         // MON-215450 phase 2d: the poller gets the central broker CA here, out of band of the BBDO stream.
         // Never fails the creation: the poller is already committed.
-        if ($this->brokerCaReader !== null) {
+        if ($this->brokerCaReader instanceof BrokerCaReader) {
             ['ca' => $ca, 'warning' => $warning] = $this->brokerCaReader->read();
             $resource->brokerCa = $ca === null ? null : new BrokerCaOutput($ca['pem'], $ca['fingerprint_sha256']);
             $resource->brokerCaWarning = $warning;
