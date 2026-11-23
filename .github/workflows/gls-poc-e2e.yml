@@ -119,6 +119,12 @@ jobs:
         run: SUMMARY_FILE="$GITHUB_STEP_SUMMARY" "$SCRIPT" tls-negative
         shell: bash
 
+      - name: "Self-generated CA: kept on recreate, fail closed on a wrong fingerprint"
+        if: ${{ !cancelled() }}
+        continue-on-error: ${{ env.GLS_GATE_CRITERIA != 'true' }}
+        run: SUMMARY_FILE="$GITHUB_STEP_SUMMARY" "$SCRIPT" ca
+        shell: bash
+
       - name: "State volumes: retention after recreate, cbmod queue"
         if: ${{ !cancelled() }}
         continue-on-error: ${{ env.GLS_GATE_CRITERIA != 'true' }}

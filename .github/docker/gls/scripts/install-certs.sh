@@ -1,18 +1,20 @@
 #!/bin/sh
-# Installs the central cbd TLS identity into its cert volume (run as root).
-#   install-certs.sh central   CA-signed cert (normal run)
-#   install-certs.sh rogue     cert NOT signed by the pollers' CA (negative test)
-# Source: run-time throwaway certs from gls-e2e.sh certs, mounted read-only.
+# Negative TLS test only (run as root): swaps the central cbd server pair.
+#   install-certs.sh rogue   server pair signed by another CA (from /certs-src)
+#   install-certs.sh clear   removes the server pair: cbd re-signs one with its kept CA
+# Never touches ca.crt / ca.key (contracts § 8.1).
 set -eu
-set_name="${1:-central}"
-src=/certs-src
 dst=/mnt/broker-certs
-[ -s "$src/$set_name.crt" ] || { echo "no $src/$set_name.crt: run gls-e2e.sh certs first" >&2; exit 1; }
-cp "$src/ca.crt" "$dst/ca.crt"
-cp "$src/$set_name.crt" "$dst/central.crt"
-cp "$src/$set_name.key" "$dst/central.key"
-chown -R 902:902 "$dst"
-chmod 0755 "$dst"
-chmod 0644 "$dst/ca.crt" "$dst/central.crt"
-chmod 0640 "$dst/central.key"
-echo "central cbd identity: $set_name"
+case "${1:?rogue|clear}" in
+  rogue)
+    [ -s /certs-src/rogue.crt ] || { echo "no /certs-src/rogue.crt" >&2; exit 1; }
+    cp /certs-src/rogue.crt "$dst/central.crt"
+    cp /certs-src/rogue.key "$dst/central.key"
+    chown 902:902 "$dst/central.crt" "$dst/central.key"
+    chmod 0644 "$dst/central.crt"
+    chmod 0600 "$dst/central.key"
+    ;;
+  clear) rm -f "$dst/central.crt" "$dst/central.key" ;;
+  *) echo "unknown mode $1" >&2; exit 2 ;;
+esac
+ls -ln "$dst"

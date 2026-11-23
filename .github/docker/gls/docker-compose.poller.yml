@@ -38,6 +38,10 @@ services:
       POLLER_NAME: "${POLLER_NAME:-gls-poller}"
       POLLER_ID: "${POLLER_ID:-}"
       POLLER_UID: "${POLLER_UID:-}"
+      # Central CA from the poller creation answer (contracts § 8.3): written to
+      # BROKER_CA_CERT at bootstrap, fingerprint checked, fail closed.
+      BROKER_CA_PEM: "${BROKER_CA_PEM:-}"
+      BROKER_CA_FINGERPRINT: "${BROKER_CA_FINGERPRINT:-}"
       BROKER_CA_CERT: /etc/centreon-broker/certs/ca.crt
       BROKER_TLS_HOSTNAME: centreon-broker
       APP_SECRET: "${APP_SECRET:-9cd3e2ccf822916ec8fc5379f8abdaf277860415454f9b91c0913392d4b41f92}"
@@ -51,8 +55,6 @@ services:
         source: poller-broker-etc
         target: /etc/centreon-broker
         volume: {nocopy: true}
-      # CA of the central cbd (contracts § 6.2), run-time throwaway.
-      - ${GLS_CERTS_DIR:-./.certs}/ca.crt:/etc/centreon-broker/certs/ca.crt:ro
       # State (contracts § 7): cbmod cache_directory (queue while the central is
       # unreachable) + retention.dat. Logs stay in the container layer.
       - poller-engine-state:/var/lib/centreon-engine

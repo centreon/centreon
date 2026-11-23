@@ -21,8 +21,9 @@ if [ "$role" = poller ] && [ ! -s /mnt/engine-etc/engine-context.json ]; then
   chown 901:"$group" /mnt/engine-etc/engine-context.json
   chmod 640 /mnt/engine-etc/engine-context.json
 fi
-# Central: cbd TLS identity (contracts § 6.2).
+# Central: cbd generates its PKI in its cert volume at start (contracts § 8.1).
 if [ "$role" = central ] && [ -d /mnt/broker-certs ]; then
-  sh /gls/install-certs.sh central
+  chown 902:902 /mnt/broker-certs
+  chmod 0755 /mnt/broker-certs
 fi
 ls -lan /mnt/engine-etc /mnt/broker-etc
