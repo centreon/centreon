@@ -16701,10 +16701,12 @@ components:
           items:
             type: string
         macros:
+          description: 'Replaces the macros: the template''s own macros left out are removed. Each macro points to the macro it changes by id (and parent, for an inherited one), or is new without an id. A password macro without value keeps its stored value. Only one of this, "macros_to_upsert" and "macros_to_remove" can be sent.'
           type: array
           items:
             $ref: '#/components/schemas/HostTemplateMacroInput'
         macros_to_upsert:
+          description: 'Writes these macros and keeps the other ones. Same macros as above.'
           type: array
           items:
             $ref: '#/components/schemas/HostTemplateMacroInput'

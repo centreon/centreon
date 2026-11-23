@@ -65,13 +65,13 @@ use App\MonitoringConfiguration\Domain\Repository\ContactGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostCategoryRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
 use App\MonitoringConfiguration\Domain\Repository\NotificationContactRepository;
-use App\MonitoringConfiguration\Domain\Repository\OptionRepository;
 use App\MonitoringConfiguration\Domain\Repository\ServiceTemplateRepository;
 use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Event\EventBus;
+use App\Shared\Domain\Repository\OptionRepository;
 use App\Shared\Domain\VaultInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -80,11 +80,11 @@ use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeContactGroupRepo
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostCategoryRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostTemplateRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeNotificationContactRepository;
-use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeOptionRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceTemplateRepository;
 use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
 use Tests\App\Security\Infrastructure\Double\TestActingUsers;
 use Tests\App\Shared\Double\EventBusSpy;
+use Tests\App\Shared\Double\FakeOptionRepository;
 use Tests\App\Shared\Double\FakeVault;
 use Tests\App\Shared\Infrastructure\Messenger\Double\LoggerSpy;
 
