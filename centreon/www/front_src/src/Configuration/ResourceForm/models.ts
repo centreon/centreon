@@ -55,6 +55,7 @@ export type BlockId =
   | 'freshness'
   | 'graphTemplate'
   | 'groups'
+  | 'linkedServiceTemplates'
   | 'macros'
   | 'notesAndIcons'
   | 'notificationDelays'
