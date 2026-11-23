@@ -37,6 +37,10 @@ msgstr "La zona horaria utilizada es la configurada en la configuración de usua
 msgid " to "
 msgstr ""
 
+#: centreon/www/install/front_translate.php
+msgid "\"None\" can't be combined with other options. Set this list to Replace, or services with other options won't be updated."
+msgstr ""
+
 #: centreon/www/install/react_translation.php
 #, php-format
 msgid "%s is not valid."
@@ -1528,6 +1532,10 @@ msgstr "Argumento"
 #: centreon/www/install/front_translate.php
 msgid "Arguments"
 msgstr "Argumentos"
+
+#: centreon/www/install/front_translate.php
+msgid "Arguments must not contain #BR#, #T# or #R#"
+msgstr ""
 
 #: centreon/www/include/Administration/parameters/general/form.php
 #: centreon/www/install/dashboard_widgets.php
@@ -3569,6 +3577,10 @@ msgid "Configure the hosts monitored by your platform."
 msgstr "Configure los hosts supervisados por su plataforma."
 
 #: centreon/www/install/front_translate.php
+msgid "Configure the services monitored on your hosts"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Confirm"
 msgstr ""
 
@@ -3899,6 +3911,10 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Create a notification rule"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Create a service"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -5458,6 +5474,7 @@ msgstr "Configuración de tiempos de parada."
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Downtime Scheduled"
 msgstr "Tiempos de parada programados"
 
@@ -9279,6 +9296,7 @@ msgstr "Período de visualización"
 #: centreon/www/include/configuration/configObject/meta_service/formMetaService.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Graph Template"
 msgstr "Plantilla de gráfico"
 
@@ -9883,6 +9901,7 @@ msgid "Host monitoring properties"
 msgstr ""
 
 #: centreon/www/include/reporting/dashboard/initReport.php
+#: centreon/www/install/front_translate.php
 #: centreon/www/install/smarty_translate.php
 msgid "Host name"
 msgstr "Nombre del anfitrión"
@@ -10465,6 +10484,10 @@ msgid "Include all servicegroups"
 msgstr "Incluir todos los grupos de servicio"
 
 #: centreon/www/install/front_translate.php
+msgid "Include disabled hosts"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Include services for these hosts"
 msgstr ""
 
@@ -10496,7 +10519,6 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
-#: centreon/www/install/front_translate.php
 msgid "Incremental"
 msgstr "incrementales"
 
@@ -10531,6 +10553,7 @@ msgid "Informations"
 msgstr "información"
 
 #: centreon/www/include/configuration/configObject/service/formService.php
+#: centreon/www/install/front_translate.php
 msgid "Inherit only contacts/contacts group from host"
 msgstr "Heredar solo contactos / grupos de contactos de la definición de host"
 
@@ -10785,6 +10808,7 @@ msgid "Is This Service Flapping?"
 msgstr "¿El estado de la bolsa de servicio?"
 
 #: centreon/www/include/configuration/configObject/service/formService.php
+#: centreon/www/install/front_translate.php
 msgid "Is Volatile"
 msgstr "Es volátil"
 
@@ -11451,6 +11475,10 @@ msgstr ""
 
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Listening port"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Lists set to Replace will overwrite the corresponding lists of all selected services. If you leave a list set to Replace blank, its existing entries will be deleted from all selected services. Entries you don't have access to are unaffected."
 msgstr ""
 
 #: centreon/www/include/home/customViews/formLoad.php
@@ -12703,6 +12731,7 @@ msgstr "Monitoreo de la capa de base de datos"
 
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Monitoring engine"
 msgstr "Motor de supervisión"
 
@@ -12892,6 +12921,10 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/escalation/formEscalation.php
 #: centreon/www/install/front_translate.php
 msgid "Must be a positive integer or 0"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Must be an integer between 0 and 100"
 msgstr ""
 
 #: centreon/src/Core/Security/ProviderConfiguration/Domain/Exception/ConfigurationException.php
@@ -13215,6 +13248,10 @@ msgstr ""
 #: centreon/www/install/smarty_translate.php
 msgid "No downtime scheduled"
 msgstr "No hay tiempo de inactividad programado"
+
+#: centreon/www/install/front_translate.php
+msgid "No event handler selected"
+msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "No host found"
@@ -13756,6 +13793,7 @@ msgstr "Verificación de verificación del host"
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
+#: centreon/www/install/front_translate.php
 msgid "Obsess Over Service"
 msgstr "Ejecutar un comando de control posterior"
 
@@ -15200,13 +15238,16 @@ msgstr ""
 msgid "Reordering cancelled, row {{position}} returned to its original position"
 msgstr ""
 
+#: centreon/www/install/front_translate.php
+msgid "Replace"
+msgstr "reemplazo"
+
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 #: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
-#: centreon/www/install/front_translate.php
 msgid "Replacement"
 msgstr "reemplazo"
 
@@ -15570,11 +15611,13 @@ msgstr "Período de tiempo resultante con inclusiones"
 
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Retain Non Status Information"
 msgstr "Retención de información no de estado"
 
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Retain Status Information"
 msgstr "Mantener información de estado"
 
@@ -16001,6 +16044,7 @@ msgstr "Información de pedido"
 #: centreon/www/include/configuration/configObject/service/listServiceByHost.php
 #: centreon/www/include/configuration/configObject/service/listServiceByHostGroup.php
 #: centreon/www/include/configuration/configObject/service_template_model/listServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Scheduling"
 msgstr "planificación"
 
@@ -16454,6 +16498,7 @@ msgid "Service Acknowledgement"
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/service/formService.php
+#: centreon/www/install/front_translate.php
 msgid "Service Basic Information"
 msgstr "Información de servicio"
 
@@ -16461,6 +16506,7 @@ msgstr "Información de servicio"
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
+#: centreon/www/install/front_translate.php
 msgid "Service Categories"
 msgstr "Categorias de servicio"
 
@@ -16612,6 +16658,7 @@ msgstr "Modelo de servicio"
 
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Service Trap Relation"
 msgstr "Trampas relacionadas con el servicio SNMP"
 
@@ -16677,6 +16724,10 @@ msgid "Service is currently on Downtime"
 msgstr "El servicio está actualmente en paro."
 
 #: centreon/www/install/front_translate.php
+msgid "Service monitoring properties"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Service name"
 msgstr ""
 
@@ -16724,6 +16775,7 @@ msgstr "Estado del servicio"
 msgid "Service status"
 msgstr "Estado del servicio"
 
+#: centreon/www/install/front_translate.php
 #: centreon/www/install/smarty_translate.php
 msgid "Service template"
 msgstr "Modelo de servicio"
@@ -17417,6 +17469,7 @@ msgstr "montón"
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Stalking Options"
 msgstr "Opciones para guardar"
 
@@ -17989,6 +18042,7 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/service/listServiceByHost.php
 #: centreon/www/include/configuration/configObject/service/listServiceByHostGroup.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "Template"
 msgstr "modelo"
 
@@ -18230,6 +18284,10 @@ msgstr ""
 #: centreon/src/Core/Command/Application/Exception/CommandException.php
 #, php-format
 msgid "The following arguments are not valid: %s"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "The following arguments are not valid: {{arguments}}"
 msgstr ""
 
 #: centreon/src/Core/Security/Authentication/Domain/Exception/SSOAuthenticationException.php
@@ -20262,6 +20320,10 @@ msgid "Welcome to the Hosts interface!"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "Welcome to the Services interface!"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Welcome to the additional configurations page"
 msgstr ""
 
@@ -20279,6 +20341,10 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Welcome to the notifications interface"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "When services inherit contacts and contact groups only from their host, their own contacts and contact groups are removed. Only those you have access to are affected."
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -20825,6 +20891,7 @@ msgstr ""
 
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/service/formService.php
+#: centreon/www/install/front_translate.php
 msgid "You cannot override reserved macros"
 msgstr "No puedes redefinir macros reservadas"
 
@@ -20893,6 +20960,7 @@ msgstr ""
 
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 msgid "You must either fill all the arguments or leave them all empty"
 msgstr "Debes ingresar todos los argumentos o dejar en blanco."
 
@@ -21627,7 +21695,15 @@ msgid "year"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "{{count}} min"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "{{count}} resources"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "{{count}} sec"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -21636,6 +21712,10 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "{{label}} should be at least {{min}} characters long"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "{{name}} ({{level}})"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -24361,10 +24441,6 @@ msgid "Release"
 msgstr "Versión"
 
 #: unknown
-msgid "Replace"
-msgstr "reemplazo"
-
-#: unknown
 msgid "Replace existing ones"
 msgstr "Reemplazar archivos existentes"
 
@@ -25472,147 +25548,3 @@ msgstr "periodo de tiempo"
 #: unknown
 msgid "topology_name"
 msgstr "Nombre de la topología."
-
-#: centreon/www/install/front_translate.php
-msgid "Configure the services monitored on your hosts"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Create a service"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Include disabled hosts"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Welcome to the Services interface!"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "{{count}} min"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "{{count}} sec"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Arguments must not contain #BR#, #T# or #R#"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Service monitoring properties"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "{{name}} ({{level}})"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "No event handler selected"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Must be an integer between 0 and 100"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "The following arguments are not valid: {{arguments}}"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Delete host template"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Delete host templates"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Duplicate host template"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Duplicate host templates"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Host template deleted"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Host templates deleted"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Host template duplicated"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Host templates duplicated"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Failed to delete the host template"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Failed to delete the host templates"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Failed to duplicate the host template"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Failed to duplicate the host templates"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "You are about to delete the <strong>{{ name }}</strong> host template. This action cannot be undone. Do you want to delete it?"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "You are about to delete <strong>{{ count }} host templates.</strong> This action cannot be undone. Do you want to delete them?"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "You are about to duplicate the <strong>{{ name }}</strong> host template."
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "You are about to duplicate <strong>{{ count }} host templates.</strong>"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Add a host template"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Modify a host template"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "View a host template"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Host template created"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Host template updated"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Lists set to Replace will overwrite the corresponding lists of all selected services. If you leave a list set to Replace blank, its existing entries will be deleted from all selected services. Entries you don't have access to are unaffected."
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "\"None\" can't be combined with other options. Set this list to Replace, or services with other options won't be updated."
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "When services inherit contacts and contact groups only from their host, their own contacts and contact groups are removed. Only those you have access to are affected."
-msgstr ""
