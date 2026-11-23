@@ -16722,6 +16722,7 @@ components:
             - 'false'
             - 'true'
             - use_default
+            - null
           description: 'null means "use_default".'
           type:
             - string

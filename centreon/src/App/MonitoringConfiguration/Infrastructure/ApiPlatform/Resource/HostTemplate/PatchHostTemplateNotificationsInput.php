@@ -55,7 +55,10 @@ final readonly class PatchHostTemplateNotificationsInput
      * @param list<string> $optionsToRemove
      */
     public function __construct(
-        #[ApiProperty(description: 'null means "use_default".')]
+        #[ApiProperty(
+            description: 'null means "use_default".',
+            openapiContext: ['type' => ['string', 'null'], 'enum' => [TriStateEnum::False->value, TriStateEnum::True->value, TriStateEnum::UseDefault->value, null]],
+        )]
         #[Assert\Choice(choices: [TriStateEnum::False->value, TriStateEnum::True->value, TriStateEnum::UseDefault->value])]
         public ?string $enabled = null,
 

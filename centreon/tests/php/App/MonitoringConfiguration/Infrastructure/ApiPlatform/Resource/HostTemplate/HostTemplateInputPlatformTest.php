@@ -31,10 +31,15 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\PatchHostTemplateInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\PatchHostTemplateNotificationsInput;
 use App\Shared\Domain\Aggregate\TriStateEnum;
+use App\Shared\Infrastructure\ApiPlatform\CurrentRequestPayload;
+use App\Shared\Infrastructure\Validator\Constraints\NotProvided;
+use App\Shared\Infrastructure\Validator\Constraints\NotProvidedValidator;
 use App\Shared\Infrastructure\Validator\Constraints\WhenPlatform;
 use App\Shared\Infrastructure\Validator\Constraints\WhenPlatformValidator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\ConstraintValidatorFactory;
@@ -75,6 +80,41 @@ final class HostTemplateInputPlatformTest extends TestCase
         self::assertCount(0, $this->validator(isCloudPlatform: false)->validate($input));
     }
 
+    public function testACloudPlatformRefusesTheOnPremiseOnlyKeysSentToClearThem(): void
+    {
+        $body = [
+            'scheduling_options' => ['active_check_enabled' => null, 'passive_check_enabled' => null],
+            'data_processing' => [
+                'acknowledgment_timeout' => null,
+                'flap_detection_enabled' => null,
+                'low_flap_threshold' => null,
+                'high_flap_threshold' => null,
+                'event_handler_args' => [],
+            ],
+        ];
+        $input = new PatchHostTemplateInput(
+            schedulingOptions: new CreateHostTemplateSchedulingOptionsInput(),
+            dataProcessing: new CreateHostTemplateDataProcessingInput(),
+        );
+
+        $refused = [];
+        foreach ($this->validator(isCloudPlatform: true, body: $body)->validate($input) as $violation) {
+            $refused[] = $violation->getPropertyPath();
+        }
+        sort($refused);
+
+        self::assertSame([
+            'dataProcessing.acknowledgmentTimeout',
+            'dataProcessing.eventHandlerArgs',
+            'dataProcessing.flapDetectionEnabled',
+            'dataProcessing.highFlapThreshold',
+            'dataProcessing.lowFlapThreshold',
+            'schedulingOptions.activeCheckEnabled',
+            'schedulingOptions.passiveCheckEnabled',
+        ], $refused);
+        self::assertCount(0, $this->validator(isCloudPlatform: false, body: $body)->validate($input));
+    }
+
     /**
      * @return iterable<string, array{object, list<string>}>
      */
@@ -112,17 +152,25 @@ final class HostTemplateInputPlatformTest extends TestCase
         ];
     }
 
-    private function validator(bool $isCloudPlatform): ValidatorInterface
+    /**
+     * @param array<string, mixed> $body the request body the keys are read from, none when empty
+     */
+    private function validator(bool $isCloudPlatform, array $body = []): ValidatorInterface
     {
         $defaultFactory = new ConstraintValidatorFactory();
+        $requestStack = new RequestStack();
+        if ($body !== []) {
+            $requestStack->push(Request::create('/', Request::METHOD_PATCH, content: json_encode($body, \JSON_THROW_ON_ERROR), server: ['CONTENT_TYPE' => 'application/json']));
+        }
 
         return Validation::createValidatorBuilder()
             ->enableAttributeMapping()
             ->setConstraintValidatorFactory(
-                new class ($isCloudPlatform, $defaultFactory) implements ConstraintValidatorFactoryInterface {
+                new class ($isCloudPlatform, $defaultFactory, $requestStack) implements ConstraintValidatorFactoryInterface {
                     public function __construct(
                         private readonly bool $isCloudPlatform,
                         private readonly ConstraintValidatorFactory $defaultFactory,
+                        private readonly RequestStack $requestStack,
                     ) {
                     }
 
@@ -130,6 +178,10 @@ final class HostTemplateInputPlatformTest extends TestCase
                     {
                         if ($constraint instanceof WhenPlatform) {
                             return new WhenPlatformValidator($this->isCloudPlatform);
+                        }
+
+                        if ($constraint instanceof NotProvided) {
+                            return new NotProvidedValidator(new CurrentRequestPayload($this->requestStack));
                         }
 
                         if (str_starts_with($constraint::class, 'App\\')) {
