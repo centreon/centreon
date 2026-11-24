@@ -26,7 +26,6 @@ namespace Core\TimePeriod\Infrastructure\Repository;
 use Assert\AssertionFailedException;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Domain\TrimmedString;
@@ -142,9 +141,6 @@ class DbReadTimePeriodRepository extends AbstractRepositoryRDB implements ReadTi
     {
         $this->info('Find time periods by request parameter');
         $sqlRequestTranslator = new SqlRequestParametersTranslator($requestParameters);
-        $sqlRequestTranslator
-            ->getRequestParameters()
-            ->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
         $sqlRequestTranslator->setConcordanceArray([
             'id' => 'tp_id',
             'name' => 'tp_name',
