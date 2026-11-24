@@ -59,7 +59,7 @@ final class AiProviderReadOnlyUserTest extends AiProviderApiTestCase
         self::assertResponseStatusCodeSame(200);
         $content = $response->toArray();
         /** @var list<array<string, mixed>> $members */
-        $members = $content['hydra:member'] ?? $content;
+        $members = $content['member'];
         self::assertCount(1, $members);
         self::assertSame('Anthropic production', $members[0]['name']);
     }

@@ -49,6 +49,7 @@ final class CreateAiProviderProcessorTest extends AiProviderApiTestCase
                 'name' => 'Anthropic production',
                 'type' => 'anthropic',
                 'api_token' => 'a-very-secret-token',
+                'default_model' => 'a-default-model',
             ],
         ]);
 
@@ -208,9 +209,9 @@ final class CreateAiProviderProcessorTest extends AiProviderApiTestCase
         self::assertResponseStatusCodeSame(201);
         self::assertJsonContains([
             'currency' => 'USD',
-            'price_default_input' => 3.0,
-            'price_default_output' => 15.0,
-            'limit_monthly' => 50.0,
+            'price_default_input' => 3,
+            'price_default_output' => 15,
+            'limit_monthly' => 50,
         ]);
     }
 

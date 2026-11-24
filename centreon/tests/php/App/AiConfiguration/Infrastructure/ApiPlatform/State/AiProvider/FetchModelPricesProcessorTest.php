@@ -51,7 +51,7 @@ final class FetchModelPricesProcessorTest extends AiProviderApiTestCase
         self::assertResponseStatusCodeSame(403);
     }
 
-    public function testUnknownTypeReturns422(): void
+    public function testUnknownTypeReturns400(): void
     {
         $this->login();
 
@@ -60,6 +60,6 @@ final class FetchModelPricesProcessorTest extends AiProviderApiTestCase
             'json' => ['type' => 'unknown', 'default_model' => 'gpt-4o'],
         ]);
 
-        self::assertResponseStatusCodeSame(422);
+        self::assertResponseStatusCodeSame(400);
     }
 }

@@ -66,7 +66,10 @@ final readonly class UpdateAiProviderProcessor implements ProcessorInterface
         $credentialUser = $this->security->getUser();
         Assert::isInstanceOf($credentialUser, CredentialUser::class);
 
-        $endpointUrl = AiProviderTypeEnum::from($data->type)->resolveEndpoint($data->endpointUrl);
+        // the type can not be changed: the stored one applies, whatever the request says
+        $previousData = $context['previous_data'] ?? null;
+        Assert::isInstanceOf($previousData, AiProviderResource::class);
+        $endpointUrl = AiProviderTypeEnum::from($previousData->type)->resolveEndpoint($data->endpointUrl);
 
         $billing = BillingInput::toBilling(
             currency: $data->currency,

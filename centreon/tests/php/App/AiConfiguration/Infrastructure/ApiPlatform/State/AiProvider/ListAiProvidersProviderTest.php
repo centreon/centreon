@@ -57,7 +57,7 @@ final class ListAiProvidersProviderTest extends AiProviderApiTestCase
         self::assertResponseIsSuccessful();
         $content = $response->toArray();
         /** @var list<array<string, mixed>> $members */
-        $members = $content['hydra:member'] ?? $content;
+        $members = $content['member'];
         self::assertCount(2, $members);
         foreach ($members as $member) {
             self::assertArrayNotHasKey('api_token', $member);
@@ -108,7 +108,7 @@ final class ListAiProvidersProviderTest extends AiProviderApiTestCase
         self::assertResponseIsSuccessful();
         $content = $response->toArray();
         /** @var list<array<string, mixed>> $members */
-        $members = $content['hydra:member'] ?? $content;
+        $members = $content['member'];
         $byName = array_column($members, null, 'name');
 
         $capped = $byName['Capped provider'];
@@ -138,7 +138,7 @@ final class ListAiProvidersProviderTest extends AiProviderApiTestCase
         self::assertResponseIsSuccessful();
         $content = $response->toArray();
         /** @var list<array<string, mixed>> $members */
-        $members = $content['hydra:member'] ?? $content;
+        $members = $content['member'];
         self::assertCount(1, $members);
         self::assertSame('Mistral fallback', $members[0]['name']);
     }

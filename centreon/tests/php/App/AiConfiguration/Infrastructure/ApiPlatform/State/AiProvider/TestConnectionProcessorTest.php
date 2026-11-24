@@ -98,7 +98,7 @@ final class TestConnectionProcessorTest extends AiProviderApiTestCase
         self::assertNotEmpty($result['message']);
     }
 
-    public function testUnknownTypeReturns422(): void
+    public function testUnknownTypeReturns400(): void
     {
         $this->login();
 
@@ -106,7 +106,7 @@ final class TestConnectionProcessorTest extends AiProviderApiTestCase
             'json' => ['type' => 'unknown', 'default_model' => 'a-model', 'api_token' => 'a-token'],
         ]);
 
-        self::assertResponseStatusCodeSame(422);
+        self::assertResponseStatusCodeSame(400);
     }
 
     public function testBedrockWithAnotherEndpointReturns422(): void

@@ -76,7 +76,7 @@ final class DiscoverModelsProcessorTest extends AiProviderApiTestCase
         self::assertResponseStatusCodeSame(422);
     }
 
-    public function testUnknownTypeReturns422(): void
+    public function testUnknownTypeReturns400(): void
     {
         $this->login();
 
@@ -84,6 +84,6 @@ final class DiscoverModelsProcessorTest extends AiProviderApiTestCase
             'json' => ['type' => 'unknown', 'api_token' => 'a-token'],
         ]);
 
-        self::assertResponseStatusCodeSame(422);
+        self::assertResponseStatusCodeSame(400);
     }
 }
