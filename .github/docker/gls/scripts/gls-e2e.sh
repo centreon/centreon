@@ -286,7 +286,8 @@ cmd_up() {
   wait_until 120 eval 'cc exec -T centreon-broker cat /etc/centreon-broker/central-broker.json 2>/dev/null | jq -e "[.centreonBroker.output[]? | select(.type == \"unified_sql\")] | length > 0" >/dev/null' \
     && record "central cbd runs the delivered config (unified_sql output)" ok || record "central cbd runs the delivered config (unified_sql output)" ko
   # cbd matched the deployment target on CENTRAL_POLLER_UID (contracts § 9.C4).
-  cc exec -T centreon-broker sh -c 'cat /var/log/centreon-broker/*.log 2>/dev/null' | grep -qF "changed the configuration of this broker, reloading it" \n    && record "central cbd self-reload matched on CENTRAL_POLLER_UID" ok || record "central cbd self-reload matched on CENTRAL_POLLER_UID" ko
+  cc exec -T centreon-broker sh -c 'cat /var/log/centreon-broker/*.log 2>/dev/null' | grep -qF "changed the configuration of this broker, reloading it" \
+    && record "central cbd self-reload matched on CENTRAL_POLLER_UID" ok || record "central cbd self-reload matched on CENTRAL_POLLER_UID" ko
   # The delivered cbmod identity (poller id 1, not the bootstrap uid) reaches unified_sql.
   wait_until 300 instance_running Central && record "central instance running as poller id 1 after delivery" ok \
     || record "central instance running as poller id 1 after delivery" ko "$(instances_dump)"
