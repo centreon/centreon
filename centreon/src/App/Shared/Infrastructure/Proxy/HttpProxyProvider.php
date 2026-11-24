@@ -26,9 +26,8 @@ namespace App\Shared\Infrastructure\Proxy;
 interface HttpProxyProvider
 {
     /**
-     * Proxy URL to use for outbound HTTP requests
-     * (protocol://[user:password@]host[:port]), or null when the platform
-     * has no proxy configured.
+     * Proxy to use for outbound HTTP requests, or null when the platform has
+     * no proxy configured.
      */
-    public function findProxyUrl(): ?string;
+    public function findProxyUrl(): ?ProxyUrl;
 }

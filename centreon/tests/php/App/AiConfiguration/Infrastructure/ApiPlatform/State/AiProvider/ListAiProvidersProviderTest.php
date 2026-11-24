@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace Tests\App\AiConfiguration\Infrastructure\ApiPlatform\State\AiProvider;
 
+use App\AiConfiguration\Infrastructure\Dbal\DbalAiProviderUsageRepository;
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 final class ListAiProvidersProviderTest extends AiProviderApiTestCase
@@ -60,6 +62,68 @@ final class ListAiProvidersProviderTest extends AiProviderApiTestCase
         foreach ($members as $member) {
             self::assertArrayNotHasKey('api_token', $member);
         }
+    }
+
+    public function testTheListingShowsTheSpendLimitsAndTheUsage(): void
+    {
+        $this->login();
+
+        $response = $this->request('POST', self::ENDPOINT, [
+            'json' => [
+                'name' => 'Capped provider',
+                'type' => 'anthropic',
+                'api_token' => 'a-very-secret-token',
+                'default_model' => 'a-default-model',
+                'currency' => 'USD',
+                'price_default_input' => 3.0,
+                'price_default_output' => 15.0,
+                'limit_daily' => 10.0,
+                'limit_monthly' => 100.0,
+            ],
+        ]);
+        self::assertResponseStatusCodeSame(201);
+        /** @var array{id: int} $created */
+        $created = $response->toArray();
+        $this->createProvider('Mistral fallback', type: 'mistral');
+
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $connection->insert(DbalAiProviderUsageRepository::TABLE_NAME, [
+            'ai_provider_id' => $created['id'],
+            'provider_name' => 'Capped provider',
+            'feature' => 'resource_filter',
+            'contact_id' => null,
+            'model' => 'a-default-model',
+            'tier' => 'default',
+            'input_tokens' => 1000,
+            'output_tokens' => 100,
+            'cost' => 0.75,
+            'currency' => 'USD',
+            'requested_at' => time(),
+            'duration_ms' => 500,
+        ]);
+
+        $response = $this->request('GET', self::ENDPOINT);
+
+        self::assertResponseIsSuccessful();
+        $content = $response->toArray();
+        /** @var list<array<string, mixed>> $members */
+        $members = $content['hydra:member'] ?? $content;
+        $byName = array_column($members, null, 'name');
+
+        $capped = $byName['Capped provider'];
+        self::assertSame('USD', $capped['currency']);
+        self::assertEqualsWithDelta(10.0, $capped['limit_daily'], 0.0001);
+        self::assertEqualsWithDelta(100.0, $capped['limit_monthly'], 0.0001);
+        self::assertEqualsWithDelta(0.75, $capped['used_daily'], 0.0001);
+        self::assertEqualsWithDelta(0.75, $capped['used_monthly'], 0.0001);
+
+        // without a currency, no spend is tracked
+        $uncapped = $byName['Mistral fallback'];
+        // null values may be left out of the output
+        self::assertNull($uncapped['limit_daily'] ?? null);
+        self::assertNull($uncapped['used_daily'] ?? null);
+        self::assertNull($uncapped['used_monthly'] ?? null);
     }
 
     public function testFilterByName(): void

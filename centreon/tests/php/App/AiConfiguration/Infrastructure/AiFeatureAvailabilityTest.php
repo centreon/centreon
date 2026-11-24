@@ -31,7 +31,7 @@ final class AiFeatureAvailabilityTest extends TestCase
 {
     public function testAvailableOnPremise(): void
     {
-        (new AiFeatureAvailability(isCloudPlatform: false))->assertAvailable();
+        new AiFeatureAvailability(isCloudPlatform: false)->assertAvailable();
 
         $this->addToAssertionCount(1);
     }
@@ -39,7 +39,7 @@ final class AiFeatureAvailabilityTest extends TestCase
     public function testDeniedOnACloudPlatform(): void
     {
         try {
-            (new AiFeatureAvailability(isCloudPlatform: true))->assertAvailable();
+            new AiFeatureAvailability(isCloudPlatform: true)->assertAvailable();
             self::fail('Expected the AI provider configurations to be denied on a cloud platform');
         } catch (AccessDeniedException $exception) {
             self::assertSame(403, $exception->getStatusCode());

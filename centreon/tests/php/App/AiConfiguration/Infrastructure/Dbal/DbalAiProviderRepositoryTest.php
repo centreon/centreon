@@ -30,7 +30,6 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderName;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\Billing;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\Currency;
-use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\Pricing;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\SpendLimit;
@@ -171,6 +170,41 @@ final class DbalAiProviderRepositoryTest extends KernelTestCase
         $this->repository->add($this->newAiProvider('Mistral fallback', type: AiProviderTypeEnum::Mistral, isActivated: true));
     }
 
+    public function testActivatingASecondProviderOnUpdateIsAConflict(): void
+    {
+        $this->repository->add($this->newAiProvider('Anthropic production', isActivated: true));
+        $next = $this->newAiProvider('Mistral fallback', type: AiProviderTypeEnum::Mistral);
+        $this->repository->add($next);
+
+        $next->activate();
+
+        $this->expectException(AiProviderActivationConflictException::class);
+
+        $this->repository->update($next);
+    }
+
+    public function testAConflictingUpdateSavesNothing(): void
+    {
+        $this->repository->add($this->newAiProvider('Anthropic production', isActivated: true));
+        $next = $this->newAiProvider('Mistral fallback', type: AiProviderTypeEnum::Mistral);
+        $other = $this->newAiProvider('Mistral backup', type: AiProviderTypeEnum::Mistral);
+        $this->repository->add($next);
+        $this->repository->add($other);
+
+        // the renamed provider is written first, then the activation conflicts
+        $other->rename(new AiProviderName('Mistral renamed'));
+        $next->activate();
+
+        try {
+            $this->repository->update($next, $other);
+            self::fail('Expected an activation conflict.');
+        } catch (AiProviderActivationConflictException) {
+        }
+
+        self::assertSame('Mistral backup', $this->repository->getById($other->id())->name()->value);
+        self::assertSame('Anthropic production', $this->repository->findActivated()?->name()->value);
+    }
+
     public function testADuplicateNameIsAConflict(): void
     {
         $this->repository->add($this->newAiProvider('Anthropic production'));
@@ -240,7 +274,7 @@ final class DbalAiProviderRepositoryTest extends KernelTestCase
             id: null,
             name: new AiProviderName($name),
             type: $type,
-            endpointUrl: new EndpointUrl('https://api.anthropic.com'),
+            endpointUrl: $type->resolveEndpoint('https://bedrock-mantle.us-east-1.api.aws'),
             apiToken: new StoredApiToken('a-token'),
             defaultModel: new ModelName('claude-sonnet-4-6'),
             fastModel: new ModelName('claude-haiku-4-5'),

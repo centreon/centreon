@@ -29,9 +29,6 @@ use Webmozart\Assert\Assert;
 /**
  * One monitored resource in an alert-correlation request, as displayed in the
  * monitoring console.
- *
- * The free texts are masked in the bus logs: they may carry secrets (a command
- * line, a plugin output) and they make up the prompt.
  */
 final readonly class CorrelatedResource
 {
@@ -54,7 +51,7 @@ final readonly class CorrelatedResource
             Assert::maxLength($parentName, 255);
         }
         if ($information !== null) {
-            Assert::maxLength($information, 10000);
+            Assert::maxLength($information, 10000, 'The information is too long.');
         }
         if ($duration !== null) {
             Assert::maxLength($duration, 255);

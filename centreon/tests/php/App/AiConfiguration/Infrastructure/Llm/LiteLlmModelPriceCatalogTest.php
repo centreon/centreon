@@ -28,10 +28,12 @@ use App\AiConfiguration\Domain\Llm\Exception\PriceCatalogUnavailableException;
 use App\AiConfiguration\Infrastructure\Llm\LiteLlmModelPriceCatalog;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 use Tests\App\Shared\Double\FakeHttpProxyProvider;
+use Tests\App\Shared\Infrastructure\Legacy\Double\RecordingLogger;
 
 final class LiteLlmModelPriceCatalogTest extends TestCase
 {
@@ -115,7 +117,7 @@ final class LiteLlmModelPriceCatalogTest extends TestCase
             new MockResponse(self::CATALOG),
             new MockResponse('{}'),
         ]);
-        $catalog = new LiteLlmModelPriceCatalog($httpClient, new FakeHttpProxyProvider(), new ArrayAdapter());
+        $catalog = new LiteLlmModelPriceCatalog($httpClient, new FakeHttpProxyProvider(), new ArrayAdapter(), new NullLogger());
 
         $catalog->priceFor('gpt-4o', AiProviderTypeEnum::OpenAi);
 
@@ -139,11 +141,28 @@ final class LiteLlmModelPriceCatalogTest extends TestCase
         $catalog = new LiteLlmModelPriceCatalog(
             $httpClient,
             new FakeHttpProxyProvider('http://proxy.example.org:3128'),
-            new ArrayAdapter()
+            new ArrayAdapter(),
+            new NullLogger()
         );
 
         self::assertNotNull($catalog->priceFor('gpt-4o', AiProviderTypeEnum::OpenAi));
         self::assertSame('http://proxy.example.org:3128', $sentProxy);
+    }
+
+    public function testAProxyWithoutItsVaultPasswordIsLogged(): void
+    {
+        $logger = new RecordingLogger();
+        $catalog = new LiteLlmModelPriceCatalog(
+            new MockHttpClient(new MockResponse(self::CATALOG)),
+            new FakeHttpProxyProvider('http://proxy.example.org:3128', vaultPasswordSkipped: true),
+            new ArrayAdapter(),
+            $logger
+        );
+
+        $catalog->priceFor('gpt-4o', AiProviderTypeEnum::OpenAi);
+
+        self::assertCount(1, $logger->records());
+        self::assertSame('warning', $logger->records()[0]['level']);
     }
 
     /**
@@ -161,7 +180,7 @@ final class LiteLlmModelPriceCatalogTest extends TestCase
     #[DataProvider('provideFailingResponses')]
     public function testAFetchFailureIsReportedAsAnUnavailablePriceList(MockResponse $response): void
     {
-        $catalog = new LiteLlmModelPriceCatalog(new MockHttpClient($response), new FakeHttpProxyProvider(), new ArrayAdapter());
+        $catalog = new LiteLlmModelPriceCatalog(new MockHttpClient($response), new FakeHttpProxyProvider(), new ArrayAdapter(), new NullLogger());
 
         $this->expectException(PriceCatalogUnavailableException::class);
         $this->expectExceptionMessage('The model price list can not be fetched');
@@ -174,7 +193,8 @@ final class LiteLlmModelPriceCatalogTest extends TestCase
         return new LiteLlmModelPriceCatalog(
             new MockHttpClient([new MockResponse($json)]),
             new FakeHttpProxyProvider(),
-            new ArrayAdapter()
+            new ArrayAdapter(),
+            new NullLogger()
         );
     }
 }

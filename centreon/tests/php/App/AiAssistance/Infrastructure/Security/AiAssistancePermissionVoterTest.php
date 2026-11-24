@@ -44,7 +44,7 @@ final class AiAssistancePermissionVoterTest extends TestCase
     {
         self::assertSame(
             VoterInterface::ACCESS_ABSTAIN,
-            (new AiAssistancePermissionVoter())->vote($this->tokenFor($this->credential()), null, ['some_other_attribute'])
+            new AiAssistancePermissionVoter()->vote($this->tokenFor($this->credential()), null, ['some_other_attribute'])
         );
     }
 
@@ -55,7 +55,7 @@ final class AiAssistancePermissionVoterTest extends TestCase
 
         self::assertSame(
             VoterInterface::ACCESS_GRANTED,
-            (new AiAssistancePermissionVoter())->vote($this->tokenFor($credential), null, [self::CAN_USE])
+            new AiAssistancePermissionVoter()->vote($this->tokenFor($credential), null, [self::CAN_USE])
         );
     }
 
@@ -63,7 +63,7 @@ final class AiAssistancePermissionVoterTest extends TestCase
     {
         self::assertSame(
             VoterInterface::ACCESS_DENIED,
-            (new AiAssistancePermissionVoter())->vote($this->tokenFor($this->credential()), null, [self::CAN_USE])
+            new AiAssistancePermissionVoter()->vote($this->tokenFor($this->credential()), null, [self::CAN_USE])
         );
     }
 
@@ -71,7 +71,7 @@ final class AiAssistancePermissionVoterTest extends TestCase
     {
         self::assertSame(
             VoterInterface::ACCESS_DENIED,
-            (new AiAssistancePermissionVoter())->vote(new NullToken(), null, [self::CAN_USE])
+            new AiAssistancePermissionVoter()->vote(new NullToken(), null, [self::CAN_USE])
         );
     }
 
@@ -82,7 +82,7 @@ final class AiAssistancePermissionVoterTest extends TestCase
 
         self::assertSame(
             VoterInterface::ACCESS_GRANTED,
-            (new AiAssistancePermissionVoter())->vote($this->tokenFor($credential), null, [self::CAN_USE])
+            new AiAssistancePermissionVoter()->vote($this->tokenFor($credential), null, [self::CAN_USE])
         );
     }
 

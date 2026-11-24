@@ -74,6 +74,23 @@ final class DiscoverModelsCommandHandlerTest extends TestCase
         self::assertSame(['fake-model-a', 'fake-model-b'], $result->models);
     }
 
+    public function testTheConnectionSpecCarriesTheTargetAndTheToken(): void
+    {
+        $provider = $this->aiProvider();
+        $this->repository->add($provider);
+        $factory = new FakeLlmClientFactory(new FakeLlmClient());
+        $handler = new DiscoverModelsCommandHandler($this->repository, $factory);
+
+        $handler($this->command(apiToken: null, id: $provider->id()->value));
+
+        $spec = $factory->lastConnectionSpec;
+        self::assertNotNull($spec);
+        self::assertSame(AiProviderTypeEnum::Anthropic, $spec->type);
+        self::assertSame('https://api.anthropic.com', $spec->endpointUrl->value);
+        self::assertSame('initial-token', $spec->apiToken->value);
+        self::assertNull($spec->model);
+    }
+
     public function testRefusesTheStoredTokenForAnotherEndpoint(): void
     {
         $provider = $this->aiProvider();

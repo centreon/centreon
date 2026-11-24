@@ -87,6 +87,7 @@ final readonly class ExplainResourceCommandHandler
         return new ExplainResourceResult(
             explanation: $response->content,
             model: $response->model,
+            truncated: $response->truncated,
         );
     }
 

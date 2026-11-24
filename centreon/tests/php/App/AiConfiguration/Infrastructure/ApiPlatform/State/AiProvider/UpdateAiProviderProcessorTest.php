@@ -76,6 +76,27 @@ final class UpdateAiProviderProcessorTest extends AiProviderApiTestCase
         ]);
     }
 
+    public function testPatchIgnoresAnotherType(): void
+    {
+        $this->login();
+
+        $id = $this->createProvider('Anthropic production');
+
+        $this->request('PATCH', self::ENDPOINT . '/' . $id, [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'],
+            'json' => ['type' => 'openai_compatible', 'endpoint_url' => 'https://llm-gateway.example.com'],
+        ]);
+
+        self::assertResponseIsSuccessful();
+        self::assertJsonContains([
+            'type' => 'anthropic',
+            'endpoint_url' => 'https://api.anthropic.com',
+        ]);
+
+        $response = $this->request('GET', self::ENDPOINT . '/' . $id);
+        self::assertSame('anthropic', $response->toArray()['type']);
+    }
+
     public function testPatchEndpointWithoutTokenReturns422(): void
     {
         $this->login();

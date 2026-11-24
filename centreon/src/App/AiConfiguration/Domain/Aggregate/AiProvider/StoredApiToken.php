@@ -38,17 +38,19 @@ final readonly class StoredApiToken
     public const VAULT_REFERENCE_PREFIX = 'secret::';
 
     public function __construct(
+        #[\SensitiveParameter]
         public string $value,
     ) {
-        Assert::lengthBetween($value, 1, 4096);
+        // constant messages: the token must not end up in the exception text
+        Assert::lengthBetween($value, 1, 4096, 'The stored API token must be between 1 and 4096 characters long.');
     }
 
-    public static function plain(ApiToken $apiToken): self
+    public static function plain(#[\SensitiveParameter] ApiToken $apiToken): self
     {
         return new self($apiToken->value);
     }
 
-    public static function vaultReference(string $reference): self
+    public static function vaultReference(#[\SensitiveParameter] string $reference): self
     {
         Assert::startsWith($reference, self::VAULT_REFERENCE_PREFIX, 'A vault reference must start with "secret::".');
 

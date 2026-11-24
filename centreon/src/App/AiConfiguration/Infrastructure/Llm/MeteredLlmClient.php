@@ -40,8 +40,8 @@ use Symfony\Bundle\SecurityBundle\Security;
  * Wraps a client to enforce the provider spend limit before each request and
  * record token usage, cost and duration after each successful one. The
  * triggering user is read from the security context; the feature comes from
- * the request. A call that requires an answer and gets an empty one fails,
- * after being recorded.
+ * the request. A call that requires an answer and gets a refusal or an empty
+ * one fails, after being recorded.
  */
 final readonly class MeteredLlmClient implements LlmClientInterface
 {
@@ -95,13 +95,23 @@ final readonly class MeteredLlmClient implements LlmClientInterface
     }
 
     /**
-     * An empty answer is still billed: it fails only after the usage is recorded.
+     * A refusal or an empty answer is still billed: it fails only after the
+     * usage is recorded. A request that requires no answer (a connection test)
+     * succeeds either way: the provider did answer.
      *
      * @throws LlmRequestFailedException when the request requires an answer and got none
      */
     private function assertAnswered(LlmRequest $request, LlmResponse $response): void
     {
-        if ($request->requiresAnswer && trim($response->content) === '') {
+        if (! $request->requiresAnswer) {
+            return;
+        }
+
+        if ($response->refusal !== null) {
+            throw LlmRequestFailedException::fromRefusal($response->refusal);
+        }
+
+        if (trim($response->content) === '') {
             throw LlmRequestFailedException::fromEmptyAnswer($response->truncated, $request->maxTokens);
         }
     }

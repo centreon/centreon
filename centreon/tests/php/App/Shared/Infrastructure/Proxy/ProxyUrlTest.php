@@ -39,7 +39,7 @@ final class ProxyUrlTest extends TestCase
     {
         self::assertSame(
             'http://proxy.internal',
-            ProxyUrl::fromOptions(['proxy_url' => 'proxy.internal'])
+            ProxyUrl::fromOptions(['proxy_url' => 'proxy.internal'])?->value
         );
     }
 
@@ -47,7 +47,7 @@ final class ProxyUrlTest extends TestCase
     {
         self::assertSame(
             'http://proxy.internal:3128',
-            ProxyUrl::fromOptions(['proxy_url' => 'proxy.internal', 'proxy_port' => '3128'])
+            ProxyUrl::fromOptions(['proxy_url' => 'proxy.internal', 'proxy_port' => '3128'])?->value
         );
     }
 
@@ -55,7 +55,7 @@ final class ProxyUrlTest extends TestCase
     {
         self::assertSame(
             'https://proxy.internal:3128',
-            ProxyUrl::fromOptions(['proxy_url' => 'https://proxy.internal', 'proxy_port' => '3128'])
+            ProxyUrl::fromOptions(['proxy_url' => 'https://proxy.internal', 'proxy_port' => '3128'])?->value
         );
     }
 
@@ -68,7 +68,7 @@ final class ProxyUrlTest extends TestCase
                 'proxy_port' => '3128',
                 'proxy_user' => 'user@corp',
                 'proxy_password' => 'p@ss:word',
-            ])
+            ])?->value
         );
     }
 
@@ -76,7 +76,7 @@ final class ProxyUrlTest extends TestCase
     {
         self::assertSame(
             'http://user@proxy.internal',
-            ProxyUrl::fromOptions(['proxy_url' => 'proxy.internal', 'proxy_user' => 'user'])
+            ProxyUrl::fromOptions(['proxy_url' => 'proxy.internal', 'proxy_user' => 'user'])?->value
         );
     }
 
@@ -88,7 +88,24 @@ final class ProxyUrlTest extends TestCase
                 'proxy_url' => 'proxy.internal',
                 'proxy_user' => 'user',
                 'proxy_password' => 'secret::hashicorp_vault::configuration/proxy::password',
-            ])
+            ])?->value
         );
+    }
+
+    public function testASkippedVaultPasswordIsReported(): void
+    {
+        $vaultPassword = ProxyUrl::fromOptions([
+            'proxy_url' => 'proxy.internal',
+            'proxy_user' => 'user',
+            'proxy_password' => 'secret::hashicorp_vault::configuration/proxy::password',
+        ]);
+        $plainPassword = ProxyUrl::fromOptions([
+            'proxy_url' => 'proxy.internal',
+            'proxy_user' => 'user',
+            'proxy_password' => 'pass',
+        ]);
+
+        self::assertTrue($vaultPassword?->vaultPasswordSkipped);
+        self::assertFalse($plainPassword?->vaultPasswordSkipped);
     }
 }

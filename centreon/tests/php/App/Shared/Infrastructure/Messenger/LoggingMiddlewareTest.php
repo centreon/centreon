@@ -30,8 +30,14 @@ use App\Shared\Infrastructure\Logging\LogPayloadNormalizer;
 use App\Shared\Infrastructure\Logging\PayloadSanitizer;
 use App\Shared\Infrastructure\Logging\SensitiveKeywordDenylist;
 use App\Shared\Infrastructure\Messenger\LoggingMiddleware;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\Exception\HandlerFailedException;
+use Symfony\Component\Messenger\Handler\HandlerDescriptor;
+use Symfony\Component\Messenger\Handler\HandlersLocator;
+use Symfony\Component\Messenger\MessageBus;
+use Symfony\Component\Messenger\Middleware\HandleMessageMiddleware;
 use Symfony\Component\Messenger\Middleware\MiddlewareInterface;
 use Symfony\Component\Messenger\Middleware\StackInterface;
 use Symfony\Component\Messenger\Stamp\BusNameStamp;
@@ -150,6 +156,65 @@ final class LoggingMiddlewareTest extends TestCase
 
         self::assertCount(0, $this->logger->criticalMessages);
         self::assertCount(1, $this->logger->warningMessages);
+    }
+
+    /**
+     * @return iterable<string, array{\Throwable, bool}>
+     */
+    public static function provideHandlerFailures(): iterable
+    {
+        yield 'expected failure' => [
+            new class ('The provider rejected the request') extends \RuntimeException implements ExpectedFailureInterface {
+            },
+            true,
+        ];
+
+        yield 'domain validation failure' => [new \InvalidArgumentException('Name cannot be empty'), true];
+
+        yield 'unexpected failure' => [new \RuntimeException('Something broke'), false];
+    }
+
+    #[DataProvider('provideHandlerFailures')]
+    public function testHandlerFailureWrappedByTheBusKeepsItsLevel(\Throwable $exception, bool $expected): void
+    {
+        $bus = new MessageBus([
+            $this->middleware,
+            new HandleMessageMiddleware(new HandlersLocator([
+                \stdClass::class => [static fn () => throw $exception],
+            ])),
+        ]);
+
+        try {
+            $bus->dispatch(new \stdClass());
+            self::fail('Expected exception was not thrown.');
+        } catch (HandlerFailedException $caught) {
+            self::assertSame([$exception], array_values($caught->getWrappedExceptions()));
+        }
+
+        self::assertCount($expected ? 1 : 0, $this->logger->warningMessages);
+        self::assertCount($expected ? 0 : 1, $this->logger->criticalMessages);
+    }
+
+    public function testWrapperWithOneUnexpectedFailureIsCritical(): void
+    {
+        $bus = new MessageBus([
+            $this->middleware,
+            new HandleMessageMiddleware(new HandlersLocator([
+                \stdClass::class => [
+                    new HandlerDescriptor(static fn () => throw new \InvalidArgumentException('Name cannot be empty'), ['alias' => 'validating']),
+                    new HandlerDescriptor(static fn () => throw new \RuntimeException('Something broke'), ['alias' => 'breaking']),
+                ],
+            ])),
+        ]);
+
+        try {
+            $bus->dispatch(new \stdClass());
+            self::fail('Expected exception was not thrown.');
+        } catch (HandlerFailedException) {
+        }
+
+        self::assertCount(0, $this->logger->warningMessages);
+        self::assertCount(1, $this->logger->criticalMessages);
     }
 
     public function testExceptionChainCapturesAllLevels(): void

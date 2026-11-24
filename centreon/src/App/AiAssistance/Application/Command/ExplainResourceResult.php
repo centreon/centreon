@@ -30,6 +30,8 @@ final readonly class ExplainResourceResult
         public string $explanation,
         /** Model that produced the explanation. */
         public string $model,
+        /** Whether the explanation was cut at the token limit of the request. */
+        public bool $truncated = false,
     ) {
     }
 }

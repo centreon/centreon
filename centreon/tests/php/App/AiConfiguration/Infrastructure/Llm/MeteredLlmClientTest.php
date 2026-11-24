@@ -98,7 +98,7 @@ final class MeteredLlmClientTest extends TestCase
     public function testRefusesAndDoesNotRecordWhenBudgetExhausted(): void
     {
         $usageRepository = new FakeAiProviderUsageRepository([
-            FakeAiProviderUsageRepository::spend(1, 'USD', 50.0, (new MockClock(self::NOW))->now()->getTimestamp()),
+            FakeAiProviderUsageRepository::spend(1, 'USD', 50.0, new MockClock(self::NOW)->now()->getTimestamp()),
         ]);
         $inner = new FakeLlmClient();
         $client = $this->metered(
@@ -140,6 +140,71 @@ final class MeteredLlmClientTest extends TestCase
 
         self::assertNotNull($usageRepository->lastAdded, 'the tokens spent must still be recorded');
         self::assertSame(3, $usageRepository->lastAdded->outputTokens);
+    }
+
+    public function testARefusalStillRecordsTheTokensSpent(): void
+    {
+        $usageRepository = new FakeAiProviderUsageRepository();
+        $client = $this->metered(
+            $this->provider(),
+            $usageRepository,
+            new FakeLlmClient(new LlmResponse('', 'gpt-5', new LlmUsage(37, 5), refusal: 'I can not help with that.')),
+        );
+
+        try {
+            $client->complete($this->request());
+            self::fail('Expected a refusal to fail');
+        } catch (LlmRequestFailedException $exception) {
+            self::assertSame('The AI provider refused to answer: I can not help with that.', $exception->getMessage());
+        }
+
+        self::assertNotNull($usageRepository->lastAdded, 'the tokens spent must still be recorded');
+        self::assertSame(5, $usageRepository->lastAdded->outputTokens);
+    }
+
+    public function testARefusalWithSomeTextStillFails(): void
+    {
+        $client = $this->metered(
+            $this->provider(),
+            new FakeAiProviderUsageRepository(),
+            new FakeLlmClient(new LlmResponse('I can', 'claude-sonnet-4-6', new LlmUsage(37, 3), refusal: 'declined')),
+        );
+
+        $this->expectException(LlmRequestFailedException::class);
+        $this->expectExceptionMessage('refused to answer');
+
+        iterator_to_array($client->stream($this->request()), false);
+    }
+
+    public function testConnectionTestAcceptsARefusal(): void
+    {
+        // the provider answered: the connection works
+        $client = $this->metered(
+            $this->provider(),
+            new FakeAiProviderUsageRepository(),
+            new FakeLlmClient(new LlmResponse('', 'gpt-5', new LlmUsage(7, 2), refusal: 'declined')),
+        );
+
+        self::assertSame('gpt-5', $client->complete(LlmRequest::connectionTest(null))->model);
+    }
+
+    public function testStreamEmptyAnswerFailsAfterTheUsageIsRecorded(): void
+    {
+        $usageRepository = new FakeAiProviderUsageRepository();
+        $client = $this->metered(
+            $this->provider(),
+            $usageRepository,
+            new FakeLlmClient(new LlmResponse(' ', 'gemini-4-hydrogen', new LlmUsage(37, 3))),
+        );
+
+        try {
+            iterator_to_array($client->stream($this->request()), false);
+            self::fail('Expected an empty answer to fail');
+        } catch (LlmRequestFailedException $exception) {
+            self::assertStringContainsString('empty answer', $exception->getMessage());
+        }
+
+        self::assertCount(1, $usageRepository->added);
     }
 
     public function testTruncatedEmptyAnswerNamesTheTokenBudget(): void
@@ -228,7 +293,7 @@ final class MeteredLlmClientTest extends TestCase
     public function testStreamRefusesAndDoesNotRecordWhenBudgetExhausted(): void
     {
         $usageRepository = new FakeAiProviderUsageRepository([
-            FakeAiProviderUsageRepository::spend(1, 'USD', 50.0, (new MockClock(self::NOW))->now()->getTimestamp()),
+            FakeAiProviderUsageRepository::spend(1, 'USD', 50.0, new MockClock(self::NOW)->now()->getTimestamp()),
         ]);
         $inner = new FakeLlmClient();
         $client = $this->metered(

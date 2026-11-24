@@ -61,6 +61,9 @@ final readonly class ListAiProvidersProvider implements ProviderInterface
     }
 
     /**
+     * @throws AccessDeniedException when AI features are not available or the user may not read the configurations
+     * @throws BadRequestHttpException when a filter is malformed
+     *
      * @return iterable<ListAiProviderResource>
      */
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): iterable

@@ -29,9 +29,6 @@ use Webmozart\Assert\Assert;
 
 /**
  * The request is masked in the bus logs: it is free text typed by the user.
- *
- * Not transactional: the usage row of a provider call must survive a later
- * failure, and no transaction may stay open during the provider call.
  */
 final readonly class TranslateResourceFilterCommand implements NonTransactionalCommand
 {
@@ -42,9 +39,9 @@ final readonly class TranslateResourceFilterCommand implements NonTransactionalC
         #[Sensitive]
         public ?string $currentFilter = null,
     ) {
-        Assert::lengthBetween($prompt, 1, 2000);
+        Assert::lengthBetween($prompt, 1, 2000, 'The request must contain between 1 and 2000 characters.');
         if ($currentFilter !== null) {
-            Assert::maxLength($currentFilter, 2000);
+            Assert::maxLength($currentFilter, 2000, 'The current filter is too long.');
         }
     }
 }

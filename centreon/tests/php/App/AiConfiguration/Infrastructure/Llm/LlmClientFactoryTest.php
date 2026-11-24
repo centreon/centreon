@@ -30,6 +30,7 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\StoredApiToken;
 use App\AiConfiguration\Domain\Llm\AiFeatureEnum;
+use App\AiConfiguration\Domain\Llm\ConnectionSpec;
 use App\AiConfiguration\Domain\Llm\Exception\ApiTokenUnavailableException;
 use App\AiConfiguration\Domain\Llm\Exception\LlmConfigurationException;
 use App\AiConfiguration\Domain\Llm\LlmMessage;
@@ -42,7 +43,10 @@ use App\AiConfiguration\Infrastructure\Llm\GeminiLlmClient;
 use App\AiConfiguration\Infrastructure\Llm\LlmClientFactory;
 use App\AiConfiguration\Infrastructure\Llm\MeteredLlmClient;
 use App\AiConfiguration\Infrastructure\Llm\OpenAiCompatibleLlmClient;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\DependencyInjection\Container;
@@ -54,6 +58,7 @@ use Tests\App\AiConfiguration\Infrastructure\Double\FakeAiProviderRepository;
 use Tests\App\AiConfiguration\Infrastructure\Double\FakeAiProviderUsageRepository;
 use Tests\App\Shared\Double\FakeHttpProxyProvider;
 use Tests\App\Shared\Double\FakeVault;
+use Tests\App\Shared\Infrastructure\Legacy\Double\RecordingLogger;
 
 final class LlmClientFactoryTest extends TestCase
 {
@@ -143,7 +148,12 @@ final class LlmClientFactoryTest extends TestCase
         );
 
         $this->createFactory($httpClient)
-            ->forConnectionTest($this->createAiProvider(AiProviderTypeEnum::Anthropic, token: self::STORED_TOKEN))
+            ->forConnectionTest(new ConnectionSpec(
+                AiProviderTypeEnum::Anthropic,
+                new EndpointUrl('https://api.anthropic.com'),
+                new StoredApiToken(self::STORED_TOKEN),
+                new ModelName('claude-sonnet-5-5'),
+            ))
             ->complete(new LlmRequest(
                 messages: [new LlmMessage(LlmRoleEnum::User, 'ping')],
                 feature: AiFeatureEnum::ConnectionTest,
@@ -177,10 +187,84 @@ final class LlmClientFactoryTest extends TestCase
         self::assertNull($this->proxyOfARequest(new FakeHttpProxyProvider()));
     }
 
+    public function testAPublicCompatibleEndpointGoesThroughThePlatformProxy(): void
+    {
+        self::assertSame(
+            'http://proxy.example.org:3128',
+            $this->proxyOfAConnectionTest('https://llm.example.org', new FakeHttpProxyProvider('http://proxy.example.org:3128'))
+        );
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function provideLocalNetworkEndpoints(): iterable
+    {
+        yield 'loopback' => ['http://127.0.0.1:11434'];
+
+        yield 'private' => ['http://10.0.0.12:8000'];
+
+        yield 'localhost' => ['http://localhost:11434'];
+
+        yield 'IPv6 unique local' => ['http://[fd12:3456::1]:8000'];
+    }
+
+    #[DataProvider('provideLocalNetworkEndpoints')]
+    public function testALocalNetworkEndpointBypassesThePlatformProxy(string $endpointUrl): void
+    {
+        self::assertNull(
+            $this->proxyOfAConnectionTest($endpointUrl, new FakeHttpProxyProvider('http://proxy.example.org:3128'))
+        );
+    }
+
+    public function testAProxyUsedWithoutItsVaultPasswordIsLogged(): void
+    {
+        $logger = new RecordingLogger();
+
+        $this->proxyOfARequest(
+            new FakeHttpProxyProvider('http://proxy.example.org:3128', vaultPasswordSkipped: true),
+            $logger
+        );
+
+        self::assertCount(1, $logger->records());
+        self::assertSame('warning', $logger->records()[0]['level']);
+    }
+
+    public function testAProxyWithItsCredentialsIsNotLogged(): void
+    {
+        $logger = new RecordingLogger();
+
+        $this->proxyOfARequest(new FakeHttpProxyProvider('http://user:pass@proxy.example.org:3128'), $logger);
+
+        self::assertSame([], $logger->records());
+    }
+
+    public function testAConnectionTestOfACuratedProviderTargetsItsOfficialEndpoint(): void
+    {
+        $urls = [];
+        $httpClient = new MockHttpClient(
+            function (string $method, string $url) use (&$urls): MockResponse {
+                $urls[] = $url;
+
+                return new MockResponse('{"data":[],"has_more":false}');
+            }
+        );
+
+        $this->createFactory($httpClient)
+            ->forConnectionTest(new ConnectionSpec(
+                AiProviderTypeEnum::Anthropic,
+                new EndpointUrl('https://elsewhere.example.org'),
+                new StoredApiToken('a-token'),
+            ))
+            ->listModels();
+
+        self::assertSame(['https://api.anthropic.com/v1/models?limit=1000'], $urls);
+    }
+
     /**
      * Sends a metered request and returns the proxy option the HTTP client received.
      */
-    private function proxyOfARequest(FakeHttpProxyProvider $proxyProvider): ?string
+    private function proxyOfARequest(FakeHttpProxyProvider $proxyProvider, ?LoggerInterface $logger = null): ?string
     {
         $sentProxy = null;
         $httpClient = new MockHttpClient(
@@ -197,7 +281,7 @@ final class LlmClientFactoryTest extends TestCase
 
         $aiProvider = $this->createAiProvider(AiProviderTypeEnum::Anthropic, isActivated: true);
         $this->repository->add($aiProvider);
-        $this->createFactory($httpClient, $proxyProvider)
+        $this->createFactory($httpClient, $proxyProvider, $logger)
             ->forActivatedProvider()
             ->complete(new LlmRequest(
                 messages: [new LlmMessage(LlmRoleEnum::User, 'ping')],
@@ -209,8 +293,38 @@ final class LlmClientFactoryTest extends TestCase
         return $sentProxy;
     }
 
-    private function createFactory(HttpClientInterface $httpClient, ?FakeHttpProxyProvider $proxyProvider = null): LlmClientFactory
+    /**
+     * Tests an OpenAI-compatible endpoint and returns the proxy option the HTTP client received.
+     */
+    private function proxyOfAConnectionTest(string $endpointUrl, FakeHttpProxyProvider $proxyProvider): ?string
     {
+        $sentProxy = null;
+        $httpClient = new MockHttpClient(
+            function (string $method, string $url, array $options) use (&$sentProxy): MockResponse {
+                $sentProxy = $options['proxy'] ?? null;
+
+                return new MockResponse('{"choices":[{"message":{"content":"pong"}}],"model":"llama3"}');
+            }
+        );
+
+        $this->createFactory($httpClient, $proxyProvider)
+            ->forConnectionTest(new ConnectionSpec(
+                AiProviderTypeEnum::OpenAiCompatible,
+                new EndpointUrl($endpointUrl),
+                new StoredApiToken('a-token'),
+                new ModelName('llama3'),
+            ))
+            ->complete(LlmRequest::connectionTest(new ModelName('llama3')));
+
+        /** @var string|null $sentProxy */
+        return $sentProxy;
+    }
+
+    private function createFactory(
+        HttpClientInterface $httpClient,
+        ?FakeHttpProxyProvider $proxyProvider = null,
+        ?LoggerInterface $logger = null,
+    ): LlmClientFactory {
         $usageRepository = new FakeAiProviderUsageRepository();
 
         return new LlmClientFactory(
@@ -222,6 +336,7 @@ final class LlmClientFactoryTest extends TestCase
             $this->securityWithoutUser(),
             new MockClock(),
             $this->vault,
+            $logger ?? new NullLogger(),
         );
     }
 
@@ -234,7 +349,9 @@ final class LlmClientFactoryTest extends TestCase
             id: null,
             name: new AiProviderName(uniqid('provider-', true)),
             type: $type,
-            endpointUrl: new EndpointUrl('https://api.example.org'),
+            endpointUrl: $type->defaultEndpointUrl() ?? new EndpointUrl(
+                $type === AiProviderTypeEnum::Bedrock ? 'https://bedrock-mantle.us-east-1.api.aws' : 'https://api.example.org'
+            ),
             apiToken: new StoredApiToken($token),
             defaultModel: new ModelName('a-model'),
             fastModel: null,

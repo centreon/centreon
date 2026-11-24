@@ -62,6 +62,12 @@ final readonly class CorrelateAlertsResource
             openapiContext: ['example' => 'claude-sonnet-4-6'],
         )]
         public string $model,
+
+        #[ApiProperty(
+            description: 'Whether the analysis was cut at the length limit of the answer: it is then incomplete',
+            writable: false,
+        )]
+        public bool $truncated = false,
     ) {
     }
 }

@@ -23,6 +23,12 @@ declare(strict_types=1);
 
 namespace App\Shared\Application\Command;
 
+/**
+ * A command the bus runs outside of a database transaction: for a command
+ * whose writes must survive a later failure of the same command (e.g. the
+ * usage recorded for a call to an external service), or that would otherwise
+ * keep a transaction open during a slow external call.
+ */
 interface NonTransactionalCommand
 {
 }

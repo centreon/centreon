@@ -23,12 +23,12 @@ declare(strict_types=1);
 
 namespace App\AiConfiguration\Application\Command;
 
-use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProvider;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderId;
-use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderName;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\StoredApiToken;
 use App\AiConfiguration\Domain\Exception\AiProviderNotFoundException;
+use App\AiConfiguration\Domain\Exception\InvalidAiProviderConfigurationException;
+use App\AiConfiguration\Domain\Llm\ConnectionSpec;
 use App\AiConfiguration\Domain\Llm\Exception\ApiTokenUnavailableException;
 use App\AiConfiguration\Domain\Llm\Exception\LlmRequestFailedException;
 use App\AiConfiguration\Domain\Llm\LlmClientFactoryInterface;
@@ -50,6 +50,7 @@ final readonly class TestAiProviderConnectionCommandHandler
     /**
      * @throws AiProviderNotFoundException when the provider to reuse does not exist
      * @throws ApiTokenUnavailableException when the stored token can not be read from the vault
+     * @throws InvalidAiProviderConfigurationException when the endpoint is not acceptable for the type
      */
     public function __invoke(TestAiProviderConnectionCommand $command): TestAiProviderResult
     {
@@ -69,20 +70,11 @@ final readonly class TestAiProviderConnectionCommandHandler
             $storedApiToken = StoredApiToken::plain($apiToken);
         }
 
-        $aiProvider = new AiProvider(
-            id: $command->id,
-            name: new AiProviderName('connection-test'),
-            type: $command->type,
-            endpointUrl: $command->endpointUrl,
-            apiToken: $storedApiToken,
-            defaultModel: $command->model,
-            fastModel: null,
-            description: null,
-            isActivated: false,
-        );
+        $spec = new ConnectionSpec($command->type, $command->endpointUrl, $storedApiToken, $command->model);
 
         try {
-            $response = $this->clientFactory->forConnectionTest($aiProvider)
+            // a refusal still proves the connection works: the provider answered
+            $response = $this->clientFactory->forConnectionTest($spec)
                 ->complete(LlmRequest::connectionTest($command->model));
         } catch (LlmRequestFailedException $exception) {
             return new TestAiProviderResult(success: false, message: $exception->getMessage());

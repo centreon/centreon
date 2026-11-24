@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\AiConfiguration\Infrastructure\ApiPlatform\State\AiProvider;
 
+use ApiPlatform\Metadata\Exception\AccessDeniedException;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\AiConfiguration\Application\Command\DiscoverModelsCommand;
@@ -30,6 +31,7 @@ use App\AiConfiguration\Application\Command\DiscoverModelsResult;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderId;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
+use App\AiConfiguration\Domain\Exception\InvalidAiProviderConfigurationException;
 use App\AiConfiguration\Infrastructure\AiFeatureAvailability;
 use App\AiConfiguration\Infrastructure\ApiPlatform\Dto\DiscoverModelsInput;
 use App\AiConfiguration\Infrastructure\ApiPlatform\Resource\AiProvider\DiscoverModelsResource;
@@ -48,6 +50,13 @@ final readonly class DiscoverModelsProcessor implements ProcessorInterface
     ) {
     }
 
+    /**
+     * @param DiscoverModelsInput $data
+     *
+     * @throws AccessDeniedException when AI features are not available
+     * @throws InvalidAiProviderConfigurationException when the endpoint does not fit the type
+     * @throws UnprocessableEntityHttpException when the provider rejects the request
+     */
     public function process($data, Operation $operation, array $uriVariables = [], array $context = []): DiscoverModelsResource
     {
         $this->availability->assertAvailable();

@@ -133,6 +133,36 @@ final class GeminiLlmClientTest extends TestCase
         self::assertNotNull($delegate->lastRequest);
     }
 
+    public function testListModelsNeverFollowsARedirect(): void
+    {
+        $maxRedirects = null;
+        $httpClient = new MockHttpClient(
+            static function (string $method, string $url, array $options) use (&$maxRedirects): MockResponse {
+                $maxRedirects = $options['max_redirects'];
+
+                return new MockResponse('{"models":[]}');
+            }
+        );
+
+        $this->createClient($httpClient)->listModels();
+
+        self::assertSame(0, $maxRedirects);
+    }
+
+    public function testListModelsIgnoresFieldsOfTheWrongType(): void
+    {
+        $httpClient = new MockHttpClient(new MockResponse(json_encode([
+            'models' => [
+                ['name' => 'models/gemini-2.5-flash', 'supportedGenerationMethods' => ['generateContent']],
+                ['name' => 42, 'supportedGenerationMethods' => ['generateContent']],
+                ['name' => 'models/gemini-embedding', 'supportedGenerationMethods' => 'embedContent'],
+                'noise',
+            ],
+        ], \JSON_THROW_ON_ERROR)));
+
+        self::assertSame(['gemini-2.5-flash'], $this->createClient($httpClient)->listModels());
+    }
+
     private function createClient(MockHttpClient $httpClient): GeminiLlmClient
     {
         return new GeminiLlmClient(

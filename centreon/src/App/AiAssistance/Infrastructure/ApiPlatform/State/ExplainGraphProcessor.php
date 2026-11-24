@@ -69,6 +69,7 @@ final readonly class ExplainGraphProcessor implements ProcessorInterface
         return new ExplainGraphResource(
             explanation: $result->explanation,
             model: $result->model,
+            truncated: $result->truncated,
         );
     }
 }

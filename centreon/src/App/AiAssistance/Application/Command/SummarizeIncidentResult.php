@@ -30,6 +30,8 @@ final readonly class SummarizeIncidentResult
         public string $summary,
         /** Model that produced the summary. */
         public string $model,
+        /** Whether the summary was cut at the token limit of the request. */
+        public bool $truncated = false,
     ) {
     }
 }

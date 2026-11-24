@@ -37,6 +37,20 @@ final class ApiTokenTest extends TestCase
         new ApiToken('secret::vault::configuration/aiProviders/abc-123::_AI_API_TOKEN');
     }
 
+    public function testATooLongTokenIsNotInTheErrorMessage(): void
+    {
+        $token = str_repeat('k', 4097);
+
+        foreach ([static fn (): ApiToken => new ApiToken($token), static fn (): StoredApiToken => new StoredApiToken($token)] as $build) {
+            try {
+                $build();
+                self::fail('A too long token must be rejected.');
+            } catch (\InvalidArgumentException $exception) {
+                self::assertStringNotContainsString($token, $exception->getMessage());
+            }
+        }
+    }
+
     public function testAStoredPlainToken(): void
     {
         $stored = StoredApiToken::plain(new ApiToken('a-token'));

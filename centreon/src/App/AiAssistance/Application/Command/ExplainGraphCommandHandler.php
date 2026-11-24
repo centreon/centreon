@@ -91,6 +91,7 @@ final readonly class ExplainGraphCommandHandler
         return new ExplainGraphResult(
             explanation: $response->content,
             model: $response->model,
+            truncated: $response->truncated,
         );
     }
 

@@ -28,12 +28,15 @@ final readonly class LlmResponse
     /**
      * @param bool $truncated whether the model stopped because it reached the
      *                        token limit of the request
+     * @param string|null $refusal why the provider refused to answer, if it did:
+     *                             the tokens are billed all the same
      */
     public function __construct(
         public string $content,
         public string $model,
         public LlmUsage $usage,
         public bool $truncated = false,
+        public ?string $refusal = null,
     ) {
     }
 }

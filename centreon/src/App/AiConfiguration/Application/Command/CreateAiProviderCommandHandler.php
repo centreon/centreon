@@ -25,8 +25,10 @@ namespace App\AiConfiguration\Application\Command;
 
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProvider;
 use App\AiConfiguration\Domain\Event\AiProviderCreated;
+use App\AiConfiguration\Domain\Event\AiProviderUpdated;
 use App\AiConfiguration\Domain\Exception\AiProviderActivationConflictException;
 use App\AiConfiguration\Domain\Exception\AiProviderAlreadyExistsException;
+use App\AiConfiguration\Domain\Exception\InvalidAiProviderConfigurationException;
 use App\AiConfiguration\Domain\Exception\VaultWriteFailedException;
 use App\AiConfiguration\Domain\Repository\AiProviderRepository;
 use App\AiConfiguration\Domain\Repository\AiProviderTokenStorage;
@@ -46,6 +48,7 @@ final readonly class CreateAiProviderCommandHandler
     /**
      * @throws AiProviderAlreadyExistsException
      * @throws AiProviderActivationConflictException when another provider was enabled concurrently
+     * @throws InvalidAiProviderConfigurationException when the endpoint does not fit the type
      * @throws VaultWriteFailedException
      */
     public function __invoke(CreateAiProviderCommand $command): AiProvider
@@ -63,34 +66,44 @@ final readonly class CreateAiProviderCommandHandler
 
         // written before the configuration is saved, so that an unreachable vault saves nothing
         try {
-            $apiToken = $this->tokenStorage->persist($command->apiToken, null);
+            $apiToken = $this->tokenStorage->persist($command->apiToken);
         } catch (\Throwable $exception) {
             throw VaultWriteFailedException::forCreation($exception);
         }
 
-        $aiProvider = new AiProvider(
-            id: null,
-            name: $command->name,
-            type: $command->type,
-            endpointUrl: $command->endpointUrl,
-            apiToken: $apiToken,
-            defaultModel: $command->defaultModel,
-            fastModel: $command->fastModel,
-            description: $command->description,
-            isActivated: $isActivated,
-            billing: $command->billing,
-        );
+        try {
+            $aiProvider = new AiProvider(
+                id: null,
+                name: $command->name,
+                type: $command->type,
+                endpointUrl: $command->endpointUrl,
+                apiToken: $apiToken,
+                defaultModel: $command->defaultModel,
+                fastModel: $command->fastModel,
+                description: $command->description,
+                isActivated: $isActivated,
+                billing: $command->billing,
+            );
 
-        // at most one provider is activated: enabling this one disables the current one
-        $currentlyActivated = $isActivated ? $this->repository->findActivated() : null;
-        if ($currentlyActivated instanceof AiProvider) {
-            $currentlyActivated->deactivate();
-            $this->repository->update($currentlyActivated);
+            // at most one provider is activated: enabling this one disables the current one
+            $currentlyActivated = $isActivated ? $this->repository->findActivated() : null;
+            if ($currentlyActivated instanceof AiProvider) {
+                $currentlyActivated->deactivate();
+                $this->repository->update($currentlyActivated);
+            }
+
+            $this->repository->add($aiProvider);
+        } catch (\Throwable $exception) {
+            // nothing references the written token
+            $this->tokenStorage->discard($apiToken, null);
+
+            throw $exception;
         }
 
-        $this->repository->add($aiProvider);
-
         $this->eventBus->fire(new AiProviderCreated($aiProvider, $command->creatorId));
+        if ($currentlyActivated instanceof AiProvider) {
+            $this->eventBus->fire(new AiProviderUpdated($currentlyActivated, $command->creatorId));
+        }
 
         return $aiProvider;
     }

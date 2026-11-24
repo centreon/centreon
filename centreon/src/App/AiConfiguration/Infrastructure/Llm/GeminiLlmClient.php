@@ -29,6 +29,8 @@ use App\AiConfiguration\Domain\Llm\Exception\LlmRequestFailedException;
 use App\AiConfiguration\Domain\Llm\LlmClientInterface;
 use App\AiConfiguration\Domain\Llm\LlmRequest;
 use App\AiConfiguration\Domain\Llm\LlmResponse;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface as HttpClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TimeoutExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
@@ -50,6 +52,7 @@ final readonly class GeminiLlmClient implements LlmClientInterface
         private HttpClientInterface $httpClient,
         private EndpointUrl $endpointUrl,
         private ApiToken $apiToken,
+        private LoggerInterface $logger = new NullLogger(),
     ) {
     }
 
@@ -82,11 +85,13 @@ final readonly class GeminiLlmClient implements LlmClientInterface
         }
 
         if ($statusCode >= 400) {
-            throw LlmRequestFailedException::fromProviderError($statusCode, $this->extractErrorMessage($response));
+            throw LlmRequestFailedException::fromProviderError(
+                $statusCode,
+                $this->extractErrorMessage($response, $statusCode)
+            );
         }
 
         try {
-            /** @var array{models?: array<array{name?: string, supportedGenerationMethods?: array<string>}>} $data */
             $data = $response->toArray();
         } catch (TimeoutExceptionInterface $exception) {
             throw LlmRequestFailedException::fromTimeout(self::TIMEOUT_SECONDS, $exception);
@@ -95,13 +100,14 @@ final readonly class GeminiLlmClient implements LlmClientInterface
         }
 
         $ids = [];
-        foreach ($data['models'] ?? [] as $model) {
+        foreach (ProviderPayload::array($data['models'] ?? null) as $model) {
+            $model = ProviderPayload::array($model);
             // keep only chat models; the OpenAI-compatible chat layer addresses
             // them without the "models/" prefix the native API returns
-            if (! in_array('generateContent', $model['supportedGenerationMethods'] ?? [], true)) {
+            if (! in_array('generateContent', ProviderPayload::array($model['supportedGenerationMethods'] ?? null), true)) {
                 continue;
             }
-            $name = $model['name'] ?? '';
+            $name = ProviderPayload::string($model['name'] ?? null) ?? '';
             $id = str_starts_with($name, 'models/') ? mb_substr($name, 7) : $name;
             if ($id !== '') {
                 $ids[] = $id;
@@ -116,17 +122,21 @@ final readonly class GeminiLlmClient implements LlmClientInterface
      * Google reports errors as {"error": {"message": ...}}; any other body is
      * not reported (it may come from any server on the way).
      */
-    private function extractErrorMessage(ResponseInterface $response): string
+    private function extractErrorMessage(ResponseInterface $response, int $statusCode): string
     {
         try {
-            /** @var array{error?: array{message?: mixed}}|null $data */
-            $data = json_decode($response->getContent(false), true, 512, \JSON_THROW_ON_ERROR);
-        } catch (HttpClientExceptionInterface|\JsonException) {
+            $body = $response->getContent(false);
+        } catch (HttpClientExceptionInterface) {
+            return 'model discovery failed';
+        }
+        ProviderPayload::logErrorResponse($this->logger, $statusCode, $body);
+
+        try {
+            $data = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
+        } catch (\JsonException) {
             $data = null;
         }
 
-        $message = $data['error']['message'] ?? null;
-
-        return is_string($message) && $message !== '' ? $message : 'model discovery failed';
+        return ProviderPayload::errorMessage($data) ?? 'model discovery failed';
     }
 }

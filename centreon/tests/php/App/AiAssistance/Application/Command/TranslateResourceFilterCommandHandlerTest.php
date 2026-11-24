@@ -66,6 +66,22 @@ final class TranslateResourceFilterCommandHandlerTest extends TestCase
         self::assertSame('', $result->query);
     }
 
+    public function testAQueryReturnedForTheCurrentSetIsDropped(): void
+    {
+        // never validated against the grammar: it must not reach the client
+        $client = $this->clientAnswering(
+            '{"intent": "explain", "query": "anything (unvalidated", "scope": "current"}'
+        );
+        $handler = new TranslateResourceFilterCommandHandler(new FakeLlmClientFactory($client));
+
+        $result = $handler(new TranslateResourceFilterCommand('why is everything failing?'));
+
+        self::assertSame('explain', $result->intent);
+        self::assertSame('current', $result->scope);
+        self::assertSame('', $result->query);
+        self::assertCount(1, $client->requests);
+    }
+
     public function testExplainIntentWithADerivedQuery(): void
     {
         $client = $this->clientAnswering(

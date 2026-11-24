@@ -36,8 +36,6 @@ final class ResourcesStatusUserTest extends AiAssistanceApiTestCase
 
     // Monitoring > Resources Status: builds ROLE_MONITORING_RESOURCES_STATUS_RW
     private const RESOURCES_STATUS_TOPOLOGY_PAGES = [2, 200];
-
-    // CentreonACL access right: read-write
     private const ACL_ACCESS_READ_WRITE = 1;
 
     private Connection $connection;

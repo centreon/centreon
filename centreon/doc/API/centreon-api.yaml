@@ -17359,6 +17359,9 @@ components:
           description: 'Model that produced the analysis'
           type: string
           example: claude-sonnet-4-6
+        truncated:
+          description: 'Whether the analysis was cut at the length limit of the answer: it is then incomplete'
+          type: boolean
     CorrelateAlertsResource.CorrelateAlertsInput:
       type: object
       properties:
@@ -17383,6 +17386,9 @@ components:
               description: 'Model that produced the analysis'
               type: string
               example: claude-sonnet-4-6
+            truncated:
+              description: 'Whether the analysis was cut at the length limit of the answer: it is then incomplete'
+              type: boolean
     CorrelatedResourceInput:
       type: object
       properties:
@@ -17721,6 +17727,9 @@ components:
           description: 'Model that produced the explanation'
           type: string
           example: claude-sonnet-4-6
+        truncated:
+          description: 'Whether the explanation was cut at the length limit of the answer: it is then incomplete'
+          type: boolean
     ExplainGraphResource.ExplainGraphInput:
       type: object
       properties:
@@ -17777,6 +17786,9 @@ components:
               description: 'Model that produced the explanation'
               type: string
               example: claude-sonnet-4-6
+            truncated:
+              description: 'Whether the explanation was cut at the length limit of the answer: it is then incomplete'
+              type: boolean
     ExplainResourceResource:
       type: object
       properties:
@@ -17787,6 +17799,9 @@ components:
           description: 'Model that produced the explanation'
           type: string
           example: claude-sonnet-4-6
+        truncated:
+          description: 'Whether the explanation was cut at the length limit of the answer: it is then incomplete'
+          type: boolean
     ExplainResourceResource.ExplainResourceInput:
       type: object
       properties:
@@ -17861,6 +17876,9 @@ components:
               description: 'Model that produced the explanation'
               type: string
               example: claude-sonnet-4-6
+            truncated:
+              description: 'Whether the explanation was cut at the length limit of the answer: it is then incomplete'
+              type: boolean
     GraphMetricInput:
       type: object
       properties:
@@ -18155,6 +18173,9 @@ components:
           description: 'Model that produced the summary'
           type: string
           example: claude-sonnet-4-6
+        truncated:
+          description: 'Whether the summary was cut at the length limit of the answer: it is then incomplete'
+          type: boolean
     SummarizeIncidentResource.SummarizeIncidentInput:
       type: object
       properties:
@@ -18227,6 +18248,9 @@ components:
               description: 'Model that produced the summary'
               type: string
               example: claude-sonnet-4-6
+            truncated:
+              description: 'Whether the summary was cut at the length limit of the answer: it is then incomplete'
+              type: boolean
     TestAiProviderResource:
       type: object
       properties:

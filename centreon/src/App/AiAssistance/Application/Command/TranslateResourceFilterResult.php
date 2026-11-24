@@ -35,8 +35,7 @@ final readonly class TranslateResourceFilterResult
          * For 'filter': the search expression, empty when none could be derived
          * (including when the model output stayed invalid). For 'explain': with
          * scope 'query', the search expression selecting the set to explain;
-         * with scope 'current', the model is asked for an empty one and it is
-         * to be ignored. Empty for 'unsupported'.
+         * with scope 'current', always empty. Empty for 'unsupported'.
          */
         public string $query,
         /** For 'explain': 'current' (the displayed set) or 'query'. Null for 'filter' and 'unsupported'. */

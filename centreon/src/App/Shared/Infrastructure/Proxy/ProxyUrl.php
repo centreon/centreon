@@ -23,8 +23,22 @@ declare(strict_types=1);
 
 namespace App\Shared\Infrastructure\Proxy;
 
+use App\Shared\Domain\Logging\Attribute\Sensitive;
+
 final readonly class ProxyUrl
 {
+    /**
+     * @param string $value protocol://[user:password@]host[:port]
+     * @param bool $vaultPasswordSkipped whether the proxy credentials were left out because
+     *                                   the password is stored in the vault
+     */
+    public function __construct(
+        #[Sensitive]
+        public string $value,
+        public bool $vaultPasswordSkipped = false,
+    ) {
+    }
+
     /**
      * Build a proxy URL (protocol://[user:password@]host[:port]) from the
      * proxy entries of the legacy `options` table, as configured under
@@ -32,7 +46,7 @@ final readonly class ProxyUrl
      *
      * @param array<string, string|null> $options
      */
-    public static function fromOptions(array $options): ?string
+    public static function fromOptions(array $options): ?self
     {
         $url = trim((string) ($options['proxy_url'] ?? ''));
         if ($url === '') {
@@ -51,7 +65,8 @@ final readonly class ProxyUrl
         // vault-stored proxy passwords can not be resolved in this container
         // yet: use the proxy without authentication rather than sending the
         // vault path as a password
-        if ($user !== '' && ! str_starts_with($password, 'secret::')) {
+        $vaultPasswordSkipped = $user !== '' && str_starts_with($password, 'secret::');
+        if ($user !== '' && ! $vaultPasswordSkipped) {
             $credentials = rawurlencode($user);
             if ($password !== '') {
                 $credentials .= ':' . rawurlencode($password);
@@ -62,6 +77,6 @@ final readonly class ProxyUrl
         $port = trim((string) ($options['proxy_port'] ?? ''));
         $portSuffix = $port !== '' ? ':' . (int) $port : '';
 
-        return "{$protocol}://{$credentials}{$url}{$portSuffix}";
+        return new self("{$protocol}://{$credentials}{$url}{$portSuffix}", $vaultPasswordSkipped);
     }
 }

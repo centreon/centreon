@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\AiConfiguration\Domain\Aggregate\AiProvider;
 
 use App\AiConfiguration\Domain\Exception\AiProviderCanNotBeUpdatedException;
+use App\AiConfiguration\Domain\Exception\InvalidAiProviderConfigurationException;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 
 /**
@@ -31,6 +32,9 @@ use App\Shared\Domain\Aggregate\AggregateRoot;
  */
 final class AiProvider extends AggregateRoot
 {
+    /**
+     * @throws InvalidAiProviderConfigurationException when the endpoint does not fit the type
+     */
     public function __construct(
         ?AiProviderId $id,
         private AiProviderName $name,
@@ -43,6 +47,7 @@ final class AiProvider extends AggregateRoot
         private bool $isActivated,
         private Billing $billing = new Billing(),
     ) {
+        $this->assertEndpointFitsType($type, $endpointUrl);
         parent::__construct($id);
     }
 
@@ -129,9 +134,12 @@ final class AiProvider extends AggregateRoot
      * @param StoredApiToken|null $apiToken the new token, or null to keep the stored one
      *
      * @throws AiProviderCanNotBeUpdatedException when the endpoint changes without a new token
+     * @throws InvalidAiProviderConfigurationException when the endpoint does not fit the type
      */
     public function retarget(EndpointUrl $endpointUrl, ?StoredApiToken $apiToken): void
     {
+        $this->assertEndpointFitsType($this->type, $endpointUrl);
+
         if (! $apiToken instanceof StoredApiToken && ! $this->canReuseApiTokenFor($this->type, $endpointUrl)) {
             throw AiProviderCanNotBeUpdatedException::apiTokenRequiredForNewEndpoint($this->id());
         }
@@ -149,5 +157,15 @@ final class AiProvider extends AggregateRoot
     public function canReuseApiTokenFor(AiProviderTypeEnum $type, EndpointUrl $endpointUrl): bool
     {
         return $type === $this->type && $this->endpointUrl->equals($endpointUrl);
+    }
+
+    /**
+     * @throws InvalidAiProviderConfigurationException
+     */
+    private function assertEndpointFitsType(AiProviderTypeEnum $type, EndpointUrl $endpointUrl): void
+    {
+        if (! $type->resolveEndpoint($endpointUrl->value)->equals($endpointUrl)) {
+            throw InvalidAiProviderConfigurationException::endpointNotAllowed($type);
+        }
     }
 }

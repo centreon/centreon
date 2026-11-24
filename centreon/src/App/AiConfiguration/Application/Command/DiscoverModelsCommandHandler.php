@@ -23,13 +23,12 @@ declare(strict_types=1);
 
 namespace App\AiConfiguration\Application\Command;
 
-use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProvider;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderId;
-use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderName;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
-use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\StoredApiToken;
 use App\AiConfiguration\Domain\Exception\AiProviderNotFoundException;
+use App\AiConfiguration\Domain\Exception\InvalidAiProviderConfigurationException;
+use App\AiConfiguration\Domain\Llm\ConnectionSpec;
 use App\AiConfiguration\Domain\Llm\Exception\ApiTokenUnavailableException;
 use App\AiConfiguration\Domain\Llm\Exception\LlmRequestFailedException;
 use App\AiConfiguration\Domain\Llm\LlmClientFactoryInterface;
@@ -50,6 +49,7 @@ final readonly class DiscoverModelsCommandHandler
     /**
      * @throws AiProviderNotFoundException when the provider to reuse does not exist
      * @throws ApiTokenUnavailableException when the stored token can not be read from the vault
+     * @throws InvalidAiProviderConfigurationException when the endpoint is not acceptable for the type
      */
     public function __invoke(DiscoverModelsCommand $command): DiscoverModelsResult
     {
@@ -70,21 +70,10 @@ final readonly class DiscoverModelsCommandHandler
             $storedApiToken = StoredApiToken::plain($apiToken);
         }
 
-        $aiProvider = new AiProvider(
-            id: $command->id,
-            name: new AiProviderName('model-discovery'),
-            type: $command->type,
-            endpointUrl: $command->endpointUrl,
-            apiToken: $storedApiToken,
-            // unused by listModels(), but the aggregate requires a default model
-            defaultModel: new ModelName('model-discovery'),
-            fastModel: null,
-            description: null,
-            isActivated: false,
-        );
+        $spec = new ConnectionSpec($command->type, $command->endpointUrl, $storedApiToken);
 
         try {
-            $models = $this->clientFactory->forConnectionTest($aiProvider)->listModels();
+            $models = $this->clientFactory->forConnectionTest($spec)->listModels();
         } catch (LlmRequestFailedException $exception) {
             // an expected provider error (bad token, unreachable, ...) is
             // returned as data, like the connection-test handlers; the

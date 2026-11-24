@@ -171,6 +171,10 @@ final readonly class TranslateResourceFilterCommandHandler
 
     /**
      * @param list<LlmMessage> $messages
+     *
+     * @throws LlmConfigurationException when no provider is enabled or its spend limit is reached
+     * @throws ApiTokenUnavailableException when the token of the provider can not be read from the vault
+     * @throws LlmRequestFailedException when the provider fails, times out or answers nothing
      */
     private function complete(array $messages): string
     {
@@ -257,10 +261,13 @@ final readonly class TranslateResourceFilterCommandHandler
             );
         }
 
+        $scope = $decoded['scope'] ?? null;
+
         return new TranslateResourceFilterResult(
             intent: 'explain',
-            query: trim($decoded['query'] ?? ''),
-            scope: $decoded['scope'] ?? null,
+            // the query of the 'current' scope is not validated: drop it
+            query: $scope === 'query' ? trim($decoded['query'] ?? '') : '',
+            scope: $scope,
         );
     }
 

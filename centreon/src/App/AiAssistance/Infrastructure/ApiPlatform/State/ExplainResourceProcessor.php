@@ -60,6 +60,7 @@ final readonly class ExplainResourceProcessor implements ProcessorInterface
         return new ExplainResourceResource(
             explanation: $result->explanation,
             model: $result->model,
+            truncated: $result->truncated,
         );
     }
 }

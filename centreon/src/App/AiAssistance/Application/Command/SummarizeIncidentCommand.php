@@ -31,12 +31,6 @@ use Webmozart\Assert\Assert;
  * Current state and recent timeline of a resource, as displayed to the user.
  * The data comes from the caller (it already passed the user's ACL): this
  * feature never reads monitoring data on its own.
- *
- * The free texts are masked in the bus logs: they may carry secrets (a command
- * line, a plugin output) and they make up the prompt.
- *
- * Not transactional: the usage row of a provider call must survive a later
- * failure, and no transaction may stay open during the provider call.
  */
 final readonly class SummarizeIncidentCommand implements NonTransactionalCommand
 {
@@ -66,7 +60,7 @@ final readonly class SummarizeIncidentCommand implements NonTransactionalCommand
         Assert::maxCount($events, self::MAX_EVENTS);
         Assert::allIsInstanceOf($events, IncidentEvent::class);
         if ($information !== null) {
-            Assert::maxLength($information, 10000);
+            Assert::maxLength($information, 10000, 'The information is too long.');
         }
         if ($since !== null) {
             Assert::maxLength($since, 64);

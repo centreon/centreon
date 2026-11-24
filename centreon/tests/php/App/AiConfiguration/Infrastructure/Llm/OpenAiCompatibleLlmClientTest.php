@@ -32,10 +32,14 @@ use App\AiConfiguration\Domain\Llm\LlmMessage;
 use App\AiConfiguration\Domain\Llm\LlmRequest;
 use App\AiConfiguration\Domain\Llm\LlmRoleEnum;
 use App\AiConfiguration\Infrastructure\Llm\OpenAiCompatibleLlmClient;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Tests\App\Shared\Infrastructure\Legacy\Double\RecordingLogger;
 
 final class OpenAiCompatibleLlmClientTest extends TestCase
 {
@@ -299,30 +303,41 @@ final class OpenAiCompatibleLlmClientTest extends TestCase
         self::assertSame('pong', $response->content);
     }
 
-    public function testARefusalIsReportedAsSuch(): void
+    public function testARefusalIsCarriedByTheResponse(): void
     {
+        // the metered client fails on it, after recording the tokens it was billed
         $httpClient = new MockHttpClient(new MockResponse(json_encode([
             'model' => 'gpt-5',
             'choices' => [['finish_reason' => 'stop', 'message' => ['content' => null, 'refusal' => 'I can not help with that.']]],
+            'usage' => ['prompt_tokens' => 12, 'completion_tokens' => 7],
         ], \JSON_THROW_ON_ERROR)));
 
-        $this->expectException(LlmRequestFailedException::class);
-        $this->expectExceptionMessage('The AI provider refused to answer: I can not help with that.');
+        $response = $this->createClient($httpClient)->complete($this->createRequest());
 
-        $this->createClient($httpClient)->complete($this->createRequest());
+        self::assertSame('I can not help with that.', $response->refusal);
+        self::assertSame(7, $response->usage->outputTokens);
     }
 
-    public function testAContentFilterStopIsReportedAsARefusal(): void
+    public function testAContentFilterStopIsCarriedAsARefusal(): void
     {
         $httpClient = new MockHttpClient(new MockResponse(json_encode([
             'model' => 'gpt-5',
             'choices' => [['finish_reason' => 'content_filter', 'message' => ['content' => null]]],
         ], \JSON_THROW_ON_ERROR)));
 
-        $this->expectException(LlmRequestFailedException::class);
-        $this->expectExceptionMessage('The AI provider refused to answer');
+        $response = $this->createClient($httpClient)->complete($this->createRequest());
 
-        $this->createClient($httpClient)->complete($this->createRequest());
+        self::assertSame('the answer was blocked by its content filter.', $response->refusal);
+    }
+
+    public function testAnAnswerIsNoRefusal(): void
+    {
+        $httpClient = new MockHttpClient(new MockResponse(json_encode([
+            'model' => 'gpt-5',
+            'choices' => [['finish_reason' => 'stop', 'message' => ['content' => 'pong', 'refusal' => null]]],
+        ], \JSON_THROW_ON_ERROR)));
+
+        self::assertNull($this->createClient($httpClient)->complete($this->createRequest())->refusal);
     }
 
     public function testStreamConcatenatesContentParts(): void
@@ -340,7 +355,7 @@ final class OpenAiCompatibleLlmClientTest extends TestCase
         self::assertSame('pong', $generator->getReturn()->content);
     }
 
-    public function testAStreamedRefusalIsReportedAsSuch(): void
+    public function testAStreamedRefusalIsCarriedByTheResponse(): void
     {
         $sse = [
             "data: {\"choices\":[{\"delta\":{\"refusal\":\"I can not \"}}]}\n\n",
@@ -349,13 +364,13 @@ final class OpenAiCompatibleLlmClientTest extends TestCase
         ];
         $httpClient = new MockHttpClient(new MockResponse($sse));
 
-        $this->expectException(LlmRequestFailedException::class);
-        $this->expectExceptionMessage('The AI provider refused to answer: I can not help with that.');
+        $generator = $this->createClient($httpClient)->stream($this->createRequest());
+        iterator_to_array($generator, false);
 
-        iterator_to_array($this->createClient($httpClient)->stream($this->createRequest()), false);
+        self::assertSame('I can not help with that.', $generator->getReturn()->refusal);
     }
 
-    public function testAStreamStoppedByTheContentFilterIsReportedAsARefusal(): void
+    public function testAStreamStoppedByTheContentFilterIsCarriedAsARefusal(): void
     {
         $sse = [
             "data: {\"choices\":[{\"delta\":{\"content\":\"Here\"}}]}\n\n",
@@ -364,10 +379,10 @@ final class OpenAiCompatibleLlmClientTest extends TestCase
         ];
         $httpClient = new MockHttpClient(new MockResponse($sse));
 
-        $this->expectException(LlmRequestFailedException::class);
-        $this->expectExceptionMessage('The AI provider refused to answer');
+        $generator = $this->createClient($httpClient)->stream($this->createRequest());
+        iterator_to_array($generator, false);
 
-        iterator_to_array($this->createClient($httpClient)->stream($this->createRequest()), false);
+        self::assertSame('the answer was blocked by its content filter.', $generator->getReturn()->refusal);
     }
 
     public function testTransportErrorIsReported(): void
@@ -390,18 +405,139 @@ final class OpenAiCompatibleLlmClientTest extends TestCase
         $this->createClient($httpClient)->complete($this->createRequest());
     }
 
-    public function testASuccessfulBodyWithoutChoicesHasNoContent(): void
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function provideSuccessfulBodiesWithoutCompletion(): iterable
     {
-        // the metered client turns it into an "empty answer" failure when an answer is required
+        yield 'empty document' => ['{}', 'no completion in the response.'];
+
+        yield 'no choices' => ['{"model":"mistral-small-latest","usage":{"prompt_tokens":12}}', 'no completion in the response.'];
+
+        yield 'choices of the wrong type' => ['{"choices":"pong"}', 'no completion in the response.'];
+
+        yield 'an error document' => ['{"error":{"message":"quota exceeded"}}', 'quota exceeded'];
+
+        yield 'an error document without a string message' => ['{"error":{"message":42}}', 'no completion in the response.'];
+    }
+
+    #[DataProvider('provideSuccessfulBodiesWithoutCompletion')]
+    public function testASuccessfulBodyWithoutCompletionIsAnUnexpectedResponse(string $body, string $details): void
+    {
+        $httpClient = new MockHttpClient(new MockResponse($body));
+
+        $this->expectException(LlmRequestFailedException::class);
+        $this->expectExceptionMessage('The AI provider returned an unexpected response: ' . $details);
+
+        $this->createClient($httpClient)->complete($this->createRequest());
+    }
+
+    public function testFieldsOfTheWrongTypeAreIgnored(): void
+    {
         $httpClient = new MockHttpClient(new MockResponse(json_encode([
-            'model' => 'mistral-small-latest',
-            'usage' => ['prompt_tokens' => 12, 'completion_tokens' => 0],
+            'model' => 42,
+            'choices' => [['finish_reason' => ['stop'], 'message' => ['content' => 'pong', 'refusal' => 7]]],
+            'usage' => ['prompt_tokens' => '12', 'completion_tokens' => null],
         ], \JSON_THROW_ON_ERROR)));
 
         $response = $this->createClient($httpClient)->complete($this->createRequest());
 
-        self::assertSame('', $response->content);
-        self::assertSame(12, $response->usage->inputTokens);
+        self::assertSame('pong', $response->content);
+        self::assertSame('', $response->model);
+        self::assertSame(0, $response->usage->inputTokens);
+        self::assertSame(0, $response->usage->outputTokens);
+        self::assertNull($response->refusal);
+    }
+
+    public function testAnErrorMessageOfTheWrongTypeIsNotReported(): void
+    {
+        $httpClient = new MockHttpClient(new MockResponse(
+            json_encode(['error' => ['message' => ['nested' => 'value']]], \JSON_THROW_ON_ERROR),
+            ['http_code' => 400]
+        ));
+
+        $this->expectException(LlmRequestFailedException::class);
+        $this->expectExceptionMessage('(HTTP 400): no error message in the response');
+
+        $this->createClient($httpClient)->complete($this->createRequest());
+    }
+
+    public function testAnErrorBodyIsLoggedServerSide(): void
+    {
+        $logger = new RecordingLogger();
+        $httpClient = new MockHttpClient(new MockResponse(
+            '<html>' . str_repeat('a', 300) . '</html>',
+            ['http_code' => 502]
+        ));
+
+        try {
+            $this->createClient($httpClient, $logger)->complete($this->createRequest());
+            self::fail('Expected the provider error to be reported');
+        } catch (LlmRequestFailedException $exception) {
+            self::assertStringNotContainsString('<html>', $exception->getMessage());
+        }
+
+        $record = $logger->lastRecord();
+        self::assertNotNull($record);
+        self::assertSame('warning', $record['level']);
+        self::assertSame(502, $record['context']['status_code']);
+        self::assertSame('<html>' . str_repeat('a', 194), $record['context']['body_excerpt']);
+    }
+
+    public function testAStreamedErrorEventWithoutAStringMessageIsReported(): void
+    {
+        $sse = ["data: {\"error\":{\"message\":{\"code\":500}}}\n\n"];
+        $httpClient = new MockHttpClient(new MockResponse($sse));
+
+        $this->expectException(LlmRequestFailedException::class);
+        $this->expectExceptionMessage('The AI provider returned an unexpected response: unknown streaming error');
+
+        iterator_to_array($this->createClient($httpClient)->stream($this->createRequest()), false);
+    }
+
+    public function testStreamedFieldsOfTheWrongTypeAreIgnored(): void
+    {
+        $sse = [
+            "data: {\"model\":42,\"choices\":[{\"delta\":{\"content\":\"pong\",\"refusal\":7}}]}\n\n",
+            "data: {\"choices\":[],\"usage\":{\"prompt_tokens\":\"12\",\"completion_tokens\":2}}\n\n",
+            "data: [DONE]\n\n",
+        ];
+        $httpClient = new MockHttpClient(new MockResponse($sse));
+
+        $generator = $this->createClient($httpClient)->stream($this->createRequest());
+        iterator_to_array($generator, false);
+        $response = $generator->getReturn();
+
+        self::assertSame('pong', $response->content);
+        self::assertSame('', $response->model);
+        self::assertSame(0, $response->usage->inputTokens);
+        self::assertSame(2, $response->usage->outputTokens);
+        self::assertNull($response->refusal);
+    }
+
+    public function testRedirectsAreNeverFollowed(): void
+    {
+        $maxRedirects = [];
+        $httpClient = new MockHttpClient(
+            static function (string $method, string $url, array $options) use (&$maxRedirects): MockResponse {
+                $maxRedirects[] = $options['max_redirects'];
+
+                if ($method === 'GET') {
+                    return new MockResponse('{"data":[]}');
+                }
+
+                return is_string($options['body']) && str_contains($options['body'], '"stream":true')
+                    ? new MockResponse(["data: [DONE]\n\n"])
+                    : new MockResponse('{"choices":[{"message":{"content":"pong"}}]}');
+            }
+        );
+        $client = $this->createClient($httpClient);
+
+        $client->complete($this->createRequest());
+        iterator_to_array($client->stream($this->createRequest()), false);
+        $client->listModels();
+
+        self::assertSame([0, 0, 0], $maxRedirects);
     }
 
     public function testAStreamedErrorEventIsReported(): void
@@ -438,7 +574,7 @@ final class OpenAiCompatibleLlmClientTest extends TestCase
         $generator->next();
     }
 
-    private function createClient(HttpClientInterface $httpClient): OpenAiCompatibleLlmClient
+    private function createClient(HttpClientInterface $httpClient, ?LoggerInterface $logger = null): OpenAiCompatibleLlmClient
     {
         return new OpenAiCompatibleLlmClient(
             $httpClient,
@@ -446,6 +582,7 @@ final class OpenAiCompatibleLlmClientTest extends TestCase
             new ApiToken('a-token'),
             new ModelName('mistral-small-latest'),
             fastModel: null,
+            logger: $logger ?? new NullLogger(),
         );
     }
 

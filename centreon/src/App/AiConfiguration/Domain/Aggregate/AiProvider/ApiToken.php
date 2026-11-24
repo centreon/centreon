@@ -39,9 +39,11 @@ use Webmozart\Assert\Assert;
 final readonly class ApiToken
 {
     public function __construct(
+        #[\SensitiveParameter]
         public string $value,
     ) {
-        Assert::lengthBetween($value, 1, 4096);
+        // constant messages: the token must not end up in the exception text
+        Assert::lengthBetween($value, 1, 4096, 'The API token must be between 1 and 4096 characters long.');
         Assert::false(
             str_starts_with($value, StoredApiToken::VAULT_REFERENCE_PREFIX),
             'The API token cannot be a vault reference.'

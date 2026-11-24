@@ -67,6 +67,7 @@ final readonly class CorrelateAlertsProcessor implements ProcessorInterface
         return new CorrelateAlertsResource(
             analysis: $result->analysis,
             model: $result->model,
+            truncated: $result->truncated,
         );
     }
 }

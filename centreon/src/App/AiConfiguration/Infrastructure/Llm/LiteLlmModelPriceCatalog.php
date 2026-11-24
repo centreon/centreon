@@ -28,6 +28,7 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\TierPricing;
 use App\AiConfiguration\Domain\Llm\Exception\PriceCatalogUnavailableException;
 use App\AiConfiguration\Domain\Llm\ModelPriceCatalog;
 use App\Shared\Infrastructure\Proxy\HttpProxyProvider;
+use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface as HttpClientExceptionInterface;
@@ -60,6 +61,7 @@ final class LiteLlmModelPriceCatalog implements ModelPriceCatalog
         private readonly HttpClientInterface $httpClient,
         private readonly HttpProxyProvider $proxyProvider,
         private readonly CacheInterface $cache,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -125,8 +127,14 @@ final class LiteLlmModelPriceCatalog implements ModelPriceCatalog
     {
         $options = ['timeout' => self::TIMEOUT_SECONDS];
         $proxyUrl = $this->proxyProvider->findProxyUrl();
-        if ($proxyUrl !== null) {
-            $options['proxy'] = $proxyUrl;
+        if ($proxyUrl instanceof \App\Shared\Infrastructure\Proxy\ProxyUrl) {
+            $options['proxy'] = $proxyUrl->value;
+            if ($proxyUrl->vaultPasswordSkipped) {
+                $this->logger->warning(
+                    'The proxy password is stored in the vault, which this request can not read: '
+                    . 'the price catalog is fetched through the proxy without authentication'
+                );
+            }
         }
 
         try {

@@ -24,16 +24,18 @@ declare(strict_types=1);
 namespace Tests\App\Shared\Double;
 
 use App\Shared\Infrastructure\Proxy\HttpProxyProvider;
+use App\Shared\Infrastructure\Proxy\ProxyUrl;
 
 final class FakeHttpProxyProvider implements HttpProxyProvider
 {
     public function __construct(
         public ?string $proxyUrl = null,
+        public bool $vaultPasswordSkipped = false,
     ) {
     }
 
-    public function findProxyUrl(): ?string
+    public function findProxyUrl(): ?ProxyUrl
     {
-        return $this->proxyUrl;
+        return $this->proxyUrl !== null ? new ProxyUrl($this->proxyUrl, $this->vaultPasswordSkipped) : null;
     }
 }

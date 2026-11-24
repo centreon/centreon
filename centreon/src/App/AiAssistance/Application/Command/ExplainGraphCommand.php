@@ -31,12 +31,6 @@ use Webmozart\Assert\Assert;
  * The performance graph displayed in the details panel, to explain. The data
  * comes from the caller (it already passed the user's ACL): this feature never
  * reads monitoring data on its own.
- *
- * The free texts are masked in the bus logs: they may carry secrets (a command
- * line, a plugin output) and they make up the prompt.
- *
- * Not transactional: the usage row of a provider call must survive a later
- * failure, and no transaction may stay open during the provider call.
  */
 final readonly class ExplainGraphCommand implements NonTransactionalCommand
 {
@@ -66,7 +60,7 @@ final readonly class ExplainGraphCommand implements NonTransactionalCommand
             Assert::maxLength($timeRange, 255);
         }
         if ($performanceData !== null) {
-            Assert::maxLength($performanceData, 10000);
+            Assert::maxLength($performanceData, 10000, 'The performance data is too long.');
         }
     }
 }

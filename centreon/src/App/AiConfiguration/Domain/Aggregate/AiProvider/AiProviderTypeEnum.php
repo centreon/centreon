@@ -46,9 +46,9 @@ enum AiProviderTypeEnum: string
     }
 
     /**
-     * Endpoint used when the configuration does not provide one. OpenAI-compatible
-     * and Bedrock providers have no fixed endpoint: it must be provided explicitly
-     * (Bedrock derives it from the AWS region, on the OpenAI-compatible transport).
+     * Official endpoint of a curated provider, always used for it. OpenAI-compatible
+     * and Bedrock providers have none: their endpoint is configured (for Bedrock,
+     * the Mantle endpoint of an AWS region).
      */
     public function defaultEndpointUrl(): ?EndpointUrl
     {

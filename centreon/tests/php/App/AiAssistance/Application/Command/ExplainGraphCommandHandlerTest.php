@@ -47,6 +47,20 @@ final class ExplainGraphCommandHandlerTest extends TestCase
 
         self::assertSame('## Reading\n...', $result->explanation);
         self::assertSame('claude-sonnet-4-6', $result->model);
+        self::assertFalse($result->truncated);
+    }
+
+    public function testAnAnswerCutAtTheTokenLimitIsFlaggedTruncated(): void
+    {
+        $client = new FakeLlmClient(
+            response: new LlmResponse('Partial answer', 'claude-sonnet-4-6', new LlmUsage(100, 2048), truncated: true)
+        );
+        $handler = new ExplainGraphCommandHandler(new FakeLlmClientFactory($client));
+
+        $result = $handler($this->command());
+
+        self::assertSame('Partial answer', $result->explanation);
+        self::assertTrue($result->truncated);
     }
 
     public function testFactsAreForwardedToTheModel(): void

@@ -54,7 +54,7 @@ final readonly class DeleteAiProviderCommandHandler
 
         // removed within the transaction: an unreachable vault rolls the deletion back
         try {
-            $this->tokenStorage->remove($aiProvider->apiToken());
+            $this->tokenStorage->remove($aiProvider->apiToken(), $command->id);
         } catch (\Throwable $exception) {
             throw VaultWriteFailedException::forDeletion($command->id, $exception);
         }

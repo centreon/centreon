@@ -31,6 +31,7 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\StoredApiToken;
 use App\AiConfiguration\Domain\Exception\AiProviderCanNotBeUpdatedException;
+use App\AiConfiguration\Domain\Exception\InvalidAiProviderConfigurationException;
 use PHPUnit\Framework\TestCase;
 
 final class AiProviderTest extends TestCase
@@ -74,6 +75,31 @@ final class AiProviderTest extends TestCase
         self::assertFalse($aiProvider->canReuseApiTokenFor(AiProviderTypeEnum::Mistral, $endpointUrl));
     }
 
+    public function testACuratedProviderIsOnlyReachedAtItsOfficialEndpoint(): void
+    {
+        $this->expectException(InvalidAiProviderConfigurationException::class);
+
+        $this->aiProvider(AiProviderTypeEnum::Anthropic, 'https://llm.example.org');
+    }
+
+    public function testABedrockProviderIsOnlyReachedAtAMantleEndpoint(): void
+    {
+        $this->aiProvider(AiProviderTypeEnum::Bedrock, 'https://bedrock-mantle.eu-west-3.api.aws');
+
+        $this->expectException(InvalidAiProviderConfigurationException::class);
+
+        $this->aiProvider(AiProviderTypeEnum::Bedrock, 'https://llm.example.org');
+    }
+
+    public function testRetargetingACuratedProviderElsewhereIsRejected(): void
+    {
+        $aiProvider = $this->aiProvider(AiProviderTypeEnum::Mistral, 'https://api.mistral.ai');
+
+        $this->expectException(InvalidAiProviderConfigurationException::class);
+
+        $aiProvider->retarget(new EndpointUrl('https://llm.example.org'), new StoredApiToken('new-token'));
+    }
+
     public function testActivation(): void
     {
         $aiProvider = $this->aiProvider();
@@ -85,13 +111,15 @@ final class AiProviderTest extends TestCase
         self::assertTrue($aiProvider->isActivated());
     }
 
-    private function aiProvider(): AiProvider
-    {
+    private function aiProvider(
+        AiProviderTypeEnum $type = AiProviderTypeEnum::OpenAiCompatible,
+        string $endpointUrl = 'http://ollama.internal:11434',
+    ): AiProvider {
         return new AiProvider(
             id: new AiProviderId(1),
             name: new AiProviderName('Local Ollama'),
-            type: AiProviderTypeEnum::OpenAiCompatible,
-            endpointUrl: new EndpointUrl('http://ollama.internal:11434'),
+            type: $type,
+            endpointUrl: new EndpointUrl($endpointUrl),
             apiToken: new StoredApiToken('stored-token'),
             defaultModel: new ModelName('llama3'),
             fastModel: null,

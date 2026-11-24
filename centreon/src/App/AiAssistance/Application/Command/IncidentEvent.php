@@ -28,9 +28,6 @@ use Webmozart\Assert\Assert;
 
 /**
  * One timeline event of a monitored resource, as displayed to the user.
- *
- * The free texts are masked in the bus logs: they may carry secrets (a command
- * line, a plugin output) and they make up the prompt.
  */
 final readonly class IncidentEvent
 {
@@ -45,7 +42,7 @@ final readonly class IncidentEvent
         Assert::lengthBetween($date, 1, 64);
         Assert::lengthBetween($type, 1, 64);
         if ($content !== null) {
-            Assert::maxLength($content, 2000);
+            Assert::maxLength($content, 2000, 'The content is too long.');
         }
         if ($author !== null) {
             Assert::maxLength($author, 255);

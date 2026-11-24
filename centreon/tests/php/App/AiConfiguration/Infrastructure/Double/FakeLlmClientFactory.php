@@ -24,15 +24,18 @@ declare(strict_types=1);
 namespace Tests\App\AiConfiguration\Infrastructure\Double;
 
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProvider;
+use App\AiConfiguration\Domain\Llm\ConnectionSpec;
 use App\AiConfiguration\Domain\Llm\Exception\LlmException;
 use App\AiConfiguration\Domain\Llm\LlmClientFactoryInterface;
 use App\AiConfiguration\Domain\Llm\LlmClientInterface;
 
-final readonly class FakeLlmClientFactory implements LlmClientFactoryInterface
+final class FakeLlmClientFactory implements LlmClientFactoryInterface
 {
+    public ?ConnectionSpec $lastConnectionSpec = null;
+
     public function __construct(
-        private ?LlmClientInterface $client = null,
-        private ?LlmException $exception = null,
+        private readonly ?LlmClientInterface $client = null,
+        private readonly ?LlmException $exception = null,
     ) {
     }
 
@@ -46,8 +49,10 @@ final readonly class FakeLlmClientFactory implements LlmClientFactoryInterface
         return $this->getClientOrThrow();
     }
 
-    public function forConnectionTest(AiProvider $aiProvider): LlmClientInterface
+    public function forConnectionTest(ConnectionSpec $spec): LlmClientInterface
     {
+        $this->lastConnectionSpec = $spec;
+
         return $this->getClientOrThrow();
     }
 

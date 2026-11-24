@@ -45,7 +45,7 @@ final class AiProviderPermissionVoterTest extends TestCase
     {
         self::assertSame(
             VoterInterface::ACCESS_ABSTAIN,
-            (new AiProviderPermissionVoter())->vote($this->tokenFor($this->credential()), null, ['some_other_attribute'])
+            new AiProviderPermissionVoter()->vote($this->tokenFor($this->credential()), null, ['some_other_attribute'])
         );
     }
 
@@ -56,7 +56,7 @@ final class AiProviderPermissionVoterTest extends TestCase
 
         self::assertSame(
             VoterInterface::ACCESS_GRANTED,
-            (new AiProviderPermissionVoter())->vote($this->tokenFor($credential), null, [self::READ])
+            new AiProviderPermissionVoter()->vote($this->tokenFor($credential), null, [self::READ])
         );
     }
 
@@ -67,7 +67,7 @@ final class AiProviderPermissionVoterTest extends TestCase
 
         self::assertSame(
             VoterInterface::ACCESS_GRANTED,
-            (new AiProviderPermissionVoter())->vote($this->tokenFor($credential), null, [self::READ_WRITE])
+            new AiProviderPermissionVoter()->vote($this->tokenFor($credential), null, [self::READ_WRITE])
         );
     }
 
@@ -79,7 +79,7 @@ final class AiProviderPermissionVoterTest extends TestCase
 
         self::assertSame(
             VoterInterface::ACCESS_DENIED,
-            (new AiProviderPermissionVoter())->vote($this->tokenFor($credential), null, [self::READ_WRITE])
+            new AiProviderPermissionVoter()->vote($this->tokenFor($credential), null, [self::READ_WRITE])
         );
     }
 
@@ -87,7 +87,7 @@ final class AiProviderPermissionVoterTest extends TestCase
     {
         self::assertSame(
             VoterInterface::ACCESS_DENIED,
-            (new AiProviderPermissionVoter())->vote(new NullToken(), null, [self::READ])
+            new AiProviderPermissionVoter()->vote(new NullToken(), null, [self::READ])
         );
     }
 
@@ -98,7 +98,7 @@ final class AiProviderPermissionVoterTest extends TestCase
 
         self::assertSame(
             VoterInterface::ACCESS_GRANTED,
-            (new AiProviderPermissionVoter())->vote($this->tokenFor($credential), null, [self::READ_WRITE])
+            new AiProviderPermissionVoter()->vote($this->tokenFor($credential), null, [self::READ_WRITE])
         );
     }
 

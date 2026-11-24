@@ -66,6 +66,12 @@ final readonly class ExplainGraphResource
             openapiContext: ['example' => 'claude-sonnet-4-6'],
         )]
         public string $model,
+
+        #[ApiProperty(
+            description: 'Whether the explanation was cut at the length limit of the answer: it is then incomplete',
+            writable: false,
+        )]
+        public bool $truncated = false,
     ) {
     }
 }

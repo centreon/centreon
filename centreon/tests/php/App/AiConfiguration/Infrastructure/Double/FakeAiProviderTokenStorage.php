@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\App\AiConfiguration\Infrastructure\Double;
 
+use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderId;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\StoredApiToken;
 use App\AiConfiguration\Domain\Repository\AiProviderTokenStorage;
@@ -40,11 +41,14 @@ final class FakeAiProviderTokenStorage implements AiProviderTokenStorage
     /** @var list<string> */
     public array $removedTokens = [];
 
+    /** @var list<string> */
+    public array $discardedTokens = [];
+
     public bool $persistThrows = false;
 
     public bool $removeThrows = false;
 
-    public function persist(ApiToken $token, ?StoredApiToken $previousToken): StoredApiToken
+    public function persist(ApiToken $token): StoredApiToken
     {
         if ($this->persistThrows) {
             throw new \RuntimeException('Unable to write the token to the vault');
@@ -55,12 +59,17 @@ final class FakeAiProviderTokenStorage implements AiProviderTokenStorage
         return new StoredApiToken(self::STORED_PREFIX . $token->value);
     }
 
-    public function remove(StoredApiToken $token): void
+    public function remove(StoredApiToken $token, AiProviderId $aiProviderId): void
     {
         if ($this->removeThrows) {
             throw new \RuntimeException('Unable to remove the token from the vault');
         }
 
         $this->removedTokens[] = $token->value;
+    }
+
+    public function discard(StoredApiToken $token, ?AiProviderId $aiProviderId): void
+    {
+        $this->discardedTokens[] = $token->value;
     }
 }

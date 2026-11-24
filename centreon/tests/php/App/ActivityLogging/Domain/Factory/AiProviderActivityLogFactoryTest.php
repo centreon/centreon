@@ -45,7 +45,7 @@ final class AiProviderActivityLogFactoryTest extends TestCase
     {
         $firedAt = new \DateTimeImmutable();
 
-        $activityLog = (new AiProviderActivityLogFactory())->create(
+        $activityLog = new AiProviderActivityLogFactory()->create(
             action: ActionEnum::Add,
             aggregate: new AiProvider(
                 id: new AiProviderId(42),

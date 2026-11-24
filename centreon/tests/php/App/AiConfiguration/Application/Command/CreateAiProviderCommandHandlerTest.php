@@ -31,6 +31,8 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
 use App\AiConfiguration\Domain\Event\AiProviderCreated;
+use App\AiConfiguration\Domain\Event\AiProviderUpdated;
+use App\AiConfiguration\Domain\Exception\AiProviderActivationConflictException;
 use App\AiConfiguration\Domain\Exception\AiProviderAlreadyExistsException;
 use App\AiConfiguration\Domain\Exception\VaultWriteFailedException;
 use PHPUnit\Framework\TestCase;
@@ -88,6 +90,24 @@ final class CreateAiProviderCommandHandlerTest extends TestCase
         self::assertSame($second->id()->value, $this->repository->findActivated()?->id()->value);
     }
 
+    public function testTheDisabledProviderIsReportedAsUpdated(): void
+    {
+        $first = ($this->handler)($this->createCommand('Anthropic production'));
+        ($this->handler)($this->createCommand('Mistral fallback', isActivated: true));
+
+        $updated = $this->eventBus->getDispatchedEvents(AiProviderUpdated::class);
+        self::assertCount(1, $updated);
+        self::assertSame($first->id()->value, $updated[0]->aggregate->id()->value);
+    }
+
+    public function testNoUpdateIsReportedWhenNoProviderGetsDisabled(): void
+    {
+        ($this->handler)($this->createCommand('Anthropic production'));
+        ($this->handler)($this->createCommand('Mistral fallback', isActivated: false));
+
+        self::assertTrue($this->eventBus->shouldNotHaveDispatched(AiProviderUpdated::class));
+    }
+
     public function testCannotCreateProviderWithSameName(): void
     {
         ($this->handler)($this->createCommand('Anthropic production'));
@@ -116,6 +136,20 @@ final class CreateAiProviderCommandHandlerTest extends TestCase
         }
 
         self::assertSame(0, $this->repository->countAll());
+        self::assertTrue($this->eventBus->shouldNotHaveDispatched(AiProviderCreated::class));
+    }
+
+    public function testAFailedSaveRemovesTheWrittenToken(): void
+    {
+        $this->repository->writeFailure = AiProviderActivationConflictException::anotherProviderEnabled();
+
+        try {
+            ($this->handler)($this->createCommand('Anthropic production'));
+            self::fail('A failed save must abort the creation.');
+        } catch (AiProviderActivationConflictException) {
+        }
+
+        self::assertSame([FakeAiProviderTokenStorage::STORED_PREFIX . 'a-token'], $this->tokenStorage->discardedTokens);
         self::assertTrue($this->eventBus->shouldNotHaveDispatched(AiProviderCreated::class));
     }
 

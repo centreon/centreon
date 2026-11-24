@@ -37,8 +37,6 @@ final class AiProviderReadOnlyUserTest extends AiProviderApiTestCase
 
     // Administration > Parameters > AI Providers: builds ROLE_ADMINISTRATION_PARAMETERS_AI_PROVIDERS_R[W]
     private const AI_PROVIDERS_TOPOLOGY_PAGES = [5, 501, 50116];
-
-    // CentreonACL access right: read-only
     private const ACL_ACCESS_READ_ONLY = 2;
 
     private Connection $connection;

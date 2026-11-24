@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\AiConfiguration\Infrastructure\TokenStorage;
 
+use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderId;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\StoredApiToken;
 use App\AiConfiguration\Domain\Repository\AiProviderTokenStorage;
@@ -31,53 +32,79 @@ use App\Shared\Domain\Vault\VaultCredentials;
 use App\Shared\Domain\Vault\VaultKeyEnum;
 use App\Shared\Domain\Vault\VaultPathEnum;
 use App\Shared\Domain\VaultInterface;
+use App\Shared\Infrastructure\Logging\ExceptionFormatter;
+use Psr\Log\LoggerInterface;
 
 /**
  * Stores AI provider API tokens in the vault when it is enabled, and in the database otherwise.
  *
- * Each provider owns one vault entry holding its token: rotating the token rewrites that entry, so
- * the reference stored in the database does not change. With the vault disabled, the token is
- * kept as-is, like the other credentials of the platform.
+ * Each token gets a vault entry of its own: rotating it writes a new entry, and the replaced one
+ * is removed once the configuration references the new one. With the vault disabled, the token
+ * is kept as-is, like the other credentials of the platform.
  */
 final readonly class VaultAiProviderTokenStorage implements AiProviderTokenStorage
 {
     public function __construct(
         private VaultInterface $vault,
         private VaultCredentialWriter $vaultCredentialWriter,
+        private LoggerInterface $logger,
     ) {
     }
 
-    public function persist(ApiToken $token, ?StoredApiToken $previousToken): StoredApiToken
+    public function persist(ApiToken $token): StoredApiToken
     {
         if (! $this->vault->isEnabled()) {
             return StoredApiToken::plain($token);
         }
 
-        $uuid = $previousToken instanceof StoredApiToken && $previousToken->isVaultReference()
-            ? $this->vault->extractUuid($previousToken->value)
-            : null;
-
         $stored = $this->vaultCredentialWriter->persist(
             VaultPathEnum::AiProviders,
             VaultCredentials::empty()->set(VaultKeyEnum::AiProviderApiToken, $token->value),
-            $uuid,
         );
 
         return StoredApiToken::vaultReference($stored[VaultKeyEnum::AiProviderApiToken->value]);
     }
 
-    public function remove(StoredApiToken $token): void
+    public function remove(StoredApiToken $token, AiProviderId $aiProviderId): void
     {
-        if (! $token->isVaultReference()) {
-            // a plaintext token lives in the configuration row, deleted with it
-            return;
+        $uuid = $this->findVaultUuid($token, $aiProviderId);
+        if ($uuid !== null) {
+            $this->vaultCredentialWriter->delete(VaultPathEnum::AiProviders, $uuid);
         }
+    }
 
-        $uuid = $this->vault->extractUuid($token->value);
+    public function discard(StoredApiToken $token, ?AiProviderId $aiProviderId): void
+    {
+        $uuid = $this->findVaultUuid($token, $aiProviderId);
         if ($uuid === null) {
             return;
         }
 
-        $this->vaultCredentialWriter->delete(VaultPathEnum::AiProviders, $uuid);
+        try {
+            $this->vaultCredentialWriter->delete(VaultPathEnum::AiProviders, $uuid);
+        } catch (\Throwable $exception) {
+            $this->logger->warning('Unable to remove an unused AI provider API token from the vault', [
+                'ai_provider_id' => $aiProviderId?->value,
+                'vault_uuid' => $uuid,
+                'exception' => ExceptionFormatter::format($exception),
+            ]);
+        }
+    }
+
+    private function findVaultUuid(StoredApiToken $token, ?AiProviderId $aiProviderId): ?string
+    {
+        if (! $token->isVaultReference()) {
+            // a plaintext token lives in the configuration row
+            return null;
+        }
+
+        $uuid = $this->vault->extractUuid($token->value);
+        if ($uuid === null) {
+            $this->logger->warning('Unable to find the vault entry of an AI provider API token, it is left in the vault', [
+                'ai_provider_id' => $aiProviderId?->value,
+            ]);
+        }
+
+        return $uuid;
     }
 }

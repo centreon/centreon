@@ -30,13 +30,14 @@ use App\AiConfiguration\Domain\Exception\AiProviderNotFoundException;
 use App\AiConfiguration\Domain\Repository\AiProviderRepository;
 use App\AiConfiguration\Domain\Repository\Criteria\AiProviderCriteria;
 use App\Shared\Domain\Aggregate\AggregateRoot;
-use Countable;
-use IteratorAggregate;
 
 final class FakeAiProviderRepository implements AiProviderRepository
 {
     /** @var array<int, AiProvider> */
     public array $aiProviders = [];
+
+    /** thrown by the next add() or update(), like a conflict detected by the database */
+    public ?\Throwable $writeFailure = null;
 
     private int $nextId = 1;
 
@@ -68,7 +69,7 @@ final class FakeAiProviderRepository implements AiProviderRepository
         return null;
     }
 
-    public function findAll(?AiProviderCriteria $criteria): IteratorAggregate&Countable
+    public function findAll(?AiProviderCriteria $criteria): \IteratorAggregate&\Countable
     {
         return new \ArrayObject(array_values($this->aiProviders));
     }
@@ -80,6 +81,8 @@ final class FakeAiProviderRepository implements AiProviderRepository
 
     public function add(AiProvider $aiProvider): void
     {
+        $this->failIfRequested();
+
         $id = $this->nextId++;
 
         $reflection = new \ReflectionProperty(AggregateRoot::class, 'id');
@@ -90,6 +93,8 @@ final class FakeAiProviderRepository implements AiProviderRepository
 
     public function update(AiProvider ...$aiProviders): void
     {
+        $this->failIfRequested();
+
         foreach ($aiProviders as $aiProvider) {
             $this->aiProviders[$aiProvider->id()->value] = $aiProvider;
         }
@@ -98,5 +103,15 @@ final class FakeAiProviderRepository implements AiProviderRepository
     public function delete(AiProvider $aiProvider): void
     {
         unset($this->aiProviders[$aiProvider->id()->value]);
+    }
+
+    private function failIfRequested(): void
+    {
+        if ($this->writeFailure instanceof \Throwable) {
+            $failure = $this->writeFailure;
+            $this->writeFailure = null;
+
+            throw $failure;
+        }
     }
 }

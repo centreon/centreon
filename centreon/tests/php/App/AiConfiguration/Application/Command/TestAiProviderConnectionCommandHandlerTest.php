@@ -101,6 +101,32 @@ final class TestAiProviderConnectionCommandHandlerTest extends TestCase
         self::assertNotNull($client->lastRequest);
     }
 
+    public function testTheConnectionSpecCarriesTheTargetTheTokenAndTheModel(): void
+    {
+        $factory = new FakeLlmClientFactory(new FakeLlmClient());
+        $handler = new TestAiProviderConnectionCommandHandler($this->repository, $factory);
+
+        $handler($this->command(apiToken: new ApiToken('typed-token')));
+
+        $spec = $factory->lastConnectionSpec;
+        self::assertNotNull($spec);
+        self::assertSame(AiProviderTypeEnum::Anthropic, $spec->type);
+        self::assertSame('https://api.anthropic.com', $spec->endpointUrl->value);
+        self::assertSame('typed-token', $spec->apiToken->value);
+        self::assertSame('claude-sonnet-4-6', $spec->model?->value);
+    }
+
+    public function testARefusalStillProvesTheConnection(): void
+    {
+        $handler = $this->handler(new FakeLlmClient(
+            response: new LlmResponse('', 'claude-sonnet-4-6', new LlmUsage(5, 1), refusal: 'declined')
+        ));
+
+        $result = $handler($this->command(apiToken: new ApiToken('typed-token')));
+
+        self::assertTrue($result->success);
+    }
+
     public function testRefusesTheStoredTokenForAnotherEndpoint(): void
     {
         $provider = $this->aiProvider();

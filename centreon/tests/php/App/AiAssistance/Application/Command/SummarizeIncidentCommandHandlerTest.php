@@ -47,6 +47,20 @@ final class SummarizeIncidentCommandHandlerTest extends TestCase
 
         self::assertSame('Summary: ...', $result->summary);
         self::assertSame('claude-sonnet-4-6', $result->model);
+        self::assertFalse($result->truncated);
+    }
+
+    public function testAnAnswerCutAtTheTokenLimitIsFlaggedTruncated(): void
+    {
+        $client = new FakeLlmClient(
+            response: new LlmResponse('Partial answer', 'claude-sonnet-4-6', new LlmUsage(100, 2048), truncated: true)
+        );
+        $handler = new SummarizeIncidentCommandHandler(new FakeLlmClientFactory($client));
+
+        $result = $handler($this->command());
+
+        self::assertSame('Partial answer', $result->summary);
+        self::assertTrue($result->truncated);
     }
 
     public function testFactsAndEventsAreForwardedToTheModel(): void

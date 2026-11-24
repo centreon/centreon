@@ -71,6 +71,7 @@ final readonly class SummarizeIncidentProcessor implements ProcessorInterface
         return new SummarizeIncidentResource(
             summary: $result->summary,
             model: $result->model,
+            truncated: $result->truncated,
         );
     }
 }

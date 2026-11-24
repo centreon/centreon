@@ -93,6 +93,7 @@ final readonly class SummarizeIncidentCommandHandler
         return new SummarizeIncidentResult(
             summary: $response->content,
             model: $response->model,
+            truncated: $response->truncated,
         );
     }
 

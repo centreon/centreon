@@ -33,10 +33,14 @@ use App\AiConfiguration\Domain\Llm\LlmModelTierEnum;
 use App\AiConfiguration\Domain\Llm\LlmRequest;
 use App\AiConfiguration\Domain\Llm\LlmRoleEnum;
 use App\AiConfiguration\Infrastructure\Llm\AnthropicLlmClient;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Tests\App\Shared\Infrastructure\Legacy\Double\RecordingLogger;
 
 final class AnthropicLlmClientTest extends TestCase
 {
@@ -131,13 +135,15 @@ final class AnthropicLlmClientTest extends TestCase
         $httpClient = new MockHttpClient(
             function (string $method, string $url): MockResponse {
                 self::assertSame('GET', $method);
-                self::assertSame('https://api.anthropic.com/v1/models', $url);
+                self::assertSame('https://api.anthropic.com/v1/models?limit=1000', $url);
 
                 return new MockResponse(json_encode([
                     'data' => [
                         ['id' => 'claude-sonnet-4-6'],
                         ['id' => 'claude-haiku-4-5'],
+                        ['id' => 42],
                     ],
+                    'has_more' => false,
                 ], \JSON_THROW_ON_ERROR));
             }
         );
@@ -146,6 +152,45 @@ final class AnthropicLlmClientTest extends TestCase
             ['claude-haiku-4-5', 'claude-sonnet-4-6'],
             $this->createClient($httpClient)->listModels()
         );
+    }
+
+    public function testListModelsFollowsThePages(): void
+    {
+        $urls = [];
+        $httpClient = new MockHttpClient(
+            function (string $method, string $url) use (&$urls): MockResponse {
+                $urls[] = $url;
+
+                return new MockResponse(json_encode(
+                    count($urls) === 1
+                        ? ['data' => [['id' => 'claude-sonnet-4-6']], 'has_more' => true, 'last_id' => 'claude-sonnet-4-6']
+                        : ['data' => [['id' => 'claude-3-haiku']], 'has_more' => false, 'last_id' => 'claude-3-haiku'],
+                    \JSON_THROW_ON_ERROR
+                ));
+            }
+        );
+
+        self::assertSame(['claude-3-haiku', 'claude-sonnet-4-6'], $this->createClient($httpClient)->listModels());
+        self::assertSame(
+            [
+                'https://api.anthropic.com/v1/models?limit=1000',
+                'https://api.anthropic.com/v1/models?limit=1000&after_id=claude-sonnet-4-6',
+            ],
+            $urls
+        );
+    }
+
+    public function testListModelsStopsAfterABoundedNumberOfPages(): void
+    {
+        // a provider that always claims more pages is not followed endlessly
+        $httpClient = new MockHttpClient(
+            static fn (): MockResponse => new MockResponse(
+                '{"data":[{"id":"claude-sonnet-4-6"}],"has_more":true,"last_id":"claude-sonnet-4-6"}'
+            )
+        );
+
+        self::assertSame(['claude-sonnet-4-6'], $this->createClient($httpClient)->listModels());
+        self::assertSame(10, $httpClient->getRequestsCount());
     }
 
     public function testProviderErrorIsReported(): void
@@ -245,18 +290,142 @@ final class AnthropicLlmClientTest extends TestCase
         $this->createClient($httpClient)->complete($this->createRequest());
     }
 
-    public function testASuccessfulBodyWithoutContentHasNoText(): void
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function provideSuccessfulBodiesWithoutContent(): iterable
     {
-        // the metered client turns it into an "empty answer" failure when an answer is required
+        yield 'empty document' => ['{}', 'no content in the response.'];
+
+        yield 'no content' => ['{"model":"claude-sonnet-4-6","usage":{"input_tokens":12}}', 'no content in the response.'];
+
+        yield 'content of the wrong type' => ['{"content":"pong"}', 'no content in the response.'];
+
+        yield 'an error document' => ['{"type":"error","error":{"type":"overloaded_error","message":"Overloaded"}}', 'Overloaded'];
+    }
+
+    #[DataProvider('provideSuccessfulBodiesWithoutContent')]
+    public function testASuccessfulBodyWithoutContentIsAnUnexpectedResponse(string $body, string $details): void
+    {
+        $httpClient = new MockHttpClient(new MockResponse($body));
+
+        $this->expectException(LlmRequestFailedException::class);
+        $this->expectExceptionMessage('The AI provider returned an unexpected response: ' . $details);
+
+        $this->createClient($httpClient)->complete($this->createRequest());
+    }
+
+    public function testFieldsOfTheWrongTypeAreIgnored(): void
+    {
         $httpClient = new MockHttpClient(new MockResponse(json_encode([
-            'model' => 'claude-sonnet-4-6',
-            'usage' => ['input_tokens' => 12, 'output_tokens' => 0],
+            'content' => [['type' => 'text', 'text' => 'pong'], ['type' => 'text', 'text' => 42], 'noise'],
+            'model' => ['claude'],
+            'stop_reason' => 7,
+            'usage' => ['input_tokens' => '12', 'output_tokens' => 2.5],
         ], \JSON_THROW_ON_ERROR)));
 
         $response = $this->createClient($httpClient)->complete($this->createRequest());
 
-        self::assertSame('', $response->content);
-        self::assertSame(12, $response->usage->inputTokens);
+        self::assertSame('pong', $response->content);
+        self::assertSame('', $response->model);
+        self::assertSame(0, $response->usage->inputTokens);
+        self::assertSame(0, $response->usage->outputTokens);
+        self::assertFalse($response->truncated);
+        self::assertNull($response->refusal);
+    }
+
+    public function testARefusalIsCarriedByTheResponse(): void
+    {
+        // the metered client fails on it, after recording the tokens it was billed
+        $httpClient = new MockHttpClient(new MockResponse(json_encode([
+            'content' => [['type' => 'text', 'text' => 'I can']],
+            'model' => 'claude-sonnet-4-6',
+            'stop_reason' => 'refusal',
+            'usage' => ['input_tokens' => 12, 'output_tokens' => 3],
+        ], \JSON_THROW_ON_ERROR)));
+
+        $response = $this->createClient($httpClient)->complete($this->createRequest());
+
+        self::assertSame('the model declined to answer this request.', $response->refusal);
+        self::assertSame(3, $response->usage->outputTokens);
+    }
+
+    public function testAStreamedRefusalIsCarriedByTheResponse(): void
+    {
+        $sse = [
+            "event: message_start\ndata: {\"type\":\"message_start\",\"message\":{\"model\":\"claude-sonnet-4-6\",\"usage\":{\"input_tokens\":12}}}\n\n",
+            "event: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"delta\":{\"type\":\"text_delta\",\"text\":\"I can\"}}\n\n",
+            "event: message_delta\ndata: {\"type\":\"message_delta\",\"delta\":{\"stop_reason\":\"refusal\"},\"usage\":{\"output_tokens\":3}}\n\n",
+        ];
+        $httpClient = new MockHttpClient(new MockResponse($sse));
+
+        $generator = $this->createClient($httpClient)->stream($this->createRequest());
+        iterator_to_array($generator, false);
+        $response = $generator->getReturn();
+
+        self::assertSame('the model declined to answer this request.', $response->refusal);
+        self::assertSame(3, $response->usage->outputTokens);
+    }
+
+    public function testAnErrorMessageOfTheWrongTypeIsNotReported(): void
+    {
+        $httpClient = new MockHttpClient(new MockResponse(
+            json_encode(['error' => ['message' => ['nested' => 'value']]], \JSON_THROW_ON_ERROR),
+            ['http_code' => 400]
+        ));
+
+        $this->expectException(LlmRequestFailedException::class);
+        $this->expectExceptionMessage('(HTTP 400): no error message in the response');
+
+        $this->createClient($httpClient)->complete($this->createRequest());
+    }
+
+    public function testAnErrorBodyIsLoggedServerSide(): void
+    {
+        $logger = new RecordingLogger();
+        $httpClient = new MockHttpClient(new MockResponse('<html>gateway timeout</html>', ['http_code' => 504]));
+
+        try {
+            $this->createClient($httpClient, $logger)->complete($this->createRequest());
+            self::fail('Expected the provider error to be reported');
+        } catch (LlmRequestFailedException $exception) {
+            self::assertStringNotContainsString('gateway timeout', $exception->getMessage());
+        }
+
+        $record = $logger->lastRecord();
+        self::assertNotNull($record);
+        self::assertSame('warning', $record['level']);
+        self::assertSame(504, $record['context']['status_code']);
+        self::assertSame('<html>gateway timeout</html>', $record['context']['body_excerpt']);
+    }
+
+    public function testAStreamedErrorEventWithoutAStringMessageIsReported(): void
+    {
+        $sse = ["event: error\ndata: {\"type\":\"error\",\"error\":{\"message\":[\"Overloaded\"]}}\n\n"];
+        $httpClient = new MockHttpClient(new MockResponse($sse));
+
+        $this->expectException(LlmRequestFailedException::class);
+        $this->expectExceptionMessage('The AI provider returned an unexpected response: unknown streaming error');
+
+        iterator_to_array($this->createClient($httpClient)->stream($this->createRequest()), false);
+    }
+
+    public function testRedirectsAreNeverFollowed(): void
+    {
+        $maxRedirects = [];
+        $httpClient = new MockHttpClient(
+            static function (string $method, string $url, array $options) use (&$maxRedirects): MockResponse {
+                $maxRedirects[] = $options['max_redirects'];
+
+                return new MockResponse($method === 'GET' ? '{"data":[]}' : '{"content":[{"type":"text","text":"pong"}]}');
+            }
+        );
+        $client = $this->createClient($httpClient);
+
+        $client->complete($this->createRequest());
+        $client->listModels();
+
+        self::assertSame([0, 0], $maxRedirects);
     }
 
     public function testAStreamedErrorEventIsReported(): void
@@ -293,7 +462,7 @@ final class AnthropicLlmClientTest extends TestCase
         $generator->next();
     }
 
-    private function createClient(HttpClientInterface $httpClient): AnthropicLlmClient
+    private function createClient(HttpClientInterface $httpClient, ?LoggerInterface $logger = null): AnthropicLlmClient
     {
         return new AnthropicLlmClient(
             $httpClient,
@@ -301,6 +470,7 @@ final class AnthropicLlmClientTest extends TestCase
             new ApiToken('a-token'),
             new ModelName('claude-sonnet-4-6'),
             new ModelName('claude-haiku-4-5'),
+            logger: $logger ?? new NullLogger(),
         );
     }
 

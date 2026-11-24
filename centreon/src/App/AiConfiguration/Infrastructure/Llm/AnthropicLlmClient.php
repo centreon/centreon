@@ -33,6 +33,8 @@ use App\AiConfiguration\Domain\Llm\LlmModelTierEnum;
 use App\AiConfiguration\Domain\Llm\LlmRequest;
 use App\AiConfiguration\Domain\Llm\LlmResponse;
 use App\AiConfiguration\Domain\Llm\LlmUsage;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface as HttpClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TimeoutExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
@@ -46,6 +48,8 @@ final readonly class AnthropicLlmClient implements LlmClientInterface
 {
     private const ANTHROPIC_VERSION = '2023-06-01';
     private const TIMEOUT_SECONDS = 120;
+    private const MODEL_PAGE_SIZE = 1000;
+    private const MAX_MODEL_PAGES = 10;
 
     public function __construct(
         private HttpClientInterface $httpClient,
@@ -56,36 +60,41 @@ final readonly class AnthropicLlmClient implements LlmClientInterface
         // native Anthropic exposes the Messages API at /v1/messages; Bedrock
         // Mantle exposes the same API at /anthropic/v1/messages
         private string $messagesPath = '/v1/messages',
+        private LoggerInterface $logger = new NullLogger(),
     ) {
     }
 
     public function complete(LlmRequest $request): LlmResponse
     {
         $response = $this->sendRequest($request, stream: false);
-
-        /** @var array{
-         *   content?: array<array{type?: string, text?: string}>,
-         *   model?: string,
-         *   stop_reason?: string|null,
-         *   usage?: array{input_tokens?: int, output_tokens?: int},
-         * } $data */
         $data = $this->decodeOrFail($response, $this->timeoutFor($request));
 
+        if (! is_array($data['content'] ?? null)) {
+            // e.g. {} or {"error": ...} with a success status: not an answer
+            throw LlmRequestFailedException::fromInvalidResponse(
+                ProviderPayload::errorMessage($data) ?? 'no content in the response.'
+            );
+        }
+
         $content = '';
-        foreach ($data['content'] ?? [] as $block) {
+        foreach ($data['content'] as $block) {
+            $block = ProviderPayload::array($block);
             if (($block['type'] ?? null) === 'text') {
-                $content .= $block['text'] ?? '';
+                $content .= ProviderPayload::string($block['text'] ?? null) ?? '';
             }
         }
+        $stopReason = ProviderPayload::string($data['stop_reason'] ?? null);
+        $usage = ProviderPayload::array($data['usage'] ?? null);
 
         return new LlmResponse(
             content: $content,
-            model: $data['model'] ?? '',
+            model: ProviderPayload::string($data['model'] ?? null) ?? '',
             usage: new LlmUsage(
-                inputTokens: $data['usage']['input_tokens'] ?? 0,
-                outputTokens: $data['usage']['output_tokens'] ?? 0,
+                inputTokens: ProviderPayload::tokenCount($usage['input_tokens'] ?? null),
+                outputTokens: ProviderPayload::tokenCount($usage['output_tokens'] ?? null),
             ),
-            truncated: ($data['stop_reason'] ?? null) === 'max_tokens',
+            truncated: $stopReason === 'max_tokens',
+            refusal: $this->refusalOf($stopReason),
         );
     }
 
@@ -100,47 +109,46 @@ final readonly class AnthropicLlmClient implements LlmClientInterface
         $model = '';
         $inputTokens = 0;
         $outputTokens = 0;
-        $truncated = false;
+        $stopReason = null;
 
         try {
             foreach ($this->httpClient->stream($response) as $chunk) {
                 foreach ($parser->push($chunk->getContent()) as $payload) {
                     try {
-                        /** @var array{
-                         *   type?: string,
-                         *   message?: array{model?: string, usage?: array{input_tokens?: int}},
-                         *   delta?: array{type?: string, text?: string, stop_reason?: string|null},
-                         *   usage?: array{output_tokens?: int},
-                         *   error?: array{message?: string},
-                         * } $event */
-                        $event = json_decode($payload, true, 512, \JSON_THROW_ON_ERROR) ?? [];
+                        $event = ProviderPayload::array(json_decode($payload, true, 512, \JSON_THROW_ON_ERROR));
                     } catch (\JsonException) {
                         // a malformed event is skipped
                         $event = [];
                     }
+                    $delta = ProviderPayload::array($event['delta'] ?? null);
 
                     switch ($event['type'] ?? null) {
                         case 'message_start':
-                            $model = $event['message']['model'] ?? $model;
-                            $inputTokens = $event['message']['usage']['input_tokens'] ?? $inputTokens;
+                            $message = ProviderPayload::array($event['message'] ?? null);
+                            $usage = ProviderPayload::array($message['usage'] ?? null);
+                            $model = ProviderPayload::string($message['model'] ?? null) ?? $model;
+                            if (isset($usage['input_tokens'])) {
+                                $inputTokens = ProviderPayload::tokenCount($usage['input_tokens']);
+                            }
                             break;
                         case 'content_block_delta':
-                            if (($event['delta']['type'] ?? null) === 'text_delta') {
-                                $text = $event['delta']['text'] ?? '';
+                            $text = ProviderPayload::string($delta['text'] ?? null) ?? '';
+                            if (($delta['type'] ?? null) === 'text_delta' && $text !== '') {
                                 $content .= $text;
 
                                 yield $text;
                             }
                             break;
                         case 'message_delta':
-                            $outputTokens = $event['usage']['output_tokens'] ?? $outputTokens;
-                            if (($event['delta']['stop_reason'] ?? null) === 'max_tokens') {
-                                $truncated = true;
+                            $usage = ProviderPayload::array($event['usage'] ?? null);
+                            if (isset($usage['output_tokens'])) {
+                                $outputTokens = ProviderPayload::tokenCount($usage['output_tokens']);
                             }
+                            $stopReason = ProviderPayload::string($delta['stop_reason'] ?? null) ?? $stopReason;
                             break;
                         case 'error':
                             throw LlmRequestFailedException::fromInvalidResponse(
-                                $event['error']['message'] ?? 'unknown streaming error'
+                                ProviderPayload::errorMessage($event) ?? 'unknown streaming error'
                             );
                     }
                 }
@@ -151,37 +159,57 @@ final readonly class AnthropicLlmClient implements LlmClientInterface
             throw LlmRequestFailedException::fromTransportError($exception->getMessage(), $exception);
         }
 
-        return new LlmResponse($content, $model, new LlmUsage($inputTokens, $outputTokens), $truncated);
+        return new LlmResponse(
+            $content,
+            $model,
+            new LlmUsage($inputTokens, $outputTokens),
+            $stopReason === 'max_tokens',
+            $this->refusalOf($stopReason),
+        );
     }
 
     public function listModels(): array
     {
-        try {
-            $response = $this->httpClient->request(
-                'GET',
-                rtrim($this->endpointUrl->value, '/') . '/v1/models',
-                [
-                    'headers' => [
-                        'anthropic-version' => self::ANTHROPIC_VERSION,
-                        'x-api-key' => $this->apiToken->value,
-                    ],
-                    'timeout' => self::TIMEOUT_SECONDS,
-                    // the provider's answer is reported back: never follow it elsewhere
-                    'max_redirects' => 0,
-                ]
-            );
-        } catch (TransportExceptionInterface $exception) {
-            throw LlmRequestFailedException::fromTransportError($exception->getMessage(), $exception);
-        }
-
-        /** @var array{data?: array<array{id?: string}>} $data */
-        $data = $this->decodeOrFail($response, self::TIMEOUT_SECONDS);
-
         $ids = [];
-        foreach ($data['data'] ?? [] as $model) {
-            $id = $model['id'] ?? null;
-            if (is_string($id) && $id !== '') {
-                $ids[] = $id;
+        $afterId = null;
+        // the list is paginated: follow it, but never endlessly
+        for ($page = 0; $page < self::MAX_MODEL_PAGES; ++$page) {
+            $query = ['limit' => self::MODEL_PAGE_SIZE];
+            if ($afterId !== null) {
+                $query['after_id'] = $afterId;
+            }
+
+            try {
+                $response = $this->httpClient->request(
+                    'GET',
+                    rtrim($this->endpointUrl->value, '/') . '/v1/models',
+                    [
+                        'headers' => [
+                            'anthropic-version' => self::ANTHROPIC_VERSION,
+                            'x-api-key' => $this->apiToken->value,
+                        ],
+                        'query' => $query,
+                        'timeout' => self::TIMEOUT_SECONDS,
+                        // the provider's answer is reported back: never follow it elsewhere
+                        'max_redirects' => 0,
+                    ]
+                );
+            } catch (TransportExceptionInterface $exception) {
+                throw LlmRequestFailedException::fromTransportError($exception->getMessage(), $exception);
+            }
+
+            $data = $this->decodeOrFail($response, self::TIMEOUT_SECONDS);
+
+            foreach (ProviderPayload::array($data['data'] ?? null) as $model) {
+                $id = ProviderPayload::string(ProviderPayload::array($model)['id'] ?? null);
+                if ($id !== null && $id !== '') {
+                    $ids[] = $id;
+                }
+            }
+
+            $afterId = ProviderPayload::string($data['last_id'] ?? null);
+            if (($data['has_more'] ?? false) !== true || $afterId === null || $afterId === '') {
+                break;
             }
         }
         sort($ids);
@@ -189,6 +217,15 @@ final readonly class AnthropicLlmClient implements LlmClientInterface
         return array_values(array_unique($ids));
     }
 
+    private function refusalOf(?string $stopReason): ?string
+    {
+        // the Messages API reports a refusal as a stop reason, without its cause
+        return $stopReason === 'refusal' ? 'the model declined to answer this request.' : null;
+    }
+
+    /**
+     * @throws LlmRequestFailedException when the request can not be sent
+     */
     private function sendRequest(LlmRequest $request, bool $stream): ResponseInterface
     {
         $model = $request->model ?? $this->resolveTierModel($request->tier);
@@ -241,6 +278,9 @@ final readonly class AnthropicLlmClient implements LlmClientInterface
 
     /**
      * @param int $timeout the idle timeout of the request, reported if it is reached
+     *
+     * @throws LlmRequestFailedException when the provider can not be reached, times out or
+     *                                   answers with an error status
      */
     private function assertSuccessful(ResponseInterface $response, int $timeout): void
     {
@@ -255,7 +295,7 @@ final readonly class AnthropicLlmClient implements LlmClientInterface
         if ($statusCode >= 400) {
             throw LlmRequestFailedException::fromProviderError(
                 $statusCode,
-                $this->extractErrorMessage($response)
+                $this->extractErrorMessage($response, $statusCode)
             );
         }
     }
@@ -263,7 +303,9 @@ final readonly class AnthropicLlmClient implements LlmClientInterface
     /**
      * @param int $timeout the idle timeout of the request, reported if it is reached
      *
-     * @return array<string, mixed>
+     * @throws LlmRequestFailedException when the request fails or its body is not a JSON document
+     *
+     * @return array<mixed>
      */
     private function decodeOrFail(ResponseInterface $response, int $timeout): array
     {
@@ -278,26 +320,25 @@ final readonly class AnthropicLlmClient implements LlmClientInterface
             throw LlmRequestFailedException::fromInvalidResponse($exception->getMessage(), $exception);
         }
 
-        /** @var array<string, mixed> $data */
         return $data;
     }
 
-    private function extractErrorMessage(ResponseInterface $response): string
+    private function extractErrorMessage(ResponseInterface $response, int $statusCode): string
     {
         try {
             $body = $response->getContent(false);
         } catch (HttpClientExceptionInterface) {
             return 'no response body';
         }
+        ProviderPayload::logErrorResponse($this->logger, $statusCode, $body);
 
         try {
-            /** @var array{error?: array{message?: string}}|null $data */
             $data = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
         } catch (\JsonException) {
             // not a JSON error document: its body is not reported (it may come from any server)
             $data = null;
         }
 
-        return $data['error']['message'] ?? 'no error message in the response';
+        return ProviderPayload::errorMessage($data) ?? 'no error message in the response';
     }
 }

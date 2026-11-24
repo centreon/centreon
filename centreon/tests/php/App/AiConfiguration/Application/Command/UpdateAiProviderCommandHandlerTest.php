@@ -33,6 +33,7 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\StoredApiToken;
 use App\AiConfiguration\Domain\Event\AiProviderUpdated;
+use App\AiConfiguration\Domain\Exception\AiProviderActivationConflictException;
 use App\AiConfiguration\Domain\Exception\AiProviderAlreadyExistsException;
 use App\AiConfiguration\Domain\Exception\AiProviderCanNotBeUpdatedException;
 use App\AiConfiguration\Domain\Exception\AiProviderNotFoundException;
@@ -120,6 +121,20 @@ final class UpdateAiProviderCommandHandlerTest extends TestCase
         self::assertFalse($this->repository->getById($first->id())->isActivated());
     }
 
+    public function testTheDisabledProviderIsReportedAsUpdated(): void
+    {
+        $first = $this->givenAiProvider('Anthropic production', isActivated: true);
+        $second = $this->givenAiProvider('Mistral fallback');
+
+        ($this->handler)($this->updateCommand($second, isActivated: true));
+
+        $updatedIds = array_map(
+            static fn (AiProviderUpdated $event): int => $event->aggregate->id()->value,
+            $this->eventBus->getDispatchedEvents(AiProviderUpdated::class),
+        );
+        self::assertSame([$second->id()->value, $first->id()->value], $updatedIds);
+    }
+
     public function testNullTokenKeepsCurrentToken(): void
     {
         $aiProvider = $this->givenAiProvider('Anthropic production', isActivated: true);
@@ -138,6 +153,24 @@ final class UpdateAiProviderCommandHandlerTest extends TestCase
 
         self::assertSame(['new-token'], $this->tokenStorage->persistedTokens);
         self::assertSame(FakeAiProviderTokenStorage::STORED_PREFIX . 'new-token', $updated->apiToken()->value);
+        // the replaced token is removed once the configuration references the new one
+        self::assertSame(['initial-token'], $this->tokenStorage->discardedTokens);
+    }
+
+    public function testAFailedSaveRemovesTheNewTokenAndKeepsTheStoredOne(): void
+    {
+        $aiProvider = $this->givenAiProvider('Anthropic production');
+        $this->repository->writeFailure = AiProviderActivationConflictException::anotherProviderEnabled();
+
+        try {
+            ($this->handler)($this->updateCommand($aiProvider, apiToken: 'new-token', isActivated: true));
+            self::fail('A failed save must abort the update.');
+        } catch (AiProviderActivationConflictException) {
+        }
+
+        self::assertSame([FakeAiProviderTokenStorage::STORED_PREFIX . 'new-token'], $this->tokenStorage->discardedTokens);
+        self::assertSame([], $this->tokenStorage->removedTokens);
+        self::assertTrue($this->eventBus->shouldNotHaveDispatched(AiProviderUpdated::class));
     }
 
     public function testVaultWriteFailureKeepsTheStoredToken(): void
@@ -152,6 +185,7 @@ final class UpdateAiProviderCommandHandlerTest extends TestCase
         }
 
         self::assertSame('initial-token', $this->repository->getById($aiProvider->id())->apiToken()->value);
+        self::assertSame([], $this->tokenStorage->discardedTokens);
         self::assertTrue($this->eventBus->shouldNotHaveDispatched(AiProviderUpdated::class));
     }
 
@@ -206,7 +240,8 @@ final class UpdateAiProviderCommandHandlerTest extends TestCase
         $aiProvider = new AiProvider(
             id: null,
             name: new AiProviderName($name),
-            type: AiProviderTypeEnum::Anthropic,
+            // a type accepting any endpoint, to exercise the token reuse rule
+            type: AiProviderTypeEnum::OpenAiCompatible,
             endpointUrl: new EndpointUrl('https://api.anthropic.com'),
             apiToken: new StoredApiToken('initial-token'),
             defaultModel: new ModelName('claude-sonnet-4-6'),

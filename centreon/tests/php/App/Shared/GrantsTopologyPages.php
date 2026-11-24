@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace Tests\App\Shared;
 
 use Doctrine\DBAL\Connection;
-use Webmozart\Assert\Assert;
 
 /**
  * Creates non-admin API users and grants them topology pages (needs ApiTestCase).
@@ -42,8 +41,7 @@ trait GrantsTopologyPages
             'SELECT contact_id FROM contact WHERE contact_alias = :alias',
             ['alias' => $alias]
         );
-        Assert::notFalse($contactId);
-        Assert::scalar($contactId);
+        \assert($contactId !== false && \is_scalar($contactId));
 
         return (int) $contactId;
     }
@@ -84,8 +82,7 @@ trait GrantsTopologyPages
                 'SELECT topology_id FROM topology WHERE topology_page = :page',
                 ['page' => $topologyPage]
             );
-            Assert::notFalse($topologyId, "topology_page {$topologyPage} not found in fixtures");
-            Assert::scalar($topologyId);
+            \assert($topologyId !== false && \is_scalar($topologyId), "topology_page {$topologyPage} not found in fixtures");
 
             $connection->insert('acl_topology_relations', [
                 'topology_topology_id' => (int) $topologyId,

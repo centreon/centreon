@@ -28,6 +28,8 @@ final readonly class CorrelateAlertsResult
     public function __construct(
         public string $analysis,
         public string $model,
+        /** Whether the analysis was cut at the token limit of the request. */
+        public bool $truncated = false,
     ) {
     }
 }

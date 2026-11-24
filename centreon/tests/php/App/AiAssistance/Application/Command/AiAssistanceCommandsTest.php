@@ -27,6 +27,7 @@ use App\AiAssistance\Application\Command\CorrelateAlertsCommand;
 use App\AiAssistance\Application\Command\CorrelatedResource;
 use App\AiAssistance\Application\Command\ExplainGraphCommand;
 use App\AiAssistance\Application\Command\ExplainResourceCommand;
+use App\AiAssistance\Application\Command\GraphMetric;
 use App\AiAssistance\Application\Command\IncidentEvent;
 use App\AiAssistance\Application\Command\SummarizeIncidentCommand;
 use App\AiAssistance\Application\Command\TranslateResourceFilterCommand;
@@ -96,5 +97,65 @@ final class AiAssistanceCommandsTest extends TestCase
     {
         // the bus logs every command: the prompt material must not be dumped
         self::assertNotSame([], new \ReflectionProperty($class, $property)->getAttributes(Sensitive::class));
+    }
+
+    /**
+     * @return iterable<string, array{\Closure(string): object}>
+     */
+    public static function provideOverlongFreeTexts(): iterable
+    {
+        yield 'Ask AI request' => [static fn (string $text): object => new TranslateResourceFilterCommand($text)];
+
+        yield 'Ask AI current filter' => [
+            static fn (string $text): object => new TranslateResourceFilterCommand('critical', $text),
+        ];
+
+        yield 'resource output' => [
+            static fn (string $text): object => new ExplainResourceCommand('Ping', 'service', 'CRITICAL', information: $text),
+        ];
+
+        yield 'resource command line' => [
+            static fn (string $text): object => new ExplainResourceCommand('Ping', 'service', 'CRITICAL', commandLine: $text),
+        ];
+
+        yield 'resource performance data' => [
+            static fn (string $text): object => new ExplainResourceCommand('Ping', 'service', 'CRITICAL', performanceData: $text),
+        ];
+
+        yield 'incident output' => [
+            static fn (string $text): object => new SummarizeIncidentCommand(
+                'Ping',
+                'service',
+                'CRITICAL',
+                [new IncidentEvent('2026-01-01 00:00', 'event')],
+                information: $text,
+            ),
+        ];
+
+        yield 'incident event content' => [static fn (string $text): object => new IncidentEvent('2026-01-01 00:00', 'event', $text)];
+
+        yield 'correlated resource output' => [
+            static fn (string $text): object => new CorrelatedResource('Ping', 'service', 'CRITICAL', information: $text),
+        ];
+
+        yield 'graph performance data' => [
+            static fn (string $text): object => new ExplainGraphCommand('Ping', 'service', [new GraphMetric('rta')], performanceData: $text),
+        ];
+    }
+
+    /**
+     * @param \Closure(string): object $build
+     */
+    #[DataProvider('provideOverlongFreeTexts')]
+    public function testAnOverlongFreeTextIsRejectedWithoutEchoingIt(\Closure $build): void
+    {
+        $secret = str_repeat('s3cr3t', 2000);
+
+        try {
+            $build($secret);
+            self::fail('An over-long free text must be rejected.');
+        } catch (\InvalidArgumentException $exception) {
+            self::assertStringNotContainsString('s3cr3t', $exception->getMessage());
+        }
     }
 }

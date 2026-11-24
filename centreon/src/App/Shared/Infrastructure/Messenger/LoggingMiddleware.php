@@ -30,6 +30,7 @@ use App\Shared\Infrastructure\Logging\PayloadSanitizer;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\Exception\WrappedExceptionsInterface;
 use Symfony\Component\Messenger\Middleware\MiddlewareInterface;
 use Symfony\Component\Messenger\Middleware\StackInterface;
 use Symfony\Component\Messenger\Stamp\BusNameStamp;
@@ -98,12 +99,32 @@ final readonly class LoggingMiddleware implements MiddlewareInterface
      * Anything else is an unexpected server-side failure (DB down, OOM, bug)
      * and is critical, mirroring LegacyHttpExceptionListener's
      * CRITICAL-vs-WARNING split.
+     * The bus wraps handler exceptions (HandlerFailedException, ...): a wrapper
+     * is expected only when every exception it wraps is.
      */
     private function resolveFailureLevel(\Throwable $exception): string
     {
-        return $exception instanceof \InvalidArgumentException || $exception instanceof ExpectedFailureInterface
-            ? LogLevel::WARNING
-            : LogLevel::CRITICAL;
+        return $this->isExpectedFailure($exception) ? LogLevel::WARNING : LogLevel::CRITICAL;
+    }
+
+    private function isExpectedFailure(\Throwable $exception): bool
+    {
+        if (! $exception instanceof WrappedExceptionsInterface) {
+            return $exception instanceof \InvalidArgumentException || $exception instanceof ExpectedFailureInterface;
+        }
+
+        $wrapped = $exception->getWrappedExceptions(recursive: true);
+        if ($wrapped === []) {
+            return false;
+        }
+
+        foreach ($wrapped as $wrappedException) {
+            if (! $this->isExpectedFailure($wrappedException)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**

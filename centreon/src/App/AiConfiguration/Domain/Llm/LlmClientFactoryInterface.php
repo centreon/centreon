@@ -43,10 +43,10 @@ interface LlmClientFactoryInterface
     public function forProvider(AiProvider $aiProvider): LlmClientInterface;
 
     /**
-     * Build a client for a configuration-time connection test: unmetered and
-     * uncapped, and usable with a not-yet-saved provider.
+     * Build a client for a configuration-time check (connection test, model
+     * discovery): unmetered and uncapped, and usable before the provider is saved.
      *
      * @throws ApiTokenUnavailableException when the API token can not be read from the vault
      */
-    public function forConnectionTest(AiProvider $aiProvider): LlmClientInterface;
+    public function forConnectionTest(ConnectionSpec $spec): LlmClientInterface;
 }

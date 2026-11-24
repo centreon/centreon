@@ -89,6 +89,7 @@ final readonly class CorrelateAlertsCommandHandler
         return new CorrelateAlertsResult(
             analysis: $response->content,
             model: $response->model,
+            truncated: $response->truncated,
         );
     }
 

@@ -33,6 +33,8 @@ use App\AiConfiguration\Domain\Llm\LlmModelTierEnum;
 use App\AiConfiguration\Domain\Llm\LlmRequest;
 use App\AiConfiguration\Domain\Llm\LlmResponse;
 use App\AiConfiguration\Domain\Llm\LlmUsage;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface as HttpClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TimeoutExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
@@ -58,31 +60,36 @@ final readonly class OpenAiCompatibleLlmClient implements LlmClientInterface
         private string $chatCompletionsPath = '/v1/chat/completions',
         // OpenAI's recent models require 'max_completion_tokens' over 'max_tokens'
         private string $maxTokensField = 'max_tokens',
+        private LoggerInterface $logger = new NullLogger(),
     ) {
     }
 
     public function complete(LlmRequest $request): LlmResponse
     {
         $response = $this->sendRequest($request, stream: false);
-
-        /** @var array{
-         *   model?: string,
-         *   choices?: array<array{message?: array{content?: mixed, refusal?: string|null}, finish_reason?: string|null}>,
-         *   usage?: array{prompt_tokens?: int, completion_tokens?: int},
-         * } $data */
         $data = $this->decodeOrFail($response, $this->timeoutFor($request));
 
-        $finishReason = $data['choices'][0]['finish_reason'] ?? null;
-        $this->assertNotRefused($data['choices'][0]['message']['refusal'] ?? '', $finishReason);
+        $choice = ProviderPayload::array(ProviderPayload::array($data['choices'] ?? null)[0] ?? null);
+        $message = $choice['message'] ?? null;
+        if (! is_array($message)) {
+            // e.g. {} or {"error": ...} with a success status: not an answer
+            throw LlmRequestFailedException::fromInvalidResponse(
+                ProviderPayload::errorMessage($data) ?? 'no completion in the response.'
+            );
+        }
+
+        $finishReason = ProviderPayload::string($choice['finish_reason'] ?? null);
+        $usage = ProviderPayload::array($data['usage'] ?? null);
 
         return new LlmResponse(
-            content: $this->textOf($data['choices'][0]['message']['content'] ?? null),
-            model: $data['model'] ?? '',
+            content: $this->textOf($message['content'] ?? null),
+            model: ProviderPayload::string($data['model'] ?? null) ?? '',
             usage: new LlmUsage(
-                inputTokens: $data['usage']['prompt_tokens'] ?? 0,
-                outputTokens: $data['usage']['completion_tokens'] ?? 0,
+                inputTokens: ProviderPayload::tokenCount($usage['prompt_tokens'] ?? null),
+                outputTokens: ProviderPayload::tokenCount($usage['completion_tokens'] ?? null),
             ),
             truncated: $finishReason === 'length',
+            refusal: $this->refusalOf(ProviderPayload::string($message['refusal'] ?? null) ?? '', $finishReason),
         );
     }
 
@@ -109,13 +116,7 @@ final readonly class OpenAiCompatibleLlmClient implements LlmClientInterface
                     }
 
                     try {
-                        /** @var array{
-                         *   model?: string,
-                         *   choices?: array<array{delta?: array{content?: mixed, refusal?: string|null}, finish_reason?: string|null}>,
-                         *   usage?: array{prompt_tokens?: int, completion_tokens?: int},
-                         *   error?: array{message?: string},
-                         * } $event */
-                        $event = json_decode($payload, true, 512, \JSON_THROW_ON_ERROR) ?? [];
+                        $event = ProviderPayload::array(json_decode($payload, true, 512, \JSON_THROW_ON_ERROR));
                     } catch (\JsonException) {
                         // a malformed event is skipped
                         $event = [];
@@ -123,20 +124,28 @@ final readonly class OpenAiCompatibleLlmClient implements LlmClientInterface
 
                     if (isset($event['error'])) {
                         throw LlmRequestFailedException::fromInvalidResponse(
-                            $event['error']['message'] ?? 'unknown streaming error'
+                            ProviderPayload::errorMessage($event) ?? 'unknown streaming error'
                         );
                     }
 
-                    $model = $event['model'] ?? $model;
-                    $inputTokens = $event['usage']['prompt_tokens'] ?? $inputTokens;
-                    $outputTokens = $event['usage']['completion_tokens'] ?? $outputTokens;
-                    $finishReason = $event['choices'][0]['finish_reason'] ?? $finishReason;
+                    $usage = ProviderPayload::array($event['usage'] ?? null);
+                    $choice = ProviderPayload::array(ProviderPayload::array($event['choices'] ?? null)[0] ?? null);
+                    $delta = ProviderPayload::array($choice['delta'] ?? null);
+
+                    $model = ProviderPayload::string($event['model'] ?? null) ?? $model;
+                    if (isset($usage['prompt_tokens'])) {
+                        $inputTokens = ProviderPayload::tokenCount($usage['prompt_tokens']);
+                    }
+                    if (isset($usage['completion_tokens'])) {
+                        $outputTokens = ProviderPayload::tokenCount($usage['completion_tokens']);
+                    }
+                    $finishReason = ProviderPayload::string($choice['finish_reason'] ?? null) ?? $finishReason;
                     if ($finishReason === 'length') {
                         $truncated = true;
                     }
-                    $refusal .= $event['choices'][0]['delta']['refusal'] ?? '';
+                    $refusal .= ProviderPayload::string($delta['refusal'] ?? null) ?? '';
 
-                    $text = $this->textOf($event['choices'][0]['delta']['content'] ?? null);
+                    $text = $this->textOf($delta['content'] ?? null);
                     if ($text !== '') {
                         $content .= $text;
 
@@ -150,9 +159,13 @@ final readonly class OpenAiCompatibleLlmClient implements LlmClientInterface
             throw LlmRequestFailedException::fromTransportError($exception->getMessage(), $exception);
         }
 
-        $this->assertNotRefused($refusal, $finishReason);
-
-        return new LlmResponse($content, $model, new LlmUsage($inputTokens, $outputTokens), $truncated);
+        return new LlmResponse(
+            $content,
+            $model,
+            new LlmUsage($inputTokens, $outputTokens),
+            $truncated,
+            $this->refusalOf($refusal, $finishReason),
+        );
     }
 
     public function listModels(): array
@@ -172,13 +185,13 @@ final readonly class OpenAiCompatibleLlmClient implements LlmClientInterface
             throw LlmRequestFailedException::fromTransportError($exception->getMessage(), $exception);
         }
 
-        /** @var array{data?: array<array{id?: string, capabilities?: array{completion_chat?: bool}}>} $data */
         $data = $this->decodeOrFail($response, self::TIMEOUT_SECONDS);
 
         $ids = [];
-        foreach ($data['data'] ?? [] as $model) {
-            $id = $model['id'] ?? null;
-            if (! is_string($id)) {
+        foreach (ProviderPayload::array($data['data'] ?? null) as $model) {
+            $model = ProviderPayload::array($model);
+            $id = ProviderPayload::string($model['id'] ?? null);
+            if ($id === null) {
                 continue;
             }
             if ($id === '') {
@@ -188,7 +201,7 @@ final readonly class OpenAiCompatibleLlmClient implements LlmClientInterface
             // a provider that advertises chat capability (e.g. Mistral) is
             // authoritative; otherwise (OpenAI and most compatible servers
             // expose no capability) drop ids that are clearly not chat models
-            $chatCapability = $model['capabilities']['completion_chat'] ?? null;
+            $chatCapability = ProviderPayload::array($model['capabilities'] ?? null)['completion_chat'] ?? null;
             if ($chatCapability === false) {
                 continue;
             }
@@ -228,19 +241,15 @@ final readonly class OpenAiCompatibleLlmClient implements LlmClientInterface
     }
 
     /**
-     * A refusal is not an empty answer: report why the provider did not answer.
-     *
-     * @throws LlmRequestFailedException when the provider refused to answer
+     * A refusal is not an empty answer: it carries why the provider did not answer.
      */
-    private function assertNotRefused(string $refusal, ?string $finishReason): void
+    private function refusalOf(string $refusal, ?string $finishReason): ?string
     {
         if (trim($refusal) !== '') {
-            throw LlmRequestFailedException::fromRefusal(trim($refusal));
+            return trim($refusal);
         }
 
-        if ($finishReason === 'content_filter') {
-            throw LlmRequestFailedException::fromRefusal('the answer was blocked by its content filter.');
-        }
+        return $finishReason === 'content_filter' ? 'the answer was blocked by its content filter.' : null;
     }
 
     /**
@@ -267,6 +276,9 @@ final readonly class OpenAiCompatibleLlmClient implements LlmClientInterface
         return false;
     }
 
+    /**
+     * @throws LlmRequestFailedException when the request can not be sent
+     */
     private function sendRequest(LlmRequest $request, bool $stream): ResponseInterface
     {
         $model = $request->model ?? $this->resolveTierModel($request->tier);
@@ -318,6 +330,9 @@ final readonly class OpenAiCompatibleLlmClient implements LlmClientInterface
 
     /**
      * @param int $timeout the idle timeout of the request, reported if it is reached
+     *
+     * @throws LlmRequestFailedException when the provider can not be reached, times out or
+     *                                   answers with an error status
      */
     private function assertSuccessful(ResponseInterface $response, int $timeout): void
     {
@@ -332,7 +347,7 @@ final readonly class OpenAiCompatibleLlmClient implements LlmClientInterface
         if ($statusCode >= 400) {
             throw LlmRequestFailedException::fromProviderError(
                 $statusCode,
-                $this->extractErrorMessage($response)
+                $this->extractErrorMessage($response, $statusCode)
             );
         }
     }
@@ -340,7 +355,9 @@ final readonly class OpenAiCompatibleLlmClient implements LlmClientInterface
     /**
      * @param int $timeout the idle timeout of the request, reported if it is reached
      *
-     * @return array<string, mixed>
+     * @throws LlmRequestFailedException when the request fails or its body is not a JSON document
+     *
+     * @return array<mixed>
      */
     private function decodeOrFail(ResponseInterface $response, int $timeout): array
     {
@@ -355,30 +372,25 @@ final readonly class OpenAiCompatibleLlmClient implements LlmClientInterface
             throw LlmRequestFailedException::fromInvalidResponse($exception->getMessage(), $exception);
         }
 
-        /** @var array<string, mixed> $data */
         return $data;
     }
 
-    private function extractErrorMessage(ResponseInterface $response): string
+    private function extractErrorMessage(ResponseInterface $response, int $statusCode): string
     {
         try {
             $body = $response->getContent(false);
         } catch (HttpClientExceptionInterface) {
             return 'no response body';
         }
+        ProviderPayload::logErrorResponse($this->logger, $statusCode, $body);
 
         try {
-            /** @var array{error?: array{message?: string}|string}|null $data */
             $data = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
         } catch (\JsonException) {
             // not a JSON error document: its body is not reported (it may come from any server)
             $data = null;
         }
-        $error = $data['error'] ?? null;
-        if (is_array($error)) {
-            return $error['message'] ?? 'no error message in the response';
-        }
 
-        return is_string($error) ? $error : 'no error message in the response';
+        return ProviderPayload::errorMessage($data) ?? 'no error message in the response';
     }
 }
