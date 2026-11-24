@@ -282,6 +282,9 @@ cmd_up() {
   # cbd reloads itself on the delivered central-broker.json (SQL outputs).
   wait_until 120 eval 'cc exec -T centreon-broker cat /etc/centreon-broker/central-broker.json 2>/dev/null | jq -e "[.centreonBroker.output[]? | select(.type == \"unified_sql\")] | length > 0" >/dev/null' \
     && record "central cbd runs the delivered config (unified_sql output)" ok || record "central cbd runs the delivered config (unified_sql output)" ko
+  # The delivered cbmod identity (poller id 1, not the bootstrap uid) reaches unified_sql.
+  wait_until 300 instance_running Central && record "central instance running as poller id 1 after delivery" ok     || record "central instance running as poller id 1 after delivery" ko "$(sql centreon_storage "SELECT instance_id,name,running FROM instances" | tr '	
+' ' ')"
 
   # New poller, created once cbd is up: id, uid and the central CA (trust
   # anchor, out of band of the stream) from the API answer (contracts § 8.4).
@@ -337,6 +340,8 @@ cmd_up() {
     | openssl x509 -noout -fingerprint -sha256 2>/dev/null | sed 's/.*=//; s/://g' | tr 'A-F' 'a-f')
   [[ -n "$pfp" && "$pfp" == "$ca_fp" ]] && record "poller CA kept after the first export (= creation answer)" ok \
     || record "poller CA kept after the first export (= creation answer)" ko "${pfp:-no ca.crt} vs ${ca_fp:0:16}"
+  wait_until 300 instance_running "$POLLER_NAME" && record "poller instance running after the first export" ok     || record "poller instance running after the first export" ko "$(sql centreon_storage "SELECT instance_id,name,running FROM instances" | tr '	
+' ' ')"
   wait_until 300 service_ready cp_ poller-engine && record "poller connected to centreon-broker:5669" ok \
     || record "poller connected to centreon-broker:5669" ko
 }
@@ -390,6 +395,7 @@ cmd_ca() {
     && ! cbd_get /v1/ca | grep -q "PRIVATE KEY" && record "CA key kept in the cbd cert volume, never served" ok \
     || record "CA key kept in the cbd cert volume, never served" ko
   # The CA survives a cbd container recreate (it lives in central-broker-certs).
+  cbd_log_files
   cc up -d --force-recreate --no-deps centreon-broker >>"$LOG_DIR/ca.log" 2>&1
   wait_until 300 poller_capable "$uid" && record "poller reconnected after a cbd recreate" ok || record "poller reconnected after a cbd recreate" ko
   fp1=$(cbd_ca_fp)
@@ -796,7 +802,12 @@ cmd_rrd() {
     || record "rrd: no RRD connect error in the central cbd after startup" ko "$n1 -> $n2"
 }
 
+cbd_log_files() { # cbd log files (lost on recreate), lines with credentials dropped
+  cc exec -T centreon-broker sh -c 'cat /var/log/centreon-broker/*.log 2>/dev/null' | grep -viE 'password|token|secret' >>"$LOG_DIR/cbd-files.log"
+}
+
 cmd_logs() {
+  cbd_log_files
   { cc ps -a; cp_ ps -a; } >"$LOG_DIR/ps.txt" 2>&1
   cc logs --no-color --timestamps >"$LOG_DIR/central.log" 2>&1
   cp_ logs --no-color --timestamps >"$LOG_DIR/poller.log" 2>&1
