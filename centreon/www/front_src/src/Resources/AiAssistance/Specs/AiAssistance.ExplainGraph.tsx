@@ -8,6 +8,7 @@ import {
   labelAiBudgetExhausted,
   labelAnswerTruncated,
   labelExplainGraph,
+  labelOnlyFirstMetricsAnalyzed,
   labelUnreadableAnswer
 } from '../translatedLabels';
 import { maxGraphMetrics, maxTextLength } from '../utils';
@@ -27,6 +28,11 @@ import {
   graphMetrics,
   model
 } from './utils';
+
+const droppedMetricsNotice = labelOnlyFirstMetricsAnalyzed.replace(
+  '{{max}}',
+  String(maxGraphMetrics)
+);
 
 interface GraphPayload {
   metrics: Array<{ current: number | null; name: string }>;
@@ -69,6 +75,7 @@ export default (): void => {
       expect(
         await screen.findByText('on db-server-01', { exact: false })
       ).toBeVisible();
+      expect(screen.queryByText(droppedMetricsNotice)).toBeNull();
     });
 
     it('disables the action when there are no metrics', async () => {
@@ -113,7 +120,7 @@ export default (): void => {
       ).toHaveLength(maxTextLength);
     });
 
-    it('sends the first metrics only when the graph has more than the API accepts', async () => {
+    it('sends the first metrics only when the graph has more than the API accepts, and says so', async () => {
       const manyMetrics = Array.from(
         { length: maxGraphMetrics + 1 },
         (_, index) => ({ ...graphMetrics[0], name: `metric-${index}` })
@@ -129,6 +136,8 @@ export default (): void => {
       expect(metrics).toHaveLength(maxGraphMetrics);
       expect(metrics[0].name).toBe('metric-0');
       expect(metrics.at(-1)?.name).toBe(`metric-${maxGraphMetrics - 1}`);
+
+      expect(await screen.findByText(droppedMetricsNotice)).toBeVisible();
     });
 
     it('says when the answer was cut short', async () => {

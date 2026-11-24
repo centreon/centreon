@@ -11,11 +11,12 @@ import {
   labelAiBudgetExhausted,
   labelAiGraphExplanationDisclaimer,
   labelAiGraphExplanationOf,
-  labelExplainGraph
+  labelExplainGraph,
+  labelOnlyFirstMetricsAnalyzed
 } from '../translatedLabels';
 import useAiAvailability from '../useAiAvailability';
 import { useLatestRequest } from '../useLatestRequest';
-import { unescaped } from '../utils';
+import { maxGraphMetrics, unescaped } from '../utils';
 import useExplainGraph, { type GraphMetricSummary } from './useExplainGraph';
 
 interface Props {
@@ -65,6 +66,10 @@ const ExplainGraph = ({
       setResult({
         content: explanation.explanation,
         model: explanation.model,
+        notice:
+          metrics.length > maxGraphMetrics
+            ? t(labelOnlyFirstMetricsAnalyzed, { max: maxGraphMetrics })
+            : undefined,
         truncated: explanation.truncated ?? false
       });
     });

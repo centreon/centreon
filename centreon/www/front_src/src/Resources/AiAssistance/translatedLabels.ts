@@ -49,3 +49,5 @@ export const labelExplainGraph = 'Explain graph';
 export const labelAiGraphExplanationOf = 'AI graph explanation — {{name}}';
 export const labelAiGraphExplanationDisclaimer =
   'AI-generated from the displayed metrics: verify before acting.';
+export const labelOnlyFirstMetricsAnalyzed =
+  'Only the first {{max}} metrics were analyzed';

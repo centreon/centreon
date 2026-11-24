@@ -22034,3 +22034,7 @@ msgstr ""
 #: www/front_src/src/Resources/AiAssistance/translatedLabels.ts
 msgid "The server's answer could not be read"
 msgstr ""
+
+#: www/front_src/src/Resources/AiAssistance/translatedLabels.ts
+msgid "Only the first {{max}} metrics were analyzed"
+msgstr ""

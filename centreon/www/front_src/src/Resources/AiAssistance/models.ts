@@ -49,6 +49,8 @@ export interface ExplainGraphResult {
 export interface AiResult {
   content: string;
   model: string;
+  // shown next to the disclaimer, e.g. what was left out of the request
+  notice?: string;
   // the answer reached the length limit of the provider and was cut short
   truncated?: boolean;
 }

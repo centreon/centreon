@@ -25149,3 +25149,7 @@ msgstr "La réponse a été tronquée : elle a atteint sa limite de longueur."
 #: www/front_src/src/Resources/AiAssistance/translatedLabels.ts
 msgid "The server's answer could not be read"
 msgstr "La réponse du serveur n'a pas pu être lue"
+
+#: www/front_src/src/Resources/AiAssistance/translatedLabels.ts
+msgid "Only the first {{max}} metrics were analyzed"
+msgstr "Seules les {{max}} premières métriques ont été analysées"

@@ -90,6 +90,11 @@ const AiResultDialog = ({
       </DialogContent>
       <DialogActions>
         <div className="flex grow flex-col pl-2">
+          {result?.notice && (
+            <Typography className="text-text-primary" variant="caption">
+              {result.notice}
+            </Typography>
+          )}
           {result?.truncated && (
             <Typography className="text-text-primary" variant="caption">
               {t(labelAnswerTruncated)}
