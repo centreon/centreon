@@ -488,7 +488,9 @@ validate() {
   if [[ "$role" == "opener" ]]; then
     local -a declared=() kept=() merged=()
     local known
-    read -r -a declared <<< "$(tr ',' ' ' <<< "${BUNDLE_REPOSITORIES:-${CHAIN[*]}}")"
+    # commas and new lines count as separators; a blank value means the default, never "no repository"
+    read -r -a declared <<< "$(tr ',\n\t' '   ' <<< "${BUNDLE_REPOSITORIES:-}")"
+    (( ${#declared[@]} > 0 )) || declared=("${CHAIN[@]}")
     for r in "${declared[@]}"; do
       known=false
       for (( i = 0; i < ${#CHAIN[@]}; i++ )); do
