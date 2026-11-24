@@ -60,7 +60,8 @@ final readonly class UpdateAiProviderProcessor implements ProcessorInterface
     }
 
     /**
-     * @param mixed $data
+     * @param AiProviderResource $data
+     *
      * @throws InvalidAiProviderConfigurationException when the endpoint does not fit the type
      */
     public function process($data, Operation $operation, array $uriVariables = [], array $context = []): AiProviderResource

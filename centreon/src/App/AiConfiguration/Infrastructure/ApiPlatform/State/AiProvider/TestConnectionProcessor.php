@@ -50,7 +50,8 @@ final readonly class TestConnectionProcessor implements ProcessorInterface
     }
 
     /**
-     * @param mixed $data
+     * @param TestConnectionInput $data
+     *
      * @throws InvalidAiProviderConfigurationException when the endpoint does not fit the type
      */
     public function process($data, Operation $operation, array $uriVariables = [], array $context = []): TestConnectionResource
