@@ -50,7 +50,7 @@ const Navigation = (): JSX.Element => {
   return (
     <NavigationMenu
       header={
-        <div className="flex h-12 shrink-0 items-center justify-center">
+        <div className="flex h-12 shrink-0 items-center">
           <Logo isMiniLogo={!isOpen} onClick={() => navigate(homeRoute)} />
         </div>
       }

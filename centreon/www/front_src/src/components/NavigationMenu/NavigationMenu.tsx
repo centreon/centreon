@@ -19,8 +19,15 @@ import NavigationMenuItem from './NavigationMenuItem';
 import PanelIcon from './PanelIcon';
 import { SubRouteList } from './SubRoutes';
 
+const panelWidth = { closed: 48, open: 216 };
+// Matches the px-2 of the menu.
+const menuPadding = 8;
+
 /** Width of the menu in pixels, for layouts that must offset their content. */
-export const navigationMenuWidth = { closed: 48, open: 216 };
+export const navigationMenuWidth = {
+  closed: panelWidth.closed + 2 * menuPadding,
+  open: panelWidth.open + 2 * menuPadding
+};
 
 const popoverGap = 8;
 const popoverMinHeight = 240;
@@ -164,45 +171,49 @@ const NavigationMenu = ({
     <ClickAwayListener onClickAway={closePopover}>
       <nav
         aria-label={labels.navigation}
-        className="flex h-full shrink-0 flex-col overflow-hidden bg-primary-main text-white transition-[width] duration-200 dark:bg-black"
-        data-testid="sidebar"
+        className="flex h-full shrink-0 flex-col overflow-hidden bg-background-paper px-2 pb-2 transition-[width] duration-200"
         style={{
           width: isOpen ? navigationMenuWidth.open : navigationMenuWidth.closed
         }}
       >
         {header}
-        <button
-          aria-label={isOpen ? labels.collapse : labels.expand}
-          className="mx-1 my-1 flex cursor-pointer items-center gap-3 rounded-sm border-0 bg-transparent px-2 py-2 text-white hover:bg-white/20"
-          onClick={toggleMenu}
-          type="button"
+        <div
+          className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg bg-primary-main text-white dark:bg-black"
+          data-testid="sidebar"
         >
-          <PanelIcon
-            className={`transition-[rotate] ${isOpen ? 'rotate-180' : ''}`}
-            fontSize="small"
-          />
-          {isOpen && (
-            <span className="whitespace-nowrap text-sm font-bold">
-              {labels.collapse}
-            </span>
-          )}
-        </button>
-        <Divider className="mx-2 mb-1 border-white/20" />
-        <ul
-          className={`m-0 flex flex-1 list-none flex-col gap-0.5 overflow-x-hidden overflow-y-auto px-1 py-0 ${isOpen ? scrollbarClassName : hiddenScrollbarClassName}`}
-        >
-          {routes.map((entry) => (
-            <NavigationMenuItem
-              actions={actions}
-              entry={entry}
-              isMenuOpen={isOpen}
-              isPopoverOpen={popover?.entry === entry}
-              key={`${entry.label}-${entry.route}`}
-              onNavigate={navigate}
-              onTogglePopover={togglePopover}
+          <button
+            aria-label={isOpen ? labels.collapse : labels.expand}
+            className="mx-1 mt-1 flex cursor-pointer items-center gap-2 rounded-sm border-0 bg-transparent px-2 py-2 text-white hover:bg-white/20"
+            onClick={toggleMenu}
+            type="button"
+          >
+            <PanelIcon
+              className={`transition-[rotate] ${isOpen ? 'rotate-180' : ''}`}
+              fontSize="small"
             />
-          ))}
-        </ul>
+            {isOpen && (
+              <span className="whitespace-nowrap text-sm font-medium">
+                {labels.collapse}
+              </span>
+            )}
+          </button>
+          <Divider className="mx-2 mb-2 border-white/40" />
+          <ul
+            className={`m-0 flex flex-1 list-none flex-col gap-1 overflow-x-hidden overflow-y-auto px-1 py-0 ${isOpen ? scrollbarClassName : hiddenScrollbarClassName}`}
+          >
+            {routes.map((entry) => (
+              <NavigationMenuItem
+                actions={actions}
+                entry={entry}
+                isMenuOpen={isOpen}
+                isPopoverOpen={popover?.entry === entry}
+                key={`${entry.label}-${entry.route}`}
+                onNavigate={navigate}
+                onTogglePopover={togglePopover}
+              />
+            ))}
+          </ul>
+        </div>
         {popover && (
           <section
             aria-label={popover.entry.label}
@@ -215,7 +226,11 @@ const NavigationMenu = ({
             }}
           >
             <p className="m-0 px-2 pb-2 font-bold">{popover.entry.label}</p>
-            <SubRouteList actions={actions} entry={popover.entry} />
+            <SubRouteList
+              actions={actions}
+              childVariant="section"
+              entry={popover.entry}
+            />
           </section>
         )}
       </nav>

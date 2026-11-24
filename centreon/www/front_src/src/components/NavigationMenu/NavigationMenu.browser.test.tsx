@@ -293,5 +293,37 @@ describe('NavigationMenu', () => {
 
       expect(onToggle).toHaveBeenCalledTimes(1);
     });
+
+    it('highlights the icon of the selected top-level entry and the label of the selected page', () => {
+      renderMenu({ isOpen: true, selectedRoute: '/ba/views' });
+
+      const transparent = 'rgba(0, 0, 0, 0)';
+      const configuration = screen.getByRole('button', {
+        name: 'Configuration'
+      });
+      const icon = configuration.querySelector('svg')?.parentElement;
+
+      expect(getComputedStyle(configuration).fontWeight).toBe('500');
+      expect(getComputedStyle(icon as HTMLElement).backgroundColor).not.toBe(
+        transparent
+      );
+      expect(
+        getComputedStyle(screen.getByText('Business Activity')).backgroundColor
+      ).toBe(transparent);
+      expect(
+        getComputedStyle(screen.getByText('Business Views')).backgroundColor
+      ).not.toBe(transparent);
+    });
+
+    it('draws the guide line only along lists of pages', () => {
+      renderMenu({ isOpen: true, selectedRoute: '/ba/views' });
+
+      const guideLines = screen.getAllByTestId('guide-line');
+
+      expect(guideLines).toHaveLength(1);
+      expect(guideLines[0].parentElement).toContainElement(
+        screen.getByText('Business Views')
+      );
+    });
   });
 });

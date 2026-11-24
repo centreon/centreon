@@ -33,7 +33,7 @@ const NavigationMenuItem = ({
   if (isMenuOpen) {
     return (
       <li>
-        <SubRouteContent actions={actions} entry={entry} withIcon />
+        <SubRouteContent actions={actions} entry={entry} variant="root" />
       </li>
     );
   }
