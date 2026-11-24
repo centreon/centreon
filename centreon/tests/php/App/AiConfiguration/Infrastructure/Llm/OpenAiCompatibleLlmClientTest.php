@@ -203,6 +203,37 @@ final class OpenAiCompatibleLlmClientTest extends TestCase
         $this->createClient($httpClient)->complete($this->createRequest());
     }
 
+    public function testAnErrorEchoingTheApiTokenDoesNotLeakIt(): void
+    {
+        $httpClient = new MockHttpClient(new MockResponse(
+            json_encode(['error' => ['message' => 'Incorrect API key provided: sk-test-secret']], \JSON_THROW_ON_ERROR),
+            ['http_code' => 401]
+        ));
+
+        try {
+            $this->createClient($httpClient, apiToken: 'sk-test-secret')->complete($this->createRequest());
+            self::fail('The request should have failed');
+        } catch (LlmRequestFailedException $exception) {
+            self::assertStringNotContainsString('sk-test-secret', $exception->getMessage());
+            self::assertStringContainsString('Incorrect API key provided: [API token]', $exception->getMessage());
+        }
+    }
+
+    public function testAStreamedErrorEchoingTheApiTokenDoesNotLeakIt(): void
+    {
+        $httpClient = new MockHttpClient(new MockResponse([
+            "data: {\"error\":{\"message\":\"bad key sk-test-secret\"}}\n\n",
+        ]));
+
+        try {
+            iterator_to_array($this->createClient($httpClient, apiToken: 'sk-test-secret')->stream($this->createRequest()), false);
+            self::fail('The request should have failed');
+        } catch (LlmRequestFailedException $exception) {
+            self::assertStringNotContainsString('sk-test-secret', $exception->getMessage());
+            self::assertStringContainsString('bad key [API token]', $exception->getMessage());
+        }
+    }
+
     public function testANonJsonErrorBodyIsNotReported(): void
     {
         $httpClient = new MockHttpClient(new MockResponse(
@@ -594,12 +625,15 @@ final class OpenAiCompatibleLlmClientTest extends TestCase
         $generator->next();
     }
 
-    private function createClient(HttpClientInterface $httpClient, ?LoggerInterface $logger = null): OpenAiCompatibleLlmClient
-    {
+    private function createClient(
+        HttpClientInterface $httpClient,
+        ?LoggerInterface $logger = null,
+        string $apiToken = 'a-token',
+    ): OpenAiCompatibleLlmClient {
         return new OpenAiCompatibleLlmClient(
             $httpClient,
             new EndpointUrl('https://api.mistral.ai'),
-            new ApiToken('a-token'),
+            new ApiToken($apiToken),
             new ModelName('mistral-small-latest'),
             fastModel: null,
             logger: $logger ?? new NullLogger(),

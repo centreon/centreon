@@ -100,6 +100,14 @@ final class ProviderPayloadTest extends TestCase
         );
     }
 
+    public function testAPlaceholderTokenIsNotMasked(): void
+    {
+        self::assertSame(
+            "model 'llama3' not found",
+            ProviderPayload::errorMessage(['error' => "model 'llama3' not found"], new ApiToken('a'))
+        );
+    }
+
     public function testStringAndArrayKeepOnlyTheirType(): void
     {
         self::assertSame('text', ProviderPayload::string('text'));

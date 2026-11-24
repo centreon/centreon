@@ -32,6 +32,9 @@ use Psr\Log\LoggerInterface;
  */
 final class ProviderPayload
 {
+    /** Shorter tokens are placeholders (self-hosted servers): masking them would garble the message */
+    private const MIN_MASKED_TOKEN_LENGTH = 8;
+
     public static function string(mixed $value): ?string
     {
         return is_string($value) ? $value : null;
@@ -68,9 +71,13 @@ final class ProviderPayload
         $error = is_array($data) ? ($data['error'] ?? null) : null;
         $message = is_array($error) ? ($error['message'] ?? null) : $error;
 
-        return is_string($message) && trim($message) !== ''
+        if (! is_string($message) || trim($message) === '') {
+            return null;
+        }
+
+        return mb_strlen($apiToken->value) >= self::MIN_MASKED_TOKEN_LENGTH
             ? str_replace($apiToken->value, '[API token]', $message)
-            : null;
+            : $message;
     }
 
     /**

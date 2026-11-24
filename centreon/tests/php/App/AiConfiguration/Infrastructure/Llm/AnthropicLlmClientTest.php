@@ -475,6 +475,21 @@ final class AnthropicLlmClientTest extends TestCase
         self::assertSame([0, 0], $maxRedirects);
     }
 
+    public function testAStreamedErrorEchoingTheApiTokenDoesNotLeakIt(): void
+    {
+        $httpClient = new MockHttpClient(new MockResponse([
+            "event: error\ndata: {\"type\":\"error\",\"error\":{\"message\":\"bad key sk-test-secret\"}}\n\n",
+        ]));
+
+        try {
+            iterator_to_array($this->createClient($httpClient, apiToken: 'sk-test-secret')->stream($this->createRequest()), false);
+            self::fail('The request should have failed');
+        } catch (LlmRequestFailedException $exception) {
+            self::assertStringNotContainsString('sk-test-secret', $exception->getMessage());
+            self::assertStringContainsString('bad key [API token]', $exception->getMessage());
+        }
+    }
+
     public function testAStreamedErrorEventIsReported(): void
     {
         $sse = [
@@ -509,12 +524,15 @@ final class AnthropicLlmClientTest extends TestCase
         $generator->next();
     }
 
-    private function createClient(HttpClientInterface $httpClient, ?LoggerInterface $logger = null): AnthropicLlmClient
-    {
+    private function createClient(
+        HttpClientInterface $httpClient,
+        ?LoggerInterface $logger = null,
+        string $apiToken = 'a-token',
+    ): AnthropicLlmClient {
         return new AnthropicLlmClient(
             $httpClient,
             new EndpointUrl('https://api.anthropic.com'),
-            new ApiToken('a-token'),
+            new ApiToken($apiToken),
             new ModelName('claude-sonnet-4-6'),
             new ModelName('claude-haiku-4-5'),
             logger: $logger ?? new NullLogger(),
