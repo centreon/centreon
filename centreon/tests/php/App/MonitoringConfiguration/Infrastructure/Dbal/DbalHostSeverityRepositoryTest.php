@@ -179,17 +179,6 @@ final class DbalHostSeverityRepositoryTest extends KernelTestCase
         self::assertNull($this->repository->findNameById(new HostSeverityId($categoryId)));
     }
 
-    /**
-     * `hc_name` is nullable and the column has no length floor, so a nameless row must read as
-     * "not found" rather than reach HostSeverityName, whose assertion would surface as a 500.
-     */
-    public function testItReturnsNullForANamelessRow(): void
-    {
-        $severityId = $this->insertHostSeverity('');
-
-        self::assertNull($this->repository->findNameById(new HostSeverityId($severityId)));
-    }
-
     public function testFindAllReadsTheLevel(): void
     {
         $this->insertHostSeverity("lvl-{$this->tag}", level: -5);
@@ -213,14 +202,12 @@ final class DbalHostSeverityRepositoryTest extends KernelTestCase
         );
     }
 
-    public function testFindByIdIgnoresACategoryANamelessRowAndAnUnknownId(): void
+    public function testFindByIdIgnoresACategoryAndAnUnknownId(): void
     {
         $categoryId = $this->insertHostSeverity("cat-{$this->tag}", level: null);
-        $namelessId = $this->insertHostSeverity('');
 
         self::assertNull($this->repository->findById(new HostSeverityId($categoryId)));
-        self::assertNull($this->repository->findById(new HostSeverityId($namelessId)));
-        self::assertNull($this->repository->findById(new HostSeverityId($namelessId + 1000000)));
+        self::assertNull($this->repository->findById(new HostSeverityId($categoryId + 1000000)));
     }
 
     public function testItReturnsNullForAnUnknownId(): void

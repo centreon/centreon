@@ -119,14 +119,13 @@ final readonly class DbalHostSeverityRepository extends DbalRepository implement
         $qb->select('hc.hc_name')
             ->from(self::TABLE_NAME, 'hc')
             ->where('hc.level IS NOT NULL') // a levelless row is a category, not a severity
-            ->andWhere($qb->expr()->eq('hc.hc_id', $qb->createNamedParameter($id->value)))
+            ->andWhere($qb->expr()->eq('hc.hc_id', $qb->createNamedParameter($id->value, ParameterType::INTEGER)))
             ->setMaxResults(1);
 
-        // `hc_name` is nullable; a nameless row reads as "not found", as in the sibling repositories.
-        /** @var false|string|null $name */
+        /** @var false|string $name */
         $name = $qb->executeQuery()->fetchOne();
 
-        return is_string($name) && $name !== '' ? new HostSeverityName($name) : null;
+        return $name !== false ? new HostSeverityName($name) : null;
     }
 
     public function findById(HostSeverityId $id): ?HostSeverity
@@ -135,7 +134,6 @@ final readonly class DbalHostSeverityRepository extends DbalRepository implement
         $qb->select('hc.hc_id', 'hc.hc_name', 'hc.level')
             ->from(self::TABLE_NAME, 'hc')
             ->where('hc.level IS NOT NULL') // a levelless row is a category, not a severity
-            ->andWhere("hc.hc_name IS NOT NULL AND hc.hc_name != ''")
             ->andWhere($qb->expr()->eq('hc.hc_id', $qb->createNamedParameter($id->value, ParameterType::INTEGER)))
             ->setMaxResults(1);
 
