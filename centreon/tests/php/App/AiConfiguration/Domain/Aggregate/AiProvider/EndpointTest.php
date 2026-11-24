@@ -57,6 +57,33 @@ final class EndpointTest extends TestCase
         new EndpointUrl($url);
     }
 
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function linkLocalEndpoints(): iterable
+    {
+        yield 'IPv4 metadata service' => ['http://169.254.169.254'];
+
+        yield 'IPv6 link-local' => ['http://[fe80::1]:8080'];
+    }
+
+    #[DataProvider('linkLocalEndpoints')]
+    public function testALinkLocalEndpointIsRejected(string $url): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('link-local');
+
+        new EndpointUrl($url);
+    }
+
+    public function testAPrivateNetworkEndpointIsAccepted(): void
+    {
+        self::assertSame('http://10.0.0.5:11434', new EndpointUrl('http://10.0.0.5:11434')->value);
+        self::assertFalse(EndpointUrl::isLinkLocal('10.0.0.5'));
+        self::assertFalse(EndpointUrl::isLinkLocal('fd00::1'));
+        self::assertFalse(EndpointUrl::isLinkLocal('ollama.example.com'));
+    }
+
     public function testAnEndpointMayHaveAPortAndAPath(): void
     {
         self::assertSame('http://ollama.internal:11434/api', new EndpointUrl('http://ollama.internal:11434/api')->value);

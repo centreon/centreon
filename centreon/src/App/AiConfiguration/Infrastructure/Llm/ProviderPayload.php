@@ -31,8 +31,6 @@ use Psr\Log\LoggerInterface;
  */
 final class ProviderPayload
 {
-    private const BODY_EXCERPT_LENGTH = 200;
-
     public static function string(mixed $value): ?string
     {
         return is_string($value) ? $value : null;
@@ -64,14 +62,15 @@ final class ProviderPayload
     }
 
     /**
-     * The body of an error response is not sent back to the user (it may come from
-     * any server on the way): log an excerpt server-side, to diagnose it.
+     * The body of an error response is neither sent back to the user (it may come
+     * from any server on the way) nor logged (a provider may echo the API key in
+     * it): log its status and size only.
      */
     public static function logErrorResponse(LoggerInterface $logger, int $statusCode, string $body): void
     {
         $logger->warning('The AI provider returned an error response', [
             'status_code' => $statusCode,
-            'body_excerpt' => mb_substr($body, 0, self::BODY_EXCERPT_LENGTH),
+            'body_length' => mb_strlen($body),
         ]);
     }
 }

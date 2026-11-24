@@ -23,10 +23,12 @@ declare(strict_types=1);
 
 namespace App\AiConfiguration\Infrastructure\Llm;
 
+use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
+
 /**
  * Tells whether a URL designates a host on the local network: localhost, or a
- * literal loopback, private (RFC 1918, IPv6 unique local) or link-local
- * address. Host names are not resolved.
+ * literal loopback or private (RFC 1918, IPv6 unique local) address; never a
+ * link-local one. Host names are not resolved.
  */
 final class LocalNetworkHost
 {
@@ -42,12 +44,12 @@ final class LocalNetworkHost
             return true;
         }
 
-        if (filter_var($host, \FILTER_VALIDATE_IP) === false) {
+        if (filter_var($host, \FILTER_VALIDATE_IP) === false || EndpointUrl::isLinkLocal($host)) {
             return false;
         }
 
         // a literal IP that is no longer valid once the private and reserved
-        // ranges (loopback, link-local, ...) are excluded is a local one
+        // ranges (loopback, ...) are excluded is a local one
         return filter_var($host, \FILTER_VALIDATE_IP, \FILTER_FLAG_NO_PRIV_RANGE | \FILTER_FLAG_NO_RES_RANGE) === false;
     }
 }

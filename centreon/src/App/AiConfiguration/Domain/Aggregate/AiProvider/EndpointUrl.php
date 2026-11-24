@@ -41,6 +41,28 @@ final readonly class EndpointUrl
         Assert::false(isset($parts['user']) || isset($parts['pass']), 'The endpoint URL can not contain credentials.');
         Assert::keyNotExists($parts, 'query', 'The endpoint URL can not contain a query string.');
         Assert::keyNotExists($parts, 'fragment', 'The endpoint URL can not contain a fragment.');
+
+        // link-local addresses include cloud instance metadata services
+        Assert::false(
+            self::isLinkLocal(trim((string) ($parts['host'] ?? ''), '[]')),
+            'The endpoint URL can not target a link-local address.'
+        );
+    }
+
+    /**
+     * Whether a literal IP is link-local (169.254.0.0/16, fe80::/10). Host names
+     * are not resolved.
+     */
+    public static function isLinkLocal(string $host): bool
+    {
+        $packed = filter_var($host, \FILTER_VALIDATE_IP) === false ? false : inet_pton($host);
+        if ($packed === false) {
+            return false;
+        }
+
+        return mb_strlen($packed) === 4
+            ? $packed[0] === "\xA9" && $packed[1] === "\xFE"
+            : $packed[0] === "\xFE" && (ord($packed[1]) & 0xC0) === 0x80;
     }
 
     /**

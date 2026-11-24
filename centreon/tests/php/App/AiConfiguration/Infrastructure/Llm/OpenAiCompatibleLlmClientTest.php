@@ -481,7 +481,8 @@ final class OpenAiCompatibleLlmClientTest extends TestCase
         self::assertNotNull($record);
         self::assertSame('warning', $record['level']);
         self::assertSame(502, $record['context']['status_code']);
-        self::assertSame('<html>' . str_repeat('a', 194), $record['context']['body_excerpt']);
+        self::assertArrayNotHasKey('body_excerpt', $record['context']);
+        self::assertGreaterThan(0, $record['context']['body_length']);
     }
 
     public function testAStreamedErrorEventWithoutAStringMessageIsReported(): void

@@ -396,7 +396,8 @@ final class AnthropicLlmClientTest extends TestCase
         self::assertNotNull($record);
         self::assertSame('warning', $record['level']);
         self::assertSame(504, $record['context']['status_code']);
-        self::assertSame('<html>gateway timeout</html>', $record['context']['body_excerpt']);
+        self::assertArrayNotHasKey('body_excerpt', $record['context']);
+        self::assertGreaterThan(0, $record['context']['body_length']);
     }
 
     public function testAStreamedErrorEventWithoutAStringMessageIsReported(): void
