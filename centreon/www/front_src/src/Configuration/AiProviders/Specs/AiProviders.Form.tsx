@@ -12,6 +12,8 @@ import { HttpResponse } from 'msw';
 import { labelClose } from '../../ConfigurationBase/translatedLabels';
 import {
   aiProvidersEndpoint,
+  discoverModelsEndpoint,
+  getAiProviderEndpoint,
   modelPricesEndpoint,
   testConnectionEndpoint
 } from '../api';
@@ -57,6 +59,7 @@ import {
   selectType
 } from './helpers';
 import {
+  discoveredModelsResponse,
   getAiProviderResponse,
   getProvidersCountResponse,
   priceListUnavailableMessage
@@ -517,6 +520,66 @@ export default (): void => {
       expect(screen.queryByRole('option')).toBeNull();
     });
 
+    it('does not offer the models discovered for a provider closed while they were fetched', async () => {
+      await openProvider();
+
+      let release = (): void => undefined;
+      const released = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+
+      interceptRequest(
+        Method.POST,
+        `**${discoverModelsEndpoint}`,
+        async () => {
+          await released;
+
+          return HttpResponse.json(discoveredModelsResponse);
+        },
+        'slowDiscoverModels'
+      );
+      // same type as the first provider, so the models are not filtered out
+      // by type
+      interceptAPIRequest({
+        alias: 'getOtherAiProvider',
+        method: Method.GET,
+        path: `**${getAiProviderEndpoint({ id: 2 })}`,
+        response: {
+          ...getAiProviderResponse(),
+          '@id': '/centreon/api/latest/administration/ai-providers/2',
+          id: 2,
+          name: 'Mistral fallback'
+        }
+      });
+
+      await waitFor(() =>
+        expect(screen.getByTestId(labelFetchModels)).toBeEnabled()
+      );
+      await userEvent.click(screen.getByTestId(labelFetchModels));
+      await waitFor(() =>
+        expect(getRequestCalls('@slowDiscoverModels')).toHaveLength(1)
+      );
+
+      await userEvent.click(screen.getByLabelText(labelClose));
+      await waitFor(() => expect(getSaveButton()).toBeNull());
+
+      await userEvent.click(await screen.findByText('Mistral fallback'));
+      await waitForRequest('@getOtherAiProvider');
+      await waitFor(async () =>
+        expect(await getName()).toHaveValue('Mistral fallback')
+      );
+
+      release();
+      await waitForRequest('@slowDiscoverModels');
+      await new Promise((resolve) => {
+        setTimeout(resolve, 100);
+      });
+
+      await userEvent.click(await getCustomInput(labelDefaultModel));
+
+      expect(screen.queryByRole('option')).toBeNull();
+    });
+
     it('keeps the token untouched when a provider is edited without typing a new token', async () => {
       await openProvider();
 
@@ -637,6 +700,32 @@ export default (): void => {
         null
       );
       expect(await getCustomInput(labelCurrency)).toHaveValue('');
+    });
+
+    it('sets the currency to USD when it was cleared while the prices were fetched', async () => {
+      await openCreationForm();
+      await selectType(labelAnthropic);
+      await userEvent.type(await getCustomInput(labelCurrency), 'USD{Escape}');
+      await expectValue(labelCurrency, 'USD');
+
+      const release = interceptSlowPrices();
+
+      await waitFor(() =>
+        expect(screen.getByTestId(labelFetchPrices)).toBeEnabled()
+      );
+      await userEvent.click(screen.getByTestId(labelFetchPrices));
+      await waitFor(() =>
+        expect(getRequestCalls('@slowPrices')).toHaveLength(1)
+      );
+
+      await userEvent.clear(await getCustomInput(labelCurrency));
+      await expectValue(labelCurrency, '');
+
+      release();
+      await waitForRequest('@slowPrices');
+
+      expect(await screen.findByText(labelPricesFilled)).toBeVisible();
+      await expectValue(labelCurrency, 'USD');
     });
 
     it('shows an error next to the button when the connection test answer cannot be read', async () => {

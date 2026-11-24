@@ -191,7 +191,10 @@ const interceptDetailsRequest = ({ store, dataPath, alias }): void => {
   });
 };
 
-const initialize = (store) => {
+const initialize = (
+  store,
+  aiAvailability = { is_available: false, reason: 'no_provider' }
+) => {
   cy.viewport('macbook-13');
 
   // the AI assistance features have their own tests: keep them hidden here,
@@ -200,7 +203,7 @@ const initialize = (store) => {
     alias: 'getAiAvailability',
     method: Method.GET,
     path: '**/ai/availability',
-    response: { is_available: false, reason: 'no_provider' }
+    response: aiAvailability
   });
 
   const navigate = cy.stub();
@@ -388,6 +391,33 @@ describe('Details', () => {
 
     checkActionsButton();
     cy.makeSnapshot();
+  });
+  [
+    { aiAvailability: { is_available: true }, isCondensed: true },
+    {
+      aiAvailability: { is_available: false, reason: 'no_provider' },
+      isCondensed: false
+    }
+  ].forEach(({ aiAvailability, isCondensed }) => {
+    it(`displays actions as ${isCondensed ? 'icons' : 'buttons'} at a 650 px panel width when an AI provider is ${isCondensed ? '' : 'not '}configured`, () => {
+      const store = getStore();
+      store.set(panelWidthStorageAtom, 650);
+      interceptDetailsRequest({
+        alias: 'getDetails',
+        dataPath: 'resources/details/tabs/details/details.json',
+        store
+      });
+      initialize(store, aiAvailability);
+
+      cy.waitForRequest('@getDetails');
+      cy.waitForRequest('@getAiAvailability');
+      cy.contains('Critical').should('be.visible');
+
+      cy.findByTestId('mainAcknowledge').should(
+        isCondensed ? 'not.contain.text' : 'contain.text',
+        labelAcknowledge
+      );
+    });
   });
   it('displays the acknowledgment modal when the "Acknowledge" button is clicked and sends the acknowledgment action', () => {
     const store = getStore();

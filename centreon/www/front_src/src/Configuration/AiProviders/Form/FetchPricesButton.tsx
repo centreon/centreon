@@ -3,7 +3,7 @@ import { Button, CircularProgress, Tooltip, Typography } from '@mui/material';
 
 import { useFormikContext } from 'formik';
 import { isNil } from 'ramda';
-import { JSX, useState } from 'react';
+import { JSX, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { modelPricesDecoder, modelPricesEndpoint } from '../api';
@@ -44,6 +44,13 @@ const FetchPricesButton = (): JSX.Element => {
   const currencyAllowsUsd =
     !values.currency || values.currency.toUpperCase() === 'USD';
   const canFetch = Boolean(values.defaultModel) && currencyAllowsUsd;
+
+  // the currency when the answer arrives, not when the button was clicked
+  const currencyRef = useRef(values.currency);
+
+  useEffect(() => {
+    currencyRef.current = values.currency;
+  }, [values.currency]);
 
   // prices found for other models, or a currency changed meanwhile, are not
   // applied
@@ -99,7 +106,7 @@ const FetchPricesButton = (): JSX.Element => {
       return;
     }
 
-    if (!values.currency) {
+    if (!currencyRef.current) {
       setFieldValue('currency', 'USD');
     }
     setStatus('filled');
