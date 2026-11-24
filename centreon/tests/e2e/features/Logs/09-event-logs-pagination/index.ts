@@ -1,19 +1,33 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import type { Interception } from 'cypress/types/net-stubbing';
 import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import { PAGES } from 'fixtures/shared/constants/pages';
 
-import { buildInsertEventLogsQuery } from '../common';
+import {
+  buildInsertEventLogsQuery,
+  runQueryButton,
+  waitForSearch
+} from '../common';
 
 type ListAction = 'next page' | 'CSV export' | 'XML export';
 
-interface Interception {
-  request: { url: string };
-}
+type PageButtonName = 'previousPage' | 'nextPage';
+
+// A typo in the .feature file must fail, not check another button or state.
+const pageButtonNames: Record<string, PageButtonName> = {
+  'Next page': 'nextPage',
+  'Previous page': 'previousPage'
+};
+
+const buttonStates: Record<string, boolean> = {
+  disabled: true,
+  enabled: false
+};
 
 const eventRows = () =>
   cy.getIframeBody().find('#logView4xml table.ListTable tr:not(.ListHeader)');
 
-const pageButtons = (name: 'previousPage' | 'nextPage') =>
+const pageButtons = (name: PageButtonName) =>
   cy.getIframeBody().find(`#logView4xml input[name="${name}"]`);
 
 const pageSizeSelect = () =>
@@ -24,17 +38,27 @@ const requestParam = (
   name: string
 ): string | null => new URL(interception.request.url).searchParams.get(name);
 
+// The events are inserted a few seconds before the search. A relative period keeps
+// them in range whatever the time of day and the timezones of the browser and PHP,
+// unlike the default range of today from 00:00 to 24:00.
+const searchPeriodInSeconds = '10800';
+
 const searchEvents = (output: string, pageSize: number): void => {
+  cy.getIframeBody()
+    .find('select[name="period"]')
+    .select(searchPeriodInSeconds);
   cy.getIframeBody().find('#output').clear().type(output);
-  cy.getIframeBody().find('#div1 input[name="graph"]').click();
-  cy.wait('@eventLogsSearch');
+  runQueryButton().click();
+  waitForSearch().then((interception) => {
+    expect(requestParam(interception, 'period')).to.eq(searchPeriodInSeconds);
+  });
   pageSizeSelect().select(String(pageSize));
-  cy.wait('@eventLogsSearch');
+  waitForSearch();
 };
 
 const goToNextPage = (): void => {
   pageButtons('nextPage').first().click();
-  cy.wait('@eventLogsSearch');
+  waitForSearch();
 };
 
 let exportedFile = '';
@@ -102,17 +126,17 @@ Given('the administrator went to the next page', goToNextPage);
 
 When('the administrator goes to the previous page', () => {
   pageButtons('previousPage').last().click();
-  cy.wait('@eventLogsSearch');
+  waitForSearch();
 });
 
 When('the administrator clicks the "Run query" button', () => {
-  cy.getIframeBody().find('#div1 input[name="graph"]').click();
-  cy.wait('@eventLogsSearch');
+  runQueryButton().click();
+  waitForSearch();
 });
 
 When('the administrator changes the page size to {int}', (pageSize: number) => {
   pageSizeSelect().select(String(pageSize));
-  cy.wait('@eventLogsSearch');
+  waitForSearch();
 });
 
 When(
@@ -129,7 +153,7 @@ When(
 
     if (action === 'next page') {
       pageButtons('nextPage').first().click();
-      cy.wait('@eventLogsSearch').as('listActionRequest');
+      waitForSearch().as('listActionRequest');
 
       return;
     }
@@ -161,16 +185,23 @@ Then('{int} events are displayed', (count: number) => {
   eventRows().should('have.length', count);
 });
 
-Then(
-  'the {string} buttons are {word}',
-  (label: string, state: 'enabled' | 'disabled') => {
-    const name = label === 'Previous page' ? 'previousPage' : 'nextPage';
-    // One button above the list, one below.
-    pageButtons(name)
-      .should('have.length', 2)
-      .and(state === 'enabled' ? 'not.be.disabled' : 'be.disabled');
+Then('the {string} buttons are {word}', (label: string, state: string) => {
+  const name = pageButtonNames[label];
+  const disabled = buttonStates[state];
+  if (name === undefined || disabled === undefined) {
+    throw new Error(`Unknown page button "${label}" or state "${state}"`);
   }
-);
+  // One button above the list, one below: each one is checked, since
+  // `be.disabled` on a set passes as soon as one element is disabled.
+  pageButtons(name).should(($buttons) => {
+    expect($buttons).to.have.length(2);
+    $buttons.each((_, button) => {
+      expect((button as HTMLInputElement).disabled, `${label} button`).to.eq(
+        disabled
+      );
+    });
+  });
+});
 
 Then('the Event Logs search asks for page {int}', (page: number) => {
   cy.get<Interception>('@eventLogsSearch').then((interception) => {

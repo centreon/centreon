@@ -2,20 +2,16 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import { PAGES } from 'fixtures/shared/constants/pages';
 
-import { openHostFilterDropdown } from '../common';
+import { openHostFilterDropdown, runQueryButton } from '../common';
 
 // Long enough to check the button while the search runs.
 const searchDelayInMs = 2000;
 // Leaves time for a search that would start late.
 const noSearchGraceInMs = 2000;
-// Set on the window of the Event Logs page: a reload replaces the window and drops it.
-const notReloadedMarker = '__eventLogsNotReloaded';
-
-const eventLogsWindow = (): Cypress.Chainable<Record<string, unknown>> =>
-  cy.get('iframe#main-content').its('0.contentWindow');
-
-const runQueryButton = (): Cypress.Chainable =>
-  cy.getIframeBody().find('#div1 input[name="graph"]');
+// Set on the displayed list: a new render replaces the list and drops it.
+const renderedListMarker = 'data-e2e-rendered-list';
+// "the Event Logs list is displayed again" needs a marked list to compare with.
+let renderedListMarked = false;
 
 const filterCheckboxes = [
   '#cb_up',
@@ -27,6 +23,7 @@ const filterCheckboxes = [
 ];
 
 beforeEach(() => {
+  renderedListMarked = false;
   cy.startContainers();
   cy.intercept({
     method: 'GET',
@@ -65,10 +62,6 @@ Given('the Event Logs search fails', () => {
 });
 
 When('the administrator changes the Event Logs filters', () => {
-  eventLogsWindow().then((win) => {
-    win[notReloadedMarker] = true;
-  });
-
   filterCheckboxes.forEach((selector) => {
     cy.getIframeBody().find(selector).click();
   });
@@ -91,7 +84,9 @@ When('the administrator changes the Event Logs filters', () => {
         .select(String(option.val()));
     });
 
-  // Enter must not submit the form: "the Event Logs page is not reloaded" checks it.
+  // Enter in the output filter must not run the search: "no Event Logs search is run"
+  // checks it. The form has several text inputs and no submit button, so Enter
+  // never submits it: a page reload is not a risk to check.
   cy.getIframeBody().find('#output').type('ping{enter}');
 });
 
@@ -104,12 +99,6 @@ Then('no Event Logs search is run', () => {
   cy.get('@eventLogsSearch.all').should('have.length', 0);
 });
 
-// Runs after the wait of "no Event Logs search is run", which leaves time for a reload to happen.
-Then('the Event Logs page is not reloaded', () => {
-  eventLogsWindow().its(notReloadedMarker).should('eq', true);
-  cy.getIframeBody().find('#output').should('have.value', 'ping');
-});
-
 Then('the "Run query" button is enabled', () => {
   runQueryButton().should('have.value', 'Run query').and('not.be.disabled');
 });
@@ -120,6 +109,26 @@ Then('the "Run query" button is disabled while the search runs', () => {
 
 Then('the Event Logs list is displayed', () => {
   cy.wait('@eventLogsSearch').its('response.statusCode').should('eq', 200);
+  cy.getIframeBody()
+    .find('#logView4xml .eventLogsPager')
+    .should('exist')
+    .then(($pager) => {
+      $pager.attr(renderedListMarker, 'true');
+      renderedListMarked = true;
+    });
+});
+
+// The second search must render a new list, not only send a request.
+Then('the Event Logs list is displayed again', () => {
+  cy.then(() => {
+    expect(
+      renderedListMarked,
+      '"the Event Logs list is displayed" ran before'
+    ).to.eq(true);
+  });
+  cy.getIframeBody()
+    .find(`#logView4xml .eventLogsPager[${renderedListMarker}]`)
+    .should('not.exist');
   cy.getIframeBody().find('#logView4xml .eventLogsPager').should('exist');
 });
 

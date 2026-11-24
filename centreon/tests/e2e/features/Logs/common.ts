@@ -17,6 +17,21 @@ const openHostFilterDropdown = (): void => {
     .click();
 };
 
+const runQueryButton = (): Cypress.Chainable<JQuery<HTMLElement>> =>
+  cy.getIframeBody().find('#div1 input[name="graph"]');
+
+// Waits for a search intercepted as "@eventLogsSearch" to end. cy.wait() returns
+// when the response arrives, before the list is rendered and the controls are
+// enabled again: "Run query" is enabled again only once the search ends.
+// Yields the interception, as cy.wait() does.
+const waitForSearch = (): Cypress.Chainable<
+  import('cypress/types/net-stubbing').Interception
+> =>
+  cy.wait('@eventLogsSearch').then((interception) => {
+    runQueryButton().should('not.be.disabled');
+    cy.wrap(interception, { log: false });
+  });
+
 interface EventLogsRowsProps {
   count: number;
   // 0 is a service alert, 4 an engine message.
@@ -48,5 +63,7 @@ const buildInsertEventLogsQuery = ({
 export {
   buildInsertEventLogsQuery,
   openEventLogsPageAsRestrictedUser,
-  openHostFilterDropdown
+  openHostFilterDropdown,
+  runQueryButton,
+  waitForSearch
 };
