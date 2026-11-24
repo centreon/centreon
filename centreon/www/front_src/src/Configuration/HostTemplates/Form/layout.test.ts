@@ -21,14 +21,16 @@ import {
 
 const t = ((label: string): string => label) as TFunction;
 
-// Every form the platform can build. A host template has no mass change.
+// Every form the platform and the mass change can build.
 const contexts: Array<[name: string, context: SectionContext]> = [
   ['onPrem', { isCloudPlatform: false, t }],
   [
     'onPrem with additive inheritance',
     { isAdditiveInheritanceEnabled: true, isCloudPlatform: false, t }
   ],
-  ['cloud', { isCloudPlatform: true, t }]
+  ['cloud', { isCloudPlatform: true, t }],
+  ['onPrem mass change', { isCloudPlatform: false, isMassChange: true, t }],
+  ['cloud mass change', { isCloudPlatform: true, isMassChange: true, t }]
 ];
 
 const getSectionLabels = (context: SectionContext): Array<string> =>
@@ -80,6 +82,18 @@ describe('layout', () => {
       labelHostMonitoringProperties,
       labelRelations,
       labelMonitoringEngineSchedulingOptions,
+      labelAdvanced
+    ]);
+  });
+
+  it('has no general information section in a mass change', () => {
+    expect(
+      getSectionLabels({ isCloudPlatform: false, isMassChange: true, t })
+    ).toEqual([
+      labelHostMonitoringProperties,
+      labelRelations,
+      labelMonitoringEngineSchedulingOptions,
+      labelNotifications,
       labelAdvanced
     ]);
   });

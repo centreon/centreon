@@ -1,14 +1,18 @@
+import { EditNoteOutlined as MassChangeIcon } from '@mui/icons-material';
+
 import {
   isAdditiveInheritanceEnabledAtom,
   platformFeaturesAtom,
   userPermissionsAtom
 } from '@centreon/ui-context';
 
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { type ReactElement, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import ConfigurationBase from '../ConfigurationBase';
+import { formStateAtom } from '../ConfigurationBase/atoms';
+import { labelMassChange } from '../ConfigurationBase/translatedLabels';
 import { type Actions, ResourceType } from '../models';
 import {
   filtersAtom,
@@ -16,7 +20,13 @@ import {
   selectedColumnIdsAtom
 } from './atoms';
 import useColumns from './Columns/useColumns';
-import { getDefaultValues, useFormInputs, useValidationSchema } from './Form';
+import {
+  getDefaultValues,
+  getMassChangeAdapter,
+  getMassChangeDefaultValues,
+  useFormInputs,
+  useValidationSchema
+} from './Form';
 import type { Filters } from './models';
 import {
   labelCreateHostTemplate,
@@ -59,6 +69,38 @@ const HostTemplates = (): ReactElement => {
     () => getDefaultValues({ isCloudPlatform }),
     [isCloudPlatform]
   );
+  const { groups: massChangeGroups, inputs: massChangeInputs } = useFormInputs({
+    canEdit,
+    isAdditiveInheritanceEnabled,
+    isCloudPlatform,
+    isMassChange: true
+  });
+  const { validationSchema: massChangeValidationSchema } = useValidationSchema({
+    isCloudPlatform,
+    isMassChange: true
+  });
+  const massChange = useMemo(() => {
+    const context = {
+      isAdditiveInheritanceEnabled,
+      isCloudPlatform,
+      isMassChange: true
+    };
+
+    return {
+      adapter: getMassChangeAdapter(context),
+      defaultValues: getMassChangeDefaultValues(context),
+      groups: massChangeGroups,
+      inputs: massChangeInputs,
+      validationSchema: massChangeValidationSchema
+    };
+  }, [
+    isAdditiveInheritanceEnabled,
+    isCloudPlatform,
+    massChangeGroups,
+    massChangeInputs,
+    massChangeValidationSchema
+  ]);
+  const setFormState = useSetAtom(formStateAtom);
 
   const actions: Actions = useMemo(
     () => ({
@@ -67,10 +109,28 @@ const HostTemplates = (): ReactElement => {
       edit: canEdit,
       editable: isUnlocked,
       massive: canEdit && { delete: true, duplicate: true },
+      massiveActions: [
+        {
+          dataTestId: 'mass-change',
+          Icon: MassChangeIcon,
+          label: labelMassChange,
+          onClick: (rows) =>
+            setFormState({
+              id: null,
+              isOpen: true,
+              mode: 'massChange',
+              resource: null,
+              selection: rows.map(({ id, name }) => ({
+                id: id as number,
+                name: name as string
+              }))
+            })
+        }
+      ],
       selectable: isUnlocked,
       viewDetails: true
     }),
-    [canEdit]
+    [canEdit, setFormState]
   );
 
   return (
@@ -85,7 +145,7 @@ const HostTemplates = (): ReactElement => {
       filtersConfiguration={filtersConfiguration}
       filtersInitialValues={filtersInitialValues}
       filtersPanelWidth="full"
-      form={{ defaultValues, groups, inputs, validationSchema }}
+      form={{ defaultValues, groups, inputs, massChange, validationSchema }}
       formVariant="panel"
       isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
       labels={{
