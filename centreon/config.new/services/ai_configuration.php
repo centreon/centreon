@@ -48,6 +48,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             '::a9fe:0/112',
             '2002:a9fe::/32',
             '64:ff9b::a9fe:0/112',
-            '100.100.100.200/32', // Alibaba Cloud instance metadata
+            // Alibaba Cloud instance metadata, and its IPv6 forms like above
+            '100.100.100.200/32',
+            '::ffff:6464:64c8/128',
+            '::6464:64c8/128',
+            '2002:6464:64c8::/48',
+            '64:ff9b::6464:64c8/128',
         ]]);
 };

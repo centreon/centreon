@@ -55,6 +55,14 @@ final class LinkLocalTargetTest extends AiAssistanceApiTestCase
         yield '6to4' => ['https://[2002:a9fe:a9fe::]'];
 
         yield 'AWS metadata over IPv6' => ['https://[fd00:ec2::254]'];
+
+        yield 'Alibaba metadata, IPv4-mapped' => ['https://[::ffff:6464:64c8]'];
+
+        yield 'Alibaba metadata, IPv4-compatible' => ['https://[::6464:64c8]'];
+
+        yield 'Alibaba metadata, NAT64' => ['https://[64:ff9b::6464:64c8]'];
+
+        yield 'Alibaba metadata, 6to4' => ['https://[2002:6464:64c8::]'];
     }
 
     #[DataProvider('linkLocalTargets')]
