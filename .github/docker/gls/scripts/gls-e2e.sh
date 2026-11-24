@@ -71,6 +71,8 @@ record() { # record <check> ok|ko [detail]
   if [[ "$2" != ok ]]; then mark=":x:"; failures=$((failures + 1)); echo "::error::gls: $1 ${3:-}"; fi
   results+=("| $1 | $mark | ${3:-} |")
   echo "[$2] $1 ${3:-}"
+  # up: stop at the first bootstrap ko (later steps would only cascade).
+  if [[ "$2" != ok && -n "${FAIL_FAST:-}" ]]; then summary "$FAIL_FAST (stopped at the first ko)"; exit 1; fi
 }
 summary() {
   {
@@ -271,7 +273,8 @@ cmd_up() {
   add_service gls-hc && record "fixture gls-hc/gls-crit" ok || record "fixture gls-hc/gls-crit" ko "see clapi.log"
   clapi_log -o SERVICE -a ADD -v "gls-hc;gls-perf;gls-stpl"
   clapi_log -o SERVICE -a setparam -v "gls-hc;gls-perf;check_command;gls_check_perf"
-  [[ -n "$(sql centreon "SELECT s.service_id FROM service s JOIN host_service_relation r ON r.service_service_id=s.service_id JOIN host h ON h.host_id=r.host_host_id JOIN command c ON c.command_id=s.command_command_id WHERE h.host_name='gls-hc' AND s.service_description='gls-perf' AND c.command_name='gls_check_perf'")" ]]     && record "fixture gls-hc/gls-perf (perfdata)" ok || record "fixture gls-hc/gls-perf (perfdata)" ko "see clapi.log"
+  [[ -n "$(sql centreon "SELECT s.service_id FROM service s JOIN host_service_relation r ON r.service_service_id=s.service_id JOIN host h ON h.host_id=r.host_host_id JOIN command c ON c.command_id=s.command_command_id WHERE h.host_name='gls-hc' AND s.service_description='gls-perf' AND c.command_name='gls_check_perf'")" ]] \
+    && record "fixture gls-hc/gls-perf (perfdata)" ok || record "fixture gls-hc/gls-perf (perfdata)" ko "see clapi.log"
 
   local code
   code=$(api GET /configuration/monitoring-servers/1/generate-and-reload)
@@ -283,8 +286,8 @@ cmd_up() {
   wait_until 120 eval 'cc exec -T centreon-broker cat /etc/centreon-broker/central-broker.json 2>/dev/null | jq -e "[.centreonBroker.output[]? | select(.type == \"unified_sql\")] | length > 0" >/dev/null' \
     && record "central cbd runs the delivered config (unified_sql output)" ok || record "central cbd runs the delivered config (unified_sql output)" ko
   # The delivered cbmod identity (poller id 1, not the bootstrap uid) reaches unified_sql.
-  wait_until 300 instance_running Central && record "central instance running as poller id 1 after delivery" ok     || record "central instance running as poller id 1 after delivery" ko "$(sql centreon_storage "SELECT instance_id,name,running FROM instances" | tr '	
-' ' ')"
+  wait_until 300 instance_running Central && record "central instance running as poller id 1 after delivery" ok \
+    || record "central instance running as poller id 1 after delivery" ko "$(instances_dump)"
 
   # New poller, created once cbd is up: id, uid and the central CA (trust
   # anchor, out of band of the stream) from the API answer (contracts § 8.4).
@@ -340,8 +343,8 @@ cmd_up() {
     | openssl x509 -noout -fingerprint -sha256 2>/dev/null | sed 's/.*=//; s/://g' | tr 'A-F' 'a-f')
   [[ -n "$pfp" && "$pfp" == "$ca_fp" ]] && record "poller CA kept after the first export (= creation answer)" ok \
     || record "poller CA kept after the first export (= creation answer)" ko "${pfp:-no ca.crt} vs ${ca_fp:0:16}"
-  wait_until 300 instance_running "$POLLER_NAME" && record "poller instance running after the first export" ok     || record "poller instance running after the first export" ko "$(sql centreon_storage "SELECT instance_id,name,running FROM instances" | tr '	
-' ' ')"
+  wait_until 300 instance_running "$POLLER_NAME" && record "poller instance running after the first export" ok \
+    || record "poller instance running after the first export" ko "$(instances_dump)"
   wait_until 300 service_ready cp_ poller-engine && record "poller connected to centreon-broker:5669" ok \
     || record "poller connected to centreon-broker:5669" ko
 }
@@ -444,6 +447,7 @@ service_ready_running() { local id; id=$("$1" ps -q "$2" | head -1); [[ -n "$id"
 
 # ---------- step 0 ----------
 
+instances_dump() { sql centreon_storage "SELECT instance_id,name,running FROM instances" | tr '\t\n' '  '; }
 instance_running() { [[ "$(sql centreon_storage "SELECT COUNT(*) FROM instances WHERE name='$1' AND running=1 AND deleted=0")" -ge 1 ]]; }
 service_critical() {
   [[ "$(sql centreon_storage "SELECT COUNT(*) FROM services s JOIN hosts h ON h.host_id=s.host_id WHERE h.name='$1' AND s.description='gls-crit' AND s.state=2 AND s.last_check>0")" -ge 1 ]]
@@ -825,7 +829,7 @@ cmd_down() { # only the gls projects this script started
 
 cmd=${1:-}; shift || true
 case "$cmd" in
-  up) cmd_up ;;
+  up) FAIL_FAST=up; cmd_up ;;
   step0) cmd_step0 ;;
   c1) cmd_c1 "$@" ;;
   c2) cmd_c2 "$@" ;;

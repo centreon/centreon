@@ -58,6 +58,7 @@ jobs:
           password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
 
       - name: Stack up (gls-central + gls-poller, bootstrap)
+        id: up
         run: SUMMARY_FILE="$GITHUB_STEP_SUMMARY" "$SCRIPT" up
         shell: bash
 
@@ -66,73 +67,73 @@ jobs:
         shell: bash
 
       - name: "Criterion 1: realtime actions (central)"
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && steps.up.outcome == 'success' }}
         continue-on-error: ${{ env.GLS_GATE_CRITERIA != 'true' }}
         run: SUMMARY_FILE="$GITHUB_STEP_SUMMARY" "$SCRIPT" c1 central
         shell: bash
 
       - name: "Criterion 1: realtime actions (poller)"
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && steps.up.outcome == 'success' }}
         continue-on-error: ${{ env.GLS_GATE_CRITERIA != 'true' }}
         run: SUMMARY_FILE="$GITHUB_STEP_SUMMARY" "$SCRIPT" c1 poller
         shell: bash
 
       - name: "Criterion 2: export + reload (central)"
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && steps.up.outcome == 'success' }}
         continue-on-error: ${{ env.GLS_GATE_CRITERIA != 'true' }}
         run: SUMMARY_FILE="$GITHUB_STEP_SUMMARY" "$SCRIPT" c2 central
         shell: bash
 
       - name: "Criterion 2: export + reload (poller)"
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && steps.up.outcome == 'success' }}
         continue-on-error: ${{ env.GLS_GATE_CRITERIA != 'true' }}
         run: SUMMARY_FILE="$GITHUB_STEP_SUMMARY" "$SCRIPT" c2 poller
         shell: bash
 
       - name: "plugins.json applied on the poller"
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && steps.up.outcome == 'success' }}
         continue-on-error: ${{ env.GLS_GATE_CRITERIA != 'true' }}
         run: SUMMARY_FILE="$GITHUB_STEP_SUMMARY" "$SCRIPT" plugins
         shell: bash
 
       - name: "RRD: perfdata reaches rrdcached, no RRD connect error"
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && steps.up.outcome == 'success' }}
         continue-on-error: ${{ env.GLS_GATE_CRITERIA != 'true' }}
         run: SUMMARY_FILE="$GITHUB_STEP_SUMMARY" "$SCRIPT" rrd
         shell: bash
 
       - name: "Criterion 3: disconnected poller (stop)"
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && steps.up.outcome == 'success' }}
         continue-on-error: ${{ env.GLS_GATE_CRITERIA != 'true' }}
         run: SUMMARY_FILE="$GITHUB_STEP_SUMMARY" "$SCRIPT" c3 stop
         shell: bash
 
       - name: "Criterion 3: disconnected poller (network partition)"
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && steps.up.outcome == 'success' }}
         continue-on-error: ${{ env.GLS_GATE_CRITERIA != 'true' }}
         run: SUMMARY_FILE="$GITHUB_STEP_SUMMARY" "$SCRIPT" c3 partition
         shell: bash
 
       - name: "Criterion 3: disconnected poller (pause)"
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && steps.up.outcome == 'success' }}
         continue-on-error: ${{ env.GLS_GATE_CRITERIA != 'true' }}
         run: SUMMARY_FILE="$GITHUB_STEP_SUMMARY" "$SCRIPT" c3 pause
         shell: bash
 
       - name: "TLS: central cert not signed by the pollers' CA"
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && steps.up.outcome == 'success' }}
         continue-on-error: ${{ env.GLS_GATE_CRITERIA != 'true' }}
         run: SUMMARY_FILE="$GITHUB_STEP_SUMMARY" "$SCRIPT" tls-negative
         shell: bash
 
       - name: "Self-generated CA: kept on recreate, fail closed on a wrong fingerprint"
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && steps.up.outcome == 'success' }}
         continue-on-error: ${{ env.GLS_GATE_CRITERIA != 'true' }}
         run: SUMMARY_FILE="$GITHUB_STEP_SUMMARY" "$SCRIPT" ca
         shell: bash
 
       - name: "State volumes: retention after recreate, cbmod queue"
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && steps.up.outcome == 'success' }}
         continue-on-error: ${{ env.GLS_GATE_CRITERIA != 'true' }}
         run: SUMMARY_FILE="$GITHUB_STEP_SUMMARY" "$SCRIPT" state
         shell: bash
