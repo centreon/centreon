@@ -27,6 +27,7 @@ use Centreon\Test\Mock\DependencyInjector\FilesystemProvider;
 use Centreon\Test\Mock\DependencyInjector\ServiceContainer;
 use CentreonLegacy\Core\Migration\MigrationLauncher;
 use CentreonLegacy\ServiceProvider;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Pimple\Psr11\Container;
 
 class InstallerTest extends \PHPUnit\Framework\TestCase
@@ -117,7 +118,18 @@ class InstallerTest extends \PHPUnit\Framework\TestCase
         $this->assertSame(['install.pre.php', 'install.sql', 'install.php', 'migrations'], $journal->getArrayCopy());
     }
 
-    public function testInstallWithoutMigrationsDirectoryDoesNotLaunchThem(): void
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function provideModuleNames(): iterable
+    {
+        yield 'a supported name' => ['my-module'];
+
+        yield 'a name migrations could not run under' => ['centreon_foo'];
+    }
+
+    #[DataProvider('provideModuleNames')]
+    public function testInstallWithoutMigrationsDirectoryDoesNotLaunchThem(string $moduleName): void
     {
         $filesystem = $this->createMock(\Symfony\Component\Filesystem\Filesystem::class);
         $filesystem->method('exists')->willReturnCallback(static fn (string $file): bool => ! str_ends_with($file, '/migrations'));
@@ -136,7 +148,7 @@ class InstallerTest extends \PHPUnit\Framework\TestCase
         $migrationLauncher->expects($this->never())->method('migrate');
         $this->container[ServiceProvider::CENTREON_LEGACY_MIGRATION_LAUNCHER] = $migrationLauncher;
 
-        $this->assertEquals(1, (new Installer(new Container($this->container), $this->information, 'my-module', $this->utils))->install());
+        $this->assertEquals(1, (new Installer(new Container($this->container), $this->information, $moduleName, $this->utils))->install());
     }
 
     public function testRefusesAModuleShippingMigrationsUnderAnUnsupportedNameBeforeAnyScript(): void

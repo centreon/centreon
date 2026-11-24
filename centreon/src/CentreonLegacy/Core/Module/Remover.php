@@ -35,8 +35,7 @@ class Remover extends Module
         $this->removePhpFiles(true);
         $this->removeSqlFiles();
         $this->removePhpFiles(false);
-        // Once its scripts passed: a module whose uninstallation failed stays installed, and its migrations must not look
-        // pending. Before its row: a module left with its history would skip its migrations once reinstalled.
+        // After the scripts, before the row: a failed uninstall keeps its history, a reinstall starts over.
         $this->forgetUpgradeHistory();
         $this->removeModuleConfiguration();
 
@@ -69,7 +68,7 @@ class Remover extends Module
     }
 
     /**
-     * So that a reinstallation starts over.
+     * So that a reinstallation starts over: uninstall.sql drops what the migrations created.
      */
     private function forgetUpgradeHistory(): void
     {
@@ -79,7 +78,7 @@ class Remover extends Module
             return;
         }
 
-        $this->services->get('configuration_db')->query('DROP TABLE IF EXISTS `' . MigrationSetRegistry::table(MigrationSet::module($this->moduleName)) . '`');
+        $this->services->get('configuration_db')->executeStatement('DROP TABLE IF EXISTS `' . MigrationSetRegistry::table(MigrationSet::module($this->moduleName)) . '`');
     }
 
     /**

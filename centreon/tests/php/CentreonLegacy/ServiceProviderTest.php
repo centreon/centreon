@@ -66,7 +66,7 @@ class ServiceProviderTest extends TestCase
             ServiceProvider::CENTREON_LEGACY_WIDGET_INFORMATION => Core\Widget\Information::class,
             ServiceProvider::CENTREON_LEGACY_MIGRATION_LAUNCHER => Core\Migration\MigrationLauncher::class,
             ServiceProvider::CENTREON_LEGACY_CACHE_CLEARER => Core\Cache\CacheClearer::class,
-            ServiceProvider::CENTREON_LEGACY_MODULE_UPGRADE_PROGRESS => Core\Module\UpgradeProgress::class,
+            ServiceProvider::CENTREON_LEGACY_MODULE_UPGRADE_PROGRESS => Core\Module\ModuleUpgradeProgressRepository::class,
         ];
 
         // check list of services

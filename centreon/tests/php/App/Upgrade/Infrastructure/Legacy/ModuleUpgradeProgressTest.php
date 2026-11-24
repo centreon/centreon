@@ -23,8 +23,10 @@ declare(strict_types=1);
 
 namespace Tests\App\Upgrade\Infrastructure\Legacy;
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\Model\ConnectionConfig;
-use CentreonLegacy\Core\Module\UpgradeProgress;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use CentreonLegacy\Core\Module\ModuleUpgradeProgressRepository;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -36,7 +38,7 @@ final class ModuleUpgradeProgressTest extends TestCase
 
     private \CentreonDB $db;
 
-    private UpgradeProgress $progress;
+    private ModuleUpgradeProgressRepository $progress;
 
     protected function setUp(): void
     {
@@ -48,7 +50,7 @@ final class ModuleUpgradeProgressTest extends TestCase
             databaseNameRealTime: $this->env('dbcstg'),
             port: (int) $this->env('port'),
         ));
-        $this->progress = new UpgradeProgress($this->db);
+        $this->progress = new ModuleUpgradeProgressRepository($this->db);
         $this->progress->clear(self::MODULE);
     }
 
@@ -74,7 +76,10 @@ final class ModuleUpgradeProgressTest extends TestCase
 
     private function countRows(): int
     {
-        $count = $this->db->fetchOne("SELECT COUNT(*) FROM `options` WHERE `key` = 'module_upgrade_progress:" . self::MODULE . "'");
+        $count = $this->db->fetchOne(
+            'SELECT COUNT(*) FROM `options` WHERE `key` = :key',
+            QueryParameters::create([QueryParameter::string('key', 'module_upgrade_progress:' . self::MODULE)])
+        );
         self::assertIsNumeric($count);
 
         return (int) $count;

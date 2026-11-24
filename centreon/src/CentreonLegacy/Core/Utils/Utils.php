@@ -69,15 +69,21 @@ class Utils
      * @param string $fileName
      * @param array $customMacros
      * @param mixed $monitoring
-     * @param int $skippedQueries the number of leading queries already executed by a previous attempt
-     * @param callable(int): void|null $onQueryExecuted called with the number of queries executed so far
+     * @param ExecutedQueries|null $alreadyExecuted the leading queries executed by a previous attempt, skipped
+     * @param callable(ExecutedQueries): void|null $onQueryExecuted called after each executed query
      *
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
+     * @throws ExecutedQueriesChangedException when the queries already executed are no longer the leading ones
      * @throws \Exception
      */
-    public function executeSqlFile($fileName, $customMacros = [], $monitoring = false, int $skippedQueries = 0, ?callable $onQueryExecuted = null): void
-    {
+    public function executeSqlFile(
+        $fileName,
+        $customMacros = [],
+        $monitoring = false,
+        ?ExecutedQueries $alreadyExecuted = null,
+        ?callable $onQueryExecuted = null,
+    ): void {
         $dbName = 'configuration_db';
         if ($monitoring) {
             $dbName = 'realtime_db';
@@ -89,7 +95,9 @@ class Utils
         $file = fopen($fileName, 'r');
         $str = '';
         $delimiter = ';';
+        $skippedQueries = $alreadyExecuted->count ?? 0;
         $queryCount = 0;
+        $checksum = '';
         while (! feof($file)) {
             $line = fgets($file);
             if (! preg_match('/^(--|#)/', $line)) {
@@ -104,17 +112,26 @@ class Utils
                     if ($delimiter !== ';') {
                         $str = preg_replace('/' . preg_quote($delimiter, '/') . '$/', '', $str);
                     }
+                    $checksum = hash('sha256', $checksum . $str);
                     if (++$queryCount > $skippedQueries) {
                         $this->services->get($dbName)->query($str);
                         if ($onQueryExecuted !== null) {
-                            $onQueryExecuted($queryCount);
+                            $onQueryExecuted(new ExecutedQueries($queryCount, $checksum));
                         }
+                    } elseif ($queryCount === $skippedQueries && $checksum !== $alreadyExecuted?->checksum) {
+                        fclose($file);
+
+                        throw ExecutedQueriesChangedException::inFile($fileName, $skippedQueries);
                     }
                     $str = '';
                 }
             }
         }
         fclose($file);
+
+        if ($queryCount < $skippedQueries) {
+            throw ExecutedQueriesChangedException::inFile($fileName, $skippedQueries);
+        }
     }
 
     /**

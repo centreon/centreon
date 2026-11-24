@@ -23,12 +23,18 @@ declare(strict_types=1);
 
 namespace CentreonLegacy\Core\Module;
 
+use Adaptation\Log\LoggerUpgrade;
+use CentreonLegacy\Core\Utils\ExecutedQueries;
+use CentreonLegacy\Core\Utils\ExecutedQueriesChangedException;
 use CentreonLegacy\ServiceProvider;
 use CentreonLog;
+use Core\Common\Domain\Exception\RepositoryException;
 use Symfony\Component\Finder\Finder;
 
 class Upgrader extends Module
 {
+    private bool $recordingProgress = false;
+
     /**
      * @return int
      */
@@ -68,6 +74,16 @@ class Upgrader extends Module
 
             // Beyond the code version (a pre-release, a forgotten conf.php bump): it would run again once released.
             if (version_compare($upgradeName, $this->moduleConfiguration['mod_release']) > 0) {
+                LoggerUpgrade::create()->warning(
+                    $upgradeName,
+                    sprintf(
+                        'The upgrade of the "%s" module stops before "%s": beyond the version %s of its conf.php',
+                        $this->moduleName,
+                        $upgradeName,
+                        $this->moduleConfiguration['mod_release']
+                    )
+                );
+
                 break;
             }
 
@@ -85,12 +101,13 @@ class Upgrader extends Module
             // Recorded once its scripts passed: a failed version is resumed, not skipped.
             $this->upgradeVersion($upgradeName);
             $moduleInstalledInformation['mod_release'] = $upgradeName;
-            $this->services->get(ServiceProvider::CENTREON_LEGACY_MODULE_UPGRADE_PROGRESS)->clear($this->moduleName);
+            $this->clearUpgradeProgress($upgradeName);
         }
 
+        // After every upgrade/<v>: migrate refuses a module whose upgrade scripts are pending.
         $this->migrate();
 
-        // Finally, the version of the code. Never an older one: a package rollback would replay the upgrades in between.
+        // Never downgrade: a package rollback would replay the upgrades in between.
         if (version_compare($this->moduleConfiguration['mod_release'], $moduleInstalledInformation['mod_release']) > 0) {
             $this->upgradeVersion($this->moduleConfiguration['mod_release']);
         }
@@ -163,49 +180,119 @@ class Upgrader extends Module
     }
 
     /**
+     * The progress of an older version left behind is ignored.
+     */
+    private function clearUpgradeProgress(string $version): void
+    {
+        try {
+            $this->services->get(ServiceProvider::CENTREON_LEGACY_MODULE_UPGRADE_PROGRESS)->clear($this->moduleName);
+        } catch (RepositoryException $exception) {
+            LoggerUpgrade::create()->warning(
+                $version,
+                sprintf('Cannot clear the upgrade progress of the "%s" module', $this->moduleName),
+                $exception
+            );
+        }
+    }
+
+    /**
      * Resumes a failed attempt: upgrade.php, run last, is the only step replayed whole.
      */
     private function upgradeVersionScripts(string $path, string $version): void
     {
-        /** @var UpgradeProgress $progress */
+        /** @var ModuleUpgradeProgressRepository $progress */
         $progress = $this->services->get(ServiceProvider::CENTREON_LEGACY_MODULE_UPGRADE_PROGRESS);
         $state = $progress->get($this->moduleName, $version);
-        // A fixed upgrade.sql restarts: the previous query count no longer applies.
-        $sqlFile = $path . '/sql/upgrade.sql';
-        $checksum = is_file($sqlFile) ? (string) md5_file($sqlFile) : '';
-        if ($state['checksum'] !== $checksum) {
-            $state['sql'] = 0;
-            $state['checksum'] = $checksum;
+        if ($state['pre'] || $state['sql'] > 0) {
+            LoggerUpgrade::create()->info(
+                $version,
+                sprintf('Resuming the upgrade of the "%s" module after %d queries of upgrade.sql', $this->moduleName, $state['sql'])
+            );
         }
 
-        if (! $state['pre']) {
-            $this->upgradePhpFiles($path, true);
-            $state['pre'] = true;
+        $this->recordingProgress = false;
+        $record = function () use ($progress, $version, &$state): void {
+            $this->recordingProgress = true;
             $progress->save($this->moduleName, $version, $state);
+            $this->recordingProgress = false;
+        };
+
+        $step = $path . '/php/upgrade.pre.php';
+        try {
+            if (! $state['pre']) {
+                $this->upgradePhpFiles($path, true);
+                $state['pre'] = true;
+                $record();
+            }
+
+            $step = $path . '/sql/upgrade.sql';
+            // After each query: a timeout or a killed process must not replay it.
+            $this->upgradeSqlFiles(
+                $path,
+                new ExecutedQueries($state['sql'], $state['checksum']),
+                function (ExecutedQueries $executed) use ($record, &$state): void {
+                    $state['sql'] = $executed->count;
+                    $state['checksum'] = $executed->checksum;
+                    $record();
+                }
+            );
+
+            $step = $path . '/php/upgrade.php';
+            $this->upgradePhpFiles($path, false);
+        } catch (ExecutedQueriesChangedException $exception) {
+            $refusal = new \RuntimeException(sprintf(
+                '%s: restore them, or delete the "%s" option to replay the whole file',
+                $exception->getMessage(),
+                ModuleUpgradeProgressRepository::KEY_PREFIX . $this->moduleName
+            ), 0, $exception);
+            LoggerUpgrade::create()->error(
+                $version,
+                sprintf(
+                    'Restore the upgrade.sql of the "%s" module, or delete the "%s" option to replay it whole',
+                    $this->moduleName,
+                    ModuleUpgradeProgressRepository::KEY_PREFIX . $this->moduleName
+                ),
+                $exception
+            );
+
+            throw $refusal;
+        } catch (\Throwable $exception) {
+            $isSql = str_ends_with($step, '.sql');
+            LoggerUpgrade::create()->error(
+                $version,
+                $this->recordingProgress
+                    ? sprintf(
+                        'The upgrade of the "%s" module could not record its progress in %s%s: it will be replayed',
+                        $this->moduleName,
+                        $step,
+                        $isSql ? sprintf(' after query %d', $state['sql']) : ''
+                    )
+                    : sprintf(
+                        'The upgrade of the "%s" module failed in %s%s',
+                        $this->moduleName,
+                        $step,
+                        $isSql ? sprintf(' at query %d', $state['sql'] + 1) : ''
+                    ),
+                $exception
+            );
+
+            throw $exception;
         }
-
-        // After each query, not only on a failing one: a web timeout or a killed process would otherwise replay them.
-        $this->upgradeSqlFiles($path, $state['sql'], function (int $executedQueries) use ($progress, $version, &$state): void {
-            $state['sql'] = $executedQueries;
-            $progress->save($this->moduleName, $version, $state);
-        });
-
-        $this->upgradePhpFiles($path, false);
     }
 
     /**
      * @param string $path
-     * @param callable(int): void|null $onQueryExecuted
+     * @param callable(ExecutedQueries): void|null $onQueryExecuted
      *
      * @return bool
      */
-    private function upgradeSqlFiles($path, int $skippedQueries = 0, ?callable $onQueryExecuted = null)
+    private function upgradeSqlFiles($path, ?ExecutedQueries $alreadyExecuted = null, ?callable $onQueryExecuted = null)
     {
         $installed = false;
 
         $sqlFile = $path . '/sql/upgrade.sql';
         if ($this->services->get('filesystem')->exists($sqlFile)) {
-            $this->utils->executeSqlFile($sqlFile, [], false, $skippedQueries, $onQueryExecuted);
+            $this->utils->executeSqlFile($sqlFile, [], false, $alreadyExecuted, $onQueryExecuted);
             $installed = true;
         }
 
