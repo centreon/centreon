@@ -1,6 +1,5 @@
 import {
   RocketLaunchOutlined as DeployIcon,
-  EditNoteOutlined as MassChangeIcon,
   Grain as ServiceIcon
 } from '@mui/icons-material';
 
@@ -10,13 +9,12 @@ import {
   userPermissionsAtom
 } from '@centreon/ui-context';
 
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import ConfigurationBase from '../ConfigurationBase';
-import { formStateAtom } from '../ConfigurationBase/atoms';
-import { labelMassChange } from '../ConfigurationBase/translatedLabels';
+import useMassChangeAction from '../ConfigurationBase/useMassChangeAction';
 import { type Actions, ResourceType } from '../models';
 import type { FormValues } from '../ResourceForm/models';
 import { useDefaultPoller, useDeployServices } from './api';
@@ -105,7 +103,7 @@ const Hosts = () => {
     massChangeValidationSchema,
     t
   ]);
-  const setFormState = useSetAtom(formStateAtom);
+  const massChangeAction = useMassChangeAction();
 
   const { api, filtersConfiguration } = useHosts({
     isAdditiveInheritanceEnabled,
@@ -131,22 +129,7 @@ const Hosts = () => {
       enableDisable: () => canEdit,
       massive: canEdit,
       massiveActions: [
-        {
-          dataTestId: 'mass-change',
-          Icon: MassChangeIcon,
-          label: labelMassChange,
-          onClick: (rows) =>
-            setFormState({
-              id: null,
-              isOpen: true,
-              mode: 'massChange',
-              resource: null,
-              selection: rows.map(({ id, name }) => ({
-                id: id as number,
-                name: name as string
-              }))
-            })
-        },
+        massChangeAction,
         {
           dataTestId: 'deploy-services',
           Icon: DeployIcon,
@@ -168,7 +151,7 @@ const Hosts = () => {
       rowActionsWithoutWriteAccess: true,
       viewDetails: true
     }),
-    [canEdit, deployServices, setFormState]
+    [canEdit, deployServices, massChangeAction]
   );
 
   return (

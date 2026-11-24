@@ -1,19 +1,15 @@
-import { EditNoteOutlined as MassChangeIcon } from '@mui/icons-material';
-
 import {
   isAdditiveInheritanceEnabledAtom,
   platformFeaturesAtom,
   userPermissionsAtom
 } from '@centreon/ui-context';
 
-import { useAtomValue, useSetAtom } from 'jotai';
-import { prop, uniqBy } from 'ramda';
+import { useAtomValue } from 'jotai';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import ConfigurationBase from '../ConfigurationBase';
-import { formStateAtom } from '../ConfigurationBase/atoms';
-import { labelMassChange } from '../ConfigurationBase/translatedLabels';
+import useMassChangeAction from '../ConfigurationBase/useMassChangeAction';
 import { type Actions, ResourceType } from '../models';
 import type { FormValues } from '../ResourceForm/models';
 import {
@@ -84,7 +80,7 @@ const Services = () => {
     isCloudPlatform,
     isMassChange: true
   });
-  const setFormState = useSetAtom(formStateAtom);
+  const massChangeAction = useMassChangeAction();
 
   const massChange = useMemo(() => {
     const context = {
@@ -118,31 +114,13 @@ const Services = () => {
       edit: canEdit,
       enableDisable: () => canEdit,
       massive: canEdit,
-      massiveActions: [
-        {
-          dataTestId: 'mass-change',
-          Icon: MassChangeIcon,
-          label: labelMassChange,
-          onClick: (rows) =>
-            setFormState({
-              id: null,
-              isOpen: true,
-              mode: 'massChange',
-              resource: null,
-              // A service on several hosts is one service: one write for it.
-              selection: uniqBy(prop('id'), rows).map(({ id, name }) => ({
-                id: id as number,
-                name: name as string
-              }))
-            })
-        }
-      ],
+      massiveActions: [massChangeAction],
       // Keeps the status toggle on screen, disabled, for a read-only user.
       rowActionsWithoutWriteAccess: true,
       // A row opens its service, read-only without write access.
       viewDetails: true
     }),
-    [canEdit, setFormState]
+    [canEdit, massChangeAction]
   );
 
   return (

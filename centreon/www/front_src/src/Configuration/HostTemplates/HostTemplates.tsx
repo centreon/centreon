@@ -1,18 +1,15 @@
-import { EditNoteOutlined as MassChangeIcon } from '@mui/icons-material';
-
 import {
   isAdditiveInheritanceEnabledAtom,
   platformFeaturesAtom,
   userPermissionsAtom
 } from '@centreon/ui-context';
 
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { type ReactElement, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import ConfigurationBase from '../ConfigurationBase';
-import { formStateAtom } from '../ConfigurationBase/atoms';
-import { labelMassChange } from '../ConfigurationBase/translatedLabels';
+import useMassChangeAction from '../ConfigurationBase/useMassChangeAction';
 import { type Actions, ResourceType } from '../models';
 import {
   filtersAtom,
@@ -100,7 +97,7 @@ const HostTemplates = (): ReactElement => {
     massChangeInputs,
     massChangeValidationSchema
   ]);
-  const setFormState = useSetAtom(formStateAtom);
+  const massChangeAction = useMassChangeAction();
 
   const actions: Actions = useMemo(
     () => ({
@@ -109,28 +106,11 @@ const HostTemplates = (): ReactElement => {
       edit: canEdit,
       editable: isUnlocked,
       massive: canEdit && { delete: true, duplicate: true },
-      massiveActions: [
-        {
-          dataTestId: 'mass-change',
-          Icon: MassChangeIcon,
-          label: labelMassChange,
-          onClick: (rows) =>
-            setFormState({
-              id: null,
-              isOpen: true,
-              mode: 'massChange',
-              resource: null,
-              selection: rows.map(({ id, name }) => ({
-                id: id as number,
-                name: name as string
-              }))
-            })
-        }
-      ],
+      massiveActions: [massChangeAction],
       selectable: isUnlocked,
       viewDetails: true
     }),
-    [canEdit, setFormState]
+    [canEdit, massChangeAction]
   );
 
   return (
