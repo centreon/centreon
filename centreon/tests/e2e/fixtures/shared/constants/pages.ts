@@ -61,6 +61,7 @@ export const PAGES = {
     recurrentDowntimesLegacy: '/centreon/main.php?p=21003',
     performancesGraphsLegacy: '/centreon/main.php?p=20401',
     virtualMetricsLegacy: '/centreon/main.php?p=20408',
-    statusDetailsServicesLegacy: '/centreon/main.php?p=20201'
+    statusDetailsServicesLegacy: '/centreon/main.php?p=20201',
+    statusDetailsServicesLegacyFrame: '/centreon/main.get.php?p=20201'
   }
 };
