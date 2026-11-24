@@ -1,8 +1,11 @@
+import { unsavedChangesTranslatedLabels } from '@centreon/ui';
+
 import { rs } from '@rstest/core';
 import { waitForRequest } from '@test-setup/api';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { formStateAtom } from '../../ConfigurationBase/atoms';
 import { listingDataTestIds } from '../../ConfigurationBase/Listing/dataTestIds';
 import {
   labelDelete,
@@ -76,6 +79,60 @@ export default () => {
         expect(open).not.toHaveBeenCalled();
       } finally {
         // The page is not reloaded between tests.
+        window.history.pushState({}, '', pathname);
+      }
+    });
+
+    it('closes the open host form before opening the Services page', async () => {
+      const { pathname } = window.location;
+
+      const { store } = initialize({
+        allowedPages: ['/configuration/services']
+      });
+      await waitForRequest('@getAllHosts');
+
+      await userEvent.click(await screen.findByText('host 0'));
+      await waitForRequest('@getHost');
+
+      await userEvent.click(screen.getByTestId('go-to-services_1'));
+
+      try {
+        await waitFor(() =>
+          expect(window.location.pathname).toBe('/configuration/services')
+        );
+        expect(window.location.search).toBe('?host=host%201');
+        expect(store.get(formStateAtom).isOpen).toBe(false);
+      } finally {
+        window.history.pushState({}, '', pathname);
+      }
+    });
+
+    it('asks to keep or drop the unsaved changes of the open form before leaving', async () => {
+      const { pathname } = window.location;
+
+      initialize({ allowedPages: ['/configuration/services'] });
+      await waitForRequest('@getAllHosts');
+
+      await userEvent.click(await screen.findByText('host 0'));
+      await waitForRequest('@getHost');
+      await userEvent.type(
+        (await screen.findAllByTestId('host-form-alias'))[1] as HTMLElement,
+        ' edited'
+      );
+
+      const open = rs.spyOn(window, 'open').mockImplementation(() => null);
+
+      await userEvent.click(screen.getByTestId('go-to-services_1'));
+
+      try {
+        expect(
+          await screen.findByText(
+            unsavedChangesTranslatedLabels.labelDoYouWantToSaveChanges
+          )
+        ).toBeVisible();
+        expect(window.location.pathname).not.toBe('/configuration/services');
+        expect(open).not.toHaveBeenCalled();
+      } finally {
         window.history.pushState({}, '', pathname);
       }
     });
