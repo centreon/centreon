@@ -39,4 +39,9 @@ interface HostSeverityRepository
      * Never returns a category, though both share the `hostcategories` table.
      */
     public function findNameById(HostSeverityId $id): ?HostSeverityName;
+
+    /**
+     * Null in the same cases as findNameById().
+     */
+    public function findById(HostSeverityId $id): ?HostSeverity;
 }
