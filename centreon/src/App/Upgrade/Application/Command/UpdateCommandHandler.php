@@ -27,8 +27,11 @@ use App\Shared\Application\Command\AsCommandHandler;
 use App\Upgrade\Application\CacheClearerInterface;
 use App\Upgrade\Application\DbmsVersionValidatorInterface;
 use App\Upgrade\Application\EngineContextWriterInterface;
+use App\Upgrade\Application\Service\MigrationApplier;
+use App\Upgrade\Application\Service\TargetVersionRecorder;
 use App\Upgrade\Application\UpdateLockerInterface;
 use App\Upgrade\Application\UpgradeLoggerInterface;
+use App\Upgrade\Domain\Exception\ClosingStepsFailedException;
 use App\Upgrade\Domain\Repository\ModuleRepository;
 use App\Upgrade\Domain\Repository\UpdateRepository;
 use App\Upgrade\Domain\Repository\UpdateScriptFinder;
@@ -47,12 +50,15 @@ final readonly class UpdateCommandHandler
         private EngineContextWriterInterface $engineContextWriter,
         private CacheClearerInterface $cacheClearer,
         private UpgradeLoggerInterface $logger,
+        private MigrationApplier $migrationApplier,
+        private TargetVersionRecorder $targetVersionRecorder,
     ) {
     }
 
     /**
      * @throws \RuntimeException when another update is already in progress or the current version cannot be read
-     * @throws \Throwable any failure thrown by validation, the repositories or the cache clearer (re-thrown after the lock is released and the failure is logged)
+     * @throws ClosingStepsFailedException when closing steps failed, after all of them ran
+     * @throws \Throwable any failure thrown by validation, the repositories or the migrations (re-thrown after the lock is released and the failure is logged)
      */
     public function __invoke(UpdateCommand $command): void
     {
@@ -75,7 +81,8 @@ final readonly class UpdateCommandHandler
                 }
 
                 $availableUpdates = $this->updateScriptFinder->findOrderedAvailableUpdates($currentVersion);
-                $targetVersion = $availableUpdates === [] ? $currentVersion : end($availableUpdates);
+                $legacyVersion = $availableUpdates === [] ? $currentVersion : end($availableUpdates);
+                $targetVersion = $this->targetVersionRecorder->resolve($legacyVersion);
 
                 $this->logger->start($currentVersion, $targetVersion);
                 $startEmitted = true;
@@ -89,15 +96,30 @@ final readonly class UpdateCommandHandler
                     $this->runStep($version, 'update_version_information', fn () => $this->updateRepository->updateVersionInformation($version));
                 }
 
+                $this->migrationApplier->applyWebSets();
+
                 if ($this->updateRepository->installDirectoryExists()) {
                     $this->runStep($currentVersion, 'backup_install_directory', fn () => $this->updateRepository->backupInstallDirectory($currentVersion));
                     $this->runStep($currentVersion, 'remove_install_directory', fn () => $this->updateRepository->removeInstallDirectory());
                 }
 
-                $this->runStep($currentVersion, 'modules_update', fn () => $this->moduleRepository->updateAll());
-                $this->runStep($currentVersion, 'widgets_update', fn () => $this->widgetRepository->updateAll());
-                $this->runStep($currentVersion, 'engine_context', fn () => $this->engineContextWriter->writeIfMissing());
-                $this->runStep($currentVersion, 'cache_clear', fn () => $this->cacheClearer->clear());
+                // Every closing step runs: the modules upgraded before a failure still need the cache clear.
+                $failures = [];
+                foreach ([
+                    'modules_update' => fn () => $this->moduleRepository->updateAll(),
+                    'widgets_update' => fn () => $this->widgetRepository->updateAll(),
+                    'engine_context' => fn () => $this->engineContextWriter->writeIfMissing(),
+                    'cache_clear' => fn () => $this->cacheClearer->clear(),
+                ] as $step => $action) {
+                    try {
+                        $this->runStep($currentVersion, $step, $action);
+                    } catch (\Throwable $exception) {
+                        $failures[$step] = $exception;
+                    }
+                }
+                if ($failures !== []) {
+                    throw new ClosingStepsFailedException($failures);
+                }
 
                 $durationMs = (int) ((microtime(true) - $startedAt) * 1000);
                 $this->logger->success($currentVersion, $targetVersion, $durationMs);

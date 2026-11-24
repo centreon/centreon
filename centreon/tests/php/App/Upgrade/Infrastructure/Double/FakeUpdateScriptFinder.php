@@ -34,7 +34,7 @@ final class FakeUpdateScriptFinder implements UpdateScriptFinder
 
     public function findOrderedAvailableUpdates(string $currentVersion): array
     {
-        return $this->availableUpdates;
+        return array_values(array_filter($this->availableUpdates, static fn (string $version): bool => version_compare($version, $currentVersion, '>')));
     }
 
     public function hasPendingNextUpdate(): bool
