@@ -228,8 +228,9 @@ pre_tag_failure_allowed() {
 # in (job 1, testing-tag mode): RELEASE_NUMBER, BRANCH, BRANCH_EXISTS, HEAD_SHA, RELEASE_SCOPE, RELEASE_TYPE,
 #   MAJOR, COMPONENTS_FILE, PREVIOUS_STABLE_BUNDLE_TAG_SHA, DISPATCH_CONTENT, DRY_RUN, GITHUB_REPOSITORY,
 #   REMOTE_TOKEN (PAT, reads the 3 repositories), GH_TOKEN (runs of this repository), BUCKET, S3_AVAILABLE,
-#   ABANDON_PREVIOUS_BUNDLE (opener only: open N+1 although bundle N has components without state)
-# out: tag, iteration, role, bundle_path, upstream, stop_after_branch,
+#   ABANDON_PREVIOUS_BUNDLE (opener only: open N+1 although bundle N has components without state),
+#   BUNDLE_REPOSITORIES (opener only: repositories taking part in the bundle, default the whole chain)
+# out: tag, iteration, role, bundle_repos, bundle_path, upstream, stop_after_branch,
 #      abandoned_bundle, abandoned_components, abandoned_repos (only when a bundle is abandoned)
 # shellcheck disable=SC2153 # inputs come from the environment
 validate() {
@@ -305,7 +306,8 @@ validate() {
   for (( i = 0; i < self_index; i++ )); do
     remote_has_branch "${CHAIN[$i]}" "$BRANCH" && upstream+=("${CHAIN[$i]}")
   done
-  # repositories taking part in the bundle: this one, and every repository of the chain having the branch
+  # repositories taking part in the bundle: this one, every repository of the chain having the branch,
+  # and (below, once the role is known) the ones the opener declares
   local -a bundle_repos=()
   for r in "${CHAIN[@]}"; do
     if [[ "$r" == "$repo" ]] || remote_has_branch "$r" "$BRANCH"; then bundle_repos+=("$r"); fi
@@ -480,6 +482,33 @@ validate() {
     fi
   done < <(jq -r '.[] | select(.action == "dispatch" or .action == "dry-run") | .workflow' <<< "$plan")
 
+  # the opener declares the repositories of the bundle (default: the whole chain): at the start of a
+  # release the other repositories have no branch yet, so nothing else says the bundle waits for them.
+  # A repository having the branch always counts, declared or not. Joiners don't declare anything.
+  if [[ "$role" == "opener" ]]; then
+    local -a declared=() kept=() merged=()
+    local known
+    read -r -a declared <<< "$(tr ',' ' ' <<< "${BUNDLE_REPOSITORIES:-${CHAIN[*]}}")"
+    for r in "${declared[@]}"; do
+      known=false
+      for (( i = 0; i < ${#CHAIN[@]}; i++ )); do
+        [[ "${CHAIN[$i]}" == "$r" ]] || continue
+        known=true
+        # a repository before the opener has no branch: it can't join this bundle, it would open the next one
+        if (( i < self_index )); then
+          echo "bundle_repositories: $r comes before $repo in the chain and has no $BRANCH, not part of this bundle"
+        else
+          kept+=("$r")
+        fi
+      done
+      [[ "$known" == "true" ]] || errors+=("bundle_repositories: '$r' is not one of ${CHAIN[*]}")
+    done
+    for r in "${CHAIN[@]}"; do
+      if [[ " ${bundle_repos[*]} ${kept[*]:-} " == *" $r "* ]]; then merged+=("$r"); fi
+    done
+    bundle_repos=("${merged[@]}")
+  fi
+
   if (( ${#errors[@]} > 0 )); then
     for i in "${errors[@]}"; do echo "::error::$i"; done
     exit 1
@@ -494,6 +523,9 @@ validate() {
     echo "|---|---|"
     echo "| repository | $repo ($role${upstream_list:+, after $upstream_list}) |"
     echo "| branch | $BRANCH at \`$HEAD_SHA\` |"
+    if [[ "$role" == "opener" ]]; then
+      echo "| repositories of the bundle | ${bundle_repos[*]} (complete once each has reported) |"
+    fi
     echo "| release number | $number |"
     echo "| dry run | $DRY_RUN |"
     [[ "$stop_after_branch" == "true" ]] && echo "| note | the branch is created first; re-run once ${pre_tag[*]} is done |"

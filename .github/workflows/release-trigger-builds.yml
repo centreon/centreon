@@ -34,6 +34,10 @@ on:
         required: false
         type: boolean
         default: false
+      bundle_repositories:
+        description: "Opener only (testing-tag mode): repositories taking part in the bundle, space separated. The bundle is complete once each has reported: remove the ones this release or hotfix skips"
+        required: false
+        default: "centreon-collect centreon centreon-modules"
 
 # one run at a time per branch (two runs would pick the same bundle number); GitHub keeps at most one
 # waiting run per group: a third dispatch cancels the one still waiting
@@ -156,6 +160,7 @@ jobs:
           DISPATCH_CONTENT: ${{ inputs.dispatch_content }}
           DRY_RUN: ${{ inputs.dry_run }}
           ABANDON_PREVIOUS_BUNDLE: ${{ inputs.abandon_previous_bundle }}
+          BUNDLE_REPOSITORIES: ${{ inputs.bundle_repositories }}
           BRANCH: ${{ steps.prepare.outputs.branch }}
           BRANCH_EXISTS: ${{ steps.prepare.outputs.branch_exists }}
           HEAD_SHA: ${{ steps.prepare.outputs.head_sha }}
