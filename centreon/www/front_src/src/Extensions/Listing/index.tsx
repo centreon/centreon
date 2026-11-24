@@ -8,15 +8,28 @@ import Stack from '@mui/material/Stack';
 import type { SelectEntry } from '@centreon/ui';
 import {
   getData,
+  Method,
   postData,
+  type ResponseError,
   Responsive,
+  useMutationQuery,
   useRequest,
   useSnackbar
 } from '@centreon/ui';
 
 import { useAtomValue } from 'jotai';
-import { filter, find, isEmpty, pathEq, propEq } from 'ramda';
-import { useCallback, useEffect, useState } from 'react';
+import {
+  any,
+  filter,
+  find,
+  isEmpty,
+  isNil,
+  pathEq,
+  propEq,
+  range,
+  values
+} from 'ramda';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
@@ -24,8 +37,14 @@ import FederatedComponents from '../../components/FederatedComponents';
 import usePlatformVersions from '../../Main/usePlatformVersions';
 import useNavigation from '../../Navigation/useNavigation';
 import { appliedFilterCriteriasAtom } from '../Filter/filterAtoms';
-import { labelInstallAll, labelUpdateAll } from '../translatedLabels';
+import {
+  labelInstallAll,
+  labelUnexpectedResponse,
+  labelUpdateAll,
+  labelUpdateSucceeded
+} from '../translatedLabels';
 import { deleteExtension } from './api';
+import { actionResultDecoder } from './api/decoders';
 import {
   buildEndPoint,
   buildExtensionEndPoint,
@@ -35,6 +54,7 @@ import ExtensionDeletePopup from './ExtensionDeleteDialog';
 import ExtensionDetailsPopup from './ExtensionDetailsDialog';
 import ExtensionsHolder from './ExtensionsHolder';
 import {
+  ActionResult,
   EntityDeleting,
   EntityType,
   ExtensionResult,
@@ -91,6 +111,16 @@ const ExtensionsManager = ({ reloadNavigation }: Props): JSX.Element => {
   const [extensionsUpdatingStatus, setExtensionsUpdatingStatus] =
     useState<ExtensionsStatus>({});
 
+  const [isUpdatingAll, setIsUpdatingAll] = useState(false);
+
+  const isMounted = useRef(true);
+  useEffect(
+    () => () => {
+      isMounted.current = false;
+    },
+    []
+  );
+
   const [confirmedDeletingEntityId, setConfirmedDeletingEntityId] = useState<
     string | null
   >(null);
@@ -103,6 +133,40 @@ const ExtensionsManager = ({ reloadNavigation }: Props): JSX.Element => {
     useRequest<InstallOrUpdateExtensionResult>({
       request: postData
     });
+
+  // Not cancelled when the page is left: the updates of a batch skip their cache clear.
+  const { mutateAsync: sendBatchAction } = useMutationQuery<
+    ActionResult,
+    string
+  >({
+    decoder: actionResultDecoder,
+    getEndpoint: (endpoint) => endpoint,
+    // Reported below: its own snackbar only shows the last request of a batch.
+    httpCodesBypassErrorSnackbar: range(0, 600),
+    method: Method.POST
+  });
+
+  const isActionSuccessful = (
+    response: ActionResult | ResponseError | null
+  ): boolean => {
+    if (isNil(response)) {
+      showErrorMessage(t(labelUnexpectedResponse));
+
+      return false;
+    }
+    if ((response as ResponseError).isError) {
+      showErrorMessage((response as ResponseError).message);
+
+      return false;
+    }
+    if (!(response as ActionResult).status) {
+      showErrorMessage((response as ActionResult).result?.message ?? '');
+
+      return false;
+    }
+
+    return true;
+  };
 
   const { sendRequest: sendDeleteExtensionRequests } = useRequest({
     request: deleteExtension
@@ -185,35 +249,31 @@ const ExtensionsManager = ({ reloadNavigation }: Props): JSX.Element => {
   };
 
   const updateAllEntities = (): void => {
+    if (isUpdatingAll) {
+      return;
+    }
     const entities = getAllEntitiesByVersionParam('outdated', true);
     if (entities.length <= 0 || !entities) {
       return;
     }
     const ids = entities.map(({ id }) => id);
+    setIsUpdatingAll(true);
     setExtensionsUpdatingStatusByIds(ids, true);
     updateSequentially({
       clearCache: () =>
-        sendUpdateOrInstallExtensionRequests({
-          endpoint: clearCacheEndpoint
-        }).then(({ status, result }) => {
-          if (!status) {
-            showErrorMessage(result.message as string);
-          }
-        }),
+        sendBatchAction({ _meta: clearCacheEndpoint }).then(isActionSuccessful),
       extensions: entities,
       update: ({ id, type }) =>
-        sendUpdateOrInstallExtensionRequests({
-          endpoint: buildEndPoint({
+        sendBatchAction({
+          _meta: buildEndPoint({
             action: 'update',
             clearCache: false,
             id,
             type
           })
-        }).then(({ status, result }) => {
-          if (!status) {
-            showErrorMessage(result.message as string);
-          } else {
-            showSuccessMessage('update succeeded');
+        }).then((response) => {
+          if (isActionSuccessful(response)) {
+            showSuccessMessage(t(labelUpdateSucceeded));
           }
         })
     })
@@ -236,9 +296,14 @@ const ExtensionsManager = ({ reloadNavigation }: Props): JSX.Element => {
           });
         }
       })
+      .catch(() => undefined)
       .finally(() => {
+        setIsUpdatingAll(false);
         setExtensionsUpdatingStatusByIds(ids, false);
-        reloadNavigation();
+        // Its requests are cancelled once the page is left.
+        if (isMounted.current) {
+          reloadNavigation();
+        }
       });
   };
 
@@ -265,18 +330,20 @@ const ExtensionsManager = ({ reloadNavigation }: Props): JSX.Element => {
         if (!status) {
           showErrorMessage(result.message as string);
         } else {
-          showSuccessMessage('update succeeded');
+          showSuccessMessage(t(labelUpdateSucceeded));
         }
-
-        return sendExtensionsRequests({
+      })
+      .catch(() => undefined)
+      .then(() =>
+        sendExtensionsRequests({
           endpoint: buildExtensionEndPoint({
             action: 'list',
             criteriaSearch: getFilterCriteria('search'),
             criteriaStatus: getFilterCriteria('statuses'),
             criteriaTypes: getFilterCriteria('types')
           })
-        });
-      })
+        })
+      )
       .then(({ status, result }) => {
         if (status) {
           const data = result as Extensions;
@@ -286,6 +353,7 @@ const ExtensionsManager = ({ reloadNavigation }: Props): JSX.Element => {
           });
         }
       })
+      .catch(() => undefined)
       .finally(() => {
         setExtensionsUpdatingStatusByIds([id], false);
         reloadNavigation();
@@ -432,6 +500,7 @@ const ExtensionsManager = ({ reloadNavigation }: Props): JSX.Element => {
   );
 
   const disableUpdate = allWidgetsUpToDate && allModulesUpToDate;
+  const isUpdating = any(Boolean, values(extensionsUpdatingStatus));
 
   const disableInstall = allModulesInstalled && allWidgetsInstalled;
 
@@ -442,7 +511,7 @@ const ExtensionsManager = ({ reloadNavigation }: Props): JSX.Element => {
           <Button
             color="primary"
             data-testid="update-all"
-            disabled={disableUpdate}
+            disabled={disableUpdate || isUpdating}
             onClick={updateAllEntities}
             size="small"
             startIcon={<UpdateIcon />}

@@ -5,19 +5,18 @@ interface Extension {
   type: string;
 }
 
-interface Parameters<T extends Extension> {
+interface UpdateSequentiallyParameters<T extends Extension> {
   clearCache: () => Promise<unknown>;
   extensions: Array<T>;
   update: (extension: T) => Promise<unknown>;
 }
 
-// Sequential, so that a shared dependency is never upgraded twice at once. The modules leave the cache to a single
-// clear, sent last whatever their outcome: a failed request is already reported.
+// One at a time so a shared dependency is never upgraded concurrently; the cache is cleared once, last.
 const updateSequentially = <T extends Extension>({
   clearCache,
   extensions,
   update
-}: Parameters<T>): Promise<void> =>
+}: UpdateSequentiallyParameters<T>): Promise<void> =>
   extensions
     .reduce<Promise<unknown>>(
       (previous, extension) =>

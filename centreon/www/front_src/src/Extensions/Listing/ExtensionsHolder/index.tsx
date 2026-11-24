@@ -31,7 +31,8 @@ import {
   labelLicenseEndDate,
   labelLicenseExpired,
   labelLicenseNotValid,
-  labelLicenseRequired
+  labelLicenseRequired,
+  labelUpdate
 } from '../../translatedLabels';
 import { Entity, ExtensionsStatus, LicenseProps } from '../models';
 
@@ -77,6 +78,8 @@ const ChipAvatar = ({
   onUpdate,
   type
 }: ChipAvatarProps): JSX.Element | null => {
+  const { t } = useTranslation();
+
   if (is_internal) {
     return null;
   }
@@ -84,6 +87,7 @@ const ChipAvatar = ({
   if (outdated) {
     return (
       <UpdateIcon
+        aria-label={t(labelUpdate)}
         onClick={(e): void => {
           e.preventDefault();
           e.stopPropagation();
