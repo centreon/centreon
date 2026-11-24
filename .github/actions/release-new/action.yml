@@ -1,6 +1,10 @@
 name: release-new
 description: "Create git release tags, github releases, jira version and push release communication."
 inputs:
+  expected_head_sha:
+    description: "Commit the testing bundle check validated (empty on legacy lines). The release branch must still be at this commit when it is tagged."
+    required: false
+    default: ""
   github_ref_name:
     description: "Github ref name"
     required: true
@@ -214,6 +218,7 @@ runs:
 
     - name: Add new stable tags to release branch
       env:
+        EXPECTED_HEAD_SHA: ${{ inputs.expected_head_sha }}
         RELEASE_BRANCH: ${{ inputs.release_branch }}
         RELEASE_BUNDLE_TAG: ${{ inputs.release_bundle_tag }}
         RELEASE_TYPE: ${{ inputs.release_type }}
@@ -224,6 +229,12 @@ runs:
         # Checkout to release branch
         git fetch -a -p
         git checkout "$RELEASE_BRANCH"
+
+        # The testing bundle check validated one commit: refuse to tag another one
+        if [[ -n "$EXPECTED_HEAD_SHA" && "$(git rev-parse HEAD)" != "$EXPECTED_HEAD_SHA" ]]; then
+          echo "::error::$RELEASE_BRANCH moved from $EXPECTED_HEAD_SHA to $(git rev-parse HEAD) since the testing bundle check: nothing was tagged. Run a new bundle, then release-new again."
+          exit 1
+        fi
 
         # Set git local configuration
         echo "Configuring git."

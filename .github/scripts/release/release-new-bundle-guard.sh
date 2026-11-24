@@ -2,8 +2,9 @@
 # release-new guard, shared by centreon, centreon-collect and centreon-modules.
 # Refuses a release when the testing packages were not built from the head of the release branch.
 # usage: release-new-bundle-guard.sh mode|check
-#   mode   prints and outputs "testing" or "legacy" (testing_tag_builds on the release branch)
-#   check  applies the rules below; a legacy branch is skipped
+#   mode   prints and outputs "testing", "legacy" or "invalid" (testing_tag_builds on the release branch)
+#   check  applies the rules below; a legacy branch is skipped. Outputs head_sha, the commit that was
+#          checked: the release job refuses to tag anything else
 # in: RELEASE_BRANCH, RELEASE_NUMBER, RELEASE_TYPE, RELEASE_SCOPE, GITHUB_REPOSITORY,
 #     SKIP_BUNDLE_CHECK (true: report what would be refused, never fail), BUCKET
 # Rules (delivery-tooling docs/release/testing-bundles.md, "release-new guard"):
@@ -33,15 +34,20 @@ s3_iterations() {
 # global file of one bundle on stdout; fails when it is missing or unreadable
 s3_global() { aws s3 cp "s3://$BUCKET/$1/global-build-status.json" - 2> /dev/null; }
 
-# testing_tag_builds of the release branch: a branch without the mapping is legacy
+# mode of the release branch: testing, legacy (no mapping file, or flag false) or invalid.
+# invalid = the branch or its mapping cannot be read: never treated as legacy, the check refuses.
 branch_mode() {
-  local mapping
-  mapping=$(git show "origin/$RELEASE_BRANCH:$MAPPING_PATH" 2> /dev/null) || { echo legacy; return; }
-  if [[ "$(jq -r '.testing_tag_builds // false' <<< "$mapping" 2> /dev/null)" == "true" ]]; then
-    echo testing
-  else
-    echo legacy
-  fi
+  local mapping flag
+  git rev-parse -q --verify "origin/$RELEASE_BRANCH^{commit}" > /dev/null 2>&1 || { echo invalid; return; }
+  git cat-file -e "origin/$RELEASE_BRANCH:$MAPPING_PATH" 2> /dev/null || { echo legacy; return; }
+  mapping=$(git show "origin/$RELEASE_BRANCH:$MAPPING_PATH" 2> /dev/null) || { echo invalid; return; }
+  flag=$(jq -r 'if type == "object" then (.testing_tag_builds // false) else "invalid" end' <<< "$mapping" 2> /dev/null) \
+    || { echo invalid; return; }
+  case "$flag" in
+    true) echo testing ;;
+    false) echo legacy ;;
+    *) echo invalid ;;
+  esac
 }
 
 # most recently created testing tag of the line in this repository (empty when there is none)
@@ -79,17 +85,23 @@ refuse() { # rule, message
 }
 
 check() {
-  local repo=${GITHUB_REPOSITORY#*/} major prefix iterations latest global
+  local repo=${GITHUB_REPOSITORY#*/} major prefix iterations latest global mode
   [[ "$RELEASE_BRANCH" =~ ^(release|hotfix)-([0-9]{2}\.[0-9]{2})-next$ ]] \
     || { echo "Branch $RELEASE_BRANCH is not a release or hotfix branch: nothing to check"; return 0; }
   major=${BASH_REMATCH[2]}
 
-  if [[ "$(branch_mode)" != "testing" ]]; then
+  mode=$(branch_mode)
+  if [[ "$mode" == "legacy" ]]; then
     echo "Branch $RELEASE_BRANCH is in legacy mode (no testing_tag_builds): testing bundle check skipped (rule 5)"
+    echo "### Testing bundle check: skipped, \`$RELEASE_BRANCH\` is a legacy line (rule 5)" | summary
     return 0
   fi
+  [[ "$mode" == "testing" ]] \
+    || refuse "mapping" "Cannot read testing_tag_builds in $MAPPING_PATH on $RELEASE_BRANCH: the branch or the file is unreadable or malformed."
 
   HEAD_SHA=$(git rev-parse "origin/$RELEASE_BRANCH")
+  # the release job tags this commit only: it fails if the branch moved in between
+  out head_sha "$HEAD_SHA"
   LINE_TAG=$(latest_line_tag "$major")
   prefix="bundles/$RELEASE_SCOPE/$major/$RELEASE_TYPE/$RELEASE_NUMBER"
 
@@ -99,13 +111,13 @@ check() {
   fi
 
   iterations=$(s3_iterations "$prefix") \
-    || refuse "bucket" "Cannot list s3://$BUCKET/$prefix/. Retry, or tick skip_bundle_check after checking the bundle by hand."
+    || refuse "bucket" "Cannot list s3://$BUCKET/$prefix/ (release-new must be dispatched from develop to read the bundles). Retry, or tick skip_bundle_check after checking the bundle by hand."
   latest=$(sort -n <<< "$iterations" | tail -n 1)
   [[ -n "$latest" ]] \
     || refuse 4 "No testing bundle for release number $RELEASE_NUMBER on $RELEASE_SCOPE $major $RELEASE_TYPE. Check the release number, or run release-trigger-builds first."
 
   BUNDLE="testing-$RELEASE_SCOPE-$RELEASE_TYPE-$RELEASE_NUMBER-$major-$latest"
-  if ! global=$(s3_global "$prefix/$latest") || ! jq -e . > /dev/null 2>&1 <<< "$global"; then
+  if ! global=$(s3_global "$prefix/$latest") || ! jq -e 'type == "object"' > /dev/null 2>&1 <<< "$global"; then
     refuse "bucket" "Cannot read the status of \`$BUNDLE\` (s3://$BUCKET/$prefix/$latest/global-build-status.json). Retry, or tick skip_bundle_check after checking the bundle by hand."
   fi
   BUNDLE_STATUS=$(jq -r '.status // "unknown"' <<< "$global")
@@ -118,7 +130,7 @@ check() {
     || refuse 6 "$repo is not part of the latest bundle \`$BUNDLE\` (repositories: $(jq -r '.repos // {} | keys | join(", ")' <<< "$global")). Nothing of this repository was built to promote: check the repository and the release number."
 
   [[ "$BUNDLE_COMMIT" == "$HEAD_SHA" ]] \
-    || refuse 2 "\`$BUNDLE\` was built from ${BUNDLE_COMMIT:0:10}, but $RELEASE_BRANCH is now at ${HEAD_SHA:0:10}: commits were merged after the bundle. Run a new bundle, then release."
+    || refuse 2 "\`$BUNDLE\` was built from ${BUNDLE_COMMIT:0:10}, but $RELEASE_BRANCH is now at ${HEAD_SHA:0:10}: commits were merged after the bundle (any commit counts, even one that changes no package). Run a new bundle, then release."
 
   echo "Testing bundle check passed: $BUNDLE is complete and was built from $HEAD_SHA"
   report passed "1" "\`$BUNDLE\` is complete and was built from the head of \`$RELEASE_BRANCH\`."

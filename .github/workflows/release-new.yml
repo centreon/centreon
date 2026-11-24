@@ -112,6 +112,8 @@ jobs:
     permissions:
       contents: read
       id-token: write
+    outputs:
+      head_sha: ${{ steps.check.outputs.head_sha }}
     env:
       RELEASE_BRANCH: ${{ inputs.release_branch }}
       RELEASE_NUMBER: ${{ inputs.release_number }}
@@ -132,7 +134,7 @@ jobs:
 
       # same role as release-trigger-builds: read access to the bundles, trusted on develop only
       - name: Configure AWS credentials
-        if: steps.mode.outputs.mode == 'testing'
+        if: steps.mode.outputs.mode != 'legacy'
         continue-on-error: ${{ inputs.skip_bundle_check }}
         uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
         with:
@@ -141,6 +143,7 @@ jobs:
           aws-region: eu-west-1
 
       - name: Check the testing bundle of this release
+        id: check
         run: bash .github/scripts/release/release-new-bundle-guard.sh check
         shell: bash
 
@@ -219,6 +222,7 @@ jobs:
           release_branch: ${{ inputs.release_branch }}
           centreon_technique_pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
           major_version: ${{ steps.build_release_bundle_tag.outputs.major_version }}
+          expected_head_sha: ${{ needs.check-testing-bundle.outputs.head_sha }}
 
   # Publishes this release's source tarballs to download.centreon.com.
   #
