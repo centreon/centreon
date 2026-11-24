@@ -224,7 +224,7 @@ final class GetServiceProviderTest extends ApiTestCase
                 ],
                 'service_groups' => [$named($serviceGroupId, $this->tag . '-sg')],
                 'categories' => [$named($categoryId, $this->tag . '-cat-' . $categoryId)],
-                'severity' => $named($severityId, $this->tag . '-cat-' . $severityId),
+                'severity' => [...$named($severityId, $this->tag . '-cat-' . $severityId), 'level' => 1],
                 'graph_template' => $named($graphTemplateId, $this->tag . '-graph'),
                 'traps' => [['id' => $trapId, 'name' => $this->tag . '-trap', 'vendor' => $named($vendorId, $this->tag . '-vendor')]],
             ]),

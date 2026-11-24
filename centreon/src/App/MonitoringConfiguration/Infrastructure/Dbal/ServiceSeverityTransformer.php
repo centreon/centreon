@@ -25,6 +25,7 @@ namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverity;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityLevel;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityName;
 use App\Shared\Infrastructure\TransformerInterface;
 
@@ -43,6 +44,7 @@ final readonly class ServiceSeverityTransformer implements TransformerInterface
         return new ServiceSeverity(
             id: new ServiceSeverityId($from['sc_id']),
             name: new ServiceSeverityName($from['sc_name']),
+            level: new ServiceSeverityLevel($from['level']),
         );
     }
 }

@@ -41,6 +41,9 @@ final class FakeServiceSeverityRepository implements ServiceSeverityRepository
     /** @var array<int, string> names indexed by service severity id, what findNameById() knows */
     public array $names = [];
 
+    /** @var array<int, ServiceSeverity> indexed by service severity id, what findById() knows */
+    public array $severities = [];
+
     public function __construct()
     {
         $this->result = new Collection([], ServiceSeverity::class);
@@ -56,5 +59,10 @@ final class FakeServiceSeverityRepository implements ServiceSeverityRepository
     public function findNameById(ServiceSeverityId $id): ?ServiceSeverityName
     {
         return isset($this->names[$id->value]) ? new ServiceSeverityName($this->names[$id->value]) : null;
+    }
+
+    public function findById(ServiceSeverityId $id): ?ServiceSeverity
+    {
+        return $this->severities[$id->value] ?? null;
     }
 }

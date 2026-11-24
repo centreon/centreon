@@ -33,8 +33,8 @@ use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceDataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceNotifications;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverity;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityId;
-use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityName;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodName;
@@ -147,9 +147,9 @@ final readonly class ServiceResourceBuilder
         // Hidden when out of the actor's scope.
         $resource->severity = null;
         if ($service->severityId instanceof ServiceSeverityId && $this->accessScopes->serviceSeverities($actor)->allows($service->severityId)) {
-            $severityName = $this->serviceSeverityRepository->findNameById($service->severityId);
-            $resource->severity = $severityName instanceof ServiceSeverityName
-                ? new ServiceSeverityOutput($service->severityId->value, $severityName->value)
+            $severity = $this->serviceSeverityRepository->findById($service->severityId);
+            $resource->severity = $severity instanceof ServiceSeverity
+                ? new ServiceSeverityOutput($service->severityId->value, $severity->name->value, $severity->level->value)
                 : null;
         }
 

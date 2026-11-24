@@ -60,7 +60,10 @@ use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceSchedulingOption
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceStalkingOptionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceGroup\ServiceGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverity;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityLevel;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityName;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateName;
@@ -207,7 +210,7 @@ final class ServiceResourceBuilderTest extends TestCase
 
         self::assertSame([[70, 'web']], array_map(static fn (object $group): array => [$group->id, $group->name], $resource->serviceGroups));
         self::assertSame([[71, 'network']], array_map(static fn (object $category): array => [$category->id, $category->name], $resource->categories));
-        self::assertSame([72, 'critical'], [$resource->severity?->id, $resource->severity?->name]);
+        self::assertSame([72, 'critical', 5], [$resource->severity?->id, $resource->severity?->name, $resource->severity?->level]);
         self::assertSame([73, 'latency'], [$resource->graphTemplate?->id, $resource->graphTemplate?->name]);
         self::assertNotNull($resource->traps);
         self::assertSame([[74, 'linkDown', ['id' => 75, 'name' => 'Generic']]], array_map(
@@ -453,7 +456,7 @@ final class ServiceResourceBuilderTest extends TestCase
         $this->contactGroups->names[61] = new ContactGroupName('admins');
         $this->serviceGroups->names[70] = 'web';
         $this->categories->names[71] = 'network';
-        $this->severities->names[72] = 'critical';
+        $this->severities->severities[72] = new ServiceSeverity(new ServiceSeverityId(72), new ServiceSeverityName('critical'), new ServiceSeverityLevel(5));
         $this->graphTemplates->names[73] = 'latency';
         $this->traps->traps[74] = new Trap(
             new TrapId(74),

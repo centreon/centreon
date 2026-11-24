@@ -14718,6 +14718,8 @@ components:
           type: integer
         name:
           type: string
+        level:
+          type: integer
     ServiceSeverityOutput.jsonld:
       type: object
       properties:
@@ -14725,6 +14727,8 @@ components:
           type: integer
         name:
           type: string
+        level:
+          type: integer
     ServiceTemplateOutput:
       type: object
       properties:
