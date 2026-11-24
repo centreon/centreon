@@ -23,14 +23,13 @@ declare(strict_types=1);
 
 namespace Tests\App\AiConfiguration\Infrastructure\TokenStorage;
 
-use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderId;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\StoredApiToken;
 use App\AiConfiguration\Infrastructure\TokenStorage\VaultAiProviderTokenStorage;
+use App\AiConfiguration\Infrastructure\TokenStorage\VaultEntryNotFoundException;
 use App\Shared\Application\Vault\VaultCredentialWriter;
 use PHPUnit\Framework\TestCase;
 use Tests\App\Shared\Double\FakeVault;
-use Tests\App\Shared\Infrastructure\Messenger\Double\LoggerSpy;
 
 final class VaultAiProviderTokenStorageTest extends TestCase
 {
@@ -38,18 +37,14 @@ final class VaultAiProviderTokenStorageTest extends TestCase
 
     private FakeVault $vault;
 
-    private LoggerSpy $logger;
-
     private VaultAiProviderTokenStorage $storage;
 
     protected function setUp(): void
     {
         $this->vault = new FakeVault();
-        $this->logger = new LoggerSpy();
         $this->storage = new VaultAiProviderTokenStorage(
             $this->vault,
             new VaultCredentialWriter($this->vault),
-            $this->logger,
         );
     }
 
@@ -96,14 +91,14 @@ final class VaultAiProviderTokenStorageTest extends TestCase
 
     public function testRemovingAPlaintextTokenLeavesTheVaultAlone(): void
     {
-        $this->storage->remove(new StoredApiToken('a-token'), new AiProviderId(1));
+        $this->storage->remove(new StoredApiToken('a-token'));
 
         self::assertSame([], $this->vault->deleteCalls);
     }
 
     public function testRemovingAStoredTokenDeletesItsEntry(): void
     {
-        $this->storage->remove(new StoredApiToken(self::STORED_TOKEN), new AiProviderId(1));
+        $this->storage->remove(new StoredApiToken(self::STORED_TOKEN));
 
         self::assertSame([['customPath' => 'configuration/aiProviders', 'uuid' => 'abc-123']], $this->vault->deleteCalls);
     }
@@ -114,36 +109,15 @@ final class VaultAiProviderTokenStorageTest extends TestCase
 
         $this->expectException(\RuntimeException::class);
 
-        $this->storage->remove(new StoredApiToken(self::STORED_TOKEN), new AiProviderId(1));
+        $this->storage->remove(new StoredApiToken(self::STORED_TOKEN));
     }
 
     public function testAnEntryThatCanNotBeFoundIsReported(): void
     {
         $this->vault->extractedUuids[self::STORED_TOKEN] = null;
 
-        $this->storage->remove(new StoredApiToken(self::STORED_TOKEN), new AiProviderId(7));
+        $this->expectException(VaultEntryNotFoundException::class);
 
-        self::assertSame([], $this->vault->deleteCalls);
-        self::assertCount(1, $this->logger->warningMessages);
-        self::assertSame(7, $this->logger->warningMessages[0]['context']['ai_provider_id']);
-        self::assertStringNotContainsString(self::STORED_TOKEN, json_encode($this->logger->warningMessages, \JSON_THROW_ON_ERROR));
-    }
-
-    public function testDiscardingAStoredTokenDeletesItsEntry(): void
-    {
-        $this->storage->discard(new StoredApiToken(self::STORED_TOKEN), null);
-
-        self::assertSame([['customPath' => 'configuration/aiProviders', 'uuid' => 'abc-123']], $this->vault->deleteCalls);
-        self::assertSame([], $this->logger->warningMessages);
-    }
-
-    public function testADiscardFailureIsReportedWithoutThrowing(): void
-    {
-        $this->vault->deleteThrows = true;
-
-        $this->storage->discard(new StoredApiToken(self::STORED_TOKEN), new AiProviderId(7));
-
-        self::assertCount(1, $this->logger->warningMessages);
-        self::assertSame(7, $this->logger->warningMessages[0]['context']['ai_provider_id']);
+        $this->storage->remove(new StoredApiToken(self::STORED_TOKEN));
     }
 }

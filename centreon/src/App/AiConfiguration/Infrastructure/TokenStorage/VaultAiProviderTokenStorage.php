@@ -23,17 +23,13 @@ declare(strict_types=1);
 
 namespace App\AiConfiguration\Infrastructure\TokenStorage;
 
-use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderId;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\StoredApiToken;
-use App\AiConfiguration\Domain\Repository\AiProviderTokenStorage;
 use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Vault\VaultCredentials;
 use App\Shared\Domain\Vault\VaultKeyEnum;
 use App\Shared\Domain\Vault\VaultPathEnum;
 use App\Shared\Domain\VaultInterface;
-use App\Shared\Infrastructure\Logging\ExceptionFormatter;
-use Psr\Log\LoggerInterface;
 
 /**
  * Stores AI provider API tokens in the vault when it is enabled, and in the database otherwise.
@@ -41,16 +37,21 @@ use Psr\Log\LoggerInterface;
  * Each token gets a vault entry of its own: rotating it writes a new entry, and the replaced one
  * is removed once the configuration references the new one. With the vault disabled, the token
  * is kept as-is, like the other credentials of the platform.
+ *
+ * Every failure is thrown: LoggingAiProviderTokenStorage reports the ones the
+ * configuration can live with.
  */
-final readonly class VaultAiProviderTokenStorage implements AiProviderTokenStorage
+final readonly class VaultAiProviderTokenStorage
 {
     public function __construct(
         private VaultInterface $vault,
         private VaultCredentialWriter $vaultCredentialWriter,
-        private LoggerInterface $logger,
     ) {
     }
 
+    /**
+     * @throws \Throwable when the token cannot be written to the vault
+     */
     public function persist(ApiToken $token): StoredApiToken
     {
         if (! $this->vault->isEnabled()) {
@@ -65,46 +66,20 @@ final readonly class VaultAiProviderTokenStorage implements AiProviderTokenStora
         return StoredApiToken::vaultReference($stored[VaultKeyEnum::AiProviderApiToken->value]);
     }
 
-    public function remove(StoredApiToken $token, AiProviderId $aiProviderId): void
-    {
-        $uuid = $this->findVaultUuid($token, $aiProviderId);
-        if ($uuid !== null) {
-            $this->vaultCredentialWriter->delete(VaultPathEnum::AiProviders, $uuid);
-        }
-    }
-
-    public function discard(StoredApiToken $token, ?AiProviderId $aiProviderId): void
-    {
-        $uuid = $this->findVaultUuid($token, $aiProviderId);
-        if ($uuid === null) {
-            return;
-        }
-
-        try {
-            $this->vaultCredentialWriter->delete(VaultPathEnum::AiProviders, $uuid);
-        } catch (\Throwable $exception) {
-            $this->logger->warning('Unable to remove an unused AI provider API token from the vault', [
-                'ai_provider_id' => $aiProviderId?->value,
-                'vault_uuid' => $uuid,
-                'exception' => ExceptionFormatter::format($exception),
-            ]);
-        }
-    }
-
-    private function findVaultUuid(StoredApiToken $token, ?AiProviderId $aiProviderId): ?string
+    /**
+     * Remove the vault entry of a token (no-op for a token kept in the database).
+     *
+     * @throws VaultEntryNotFoundException when the reference designates no entry
+     * @throws \Throwable when the entry cannot be deleted
+     */
+    public function remove(StoredApiToken $token): void
     {
         if (! $token->isVaultReference()) {
             // a plaintext token lives in the configuration row
-            return null;
+            return;
         }
 
-        $uuid = $this->vault->extractUuid($token->value);
-        if ($uuid === null) {
-            $this->logger->warning('Unable to find the vault entry of an AI provider API token, it is left in the vault', [
-                'ai_provider_id' => $aiProviderId?->value,
-            ]);
-        }
-
-        return $uuid;
+        $uuid = $this->vault->extractUuid($token->value) ?? throw new VaultEntryNotFoundException();
+        $this->vaultCredentialWriter->delete(VaultPathEnum::AiProviders, $uuid);
     }
 }
