@@ -60,27 +60,36 @@ final class EndpointTest extends TestCase
     /**
      * @return iterable<string, array{string}>
      */
-    public static function linkLocalEndpoints(): iterable
+    public static function metadataEndpoints(): iterable
     {
         yield 'IPv4 metadata service' => ['http://169.254.169.254'];
 
         yield 'IPv6 link-local' => ['http://[fe80::1]:8080'];
 
         yield 'IPv4-mapped metadata service' => ['http://[::ffff:169.254.169.254]'];
+
+        yield 'Alibaba Cloud metadata service' => ['http://100.100.100.200'];
+
+        yield 'Google Cloud metadata name' => ['http://metadata.google.internal/computeMetadata'];
+
+        yield 'metadata name with a trailing dot, in capitals' => ['http://METADATA.GOOGLE.INTERNAL.'];
     }
 
-    #[DataProvider('linkLocalEndpoints')]
-    public function testALinkLocalEndpointIsRejected(string $url): void
+    #[DataProvider('metadataEndpoints')]
+    public function testAMetadataEndpointIsRejected(string $url): void
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('link-local');
+        self::assertTrue(new EndpointUrl($url)->targetsInstanceMetadata());
 
-        new EndpointUrl($url);
+        $this->expectException(InvalidAiProviderConfigurationException::class);
+        $this->expectExceptionMessage('metadata');
+
+        AiProviderTypeEnum::OpenAiCompatible->resolveEndpoint($url);
     }
 
     public function testAPrivateNetworkEndpointIsAccepted(): void
     {
         self::assertSame('http://10.0.0.5:11434', new EndpointUrl('http://10.0.0.5:11434')->value);
+        self::assertFalse(new EndpointUrl('http://metadata.example.org')->targetsInstanceMetadata());
         self::assertFalse(EndpointUrl::isLinkLocal('10.0.0.5'));
         self::assertFalse(EndpointUrl::isLinkLocal('fd00::1'));
         self::assertFalse(EndpointUrl::isLinkLocal('ollama.example.com'));

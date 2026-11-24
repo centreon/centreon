@@ -48,5 +48,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             '::a9fe:0/112',
             '2002:a9fe::/32',
             '64:ff9b::a9fe:0/112',
+            '100.100.100.200/32', // Alibaba Cloud instance metadata
         ]]);
 };

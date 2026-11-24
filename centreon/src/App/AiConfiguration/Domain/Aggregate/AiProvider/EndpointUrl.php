@@ -27,6 +27,16 @@ use Webmozart\Assert\Assert;
 
 final readonly class EndpointUrl
 {
+    /** Instance metadata services outside the link-local ranges (Alibaba Cloud, Google Cloud, AWS) */
+    private const METADATA_HOSTS = [
+        '100.100.100.200',
+        'metadata',
+        'metadata.google.internal',
+        'metadata.goog',
+        'instance-data',
+        'instance-data.ec2.internal',
+    ];
+
     public function __construct(
         public string $value,
     ) {
@@ -41,18 +51,25 @@ final readonly class EndpointUrl
         Assert::false(isset($parts['user']) || isset($parts['pass']), 'The endpoint URL can not contain credentials.');
         Assert::keyNotExists($parts, 'query', 'The endpoint URL can not contain a query string.');
         Assert::keyNotExists($parts, 'fragment', 'The endpoint URL can not contain a fragment.');
-
-        // link-local addresses include cloud instance metadata services
-        Assert::false(
-            self::isLinkLocal(trim((string) ($parts['host'] ?? ''), '[]')),
-            'The endpoint URL can not target a link-local address.'
-        );
     }
 
     /**
-     * Whether a literal IP is link-local (169.254.0.0/16, fe80::/10): an early,
-     * readable refusal. Other spellings and host names are caught when connecting
-     * (see ai_configuration.http_client).
+     * Whether the URL targets a cloud instance metadata service, by a link-local IP or a
+     * well-known address or name: an early, readable refusal of an endpoint being set.
+     * Other spellings are caught when connecting (see ai_configuration.http_client).
+     */
+    public function targetsInstanceMetadata(): bool
+    {
+        $host = mb_strtolower(rtrim(trim((string) parse_url($this->value, \PHP_URL_HOST), '[]'), '.'));
+        if (self::isLinkLocal($host)) {
+            return true;
+        }
+
+        return \in_array($host, self::METADATA_HOSTS, true);
+    }
+
+    /**
+     * Whether a literal IP is link-local (169.254.0.0/16, fe80::/10).
      */
     public static function isLinkLocal(string $host): bool
     {

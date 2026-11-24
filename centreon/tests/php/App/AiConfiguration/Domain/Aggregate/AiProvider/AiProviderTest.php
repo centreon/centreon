@@ -79,16 +79,30 @@ final class AiProviderTest extends TestCase
     {
         $this->expectException(InvalidAiProviderConfigurationException::class);
 
-        $this->aiProvider(AiProviderTypeEnum::Anthropic, 'https://llm.example.org');
+        $this->createdAiProvider(AiProviderTypeEnum::Anthropic, 'https://llm.example.org');
     }
 
     public function testABedrockProviderIsOnlyReachedAtAMantleEndpoint(): void
     {
-        $this->aiProvider(AiProviderTypeEnum::Bedrock, 'https://bedrock-mantle.eu-west-3.api.aws');
+        $this->createdAiProvider(AiProviderTypeEnum::Bedrock, 'https://bedrock-mantle.eu-west-3.api.aws');
 
         $this->expectException(InvalidAiProviderConfigurationException::class);
 
-        $this->aiProvider(AiProviderTypeEnum::Bedrock, 'https://llm.example.org');
+        $this->createdAiProvider(AiProviderTypeEnum::Bedrock, 'https://llm.example.org');
+    }
+
+    public function testAProviderIsNotCreatedForAMetadataService(): void
+    {
+        $this->expectException(InvalidAiProviderConfigurationException::class);
+
+        $this->createdAiProvider(AiProviderTypeEnum::OpenAiCompatible, 'http://169.254.169.254');
+    }
+
+    public function testAStoredProviderLoadsEvenWhenItsEndpointIsNoLongerAccepted(): void
+    {
+        $aiProvider = $this->aiProvider(AiProviderTypeEnum::Anthropic, 'https://llm.example.org');
+
+        self::assertSame('https://llm.example.org', $aiProvider->endpointUrl()->value);
     }
 
     public function testRetargetingACuratedProviderElsewhereIsRejected(): void
@@ -109,6 +123,20 @@ final class AiProviderTest extends TestCase
 
         $aiProvider->activate();
         self::assertTrue($aiProvider->isActivated());
+    }
+
+    private function createdAiProvider(AiProviderTypeEnum $type, string $endpointUrl): AiProvider
+    {
+        return AiProvider::create(
+            name: new AiProviderName('A provider'),
+            type: $type,
+            endpointUrl: new EndpointUrl($endpointUrl),
+            apiToken: new StoredApiToken('a-token'),
+            defaultModel: new ModelName('a-model'),
+            fastModel: null,
+            description: null,
+            isActivated: false,
+        );
     }
 
     private function aiProvider(

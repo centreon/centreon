@@ -62,6 +62,11 @@ final class InvalidAiProviderConfigurationException extends \InvalidArgumentExce
         return new self($previous->getMessage(), previous: $previous);
     }
 
+    public static function metadataEndpoint(): self
+    {
+        return new self('The endpoint URL can not target a link-local address or a cloud instance metadata service.');
+    }
+
     public static function invalidBedrockEndpoint(): self
     {
         return new self(

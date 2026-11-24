@@ -33,7 +33,9 @@ use App\Shared\Domain\Aggregate\AggregateRoot;
 final class AiProvider extends AggregateRoot
 {
     /**
-     * @throws InvalidAiProviderConfigurationException when the endpoint does not fit the type
+     * Rebuilds a provider as it is stored. Its endpoint is checked when it is set
+     * (create(), retarget()), not here: a rule tightened later must not make a stored
+     * provider unreadable, and so impossible to fix or delete.
      */
     public function __construct(
         ?AiProviderId $id,
@@ -47,8 +49,26 @@ final class AiProvider extends AggregateRoot
         private bool $isActivated,
         private Billing $billing = new Billing(),
     ) {
-        $this->assertEndpointFitsType($type, $endpointUrl);
         parent::__construct($id);
+    }
+
+    /**
+     * @throws InvalidAiProviderConfigurationException when the endpoint does not fit the type
+     */
+    public static function create(
+        AiProviderName $name,
+        AiProviderTypeEnum $type,
+        EndpointUrl $endpointUrl,
+        StoredApiToken $apiToken,
+        ModelName $defaultModel,
+        ?ModelName $fastModel,
+        ?AiProviderDescription $description,
+        bool $isActivated,
+        Billing $billing = new Billing(),
+    ): self {
+        self::assertEndpointFitsType($type, $endpointUrl);
+
+        return new self(null, $name, $type, $endpointUrl, $apiToken, $defaultModel, $fastModel, $description, $isActivated, $billing);
     }
 
     public function name(): AiProviderName
@@ -138,7 +158,7 @@ final class AiProvider extends AggregateRoot
      */
     public function retarget(EndpointUrl $endpointUrl, ?StoredApiToken $apiToken): void
     {
-        $this->assertEndpointFitsType($this->type, $endpointUrl);
+        self::assertEndpointFitsType($this->type, $endpointUrl);
 
         if (! $apiToken instanceof StoredApiToken && ! $this->canReuseApiTokenFor($this->type, $endpointUrl)) {
             throw AiProviderCanNotBeUpdatedException::apiTokenRequiredForNewEndpoint($this->id());
@@ -162,7 +182,7 @@ final class AiProvider extends AggregateRoot
     /**
      * @throws InvalidAiProviderConfigurationException
      */
-    private function assertEndpointFitsType(AiProviderTypeEnum $type, EndpointUrl $endpointUrl): void
+    private static function assertEndpointFitsType(AiProviderTypeEnum $type, EndpointUrl $endpointUrl): void
     {
         if (! $type->resolveEndpoint($endpointUrl->value)->equals($endpointUrl)) {
             throw InvalidAiProviderConfigurationException::endpointNotAllowed($type);

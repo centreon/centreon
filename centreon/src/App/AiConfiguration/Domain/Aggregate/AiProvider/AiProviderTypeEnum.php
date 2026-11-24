@@ -85,6 +85,10 @@ enum AiProviderTypeEnum: string
             throw InvalidAiProviderConfigurationException::invalidEndpoint($exception);
         }
 
+        if ($endpointUrl->targetsInstanceMetadata()) {
+            throw InvalidAiProviderConfigurationException::metadataEndpoint();
+        }
+
         if ($this === self::Bedrock && preg_match(self::BEDROCK_ENDPOINT_PATTERN, $endpointUrl->value) !== 1) {
             throw InvalidAiProviderConfigurationException::invalidBedrockEndpoint();
         }

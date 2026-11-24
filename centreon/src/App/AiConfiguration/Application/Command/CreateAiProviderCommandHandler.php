@@ -72,8 +72,7 @@ final readonly class CreateAiProviderCommandHandler
         }
 
         try {
-            $aiProvider = new AiProvider(
-                id: null,
+            $aiProvider = AiProvider::create(
                 name: $command->name,
                 type: $command->type,
                 endpointUrl: $command->endpointUrl,
