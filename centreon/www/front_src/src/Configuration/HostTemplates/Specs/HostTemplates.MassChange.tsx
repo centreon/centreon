@@ -4,7 +4,11 @@ import userEvent from '@testing-library/user-event';
 
 import { listingDataTestIds } from '../../ConfigurationBase/Listing/dataTestIds';
 import { panelDataTestIds } from '../../ConfigurationBase/Panel/dataTestIds';
-import { labelMassChange } from '../../ConfigurationBase/translatedLabels';
+import {
+  labelClose,
+  labelFailedToUpdateSomeResources,
+  labelMassChange
+} from '../../ConfigurationBase/translatedLabels';
 import initialize from './initialize';
 
 const prefix = 'host-template-form';
@@ -219,6 +223,122 @@ export default () => {
       await expectPatchedTemplates([1], {
         scheduling_options: { max_check_attempts: 3 }
       });
+    });
+
+    it('asks for the confirmation when the changes are saved on closing', async () => {
+      await initializeListing();
+
+      await tickRow(1);
+      await tickRow(2);
+      await openMassChange();
+
+      await userEvent.click(
+        await screen.findByTestId(`${prefix}-update-mode-templates-replacement`)
+      );
+
+      await userEvent.click(screen.getByLabelText(labelClose));
+      // The unsaved changes dialog's own Save.
+      await confirm();
+
+      await expectConfirmation(
+        'The changes will be applied to 2 host templates.'
+      );
+      await expectPatchedTemplates([]);
+
+      await confirm();
+
+      expect(
+        await screen.findByText('Host templates updated')
+      ).toBeInTheDocument();
+      await expectPatchedTemplates([1, 2], { template_ids: [] });
+    });
+
+    it('leaves the additive inheritance alone unless Yes or No is picked', async () => {
+      await initializeListing({ isAdditiveInheritanceEnabled: true });
+
+      await tickRow(1);
+      await openMassChange();
+
+      const yes = await screen.findByTestId(
+        `${prefix}-notifications-contact-additive-inheritance-true`
+      );
+      const no = screen.getByTestId(
+        `${prefix}-notifications-contact-additive-inheritance-false`
+      );
+
+      expect(yes).toHaveAttribute('aria-pressed', 'false');
+      expect(no).toHaveAttribute('aria-pressed', 'false');
+
+      // Off on purpose, which a switch could not tell from "unchanged".
+      await userEvent.click(no);
+
+      await save();
+      await confirm();
+
+      await expectPatchedTemplates([1], {
+        notifications: { contact_additive_inheritance: false }
+      });
+    });
+
+    it('names the templates that failed and keeps the panel open on them alone', async () => {
+      await initializeListing({ patchFails: [2] });
+
+      await tickRow(1);
+      await tickRow(2);
+      await openMassChange();
+
+      await typeMaxCheckAttempts('3');
+      await save();
+      await confirm();
+
+      await expectPatchedTemplates([1, 2]);
+
+      expect(
+        await screen.findByText(
+          `${labelFailedToUpdateSomeResources}: generic-active-host`
+        )
+      ).toBeInTheDocument();
+
+      // Still open on what was typed, now aimed at the failed template only.
+      await waitFor(async () =>
+        expect(await getHeader()).toHaveTextContent(`${labelMassChange} (1)`)
+      );
+      expect(await getMaxCheckAttempts()).toHaveValue(3);
+
+      await save();
+      await expectConfirmation(
+        'The changes will be applied to 1 host template.'
+      );
+      await confirm();
+
+      // Template 1 is not written to again.
+      await waitFor(() => {
+        expect(getRequestCalls('updateHostTemplate1')).toHaveLength(1);
+        expect(getRequestCalls('updateHostTemplate2')).toHaveLength(2);
+      });
+    });
+
+    it('keeps the panel open on every template when they all fail', async () => {
+      await initializeListing({ patchFails: [1, 2] });
+
+      await tickRow(1);
+      await tickRow(2);
+      await openMassChange();
+
+      await typeMaxCheckAttempts('3');
+      await save();
+      await confirm();
+
+      await expectPatchedTemplates([1, 2]);
+
+      expect(
+        await screen.findByText('Failed to update the host templates')
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByText('Host templates updated')
+      ).not.toBeInTheDocument();
+      expect(await getHeader()).toHaveTextContent(`${labelMassChange} (2)`);
+      expect(await getMaxCheckAttempts()).toHaveValue(3);
     });
   });
 };
