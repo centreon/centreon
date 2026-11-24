@@ -821,14 +821,6 @@ if (isset($search_service) && $search_service) {
                 });
             });
 
-            jQuery("#output").keypress(function (event) {
-                if (event.which == 13) {
-                    // Only the "Run query" button runs the search. Enter would submit
-                    // the form and reload the page.
-                    event.preventDefault();
-                }
-            });
-
         } else {
             jQuery("#poller_filter").change(function (event, infos) {
                 if (typeof infos !== "undefined" && infos.origin === "select2defaultinit") {
