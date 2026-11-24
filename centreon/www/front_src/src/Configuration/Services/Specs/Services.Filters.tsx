@@ -14,6 +14,7 @@ import {
   labelServiceTemplate,
   labelStatus
 } from '../translatedLabels';
+import { filtersInitialValues } from '../utils';
 import initialize from './initialize';
 
 const openAdvancedFilters = async (): Promise<HTMLElement> => {
@@ -175,6 +176,70 @@ export default () => {
 
       // An empty text filter is left out of the query altogether.
       expect(request.url.searchParams.get('host_name[lk]')).toBeNull();
+    });
+
+    it('opens on the services of the host given in the URL, then leaves the URL', async () => {
+      // Filters left from an earlier visit give way to the host.
+      window.localStorage.setItem(
+        'filters_services',
+        JSON.stringify({ ...filtersInitialValues, name: 'cpu' })
+      );
+
+      initialize({ searchParams: '?host=host%20A' });
+
+      const { request } = await waitForRequest('@getAllServices');
+
+      expect(request.url.searchParams.get('host_name[lk]')).toBe('host A');
+      expect(request.url.searchParams.get('name[lk]')).toBeNull();
+
+      await waitFor(() => expect(window.location.search).toBe(''));
+
+      const panel = await openAdvancedFilters();
+
+      expect(within(panel).getByLabelText(labelHostName)).toHaveValue('host A');
+    });
+
+    it('opens on the services of the host given in the URL on a first visit', async () => {
+      initialize({ searchParams: '?host=web%2001' });
+
+      const { request } = await waitForRequest('@getAllServices');
+
+      expect(request.url.searchParams.get('host_name[lk]')).toBe('web 01');
+
+      await waitFor(() => expect(window.location.search).toBe(''));
+
+      const stored = JSON.parse(
+        window.localStorage.getItem('filters_services') as string
+      );
+
+      expect(stored.host_name).toBe('web 01');
+    });
+
+    it('opens the services of the host on the first page, whatever page another listing was on', async () => {
+      initialize({ page: 3, searchParams: '?host=host%20A' });
+
+      const { request } = await waitForRequest('@getAllServices');
+
+      expect(request.url.searchParams.get('page')).toBe('1');
+    });
+
+    it('stays on the page another listing was on without a host in the URL', async () => {
+      initialize({ page: 3 });
+
+      const { request } = await waitForRequest('@getAllServices');
+
+      expect(request.url.searchParams.get('page')).toBe('3');
+    });
+
+    it('keeps a form deep link next to the host in the URL', async () => {
+      initialize({ searchParams: '?host=host%20A&mode=edit&id=0' });
+
+      await waitForRequest('@getService0');
+
+      await waitFor(() =>
+        expect(window.location.search).toBe('?mode=edit&id=0')
+      );
+      expect(await screen.findByTestId('form-panel')).toBeVisible();
     });
 
     it('keeps the filters in local storage so they survive navigation', async () => {
