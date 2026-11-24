@@ -297,6 +297,9 @@ final class LlmClientFactoryTest extends TestCase
     public static function provideProxiedTargets(): iterable
     {
         yield 'an IP address' => ['https://203.0.113.10', true];
+
+        yield 'a host the platform resolves' => ['https://localhost', true];
+
         yield 'a host only the proxy can resolve' => ['https://llm.invalid', false];
     }
 

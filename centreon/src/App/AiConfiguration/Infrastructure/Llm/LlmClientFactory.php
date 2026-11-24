@@ -218,12 +218,18 @@ final readonly class LlmClientFactory implements LlmClientFactoryInterface
 
         // The proxy resolves the target itself: a host the platform can not resolve
         // (no outside DNS) would be refused by the guard, so it goes to the proxy unchecked.
-        $httpClient = self::resolvesLocally($endpointUrl) ? $this->httpClient : $this->unguardedHttpClient;
+        if ($this->resolvesLocally($endpointUrl)) {
+            return $this->httpClient->withOptions(['proxy' => $proxyUrl->value]);
+        }
 
-        return $httpClient->withOptions(['proxy' => $proxyUrl->value]);
+        $this->logger->info('The AI provider host does not resolve on the platform: it is resolved by the proxy, unchecked', [
+            'host' => parse_url($endpointUrl->value, \PHP_URL_HOST),
+        ]);
+
+        return $this->unguardedHttpClient->withOptions(['proxy' => $proxyUrl->value]);
     }
 
-    private static function resolvesLocally(EndpointUrl $endpointUrl): bool
+    private function resolvesLocally(EndpointUrl $endpointUrl): bool
     {
         $host = trim((string) parse_url($endpointUrl->value, \PHP_URL_HOST), '[]');
 
