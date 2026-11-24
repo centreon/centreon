@@ -44,4 +44,9 @@ final class FakeHostSeverityRepository implements HostSeverityRepository
     {
         return $this->hostSeverities[$id->value] ?? null;
     }
+
+    public function findById(HostSeverityId $id): ?HostSeverity
+    {
+        return null;
+    }
 }

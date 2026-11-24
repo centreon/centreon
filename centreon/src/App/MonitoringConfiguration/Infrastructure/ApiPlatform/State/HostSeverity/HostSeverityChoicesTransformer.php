@@ -37,6 +37,7 @@ final readonly class HostSeverityChoicesTransformer implements TransformerInterf
         return new HostSeverityChoicesOutput(
             id: $from->id()->value,
             name: $from->name->value,
+            level: $from->level->value,
         );
     }
 }
