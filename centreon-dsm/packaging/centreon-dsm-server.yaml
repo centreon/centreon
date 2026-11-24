@@ -89,11 +89,13 @@ contents:
 
   - src: "../libinstall/systemd/dsmd.sysconfig"
     dst: "/etc/sysconfig/dsmd"
+    type: config|noreplace
     file_info:
       mode: 0400
     packager: rpm
   - src: "../libinstall/systemd/dsmd.sysconfig"
     dst: "/etc/default/dsmd"
+    type: config|noreplace
     file_info:
       mode: 0400
     packager: deb
