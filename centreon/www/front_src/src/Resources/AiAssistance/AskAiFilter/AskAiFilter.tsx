@@ -258,7 +258,8 @@ const AskAiFilter = (): JSX.Element | null => {
   };
 
   return (
-    <div ref={anchorRef}>
+    // biome-ignore lint/a11y/noStaticElementInteractions: keeps the keys of the popup and dialog (bubbled through their portals) from the search field around
+    <div onKeyDown={(event) => event.stopPropagation()} ref={anchorRef}>
       <IconButton
         ariaLabel={t(labelAskAi)}
         data-testid={labelAskAi}

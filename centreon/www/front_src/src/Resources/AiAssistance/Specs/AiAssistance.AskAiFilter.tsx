@@ -1,9 +1,13 @@
 import { getRequestCalls, waitForRequest } from '@test-setup/api';
 import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { atom, useAtomValue } from 'jotai';
+import { atom, useAtomValue, useSetAtom } from 'jotai';
 
-import { searchAtom } from '../../Filter/filterAtoms';
+import {
+  appliedFilterAtom,
+  applyCurrentFilterDerivedAtom,
+  searchAtom
+} from '../../Filter/filterAtoms';
 import { listingAtom, sendingAtom } from '../../Listing/listingAtoms';
 import { ResourceListing } from '../../models';
 import { aiResultLoadingTestId } from '../AiResultDialog';
@@ -46,6 +50,24 @@ const RemountableAskAiFilter = (): JSX.Element => {
   const key = useAtomValue(remountKeyAtom);
 
   return <AskAiFilter key={key} />;
+};
+
+// The search field of the filter bar, which applies its search on Enter.
+const AskAiFilterInSearchField = (): JSX.Element => {
+  const applyCurrentFilter = useSetAtom(applyCurrentFilterDerivedAtom);
+
+  return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: stands for the search field
+    <div
+      onKeyDown={(event) => {
+        if (event.key === 'Enter') {
+          applyCurrentFilter();
+        }
+      }}
+    >
+      <AskAiFilter />
+    </div>
+  );
 };
 
 // What the resources listing does when it loads a filter, one render at a
@@ -327,6 +349,28 @@ export default (): void => {
         expect(screen.queryByTestId(labelAskAiPlaceholder)).toBeNull()
       );
       expect(trigger).toHaveFocus();
+    });
+
+    it('does not apply the search typed in the filter bar on Enter in the prompt', async () => {
+      const store = initialize(<AskAiFilterInSearchField />, {
+        filterTranslation: unsupportedResponse
+      });
+      const appliedFilter = store.get(appliedFilterAtom);
+
+      act(() => {
+        store.set(searchAtom, 'typed search');
+      });
+
+      await userEvent.click(await screen.findByTestId(labelAskAi));
+      await userEvent.type(
+        await screen.findByTestId(labelAskAiPlaceholder),
+        'critical services{Enter}'
+      );
+      await waitForRequest('@translateFilter');
+
+      expect(await screen.findByText(labelAskAiUnsupported)).toBeVisible();
+      expect(store.get(appliedFilterAtom)).toBe(appliedFilter);
+      expect(store.get(searchAtom)).toBe('typed search');
     });
 
     it('is visible but disabled when the AI budget is exhausted', async () => {
