@@ -74,7 +74,21 @@ export default () => {
       await waitFor(() =>
         expect(getChips(testIds.categories)).toEqual(['Virtual'])
       );
-      expect(screen.getByTestId(testIds.severity)).toHaveValue('Minor');
+      expect(screen.getByTestId(testIds.severity)).toHaveValue('Minor (3)');
+    });
+
+    it('shows each severity with its level, and by its name when it has none', async () => {
+      await openCreationForm();
+
+      await userEvent.click(screen.getByTestId(testIds.severity));
+      await waitForRequest('@getFormHostSeverities');
+      await waitFor(() => expect(getPopper()).not.toBeNull());
+
+      expect(
+        await within(getPopper()).findByText('Critical (1)')
+      ).toBeVisible();
+      expect(within(getPopper()).getByText('Minor (3)')).toBeVisible();
+      expect(within(getPopper()).getByText('Info')).toBeVisible();
     });
 
     it('creates a template with categories and a severity read from the host template routes', async () => {
@@ -98,7 +112,7 @@ export default () => {
       expect(severitiesRequest.url.pathname).toContain(
         '/api/configuration/host_templates/host_severities'
       );
-      await pickOption('Critical');
+      await pickOption('Critical (1)');
 
       await save();
 
@@ -226,7 +240,7 @@ export default () => {
         expect(getChips(testIds.categories)).toEqual(['Virtual'])
       );
       expect(screen.getByTestId(testIds.categories)).toBeDisabled();
-      expect(screen.getByTestId(testIds.severity)).toHaveValue('Minor');
+      expect(screen.getByTestId(testIds.severity)).toHaveValue('Minor (3)');
       expect(screen.getByTestId(testIds.severity)).toBeDisabled();
       expect(getChips(testIds.linkedServiceTemplates)).toEqual([
         'generic-ping'

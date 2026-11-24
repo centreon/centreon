@@ -126,7 +126,7 @@ export default () => {
       ).toHaveAttribute('alt', 'server.png')
     );
     await waitFor(() =>
-      expect(screen.getByTestId('host-form-severity')).toHaveValue('Minor')
+      expect(screen.getByTestId('host-form-severity')).toHaveValue('Minor (3)')
     );
   });
 
@@ -175,7 +175,7 @@ export default () => {
       ).not.toBeInTheDocument()
     );
     await waitFor(() =>
-      expect(screen.getByTestId('host-form-severity')).toHaveValue('Minor')
+      expect(screen.getByTestId('host-form-severity')).toHaveValue('Minor (3)')
     );
     await clickClearIndicator('host-form-severity');
 
@@ -203,6 +203,21 @@ export default () => {
     expect(await getInput('host-form-extended-infos-comment')).toBeDisabled();
     expect(screen.getByTestId('host-form-extended-infos-icon')).toBeDisabled();
     expect(screen.getByTestId('host-form-severity')).toBeDisabled();
+  });
+
+  it('shows each severity with its level, and by its name when it has none', async () => {
+    await initializeListing();
+
+    await openCreation();
+
+    await userEvent.click(screen.getByTestId('host-form-severity'));
+    await waitForRequest('@getFormHostSeverities');
+
+    const popper = await getPopper();
+
+    expect(await within(popper).findByText('Critical (1)')).toBeVisible();
+    expect(within(popper).getByText('Minor (3)')).toBeVisible();
+    expect(within(popper).getByText('Info')).toBeVisible();
   });
 
   it('creates a host with its extended infos and severity', async () => {
@@ -263,7 +278,7 @@ export default () => {
     expect(severitiesRequest.url.pathname).toContain(
       '/api/configuration/hosts/host_severities'
     );
-    await pickOption('Critical');
+    await pickOption('Critical (1)');
 
     await save();
 

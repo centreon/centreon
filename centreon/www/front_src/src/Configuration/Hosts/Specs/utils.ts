@@ -173,8 +173,10 @@ export const untouchedDataProcessingPayload = {
 
 export const getHostSeveritiesResponse = () =>
   toCollection([
-    { id: 1, name: 'Critical' },
-    { id: 2, name: 'Minor' }
+    { id: 1, level: 1, name: 'Critical' },
+    { id: 2, level: 3, name: 'Minor' },
+    // No level sent: shown by its name alone.
+    { id: 3, name: 'Info' }
   ]);
 
 export const getMediasResponse = () =>
@@ -333,7 +335,7 @@ export const getHostResponse = () => ({
     normal_check_interval: 5,
     passive_check_enabled: 'true'
   },
-  severity: { id: 2, name: 'Minor' },
+  severity: { id: 2, level: 3, name: 'Minor' },
   snmp_version: '2c',
   // The reverse of the listing row's order: the first one prevails.
   templates: [
