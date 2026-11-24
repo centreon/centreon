@@ -21,6 +21,7 @@
 
 namespace CentreonModule\Application\Webservice;
 
+use Adaptation\Log\LoggerUpgrade;
 use Centreon\Application\DataRepresenter\Bulk;
 use Centreon\Application\DataRepresenter\Response;
 use Centreon\Infrastructure\Webservice;
@@ -32,6 +33,7 @@ use CentreonModule\Application\DataRepresenter\UpdateAction;
 use CentreonModule\Infrastructure\Service\CentreonModuleService;
 use CentreonModule\Infrastructure\Source\ModuleSource;
 use CentreonModule\ServiceProvider;
+use Composer\InstalledVersions;
 
 class CentreonModuleWebservice extends Webservice\WebServiceAbstract implements Webservice\WebserviceAutorizeRestApiInterface
 {
@@ -185,15 +187,25 @@ class CentreonModuleWebservice extends Webservice\WebServiceAbstract implements 
             // One clear for the module and its dependencies.
             $entity = $cacheClearer->suspended(static fn () => $moduleService->update($id, $type));
         } catch (\Throwable $e) {
+            LoggerUpgrade::create()->error(
+                InstalledVersions::getRootPackage()['pretty_version'],
+                sprintf('The update of the "%s" %s failed', $id, $type),
+                $e
+            );
             $result = new UpdateAction(null, $e->getMessage());
         }
 
-        // Even after a failure, for the dependencies already upgraded. A batch passes clearCache=0, then calls clearCache.
+        // Even after a failure: dependencies may be upgraded. A batch defers it to clearCache.
         if ($type === ModuleSource::TYPE && ($request['clearCache'] ?? '1') !== '0') {
             try {
                 $cacheClearer->clear();
             } catch (\Throwable $e) {
-                // Still a failure, until the cache is cleared, but not the one of the update.
+                LoggerUpgrade::create()->error(
+                    InstalledVersions::getRootPackage()['pretty_version'],
+                    sprintf('Clearing the cache after the update of the "%s" module failed', $id),
+                    $e
+                );
+                // The update passed: report the cache failure instead.
                 $result ??= new UpdateAction(null, $entity !== null ? 'The module was updated, but the cache could not be cleared: ' . $e->getMessage() : $e->getMessage());
             }
         }
@@ -214,6 +226,12 @@ class CentreonModuleWebservice extends Webservice\WebServiceAbstract implements 
         try {
             $this->getDi()[LegacyServiceProvider::CENTREON_LEGACY_CACHE_CLEARER]->clear();
         } catch (\Throwable $e) {
+            LoggerUpgrade::create()->error(
+                InstalledVersions::getRootPackage()['pretty_version'],
+                'Clearing the cache after updating the modules failed',
+                $e
+            );
+
             return new Response(new UpdateAction(null, $e->getMessage()), false);
         }
 

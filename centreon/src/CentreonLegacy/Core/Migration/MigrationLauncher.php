@@ -44,7 +44,9 @@ class MigrationLauncher
         $process->run();
 
         if (! $process->isSuccessful()) {
-            throw new \RuntimeException(self::extractFailureReason($process->getErrorOutput() . $process->getOutput()));
+            $reason = self::extractFailureReason($process->getErrorOutput() . $process->getOutput());
+
+            throw new \RuntimeException($reason !== '' ? $reason : sprintf('Exit code %s (%s)', $process->getExitCode(), $process->getExitCodeText()));
         }
     }
 

@@ -46,12 +46,12 @@ final class ExecutedModuleMigrationsTest extends TestCase
             databaseNameRealTime: $this->env('dbcstg'),
             port: (int) $this->env('port'),
         ));
-        $this->db->query('DROP TABLE IF EXISTS `' . self::TABLE . '`');
+        $this->db->executeStatement('DROP TABLE IF EXISTS `' . self::TABLE . '`');
     }
 
     protected function tearDown(): void
     {
-        $this->db->query('DROP TABLE IF EXISTS `' . self::TABLE . '`');
+        $this->db->executeStatement('DROP TABLE IF EXISTS `' . self::TABLE . '`');
     }
 
     public function testAModuleWithoutMetadataTableExecutedNoMigration(): void
@@ -61,8 +61,8 @@ final class ExecutedModuleMigrationsTest extends TestCase
 
     public function testListsTheExecutedMigrationsByClassName(): void
     {
-        $this->db->query('CREATE TABLE `' . self::TABLE . '` (version VARCHAR(191) PRIMARY KEY)');
-        $this->db->query('INSERT INTO `' . self::TABLE . "` VALUES ('CentreonHistoryFixture\\\\Migrations\\\\Version20260101000001')");
+        $this->db->executeStatement('CREATE TABLE `' . self::TABLE . '` (version VARCHAR(191) PRIMARY KEY)');
+        $this->db->executeStatement('INSERT INTO `' . self::TABLE . "` VALUES ('CentreonHistoryFixture\\\\Migrations\\\\Version20260101000001')");
 
         self::assertSame(['Version20260101000001'], (new ModulesInformationsRepository($this->db))->findExecutedMigrations('centreon-history-fixture'));
     }

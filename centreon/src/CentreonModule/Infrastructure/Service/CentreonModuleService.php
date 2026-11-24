@@ -21,8 +21,10 @@
 
 namespace CentreonModule\Infrastructure\Service;
 
+use Adaptation\Log\LoggerUpgrade;
 use CentreonModule\Infrastructure\Entity\Module;
 use CentreonModule\Infrastructure\Source;
+use Composer\InstalledVersions;
 use Psr\Container\ContainerInterface;
 
 class CentreonModuleService
@@ -154,18 +156,23 @@ class CentreonModuleService
         $failures = [];
         $attempted = false;
         foreach ($this->getOutdated($type) as $outdated) {
-            // Possibly upgraded as a dependency of one attempted before.
-            if ($attempted) {
-                $current = $this->getDetail($outdated->getId(), $type);
-                if ($current === null || ! self::isOutdated($current)) {
-                    continue;
-                }
-            }
-            $attempted = true;
-
             try {
+                // Possibly upgraded as a dependency of one attempted before.
+                if ($attempted) {
+                    $current = $this->getDetail($outdated->getId(), $type);
+                    if ($current === null || ! self::isOutdated($current)) {
+                        continue;
+                    }
+                }
+                $attempted = true;
+
                 $entity = $this->update($outdated->getId(), $type);
             } catch (\Throwable $exception) {
+                LoggerUpgrade::create()->error(
+                    InstalledVersions::getRootPackage()['pretty_version'],
+                    \sprintf('The update of the "%s" %s failed', $outdated->getId(), $type),
+                    $exception
+                );
                 $failures[] = \sprintf('%s: %s', $outdated->getId(), $exception->getMessage());
 
                 continue;

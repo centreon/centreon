@@ -21,14 +21,15 @@
 
 namespace CentreonModule\Domain\Repository;
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use App\Upgrade\Domain\Model\MigrationSet;
 use App\Upgrade\Infrastructure\Doctrine\MigrationSetRegistry;
 use Centreon\Infrastructure\CentreonLegacyDB\ServiceEntityRepository;
+use Core\Common\Domain\Exception\RepositoryException;
 
 class ModulesInformationsRepository extends ServiceEntityRepository
 {
-    private const string TABLE_EXISTS_QUERY = 'SELECT 1 FROM `information_schema`.`tables` WHERE `table_schema` = DATABASE() AND `table_name` = :table';
-
     /**
      * Get an associative array of all modules vs versions.
      *
@@ -51,6 +52,8 @@ class ModulesInformationsRepository extends ServiceEntityRepository
     }
 
     /**
+     * @throws RepositoryException
+     *
      * @return list<string>|null class names without namespace, null when the module name cannot have migrations
      */
     public function findExecutedMigrations(string $module): ?array
@@ -61,20 +64,33 @@ class ModulesInformationsRepository extends ServiceEntityRepository
 
         $table = MigrationSetRegistry::table(MigrationSet::module($module));
 
-        // Created by the first migration run. Checked first: a failing query is logged as an SQL error.
-        $stmt = $this->db->prepare(self::TABLE_EXISTS_QUERY);
-        $stmt->bindValue(':table', $table, \PDO::PARAM_STR);
-        $stmt->execute();
-        if ($stmt->fetch() === false) {
-            return [];
+        try {
+            // Created by the first migration run. Checked first: a failing query is logged as an SQL error.
+            $tableExists = $this->db->fetchOne(
+                $this->db->createQueryBuilder()
+                    ->select('1')
+                    ->from('`information_schema`.`tables`')
+                    ->where('`table_schema` = DATABASE()')
+                    ->andWhere('`table_name` = :table')
+                    ->getQuery(),
+                QueryParameters::create([QueryParameter::string('table', $table)])
+            );
+            if ($tableExists === false) {
+                return [];
+            }
+
+            $versions = $this->db->fetchFirstColumn(
+                $this->db->createQueryBuilder()->select('`version`')->from("`{$table}`")->getQuery()
+            );
+        } catch (\Throwable $exception) {
+            throw new RepositoryException('Cannot read the executed migrations of the module', ['module' => $module], $exception);
         }
 
-        $stmt = $this->db->prepare("SELECT `version` FROM `{$table}`");
-        $stmt->execute();
-
         $migrations = [];
-        while ($row = $stmt->fetch()) {
-            $migrations[] = substr(strrchr('\\' . $row['version'], '\\'), 1);
+        foreach ($versions as $version) {
+            if (is_string($version)) {
+                $migrations[] = mb_substr((string) mb_strrchr('\\' . $version, '\\'), 1);
+            }
         }
 
         return $migrations;

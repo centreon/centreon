@@ -30,8 +30,7 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
- * The legacy launcher spawns the console of the new kernel: kept with the integration tests, which have
- * the kernel configuration and the database it needs.
+ * Spawns the new kernel console: needs its configuration and the database.
  */
 final class MigrationLauncherTest extends TestCase
 {

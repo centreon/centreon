@@ -100,6 +100,33 @@ class CentreonModuleServiceTest extends TestCase
         $this->assertSame(['map'], $updatedModules, 'A failing module does not stop the others');
     }
 
+    public function testUpdateAllReportsAModuleThatCannotBeReadAgainAndAttemptsTheOthers(): void
+    {
+        $source = $this->createMock(ModuleSource::class);
+        $source->method('getList')->willReturn([$this->module('bam', updated: false), $this->module('map', updated: false), $this->module('mbi', updated: false)]);
+        $source->method('getDetail')->willReturnCallback(function (string $id): Module {
+            if ($id === 'map') {
+                throw new \Exception('conf.php unreadable');
+            }
+
+            return $this->module($id, updated: false);
+        });
+        $updatedModules = [];
+        $source->method('update')->willReturnCallback(function (string $id) use (&$updatedModules): Module {
+            $updatedModules[] = $id;
+
+            return $this->module($id, updated: true);
+        });
+
+        try {
+            $this->service($source)->updateAll(ModuleSource::TYPE);
+            $this->fail('The failure must be reported');
+        } catch (\RuntimeException $exception) {
+            $this->assertSame('Some updates failed. map: conf.php unreadable', $exception->getMessage());
+        }
+        $this->assertSame(['bam', 'mbi'], $updatedModules);
+    }
+
     public function testUpdateAllIgnoresUnknownTypes(): void
     {
         $this->assertSame([], $this->service($this->createMock(ModuleSource::class))->updateAll('unknown'));
@@ -107,7 +134,7 @@ class CentreonModuleServiceTest extends TestCase
 
     private function service(ModuleSource $source): CentreonModuleService
     {
-        return new class ($this->createMock(ContainerInterface::class), $source) extends CentreonModuleService {
+        return new class (new \Pimple\Psr11\Container(new \Pimple\Container()), $source) extends CentreonModuleService {
             public function __construct(ContainerInterface $services, private readonly ModuleSource $moduleSource)
             {
                 parent::__construct($services);

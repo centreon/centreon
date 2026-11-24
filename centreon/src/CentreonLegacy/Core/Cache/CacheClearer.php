@@ -23,8 +23,9 @@ declare(strict_types=1);
 
 namespace CentreonLegacy\Core\Cache;
 
+use Adaptation\Log\LoggerUpgrade;
 use CentreonLegacy\Core\Process\PhpConsole;
-use CentreonLog;
+use Composer\InstalledVersions;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Exception\RuntimeException;
 
@@ -44,7 +45,6 @@ class CacheClearer
             return;
         }
 
-        // Both are attempted. Module upgrades only ever cleared the legacy one: a failure of the new one must not fail them.
         $legacyFailure = null;
         try {
             $this->run(['bin/console', 'cache:clear']);
@@ -55,7 +55,11 @@ class CacheClearer
         try {
             $this->run(['bin/console.new', 'cache:clear']);
         } catch (RuntimeException $exception) {
-            CentreonLog::create()->warning(CentreonLog::TYPE_UPGRADE, 'Clearing the cache of the new kernel failed', [], $exception);
+            LoggerUpgrade::create()->warning(
+                InstalledVersions::getRootPackage()['pretty_version'],
+                'Clearing the cache of the new kernel failed',
+                $exception
+            );
         }
 
         if ($legacyFailure instanceof RuntimeException) {

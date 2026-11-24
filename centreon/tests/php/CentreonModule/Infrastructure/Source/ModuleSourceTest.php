@@ -27,6 +27,7 @@ use Centreon\Infrastructure\Service\CentreonDBManagerService;
 use CentreonLegacy\Core\Configuration\Configuration;
 use CentreonLegacy\ServiceProvider as LegacyServiceProvider;
 use CentreonModule\Domain\Repository\ModulesInformationsRepository;
+use Core\Common\Domain\Exception\RepositoryException;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Pimple\Container;
@@ -54,25 +55,7 @@ class ModuleSourceTest extends TestCase
         $this->repository = $this->createMock(ModulesInformationsRepository::class);
         $this->repository->method('getAllModuleVsVersion')->willReturnCallback(fn (): array => ['my-module' => $this->installedVersion]);
 
-        $dbManager = $this->createMock(CentreonDBManagerService::class);
-        $dbManager->method('getRepository')->willReturn($this->repository);
-        $configuration = $this->createMock(Configuration::class);
-        $configuration->method('get')->willReturn($this->centreonPath);
-
-        $container = new Container();
-        $container[\Centreon\ServiceProvider::CENTREON_DB_MANAGER] = $dbManager;
-        $container['finder'] = $container->factory(static fn () => new \Symfony\Component\Finder\Finder());
-        $container['configuration'] = $configuration;
-        foreach ([
-            LegacyServiceProvider::CENTREON_LEGACY_MODULE_INSTALLER,
-            LegacyServiceProvider::CENTREON_LEGACY_MODULE_UPGRADER,
-            LegacyServiceProvider::CENTREON_LEGACY_MODULE_REMOVER,
-            LegacyServiceProvider::CENTREON_LEGACY_MODULE_LICENSE,
-        ] as $service) {
-            $container[$service] = static fn (): \stdClass => new \stdClass();
-        }
-
-        $this->source = new ModuleSource(new Psr11Container($container));
+        $this->source = $this->createSource($this->centreonPath);
     }
 
     protected function tearDown(): void
@@ -132,9 +115,28 @@ class ModuleSourceTest extends TestCase
     public function testAModuleWhoseExecutedMigrationsCannotBeReadIsOutdatedWithoutBreakingTheList(): void
     {
         (new Filesystem())->dumpFile($this->centreonPath . 'www/modules/my-module/migrations/Version20260101000001.php', '<?php');
-        $this->repository->method('findExecutedMigrations')->willThrowException(new \PDOException('SELECT command denied'));
+        $this->repository->method('findExecutedMigrations')->willThrowException(
+            new RepositoryException('Cannot read the executed migrations of the module', ['module' => 'my-module'], new \PDOException('SELECT command denied'))
+        );
 
         $this->assertFalse($this->source->createEntityFromConfig($this->centreonPath . 'www/modules/my-module/conf.php')->isUpdated(), 'Its update reports the failure');
+    }
+
+    public function testAModuleWhoseMigrationsCannotBeListedIsOutdatedWithoutBreakingTheList(): void
+    {
+        if (posix_geteuid() === 0) {
+            $this->markTestSkipped('root reads any directory');
+        }
+        $migrationsDirectory = $this->centreonPath . 'www/modules/my-module/migrations';
+        (new Filesystem())->dumpFile($migrationsDirectory . '/Version20260101000001.php', '<?php');
+        chmod($migrationsDirectory, 0000);
+        $this->repository->expects($this->never())->method('findExecutedMigrations');
+
+        try {
+            $this->assertFalse($this->source->createEntityFromConfig($this->centreonPath . 'www/modules/my-module/conf.php')->isUpdated(), 'Its update reports the failure');
+        } finally {
+            chmod($migrationsDirectory, 0755);
+        }
     }
 
     public function testCodeOlderThanTheInstalledVersionIsNotOutdated(): void
@@ -163,5 +165,37 @@ class ModuleSourceTest extends TestCase
         $module = $this->source->createEntityFromConfig($this->centreonPath . 'www/modules/my-module/conf.php');
 
         $this->assertTrue($module->isUpdated(), 'Its migrations cannot run: an update would never bring it up to date');
+    }
+
+    public function testFindsTheModulesWhenTheCentreonPathHasNoTrailingSlash(): void
+    {
+        $this->installedVersion = '26.10.0';
+
+        $source = $this->createSource(rtrim($this->centreonPath, '/'));
+
+        $this->assertSame(['my-module'], array_map(static fn (\CentreonModule\Infrastructure\Entity\Module $module): string => $module->getId(), $source->getList(null, true, false)));
+    }
+
+    private function createSource(string $centreonPath): ModuleSource
+    {
+        $dbManager = $this->createMock(CentreonDBManagerService::class);
+        $dbManager->method('getRepository')->willReturn($this->repository);
+        $configuration = $this->createMock(Configuration::class);
+        $configuration->method('get')->willReturn($centreonPath);
+
+        $container = new Container();
+        $container[\Centreon\ServiceProvider::CENTREON_DB_MANAGER] = $dbManager;
+        $container['finder'] = $container->factory(static fn () => new \Symfony\Component\Finder\Finder());
+        $container['configuration'] = $configuration;
+        foreach ([
+            LegacyServiceProvider::CENTREON_LEGACY_MODULE_INSTALLER,
+            LegacyServiceProvider::CENTREON_LEGACY_MODULE_UPGRADER,
+            LegacyServiceProvider::CENTREON_LEGACY_MODULE_REMOVER,
+            LegacyServiceProvider::CENTREON_LEGACY_MODULE_LICENSE,
+        ] as $service) {
+            $container[$service] = static fn (): \stdClass => new \stdClass();
+        }
+
+        return new ModuleSource(new Psr11Container($container));
     }
 }
