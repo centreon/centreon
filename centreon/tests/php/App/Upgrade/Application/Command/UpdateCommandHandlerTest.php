@@ -448,7 +448,7 @@ final class UpdateCommandHandlerTest extends TestCase
             $this->engineContextWriter,
             $this->cacheClearer,
             $this->logger,
-            new MigrationApplier($this->migrationRunner, $targetVersionRecorder, $this->logger, self::TARGET_VERSION),
+            new MigrationApplier($this->migrationRunner, $targetVersionRecorder, $this->moduleRepository, $this->logger, self::TARGET_VERSION),
             $targetVersionRecorder,
         );
     }

@@ -28,4 +28,19 @@ interface ModuleRepository
     public function updateAll(): void;
 
     public function isInstalled(string $module): bool;
+
+    /**
+     * Whether an upgrade script directory newer than the installed version, and not newer than the code version, is still to run.
+     */
+    public function hasPendingLegacyUpgrade(string $module): bool;
+
+    /**
+     * @return list<string> the names of the installed modules
+     */
+    public function findInstalledModules(): array;
+
+    /**
+     * 0 when its migrations never ran.
+     */
+    public function countExecutedMigrations(string $module): int;
 }

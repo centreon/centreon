@@ -23,7 +23,9 @@ declare(strict_types=1);
 
 namespace App\Upgrade\Infrastructure\Legacy;
 
+use App\Upgrade\Domain\Model\MigrationSet;
 use App\Upgrade\Domain\Repository\ModuleRepository;
+use App\Upgrade\Infrastructure\Doctrine\MigrationSetRegistry;
 use CentreonLegacy\Core\Cache\CacheClearer;
 use CentreonLegacy\ServiceProvider as LegacyServiceProvider;
 use CentreonModule\Infrastructure\Service\CentreonModuleService;
@@ -43,6 +45,8 @@ final readonly class LegacyModuleRepository implements ModuleRepository
         private Container $legacyContainer,
         #[Autowire(service: 'doctrine.dbal.default_connection')]
         private Connection $connection,
+        #[Autowire(param: 'upgrade.modules_dir')]
+        private string $modulesDir,
     ) {
     }
 
@@ -71,5 +75,104 @@ final readonly class LegacyModuleRepository implements ModuleRepository
             ->setMaxResults(1)
             ->executeQuery()
             ->fetchOne() !== false;
+    }
+
+    /**
+     * The versions the Upgrader loop runs: a migrate it launches itself, once they ran, is not refused.
+     *
+     * @throws \UnexpectedValueException
+     */
+    public function hasPendingLegacyUpgrade(string $module): bool
+    {
+        $installedRelease = $this->findInstalledRelease($module);
+        $moduleDirectory = $this->modulesDir . '/' . $module;
+        // GLOB_ERR: an unreadable upgrade directory is reported, not read as empty.
+        $upgradeDirectories = glob($moduleDirectory . '/upgrade/*', \GLOB_ONLYDIR | \GLOB_ERR);
+        if ($upgradeDirectories === false && file_exists($moduleDirectory . '/upgrade')) {
+            throw new \UnexpectedValueException(sprintf('Cannot list the upgrade scripts of the "%s" module: check the permissions of "%s".', $module, $moduleDirectory . '/upgrade'));
+        }
+
+        if ($installedRelease === null || $upgradeDirectories === false || $upgradeDirectories === []) {
+            return false;
+        }
+
+        $codeRelease = $this->codeRelease($module, $moduleDirectory . '/conf.php');
+        foreach ($upgradeDirectories as $upgradeDirectory) {
+            $version = basename($upgradeDirectory);
+            if (preg_match('/^\d+\.\d+\.\d+/', $version) === 1
+                && version_compare($version, $installedRelease) > 0
+                && version_compare($version, $codeRelease) <= 0
+            ) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function findInstalledModules(): array
+    {
+        $names = $this->connection->createQueryBuilder()
+            ->select('name')
+            ->from('modules_informations')
+            ->orderBy('name')
+            ->executeQuery()
+            ->fetchFirstColumn();
+
+        return array_values(array_filter($names, is_string(...)));
+    }
+
+    /**
+     * Its metadata table is only created by its first run.
+     */
+    public function countExecutedMigrations(string $module): int
+    {
+        $table = MigrationSetRegistry::table(MigrationSet::module($module));
+        if (! $this->connection->createSchemaManager()->tablesExist([$table])) {
+            return 0;
+        }
+
+        $count = $this->connection->fetchOne('SELECT COUNT(*) FROM ' . $this->connection->quoteSingleIdentifier($table));
+
+        return is_numeric($count) ? (int) $count : 0;
+    }
+
+    private function findInstalledRelease(string $module): ?string
+    {
+        $queryBuilder = $this->connection->createQueryBuilder();
+        $release = $queryBuilder
+            ->select('mod_release')
+            ->from('modules_informations')
+            ->where('name = ' . $queryBuilder->createNamedParameter($module))
+            ->setMaxResults(1)
+            ->executeQuery()
+            ->fetchOne();
+
+        return is_string($release) ? $release : null;
+    }
+
+    /**
+     * @throws \UnexpectedValueException
+     */
+    private function codeRelease(string $module, string $configurationFile): string
+    {
+        if (! is_file($configurationFile)) {
+            throw new \UnexpectedValueException(sprintf('Cannot read the version of the "%s" module: "%s" is missing.', $module, $configurationFile));
+        }
+
+        // As the legacy engine reads it, in a scope of its own.
+        $configuration = (static function (string $file): mixed {
+            $module_conf = [];
+            require $file;
+
+            /** @var mixed $module_conf set by the required file */
+            return $module_conf;
+        })($configurationFile);
+        $release = is_array($configuration) && is_array($configuration[$module] ?? null) ? ($configuration[$module]['mod_release'] ?? null) : null;
+        if (! is_string($release)) {
+            throw new \UnexpectedValueException(sprintf('Cannot read the version of the "%s" module: "%s" sets no mod_release.', $module, $configurationFile));
+        }
+
+        return $release;
     }
 }

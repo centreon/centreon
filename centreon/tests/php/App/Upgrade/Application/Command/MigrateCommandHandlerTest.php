@@ -34,6 +34,7 @@ use App\Upgrade\Domain\Exception\MigrationFailedException;
 use App\Upgrade\Domain\Exception\MigrationInterruptedException;
 use App\Upgrade\Domain\Exception\MigrationSetBusyException;
 use App\Upgrade\Domain\Exception\MigrationSetRefusedException;
+use App\Upgrade\Domain\Exception\ModuleUpgradePendingException;
 use App\Upgrade\Domain\Exception\PlatformVersionNotRecordedException;
 use App\Upgrade\Domain\Exception\PlatformVersionUnknownException;
 use App\Upgrade\Domain\Model\MigrationOutcome;
@@ -65,6 +66,8 @@ final class MigrateCommandHandlerTest extends TestCase
 
     private FakeUpgradeLogger $logger;
 
+    private FakeModuleRepository $moduleRepository;
+
     private MigrateCommandHandler $handler;
 
     protected function setUp(): void
@@ -75,12 +78,14 @@ final class MigrateCommandHandlerTest extends TestCase
         $this->migrationSetLocker = new FakeMigrationSetLocker();
         $this->scriptFinder = new FakeUpdateScriptFinder();
         $this->logger = new FakeUpgradeLogger();
+        $this->moduleRepository = new FakeModuleRepository(['centreon-open-tickets']);
 
         $this->handler = new MigrateCommandHandler(
-            new MigrationSetGuard($this->locker, $this->migrationSetLocker, new FakeModuleRepository(['centreon-open-tickets'])),
+            new MigrationSetGuard($this->locker, $this->migrationSetLocker, $this->moduleRepository),
             new MigrationApplier(
                 $this->migrationRunner,
                 new TargetVersionRecorder($this->updateRepository, $this->scriptFinder, self::TARGET_VERSION, new FakeUpgradeLogger()),
+                $this->moduleRepository,
                 $this->logger,
                 self::TARGET_VERSION,
             ),
@@ -133,6 +138,41 @@ final class MigrateCommandHandlerTest extends TestCase
             self::assertSame([], $this->migrationRunner->journal->getArrayCopy());
             self::assertSame(['warning'], array_column($this->logger->calls, 'method'));
         }
+    }
+
+    public function testRefusesAModuleSetWhileItsUpgradeScriptsArePending(): void
+    {
+        $this->moduleRepository->pendingUpgrades = ['centreon-open-tickets'];
+
+        try {
+            ($this->handler)(new MigrateCommand(MigrationSet::module('centreon-open-tickets')));
+            self::fail('The module set must wait for the module upgrade scripts');
+        } catch (ModuleUpgradePendingException $exception) {
+            self::assertSame('The upgrade scripts of the "centreon-open-tickets" module are pending: upgrade the module first, with the Extension Manager or the platform update.', $exception->getMessage());
+        }
+
+        self::assertSame([], $this->migrationRunner->journal->getArrayCopy());
+        self::assertSame(['warning'], array_column($this->logger->calls, 'method'));
+        self::assertSame(['module:centreon-open-tickets'], $this->migrationSetLocker->released, 'Checked under its lock, then released');
+    }
+
+    public function testMigratesAModuleSetOnceItsUpgradeScriptsRan(): void
+    {
+        // Only its own pending scripts block a module set.
+        $this->moduleRepository->pendingUpgrades = ['centreon-bam-server'];
+
+        ($this->handler)(new MigrateCommand(MigrationSet::module('centreon-open-tickets')));
+
+        self::assertSame(['migrate:module:centreon-open-tickets'], $this->migrationRunner->journal->getArrayCopy());
+    }
+
+    public function testTheWebSetsDoNotWaitForTheModuleUpgradeScripts(): void
+    {
+        $this->moduleRepository->pendingUpgrades = ['centreon-open-tickets'];
+
+        ($this->handler)(new MigrateCommand());
+
+        self::assertSame(['migrate:realtime', 'migrate:configuration'], $this->migrationRunner->journal->getArrayCopy());
     }
 
     public function testStopsAtTheFirstFailureAndReleasesTheLock(): void

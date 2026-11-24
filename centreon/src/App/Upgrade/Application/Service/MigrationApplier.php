@@ -28,12 +28,14 @@ use App\Upgrade\Domain\Exception\LegacyUpdatesPendingException;
 use App\Upgrade\Domain\Exception\MigrationFailedException;
 use App\Upgrade\Domain\Exception\MigrationInterruptedException;
 use App\Upgrade\Domain\Exception\MigrationSetRefusedException;
+use App\Upgrade\Domain\Exception\ModuleUpgradePendingException;
 use App\Upgrade\Domain\Exception\PlatformVersionNotRecordedException;
 use App\Upgrade\Domain\Exception\PlatformVersionUnknownException;
 use App\Upgrade\Domain\Exception\RollbackPlanChangedException;
 use App\Upgrade\Domain\Exception\RollbackTargetNotFoundException;
 use App\Upgrade\Domain\Model\MigrationOutcome;
 use App\Upgrade\Domain\Model\MigrationSet;
+use App\Upgrade\Domain\Repository\ModuleRepository;
 use App\Upgrade\Domain\Service\MigrationRunnerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
@@ -45,6 +47,7 @@ final readonly class MigrationApplier
     public function __construct(
         private MigrationRunnerInterface $migrationRunner,
         private TargetVersionRecorder $targetVersionRecorder,
+        private ModuleRepository $moduleRepository,
         private UpgradeLoggerInterface $upgradeLogger,
         #[Autowire(param: 'centreon.version')]
         private string $platformVersion,
@@ -98,13 +101,18 @@ final readonly class MigrationApplier
      *
      * @throws LegacyUpdatesPendingException for a Centreon Web set
      * @throws PlatformVersionUnknownException for a Centreon Web set
+     * @throws ModuleUpgradePendingException for a module set
      * @throws MigrationSetRefusedException
      * @throws MigrationFailedException
      * @throws \LogicException
      */
     public function applySet(MigrationSet $set): MigrationOutcome
     {
-        if ($set->isModule()) {
+        if ($set->module !== null) {
+            if ($this->moduleRepository->hasPendingLegacyUpgrade($set->module)) {
+                throw new ModuleUpgradePendingException($set->module);
+            }
+
             return $this->runStep($set);
         }
 

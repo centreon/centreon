@@ -33,11 +33,19 @@ final class FakeModuleRepository implements ModuleRepository
 
     public ?\Throwable $updateFailure = null;
 
+    public ?\Throwable $pendingUpgradeFailure = null;
+
+    public ?\Throwable $countFailure = null;
+
     /**
      * @param list<string> $installedModules
+     * @param list<string> $pendingUpgrades the modules whose upgrade scripts are pending
+     * @param array<string, int> $executedMigrations the executed migration count of each module
      */
     public function __construct(
         public array $installedModules = [],
+        public array $pendingUpgrades = [],
+        public array $executedMigrations = [],
     ) {
     }
 
@@ -56,5 +64,32 @@ final class FakeModuleRepository implements ModuleRepository
         }
 
         return in_array($module, $this->installedModules, true);
+    }
+
+    public function hasPendingLegacyUpgrade(string $module): bool
+    {
+        if ($this->pendingUpgradeFailure instanceof \Throwable) {
+            throw $this->pendingUpgradeFailure;
+        }
+
+        return in_array($module, $this->pendingUpgrades, true);
+    }
+
+    public function findInstalledModules(): array
+    {
+        if ($this->failure instanceof \Throwable) {
+            throw $this->failure;
+        }
+
+        return $this->installedModules;
+    }
+
+    public function countExecutedMigrations(string $module): int
+    {
+        if ($this->countFailure instanceof \Throwable) {
+            throw $this->countFailure;
+        }
+
+        return $this->executedMigrations[$module] ?? 0;
     }
 }
