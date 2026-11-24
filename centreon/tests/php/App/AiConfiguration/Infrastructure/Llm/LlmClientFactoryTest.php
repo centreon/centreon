@@ -261,6 +261,45 @@ final class LlmClientFactoryTest extends TestCase
         self::assertSame(['https://api.anthropic.com/v1/models?limit=1000'], $urls);
     }
 
+    #[DataProvider('provideProxiedTargets')]
+    public function testAProxiedTargetIsCheckedOnlyWhenItResolvesLocally(string $endpointUrl, bool $guarded): void
+    {
+        $used = [];
+        $client = static function (string $name) use (&$used): MockHttpClient {
+            return new MockHttpClient(
+                static function () use (&$used, $name): MockResponse {
+                    $used[] = $name;
+
+                    return new MockResponse('{"choices":[{"message":{"content":"pong"}}],"model":"llama3"}');
+                }
+            );
+        };
+
+        $this->createFactory(
+            $client('guarded'),
+            new FakeHttpProxyProvider('http://proxy.example.org:3128'),
+            unguardedHttpClient: $client('unguarded'),
+        )
+            ->forConnectionTest(new ConnectionSpec(
+                AiProviderTypeEnum::OpenAiCompatible,
+                new EndpointUrl($endpointUrl),
+                new StoredApiToken('a-token'),
+                new ModelName('llama3'),
+            ))
+            ->complete(LlmRequest::connectionTest(new ModelName('llama3')));
+
+        self::assertSame([$guarded ? 'guarded' : 'unguarded'], $used);
+    }
+
+    /**
+     * @return iterable<string, array{string, bool}>
+     */
+    public static function provideProxiedTargets(): iterable
+    {
+        yield 'an IP address' => ['https://203.0.113.10', true];
+        yield 'a host only the proxy can resolve' => ['https://llm.invalid', false];
+    }
+
     /**
      * Sends a metered request and returns the proxy option the HTTP client received.
      */
@@ -324,12 +363,14 @@ final class LlmClientFactoryTest extends TestCase
         HttpClientInterface $httpClient,
         ?FakeHttpProxyProvider $proxyProvider = null,
         ?LoggerInterface $logger = null,
+        ?HttpClientInterface $unguardedHttpClient = null,
     ): LlmClientFactory {
         $usageRepository = new FakeAiProviderUsageRepository();
 
         return new LlmClientFactory(
             $this->repository,
             $httpClient,
+            $unguardedHttpClient ?? $httpClient,
             $proxyProvider ?? new FakeHttpProxyProvider(),
             $usageRepository,
             new BudgetStatusChecker($usageRepository, new MockClock()),

@@ -39,6 +39,7 @@ use App\AiConfiguration\Domain\Repository\AiProviderUsageRepository;
 use App\AiConfiguration\Domain\Usage\BudgetStatusChecker;
 use App\Shared\Domain\VaultInterface;
 use App\Shared\Infrastructure\Proxy\HttpProxyProvider;
+use App\Shared\Infrastructure\Proxy\ProxyUrl;
 use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -54,6 +55,8 @@ final readonly class LlmClientFactory implements LlmClientFactoryInterface
         private AiProviderRepository $repository,
         #[Autowire(service: 'ai_configuration.http_client')]
         private HttpClientInterface $httpClient,
+        #[Autowire(service: 'http_client')]
+        private HttpClientInterface $unguardedHttpClient,
         private HttpProxyProvider $proxyProvider,
         private AiProviderUsageRepository $usageRepository,
         private BudgetStatusChecker $budgetChecker,
@@ -202,7 +205,7 @@ final readonly class LlmClientFactory implements LlmClientFactoryInterface
         }
 
         $proxyUrl = $this->proxyProvider->findProxyUrl();
-        if (! $proxyUrl instanceof \App\Shared\Infrastructure\Proxy\ProxyUrl) {
+        if (! $proxyUrl instanceof ProxyUrl) {
             return $this->httpClient;
         }
 
@@ -213,6 +216,19 @@ final readonly class LlmClientFactory implements LlmClientFactoryInterface
             );
         }
 
-        return $this->httpClient->withOptions(['proxy' => $proxyUrl->value]);
+        // The proxy resolves the target itself: a host the platform can not resolve
+        // (no outside DNS) would be refused by the guard, so it goes to the proxy unchecked.
+        $httpClient = self::resolvesLocally($endpointUrl) ? $this->httpClient : $this->unguardedHttpClient;
+
+        return $httpClient->withOptions(['proxy' => $proxyUrl->value]);
+    }
+
+    private static function resolvesLocally(EndpointUrl $endpointUrl): bool
+    {
+        $host = trim((string) parse_url($endpointUrl->value, \PHP_URL_HOST), '[]');
+
+        return filter_var($host, \FILTER_VALIDATE_IP) !== false
+            || gethostbynamel($host) !== false
+            || checkdnsrr($host, 'AAAA');
     }
 }
