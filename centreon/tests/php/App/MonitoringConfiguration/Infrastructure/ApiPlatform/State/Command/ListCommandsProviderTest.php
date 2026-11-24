@@ -439,6 +439,33 @@ final class ListCommandsProviderTest extends ApiTestCase
         $this->assertNotContains('Miscellaneous', $commandTypes);
     }
 
+    public function testItReturnsNothingWhenRequestingOnlyTypesUserCannotAccess(): void
+    {
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $username = bin2hex(random_bytes(8));
+
+        $this->createApiUser($connection, $username, admin: false, actions: [self::CAN_READ_CHECK_COMMANDS]);
+        $this->login($username);
+
+        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['type' => 'Miscellaneous']]);
+        self::assertResponseIsSuccessful();
+        $this->assertSame([], $response->toArray()['member']);
+    }
+
+    public function testItRejectsAnInvalidPageWhenRequestingOnlyTypesUserCannotAccess(): void
+    {
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $username = bin2hex(random_bytes(8));
+
+        $this->createApiUser($connection, $username, admin: false, actions: [self::CAN_READ_CHECK_COMMANDS]);
+        $this->login($username);
+
+        $this->request('GET', self::BASE_ENDPOINT, ['query' => ['type' => 'Miscellaneous', 'page' => '0']]);
+        self::assertResponseStatusCodeSame(400);
+    }
+
     public function testItRejectsAScalarNameFilter(): void
     {
         $this->login();

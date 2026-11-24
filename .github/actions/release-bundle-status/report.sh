@@ -3,7 +3,9 @@
 # Layout and schemas: delivery-tooling docs/release/testing-bundles.md
 set -euo pipefail
 
-MAX_ATTEMPTS=${MAX_ATTEMPTS:-8}
+# shellcheck source=bundle-s3.sh
+source "$(dirname "$0")/bundle-s3.sh"
+
 NOW=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 REPO=${GITHUB_REPOSITORY#*/}
 RUN_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
@@ -11,7 +13,7 @@ JOBS=${JOB_RESULTS:-null}
 WORK=$(mktemp -d)
 trap 'rm -rf "$WORK"' EXIT
 
-if [[ ! "$BUNDLE" =~ ^testing-(cloud|onprem)-(release|hotfix)-([0-9]{8})-([0-9]{2}\.[0-9]{2})-([1-9][0-9]*)$ ]]; then
+if [[ ! "$BUNDLE" =~ $BUNDLE_TAG_REGEX ]]; then
   echo "::error::Invalid testing bundle tag '$BUNDLE'"
   exit 1
 fi
@@ -30,12 +32,7 @@ case "$DRY_RUN" in
   *) echo "::error::dry_run must be true or false (got '$DRY_RUN')"; exit 1 ;;
 esac
 
-# conditional writes (--if-match) need aws cli 2.22 or later
-AWS_VERSION=$(aws --version 2>&1 | sed -n 's|^aws-cli/\([0-9.]*\).*|\1|p')
-if [[ "$(printf '%s\n' 2.22.0 "$AWS_VERSION" | sort -V | head -n 1)" != "2.22.0" ]]; then
-  echo "::error::aws cli ${AWS_VERSION:-unknown} does not support conditional writes, 2.22 or later is needed"
-  exit 1
-fi
+bundle_s3_check_aws
 
 # packages from the delivery manifests of the run (one directory per artifact)
 : > "$WORK/packages.jsonl"
@@ -74,65 +71,16 @@ jq -n -c --arg bundle "$BUNDLE" --arg source "$REPO" --arg subject "$COMPONENT" 
   --arg ts "$NOW" --arg commit "$GITHUB_SHA" --arg run_url "$RUN_URL" \
   '{schema_version: 1, bundle: $bundle, source: $source, subject: $subject, type: "delivery",
     status: $status, ts: $ts, commit: $commit, run_url: $run_url}' > "$WORK/event.json"
-if ! aws s3api put-object --bucket "$BUCKET" --key "$EVENT_KEY" --body "$WORK/event.json" \
-     --content-type application/json --if-none-match '*' > /dev/null 2> "$WORK/event.err"; then
-  if grep -q -E "\((PreconditionFailed|ConditionalRequestConflict)\)" "$WORK/event.err"; then
-    echo "::warning::Event $EVENT_KEY already exists, not overwritten"
-  else
-    cat "$WORK/event.err" >&2
-    echo "::error::Cannot write s3://$BUCKET/$EVENT_KEY"
-    exit 1
-  fi
-fi
+bundle_s3_put_event "$EVENT_KEY" "$WORK/event.json"
 
 # global file: replace only components.<COMPONENT>, recompute the status, write if unchanged since read
-GLOBAL_KEY="$PREFIX/global-build-status.json"
-for attempt in $(seq 1 "$MAX_ATTEMPTS"); do
-  if aws s3api get-object --bucket "$BUCKET" --key "$GLOBAL_KEY" "$WORK/global.json" > "$WORK/head.json" 2> "$WORK/get.err"; then
-    CONDITION=(--if-match "$(jq -r .ETag "$WORK/head.json")")
-  elif grep -q -E "\(NoSuchKey\)|\(404\)" "$WORK/get.err"; then
-    CONDITION=(--if-none-match '*')
-    jq -n --arg bundle "$BUNDLE" --arg scope "$SCOPE" --arg type "$TYPE" --arg major "$MAJOR" \
-      --arg number "$NUMBER" --argjson iteration "$ITERATION" \
-      '{schema_version: 1, bundle: $bundle, scope: $scope, type: $type, major: $major,
-        release_number: $number, iteration: $iteration, repos: {}, components: {}}' > "$WORK/global.json"
-  else
-    cat "$WORK/get.err" >&2
-    echo "::error::Cannot read s3://$BUCKET/$GLOBAL_KEY"
-    exit 1
-  fi
-
-  # complete once every component expected by the repositories reported success
-  jq --arg component "$COMPONENT" --argjson section "$SECTION" --arg now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" '
-    .components[$component] = $section
-    | .updated_at = $now
-    | ([.repos[]?.expected[]?] | unique) as $expected
-    | .status = (if ($expected | length) > 0
-                   and ([$expected[] as $c | .components[$c].state] | all(. == "success"))
-                 then "complete" else "incomplete" end)
-  ' "$WORK/global.json" > "$WORK/global.new.json"
-
-  if aws s3api put-object --bucket "$BUCKET" --key "$GLOBAL_KEY" --body "$WORK/global.new.json" \
-       --content-type application/json "${CONDITION[@]}" > /dev/null 2> "$WORK/put.err"; then
-    STATUS=$(jq -r .status "$WORK/global.new.json")
-    echo "Updated s3://$BUCKET/$GLOBAL_KEY: $COMPONENT=$STATE, bundle $STATUS"
-    {
-      echo "### Bundle status: $BUNDLE"
-      echo ""
-      echo "| component | state | packages | bundle |"
-      echo "|---|---|---|---|"
-      echo "| $COMPONENT | $STATE | $(jq length <<< "$PACKAGES") | $STATUS |"
-    } >> "${GITHUB_STEP_SUMMARY:-/dev/null}"
-    exit 0
-  fi
-  if grep -q -E "\((PreconditionFailed|ConditionalRequestConflict|412|409)\)" "$WORK/put.err"; then
-    echo "Global file changed since it was read (attempt $attempt/$MAX_ATTEMPTS), retrying"
-    sleep $((RANDOM % 4 + attempt))
-    continue
-  fi
-  cat "$WORK/put.err" >&2
-  echo "::error::Cannot write s3://$BUCKET/$GLOBAL_KEY"
-  exit 1
-done
-echo "::error::Gave up updating s3://$BUCKET/$GLOBAL_KEY after $MAX_ATTEMPTS attempts"
-exit 1
+echo "$SECTION" > "$WORK/section.json"
+STATUS=$(bundle_s3_update_global "$PREFIX/global-build-status.json" "$BUNDLE" components "$COMPONENT" "$WORK/section.json")
+echo "Updated s3://$BUCKET/$PREFIX/global-build-status.json: $COMPONENT=$STATE, bundle $STATUS"
+{
+  echo "### Bundle status: $BUNDLE"
+  echo ""
+  echo "| component | state | packages | bundle |"
+  echo "|---|---|---|---|"
+  echo "| $COMPONENT | $STATE | $(jq length <<< "$PACKAGES") | $STATUS |"
+} >> "${GITHUB_STEP_SUMMARY:-/dev/null}"

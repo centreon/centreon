@@ -1,0 +1,27 @@
+meta {
+  name: GET /monitoring/dashboard/metrics/performances - Search on a declared key - HTTP 200
+  type: http
+  seq: 34
+}
+
+get {
+  url: {{baseUrlWeb}}/monitoring/dashboard/metrics/performances?search={"current_value":{"$ge":0}}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("A search on the declared key 'current_value' is accepted", function () {
+    const body = res.getBody();
+    expect(body).to.have.property("result").that.is.an("array");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -85,6 +85,7 @@ export const emptyListingResponse = {
 const hostTemplateDetails: Record<number, Record<string, unknown>> = {
   1: {
     alias: 'Generic active host',
+    categories: [{ id: 4, name: 'Virtual' }],
     // Its own macro, then one its check command lends.
     check_options: {
       args: ['3', '80%'],
@@ -100,22 +101,72 @@ const hostTemplateDetails: Record<number, Record<string, unknown>> = {
         }
       ]
     },
+    // `low_flap_threshold` unset: left out.
+    data_processing: {
+      acknowledgment_timeout: 15,
+      check_freshness: 'true',
+      event_handler: { id: 8, name: 'check-centreon-ping' },
+      event_handler_args: ['80', 'graceful'],
+      event_handler_enabled: 'false',
+      flap_detection_enabled: 'true',
+      freshness_threshold: 120,
+      high_flap_threshold: 50
+    },
+    // `note_url` and `alt_icon` unset: left out.
+    extended_informations: {
+      action_url: 'https://example.com/actions',
+      comment: 'Racked in room B',
+      icon: { id: 12, name: 'server.png', url: hostTemplateIcon },
+      note: 'Front web servers'
+    },
     is_locked: false,
+    linked_service_templates: [{ id: 31, name: 'generic-ping' }],
     name: 'generic-active-host-custom',
+    // `first_delay` and `recovery_delay` unset: left out.
+    notifications: {
+      contact_groups: [{ id: 3, name: 'Supervisors' }],
+      contacts: [{ id: 1, name: 'admin' }],
+      enabled: 'false',
+      interval: 3,
+      options: ['down', 'recovery'],
+      timeperiod: { id: 1, name: '24x7' }
+    },
+    scheduling_options: {
+      active_check_enabled: 'false',
+      check_period: { id: 2, name: 'workhours' },
+      max_check_attempts: 3,
+      normal_check_interval: 5,
+      passive_check_enabled: 'true'
+    },
+    severity: { id: 2, name: 'Minor' },
     snmp_version: '2c',
-    templates: [{ id: 2, name: 'generic-active-host' }]
+    templates: [{ id: 2, name: 'generic-active-host' }],
+    timezone: { id: 7, name: 'Europe/Paris' }
   },
-  2: { is_locked: false, name: 'generic-active-host' },
+  2: {
+    categories: [],
+    is_locked: false,
+    linked_service_templates: [],
+    name: 'generic-active-host'
+  },
   3: {
     alias: 'Linux SNMP',
+    categories: [],
     is_locked: true,
+    linked_service_templates: [],
     name: 'OS-Linux-SNMP-custom',
     templates: [
       { id: 2, name: 'generic-active-host' },
       { id: 4, name: 'OS-Linux-SNMP' }
     ]
   },
-  4: { alias: 'Linux SNMP base', is_locked: true, name: 'OS-Linux-SNMP' }
+  4: {
+    alias: 'Linux SNMP base',
+    categories: [],
+    is_locked: true,
+    linked_service_templates: [],
+    name: 'OS-Linux-SNMP'
+  }
 };
 
 // Template 2 has check arguments but no check command of its own.
@@ -188,3 +239,53 @@ export const getTemplateMacrosResponses = (): Record<number, object> => ({
     name: 'OS-Linux-SNMP'
   }
 });
+
+export const getFormHostCategoriesResponse = () =>
+  toCollection('host_categories', [
+    { id: 4, name: 'Virtual' },
+    { id: 5, name: 'Physical' }
+  ]);
+
+export const getFormHostSeveritiesResponse = () =>
+  toCollection('host_severities', [
+    { id: 1, name: 'Critical' },
+    { id: 2, name: 'Minor' }
+  ]);
+
+export const getFormServiceTemplatesResponse = () =>
+  toCollection('service_templates', [
+    { id: 31, name: 'generic-ping' },
+    { id: 32, name: 'generic-cpu' }
+  ]);
+
+export const getFormMediasResponse = () =>
+  toCollection('medias', [
+    { id: 12, name: 'server.png', url: hostTemplateIcon },
+    { id: 13, name: 'router.png', url: hostTemplateIcon }
+  ]);
+
+export const getFormTimePeriodsResponse = () =>
+  toCollection('timeperiods', [
+    { id: 1, name: '24x7' },
+    { id: 2, name: 'workhours' }
+  ]);
+
+export const getTimezonesResponse = () => ({
+  ...toCollection('timezones', [
+    { id: 1, name: 'Europe/London' },
+    { id: 7, name: 'Europe/Paris' }
+  ]),
+  '@id': '/centreon/api/configuration/timezones'
+});
+
+export const getFormContactsResponse = () =>
+  toCollection('contacts', [
+    { id: 1, name: 'admin' },
+    { id: 2, name: 'guest' }
+  ]);
+
+export const getFormContactGroupsResponse = () =>
+  toCollection('contact_groups', [
+    { id: 3, name: 'Supervisors' },
+    { id: 4, name: 'Guests' }
+  ]);

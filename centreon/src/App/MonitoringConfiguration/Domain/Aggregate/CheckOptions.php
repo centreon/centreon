@@ -47,14 +47,17 @@ final readonly class CheckOptions
      *                                      unrelated to the check command, they live here only because
      *                                      the ticket groups them under check_options. Inherited macros
      *                                      belong to the templates and the command, never to the host.
+     * @param bool $commandMayBeInherited true for a host template: its arguments may apply to the
+     *                                    command its parents set, so they are kept without a command
      */
     public function __construct(
         public ?CommandId $checkCommandId,
         array $args = [],
         array $macros = [],
+        public bool $commandMayBeInherited = false,
     ) {
         // Arguments require a check command; reject them when none is set (mirrors the API-boundary check).
-        if (! $checkCommandId instanceof CommandId) {
+        if (! $checkCommandId instanceof CommandId && ! $commandMayBeInherited) {
             Assert::isEmpty($args, 'Check command arguments require a check command to be set.');
         }
 
@@ -72,7 +75,8 @@ final readonly class CheckOptions
     }
 
     /**
-     * Removing the check command also drops the arguments that were only meaningful for it.
+     * Removing the check command also drops the arguments that were only meaningful for it, unless
+     * the command may be inherited.
      *
      * @param NoValue|array<int, string> $args
      * @param NoValue|array<int, HostMacro> $macros
@@ -86,8 +90,9 @@ final readonly class CheckOptions
 
         return new self(
             checkCommandId: $commandId,
-            args: NoValue::resolve($args, $commandId instanceof CommandId ? $this->args : []),
+            args: NoValue::resolve($args, $commandId instanceof CommandId || $this->commandMayBeInherited ? $this->args : []),
             macros: NoValue::resolve($macros, $this->macros),
+            commandMayBeInherited: $this->commandMayBeInherited,
         );
     }
 

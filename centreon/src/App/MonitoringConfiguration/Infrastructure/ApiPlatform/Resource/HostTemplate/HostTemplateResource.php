@@ -28,6 +28,7 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\QueryParameter;
 use ApiPlatform\OpenApi\Model;
@@ -42,12 +43,14 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostSch
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostSeverityOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostTemplateOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostTimezoneOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\CreateHostTemplateProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\DeleteHostTemplateProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\DuplicateHostTemplateProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\GetHostTemplateMacrosProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\GetHostTemplateProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\ListHostTemplatesChoicesProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\ListHostTemplatesProvider;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\PatchHostTemplateProcessor;
 
 #[ApiResource(
     shortName: 'HostTemplate',
@@ -97,7 +100,6 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\Li
             provider: ListHostTemplatesProvider::class,
             itemUriTemplate: '/configuration/host_templates/{id}',
             output: HostTemplateCollectionOutput::class,
-            paginationMaximumItemsPerPage: 100,
             openapi: new Model\Operation(
                 parameters: [
                     new Model\Parameter(
@@ -136,6 +138,24 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\Li
             securityMessage: 'You are not allowed to list host templates',
         ),
         new Post(
+            uriTemplate: '/configuration/host_templates',
+            itemUriTemplate: '/configuration/host_templates/{id}',
+            input: CreateHostTemplateInput::class,
+            processor: CreateHostTemplateProcessor::class,
+            openapi: new Model\Operation(
+                summary: 'Create a host template',
+                responses: [
+                    401 => new Model\Response('Authentication required'),
+                    403 => new Model\Response('You are not allowed to create host templates'),
+                    409 => new Model\Response('A host or host template already uses this name'),
+                    422 => new Model\Response('Invalid value, or a reference that does not exist or cannot be used'),
+                    502 => new Model\Response('The vault could not be reached'),
+                ],
+            ),
+            security: 'is_granted("' . HostTemplatePermissionEnum::CanReadAndWrite->value . '")',
+            securityMessage: 'You are not allowed to create host templates',
+        ),
+        new Post(
             uriTemplate: '/configuration/host_templates/{id}/_duplicate',
             requirements: ['id' => '[1-9]\d*'],
             // The handler loads the source (404).
@@ -167,6 +187,32 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\Li
             ),
             security: 'is_granted("' . HostTemplatePermissionEnum::CanReadAndWrite->value . '")',
             securityMessage: 'You are not allowed to duplicate host templates',
+        ),
+        new Patch(
+            uriTemplate: '/configuration/host_templates/{id}',
+            requirements: ['id' => '[1-9]\d*'],
+            status: 204,
+            read: false,
+            input: PatchHostTemplateInput::class,
+            output: false,
+            processor: PatchHostTemplateProcessor::class,
+            openapi: new Model\Operation(
+                summary: 'Update a host template',
+                description: 'A key left out leaves its value untouched; a key sent as null clears its value where it can be cleared.',
+                responses: [
+                    204 => new Model\Response('Host template updated'),
+                    400 => new Model\Response('The host template is locked, or the body is not a JSON object'),
+                    401 => new Model\Response('Authentication required'),
+                    403 => new Model\Response('You are not allowed to update host templates'),
+                    404 => new Model\Response('Host template not found'),
+                    409 => new Model\Response('A host or host template already uses this name'),
+                    415 => new Model\Response('The body is not sent as application/merge-patch+json'),
+                    422 => new Model\Response('Invalid value, or a reference that does not exist or cannot be used'),
+                    502 => new Model\Response('The vault could not be reached'),
+                ],
+            ),
+            security: 'is_granted("' . HostTemplatePermissionEnum::CanReadAndWrite->value . '")',
+            securityMessage: 'You are not allowed to update host templates',
         ),
         new Delete(
             uriTemplate: '/configuration/host_templates/{id}',

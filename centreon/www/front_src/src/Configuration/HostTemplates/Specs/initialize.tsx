@@ -28,17 +28,33 @@ import {
   getHostTemplateEndpoint,
   getHostTemplateMacrosEndpoint,
   hostTemplateFormCommandsEndpoint,
+  hostTemplateFormContactGroupsEndpoint,
+  hostTemplateFormContactsEndpoint,
+  hostTemplateFormHostCategoriesEndpoint,
+  hostTemplateFormHostSeveritiesEndpoint,
   hostTemplateFormHostTemplatesEndpoint,
-  hostTemplatesListEndpoint
+  hostTemplateFormMediasEndpoint,
+  hostTemplateFormServiceTemplatesEndpoint,
+  hostTemplateFormTimePeriodsEndpoint,
+  hostTemplatesListEndpoint,
+  timezonesEndpoint
 } from '../api/endpoints';
 import { getDefaultValues, useFormInputs } from '../Form';
 import {
   emptyListingResponse,
   getFormCommandsResponse,
+  getFormContactGroupsResponse,
+  getFormContactsResponse,
+  getFormHostCategoriesResponse,
+  getFormHostSeveritiesResponse,
+  getFormMediasResponse,
   getFormParentTemplatesResponse,
+  getFormServiceTemplatesResponse,
+  getFormTimePeriodsResponse,
   getHostTemplateResponse,
   getListingResponse,
-  getTemplateMacrosResponses
+  getTemplateMacrosResponses,
+  getTimezonesResponse
 } from './utils';
 
 interface Props {
@@ -123,11 +139,60 @@ const initialize = ({
     });
   });
 
-  interceptAPIRequest({
-    alias: 'getFormCommands',
-    method: Method.GET,
-    path: `**${hostTemplateFormCommandsEndpoint}?**`,
-    response: getFormCommandsResponse()
+  // The form's selectors.
+  [
+    {
+      alias: 'getFormCommands',
+      path: hostTemplateFormCommandsEndpoint,
+      response: getFormCommandsResponse()
+    },
+    {
+      alias: 'getFormContacts',
+      path: hostTemplateFormContactsEndpoint,
+      response: getFormContactsResponse()
+    },
+    {
+      alias: 'getFormContactGroups',
+      path: hostTemplateFormContactGroupsEndpoint,
+      response: getFormContactGroupsResponse()
+    },
+    {
+      alias: 'getFormHostCategories',
+      path: hostTemplateFormHostCategoriesEndpoint,
+      response: getFormHostCategoriesResponse()
+    },
+    {
+      alias: 'getFormHostSeverities',
+      path: hostTemplateFormHostSeveritiesEndpoint,
+      response: getFormHostSeveritiesResponse()
+    },
+    {
+      alias: 'getFormServiceTemplates',
+      path: hostTemplateFormServiceTemplatesEndpoint,
+      response: getFormServiceTemplatesResponse()
+    },
+    {
+      alias: 'getFormMedias',
+      path: hostTemplateFormMediasEndpoint,
+      response: getFormMediasResponse()
+    },
+    {
+      alias: 'getFormTimePeriods',
+      path: hostTemplateFormTimePeriodsEndpoint,
+      response: getFormTimePeriodsResponse()
+    },
+    {
+      alias: 'getFormTimezones',
+      path: timezonesEndpoint,
+      response: getTimezonesResponse()
+    }
+  ].forEach(({ alias, path, response }) => {
+    interceptAPIRequest({
+      alias,
+      method: Method.GET,
+      path: `**${path}?**`,
+      response
+    });
   });
 
   interceptAPIRequest({

@@ -1,4 +1,4 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
   title: 'Centreon Web RestAPI'
   description: |
@@ -4246,19 +4246,19 @@ paths:
           schema:
             type: integer
             default: 1
+            minimum: 1
           style: form
           explode: true
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
             type: integer
-            default: 30
-            minimum: 0
-            maximum: 30
+            minimum: 1
+            maximum: 100
           style: form
           explode: true
     post:
@@ -4598,19 +4598,19 @@ paths:
           schema:
             type: integer
             default: 1
+            minimum: 1
           style: form
           explode: true
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
             type: integer
-            default: 30
-            minimum: 0
-            maximum: 30
+            minimum: 1
+            maximum: 100
           style: form
           explode: true
   '/api/configuration/connectors/{id}':
@@ -4737,19 +4737,19 @@ paths:
           schema:
             type: integer
             default: 1
+            minimum: 1
           style: form
           explode: true
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
             type: integer
-            default: 30
-            minimum: 0
-            maximum: 30
+            minimum: 1
+            maximum: 100
           style: form
           explode: true
   '/api/configuration/plugins/{plugin_name}':
@@ -4807,7 +4807,7 @@ paths:
                 type: object
                 description: 'Plugins.jsonld collection.'
                 allOf:
-                  - { $ref: '#/components/schemas/HydraCollectionBaseSchema' }
+                  - { $ref: '#/components/schemas/HydraCollectionBaseSchemaNoPagination' }
                   - { type: object, required: [member], properties: { member: { type: array, items: { $ref: '#/components/schemas/Plugins.jsonld' } } } }
             application/json:
               schema:
@@ -4816,31 +4816,7 @@ paths:
                   $ref: '#/components/schemas/Plugins'
       summary: 'Retrieves the collection of Plugins resources.'
       description: 'Retrieves the collection of Plugins resources.'
-      parameters:
-        -
-          name: page
-          in: query
-          description: 'The collection page number'
-          required: false
-          deprecated: false
-          schema:
-            type: integer
-            default: 1
-          style: form
-          explode: true
-        -
-          name: itemsPerPage
-          in: query
-          description: 'The number of items per page'
-          required: false
-          deprecated: false
-          schema:
-            type: integer
-            default: 30
-            minimum: 0
-            maximum: 30
-          style: form
-          explode: true
+      parameters: []
   /api/configuration/pollers:
     post:
       operationId: api_configurationpollers_post
@@ -4968,19 +4944,19 @@ paths:
           schema:
             type: integer
             default: 1
+            minimum: 1
           style: form
           explode: true
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
             type: integer
-            default: 30
-            minimum: 0
-            maximum: 30
+            minimum: 1
+            maximum: 100
           style: form
           explode: true
   '/api/configuration/pollers/installation-command/{id}':
@@ -5154,19 +5130,19 @@ paths:
           schema:
             type: integer
             default: 1
+            minimum: 1
           style: form
           explode: true
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
             type: integer
-            default: 30
-            minimum: 0
-            maximum: 30
+            minimum: 1
+            maximum: 100
           style: form
           explode: true
   /api/platform/updates:
@@ -5325,19 +5301,19 @@ paths:
           schema:
             type: integer
             default: 1
+            minimum: 1
           style: form
           explode: true
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
             type: integer
-            default: 30
-            minimum: 0
-            maximum: 30
+            minimum: 1
+            maximum: 100
           style: form
           explode: true
   /api/configuration/host_templates:
@@ -5432,21 +5408,83 @@ paths:
           schema:
             type: integer
             default: 1
+            minimum: 1
           style: form
           explode: true
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
             type: integer
-            default: 30
-            minimum: 0
+            minimum: 1
             maximum: 100
           style: form
           explode: true
+    post:
+      operationId: api_configurationhost_templates_post
+      tags:
+        - HostTemplate
+      responses:
+        '401':
+          description: 'Authentication required'
+        '403':
+          description: 'You are not allowed to create host templates'
+        '409':
+          description: 'A host or host template already uses this name'
+        '422':
+          description: 'Invalid value, or a reference that does not exist or cannot be used'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+          links: {}
+        '502':
+          description: 'The vault could not be reached'
+        '201':
+          description: 'HostTemplate resource created'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/HostTemplate.jsonld'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostTemplate'
+          links: {}
+        '400':
+          description: 'Invalid input'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+      summary: 'Create a host template'
+      description: 'Create a host template'
+      parameters: []
+      requestBody:
+        description: 'The new HostTemplate resource'
+        content:
+          application/ld+json:
+            schema:
+              $ref: '#/components/schemas/HostTemplate.CreateHostTemplateInput'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HostTemplate.CreateHostTemplateInput'
+        required: true
   /api/configuration/hosts:
     get:
       operationId: api_configurationhosts_get_collection
@@ -5574,19 +5612,19 @@ paths:
           schema:
             type: integer
             default: 1
+            minimum: 1
           style: form
           explode: true
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
             type: integer
-            default: 30
-            minimum: 0
-            maximum: 30
+            minimum: 1
+            maximum: 100
           style: form
           explode: true
     post:
@@ -5716,19 +5754,19 @@ paths:
           schema:
             type: integer
             default: 1
+            minimum: 1
           style: form
           explode: true
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
             type: integer
-            default: 30
-            minimum: 0
-            maximum: 30
+            minimum: 1
+            maximum: 100
           style: form
           explode: true
   /api/configuration/contacts:
@@ -5787,19 +5825,19 @@ paths:
           schema:
             type: integer
             default: 1
+            minimum: 1
           style: form
           explode: true
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
             type: integer
-            default: 30
-            minimum: 0
-            maximum: 30
+            minimum: 1
+            maximum: 100
           style: form
           explode: true
   /api/configuration/timezones:
@@ -5858,19 +5896,19 @@ paths:
           schema:
             type: integer
             default: 1
+            minimum: 1
           style: form
           explode: true
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
             type: integer
-            default: 30
-            minimum: 0
-            maximum: 30
+            minimum: 1
+            maximum: 100
           style: form
           explode: true
   /api/configuration/medias:
@@ -5929,19 +5967,19 @@ paths:
           schema:
             type: integer
             default: 1
+            minimum: 1
           style: form
           explode: true
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
             type: integer
-            default: 30
-            minimum: 0
-            maximum: 30
+            minimum: 1
+            maximum: 100
           style: form
           explode: true
   /api/configuration/timeperiods:
@@ -6000,19 +6038,19 @@ paths:
           schema:
             type: integer
             default: 1
+            minimum: 1
           style: form
           explode: true
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
             type: integer
-            default: 30
-            minimum: 0
-            maximum: 30
+            minimum: 1
+            maximum: 100
           style: form
           explode: true
   /api/configuration/host_severities:
@@ -6071,19 +6109,19 @@ paths:
           schema:
             type: integer
             default: 1
+            minimum: 1
           style: form
           explode: true
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
             type: integer
-            default: 30
-            minimum: 0
-            maximum: 30
+            minimum: 1
+            maximum: 100
           style: form
           explode: true
   /api/configuration/contact_groups:
@@ -6144,19 +6182,19 @@ paths:
           schema:
             type: integer
             default: 1
+            minimum: 1
           style: form
           explode: true
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
             type: integer
-            default: 30
-            minimum: 0
-            maximum: 30
+            minimum: 1
+            maximum: 100
           style: form
           explode: true
   /api/configuration/hosts/_resolve:
@@ -6566,6 +6604,72 @@ paths:
             type: string
           style: simple
           explode: false
+    patch:
+      operationId: api_configurationhost_templates_id_patch
+      tags:
+        - HostTemplate
+      responses:
+        '204':
+          description: 'Host template updated'
+          links: {}
+        '400':
+          description: 'The host template is locked, or the body is not a JSON object'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+        '401':
+          description: 'Authentication required'
+        '403':
+          description: 'You are not allowed to update host templates'
+        '404':
+          description: 'Host template not found'
+        '409':
+          description: 'A host or host template already uses this name'
+        '415':
+          description: 'The body is not sent as application/merge-patch+json'
+        '422':
+          description: 'Invalid value, or a reference that does not exist or cannot be used'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+          links: {}
+        '502':
+          description: 'The vault could not be reached'
+      summary: 'Update a host template'
+      description: 'A key left out leaves its value untouched; a key sent as null clears its value where it can be cleared.'
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'HostTemplate identifier'
+          required: true
+          deprecated: false
+          schema:
+            type: string
+          style: simple
+          explode: false
+      requestBody:
+        description: 'The updated HostTemplate resource'
+        content:
+          application/merge-patch+json:
+            schema:
+              $ref: '#/components/schemas/HostTemplate.PatchHostTemplateInput.jsonMergePatch'
+        required: true
   '/api/configuration/host_templates/{id}/_duplicate':
     post:
       operationId: api_configurationhost_templates_id_duplicate_post
@@ -6749,19 +6853,19 @@ paths:
           schema:
             type: integer
             default: 1
+            minimum: 1
           style: form
           explode: true
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
             type: integer
-            default: 30
-            minimum: 0
-            maximum: 30
+            minimum: 1
+            maximum: 100
           style: form
           explode: true
     post:
@@ -12372,10 +12476,12 @@ components:
           default: 0
           type: integer
         parent_templates:
+          description: 'the direct parent templates, in inheritance order'
           type: array
           items:
             $ref: '#/components/schemas/HostTemplateOutput'
         icon:
+          description: "the template's own icon, otherwise the first one inherited, otherwise null"
           anyOf:
             -
               $ref: '#/components/schemas/HostIconOutput'
@@ -12402,10 +12508,12 @@ components:
               default: 0
               type: integer
             parent_templates:
+              description: 'the direct parent templates, in inheritance order'
               type: array
               items:
                 $ref: '#/components/schemas/HostTemplateOutput.jsonld'
             icon:
+              description: "the template's own icon, otherwise the first one inherited, otherwise null"
               anyOf:
                 -
                   $ref: '#/components/schemas/HostIconOutput.jsonld'
@@ -12709,6 +12817,7 @@ components:
             -
               type: 'null'
         notifications:
+          description: 'Not available on a Cloud platform, where notifications follow a different model.'
           anyOf:
             -
               $ref: '#/components/schemas/CreateHostNotificationsInput'
@@ -12961,6 +13070,7 @@ components:
           items:
             type: string
         macros:
+          description: "the host's own custom macros"
           type: array
           items:
             $ref: '#/components/schemas/HostMacroInput'
@@ -13301,6 +13411,7 @@ components:
       type: object
       properties:
         command:
+          description: 'the check command, null when none is set'
           anyOf:
             -
               $ref: '#/components/schemas/HostCheckCommandOutput'
@@ -13312,6 +13423,7 @@ components:
           items:
             type: string
         macros:
+          description: "the host's own custom macros (post inheritance strip)"
           type: array
           items:
             $ref: '#/components/schemas/HostMacroOutput'
@@ -13319,6 +13431,7 @@ components:
       type: object
       properties:
         command:
+          description: 'the check command, null when none is set'
           anyOf:
             -
               $ref: '#/components/schemas/HostCheckCommandOutput.jsonld'
@@ -13330,6 +13443,7 @@ components:
           items:
             type: string
         macros:
+          description: "the host's own custom macros (post inheritance strip)"
           type: array
           items:
             $ref: '#/components/schemas/HostMacroOutput.jsonld'
@@ -13934,6 +14048,7 @@ components:
             -
               type: 'null'
         notifications:
+          description: 'Not available on a Cloud platform, where notifications follow a different model.'
           anyOf:
             -
               $ref: '#/components/schemas/PatchHostNotificationsInput'
@@ -14046,6 +14161,7 @@ components:
             -
               type: 'null'
         notifications:
+          description: 'Not available on a Cloud platform, where notifications follow a different model.'
           anyOf:
             -
               $ref: '#/components/schemas/CreateHostNotificationsInput'
@@ -14067,10 +14183,12 @@ components:
           items:
             type: string
         macros:
+          description: 'Replaces the custom macros: the host''s own macros left out are removed. Each macro points to the macro it changes by id (and parent, for an inherited one), or is new without an id. A password macro without value keeps its stored value. Only one of this, "macros_to_upsert" and "macros_to_remove" can be sent.'
           type: array
           items:
             $ref: '#/components/schemas/HostMacroInput'
         macros_to_upsert:
+          description: 'Writes these macros and keeps the other ones. Same macros as above.'
           type: array
           items:
             $ref: '#/components/schemas/HostMacroInput'
@@ -14332,6 +14450,7 @@ components:
             -
               type: 'null'
         traps:
+          description: 'null, and so left out, on a Cloud platform'
           type: array
           items:
             $ref: '#/components/schemas/ServiceTrapOutput'
@@ -14389,6 +14508,7 @@ components:
                 -
                   type: 'null'
             traps:
+              description: 'null, and so left out, on a Cloud platform'
               type: array
               items:
                 $ref: '#/components/schemas/ServiceTrapOutput.jsonld'
@@ -14492,6 +14612,7 @@ components:
             -
               type: 'null'
         notifications:
+          description: 'Not available on a Cloud platform, where notifications follow a different model.'
           anyOf:
             -
               $ref: '#/components/schemas/PatchServiceNotificationsInput'
@@ -14730,6 +14851,9 @@ components:
           items:
             type: string
         macros:
+          description: |-
+            every macro the service effectively has: its own, then the ones it
+            inherits
           type: array
           items:
             $ref: '#/components/schemas/ServiceMacroOutput'
@@ -14748,6 +14872,9 @@ components:
           items:
             type: string
         macros:
+          description: |-
+            every macro the service effectively has: its own, then the ones it
+            inherits
           type: array
           items:
             $ref: '#/components/schemas/ServiceMacroOutput.jsonld'
@@ -15244,6 +15371,7 @@ components:
             -
               type: 'null'
         notifications:
+          description: 'Not available on a Cloud platform, where notifications follow a different model.'
           anyOf:
             -
               $ref: '#/components/schemas/ServiceNotificationsInput'
@@ -15375,6 +15503,7 @@ components:
           items:
             type: string
         macros:
+          description: "the service's own custom macros, and the inherited ones it overrides"
           type: array
           items:
             $ref: '#/components/schemas/ServiceMacroInput'
@@ -15541,6 +15670,7 @@ components:
           items:
             $ref: '#/components/schemas/HostCategoryOutput'
         templates:
+          description: 'in relation order'
           type: array
           items:
             $ref: '#/components/schemas/HostTemplateOutput'
@@ -15612,6 +15742,7 @@ components:
               items:
                 $ref: '#/components/schemas/HostCategoryOutput.jsonld'
             templates:
+              description: 'in relation order'
               type: array
               items:
                 $ref: '#/components/schemas/HostTemplateOutput.jsonld'
@@ -15825,6 +15956,7 @@ components:
             -
               type: 'null'
         notifications:
+          description: 'Not available on a Cloud platform, where notifications follow a different model.'
           anyOf:
             -
               $ref: '#/components/schemas/ServiceNotificationsInput'
@@ -15978,10 +16110,12 @@ components:
           items:
             type: string
         macros:
+          description: 'Replaces the custom macros: the service''s own macros left out are removed. Each macro points to the macro it changes by id (and parent, for an inherited one), or is new without an id. A password macro without value keeps its stored value. Only one of this, "macros_to_upsert" and "macros_to_remove" can be sent.'
           type: array
           items:
             $ref: '#/components/schemas/ServiceMacroInput'
         macros_to_upsert:
+          description: 'Writes these macros and keeps the other ones. Same macros as above.'
           type: array
           items:
             $ref: '#/components/schemas/ServiceMacroInput'
@@ -16097,4 +16231,477 @@ components:
           minimum: 0
           type:
             - integer
+            - 'null'
+    CreateHostTemplateCheckOptionsInput:
+      type: object
+      properties:
+        command_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        args:
+          description: 'kept without a check command: they apply to the command the parents set'
+          type: array
+          items:
+            type: string
+        macros:
+          type: array
+          items:
+            $ref: '#/components/schemas/HostTemplateMacroInput'
+    CreateHostTemplateDataProcessingInput:
+      type: object
+      properties:
+        check_freshness:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        freshness_threshold:
+          minimum: 0
+          maximum: 2147483647
+          type:
+            - integer
+            - 'null'
+        event_handler_enabled:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        event_handler_command_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        acknowledgment_timeout:
+          minimum: 1
+          maximum: 2147483647
+          type:
+            - integer
+            - 'null'
+        flap_detection_enabled:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        low_flap_threshold:
+          minimum: 0
+          maximum: 100
+          type:
+            - integer
+            - 'null'
+        high_flap_threshold:
+          minimum: 0
+          maximum: 100
+          type:
+            - integer
+            - 'null'
+        event_handler_args:
+          type: array
+          items:
+            type: string
+    CreateHostTemplateExtendedInformationsInput:
+      type: object
+      properties:
+        note_url:
+          maxLength: 2048
+          type:
+            - string
+            - 'null'
+        note:
+          maxLength: 512
+          type:
+            - string
+            - 'null'
+        action_url:
+          maxLength: 2048
+          type:
+            - string
+            - 'null'
+        icon_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        alt_icon:
+          maxLength: 200
+          type:
+            - string
+            - 'null'
+        comment:
+          maxLength: 65535
+          type:
+            - string
+            - 'null'
+    CreateHostTemplateNotificationsInput:
+      type: object
+      properties:
+        enabled:
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+          type: string
+        contacts:
+          type: array
+          items:
+            type: integer
+        contact_groups:
+          type: array
+          items:
+            type: integer
+        options:
+          description: 'State transitions triggering a notification. "none" is exclusive.'
+          type: array
+          items:
+            type: string
+            enum:
+              - down
+              - unreachable
+              - recovery
+              - flapping
+              - downtime_scheduled
+              - none
+        interval:
+          minimum: 0
+          maximum: 2147483647
+          type:
+            - integer
+            - 'null'
+        timeperiod_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        first_delay:
+          minimum: 0
+          maximum: 2147483647
+          type:
+            - integer
+            - 'null'
+        recovery_delay:
+          minimum: 0
+          maximum: 2147483647
+          type:
+            - integer
+            - 'null'
+        contact_additive_inheritance:
+          description: "Ignored unless the platform's inheritance mode enables additive inheritance."
+          type: boolean
+        contact_group_additive_inheritance:
+          description: "Ignored unless the platform's inheritance mode enables additive inheritance."
+          type: boolean
+    CreateHostTemplateSchedulingOptionsInput:
+      type: object
+      properties:
+        check_timeperiod_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        max_check_attempts:
+          minimum: 1
+          maximum: 2147483647
+          type:
+            - integer
+            - 'null'
+        normal_check_interval:
+          minimum: 1
+          maximum: 2147483647
+          type:
+            - integer
+            - 'null'
+        retry_check_interval:
+          minimum: 1
+          maximum: 2147483647
+          type:
+            - integer
+            - 'null'
+        active_check_enabled:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        passive_check_enabled:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+    HostTemplate.CreateHostTemplateInput:
+      type: object
+      required:
+        - name
+        - alias
+      properties:
+        name:
+          maxLength: 200
+          description: 'Trimmed; inner spaces become underscores. Unique among hosts and host templates.'
+          type:
+            - string
+            - 'null'
+        alias:
+          maxLength: 200
+          type:
+            - string
+            - 'null'
+        snmp_version:
+          type:
+            - string
+            - 'null'
+          enum:
+            - '1'
+            - 2c
+            - '3'
+            - null
+        snmp_community:
+          pattern: '^(((?![\x00-\x1F\x7F]).)*)$'
+          description: 'Write-only. Stored in the vault when one is configured, and never returned.'
+          type:
+            - string
+            - 'null'
+        timezone_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        severity_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        template_ids:
+          description: 'Ordered: the position of a parent template sets the inheritance order.'
+          type: array
+          items:
+            type: integer
+        category_ids:
+          type: array
+          items:
+            type: integer
+        linked_service_template_ids:
+          description: 'Ordered: the position of a service template sets the priority of its check command macros.'
+          type: array
+          items:
+            type: integer
+        check_options:
+          anyOf:
+            -
+              $ref: '#/components/schemas/CreateHostTemplateCheckOptionsInput'
+            -
+              type: 'null'
+        extended_informations:
+          anyOf:
+            -
+              $ref: '#/components/schemas/CreateHostTemplateExtendedInformationsInput'
+            -
+              type: 'null'
+        scheduling_options:
+          anyOf:
+            -
+              $ref: '#/components/schemas/CreateHostTemplateSchedulingOptionsInput'
+            -
+              type: 'null'
+        data_processing:
+          anyOf:
+            -
+              $ref: '#/components/schemas/CreateHostTemplateDataProcessingInput'
+            -
+              type: 'null'
+        notifications:
+          description: 'Not available on a Cloud platform, where notifications follow a different model.'
+          anyOf:
+            -
+              $ref: '#/components/schemas/CreateHostTemplateNotificationsInput'
+            -
+              type: 'null'
+    HostTemplateMacroInput:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          maxLength: 248
+          type: string
+        value:
+          maxLength: 4096
+          pattern: '^(((?!^secret::).)*)$'
+          type:
+            - string
+            - 'null'
+        is_password:
+          type: boolean
+        id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        parent:
+          enum:
+            - template
+            - command
+          type:
+            - string
+            - 'null'
+    HostTemplate.PatchHostTemplateInput.jsonMergePatch:
+      type: object
+      properties:
+        name:
+          maxLength: 200
+          description: 'Trimmed; inner spaces become underscores.'
+          type:
+            - string
+            - 'null'
+        alias:
+          maxLength: 200
+          type:
+            - string
+            - 'null'
+        snmp_version:
+          type:
+            - string
+            - 'null'
+          enum:
+            - '1'
+            - 2c
+            - '3'
+            - null
+        snmp_community:
+          pattern: '^(((?![\x00-\x1F\x7F]).)*)$'
+          description: 'Write-only, never returned. Left out keeps the community, null removes it.'
+          type:
+            - string
+            - 'null'
+        timezone_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        severity_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          description: 'null removes the severity, unless it is one the user cannot see.'
+          type:
+            - integer
+            - 'null'
+        check_options:
+          anyOf:
+            -
+              $ref: '#/components/schemas/PatchHostTemplateCheckOptionsInput'
+            -
+              type: 'null'
+        extended_informations:
+          anyOf:
+            -
+              $ref: '#/components/schemas/CreateHostTemplateExtendedInformationsInput'
+            -
+              type: 'null'
+        scheduling_options:
+          anyOf:
+            -
+              $ref: '#/components/schemas/CreateHostTemplateSchedulingOptionsInput'
+            -
+              type: 'null'
+        data_processing:
+          anyOf:
+            -
+              $ref: '#/components/schemas/CreateHostTemplateDataProcessingInput'
+            -
+              type: 'null'
+        notifications:
+          description: 'Not available on a Cloud platform, where notifications follow a different model.'
+          anyOf:
+            -
+              $ref: '#/components/schemas/PatchHostTemplateNotificationsInput'
+            -
+              type: 'null'
+    PatchHostTemplateCheckOptionsInput:
+      type: object
+      properties:
+        command_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          description: 'null removes the command; the arguments are kept unless sent'
+          type:
+            - integer
+            - 'null'
+        args:
+          description: 'an empty list clears the arguments; accepted without a command'
+          type: array
+          items:
+            type: string
+    PatchHostTemplateNotificationsInput:
+      type: object
+      properties:
+        enabled:
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+          description: 'null means "use_default".'
+          type:
+            - string
+            - 'null'
+        interval:
+          minimum: 0
+          maximum: 2147483647
+          type:
+            - integer
+            - 'null'
+        timeperiod_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        first_delay:
+          minimum: 0
+          maximum: 2147483647
+          type:
+            - integer
+            - 'null'
+        recovery_delay:
+          minimum: 0
+          maximum: 2147483647
+          type:
+            - integer
+            - 'null'
+        contact_additive_inheritance:
+          description: "Forced to false unless the platform's inheritance mode enables additive inheritance."
+          type:
+            - boolean
+            - 'null'
+        contact_group_additive_inheritance:
+          description: "Forced to false unless the platform's inheritance mode enables additive inheritance."
+          type:
+            - boolean
             - 'null'

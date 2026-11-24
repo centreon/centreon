@@ -29,6 +29,7 @@ use App\MonitoringConfiguration\Domain\Repository\Criteria\TimePeriodCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalTimePeriodRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\TimePeriodTransformer;
 use App\Shared\Domain\Collection;
+use App\Shared\Domain\Repository\Pagination;
 use App\Shared\Domain\Repository\Paginator;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -155,7 +156,7 @@ final class DbalTimePeriodRepositoryTest extends KernelTestCase
         $result = $this->repository->findAll(
             (new TimePeriodCriteria())
                 ->withName("pg-{$this->tag}-", TimePeriodCriteria::OPERATOR_LIKE)
-                ->withPagination(2, 1)
+                ->withPagination(new Pagination(2, 1))
         );
 
         self::assertInstanceOf(Paginator::class, $result);

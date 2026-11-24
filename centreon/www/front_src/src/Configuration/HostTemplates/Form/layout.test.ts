@@ -1,8 +1,16 @@
 import type { TFunction } from 'i18next';
 
 import {
+  threeColumnsFromWide,
+  twoColumnsFromWide
+} from '../../ResourceForm/grid';
+import {
+  labelAdvanced,
   labelGeneralInformation,
-  labelHostMonitoringProperties
+  labelHostMonitoringProperties,
+  labelMonitoringEngineSchedulingOptions,
+  labelNotifications,
+  labelRelations
 } from '../translatedLabels';
 import { getPlacedBlockIds, placeBlocks } from './layout';
 import {
@@ -58,13 +66,42 @@ describe('layout', () => {
   it('shows the sections in the order of the design', () => {
     expect(getSectionLabels({ isCloudPlatform: false, t })).toEqual([
       labelGeneralInformation,
-      labelHostMonitoringProperties
-    ]);
-    expect(getSectionLabels({ isCloudPlatform: true, t })).toEqual([
-      labelGeneralInformation,
-      labelHostMonitoringProperties
+      labelHostMonitoringProperties,
+      labelRelations,
+      labelMonitoringEngineSchedulingOptions,
+      labelNotifications,
+      labelAdvanced
     ]);
   });
+
+  it('has no notifications section on a cloud platform', () => {
+    expect(getSectionLabels({ isCloudPlatform: true, t })).toEqual([
+      labelGeneralInformation,
+      labelHostMonitoringProperties,
+      labelRelations,
+      labelMonitoringEngineSchedulingOptions,
+      labelAdvanced
+    ]);
+  });
+
+  it.each([
+    [false, 3, threeColumnsFromWide],
+    [true, 2, twoColumnsFromWide]
+  ])(
+    'lays the advanced settings out in as many columns as the platform keeps (cloud: %s)',
+    (isCloudPlatform, columnCount, className) => {
+      const advanced = placeBlocks({
+        blocks: getBlocks({ isCloudPlatform, t }),
+        t
+      }).find(({ label }) => label === labelAdvanced);
+      const grid = advanced?.inputs.find(
+        ({ fieldName }) => fieldName === 'advanced-layout'
+      )?.grid;
+
+      expect(grid?.columns).toHaveLength(columnCount);
+      expect(grid?.className).toBe(className);
+    }
+  );
 
   it('shows the SNMP fields right after the check command', () => {
     const [, monitoringProperties] = placeBlocks({

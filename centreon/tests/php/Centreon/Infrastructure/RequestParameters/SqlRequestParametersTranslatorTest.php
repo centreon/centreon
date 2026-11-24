@@ -135,6 +135,25 @@ class SqlRequestParametersTranslatorTest extends TestCase
     }
 
     /**
+     * test translateSearchParameterToSql rejects an unknown search key with the default request parameters
+     */
+    public function testTranslateSearchParameterToSqlRejectsUnknownKeyByDefault(): void
+    {
+        $requestParameters = new RequestParameters();
+        $requestParameters->setSearch('{"host.unknown": "foo"}');
+
+        $sqlRequestParametersTranslator = new SqlRequestParametersTranslator($requestParameters);
+        $sqlRequestParametersTranslator->setConcordanceArray([
+            'host.name' => 'h.name',
+        ]);
+
+        $this->expectException(RequestParametersTranslatorException::class);
+        $this->expectExceptionMessage('The parameter host.unknown is not allowed');
+
+        $sqlRequestParametersTranslator->translateSearchParameterToSql();
+    }
+
+    /**
      * test translateSearchParameterToSql with wrong concordance array and strict mode in silent mode
      */
     public function testTranslateSearchParameterToSqlWithWrongConcordanceArrayAndStrictModeSilent(): void

@@ -35,6 +35,10 @@ msgstr "O fuso horário utilizado é o mesmo que foi configurado no seu perfil d
 msgid " to "
 msgstr ""
 
+#: centreon/www/install/front_translate.php
+msgid "\"None\" can't be combined with other options. Set this list to Replace, or services with other options won't be updated."
+msgstr ""
+
 #: centreon/www/install/react_translation.php
 #, php-format
 msgid "%s is not valid."
@@ -9563,7 +9567,6 @@ msgstr "Tipo de Recurso incorreto: %s"
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
-#: centreon/www/install/front_translate.php
 msgid "Incremental"
 msgstr "Incremental"
 
@@ -10521,6 +10524,10 @@ msgstr ""
 
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Listening port"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Lists set to Replace will overwrite the corresponding lists of all selected services. If you leave a list set to Replace blank, its existing entries will be deleted from all selected services. Entries you don't have access to are unaffected."
 msgstr ""
 
 #: centreon/www/include/home/customViews/formLoad.php
@@ -14288,13 +14295,16 @@ msgstr ""
 msgid "Reordering cancelled, row {{position}} returned to its original position"
 msgstr ""
 
+#: centreon/www/install/front_translate.php
+msgid "Replace"
+msgstr "Substituição"
+
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 #: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
-#: centreon/www/install/front_translate.php
 msgid "Replacement"
 msgstr "Substituição"
 
@@ -19330,6 +19340,10 @@ msgid "Welcome to the notifications interface"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "When services inherit contacts and contact groups only from their host, their own contacts and contact groups are removed. Only those you have access to are affected."
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Which endpoint does the conditions attribute path come from?"
 msgstr "De que endpoint as condições atribuem o caminho?"
 
@@ -22938,10 +22952,6 @@ msgid "Release"
 msgstr "Versão"
 
 #: unknown
-msgid "Replace"
-msgstr "Substituição"
-
-#: unknown
 msgid "Replace existing ones"
 msgstr "Substituir arquivos existentes"
 
@@ -24079,17 +24089,3 @@ msgstr "período de tempo"
 #: unknown
 msgid "topology_name"
 msgstr "Nome da Topologia"
-
-
-#: centreon/www/install/front_translate.php
-msgid "Lists set to Replace will overwrite the corresponding lists of all selected services. If you leave a list set to Replace blank, its existing entries will be deleted from all selected services. Entries you don't have access to are unaffected."
-msgstr ""
-
-
-#: centreon/www/install/front_translate.php
-msgid "\"None\" can't be combined with other options. Set this list to Replace, or services with other options won't be updated."
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "When services inherit contacts and contact groups only from their host, their own contacts and contact groups are removed. Only those you have access to are affected."
-msgstr ""

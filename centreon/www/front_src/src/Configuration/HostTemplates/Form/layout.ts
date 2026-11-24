@@ -1,6 +1,13 @@
 import type { TFunction } from 'i18next';
 
-import { twoColumns, twoColumnsFromWide } from '../../ResourceForm/grid';
+import {
+  schedulingColumns,
+  stackedColumns,
+  threeColumnsFromWide,
+  twoColumns,
+  twoColumnsFromNarrow,
+  twoColumnsFromWide
+} from '../../ResourceForm/grid';
 import {
   getPlacedBlockIds as getLayoutBlockIds,
   type LayoutNode,
@@ -9,8 +16,14 @@ import {
   placeBlocks as placeLayoutBlocks
 } from '../../ResourceForm/layout';
 import {
+  labelAdvanced,
   labelGeneralInformation,
-  labelHostMonitoringProperties
+  labelHostDetails,
+  labelHostMonitoringProperties,
+  labelMonitoringEngineSchedulingOptions,
+  labelNotifications,
+  labelRelations,
+  labelSchedulingOptions
 } from '../translatedLabels';
 import { type BlockId, type Blocks, hostTemplateResource } from './sections';
 
@@ -36,6 +49,99 @@ export const layout: Array<LayoutSection> = [
         name: 'templates-layout'
       }
     ]
+  },
+  {
+    label: labelRelations,
+    nodes: [
+      {
+        className: twoColumnsFromNarrow,
+        columnSeparator: true,
+        columns: [
+          {
+            className: stackedColumns,
+            columns: ['linkedServiceTemplates'],
+            name: 'relations-left'
+          },
+          {
+            className: stackedColumns,
+            columns: ['categories', 'severity'],
+            name: 'relations-right'
+          }
+        ],
+        name: 'relations-layout'
+      }
+    ]
+  },
+  {
+    label: labelMonitoringEngineSchedulingOptions,
+    nodes: [
+      {
+        className: twoColumnsFromNarrow,
+        columnSeparator: true,
+        columns: [
+          {
+            className: twoColumnsFromWide,
+            columns: [
+              'notesAndIcons',
+              {
+                className: stackedColumns,
+                columns: ['actionUrl', 'timezone'],
+                name: 'host-details-right'
+              }
+            ],
+            name: 'host-details',
+            title: labelHostDetails
+          },
+          {
+            className: schedulingColumns,
+            columnSeparator: true,
+            columns: ['checkPeriodAndIntervals', 'activeAndPassiveChecks'],
+            name: 'scheduling-options',
+            title: labelSchedulingOptions
+          }
+        ],
+        name: 'monitoring-layout'
+      }
+    ]
+  },
+  {
+    label: labelNotifications,
+    nodes: [
+      {
+        className: twoColumnsFromWide,
+        columnSeparator: true,
+        columns: [
+          'notificationRecipients',
+          {
+            className: stackedColumns,
+            columns: ['notifyOn', 'notificationDelays'],
+            name: 'notifications-when'
+          }
+        ],
+        name: 'notifications-layout'
+      }
+    ]
+  },
+  {
+    label: labelAdvanced,
+    nodes: [
+      {
+        className: (count) =>
+          count === 3 ? threeColumnsFromWide : twoColumnsFromWide,
+        columnSeparator: true,
+        columns: [
+          'eventHandler',
+          {
+            className: stackedColumns,
+            columns: ['freshness', 'acknowledgmentTimeout'],
+            name: 'freshness-layout'
+          },
+          'flapping'
+        ],
+        name: 'advanced-layout'
+      },
+      'comment'
+    ]
   }
 ];
 
@@ -44,7 +150,8 @@ export const getPlacedBlockIds = (
   nodes: Array<LayoutNode> = layout.flatMap((section) => section.nodes)
 ): Array<BlockId> => getLayoutBlockIds(nodes);
 
-// The sections the form shows, those left without any input aside.
+// The sections the form shows, those left without any input aside: a cloud
+// platform has no notification.
 export const placeBlocks = ({
   blocks,
   t

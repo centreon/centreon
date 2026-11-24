@@ -77,6 +77,16 @@ final class FakeHostTemplateRepository implements HostTemplateRepository
     /** @var list<int> */
     public array $removedIds = [];
 
+    /** @var list<int> the ids given by add(), in order */
+    public array $addedIds = [];
+
+    /** @var list<int> the ids saved by update(), in order */
+    public array $updatedIds = [];
+
+    public ?\Throwable $addThrows = null;
+
+    public ?\Throwable $updateThrows = null;
+
     public ?\Throwable $addCopyThrows = null;
 
     public ?\Throwable $findServiceTemplateIdsThrows = null;
@@ -190,13 +200,38 @@ final class FakeHostTemplateRepository implements HostTemplateRepository
         return $this->hostTemplates[$id->value] ?? null;
     }
 
-    public function isNameUsedByHostOrTemplate(HostTemplateName $name): bool
+    public function isNameUsedByHostOrTemplate(HostTemplateName $name, ?HostTemplateId $excluding = null): bool
     {
         if (in_array($name->value, $this->hostNames, true)) {
             return true;
         }
 
-        return array_any($this->hostTemplates, static fn (HostTemplate $template): bool => $template->name->value === $name->value);
+        return array_any(
+            $this->hostTemplates,
+            static fn (HostTemplate $template, int $id): bool => $template->name->value === $name->value && $id !== $excluding?->value,
+        );
+    }
+
+    public function update(HostTemplate $hostTemplate): void
+    {
+        if ($this->updateThrows instanceof \Throwable) {
+            throw $this->updateThrows;
+        }
+
+        $this->hostTemplates[$hostTemplate->id()->value] = $hostTemplate;
+        $this->updatedIds[] = $hostTemplate->id()->value;
+    }
+
+    public function add(HostTemplate $hostTemplate): void
+    {
+        if ($this->addThrows instanceof \Throwable) {
+            throw $this->addThrows;
+        }
+
+        $id = $this->nextId++;
+        (new \ReflectionProperty(AggregateRoot::class, 'id'))->setValue($hostTemplate, new HostTemplateId($id));
+        $this->hostTemplates[$id] = $hostTemplate;
+        $this->addedIds[] = $id;
     }
 
     public function addCopyOf(HostTemplate $copy, HostTemplateId $sourceId): void

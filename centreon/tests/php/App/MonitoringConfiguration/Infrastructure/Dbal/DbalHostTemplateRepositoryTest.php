@@ -33,11 +33,13 @@ use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostTemplateRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalModuleRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\HostTemplateListingTransformer;
 use App\MonitoringConfiguration\Infrastructure\Dbal\HostTemplateTransformer;
+use App\MonitoringConfiguration\Infrastructure\Dbal\NotificationsTransformer;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Service\AccessScopeResolver;
 use App\Security\Infrastructure\Dbal\DbalAccessGroupRepository;
 use App\Security\Infrastructure\Dbal\DbalResourceAccessRepository;
 use App\Shared\Domain\Collection;
+use App\Shared\Domain\Repository\Pagination;
 use App\Shared\Domain\Repository\Paginator;
 use App\Shared\Domain\Repository\SortDirectionEnum;
 use Doctrine\DBAL\Connection;
@@ -70,6 +72,7 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
             new HostTemplateListingTransformer(),
             new AccessScopeResolver(new DbalResourceAccessRepository($this->connection, $realTimeConnection, new DbalAccessGroupRepository($this->connection))),
             new DbalModuleRepository($this->connection),
+            new NotificationsTransformer(),
         );
 
         // unique per test run so assertions are isolated from any pre-seeded host templates
@@ -143,7 +146,7 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         // scope to our own rows via the name filter so pre-seeded templates cannot skew the total.
         // page 2 @ 1 item/page proves the OFFSET arithmetic (a page-1 request cannot).
         $result = $this->repository->findAll(
-            HostTemplateCriteria::unscoped()->withName("pg-{$this->tag}-")->withPagination(2, 1)
+            HostTemplateCriteria::unscoped()->withName("pg-{$this->tag}-")->withPagination(new Pagination(2, 1))
         );
 
         self::assertInstanceOf(Paginator::class, $result);
@@ -266,7 +269,7 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         $this->insertListedTemplate("page-{$this->tag}-b");
 
         $result = $this->repository->findAll(
-            HostTemplateCriteria::unscoped()->withName("page-{$this->tag}-")->withSort('name', SortDirectionEnum::ASC)->withPagination(2, 2)
+            HostTemplateCriteria::unscoped()->withName("page-{$this->tag}-")->withSort('name', SortDirectionEnum::ASC)->withPagination(new Pagination(2, 2))
         );
 
         self::assertInstanceOf(Paginator::class, $result);
@@ -492,7 +495,7 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
 
         self::assertSame([], $this->names($this->repository->findAll($criteria)), 'An actor granted only regular categories sees no host template.');
 
-        $paginated = $this->repository->findAll($criteria->withPagination(1, 10));
+        $paginated = $this->repository->findAll($criteria->withPagination(new Pagination(1, 10)));
         self::assertInstanceOf(Paginator::class, $paginated, 'Pagination metadata must survive an empty ACL result.');
         self::assertSame(0, $paginated->getTotalItems());
         self::assertSame([], $this->names($paginated));

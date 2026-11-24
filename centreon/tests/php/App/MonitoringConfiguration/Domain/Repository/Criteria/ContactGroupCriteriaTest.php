@@ -27,6 +27,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ContactGroupCriteria;
 use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Aggregate\ActingUser;
+use App\Shared\Domain\Repository\Pagination;
 use PHPUnit\Framework\TestCase;
 use Tests\App\Security\Infrastructure\Double\TestActingUsers;
 
@@ -46,7 +47,7 @@ final class ContactGroupCriteriaTest extends TestCase
     {
         $criteria = ContactGroupCriteria::unscoped();
 
-        $new = $criteria->withPagination(2, 10);
+        $new = $criteria->withPagination(new Pagination(2, 10));
 
         self::assertNull($criteria->getPagination());
         $pagination = $new->getPagination();
@@ -64,7 +65,7 @@ final class ContactGroupCriteriaTest extends TestCase
 
     public function testWithersKeepTheActor(): void
     {
-        $criteria = ContactGroupCriteria::forActor(TestActingUsers::restricted(7))->withName('Supervisors')->withPagination(1, 10);
+        $criteria = ContactGroupCriteria::forActor(TestActingUsers::restricted(7))->withName('Supervisors')->withPagination(new Pagination(1, 10));
 
         self::assertSame([7], $criteria->accessScope($this->scopeOf(...), ContactGroupId::class)->allowedIdValues());
     }
@@ -105,20 +106,6 @@ final class ContactGroupCriteriaTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
 
         ContactGroupCriteria::unscoped()->withName('');
-    }
-
-    public function testWithPaginationRejectsANonPositivePage(): void
-    {
-        $this->expectException(\InvalidArgumentException::class);
-
-        ContactGroupCriteria::unscoped()->withPagination(0, 10);
-    }
-
-    public function testWithPaginationRejectsANonPositiveItemsPerPage(): void
-    {
-        $this->expectException(\InvalidArgumentException::class);
-
-        ContactGroupCriteria::unscoped()->withPagination(1, 0);
     }
 
     /**

@@ -25,8 +25,25 @@ export const getDuplicateHostTemplateEndpoint = ({
 // the rights on the listed resource.
 export const hostTemplateFormCommandsEndpoint =
   '/configuration/host_templates/commands';
+export const hostTemplateFormContactsEndpoint =
+  '/configuration/host_templates/contacts';
+export const hostTemplateFormContactGroupsEndpoint =
+  '/configuration/host_templates/contact_groups';
 export const hostTemplateFormHostTemplatesEndpoint =
   '/configuration/host_templates/host_templates';
+export const hostTemplateFormHostCategoriesEndpoint =
+  '/configuration/host_templates/host_categories';
+export const hostTemplateFormHostSeveritiesEndpoint =
+  '/configuration/host_templates/host_severities';
+export const hostTemplateFormServiceTemplatesEndpoint =
+  '/configuration/host_templates/service_templates';
+export const hostTemplateFormMediasEndpoint =
+  '/configuration/host_templates/medias';
+export const hostTemplateFormTimePeriodsEndpoint =
+  '/configuration/host_templates/timeperiods';
+
+// Granted to every authenticated user: no form-scoped variant.
+export const timezonesEndpoint = '/configuration/timezones';
 
 // One template's macros, its own and those it inherits.
 export const getHostTemplateMacrosEndpoint = ({ id }: { id: number }): string =>

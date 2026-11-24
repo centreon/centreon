@@ -116,6 +116,8 @@ collections:
     path: "collections/Comment"
   - name: "Submit_Result"
     path: "collections/Submit_Result"
+  - name: "Search_Parameters"
+    path: "collections/Search_Parameters"
 
 specs:
 
