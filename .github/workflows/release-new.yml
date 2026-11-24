@@ -29,6 +29,10 @@ on:
         options:
           - cloud
           - onprem
+      skip_bundle_check:
+        description: 'Skip the testing bundle check (only when the bundle was checked by hand)'
+        type: boolean
+        default: false
 
 # Tag pushes are not idempotent: a second run on the same train fails mid-loop, having pushed some
 # tags and not others. Never cancel-in-progress, which would strand a release between tags.
@@ -99,8 +103,49 @@ jobs:
           fi
         shell: bash
 
-  release:
+  # Lines built from testing tags only: the packages in testing must come from the head being released.
+  # Rules: delivery-tooling docs/release/testing-bundles.md ("release-new guard"). Legacy lines are skipped.
+  check-testing-bundle:
     needs: [check-inputs]
+    if: ${{ github.repository == 'centreon/centreon' }}
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      RELEASE_BRANCH: ${{ inputs.release_branch }}
+      RELEASE_NUMBER: ${{ inputs.release_number }}
+      RELEASE_TYPE: ${{ inputs.release_type }}
+      RELEASE_SCOPE: ${{ inputs.release_scope }}
+      SKIP_BUNDLE_CHECK: ${{ inputs.skip_bundle_check }}
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Read the mode of the release branch
+        id: mode
+        run: bash .github/scripts/release/release-new-bundle-guard.sh mode
+        shell: bash
+
+      # same role as release-trigger-builds: read access to the bundles, trusted on develop only
+      - name: Configure AWS credentials
+        if: steps.mode.outputs.mode == 'testing'
+        continue-on-error: ${{ inputs.skip_bundle_check }}
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: arn:aws:iam::625664829291:role/release-orchestrator-github-trigger-writer
+          role-session-name: release-new-${{ github.run_id }}
+          aws-region: eu-west-1
+
+      - name: Check the testing bundle of this release
+        run: bash .github/scripts/release/release-new-bundle-guard.sh check
+        shell: bash
+
+  release:
+    needs: [check-inputs, check-testing-bundle]
     if: ${{ github.repository == 'centreon/centreon' }}
     runs-on: ubuntu-24.04
     permissions:
