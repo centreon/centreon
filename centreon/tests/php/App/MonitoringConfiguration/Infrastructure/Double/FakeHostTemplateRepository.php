@@ -96,6 +96,8 @@ final class FakeHostTemplateRepository implements HostTemplateRepository
 
     public ?\Throwable $updateThrows = null;
 
+    public ?\Throwable $replaceMacrosThrows = null;
+
     public ?\Throwable $addCopyThrows = null;
 
     public ?\Throwable $findServiceTemplateIdsThrows = null;
@@ -239,6 +241,10 @@ final class FakeHostTemplateRepository implements HostTemplateRepository
 
     public function replaceMacros(HostTemplate $hostTemplate): void
     {
+        if ($this->replaceMacrosThrows instanceof \Throwable) {
+            throw $this->replaceMacrosThrows;
+        }
+
         $this->hostTemplates[$hostTemplate->id()->value] = $hostTemplate;
         $this->replacedMacroIds[] = $hostTemplate->id()->value;
     }

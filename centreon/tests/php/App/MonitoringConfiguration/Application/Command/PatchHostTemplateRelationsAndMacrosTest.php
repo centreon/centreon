@@ -457,6 +457,38 @@ final class PatchHostTemplateRelationsAndMacrosTest extends KernelTestCase
         self::assertSame(['PORT'], $this->macroNames($template));
     }
 
+    public function testAMacroOfAParentSetInTheSameUpdateIsOverridden(): void
+    {
+        $this->addTemplate(1, macros: [$this->macro(10, 'PORT', '80')]);
+        $this->addTemplate(7);
+
+        $template = ($this->handler)($this->command(
+            templateIds: ListChange::replace([new HostTemplateId(1)]),
+            macros: MacroChanges::upsert([new HostMacroChange(new HostMacroName('port'), '443', false, new HostMacroId(10), HostMacroParentEnum::Template)]),
+        ));
+
+        $macro = $template->checkOptions->macros[0] ?? null;
+        self::assertInstanceOf(HostMacro::class, $macro);
+        self::assertSame(['PORT', '443', null], [$macro->name->value, $macro->value, $macro->id]);
+        self::assertSame([7], $this->repository->replacedMacroIds);
+        self::assertEquals([$this->macro(10, 'PORT', '80')], $this->repository->hostTemplates[1]->checkOptions->macros);
+    }
+
+    public function testAMacroOfAParentSetInTheSameUpdateResentUnchangedStaysInherited(): void
+    {
+        $this->addTemplate(1, macros: [$this->macro(10, 'PORT', '80')]);
+        $this->addTemplate(7);
+
+        $template = ($this->handler)($this->command(
+            templateIds: ListChange::replace([new HostTemplateId(1)]),
+            macros: MacroChanges::upsert([new HostMacroChange(new HostMacroName('port'), '80', false, new HostMacroId(10), HostMacroParentEnum::Template)]),
+        ));
+
+        self::assertSame([], $template->checkOptions->macros);
+        self::assertSame([7], $this->repository->replacedRelationIds);
+        self::assertSame([], $this->repository->replacedMacroIds);
+    }
+
     public function testRemovingAMacroTheTemplateDoesNotOwnIsRefused(): void
     {
         $this->addTemplate(7, macros: [$this->macro(70, 'PORT', '80')]);
@@ -536,6 +568,24 @@ final class PatchHostTemplateRelationsAndMacrosTest extends KernelTestCase
             self::fail('The save failure must reach the caller.');
         } catch (\RuntimeException $exception) {
             self::assertSame('The save failed.', $exception->getMessage());
+        }
+
+        self::assertSame(['new-uuid'], array_column($this->vault->deleteCalls, 'uuid'));
+    }
+
+    public function testAFailedMacrosWritePurgesTheVaultEntryMintedForThePasswords(): void
+    {
+        $this->vault->vaultEnabled = true;
+        $this->addTemplate(7);
+        $this->repository->replaceMacrosThrows = new \RuntimeException('The macros write failed.');
+
+        try {
+            ($this->handler)($this->command(macros: MacroChanges::upsert([
+                new HostMacroChange(new HostMacroName('pwd'), 's3cr3t', true),
+            ])));
+            self::fail('The macros write failure must reach the caller.');
+        } catch (\RuntimeException $exception) {
+            self::assertSame('The macros write failed.', $exception->getMessage());
         }
 
         self::assertSame(['new-uuid'], array_column($this->vault->deleteCalls, 'uuid'));

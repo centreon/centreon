@@ -664,6 +664,37 @@ final class PatchHostTemplateRelationsProcessorTest extends ApiTestCase
         self::assertSame([$hidden, $added], $this->ids('SELECT hostcategories_hc_id FROM hostcategories_relation WHERE host_host_id = ? ORDER BY hostcategories_hc_id', $id));
     }
 
+    public function testASeverityIsRefusedAsACategory(): void
+    {
+        $id = $this->insertTemplate('severity-as-category');
+        $severityId = $this->insertSeverity('severity');
+        $this->login();
+
+        $response = $this->patch($id, ['category_ids' => [$severityId]]);
+
+        self::assertResponseStatusCodeSame(422);
+        $this->assertRefusedOn('category_ids', $response);
+        self::assertSame([], $this->ids('SELECT hostcategories_hc_id FROM hostcategories_relation WHERE host_host_id = ?', $id));
+    }
+
+    public function testTheSeverityAndTheCategoriesChangedTogetherKeepEachOther(): void
+    {
+        $id = $this->insertTemplate('severity-and-categories');
+        [$oldSeverity, $newSeverity] = [$this->insertSeverity('old'), $this->insertSeverity('new')];
+        [$oldCategory, $newCategory] = [$this->insertCategory('old'), $this->insertCategory('new')];
+        foreach ([$oldSeverity, $oldCategory] as $hcId) {
+            $this->connection->insert('hostcategories_relation', ['host_host_id' => $id, 'hostcategories_hc_id' => $hcId]);
+        }
+        $this->login();
+
+        $this->patch($id, ['severity_id' => $newSeverity, 'category_ids' => [$newCategory]]);
+
+        self::assertResponseStatusCodeSame(204);
+        $expected = [$newSeverity, $newCategory];
+        sort($expected);
+        self::assertSame($expected, $this->ids('SELECT hostcategories_hc_id FROM hostcategories_relation WHERE host_host_id = ? ORDER BY hostcategories_hc_id', $id));
+    }
+
     /**
      * The template the full-detail read test uses: every field, list and macro set.
      */
@@ -680,7 +711,7 @@ final class PatchHostTemplateRelationsProcessorTest extends ApiTestCase
         [$firstParentId, $secondParentId] = [$this->insertTemplate('parent-a'), $this->insertTemplate('parent-b')];
         $this->insertMacro($firstParentId, '$_HOSTINHERITED$', 'i');
         $categoryId = $this->insertCategory('category');
-        $severityId = $this->insertRow('hostcategories', ['hc_name' => "severity-{$this->tag}", 'hc_alias' => 'severity', 'hc_activate' => '1', 'level' => 1]);
+        $severityId = $this->insertSeverity('severity');
         $contactId = $this->insertContact('contact');
         $contactGroupId = $this->insertContactGroup('group');
         $linkedId = $this->insertServiceTemplate('linked');
@@ -887,6 +918,11 @@ final class PatchHostTemplateRelationsProcessorTest extends ApiTestCase
     private function insertCategory(string $prefix): int
     {
         return $this->insertRow('hostcategories', ['hc_name' => "{$prefix}-" . Uuid::v4()->toBase58(), 'hc_alias' => $prefix, 'hc_activate' => '1']);
+    }
+
+    private function insertSeverity(string $prefix): int
+    {
+        return $this->insertRow('hostcategories', ['hc_name' => "{$prefix}-" . Uuid::v4()->toBase58(), 'hc_alias' => $prefix, 'hc_activate' => '1', 'level' => 1]);
     }
 
     private function insertServiceTemplate(string $prefix): int
