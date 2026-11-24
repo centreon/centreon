@@ -193,6 +193,7 @@ final class PatchHostTemplateRelationsAndMacrosTest extends KernelTestCase
         ($this->handler)($this->command(templateIds: ListChange::replace([new HostTemplateId(1), new HostTemplateId(2)])));
 
         self::assertSame([], $this->repository->updatedIds);
+        self::assertSame([], $this->repository->replacedRelationIds);
         self::assertSame([], $this->eventBus->getDispatchedEvents(HostTemplateUpdated::class));
     }
 
@@ -370,8 +371,14 @@ final class PatchHostTemplateRelationsAndMacrosTest extends KernelTestCase
 
         $template = ($this->handler)($this->command(contactIds: ListChange::add([new NotificationContactId(30)])));
 
-        self::assertSame([30], $this->idValues($template->notifications->contactIds ?? new Collection([], NotificationContactId::class)));
-        self::assertTrue($template->hasSameLoggedConfigurationAs($this->repository->hostTemplates[7]->with(notifications: Notifications::default())));
+        self::assertEquals(
+            Notifications::default()->withContacts(
+                new Collection([new NotificationContactId(30)], NotificationContactId::class),
+                new Collection([], ContactGroupId::class),
+            ),
+            $template->notifications,
+        );
+        self::assertSame([7], $this->repository->replacedRelationIds);
         self::assertFalse($this->onlyUpdate()->loggable);
     }
 
