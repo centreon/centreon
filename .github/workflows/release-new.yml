@@ -132,13 +132,14 @@ jobs:
         run: bash .github/scripts/release/release-new-bundle-guard.sh mode
         shell: bash
 
-      # same role as release-trigger-builds: read access to the bundles, trusted on develop only
+      # same role as release-trigger-builds (read access to the bundles, trusted on develop only);
+      # its ARN is an organisation secret, as for the API documentation publication
       - name: Configure AWS credentials
         if: steps.mode.outputs.mode != 'legacy'
         continue-on-error: ${{ inputs.skip_bundle_check }}
         uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
         with:
-          role-to-assume: arn:aws:iam::625664829291:role/release-orchestrator-github-trigger-writer
+          role-to-assume: ${{ secrets.RELEASE_ORCHESTRATOR_TRIGGER_ROLE_ARN }}
           role-session-name: release-new-${{ github.run_id }}
           aws-region: eu-west-1
 
