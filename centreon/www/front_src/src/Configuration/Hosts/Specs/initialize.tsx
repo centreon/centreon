@@ -19,6 +19,7 @@ import { initReactI18next } from 'react-i18next';
 import { BrowserRouter as Router } from 'react-router';
 import { object } from 'yup';
 
+import navigationAtom from '../../../Navigation/navigationAtoms';
 import {
   limitAtom,
   sortFieldAtom,
@@ -77,6 +78,8 @@ import {
 } from './utils';
 
 interface Props {
+  // The React pages the menu grants, by URL; none when left out.
+  allowedPages?: Array<string>;
   isEmpty?: boolean;
   hasWriteAccess?: boolean;
   isCloudPlatform?: boolean;
@@ -118,6 +121,7 @@ const addressResolutions = {
 };
 
 const initialize = ({
+  allowedPages = [],
   isEmpty = false,
   hasWriteAccess = true,
   isCloudPlatform = false,
@@ -151,6 +155,10 @@ const initialize = ({
   store.set(platformFeaturesAtom, { isCloudPlatform } as PlatformFeatures);
   store.set(isAdditiveInheritanceEnabledAtom, isAdditiveInheritanceEnabled);
   store.set(defaultLimitPerPageAtom, defaultLimitPerPage);
+  store.set(navigationAtom, {
+    result: allowedPages.map((url) => ({ is_react: true, label: url, url })),
+    status: true
+  });
   store.set(limitAtom, userLimit);
 
   if (previousSort) {
