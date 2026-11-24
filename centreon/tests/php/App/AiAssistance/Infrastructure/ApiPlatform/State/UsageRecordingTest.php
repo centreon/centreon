@@ -66,6 +66,19 @@ final class UsageRecordingTest extends AiAssistanceApiTestCase
         $this->assertOneUsageRowRecorded($id);
     }
 
+    public function testAnAnswerCutAtMaxTokensIsFlaggedTruncated(): void
+    {
+        $id = $this->addActivatedProvider();
+        $this->useProviderAnswering('## What this', finishReason: 'length');
+        $this->login();
+
+        $this->request('POST', self::ENDPOINT, ['json' => self::PAYLOAD]);
+
+        self::assertResponseIsSuccessful();
+        self::assertJsonContains(['explanation' => '## What this', 'truncated' => true]);
+        $this->assertOneUsageRowRecorded($id);
+    }
+
     public function testAnEmptyAnswerFailsButItsUsageIsStillRecorded(): void
     {
         $id = $this->addActivatedProvider();
@@ -107,11 +120,11 @@ final class UsageRecordingTest extends AiAssistanceApiTestCase
         return $aiProvider->id()->value;
     }
 
-    private function useProviderAnswering(string $content): void
+    private function useProviderAnswering(string $content, string $finishReason = 'stop'): void
     {
         $body = json_encode([
             'model' => 'a-model',
-            'choices' => [['message' => ['role' => 'assistant', 'content' => $content], 'finish_reason' => 'stop']],
+            'choices' => [['message' => ['role' => 'assistant', 'content' => $content], 'finish_reason' => $finishReason]],
             'usage' => ['prompt_tokens' => 200_000, 'completion_tokens' => 100_000],
         ], \JSON_THROW_ON_ERROR);
 

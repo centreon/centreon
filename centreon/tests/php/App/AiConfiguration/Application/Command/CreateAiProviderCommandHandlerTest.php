@@ -25,6 +25,7 @@ namespace Tests\App\AiConfiguration\Application\Command;
 
 use App\AiConfiguration\Application\Command\CreateAiProviderCommand;
 use App\AiConfiguration\Application\Command\CreateAiProviderCommandHandler;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProvider;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderName;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
@@ -97,7 +98,10 @@ final class CreateAiProviderCommandHandlerTest extends TestCase
 
         $updated = $this->eventBus->getDispatchedEvents(AiProviderUpdated::class);
         self::assertCount(1, $updated);
-        self::assertSame($first->id()->value, $updated[0]->aggregate->id()->value);
+        $disabled = $updated[0]->aggregate;
+        \assert($disabled instanceof AiProvider);
+        self::assertSame($first->id()->value, $disabled->id()->value);
+        self::assertFalse($disabled->isActivated());
     }
 
     public function testNoUpdateIsReportedWhenNoProviderGetsDisabled(): void

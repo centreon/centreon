@@ -284,6 +284,25 @@ final class OpenAiCompatibleLlmClientTest extends TestCase
         self::assertSame('mistral-small-latest', $response->model);
         self::assertSame(12, $response->usage->inputTokens);
         self::assertSame(2, $response->usage->outputTokens);
+        self::assertFalse($response->truncated);
+    }
+
+    public function testAStreamCutAtMaxTokensIsTruncated(): void
+    {
+        $sse = [
+            "data: {\"model\":\"mistral-small-latest\",\"choices\":[{\"delta\":{\"content\":\"po\"}}]}\n\n",
+            "data: {\"choices\":[{\"delta\":{},\"finish_reason\":\"length\"}]}\n\n",
+            "data: {\"choices\":[],\"usage\":{\"prompt_tokens\":12,\"completion_tokens\":16}}\n\n",
+            "data: [DONE]\n\n",
+        ];
+        $httpClient = new MockHttpClient(new MockResponse($sse));
+
+        $generator = $this->createClient($httpClient)->stream($this->createRequest());
+        iterator_to_array($generator, false);
+        $response = $generator->getReturn();
+
+        self::assertSame('po', $response->content);
+        self::assertTrue($response->truncated);
     }
 
     public function testContentPartsAreConcatenated(): void
@@ -437,7 +456,7 @@ final class OpenAiCompatibleLlmClientTest extends TestCase
         $httpClient = new MockHttpClient(new MockResponse(json_encode([
             'model' => 42,
             'choices' => [['finish_reason' => ['stop'], 'message' => ['content' => 'pong', 'refusal' => 7]]],
-            'usage' => ['prompt_tokens' => '12', 'completion_tokens' => null],
+            'usage' => ['prompt_tokens' => 'twelve', 'completion_tokens' => null],
         ], \JSON_THROW_ON_ERROR)));
 
         $response = $this->createClient($httpClient)->complete($this->createRequest());
@@ -500,7 +519,7 @@ final class OpenAiCompatibleLlmClientTest extends TestCase
     {
         $sse = [
             "data: {\"model\":42,\"choices\":[{\"delta\":{\"content\":\"pong\",\"refusal\":7}}]}\n\n",
-            "data: {\"choices\":[],\"usage\":{\"prompt_tokens\":\"12\",\"completion_tokens\":2}}\n\n",
+            "data: {\"choices\":[],\"usage\":{\"prompt_tokens\":\"twelve\",\"completion_tokens\":2}}\n\n",
             "data: [DONE]\n\n",
         ];
         $httpClient = new MockHttpClient(new MockResponse($sse));

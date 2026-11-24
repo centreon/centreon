@@ -31,15 +31,17 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\StoredApiToken;
 use App\AiConfiguration\Infrastructure\Dbal\DbalAiProviderRepository;
 use App\Shared\Domain\VaultInterface;
+use Doctrine\DBAL\Connection;
 use Tests\App\Shared\Double\FakeVault;
 
 /**
- * The stored token of a provider can not be read back from the vault: an
- * upstream dependency failed, which the API reports as a 502.
+ * The vault can not read back or write a provider token: an upstream
+ * dependency failed, which the API reports as a 502.
  */
 final class AiProviderVaultFailureTest extends AiProviderApiTestCase
 {
     private const STORED_TOKEN = 'secret::vault::configuration/aiProviders/abc-123::_AI_API_TOKEN';
+    private const SUBMITTED_TOKEN = 'a-submitted-token-that-never-leaks';
 
     public function testAnUnreadableStoredTokenReturns502(): void
     {
@@ -50,6 +52,61 @@ final class AiProviderVaultFailureTest extends AiProviderApiTestCase
         $this->request('POST', self::ENDPOINT . '/' . $id . '/test', ['json' => []]);
 
         self::assertResponseStatusCodeSame(502);
+    }
+
+    public function testAFailedVaultWriteOnCreationReturns502AndSavesNothing(): void
+    {
+        $vault = $this->useVault();
+        $vault->writeThrows = true;
+        $this->login();
+
+        $response = $this->request('POST', self::ENDPOINT, [
+            'json' => [
+                'name' => 'Vault-backed provider',
+                'type' => 'anthropic',
+                'api_token' => self::SUBMITTED_TOKEN,
+                'default_model' => 'claude-sonnet-4-6',
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(502);
+        self::assertStringNotContainsString(self::SUBMITTED_TOKEN, $response->getContent(false));
+        self::assertCount(1, $vault->writeManyCalls);
+        self::assertSame([], $this->findRowsNamed('Vault-backed provider'));
+    }
+
+    public function testAFailedVaultWriteOnUpdateReturns502AndChangesNothing(): void
+    {
+        $id = $this->addProviderWithAVaultStoredToken();
+        $rowsBefore = $this->findRowsNamed('Anthropic production');
+        $vault = $this->useVault();
+        $vault->writeThrows = true;
+        $this->login();
+
+        $response = $this->request('PATCH', self::ENDPOINT . '/' . $id, [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'],
+            'json' => ['default_model' => 'claude-opus-4-8', 'api_token' => self::SUBMITTED_TOKEN],
+        ]);
+
+        self::assertResponseStatusCodeSame(502);
+        self::assertStringNotContainsString(self::SUBMITTED_TOKEN, $response->getContent(false));
+        self::assertCount(1, $vault->writeManyCalls);
+        self::assertCount(1, $rowsBefore);
+        self::assertSame($rowsBefore, $this->findRowsNamed('Anthropic production'));
+    }
+
+    public function testAFailedVaultDeletionReturns502AndKeepsTheProvider(): void
+    {
+        $id = $this->addProviderWithAVaultStoredToken();
+        $vault = $this->useVault();
+        $vault->deleteThrows = true;
+        $this->login();
+
+        $this->request('DELETE', self::ENDPOINT . '/' . $id);
+
+        self::assertResponseStatusCodeSame(502);
+        self::assertCount(1, $vault->deleteCalls);
+        self::assertCount(1, $this->findRowsNamed('Anthropic production'));
     }
 
     /**
@@ -80,8 +137,31 @@ final class AiProviderVaultFailureTest extends AiProviderApiTestCase
      */
     private function useFailingVault(): void
     {
+        $this->useVault()->resolveThrows = true;
+    }
+
+    /**
+     * Swapped in before the one request of the test: the kernel is rebooted between two requests.
+     */
+    private function useVault(): FakeVault
+    {
         $vault = new FakeVault();
-        $vault->resolveThrows = true;
         self::getContainer()->set(VaultInterface::class, $vault);
+
+        return $vault;
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    private function findRowsNamed(string $name): array
+    {
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+
+        return $connection->fetchAllAssociative(
+            'SELECT * FROM ' . DbalAiProviderRepository::TABLE_NAME . ' WHERE name = :name',
+            ['name' => $name],
+        );
     }
 }

@@ -193,6 +193,33 @@ final class AnthropicLlmClientTest extends TestCase
         self::assertSame(10, $httpClient->getRequestsCount());
     }
 
+    public function testListModelsStopsWhenHasMoreHasNoLastId(): void
+    {
+        $httpClient = new MockHttpClient(
+            static fn (): MockResponse => new MockResponse('{"data":[{"id":"claude-sonnet-4-6"}],"has_more":true}')
+        );
+
+        self::assertSame(['claude-sonnet-4-6'], $this->createClient($httpClient)->listModels());
+        self::assertSame(1, $httpClient->getRequestsCount());
+    }
+
+    public function testAnErrorOnALaterPageIsReported(): void
+    {
+        $httpClient = new MockHttpClient([
+            new MockResponse('{"data":[{"id":"claude-sonnet-4-6"}],"has_more":true,"last_id":"claude-sonnet-4-6"}'),
+            new MockResponse('{"error":{"message":"overloaded"}}', ['http_code' => 529]),
+        ]);
+
+        try {
+            $this->createClient($httpClient)->listModels();
+            self::fail('Expected the error of the second page to be reported, not a partial list');
+        } catch (LlmRequestFailedException $exception) {
+            self::assertStringContainsString('overloaded', $exception->getMessage());
+        }
+
+        self::assertSame(2, $httpClient->getRequestsCount());
+    }
+
     public function testProviderErrorIsReported(): void
     {
         $httpClient = new MockHttpClient(new MockResponse(
@@ -236,6 +263,25 @@ final class AnthropicLlmClientTest extends TestCase
         self::assertSame('claude-sonnet-4-6', $response->model);
         self::assertSame(12, $response->usage->inputTokens);
         self::assertSame(2, $response->usage->outputTokens);
+        self::assertFalse($response->truncated);
+    }
+
+    public function testAStreamCutAtMaxTokensIsTruncated(): void
+    {
+        $sse = [
+            "event: message_start\ndata: {\"type\":\"message_start\",\"message\":{\"model\":\"claude-sonnet-4-6\",\"usage\":{\"input_tokens\":12}}}\n\n",
+            "event: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"delta\":{\"type\":\"text_delta\",\"text\":\"po\"}}\n\n",
+            "event: message_delta\ndata: {\"type\":\"message_delta\",\"delta\":{\"stop_reason\":\"max_tokens\"},\"usage\":{\"output_tokens\":16}}\n\n",
+            "event: message_stop\ndata: {\"type\":\"message_stop\"}\n\n",
+        ];
+        $httpClient = new MockHttpClient(new MockResponse($sse));
+
+        $generator = $this->createClient($httpClient)->stream($this->createRequest());
+        iterator_to_array($generator, false);
+        $response = $generator->getReturn();
+
+        self::assertSame('po', $response->content);
+        self::assertTrue($response->truncated);
     }
 
     public function testANonJsonErrorBodyIsNotReported(): void
@@ -321,7 +367,7 @@ final class AnthropicLlmClientTest extends TestCase
             'content' => [['type' => 'text', 'text' => 'pong'], ['type' => 'text', 'text' => 42], 'noise'],
             'model' => ['claude'],
             'stop_reason' => 7,
-            'usage' => ['input_tokens' => '12', 'output_tokens' => 2.5],
+            'usage' => ['input_tokens' => 'twelve', 'output_tokens' => 2.5],
         ], \JSON_THROW_ON_ERROR)));
 
         $response = $this->createClient($httpClient)->complete($this->createRequest());

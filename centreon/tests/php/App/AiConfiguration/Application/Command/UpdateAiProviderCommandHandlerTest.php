@@ -128,11 +128,16 @@ final class UpdateAiProviderCommandHandlerTest extends TestCase
 
         ($this->handler)($this->updateCommand($second, isActivated: true));
 
-        $updatedIds = array_map(
-            static fn (AiProviderUpdated $event): int => $event->aggregate->id()->value,
+        $updatedStates = array_map(
+            static function (AiProviderUpdated $event): array {
+                $aiProvider = $event->aggregate;
+                \assert($aiProvider instanceof AiProvider);
+
+                return [$aiProvider->id()->value, $aiProvider->isActivated()];
+            },
             $this->eventBus->getDispatchedEvents(AiProviderUpdated::class),
         );
-        self::assertSame([$second->id()->value, $first->id()->value], $updatedIds);
+        self::assertSame([[$second->id()->value, true], [$first->id()->value, false]], $updatedStates);
     }
 
     public function testNullTokenKeepsCurrentToken(): void

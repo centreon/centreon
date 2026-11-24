@@ -30,6 +30,7 @@ use App\AiConfiguration\Domain\Exception\AiProviderNotFoundException;
 use App\AiConfiguration\Domain\Exception\InvalidAiProviderConfigurationException;
 use App\AiConfiguration\Domain\Llm\ConnectionSpec;
 use App\AiConfiguration\Domain\Llm\Exception\ApiTokenUnavailableException;
+use App\AiConfiguration\Domain\Llm\Exception\LlmConfigurationException;
 use App\AiConfiguration\Domain\Llm\Exception\LlmRequestFailedException;
 use App\AiConfiguration\Domain\Llm\LlmClientFactoryInterface;
 use App\AiConfiguration\Domain\Llm\LlmRequest;
@@ -51,6 +52,7 @@ final readonly class TestAiProviderConnectionCommandHandler
      * @throws AiProviderNotFoundException when the provider to reuse does not exist
      * @throws ApiTokenUnavailableException when the stored token can not be read from the vault
      * @throws InvalidAiProviderConfigurationException when the endpoint is not acceptable for the type
+     * @throws LlmConfigurationException
      */
     public function __invoke(TestAiProviderConnectionCommand $command): TestAiProviderResult
     {

@@ -36,7 +36,13 @@ final class LocalNetworkHostTest extends TestCase
     {
         yield 'localhost' => ['http://localhost:11434', true];
 
+        yield 'localhost subdomain' => ['http://foo.localhost', true];
+
+        yield 'uppercase localhost' => ['http://LOCALHOST', true];
+
         yield 'loopback' => ['http://127.0.0.1:11434', true];
+
+        yield 'IPv6 loopback' => ['http://[::1]', true];
 
         yield 'private IPv4' => ['http://192.168.1.10', true];
 
@@ -46,7 +52,11 @@ final class LocalNetworkHostTest extends TestCase
 
         yield 'IPv6 link-local' => ['http://[fe80::1]', false];
 
+        yield 'IPv4-mapped link-local' => ['http://[::ffff:169.254.169.254]', false];
+
         yield 'public host' => ['https://api.mistral.ai', false];
+
+        yield 'no host' => ['file:///etc/hosts', false];
     }
 
     #[DataProvider('hosts')]
