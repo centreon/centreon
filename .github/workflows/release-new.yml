@@ -132,6 +132,24 @@ jobs:
         run: bash .github/scripts/release/release-new-bundle-guard.sh mode
         shell: bash
 
+      # the AWS login below fails without saying why: say it first
+      - name: Check what the bundle check needs
+        if: steps.mode.outputs.mode != 'legacy'
+        env:
+          ROLE_SECRET_SET: ${{ secrets.RELEASE_ORCHESTRATOR_TRIGGER_ROLE_ARN != '' }}
+        run: |
+          problem=""
+          [[ "$GITHUB_REF_NAME" == "develop" ]] || problem="release-new was dispatched from $GITHUB_REF_NAME: the testing bundles can only be read from develop"
+          [[ "$ROLE_SECRET_SET" == "true" ]] || problem="the secret RELEASE_ORCHESTRATOR_TRIGGER_ROLE_ARN is not available to this repository"
+          [[ -n "$problem" ]] || exit 0
+          if [[ "$SKIP_BUNDLE_CHECK" == "true" ]]; then
+            echo "::warning::Testing bundle check: $problem (skip_bundle_check is ticked, going on)"
+          else
+            echo "::error::Testing bundle check: $problem"
+            exit 1
+          fi
+        shell: bash
+
       # same role as release-trigger-builds (read access to the bundles, trusted on develop only);
       # its ARN is an organisation secret, as for the API documentation publication
       - name: Configure AWS credentials
