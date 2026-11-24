@@ -164,7 +164,7 @@ final readonly class PatchHostTemplateCommandHandler
     private function resolveMacros(HostTemplate $template, MacroChanges $changes): array
     {
         try {
-            return $this->macros->resolve($template->checkOptions->macros, $template->parentTemplateIds, $template->checkOptions->checkCommandId, $changes, $template->serviceTemplateCheckCommandIds);
+            return $this->macros->resolve($template->checkOptions->macros, $template->parentTemplateIds, $template->checkOptions->checkCommandId, $changes);
         } catch (HostMacroNotFoundException $exception) {
             throw new HostTemplateMacroNotFoundException($exception->ids, $exception);
         }

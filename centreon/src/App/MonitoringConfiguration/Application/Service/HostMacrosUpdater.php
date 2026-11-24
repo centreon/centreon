@@ -84,14 +84,13 @@ final readonly class HostMacrosUpdater
      *
      * @param list<HostMacro> $current the owner's own macros
      * @param Collection<HostTemplateId> $templateIds
-     * @param ?Collection<CommandId> $ownServiceTemplateCheckCommandIds a template's own linked service templates' check commands
      *
      * @throws HostMacroNotFoundException when a change refers to a macro the owner neither owns nor inherits
      * @throws HostMacroValueIsAVaultReferenceException
      *
      * @return list<HostMacro> passwords in the form they were submitted
      */
-    public function resolve(array $current, Collection $templateIds, ?CommandId $checkCommandId, MacroChanges $changes, ?Collection $ownServiceTemplateCheckCommandIds = null): array
+    public function resolve(array $current, Collection $templateIds, ?CommandId $checkCommandId, MacroChanges $changes): array
     {
         if ($changes->mode === MacroChangeModeEnum::Remove) {
             return $this->remove($current, $changes->removedIds);
@@ -99,7 +98,7 @@ final readonly class HostMacrosUpdater
 
         $this->assertNoVaultReference($changes->changes);
 
-        $inherited = $this->inheritedMacrosResolver->resolve($templateIds, $checkCommandId, $ownServiceTemplateCheckCommandIds);
+        $inherited = $this->inheritedMacrosResolver->resolve($templateIds, $checkCommandId);
 
         $resolved = $this->changesResolver->resolve($changes->changes, $current, $inherited);
 
