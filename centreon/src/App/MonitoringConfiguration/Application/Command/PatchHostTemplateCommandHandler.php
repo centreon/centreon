@@ -156,7 +156,7 @@ final readonly class PatchHostTemplateCommandHandler
     }
 
     /**
-     * The host rules, but a reserved name is accepted on a template, and a template reports its own
+     * The host rules, but the reserved names are left to the input, and a template reports its own
      * unknown macros.
      *
      * @return list<HostMacro>
