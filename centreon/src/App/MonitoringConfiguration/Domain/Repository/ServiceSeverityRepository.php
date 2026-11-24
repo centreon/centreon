@@ -44,4 +44,9 @@ interface ServiceSeverityRepository
      * severity, or has no name.
      */
     public function findNameById(ServiceSeverityId $id): ?ServiceSeverityName;
+
+    /**
+     * Null in the same cases as findNameById().
+     */
+    public function findById(ServiceSeverityId $id): ?ServiceSeverity;
 }

@@ -37,6 +37,7 @@ final readonly class ServiceSeverityChoicesTransformer implements TransformerInt
         return new ServiceSeverityChoicesOutput(
             id: $from->id()->value,
             name: $from->name->value,
+            level: $from->level->value,
         );
     }
 }
