@@ -137,6 +137,6 @@ final readonly class GeminiLlmClient implements LlmClientInterface
             $data = null;
         }
 
-        return ProviderPayload::errorMessage($data) ?? 'model discovery failed';
+        return ProviderPayload::errorMessage($data, $this->apiToken) ?? 'model discovery failed';
     }
 }

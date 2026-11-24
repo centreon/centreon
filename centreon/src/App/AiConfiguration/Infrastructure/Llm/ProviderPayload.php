@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\AiConfiguration\Infrastructure\Llm;
 
+use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -36,8 +37,17 @@ final class ProviderPayload
         return is_string($value) ? $value : null;
     }
 
+    /**
+     * A count sent as a JSON number or an integral string; anything else counts as 0.
+     */
     public static function tokenCount(mixed $value): int
     {
+        if (is_string($value) && ctype_digit($value)) {
+            $value = (int) $value;
+        } elseif (is_float($value) && $value === floor($value) && $value < \PHP_INT_MAX) {
+            $value = (int) $value;
+        }
+
         return is_int($value) && $value >= 0 ? $value : 0;
     }
 
@@ -51,20 +61,22 @@ final class ProviderPayload
 
     /**
      * The message of an {"error": {"message": "..."}} or {"error": "..."}
-     * document, if it has one.
+     * document, if it has one, without the API token a provider may echo in it.
      */
-    public static function errorMessage(mixed $data): ?string
+    public static function errorMessage(mixed $data, ApiToken $apiToken): ?string
     {
         $error = is_array($data) ? ($data['error'] ?? null) : null;
         $message = is_array($error) ? ($error['message'] ?? null) : $error;
 
-        return is_string($message) && trim($message) !== '' ? $message : null;
+        return is_string($message) && trim($message) !== ''
+            ? str_replace($apiToken->value, '[API token]', $message)
+            : null;
     }
 
     /**
-     * The body of an error response is neither sent back to the user (it may come
-     * from any server on the way) nor logged (a provider may echo the API key in
-     * it): log its status and size only.
+     * Only the error message of an error response is reported: the rest of the body
+     * is neither sent back to the user (it may come from any server on the way) nor
+     * logged (a provider may echo the API key in it), so log its status and size only.
      */
     public static function logErrorResponse(LoggerInterface $logger, int $statusCode, string $body): void
     {

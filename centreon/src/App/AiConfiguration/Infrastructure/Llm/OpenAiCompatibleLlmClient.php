@@ -74,7 +74,7 @@ final readonly class OpenAiCompatibleLlmClient implements LlmClientInterface
         if (! is_array($message)) {
             // e.g. {} or {"error": ...} with a success status: not an answer
             throw LlmRequestFailedException::fromInvalidResponse(
-                ProviderPayload::errorMessage($data) ?? 'no completion in the response.'
+                ProviderPayload::errorMessage($data, $this->apiToken) ?? 'no completion in the response.'
             );
         }
 
@@ -124,7 +124,7 @@ final readonly class OpenAiCompatibleLlmClient implements LlmClientInterface
 
                     if (isset($event['error'])) {
                         throw LlmRequestFailedException::fromInvalidResponse(
-                            ProviderPayload::errorMessage($event) ?? 'unknown streaming error'
+                            ProviderPayload::errorMessage($event, $this->apiToken) ?? 'unknown streaming error'
                         );
                     }
 
@@ -391,6 +391,6 @@ final readonly class OpenAiCompatibleLlmClient implements LlmClientInterface
             $data = null;
         }
 
-        return ProviderPayload::errorMessage($data) ?? 'no error message in the response';
+        return ProviderPayload::errorMessage($data, $this->apiToken) ?? 'no error message in the response';
     }
 }
