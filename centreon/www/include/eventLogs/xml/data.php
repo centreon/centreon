@@ -32,15 +32,20 @@ require_once _CENTREON_PATH_ . 'www/class/centreon.class.php';
 require_once __DIR__ . '/../../../../bootstrap.php';
 require_once __DIR__ . '/../Paginator.php';
 require_once __DIR__ . '/PaginationRenderer.php';
+require_once __DIR__ . '/LogIterator.php';
 require_once __DIR__ . '/../../../class/centreonLog.class.php';
 require_once __DIR__ . '/../../../class/exceptions/CentreonDbException.php';
 
 // Connect to DB
+/** @var CentreonDB $pearDB */
 $pearDB = $dependencyInjector['configuration_db'];
+/** @var CentreonDB $pearDBO */
 $pearDBO = $dependencyInjector['realtime_db'];
 
 // Check Session
-CentreonSession::start();
+// This endpoint only reads the session: release its lock right away so a slow
+// query does not block the other requests of the same user.
+CentreonSession::start(1);
 if (! CentreonSession::checkSession(session_id(), $pearDB)) {
     echo 'Bad Session';
 
@@ -640,11 +645,20 @@ if (! $is_admin && $engine == 'true') {
 $whereClause = 'WHERE ' . implode(' AND ', $whereClauses);
 $orderClause = 'ORDER BY logs.ctime DESC';
 
+// The Event Logs page does not count the matching rows: the count reads all the rows of the period
+// and can take minutes. It reads one more row than the page size to know if a next page exists.
+// The engine logs page keeps its numbered pagination, based on the count.
+$isEventLogsPage = $engine != 'true';
+$pageNumber = max(1, (int) $num);
+// The Event Logs XML export, like the CSV one, keeps all the rows of the search: it reads and sends them
+// one by one, so that a large search does not exhaust the PHP memory.
+$streamsExport = $isEventLogsPage && $export;
+
 $limitClause = '';
 if (! $export) {
     $offset = (($num - 1) * $limit);
     $queryValues[':offset'] = [$offset > 0 ? $offset : 0, PDO::PARAM_INT];
-    $queryValues[':limit'] = [$limit, PDO::PARAM_INT];
+    $queryValues[':limit'] = [$isEventLogsPage ? $limit + 1 : $limit, PDO::PARAM_INT];
     $limitClause = 'LIMIT :limit OFFSET :offset';
 }
 
@@ -666,14 +680,21 @@ $countQuery = "
 
 $paginator = new Paginator((int) $num, (int) $limit);
 try {
-    // Execute the count query
-    $countqueryValues = $queryValues;
-    unset($countqueryValues[':limit'], $countqueryValues[':offset']);
-    $countStatement = $pearDBO->prepareQuery($countQuery);
-    $pearDBO->executePreparedQuery($countStatement, $countqueryValues, true);
-    $totalRows = $pearDBO->fetchColumn($countStatement);
-    $paginator = $paginator->withTotalRecordCount((int) $totalRows);
-    $pearDBO->closeQuery($countStatement);
+    if (! $isEventLogsPage) {
+        // Execute the count query
+        $countqueryValues = $queryValues;
+        unset($countqueryValues[':limit'], $countqueryValues[':offset']);
+        $countStatement = $pearDBO->prepareQuery($countQuery);
+        $pearDBO->executePreparedQuery($countStatement, $countqueryValues, true);
+        $totalRows = $pearDBO->fetchColumn($countStatement);
+        $paginator = $paginator->withTotalRecordCount((int) $totalRows);
+        $pearDBO->closeQuery($countStatement);
+    }
+
+    if ($streamsExport) {
+        // Without it, MySQL sends all the rows at once and PHP keeps them in memory.
+        $pearDBO->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
+    }
 
     // Prepare and execute the query using CentreonDB methods
     $statement = $pearDBO->prepareQuery($sqlQuery);
@@ -681,7 +702,7 @@ try {
     $rows = $statement->rowCount();
 
     // If the current page is out of bounds, adjust it
-    if (! $export && $rows === 0 && $paginator->isOutOfUpperBound()) {
+    if (! $isEventLogsPage && ! $export && $rows === 0 && $paginator->isOutOfUpperBound()) {
         // Update the offset in both $queryValues and $flatQueryValues
         $newOffset = $paginator->getOffsetMaximum();
         $queryValues[':offset'] = [$newOffset, PDO::PARAM_INT];
@@ -691,15 +712,36 @@ try {
         $pearDBO->executePreparedQuery($statement, $queryValues, true);
     }
 
-    $logs = $pearDBO->fetchAll($statement);
-    $pearDBO->closeQuery($statement);
+    if ($streamsExport) {
+        $logs = (new LogIterator($statement))->getIterator();
+        // Reads the first row here, before the headers are sent: with an unbuffered query, MySQL can report
+        // an error of the query (a timeout while sorting the rows, for example) only when the first row is read.
+        $logs->current();
+        if (! $logs->valid()) {
+            // A search without results has already ended the generator, which cannot be iterated any more.
+            $logs = [];
+        }
+    } else {
+        $logs = $pearDBO->fetchAll($statement);
+        $pearDBO->closeQuery($statement);
+    }
 } catch (CentreonDbException $e) {
     CentreonLog::create()->error(
         CentreonLog::TYPE_BUSINESS_LOG,
         'Error while fetching logs',
-        $e->getContext()
+        $e->getContext(),
+        $e
     );
+    // An export that failed on its first row leaves an ended generator, which cannot be iterated.
+    $logs = [];
+    // Without it, the page would show the failed search as a search without results.
+    http_response_code(500);
 }
+
+// XML tag, sent before the export rows that are flushed during the rendering
+stristr($_SERVER['HTTP_ACCEPT'], 'application/xhtml+xml')
+    ? header('Content-type: application/xhtml+xml') : header('Content-type: text/xml');
+header('Content-Disposition: attachment; filename="eventLogs-' . time() . '.xml"');
 
 // Render XML output
 $buffer->startElement('selectLimit');
@@ -710,13 +752,48 @@ $buffer->writeElement('limit', $limit);
 $buffer->endElement();
 
 // add generated pages into xml
-$paginationRenderer = new PaginationRenderer($buffer);
-$paginationRenderer->render($paginator);
+if (! $isEventLogsPage) {
+    $paginationRenderer = new PaginationRenderer($buffer);
+    $paginationRenderer->render($paginator);
+} elseif (! $export) {
+    if ($pageNumber > 1) {
+        $buffer->writeElement('previousPageNumber', (string) ($pageNumber - 1));
+    }
+    if (count($logs) > $limit) {
+        $buffer->writeElement('nextPageNumber', (string) ($pageNumber + 1));
+    }
+}
+
+/**
+ * Stops the export at a database error, so that PHP does not write the error into the file and the document
+ * still ends. Answers HTTP 500 while nothing was sent yet (the rows are sent every 500); after that, the file
+ * is truncated and only the log tells it.
+ *
+ * @param iterable<int, array<string, mixed>> $logs
+ *
+ * @return Generator<int, array<string, mixed>>
+ */
+$stopExportOnError = static function (iterable $logs): Generator {
+    try {
+        yield from $logs;
+    } catch (CentreonDbException $e) {
+        CentreonLog::create()->error(
+            CentreonLog::TYPE_BUSINESS_LOG,
+            'Error while exporting logs',
+            $e->getContext(),
+            $e
+        );
+        if (! headers_sent()) {
+            http_response_code(500);
+        }
+    }
+};
 
 // Display logs
 $cpts = 0;
-// The query retrieves more than $limit results, but only the first $limit elements should be displayed
-foreach (array_slice($logs, 0, $limit) as $log) {
+// The page query reads one more row than the page size.
+$displayedLogs = $streamsExport ? $stopExportOnError($logs) : array_slice($logs, 0, $limit);
+foreach ($displayedLogs as $log) {
     $buffer->startElement('line');
     $buffer->writeElement('msg_type', $log['msg_type']);
 
@@ -816,7 +893,7 @@ foreach (array_slice($logs, 0, $limit) as $log) {
             // Default output when meta pattern is missing
             $buffer->writeElement('host_name', $log['host_name'], false);
             if ($export) {
-                $buffer->writeElement('address', $HostCache[$log['host_name']], false);
+                $buffer->writeElement('address', $HostCache[$log['host_name']] ?? '', false);
             }
             $buffer->writeElement('service_description', $log['service_description'], false);
             $buffer->writeElement('real_service_name', $log['service_description'], false);
@@ -824,7 +901,7 @@ foreach (array_slice($logs, 0, $limit) as $log) {
     } else {
         $buffer->writeElement('host_name', $log['host_name'], false);
         if ($export) {
-            $buffer->writeElement('address', $HostCache[$log['host_name']], false);
+            $buffer->writeElement('address', $HostCache[$log['host_name']] ?? '', false);
         }
         $buffer->writeElement('service_description', $log['service_description'], false);
         $buffer->writeElement('real_service_name', $log['service_description'], false);
@@ -862,6 +939,10 @@ foreach (array_slice($logs, 0, $limit) as $log) {
     $buffer->writeElement('contact_cmd', $log['notification_cmd'], false);
     $buffer->endElement();
     $cpts++;
+
+    if ($streamsExport && $cpts % 500 === 0) {
+        $buffer->flush();
+    }
 }
 
 // Translation for tables.
@@ -875,13 +956,10 @@ $buffer->writeElement('o', _('Output'), 0);
 $buffer->writeElement('c', _('Contact'), 0);
 $buffer->writeElement('C', _('Command'), 0);
 $buffer->writeElement('P', _('Poller'), 0);
+$buffer->writeElement('previousPage', _('Previous page'), 0);
+$buffer->writeElement('nextPage', _('Next page'), 0);
 
 $buffer->endElement();
 $buffer->endElement();
-
-// XML tag
-stristr($_SERVER['HTTP_ACCEPT'], 'application/xhtml+xml')
-    ? header('Content-type: application/xhtml+xml') : header('Content-type: text/xml');
-header('Content-Disposition: attachment; filename="eventLogs-' . time() . '.xml"');
 
 $buffer->output();
