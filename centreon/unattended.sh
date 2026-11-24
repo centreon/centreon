@@ -51,18 +51,19 @@ passwords_file=/etc/centreon/generated.tobesecured         #File where the gener
 tmp_passwords_file=$(mktemp /tmp/generated.XXXXXXXXXXXXXX) #Random tmp file as the /etc/centreon does not exist yet
 failed_services=()                                         #Filled by display_services_recap, fails the run when not empty
 
-topology=${ENV_CENTREON_TOPOLOGY:-"central"}    #Default topology to be installed
-version=${ENV_CENTREON_VERSION:-"26.10"}        #Default version to be installed
-repo=${ENV_CENTREON_REPO:-"stable"}             #Default repository to be used
-dbms=${ENV_CENTREON_DBMS:-"MariaDB"}            #Default database system to be used
-operation=${ENV_CENTREON_OPERATION:-"install"}  #Default operation to be executed
-runtime_log_level=${ENV_LOG_LEVEL:-"INFO"}      #Default log level to be used
-selinux_mode=${ENV_SELINUX_MODE:-"permissive"}  #Default SELinux mode to be used
-wizard_autoplay=${ENV_WIZARD_AUTOPLAY:-"false"} #Default the install wizard is not run auto
-central_ip=${ENV_CENTRAL_IP:-$default_ip}       #Default central ip is the first of hostname -I
-tls=${ENV_DB_TLS:-"disabled"}                   #Default DB TLS mode
-debug_mode=${ENV_DEBUG_MODE:-"false"}           #Default debug mode (set -x xtrace) is disabled
-LOG_FILE=""                                     #Path of the log file (set up in main, see ENV_LOG_FILE)
+topology=${ENV_CENTREON_TOPOLOGY:-"central"}       #Default topology to be installed
+version=${ENV_CENTREON_VERSION:-"26.10"}           #Default version to be installed
+repo=${ENV_CENTREON_REPO:-"stable"}                #Default repository to be used
+dbms=${ENV_CENTREON_DBMS:-"MariaDB"}               #Default database system to be used
+operation=${ENV_CENTREON_OPERATION:-"install"}     #Default operation to be executed
+runtime_log_level=${ENV_LOG_LEVEL:-"INFO"}         #Default log level to be used
+selinux_mode=${ENV_SELINUX_MODE:-"permissive"}     #Default SELinux mode to be used
+wizard_autoplay=${ENV_WIZARD_AUTOPLAY:-"false"}    #Default the install wizard is not run auto
+central_ip=${ENV_CENTRAL_IP:-$default_ip}          #Default central ip is the first of hostname -I
+tls=${ENV_DB_TLS:-"disabled"}                      #Default DB TLS mode
+debug_mode=${ENV_DEBUG_MODE:-"false"}              #Default debug mode (set -x xtrace) is disabled
+install_logrotate=${ENV_INSTALL_LOGROTATE:-"true"} #Default logrotate is installed (Debian, 25.10+)
+LOG_FILE=""                                        #Path of the log file (set up in main, see ENV_LOG_FILE)
 
 function genpasswd() {
 	local _pwd
@@ -123,13 +124,15 @@ function usage() {
 	echo
 	echo "Usage:"
 	echo
-	echo " $script_short_name [install|update (default: install)] [-t <central|poller> (default: central)] [-v <24.10|25.10|26.10> (default: 26.10)] [-r <stable|testing-hotfix|testing-release|unstable> (default: stable)] [-d <MariaDB|MySQL> (default: MariaDB)] [--tls <enabled|disabled> (default: disabled)] [-l <DEBUG|INFO|WARN|ERROR>] [-s (for silent install)] [-p <centreon admin password>] [-D (enable debug mode: shell xtrace + DEBUG log level)] [-h (show this help output)] [-V configure a vault, using format <address>;<port>;<root_path>;<role_id>;<secret_id>]"
+	echo " $script_short_name [install|update (default: install)] [-t <central|poller> (default: central)] [-v <24.10|25.10|26.10> (default: 26.10)] [-r <stable|testing-hotfix|testing-release|unstable> (default: stable)] [-d <MariaDB|MySQL> (default: MariaDB)] [--tls <enabled|disabled> (default: disabled)] [--no-logrotate (Debian, 25.10 and later: do not install logrotate; the /etc/logrotate.d rules will not run unless logrotate is already installed)] [-l <DEBUG|INFO|WARN|ERROR>] [-s (for silent install)] [-p <centreon admin password>] [-D (enable debug mode: shell xtrace + DEBUG log level)] [-h (show this help output)] [-V configure a vault, using format <address>;<port>;<root_path>;<role_id>;<secret_id>]"
 	echo
 	echo Example:
 	echo
 	echo " $script_short_name == install the $version of $topology from the repository $repo"
 	echo
 	echo " $script_short_name install -r unstable,testing == install the central to the $version from the unstable & testing repository"
+	echo
+	echo " $script_short_name install --no-logrotate == install without logrotate, when the logs are rotated by another tool"
 	echo
 	echo " $script_short_name install -V vault-example.com;8200;my_storage;my-role-id;my-secret-id == configuring a vault to store your application and database credentials"
 	echo
@@ -294,6 +297,18 @@ function parse_subcommand_options() {
 			# GNU-style long options (getopts is short-only): support both
 			# "--name=value" and "--name value" forms.
 			long_opt="${OPTARG%%=*}"
+			case "$long_opt" in
+			no-logrotate)
+				# flag without value: must not consume the next argument
+				if [[ "$OPTARG" == *=* ]]; then
+					log "ERROR" "Option --$long_opt does not take a value"
+					usage
+				fi
+				install_logrotate="false"
+				log "INFO" "logrotate will not be installed (--no-logrotate)"
+				continue
+				;;
+			esac
 			if [[ "$OPTARG" == *=* ]]; then
 				long_optarg="${OPTARG#*=}"
 			else
@@ -1741,6 +1756,34 @@ function install_poller_recommended_plugins() {
 }
 #========= end of function install_poller_recommended_plugins()
 
+#========= begin of function debian_logrotate_package()
+# set LOGROTATE_PKG to "logrotate" when the Debian install should ask for it by name (it is only a Recommends,
+# removable on its own), and tell the admin about it: WARN when the run adds it to the system,
+# WARN when --no-logrotate leaves the /etc/logrotate.d rules without anything to run them.
+#
+function debian_logrotate_package() {
+	local already_installed="false"
+	LOGROTATE_PKG=""
+	if dpkg-query -W -f='${Status}' logrotate 2>/dev/null | grep -q "install ok installed"; then
+		already_installed="true"
+	fi
+
+	if [[ "$install_logrotate" != "true" ]]; then
+		if [[ "$already_installed" == "true" ]]; then
+			log "INFO" "--no-logrotate: logrotate is already installed and keeps running the /etc/logrotate.d rules"
+		else
+			log "WARN" "--no-logrotate: logrotate is not installed, so the Centreon rules in /etc/logrotate.d will not run; rotate the Centreon logs with your own tool"
+		fi
+		return 0
+	fi
+
+	if [[ "$already_installed" != "true" ]]; then
+		log "WARN" "logrotate is not installed: installing it to run the Centreon rules in /etc/logrotate.d (use --no-logrotate to skip)"
+	fi
+	LOGROTATE_PKG="logrotate"
+}
+#========= end of function debian_logrotate_package()
+
 #========= begin of function install_central()
 # install the Centreon Central
 #
@@ -1762,8 +1805,8 @@ function install_central() {
 		if (( $(version_int) >= $(version_int 24.10) && $(version_int) <= $(version_int 24.12) )); then
 			$PKG_MGR install -y $CENTREON_DBMS_PKG centreon || _install_rc=$?
 		else
-			# logrotate is only recommended (removable on its own), so ask for it by name
-			$PKG_MGR install -y --no-install-recommends $CENTREON_DBMS_PKG centreon logrotate || _install_rc=$?
+			debian_logrotate_package
+			$PKG_MGR install -y --no-install-recommends $CENTREON_DBMS_PKG centreon $LOGROTATE_PKG || _install_rc=$?
 		fi
 
 		if [ "$_install_rc" -ne 0 ]; then
@@ -1842,8 +1885,8 @@ function install_poller() {
 		if (( $(version_int) >= $(version_int 24.10) && $(version_int) <= $(version_int 24.12) )); then
 			$PKG_MGR install -y $CENTREON_DBMS_PKG centreon-poller || _install_rc=$?
 		else
-			# logrotate is only recommended (removable on its own), so ask for it by name
-			$PKG_MGR install -y --no-install-recommends $CENTREON_DBMS_PKG centreon-poller logrotate || _install_rc=$?
+			debian_logrotate_package
+			$PKG_MGR install -y --no-install-recommends $CENTREON_DBMS_PKG centreon-poller $LOGROTATE_PKG || _install_rc=$?
 		fi
 
 		if [ "$_install_rc" -ne 0 ]; then
