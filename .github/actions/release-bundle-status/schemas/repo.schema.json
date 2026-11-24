@@ -15,6 +15,7 @@
     "dispatch_content": {"enum": ["REGULAR", "CHANGED_ONLY", "FULL"]},
     "changed": {"type": "array", "items": {"type": "string"}},
     "expected": {"type": "array", "items": {"type": "string"}},
+    "bundle_repos": {"type": "array", "items": {"type": "string"}},
     "carried": {"type": "array", "items": {"type": "string"}},
     "dispatched": {"type": "array", "items": {"type": "string"}},
     "commits": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}}

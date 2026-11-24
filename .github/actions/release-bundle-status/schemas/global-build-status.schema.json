@@ -18,7 +18,8 @@
       "additionalProperties": {
         "type": "object",
         "required": ["commit", "expected"],
-        "properties": {"commit": {"type": "string"}, "run_url": {"type": "string"}, "expected": {"type": "array", "items": {"type": "string"}}}
+        "properties": {"commit": {"type": "string"}, "run_url": {"type": "string"}, "expected": {"type": "array", "items": {"type": "string"}},
+                       "bundle_repos": {"type": "array", "items": {"type": "string"}}}
       }
     },
     "components": {

@@ -33,6 +33,7 @@ import {
   labelServicesDescription,
   labelWelcomeToServices
 } from './translatedLabels';
+import { useHostNameFilterFromUrl } from './useHostNameFilterFromUrl';
 import useServices from './useServices';
 import {
   columnsAtomKey,
@@ -81,6 +82,8 @@ const Services = () => {
     isMassChange: true
   });
   const massChangeAction = useMassChangeAction();
+
+  useHostNameFilterFromUrl();
 
   const massChange = useMemo(() => {
     const context = {

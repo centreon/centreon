@@ -34,7 +34,15 @@ export const getServiceRowId = (row: ResourceRow): string => {
   return `${host.id}_${id}`;
 };
 
-// Both forms are still legacy pages.
+// The React Services page, reachable once the menu grants it.
+export const servicesPagePath = '/configuration/services';
+
+export const hostNameSearchParameter = 'host';
+
+export const getServicesOfHostPath = (hostName: string): string =>
+  `${servicesPagePath}?${hostNameSearchParameter}=${encodeURIComponent(hostName)}`;
+
+// The legacy forms, opened while the React pages are not reachable.
 export const getHostConfigurationUrl = (id: number): string =>
   `${centreonBaseURL}/main.php?p=60101&o=c&host_id=${encodeURIComponent(id)}`;
 
