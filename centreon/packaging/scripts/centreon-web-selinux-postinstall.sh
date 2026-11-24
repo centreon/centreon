@@ -17,7 +17,7 @@ load_policy() {
     echo "WARNING: tcp/$PHP_FPM_PORT was labelled $current_type, it is now labelled centreon_php_fpm_port_t" >&2
   fi
   if [ -n "$semanage_action" ] && ! semanage port "$semanage_action" -t centreon_php_fpm_port_t -p tcp "$PHP_FPM_PORT"; then
-    echo "ERROR: could not label tcp/$PHP_FPM_PORT for php-fpm, run: semanage port -a -t centreon_php_fpm_port_t -p tcp $PHP_FPM_PORT" >&2
+    echo "ERROR: could not label tcp/$PHP_FPM_PORT for php-fpm, run: semanage port $semanage_action -t centreon_php_fpm_port_t -p tcp $PHP_FPM_PORT" >&2
   fi
   setsebool -P httpd_unified on || :
   setsebool -P httpd_can_network_connect on || :
