@@ -305,6 +305,11 @@ validate() {
   for (( i = 0; i < self_index; i++ )); do
     remote_has_branch "${CHAIN[$i]}" "$BRANCH" && upstream+=("${CHAIN[$i]}")
   done
+  # repositories taking part in the bundle: this one, and every repository of the chain having the branch
+  local -a bundle_repos=()
+  for r in "${CHAIN[@]}"; do
+    if [[ "$r" == "$repo" ]] || remote_has_branch "$r" "$BRANCH"; then bundle_repos+=("$r"); fi
+  done
   local prefix="testing-$scope-$type-$number-$major" latest=0 n
   for r in "${CHAIN[@]}"; do
     n=$(bundle_iterations "$r" "$prefix" | tail -n 1)
@@ -502,6 +507,7 @@ validate() {
   out tag "$tag"
   out iteration "$iteration"
   out role "$role"
+  out bundle_repos "${bundle_repos[*]}"
   out bundle_path "bundles/$scope/$major/$type/$number/$iteration"
   out upstream "$upstream_list"
   out stop_after_branch "$stop_after_branch"
@@ -584,7 +590,7 @@ build_manifest() {
   ' "$COMPONENTS_FILE"
 }
 
-# in (job 2): TAG, BRANCH, HEAD_SHA, ROLE, RELEASE_SCOPE, PREVIOUS_STABLE_BUNDLE_TAG, DISPATCH_CONTENT,
+# in (job 2): TAG, BRANCH, HEAD_SHA, ROLE, BUNDLE_REPOS, RELEASE_SCOPE, PREVIOUS_STABLE_BUNDLE_TAG, DISPATCH_CONTENT,
 #   COMPONENTS_FILE, CHANGED_FILE, COMMIT_LISTS_DIR, BUCKET, STATUS_DRY_RUN, DRY_RUN,
 #   ABANDONED_BUNDLE (tag of the bundle the opener abandoned, empty otherwise)
 # writes repos/<repo>.json, the repos.<repo> section of the global file and a trigger event;
@@ -610,15 +616,17 @@ record() {
   work=$(mktemp -d)
   jq -n --arg bundle "$TAG" --arg repo "$repo" --arg role "$ROLE" --arg branch "$BRANCH" --arg commit "$HEAD_SHA" \
      --arg run_url "$run_url" --arg previous "$PREVIOUS_STABLE_BUNDLE_TAG" --arg content "$DISPATCH_CONTENT" \
-     --argjson changed "$changed" --argjson plan "$plan" --argjson commits "$commits" --arg now "$now" '
+     --argjson changed "$changed" --argjson plan "$plan" --argjson commits "$commits" --arg now "$now" \
+     --arg bundle_repos "${BUNDLE_REPOS:-$repo}" '
     {schema_version: 1, bundle: $bundle, repo: $repo, role: $role, branch: $branch, commit: $commit,
      run_url: $run_url, recorded_at: $now, previous_stable_tag: $previous, dispatch_content: $content,
+     bundle_repos: ($bundle_repos | split(" ") | map(select(length > 0))),
      changed: $changed,
      expected: [$plan[] | select(.expected) | .bundle_component] | unique,
      carried: [$plan[] | select(.bundle_component != null and .action == "skipped") | .bundle_component] | unique,
      dispatched: [$plan[] | select(.action == "dispatch" or .action == "dry-run") | .workflow],
      commits: $commits}' > "$work/repo.json"
-  jq -c '{commit, run_url, expected}' "$work/repo.json" > "$work/section.json"
+  jq -c '{commit, run_url, expected, bundle_repos}' "$work/repo.json" > "$work/section.json"
   jq -n -c --arg bundle "$TAG" --arg source "$repo" --arg ts "$now" --arg commit "$HEAD_SHA" --arg run_url "$run_url" \
     '{schema_version: 1, bundle: $bundle, source: $source, subject: $source, type: "trigger",
       status: "recorded", ts: $ts, commit: $commit, run_url: $run_url}' > "$work/event.json"

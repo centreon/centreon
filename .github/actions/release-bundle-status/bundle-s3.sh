@@ -71,13 +71,17 @@ bundle_s3_update_global() {
       return 1
     fi
 
-    # complete once every component expected by the repositories reported success
+    # complete once every repository taking part in the bundle (bundle_repos, recorded by each
+    # trigger) has reported, and every component they expect reported success
     jq --arg kind "$kind" --arg name "$name" --slurpfile section "$section_file" \
        --arg now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" '
       .[$kind][$name] = $section[0]
       | .updated_at = $now
       | ([.repos[]?.expected[]?] | unique) as $expected
+      | ([.repos[]?.bundle_repos[]?] | unique) as $bundle_repos
+      | (.repos | keys) as $reported
       | .status = (if ($expected | length) > 0
+                     and ($bundle_repos - $reported | length) == 0
                      and ([$expected[] as $c | .components[$c].state] | all(. == "success"))
                    then "complete" else "incomplete" end)
     ' "$work/global.json" > "$work/global.new.json" && jq -e '.status' "$work/global.new.json" > /dev/null \

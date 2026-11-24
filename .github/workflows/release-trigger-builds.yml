@@ -71,6 +71,7 @@ jobs:
       release_scope: ${{ steps.prepare.outputs.release_scope }}
       tag: ${{ steps.validate.outputs.tag }}
       role: ${{ steps.validate.outputs.role }}
+      bundle_repos: ${{ steps.validate.outputs.bundle_repos }}
       stopped: ${{ steps.tag.outputs.stopped }}
       abandoned_bundle: ${{ steps.validate.outputs.abandoned_bundle }}
     steps:
@@ -195,6 +196,7 @@ jobs:
       HEAD_SHA: ${{ needs.release-trigger-builds.outputs.head_sha }}
       TAG: ${{ needs.release-trigger-builds.outputs.tag }}
       ROLE: ${{ needs.release-trigger-builds.outputs.role }}
+      BUNDLE_REPOS: ${{ needs.release-trigger-builds.outputs.bundle_repos }}
       RELEASE_SCOPE: ${{ needs.release-trigger-builds.outputs.release_scope }}
       PREVIOUS_STABLE_BUNDLE_TAG: ${{ needs.release-trigger-builds.outputs.previous_stable_bundle_tag }}
       ABANDONED_BUNDLE: ${{ needs.release-trigger-builds.outputs.abandoned_bundle }}
