@@ -10,6 +10,7 @@ Feature: Event Logs pages without counting the results
   Background:
     Given an administrator is logged in
 
+  @MON-216044
   Scenario: The list moves between pages with the "Previous page" and "Next page" buttons
     Given 12 events with the output "E2E_PAGER" exist
     And the administrator opens the Event Logs page
@@ -26,6 +27,7 @@ Feature: Event Logs pages without counting the results
     Then the Event Logs search asks for page 1
     And 10 events are displayed
 
+  @MON-216043
   Scenario: No next page is offered when the events exactly fill the page
     Given 10 events with the output "E2E_PAGER" exist
     And the administrator opens the Event Logs page
@@ -33,6 +35,7 @@ Feature: Event Logs pages without counting the results
     Then 10 events are displayed
     And the "Next page" buttons are disabled
 
+  @MON-216042
   Scenario: A new search and a new page size start again from the first page
     Given 12 events with the output "E2E_PAGER" exist
     And the administrator opens the Event Logs page
@@ -44,6 +47,7 @@ Feature: Event Logs pages without counting the results
     And the administrator changes the page size to 20
     Then the Event Logs search asks for page 1 with 20 events per page
 
+  @MON-216041
   Scenario Outline: The <action> keeps the filters of the displayed list
     Given 12 events with the output "E2E_PAGER" exist
     And the administrator opens the Event Logs page
@@ -58,6 +62,7 @@ Feature: Event Logs pages without counting the results
       | CSV export  |
       | XML export  |
 
+  @MON-216040
   Scenario: The XML export contains all the events of the search, not only the page
     Given 12 events with the output "E2E_PAGER" exist
     And the administrator opens the Event Logs page
@@ -65,6 +70,7 @@ Feature: Event Logs pages without counting the results
     When the administrator uses the XML export
     Then the XML export contains 12 events
 
+  @MON-216039
   Scenario: The engine logs list keeps its numbered pages
     Given 12 engine messages with the output "E2E_ENGINE" exist
     When the engine logs list is requested with 10 messages per page
