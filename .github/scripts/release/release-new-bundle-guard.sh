@@ -16,6 +16,8 @@
 #   6 this repository is not part of the latest bundle               refuse
 #   7 a component was unchanged, so not rebuilt                      allow (the commit is compared)
 #   8 the latest testing tag here carries another release number     refuse
+# Also refused: an unreadable mapping, bucket or status file, and a testing-tag line whose branch is
+# not named release-XX.YY-next or hotfix-XX.YY-next.
 set -euo pipefail
 
 MAPPING_PATH=.github/scripts/release/release-components.json
@@ -86,22 +88,30 @@ refuse() { # rule, message
 
 check() {
   local repo=${GITHUB_REPOSITORY#*/} major prefix iterations latest global mode
-  [[ "$RELEASE_BRANCH" =~ ^(release|hotfix)-([0-9]{2}\.[0-9]{2})-next$ ]] \
-    || { echo "Branch $RELEASE_BRANCH is not a release or hotfix branch: nothing to check"; return 0; }
-  major=${BASH_REMATCH[2]}
-
   mode=$(branch_mode)
   if [[ "$mode" == "legacy" ]]; then
     echo "Branch $RELEASE_BRANCH is in legacy mode (no testing_tag_builds): testing bundle check skipped (rule 5)"
     echo "### Testing bundle check: skipped, \`$RELEASE_BRANCH\` is a legacy line (rule 5)" | summary
     return 0
   fi
+
+  # From here the release job tags this commit only, whatever happens below (override included):
+  # it fails if the branch moved in between.
+  if HEAD_SHA=$(git rev-parse -q --verify "origin/$RELEASE_BRANCH^{commit}" 2> /dev/null); then
+    out head_sha "$HEAD_SHA"
+  else
+    HEAD_SHA=""
+  fi
+
   [[ "$mode" == "testing" ]] \
     || refuse "mapping" "Cannot read testing_tag_builds in $MAPPING_PATH on $RELEASE_BRANCH: the branch or the file is unreadable or malformed."
 
-  HEAD_SHA=$(git rev-parse "origin/$RELEASE_BRANCH")
-  # the release job tags this commit only: it fails if the branch moved in between
-  out head_sha "$HEAD_SHA"
+  # a line built from testing tags is always release-XX.YY-next or hotfix-XX.YY-next: no bundle can
+  # match another name, so it is refused rather than released unchecked
+  [[ "$RELEASE_BRANCH" =~ ^(release|hotfix)-([0-9]{2}\.[0-9]{2})-next$ ]] \
+    || refuse "branch" "$RELEASE_BRANCH is built from testing tags but is not named release-XX.YY-next or hotfix-XX.YY-next: no testing bundle can be matched to it."
+  major=${BASH_REMATCH[2]}
+
   LINE_TAG=$(latest_line_tag "$major")
   prefix="bundles/$RELEASE_SCOPE/$major/$RELEASE_TYPE/$RELEASE_NUMBER"
 

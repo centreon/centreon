@@ -54,6 +54,9 @@ commit nomapping none; branch_at_head release-29.95-next
 commit onprem true; C5=$(git rev-parse HEAD); branch_at_head hotfix-29.10-next
 echo '[1, 2' > "$MAPPING_PATH"; git add -A; git commit -q -m malformed; branch_at_head release-29.94-next
 echo '["testing_tag_builds"]' > "$MAPPING_PATH"; git add -A; git commit -q -m notobject; branch_at_head release-29.93-next
+C7=$(git rev-parse HEAD)
+commit custom true; branch_at_head release-29.97-custom
+commit customlegacy false; branch_at_head release-29.96-custom
 
 PASS=0; FAILED=0
 # name, expected exit, expected text, then: branch number type scope [skip]
@@ -135,10 +138,29 @@ run_case "malformed mapping is refused" 1 "(rule mapping)" release-29.94-next 20
 run_case "mapping that is not an object is refused" 1 "(rule mapping)" release-29.93-next 20291200 release cloud
 run_case "unknown branch is refused" 1 "(rule mapping)" release-29.92-next 20291200 release cloud
 
+# the override never drops the pin of the tagged commit
+: > "$GITHUB_OUTPUT"
+run_case "malformed mapping, override" 0 "would have refused (rule mapping)" release-29.93-next 20291200 release cloud true
+if grep -qx "head_sha=$C7" "$GITHUB_OUTPUT"; then
+  PASS=$((PASS + 1)); echo "PASS    malformed mapping, override: head_sha still output"
+else
+  FAILED=$((FAILED + 1)); echo "FAILED  malformed mapping, override: head_sha still output"; cat "$GITHUB_OUTPUT"
+fi
+: > "$GITHUB_OUTPUT"
+run_case "5 legacy" 0 "legacy mode" release-29.96-next 20291200 release cloud
+if [[ ! -s "$GITHUB_OUTPUT" ]]; then
+  PASS=$((PASS + 1)); echo "PASS    5 legacy: no head_sha output"
+else
+  FAILED=$((FAILED + 1)); echo "FAILED  5 legacy: no head_sha output"; cat "$GITHUB_OUTPUT"
+fi
+
 # rule 5: legacy branches
 run_case "5 flag false" 0 "legacy mode" release-29.96-next 20291200 release cloud
 run_case "5 no mapping file" 0 "legacy mode" release-29.95-next 20291200 release cloud
-run_case "not a release branch" 0 "nothing to check" develop 20291200 release cloud
+run_case "5 legacy branch with another name" 0 "legacy mode" release-29.96-custom 20291200 release cloud
+
+# a testing-tag line with another name is refused, never released unchecked
+run_case "testing-tag branch with another name is refused" 1 "(rule branch)" release-29.97-custom 20291200 release cloud
 
 # onprem hotfix line
 tag_at testing-onprem-hotfix-20291200-29.10-1 "$C5" 2029-12-01T10:00:00Z
