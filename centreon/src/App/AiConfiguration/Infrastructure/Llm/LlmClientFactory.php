@@ -64,6 +64,7 @@ final readonly class LlmClientFactory implements LlmClientFactoryInterface
         private ClockInterface $clock,
         private VaultInterface $vault,
         private LoggerInterface $logger,
+        private HostLookup $hostLookup,
     ) {
     }
 
@@ -216,25 +217,30 @@ final readonly class LlmClientFactory implements LlmClientFactoryInterface
             );
         }
 
-        // The proxy resolves the target itself: a host the platform can not resolve
-        // (no outside DNS) would be refused by the guard, so it goes to the proxy unchecked.
-        if ($this->resolvesLocally($endpointUrl)) {
-            return $this->httpClient->withOptions(['proxy' => $proxyUrl->value]);
+        $proxy = ['proxy' => $proxyUrl->value];
+        $host = mb_strtolower(trim((string) parse_url($endpointUrl->value, \PHP_URL_HOST), '[]'));
+        if (filter_var($host, \FILTER_VALIDATE_IP) !== false) {
+            return $this->httpClient->withOptions($proxy);
         }
 
+        // One lookup: its answer is handed to the guard, which then checks it
+        // instead of resolving the host again.
+        $address = $this->hostLookup->findIpv4Address($host);
+        if ($address !== null) {
+            return $this->httpClient->withOptions([...$proxy, 'resolve' => [$host => $address]]);
+        }
+
+        // an IPv6-only host: the guard looks it up itself
+        if ($this->hostLookup->hasIpv6Address($host)) {
+            return $this->httpClient->withOptions($proxy);
+        }
+
+        // The proxy resolves the target itself: a host the platform can not resolve
+        // (no outside DNS) would be refused by the guard, so it goes to the proxy unchecked.
         $this->logger->info('The AI provider host does not resolve on the platform: it is resolved by the proxy, unchecked', [
-            'host' => parse_url($endpointUrl->value, \PHP_URL_HOST),
+            'host' => $host,
         ]);
 
-        return $this->unguardedHttpClient->withOptions(['proxy' => $proxyUrl->value]);
-    }
-
-    private function resolvesLocally(EndpointUrl $endpointUrl): bool
-    {
-        $host = trim((string) parse_url($endpointUrl->value, \PHP_URL_HOST), '[]');
-
-        return filter_var($host, \FILTER_VALIDATE_IP) !== false
-            || gethostbynamel($host) !== false
-            || checkdnsrr($host, 'AAAA');
+        return $this->unguardedHttpClient->withOptions($proxy);
     }
 }

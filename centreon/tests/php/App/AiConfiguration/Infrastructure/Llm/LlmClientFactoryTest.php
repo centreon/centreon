@@ -40,6 +40,7 @@ use App\AiConfiguration\Domain\Usage\BudgetStatusChecker;
 use App\AiConfiguration\Infrastructure\Llm\AnthropicLlmClient;
 use App\AiConfiguration\Infrastructure\Llm\BedrockLlmClient;
 use App\AiConfiguration\Infrastructure\Llm\GeminiLlmClient;
+use App\AiConfiguration\Infrastructure\Llm\HostLookup;
 use App\AiConfiguration\Infrastructure\Llm\LlmClientFactory;
 use App\AiConfiguration\Infrastructure\Llm\MeteredLlmClient;
 use App\AiConfiguration\Infrastructure\Llm\OpenAiCompatibleLlmClient;
@@ -56,6 +57,7 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Tests\App\AiConfiguration\Infrastructure\Double\FakeAiProviderRepository;
 use Tests\App\AiConfiguration\Infrastructure\Double\FakeAiProviderUsageRepository;
+use Tests\App\AiConfiguration\Infrastructure\Double\FakeHostLookup;
 use Tests\App\Shared\Double\FakeHttpProxyProvider;
 use Tests\App\Shared\Double\FakeVault;
 use Tests\App\Shared\Infrastructure\Legacy\Double\RecordingLogger;
@@ -261,14 +263,17 @@ final class LlmClientFactoryTest extends TestCase
         self::assertSame(['https://api.anthropic.com/v1/models?limit=1000'], $urls);
     }
 
+    /**
+     * @param array<string, string> $resolve
+     */
     #[DataProvider('provideProxiedTargets')]
-    public function testAProxiedTargetIsCheckedOnlyWhenItResolvesLocally(string $endpointUrl, bool $guarded): void
+    public function testAProxiedTargetIsCheckedOnlyWhenItResolvesLocally(string $endpointUrl, bool $guarded, array $resolve): void
     {
         $used = [];
         $client = static function (string $name) use (&$used): MockHttpClient {
             return new MockHttpClient(
-                static function () use (&$used, $name): MockResponse {
-                    $used[] = $name;
+                static function (string $method, string $url, array $options) use (&$used, $name): MockResponse {
+                    $used[] = [$name, $options['resolve'] ?? []];
 
                     return new MockResponse('{"choices":[{"message":{"content":"pong"}}],"model":"llama3"}');
                 }
@@ -279,6 +284,7 @@ final class LlmClientFactoryTest extends TestCase
             $client('guarded'),
             new FakeHttpProxyProvider('http://proxy.example.org:3128'),
             unguardedHttpClient: $client('unguarded'),
+            hostLookup: new FakeHostLookup(['llm.example.org' => '198.51.100.7'], ['ipv6-only.example.org']),
         )
             ->forConnectionTest(new ConnectionSpec(
                 AiProviderTypeEnum::OpenAiCompatible,
@@ -288,19 +294,22 @@ final class LlmClientFactoryTest extends TestCase
             ))
             ->complete(LlmRequest::connectionTest(new ModelName('llama3')));
 
-        self::assertSame([$guarded ? 'guarded' : 'unguarded'], $used);
+        // the address looked up for a name is handed over, so it is not resolved twice
+        self::assertSame([[$guarded ? 'guarded' : 'unguarded', $resolve]], $used);
     }
 
     /**
-     * @return iterable<string, array{string, bool}>
+     * @return iterable<string, array{string, bool, array<string, string>}>
      */
     public static function provideProxiedTargets(): iterable
     {
-        yield 'an IP address' => ['https://203.0.113.10', true];
+        yield 'an IP address' => ['https://203.0.113.10', true, []];
 
-        yield 'a host the platform resolves' => ['https://localhost', true];
+        yield 'a host the platform resolves' => ['https://LLM.example.org', true, ['llm.example.org' => '198.51.100.7']];
 
-        yield 'a host only the proxy can resolve' => ['https://llm.invalid', false];
+        yield 'an IPv6-only host' => ['https://ipv6-only.example.org', true, []];
+
+        yield 'a host only the proxy can resolve' => ['https://llm.invalid', false, []];
     }
 
     /**
@@ -367,6 +376,7 @@ final class LlmClientFactoryTest extends TestCase
         ?FakeHttpProxyProvider $proxyProvider = null,
         ?LoggerInterface $logger = null,
         ?HttpClientInterface $unguardedHttpClient = null,
+        ?HostLookup $hostLookup = null,
     ): LlmClientFactory {
         $usageRepository = new FakeAiProviderUsageRepository();
 
@@ -381,6 +391,7 @@ final class LlmClientFactoryTest extends TestCase
             new MockClock(),
             $this->vault,
             $logger ?? new NullLogger(),
+            $hostLookup ?? new FakeHostLookup(['api.anthropic.com' => '198.51.100.10', 'llm.example.org' => '198.51.100.7']),
         );
     }
 
