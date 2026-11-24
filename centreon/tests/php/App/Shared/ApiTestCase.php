@@ -68,8 +68,11 @@ abstract class ApiTestCase extends SymfonyApiTestCase
 
     public static function tearDownAfterClass(): void
     {
+        // The users are created through the default connection (see createApiUser()), and DAMA
+        // only rolls back the last test of the class when the next class starts: deleting them
+        // through another connection would wait on the rows that test still locks.
         /** @var Connection $connection */
-        $connection = static::getContainer()->get('doctrine.dbal.test_setup_default_connection');
+        $connection = static::getContainer()->get('doctrine.dbal.default_connection');
         $connection->beginTransaction();
 
         try {
@@ -86,8 +89,6 @@ abstract class ApiTestCase extends SymfonyApiTestCase
             $connection->rollBack();
 
             throw $e;
-        } finally {
-            $connection->close();
         }
 
         parent::tearDownAfterClass();
