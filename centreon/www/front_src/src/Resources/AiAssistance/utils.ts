@@ -3,6 +3,10 @@ import { Resource } from '../models';
 // The alert-correlation endpoint accepts at most this many resources.
 export const maxCorrelatedResources = 50;
 
+// The graph-explanation endpoint accepts at most this many metrics: the first
+// ones, in the graph's order, are sent.
+export const maxGraphMetrics = 50;
+
 // The longest check output, command line or performance data the AI
 // endpoints accept.
 export const maxTextLength = 10_000;

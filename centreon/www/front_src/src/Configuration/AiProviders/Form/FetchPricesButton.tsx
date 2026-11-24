@@ -17,6 +17,7 @@ import {
   labelPricesFilled,
   labelPricesNotFound
 } from '../translatedLabels';
+import { useLatestInputs } from './useLatestInputs';
 
 interface FormValues {
   currency?: string | null;
@@ -44,15 +45,32 @@ const FetchPricesButton = (): JSX.Element => {
     !values.currency || values.currency.toUpperCase() === 'USD';
   const canFetch = Boolean(values.defaultModel) && currencyAllowsUsd;
 
+  // prices found for other models, or a currency changed meanwhile, are not
+  // applied
+  const startRequest = useLatestInputs(
+    JSON.stringify([
+      values.type,
+      values.defaultModel,
+      values.fastModel,
+      currencyAllowsUsd
+    ])
+  );
+
   const fetchPrices = async (): Promise<void> => {
     setStatus(null);
     setFailureMessage(null);
+
+    const isLatest = startRequest();
 
     const { data, error } = await call({
       default_model: values.defaultModel,
       type: values.type,
       ...(values.fastModel ? { fast_model: values.fastModel } : {})
     });
+
+    if (!isLatest()) {
+      return;
+    }
 
     if (!data) {
       setFailureMessage(error);

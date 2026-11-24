@@ -48,6 +48,10 @@ interface Props {
   // The number of timeline events in the last 24 hours, as counted for the
   // summary action.
   recentTimelineTotal?: number;
+  // What the AI calls answer, when not the default response.
+  responses?: Partial<Record<AiCall, object>>;
+  // The status the listing of the summarized window answers with.
+  timelineStatus?: number;
   // The number of timeline events in the summarized window.
   timelineTotal?: number;
 }
@@ -60,6 +64,8 @@ const initialize = (
     failures = {},
     filterTranslation,
     recentTimelineTotal,
+    responses = {},
+    timelineStatus = 200,
     timelineTotal = 2
   }: Props = {}
 ): ReturnType<typeof createStore> => {
@@ -83,7 +89,9 @@ const initialize = (
       alias,
       method: Method.POST,
       path,
-      response: statusCode ? getErrorResponse(statusCode) : response,
+      response: statusCode
+        ? getErrorResponse(statusCode)
+        : (responses[alias] ?? response),
       statusCode
     });
   };
@@ -124,7 +132,11 @@ const initialize = (
     alias: 'listTimeline',
     method: Method.GET,
     path: `**${timelineEndpoint}`,
-    response: getTimelineListing(timelineTotal)
+    response:
+      timelineStatus === 200
+        ? getTimelineListing(timelineTotal)
+        : getErrorResponse(timelineStatus),
+    statusCode: timelineStatus
   });
 
   // The count of the recent events, which enables the summary action: a

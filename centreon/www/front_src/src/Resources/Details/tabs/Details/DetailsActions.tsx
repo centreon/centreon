@@ -12,6 +12,7 @@ import {
   MainActionModel
 } from '../../../Actions/model';
 import ResourceActions from '../../../Actions/Resource';
+import useAiAvailability from '../../../AiAssistance/useAiAvailability';
 import {
   labelResourceDetailsCheckCommandSent,
   labelResourceDetailsCheckDescription,
@@ -27,6 +28,10 @@ interface Props {
   details: ResourceDetails;
 }
 
+// The actions condense below these panel widths: the Explain action needs
+// room, so with AI configured they condense sooner.
+const condensedPanelWidths = { default: 615, withAi: 720 };
+
 const DetailsActions = ({ details }: Props): JSX.Element => {
   const { classes, cx } = useStyles();
   const { t } = useTranslation();
@@ -34,8 +39,12 @@ const DetailsActions = ({ details }: Props): JSX.Element => {
   const { showSuccessMessage } = useSnackbar();
 
   const panelWidth = useAtomValue(panelWidthStorageAtom);
+  const { isConfigured: isAiConfigured } = useAiAvailability();
 
-  const displayCondensed = lt(panelWidth, 615);
+  const displayCondensed = lt(
+    panelWidth,
+    isAiConfigured ? condensedPanelWidths.withAi : condensedPanelWidths.default
+  );
 
   const onSuccessCheckAction = (): void => {
     showSuccessMessage(t(labelResourceDetailsCheckCommandSent));

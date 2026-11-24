@@ -62,8 +62,6 @@ const TestConnectionButton = (): JSX.Element => {
   // the stored token is only reused against the endpoint it was configured for
   const canUseStoredToken =
     isEditing && isSameEndpoint(values.endpointUrl, initialValues.endpointUrl);
-  // a token is available to test with when one is typed, or when editing
-  // with an unchanged endpoint; a model is also required
   const canTest =
     Boolean(values.defaultModel) && (hasTypedToken || canUseStoredToken);
 

@@ -49,7 +49,7 @@ export const adaptFormToApiPayload = (data: unknown): Payload => {
     type: formData.type,
     // the token is write-only: an empty field means "keep the current token"
     ...(formData.apiToken ? { api_token: formData.apiToken } : {}),
-    // only meaningful for OpenAI-compatible providers: the API enforces
+    // only set for OpenAI-compatible and Bedrock providers: the API enforces
     // the official endpoint of the other types
     ...(formData.endpointUrl ? { endpoint_url: formData.endpointUrl } : {})
   };

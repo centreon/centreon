@@ -12,7 +12,12 @@ import { lazy, ReactNode, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { AiResult } from './models';
-import { labelClose, labelGeneratedBy, labelOnHost } from './translatedLabels';
+import {
+  labelAnswerTruncated,
+  labelClose,
+  labelGeneratedBy,
+  labelOnHost
+} from './translatedLabels';
 import { unescaped } from './utils';
 
 const MarkdownContent = lazy(() =>
@@ -84,9 +89,16 @@ const AiResultDialog = ({
         )}
       </DialogContent>
       <DialogActions>
-        <Typography className="grow pl-2 text-text-secondary" variant="caption">
-          {disclaimer}
-        </Typography>
+        <div className="flex grow flex-col pl-2">
+          {result?.truncated && (
+            <Typography className="text-text-primary" variant="caption">
+              {t(labelAnswerTruncated)}
+            </Typography>
+          )}
+          <Typography className="text-text-secondary" variant="caption">
+            {disclaimer}
+          </Typography>
+        </div>
         {actions}
         <Button onClick={onClose} size="small">
           {t(labelClose)}

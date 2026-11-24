@@ -1,6 +1,9 @@
-import { Method, useMutationQuery } from '@centreon/ui';
+import { Method, useMutationQuery, useSnackbar } from '@centreon/ui';
 
+import { useTranslation } from 'react-i18next';
 import type { JsonDecoder } from 'ts.data.json';
+
+import { labelUnreadableAnswer } from '../translatedLabels';
 
 interface Props<TResult> {
   decoder: JsonDecoder.Decoder<TResult>;
@@ -19,6 +22,9 @@ export const useAiCall = <TPayload extends object, TResult extends object>({
   decoder,
   endpoint
 }: Props<TResult>): AiCallState<TPayload, TResult> => {
+  const { t } = useTranslation();
+  const { showErrorMessage } = useSnackbar();
+
   const { mutateAsync, isMutating } = useMutationQuery<TResult, undefined>({
     decoder,
     getEndpoint: () => endpoint,
@@ -30,6 +36,13 @@ export const useAiCall = <TPayload extends object, TResult extends object>({
     const response = await mutateAsync({
       payload: payload as unknown as TResult
     });
+
+    // a body that is not JSON comes back as null, without any snackbar
+    if (response === null) {
+      showErrorMessage(t(labelUnreadableAnswer));
+
+      return null;
+    }
 
     if ('isError' in response) {
       return null;

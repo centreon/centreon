@@ -79,3 +79,25 @@ export const waitForAllAnswers = async (alias: string): Promise<void> => {
     setTimeout(resolve, 100);
   });
 };
+
+// Answers with a body that is not JSON, as a proxy error page would.
+export const interceptUnreadableAnswer = ({
+  alias,
+  method = Method.POST,
+  path
+}: {
+  alias: string;
+  method?: Method;
+  path: string;
+}): void => {
+  interceptRequest(
+    method,
+    path,
+    () =>
+      new HttpResponse('<html>Bad gateway</html>', {
+        headers: { 'Content-Type': 'application/json' },
+        status: 200
+      }),
+    alias
+  );
+};

@@ -84,6 +84,14 @@ const useStatus = ({ row, onChanged }): Props => {
     }
 
     if (equals(method, Method.PATCH)) {
+      // the PATCH is fanned out: a refused one is a failed result, not an
+      // error (the error snackbar already says why)
+      if (results?.some(({ status }) => status !== 204)) {
+        setChecked(checked);
+
+        return;
+      }
+
       showSuccessMessage(labelSuccessMessage);
       onChanged?.(!checked);
 

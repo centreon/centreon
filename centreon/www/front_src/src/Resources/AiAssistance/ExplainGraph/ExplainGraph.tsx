@@ -62,7 +62,11 @@ const ExplainGraph = ({
         return;
       }
 
-      setResult({ content: explanation.explanation, model: explanation.model });
+      setResult({
+        content: explanation.explanation,
+        model: explanation.model,
+        truncated: explanation.truncated ?? false
+      });
     });
   };
 

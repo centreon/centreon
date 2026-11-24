@@ -59,7 +59,7 @@ const Usage = ({ row }: ComponentColumnProps): JSX.Element => {
   const { currency, limitDaily, limitMonthly, usedDaily, usedMonthly } =
     row as unknown as AiProviderListItem;
 
-  // no currency means no pricing: nothing is metered for this provider
+  // no currency means no pricing: the usage is recorded but has no cost
   if (isNil(currency) || currency === '') {
     return (
       <Typography color="text.secondary" variant="body2">

@@ -19,12 +19,17 @@ const useAnalyzeOrExplain = (): ((
           (explanation) =>
             explanation && {
               content: explanation.explanation,
-              model: explanation.model
+              model: explanation.model,
+              truncated: explanation.truncated ?? false
             }
         )
       : analyze(resources).then(
           (analysis) =>
-            analysis && { content: analysis.analysis, model: analysis.model }
+            analysis && {
+              content: analysis.analysis,
+              model: analysis.model,
+              truncated: analysis.truncated ?? false
+            }
         );
 };
 

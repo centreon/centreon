@@ -1,9 +1,20 @@
-import { interceptAPIRequest, Method, waitForRequest } from '@test-setup/api';
+import {
+  getRequestCalls,
+  interceptAPIRequest,
+  interceptRequest,
+  Method,
+  waitForRequest
+} from '@test-setup/api';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { HttpResponse } from 'msw';
 
 import { labelClose } from '../../ConfigurationBase/translatedLabels';
-import { aiProvidersEndpoint } from '../api';
+import {
+  aiProvidersEndpoint,
+  modelPricesEndpoint,
+  testConnectionEndpoint
+} from '../api';
 import {
   labelAnthropic,
   labelApiToken,
@@ -25,8 +36,10 @@ import {
   labelMistral,
   labelNameAlreadyExists,
   labelOpenAiCompatible,
+  labelPricesFilled,
   labelPricingRequiredForLimit,
-  labelTestConnection
+  labelTestConnection,
+  labelUnreadableAnswer
 } from '../translatedLabels';
 import {
   endpointUrlTestId,
@@ -65,6 +78,30 @@ const pricedProvider = {
   currency: 'USD',
   price_default_input: 3,
   price_default_output: 15
+};
+
+// Holds the price lookup answer until the test releases it.
+const interceptSlowPrices = (): (() => void) => {
+  let release = (): void => undefined;
+  const released = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+
+  interceptRequest(
+    Method.POST,
+    `**${modelPricesEndpoint}`,
+    async () => {
+      await released;
+
+      return HttpResponse.json({
+        default_model_input: 3,
+        default_model_output: 15
+      });
+    },
+    'slowPrices'
+  );
+
+  return release;
 };
 
 const isFollowing = (first: Element, second: Element): boolean =>
@@ -548,6 +585,112 @@ export default (): void => {
 
       expect(body.endpoint_url).toBe('https://other-gateway.example.com');
       expect(body.api_token).toBe('a-new-token');
+    });
+    it('prefills the prices found for the models', async () => {
+      await openCreationForm();
+      await selectType(labelAnthropic);
+
+      const release = interceptSlowPrices();
+
+      await waitFor(() =>
+        expect(screen.getByTestId(labelFetchPrices)).toBeEnabled()
+      );
+      await userEvent.click(screen.getByTestId(labelFetchPrices));
+      release();
+      await waitForRequest('@slowPrices');
+
+      expect(await screen.findByText(labelPricesFilled)).toBeVisible();
+      // number inputs hold numbers
+      await waitFor(async () =>
+        expect(await getCustomInput(labelDefaultModelInputPrice)).toHaveValue(3)
+      );
+      expect(await getCustomInput(labelDefaultModelOutputPrice)).toHaveValue(
+        15
+      );
+      await expectValue(labelCurrency, 'USD');
+    });
+
+    it('does not apply the prices found for a model changed meanwhile', async () => {
+      await openCreationForm();
+      await selectType(labelAnthropic);
+
+      const release = interceptSlowPrices();
+
+      await waitFor(() =>
+        expect(screen.getByTestId(labelFetchPrices)).toBeEnabled()
+      );
+      await userEvent.click(screen.getByTestId(labelFetchPrices));
+      await waitFor(() =>
+        expect(getRequestCalls('@slowPrices')).toHaveLength(1)
+      );
+
+      await replaceValue(await getCustomInput(labelDefaultModel), 'other');
+
+      release();
+      await waitForRequest('@slowPrices');
+      await new Promise((resolve) => {
+        setTimeout(resolve, 100);
+      });
+
+      expect(screen.queryByText(labelPricesFilled)).toBeNull();
+      expect(await getCustomInput(labelDefaultModelInputPrice)).toHaveValue(
+        null
+      );
+      expect(await getCustomInput(labelCurrency)).toHaveValue('');
+    });
+
+    it('shows an error next to the button when the connection test answer cannot be read', async () => {
+      await openCreationForm();
+      await selectType(labelAnthropic);
+      await userEvent.type(await getApiToken(), 'a-very-secret-token');
+
+      interceptRequest(
+        Method.POST,
+        `**${testConnectionEndpoint}`,
+        () =>
+          new HttpResponse('<html>Bad gateway</html>', {
+            headers: { 'Content-Type': 'application/json' },
+            status: 200
+          }),
+        'unreadableTestConnection'
+      );
+
+      await waitFor(() =>
+        expect(screen.getByTestId(labelTestConnection)).toBeEnabled()
+      );
+      await userEvent.click(screen.getByTestId(labelTestConnection));
+      await waitForRequest('@unreadableTestConnection');
+
+      expect(await screen.findByText(labelUnreadableAnswer)).toBeVisible();
+      // the test is over: the button is back
+      await waitFor(() =>
+        expect(screen.getByTestId(labelTestConnection)).toHaveTextContent(
+          labelTestConnection
+        )
+      );
+    });
+
+    it('clears the endpoint when the provider type changes', async () => {
+      await openCreationForm();
+      await selectType(labelOpenAiCompatible);
+
+      await userEvent.type(
+        (await queryAllInPanel(endpointUrlTestId)).at(-1) as HTMLElement,
+        'https://llm-gateway.example.com'
+      );
+
+      // an OpenAI-compatible URL is not a Bedrock endpoint
+      await selectType(labelBedrock);
+      await expectValue(labelAwsRegion, '');
+
+      await selectType(labelAnthropic);
+      await userEvent.type(await getApiToken(), 'a-very-secret-token');
+
+      await save();
+
+      const { request } = await waitForRequest('@createAiProvider');
+
+      expect(request.body as Payload).not.toHaveProperty('endpoint_url');
     });
   });
 };

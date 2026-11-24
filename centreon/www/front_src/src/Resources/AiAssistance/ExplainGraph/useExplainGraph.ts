@@ -3,7 +3,7 @@ import { explainGraphDecoder } from '../api/decoders';
 import { aiGraphExplanationEndpoint } from '../api/endpoints';
 import { useAiCall } from '../api/useAiCall';
 import { ExplainGraphResult } from '../models';
-import { truncate } from '../utils';
+import { maxGraphMetrics, truncate } from '../utils';
 
 export interface GraphMetricSummary {
   average: number | null;
@@ -51,7 +51,7 @@ const useExplainGraph = (): UseExplainGraphState => {
     timeRange: string | null;
   }): Promise<ExplainGraphResult | null> =>
     call({
-      metrics,
+      metrics: metrics.slice(0, maxGraphMetrics),
       name: details.name,
       parent_name: details.parent?.name ?? null,
       performance_data: truncate(details.performance_data),

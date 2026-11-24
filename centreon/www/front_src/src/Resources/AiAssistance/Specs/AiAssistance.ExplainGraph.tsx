@@ -4,12 +4,18 @@ import userEvent from '@testing-library/user-event';
 
 import { aiGraphExplanationEndpoint } from '../api/endpoints';
 import ExplainGraph from '../ExplainGraph/ExplainGraph';
-import { labelAiBudgetExhausted, labelExplainGraph } from '../translatedLabels';
-import { maxTextLength } from '../utils';
+import {
+  labelAiBudgetExhausted,
+  labelAnswerTruncated,
+  labelExplainGraph,
+  labelUnreadableAnswer
+} from '../translatedLabels';
+import { maxGraphMetrics, maxTextLength } from '../utils';
 import {
   closeDialog,
   expectTooltip,
   interceptSlowFirstRequest,
+  interceptUnreadableAnswer,
   waitForAllAnswers
 } from './helpers';
 import initialize from './initialize';
@@ -17,6 +23,7 @@ import {
   aiErrorMessage,
   getErrorResponse,
   graphDetails,
+  graphExplanationResponse,
   graphMetrics,
   model
 } from './utils';
@@ -104,6 +111,59 @@ export default (): void => {
       expect(
         (request.body as { performance_data: string }).performance_data
       ).toHaveLength(maxTextLength);
+    });
+
+    it('sends the first metrics only when the graph has more than the API accepts', async () => {
+      const manyMetrics = Array.from(
+        { length: maxGraphMetrics + 1 },
+        (_, index) => ({ ...graphMetrics[0], name: `metric-${index}` })
+      );
+
+      initialize(<ExplainGraph details={graphDetails} metrics={manyMetrics} />);
+
+      await userEvent.click(await screen.findByTestId(labelExplainGraph));
+
+      const { request } = await waitForRequest('@explainGraph');
+      const { metrics } = request.body as GraphPayload;
+
+      expect(metrics).toHaveLength(maxGraphMetrics);
+      expect(metrics[0].name).toBe('metric-0');
+      expect(metrics.at(-1)?.name).toBe(`metric-${maxGraphMetrics - 1}`);
+    });
+
+    it('says when the answer was cut short', async () => {
+      initialize(
+        <ExplainGraph details={graphDetails} metrics={graphMetrics} />,
+        {
+          responses: {
+            explainGraph: { ...graphExplanationResponse, truncated: true }
+          }
+        }
+      );
+
+      await userEvent.click(await screen.findByTestId(labelExplainGraph));
+
+      expect(await screen.findByText(labelAnswerTruncated)).toBeVisible();
+    });
+
+    it('closes the dialog and shows an error when the answer cannot be read', async () => {
+      initialize(
+        <ExplainGraph details={graphDetails} metrics={graphMetrics} />
+      );
+      interceptUnreadableAnswer({
+        alias: 'unreadableGraphExplanation',
+        path: aiGraphExplanationEndpoint
+      });
+
+      await userEvent.click(await screen.findByTestId(labelExplainGraph));
+
+      await waitForRequest('@unreadableGraphExplanation');
+
+      expect(await screen.findByText(labelUnreadableAnswer)).toBeVisible();
+      await waitFor(() =>
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+      );
+      expect(screen.getByTestId(labelExplainGraph)).toBeEnabled();
     });
 
     it('closes the dialog and shows the error once when the explanation fails', async () => {

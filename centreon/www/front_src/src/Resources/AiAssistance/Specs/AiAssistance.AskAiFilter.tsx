@@ -1,6 +1,7 @@
 import { getRequestCalls, waitForRequest } from '@test-setup/api';
 import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { atom, useAtomValue } from 'jotai';
 
 import { searchAtom } from '../../Filter/filterAtoms';
 import { listingAtom, sendingAtom } from '../../Listing/listingAtoms';
@@ -37,6 +38,15 @@ import {
 } from './utils';
 
 type Store = ReturnType<typeof initialize>;
+
+// Remounts the filter bar whenever the key changes, as a page change does.
+const remountKeyAtom = atom(0);
+
+const RemountableAskAiFilter = (): JSX.Element => {
+  const key = useAtomValue(remountKeyAtom);
+
+  return <AskAiFilter key={key} />;
+};
 
 // What the resources listing does when it loads a filter, one render at a
 // time: the listing lands, then the loading flag clears.
@@ -92,12 +102,7 @@ export default (): void => {
         'critical services'
       );
 
-      await waitFor(() => {
-        // the filter rebuild can leave a trailing separator in the search string
-        expect(store.get(searchAtom).trim()).toBe(
-          'type:service status:critical'
-        );
-      });
+      await waitForSearch(store, 'type:service status:critical');
     });
 
     it('warns when no filter could be derived', async () => {
@@ -267,6 +272,61 @@ export default (): void => {
 
       expect(screen.getByText('Second analysis')).toBeVisible();
       expect(screen.queryByText('First analysis')).toBeNull();
+    });
+
+    it('ignores the late answer of an explanation superseded after a remount', async () => {
+      const store = initialize(<RemountableAskAiFilter />, {
+        filterTranslation: explainCurrentViewResponse
+      });
+      store.set(listingAtom, displayedListing);
+
+      const releaseFirst = interceptSlowFirstRequest({
+        alias: 'slowCorrelation',
+        first: { body: { analysis: 'First analysis', model } },
+        next: { analysis: 'Second analysis', model },
+        path: aiAlertCorrelationEndpoint
+      });
+
+      await ask('why is everything failing?');
+      await waitFor(() =>
+        expect(getRequestCalls('@slowCorrelation')).toHaveLength(1)
+      );
+
+      act(() => {
+        store.set(remountKeyAtom, 1);
+      });
+
+      // the dialog lives in the store: it survives the remount
+      expect(await screen.findByTestId(aiResultLoadingTestId)).toBeVisible();
+      await closeDialog();
+
+      await ask('why is everything failing?');
+      expect(await screen.findByText('Second analysis')).toBeVisible();
+
+      releaseFirst();
+      await waitForAllAnswers('@slowCorrelation');
+
+      expect(screen.getByText('Second analysis')).toBeVisible();
+      expect(screen.queryByText('First analysis')).toBeNull();
+    });
+
+    it('closes the popup on Escape and gives the focus back to its button', async () => {
+      initialize(<AskAiFilter />);
+
+      const trigger = await screen.findByTestId(labelAskAi);
+
+      await userEvent.click(trigger);
+
+      const input = await screen.findByTestId(labelAskAiPlaceholder);
+
+      await waitFor(() => expect(input).toHaveFocus());
+
+      await userEvent.keyboard('{Escape}');
+
+      await waitFor(() =>
+        expect(screen.queryByTestId(labelAskAiPlaceholder)).toBeNull()
+      );
+      expect(trigger).toHaveFocus();
     });
 
     it('is visible but disabled when the AI budget is exhausted', async () => {

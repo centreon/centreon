@@ -82,7 +82,11 @@ const SummarizeIncident = ({ details }: Props): JSX.Element | null => {
         return;
       }
 
-      setResult({ content: summary.summary, model: summary.model });
+      setResult({
+        content: summary.summary,
+        model: summary.model,
+        truncated: summary.truncated ?? false
+      });
     });
   };
 

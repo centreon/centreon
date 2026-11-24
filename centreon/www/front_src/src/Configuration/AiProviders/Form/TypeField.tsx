@@ -17,6 +17,7 @@ const options = Object.values(AiProviderType);
 
 interface FormValues {
   defaultModel?: string | null;
+  endpointUrl?: string | null;
   fastModel?: string | null;
   name?: string | null;
   type?: AiProviderType | null;
@@ -40,8 +41,14 @@ const TypeField = ({
 
   const handleChange = (newType: AiProviderType | null): void => {
     setValues((currentValues) => {
+      // the endpoint belongs to the type: an OpenAI-compatible URL is not a
+      // Bedrock one, and the other types take none
+      const endpointUrl = equals(newType, currentValues.type)
+        ? currentValues.endpointUrl
+        : '';
+
       if (!newType) {
-        return { ...currentValues, type: null };
+        return { ...currentValues, endpointUrl, type: null };
       }
 
       // default the name and models for the provider type while the user has
@@ -70,6 +77,7 @@ const TypeField = ({
         defaultModel: keepDefaultModel
           ? currentValues.defaultModel
           : (models.defaultModel ?? ''),
+        endpointUrl,
         fastModel: keepFastModel ? currentValues.fastModel : models.fastModel,
         name: keepName ? currentValues.name : t(aiProviderTypeLabels[newType]),
         type: newType

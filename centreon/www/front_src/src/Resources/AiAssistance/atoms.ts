@@ -9,7 +9,6 @@ import { AiResult } from './models';
 export const askAiDialogOpenAtom = atom(false);
 // null while the answer is loading
 export const askAiResultAtom = atom<AiResult | null>(null);
-// the single resource being explained; null when several are analyzed
 export const askAiExplainedResourceAtom = atom<Resource | null>(null);
 // the latest Ask AI request (see useLatestRequest)
 export const askAiRequestIdAtom = atom(0);

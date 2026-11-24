@@ -47,11 +47,9 @@ const AiProviders = (): ReactElement => {
 
   const { api, filtersConfiguration } = useAiProviders();
 
-  // The API always activates the very first provider (there must be an enabled
-  // one for AI features to work), so the Enabled switch starts on when no
-  // provider exists yet and off otherwise, where enabling would disable the
-  // currently active one. Only the add form reads these defaults. Keyed under
-  // the listing, whose invalidation on create and delete refreshes it.
+  // The provider count the add form defaults the Enabled switch from (see
+  // getDefaultValues). Keyed under the listing, whose invalidation on create
+  // and delete refreshes it.
   const { data: providersCount } = useFetchQuery({
     decoder: aiProvidersListDecoder,
     getEndpoint: () => `${baseEndpoint}${aiProvidersEndpoint}?page=1&limit=1`,

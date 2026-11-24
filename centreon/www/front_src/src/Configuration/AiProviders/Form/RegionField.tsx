@@ -46,7 +46,6 @@ const RegionField = ({
   const { values, errors, touched, setFieldValue, setFieldTouched } =
     useFormikContext<FormikValues>();
 
-  // read-only without the right to edit providers
   const isDisabled = getDisabled?.(values) ?? false;
 
   const endpointUrl = (path([fieldName], values) as string | null) ?? '';

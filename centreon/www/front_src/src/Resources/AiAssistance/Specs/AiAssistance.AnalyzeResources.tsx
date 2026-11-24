@@ -10,6 +10,7 @@ import {
   labelAiBudgetExhausted,
   labelAnalyze,
   labelAnalyzeMostSevere,
+  labelAnswerTruncated,
   labelExplain
 } from '../translatedLabels';
 import { maxCorrelatedResources, maxTextLength } from '../utils';
@@ -20,7 +21,13 @@ import {
   waitForAllAnswers
 } from './helpers';
 import initialize from './initialize';
-import { aiErrorMessage, model, selectedResources } from './utils';
+import {
+  aiErrorMessage,
+  correlationResponse,
+  model,
+  resourceExplanationResponse,
+  selectedResources
+} from './utils';
 
 // More resources than the API accepts: the OK ones first, a single critical
 // one last.
@@ -66,6 +73,31 @@ export default (): void => {
         })
       ).toBeVisible();
       expect(await screen.findByText(model, { exact: false })).toBeVisible();
+      expect(screen.queryByText(labelAnswerTruncated)).toBeNull();
+    });
+
+    it('says when the analysis was cut short', async () => {
+      initialize(<AnalyzeResources resources={selectedResources} />, {
+        responses: {
+          correlateAlerts: { ...correlationResponse, truncated: true }
+        }
+      });
+
+      await userEvent.click(await screen.findByTestId(labelAnalyze));
+
+      expect(await screen.findByText(labelAnswerTruncated)).toBeVisible();
+    });
+
+    it('says when the explanation was cut short', async () => {
+      initialize(<AnalyzeResources resources={[selectedResources[0]]} />, {
+        responses: {
+          explainResource: { ...resourceExplanationResponse, truncated: true }
+        }
+      });
+
+      await userEvent.click(await screen.findByTestId(labelExplain));
+
+      expect(await screen.findByText(labelAnswerTruncated)).toBeVisible();
     });
 
     it('explains a single selected resource through the explanation feature', async () => {

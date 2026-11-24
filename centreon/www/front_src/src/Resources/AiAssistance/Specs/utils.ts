@@ -71,7 +71,7 @@ export const incidentDetails = {
   type: 'service'
 } as unknown as ResourceDetails;
 
-// Newest first, as the timeline lists them.
+// Newest first, as the timeline lists them; at most the two events below.
 export const getTimelineListing = (total: number): object => ({
   meta: { limit: 100, page: 1, search: {}, sort_by: {}, total },
   result: [
@@ -90,7 +90,7 @@ export const getTimelineListing = (total: number): object => ({
       tries: 3,
       type: 'event'
     }
-  ]
+  ].slice(0, total)
 });
 
 export const selectedResources = [

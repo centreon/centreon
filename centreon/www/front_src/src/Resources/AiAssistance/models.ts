@@ -15,32 +15,40 @@ export type TranslateResourceFilterScope = 'current' | 'query';
 export interface TranslateResourceFilterResult {
   intent: TranslateResourceFilterIntent;
   query: string;
-  // null when the model gave none; an absent key is tolerated too
+  // what the model says an explanation covers: the listing displayed or the
+  // resources of the query. null (or absent) when it said nothing, which
+  // changes nothing: AskAiFilter routes on the query, not on the scope
   scope?: TranslateResourceFilterScope | null;
 }
 
 export interface ExplainResourceResult {
   explanation: string;
   model: string;
+  truncated?: boolean;
 }
 
 export interface SummarizeIncidentResult {
   model: string;
   summary: string;
+  truncated?: boolean;
 }
 
 export interface CorrelateAlertsResult {
   analysis: string;
   model: string;
+  truncated?: boolean;
 }
 
 export interface ExplainGraphResult {
   explanation: string;
   model: string;
+  truncated?: boolean;
 }
 
 // What the result dialog shows, whatever the feature.
 export interface AiResult {
   content: string;
   model: string;
+  // the answer reached the length limit of the provider and was cut short
+  truncated?: boolean;
 }

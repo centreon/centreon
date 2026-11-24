@@ -67,6 +67,7 @@ const AskAiFilter = (): JSX.Element | null => {
   const [isOpen, setIsOpen] = useState(false);
   const [prompt, setPrompt] = useState('');
   const anchorRef = useRef<HTMLDivElement | null>(null);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
   const pendingExplainRef = useRef<PendingExplain | null>(null);
 
   const [isDialogOpen, setIsDialogOpen] = useAtom(askAiDialogOpenAtom);
@@ -245,6 +246,17 @@ const AskAiFilter = (): JSX.Element | null => {
     }
   };
 
+  // Escape closes the popup from any of its controls, back to its trigger
+  const onPopupKeyDown = (event: KeyboardEvent): void => {
+    if (event.key !== 'Escape') {
+      return;
+    }
+
+    event.preventDefault();
+    setIsOpen(false);
+    triggerRef.current?.focus();
+  };
+
   return (
     <div ref={anchorRef}>
       <IconButton
@@ -252,6 +264,7 @@ const AskAiFilter = (): JSX.Element | null => {
         data-testid={labelAskAi}
         disabled={isBudgetExhausted || isMutating}
         onClick={() => setIsOpen((open) => !open)}
+        ref={triggerRef}
         size="small"
         title={isBudgetExhausted ? t(labelAiBudgetExhausted) : t(labelAskAi)}
       >
@@ -272,7 +285,10 @@ const AskAiFilter = (): JSX.Element | null => {
         sx={{ zIndex: 'tooltip' }}
       >
         <ClickAwayListener onClickAway={() => setIsOpen(false)}>
-          <Paper className="flex w-100 flex-col gap-2 p-3">
+          <Paper
+            className="flex w-100 flex-col gap-2 p-3"
+            onKeyDown={onPopupKeyDown}
+          >
             <TextField
               autoFocus
               fullWidth

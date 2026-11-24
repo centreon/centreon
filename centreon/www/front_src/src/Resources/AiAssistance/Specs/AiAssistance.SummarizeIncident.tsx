@@ -1,18 +1,31 @@
 import { rs } from '@rstest/core';
-import { waitForRequest } from '@test-setup/api';
+import { getRequestCalls, waitForRequest } from '@test-setup/api';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { aiIncidentSummaryEndpoint } from '../api/endpoints';
 import SummarizeIncident from '../SummarizeIncident/SummarizeIncident';
 import {
   labelAiBudgetExhausted,
+  labelAnswerTruncated,
   labelCopy,
   labelNoRecentEvents,
   labelSummarize
 } from '../translatedLabels';
-import { expectTooltip } from './helpers';
+import {
+  closeDialog,
+  expectTooltip,
+  interceptSlowFirstRequest,
+  waitForAllAnswers
+} from './helpers';
 import initialize from './initialize';
-import { aiErrorMessage, incidentDetails, model, summary } from './utils';
+import {
+  aiErrorMessage,
+  incidentDetails,
+  incidentSummaryResponse,
+  model,
+  summary
+} from './utils';
 
 const dayInMs = 24 * 60 * 60 * 1000;
 
@@ -139,6 +152,81 @@ export default (): void => {
 
       expect(button).toBeDisabled();
       await expectTooltip(button, labelAiBudgetExhausted);
+    });
+
+    it('says when the summary was cut short', async () => {
+      initialize(<SummarizeIncident details={incidentDetails} />, {
+        responses: {
+          summarizeIncident: { ...incidentSummaryResponse, truncated: true }
+        }
+      });
+
+      await userEvent.click(await screen.findByTestId(labelSummarize));
+
+      expect(await screen.findByText(labelAnswerTruncated)).toBeVisible();
+    });
+
+    it('closes the dialog without asking the AI when the timeline cannot be listed', async () => {
+      initialize(<SummarizeIncident details={incidentDetails} />, {
+        recentTimelineTotal: 1,
+        timelineStatus: 500
+      });
+
+      await userEvent.click(await screen.findByTestId(labelSummarize));
+
+      await waitForRequest('@listTimeline');
+
+      expect(await screen.findByText(aiErrorMessage)).toBeVisible();
+      await waitFor(() =>
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+      );
+      expect(screen.getAllByText(aiErrorMessage)).toHaveLength(1);
+      expect(getRequestCalls('@summarizeIncident')).toHaveLength(0);
+    });
+
+    it('closes the dialog without asking the AI when no event is left in the window', async () => {
+      // the count still saw an event, which has left the window since
+      initialize(<SummarizeIncident details={incidentDetails} />, {
+        recentTimelineTotal: 1,
+        timelineTotal: 0
+      });
+
+      await userEvent.click(await screen.findByTestId(labelSummarize));
+
+      await waitForRequest('@listTimeline');
+
+      expect(await screen.findByText(labelNoRecentEvents)).toBeVisible();
+      await waitFor(() =>
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+      );
+      expect(getRequestCalls('@summarizeIncident')).toHaveLength(0);
+    });
+
+    it('ignores the late answer of a superseded summary', async () => {
+      initialize(<SummarizeIncident details={incidentDetails} />);
+
+      const releaseFirst = interceptSlowFirstRequest({
+        alias: 'slowSummary',
+        first: { body: { model, summary: 'First summary' } },
+        next: { model, summary: 'Second summary' },
+        path: aiIncidentSummaryEndpoint
+      });
+
+      await userEvent.click(await screen.findByTestId(labelSummarize));
+      // the first summary is asked for, its answer held
+      await waitFor(() =>
+        expect(getRequestCalls('@slowSummary')).toHaveLength(1)
+      );
+      await closeDialog();
+
+      await userEvent.click(screen.getByTestId(labelSummarize));
+      expect(await screen.findByText('Second summary')).toBeVisible();
+
+      releaseFirst();
+      await waitForAllAnswers('@slowSummary');
+
+      expect(screen.getByText('Second summary')).toBeVisible();
+      expect(screen.queryByText('First summary')).toBeNull();
     });
 
     it('closes the dialog and shows the error once when the summary fails', async () => {

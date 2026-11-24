@@ -68,6 +68,7 @@ interface FormInputsState {
 export const useFormInputs = ({ canEdit }: Props): FormInputsState => {
   const { t } = useTranslation();
 
+  // every field is read-only without the right to edit providers
   const getDisabled = (): boolean => !canEdit;
   // these actions call the provider with the configuration being edited: the
   // API requires the right to update it
@@ -156,7 +157,8 @@ export const useFormInputs = ({ canEdit }: Props): FormInputsState => {
           dataTestId: `${idPrefix}-endpoint-url`,
           fieldName: 'endpointUrl',
           getDisabled,
-          // the endpoint of curated providers is enforced by the API
+          // Bedrock has its region field below; the endpoint of the other
+          // types is enforced by the API
           hideInput: (values) =>
             !equals(values.type, AiProviderType.OpenAiCompatible),
           label: t(labelEndpointUrl),

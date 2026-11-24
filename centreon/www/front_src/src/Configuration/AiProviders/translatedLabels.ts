@@ -76,6 +76,7 @@ export const labelFetchPricesHint =
 export const labelPricesFilled = 'Prices prefilled (USD)';
 export const labelPricesNotFound = 'No published prices found for these models';
 export const labelFetchPricesFailed = 'Could not fetch the prices';
+export const labelUnreadableAnswer = "The server's answer could not be read";
 
 export const labelPricing = 'Pricing';
 export const labelSpendLimits = 'Spend limits';

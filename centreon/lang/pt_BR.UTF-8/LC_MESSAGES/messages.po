@@ -24465,3 +24465,63 @@ msgstr ""
 #: centreon/www/install/front_translate.php
 msgid "AI-generated from the displayed metrics: verify before acting."
 msgstr ""
+
+#: www/front_src/src/Configuration/ConfigurationBase/translatedLabels.ts
+msgid "AI provider created"
+msgstr ""
+
+#: www/front_src/src/Configuration/ConfigurationBase/translatedLabels.ts
+msgid "AI provider updated"
+msgstr ""
+
+#: www/front_src/src/Configuration/ConfigurationBase/translatedLabels.ts
+msgid "AI provider deleted"
+msgstr ""
+
+#: www/front_src/src/Configuration/ConfigurationBase/translatedLabels.ts
+msgid "AI provider enabled"
+msgstr ""
+
+#: www/front_src/src/Configuration/ConfigurationBase/translatedLabels.ts
+msgid "AI provider disabled"
+msgstr ""
+
+#: www/front_src/src/Configuration/ConfigurationBase/translatedLabels.ts
+msgid "Failed to delete the AI provider"
+msgstr ""
+
+#: www/front_src/src/Configuration/ConfigurationBase/translatedLabels.ts
+msgid "Failed to enable the AI provider"
+msgstr ""
+
+#: www/front_src/src/Configuration/ConfigurationBase/translatedLabels.ts
+msgid "Failed to disable the AI provider"
+msgstr ""
+
+#: www/front_src/src/Configuration/ConfigurationBase/translatedLabels.ts
+msgid "Delete AI provider"
+msgstr ""
+
+#: www/front_src/src/Configuration/ConfigurationBase/translatedLabels.ts
+msgid "You are about to delete the <strong>{{ name }}</strong> AI provider. This action cannot be undone. Do you want to delete it?"
+msgstr ""
+
+#: www/front_src/src/Configuration/ConfigurationBase/translatedLabels.ts
+msgid "Add an AI provider"
+msgstr ""
+
+#: www/front_src/src/Configuration/ConfigurationBase/translatedLabels.ts
+msgid "Modify an AI provider"
+msgstr ""
+
+#: www/front_src/src/Configuration/ConfigurationBase/translatedLabels.ts
+msgid "View an AI provider"
+msgstr ""
+
+#: www/front_src/src/Resources/AiAssistance/translatedLabels.ts
+msgid "The answer was cut short: it reached its length limit."
+msgstr ""
+
+#: www/front_src/src/Resources/AiAssistance/translatedLabels.ts
+msgid "The server's answer could not be read"
+msgstr ""

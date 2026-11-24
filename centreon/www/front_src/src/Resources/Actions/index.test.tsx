@@ -117,18 +117,16 @@ const mockAcknowledgement = {
 
 jest.mock('../icons/Downtime');
 
-interface UseMediaQueryListing {
-  applyBreakPoint: boolean;
-}
-
 jest.mock('./Resource/useMediaQueryListing', () => {
   const originalModule = jest.requireActual('./Resource/useMediaQueryListing');
+  const { toolbarWidths } = jest.requireActual('./model');
 
   return {
     __esModule: true,
     ...originalModule,
-    default: (): UseMediaQueryListing => ({
-      applyBreakPoint: false
+    default: () => ({
+      applyBreakPoint: false,
+      widths: toolbarWidths.default
     })
   };
 });

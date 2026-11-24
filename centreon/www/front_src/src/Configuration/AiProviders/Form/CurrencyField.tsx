@@ -48,7 +48,6 @@ const CurrencyField = ({
   const { values, errors, touched, setFieldValue, setFieldTouched } =
     useFormikContext<FormikValues>();
 
-  // read-only without the right to edit providers
   const isDisabled = getDisabled?.(values) ?? false;
   const value = (path([fieldName], values) as string | null) ?? '';
   const error = path([fieldName], touched)

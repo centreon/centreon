@@ -108,8 +108,6 @@ export const useValidationSchema = (): {
         const response = await fetchProvidersNamedLike();
 
         if ('isError' in response) {
-          // do not block the form on a failed lookup: the API rejects
-          // duplicate names anyway
           resolve(true);
 
           return;

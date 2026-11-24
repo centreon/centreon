@@ -13,6 +13,7 @@ import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
 import AnalyzeResources from '../../AiAssistance/AnalyzeResources/AnalyzeResources';
+import useAiAvailability from '../../AiAssistance/useAiAvailability';
 import AddCommentForm from '../../Graph/Performance/Graph/AddCommentForm';
 import Downtime from '../../icons/Downtime';
 import { type Resource, ResourceType } from '../../models';
@@ -66,6 +67,7 @@ const ResourceActionsButtons = ({
   const { classes, cx } = useStyles();
   const { t } = useTranslation();
   const { cancel } = useCancelTokenSource();
+  const { isConfigured: isAiConfigured } = useAiAvailability();
 
   const extractActionsInformation = ({
     key,
@@ -310,12 +312,14 @@ const ResourceActionsButtons = ({
             />
           </div>
         )}
-        <div className={cx({ [classes.action]: !displayCondensed })}>
-          <AnalyzeResources
-            displayCondensed={displayCondensed}
-            resources={resources}
-          />
-        </div>
+        {isAiConfigured && (
+          <div className={cx({ [classes.action]: !displayCondensed })}>
+            <AnalyzeResources
+              displayCondensed={displayCondensed}
+              resources={resources}
+            />
+          </div>
+        )}
         {resourcesToAcknowledge.length > 0 && (
           <AcknowledgeForm
             onClose={cancelAcknowledge}

@@ -9,7 +9,8 @@ import { labelCurrencyChangeResetsUsage } from '../translatedLabels';
 
 // shown only when editing an existing provider whose currency is being changed:
 // changing the currency makes past usage in the previous currency stop counting
-// toward the limit (it is kept for reporting, never deleted)
+// toward the limit (it is kept for reporting until it is purged, after 13
+// months)
 const CurrencyChangeWarning = (): JSX.Element | null => {
   const { t } = useTranslation();
   const { values, initialValues } = useFormikContext<{

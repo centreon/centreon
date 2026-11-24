@@ -3,6 +3,7 @@ import AskAiFilter from './AiAssistance.AskAiFilter';
 import ExplainGraph from './AiAssistance.ExplainGraph';
 import MarkdownContent from './AiAssistance.MarkdownContent';
 import SummarizeIncident from './AiAssistance.SummarizeIncident';
+import ToolbarWidths from './AiAssistance.ToolbarWidths';
 
 describe('AI assistance: ', () => {
   beforeEach(() => {
@@ -14,4 +15,5 @@ describe('AI assistance: ', () => {
   AnalyzeResources();
   ExplainGraph();
   MarkdownContent();
+  ToolbarWidths();
 });

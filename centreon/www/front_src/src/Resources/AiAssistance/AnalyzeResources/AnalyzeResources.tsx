@@ -38,8 +38,6 @@ const AnalyzeResources = ({
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [result, setResult] = useState<AiResult | null>(null);
-  // the resource being explained drives the single-resource dialog; null while
-  // correlating two or more resources
   const [explainedResource, setExplainedResource] = useState<Resource | null>(
     null
   );
@@ -52,8 +50,6 @@ const AnalyzeResources = ({
     return null;
   }
 
-  // a single resource is explained on its own; two or more are correlated to
-  // surface a likely common cause
   const isSingle = resources.length === 1;
   const hasEnough = resources.length >= 1;
   const disabled = isBudgetExhausted || !hasEnough;

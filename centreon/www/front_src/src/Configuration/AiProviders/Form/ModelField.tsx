@@ -38,7 +38,6 @@ const ModelField = ({
     useFormikContext<FormValues>();
   const discovered = useAtomValue(discoveredModelsAtom);
 
-  // read-only without the right to edit providers
   const isDisabled = getDisabled?.(values) ?? false;
 
   const value = (path([fieldName], values) as string | null) ?? '';

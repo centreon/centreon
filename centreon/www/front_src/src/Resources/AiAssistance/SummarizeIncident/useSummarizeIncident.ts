@@ -83,9 +83,7 @@ interface UseSummarizeIncidentState {
 
 const toEventPayload = (event: TimelineEvent): IncidentEventPayload => ({
   author: event.contact?.name ?? null,
-  content: event.content
-    ? event.content.substring(0, maxEventContentLength)
-    : null,
+  content: truncate(event.content, maxEventContentLength),
   date: event.date,
   status: event.status?.name ?? null,
   type: event.type

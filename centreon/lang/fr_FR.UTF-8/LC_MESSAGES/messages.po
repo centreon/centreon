@@ -25089,3 +25089,63 @@ msgstr "Lorsque les services héritent uniquement des contacts et groupes de con
 #: centreon/www/install/front_translate.php
 msgid "Connect the AI features to the LLM provider of your choice."
 msgstr "Connectez les fonctionnalités d'IA au fournisseur de LLM de votre choix."
+
+#: www/front_src/src/Configuration/ConfigurationBase/translatedLabels.ts
+msgid "AI provider created"
+msgstr "Fournisseur d'IA créé"
+
+#: www/front_src/src/Configuration/ConfigurationBase/translatedLabels.ts
+msgid "AI provider updated"
+msgstr "Fournisseur d'IA mis à jour"
+
+#: www/front_src/src/Configuration/ConfigurationBase/translatedLabels.ts
+msgid "AI provider deleted"
+msgstr "Fournisseur d'IA supprimé"
+
+#: www/front_src/src/Configuration/ConfigurationBase/translatedLabels.ts
+msgid "AI provider enabled"
+msgstr "Fournisseur d'IA activé"
+
+#: www/front_src/src/Configuration/ConfigurationBase/translatedLabels.ts
+msgid "AI provider disabled"
+msgstr "Fournisseur d'IA désactivé"
+
+#: www/front_src/src/Configuration/ConfigurationBase/translatedLabels.ts
+msgid "Failed to delete the AI provider"
+msgstr "Échec de la suppression du fournisseur d'IA"
+
+#: www/front_src/src/Configuration/ConfigurationBase/translatedLabels.ts
+msgid "Failed to enable the AI provider"
+msgstr "Échec de l'activation du fournisseur d'IA"
+
+#: www/front_src/src/Configuration/ConfigurationBase/translatedLabels.ts
+msgid "Failed to disable the AI provider"
+msgstr "Échec de la désactivation du fournisseur d'IA"
+
+#: www/front_src/src/Configuration/ConfigurationBase/translatedLabels.ts
+msgid "Delete AI provider"
+msgstr "Supprimer le fournisseur d'IA"
+
+#: www/front_src/src/Configuration/ConfigurationBase/translatedLabels.ts
+msgid "You are about to delete the <strong>{{ name }}</strong> AI provider. This action cannot be undone. Do you want to delete it?"
+msgstr "Vous êtes sur le point de supprimer le fournisseur d'IA <strong>{{ name }}</strong>. Cette action est irréversible. Voulez-vous le supprimer ?"
+
+#: www/front_src/src/Configuration/ConfigurationBase/translatedLabels.ts
+msgid "Add an AI provider"
+msgstr "Ajouter un fournisseur d'IA"
+
+#: www/front_src/src/Configuration/ConfigurationBase/translatedLabels.ts
+msgid "Modify an AI provider"
+msgstr "Modifier un fournisseur d'IA"
+
+#: www/front_src/src/Configuration/ConfigurationBase/translatedLabels.ts
+msgid "View an AI provider"
+msgstr "Voir un fournisseur d'IA"
+
+#: www/front_src/src/Resources/AiAssistance/translatedLabels.ts
+msgid "The answer was cut short: it reached its length limit."
+msgstr "La réponse a été tronquée : elle a atteint sa limite de longueur."
+
+#: www/front_src/src/Resources/AiAssistance/translatedLabels.ts
+msgid "The server's answer could not be read"
+msgstr "La réponse du serveur n'a pas pu être lue"

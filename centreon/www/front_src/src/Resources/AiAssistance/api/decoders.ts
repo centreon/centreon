@@ -12,6 +12,10 @@ import {
   TranslateResourceFilterScope
 } from '../models';
 
+// Whether the answer was cut short by the provider's length limit: absent from
+// the responses of older platforms.
+const optionalTruncated = JsonDecoder.optional(JsonDecoder.boolean);
+
 export const aiAvailabilityDecoder = JsonDecoder.object<AiAvailability>(
   {
     isAvailable: JsonDecoder.boolean,
@@ -53,7 +57,8 @@ export const translateResourceFilterDecoder =
 export const explainResourceDecoder = JsonDecoder.object<ExplainResourceResult>(
   {
     explanation: JsonDecoder.string,
-    model: JsonDecoder.string
+    model: JsonDecoder.string,
+    truncated: optionalTruncated
   },
   'ExplainResourceResult'
 );
@@ -62,7 +67,8 @@ export const summarizeIncidentDecoder =
   JsonDecoder.object<SummarizeIncidentResult>(
     {
       model: JsonDecoder.string,
-      summary: JsonDecoder.string
+      summary: JsonDecoder.string,
+      truncated: optionalTruncated
     },
     'SummarizeIncidentResult'
   );
@@ -70,7 +76,8 @@ export const summarizeIncidentDecoder =
 export const correlateAlertsDecoder = JsonDecoder.object<CorrelateAlertsResult>(
   {
     analysis: JsonDecoder.string,
-    model: JsonDecoder.string
+    model: JsonDecoder.string,
+    truncated: optionalTruncated
   },
   'CorrelateAlertsResult'
 );
@@ -78,7 +85,8 @@ export const correlateAlertsDecoder = JsonDecoder.object<CorrelateAlertsResult>(
 export const explainGraphDecoder = JsonDecoder.object<ExplainGraphResult>(
   {
     explanation: JsonDecoder.string,
-    model: JsonDecoder.string
+    model: JsonDecoder.string,
+    truncated: optionalTruncated
   },
   'ExplainGraphResult'
 );

@@ -9,7 +9,8 @@ export interface AiAvailabilityState {
   isBudgetExhausted: boolean;
   // an AI provider is enabled and within budget: the features are usable
   isAvailable: boolean;
-  // no provider is enabled: the features are hidden entirely
+  // a provider is enabled, within budget or not: the features are shown
+  // (otherwise they are hidden entirely)
   isConfigured: boolean;
 }
 

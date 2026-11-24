@@ -21,6 +21,7 @@ import {
   labelNoModelsFound
 } from '../translatedLabels';
 import { isSameEndpoint } from '../utils';
+import { useLatestInputs } from './useLatestInputs';
 
 interface FormValues {
   apiToken?: string | null;
@@ -48,13 +49,18 @@ const FetchModelsButton = (): JSX.Element => {
   // the stored token is only reused against the endpoint it was configured for
   const canUseStoredToken =
     isEditing && isSameEndpoint(values.endpointUrl, initialValues.endpointUrl);
-  // a token is available when one is typed, or when editing with an
-  // unchanged endpoint (stored token)
   const canFetch = hasTypedToken || canUseStoredToken;
+
+  // the models of another provider, endpoint or token are not offered
+  const startRequest = useLatestInputs(
+    JSON.stringify([mode, id, values.type, values.endpointUrl, values.apiToken])
+  );
 
   const fetchModels = async (): Promise<void> => {
     setStatus(null);
     setFailureMessage(null);
+
+    const isLatest = startRequest();
 
     const { data, error } = await call({
       type: values.type,
@@ -62,6 +68,10 @@ const FetchModelsButton = (): JSX.Element => {
       ...(values.endpointUrl ? { endpoint_url: values.endpointUrl } : {}),
       ...(isEditing && id ? { provider_id: id } : {})
     });
+
+    if (!isLatest()) {
+      return;
+    }
 
     if (!data) {
       setFailureMessage(error);

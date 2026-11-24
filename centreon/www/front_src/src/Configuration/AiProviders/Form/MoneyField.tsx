@@ -18,7 +18,6 @@ const MoneyField = ({
   const { values, errors, touched, setFieldValue, setFieldTouched } =
     useFormikContext<FormikValues>();
 
-  // read-only without the right to edit providers
   const isDisabled = getDisabled?.(values) ?? false;
   const fieldPath = fieldName.split('.');
   const value = path(fieldPath, values);
