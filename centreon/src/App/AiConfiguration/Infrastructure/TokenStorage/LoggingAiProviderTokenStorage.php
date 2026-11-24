@@ -57,8 +57,8 @@ final readonly class LoggingAiProviderTokenStorage implements AiProviderTokenSto
     {
         try {
             $this->storage->remove($token);
-        } catch (VaultEntryNotFoundException) {
-            $this->logger->warning('Unable to find the vault entry of an AI provider API token, it is left in the vault', [
+        } catch (UnparsableVaultReferenceException) {
+            $this->logger->warning('Unable to read the vault reference of an AI provider API token: its entry is left in the vault', [
                 'ai_provider_id' => $aiProviderId->value,
             ]);
         }

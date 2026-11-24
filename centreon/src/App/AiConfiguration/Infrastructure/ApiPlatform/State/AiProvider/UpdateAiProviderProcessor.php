@@ -33,6 +33,7 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderName;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
+use App\AiConfiguration\Domain\Exception\InvalidAiProviderConfigurationException;
 use App\AiConfiguration\Infrastructure\ApiPlatform\AiProvider\BillingInput;
 use App\AiConfiguration\Infrastructure\ApiPlatform\Resource\AiProvider\AiProviderResource;
 use App\Security\Infrastructure\Security\CredentialUser;
@@ -58,6 +59,10 @@ final readonly class UpdateAiProviderProcessor implements ProcessorInterface
     ) {
     }
 
+    /**
+     * @param mixed $data
+     * @throws InvalidAiProviderConfigurationException when the endpoint does not fit the type
+     */
     public function process($data, Operation $operation, array $uriVariables = [], array $context = []): AiProviderResource
     {
         Assert::keyExists($uriVariables, 'id');

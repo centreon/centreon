@@ -25,8 +25,8 @@ namespace Tests\App\AiConfiguration\Infrastructure\TokenStorage;
 
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\StoredApiToken;
+use App\AiConfiguration\Infrastructure\TokenStorage\UnparsableVaultReferenceException;
 use App\AiConfiguration\Infrastructure\TokenStorage\VaultAiProviderTokenStorage;
-use App\AiConfiguration\Infrastructure\TokenStorage\VaultEntryNotFoundException;
 use App\Shared\Application\Vault\VaultCredentialWriter;
 use PHPUnit\Framework\TestCase;
 use Tests\App\Shared\Double\FakeVault;
@@ -116,7 +116,7 @@ final class VaultAiProviderTokenStorageTest extends TestCase
     {
         $this->vault->extractedUuids[self::STORED_TOKEN] = null;
 
-        $this->expectException(VaultEntryNotFoundException::class);
+        $this->expectException(UnparsableVaultReferenceException::class);
 
         $this->storage->remove(new StoredApiToken(self::STORED_TOKEN));
     }

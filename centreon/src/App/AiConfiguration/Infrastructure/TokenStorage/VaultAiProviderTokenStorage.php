@@ -69,7 +69,7 @@ final readonly class VaultAiProviderTokenStorage
     /**
      * Remove the vault entry of a token (no-op for a token kept in the database).
      *
-     * @throws VaultEntryNotFoundException when the reference designates no entry
+     * @throws UnparsableVaultReferenceException when the vault reference can not be read
      * @throws \Throwable when the entry cannot be deleted
      */
     public function remove(StoredApiToken $token): void
@@ -79,7 +79,7 @@ final readonly class VaultAiProviderTokenStorage
             return;
         }
 
-        $uuid = $this->vault->extractUuid($token->value) ?? throw new VaultEntryNotFoundException();
+        $uuid = $this->vault->extractUuid($token->value) ?? throw new UnparsableVaultReferenceException();
         $this->vaultCredentialWriter->delete(VaultPathEnum::AiProviders, $uuid);
     }
 }

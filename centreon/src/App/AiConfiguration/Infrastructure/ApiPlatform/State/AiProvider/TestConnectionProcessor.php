@@ -31,6 +31,7 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderId;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
+use App\AiConfiguration\Domain\Exception\InvalidAiProviderConfigurationException;
 use App\AiConfiguration\Infrastructure\AiFeatureAvailability;
 use App\AiConfiguration\Infrastructure\ApiPlatform\Dto\TestConnectionInput;
 use App\AiConfiguration\Infrastructure\ApiPlatform\Resource\AiProvider\TestConnectionResource;
@@ -48,6 +49,10 @@ final readonly class TestConnectionProcessor implements ProcessorInterface
     ) {
     }
 
+    /**
+     * @param mixed $data
+     * @throws InvalidAiProviderConfigurationException when the endpoint does not fit the type
+     */
     public function process($data, Operation $operation, array $uriVariables = [], array $context = []): TestConnectionResource
     {
         $this->availability->assertAvailable();
