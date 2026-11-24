@@ -1,6 +1,6 @@
 # Gorgone-less light Central PoC stack (MON-215451)
 
-Exploratory PoC, not meant to be merged. Epic MON-215448. Interfaces: `contracts.md` §1-§6 (gls study folder).
+Exploratory PoC, not meant to be merged. Epic MON-215448. Interfaces: `contracts.md` §1-§9 (gls study folder).
 
 ## Topology
 
@@ -11,17 +11,18 @@ Exploratory PoC, not meant to be merged. Epic MON-215448. Interfaces: `contracts
 
 - **No gorgone anywhere.** The poller opens the only connection: BBDO over gRPC to `centreon-broker:5669`, with TLS. Commands and configuration come back down that same stream (`remote_actions`).
 - **TLS:** the central cbd generates its own CA and server certificate at first start (contracts §8). The poller receives that CA in the poller creation API answer (`broker_ca`), out of band of the stream, and checks its fingerprint. It holds only the CA (`/etc/centreon-broker/certs/ca.crt`) and checks that the central's certificate is named `centreon-broker`. There is no insecure mode and no client certificate.
-- **Web to cbd:** fpm talks to the central cbd remote API (`http://centreon-broker:8099`, bearer token) on the internal network only.
+- **Web to cbd:** fpm talks to the central cbd remote API (`http://centreon-broker:8099`, bearer token) on the internal network only. No volume is shared between fpm and the collect containers (contracts §9).
+- **RRD:** the central cbd rrd output writes perfdata to the `rrdcached` container (`host: rrdcached`, port 42217), on the shared `centreon-metrics` / `centreon-status` volumes.
 
 ## Volumes (engine and broker)
 
 Contracts §7. Named volumes are prefixed by the project (`gls-central_`, `gls-poller_`).
 
-No helper container on the poller. Docker seeds each empty named volume from the image directory (owner, mode, package defaults), and the engine bootstrap writes the rest from env: config, `engine-context.json`, `certs/ca.crt` (contracts §8.A). On the central, a `volumes-init` container still prepares the two config volumes shared with fpm, until phase 2e.
+No helper container on the poller. Docker seeds each empty named volume from the image directory (owner, mode, package defaults), and the engine bootstrap writes the rest from env: config, `engine-context.json`, `certs/ca.crt` (contracts §8.A). The central works the same way: no `volumes-init` in either project.
 
 | Path | Service | Mount | Content |
 | --- | --- | --- | --- |
-| `/etc/centreon-engine`, `/etc/centreon-broker` | each engine; central cbd | `*-engine-etc`, `*-broker-etc` | Delivered configuration. The central ones are shared with fpm for the bootstrap local copy. |
+| `/etc/centreon-engine`, `/etc/centreon-broker` | each engine; central cbd | `*-engine-etc`, `*-broker-etc` | Bootstrap, then delivered configuration. On the central, `central-broker-etc` is shared rw by `central-engine` (its cbmod applies the deliveries to id 1) and cbd (reloads itself), contracts §9.C. fpm mounts neither. |
 | `/var/lib/centreon-engine` | each engine | `central-engine-state`, `poller-engine-state` | cbmod `cache_directory` (events kept while the central is unreachable) and `retention.dat` (downtimes, acks, states). |
 | `/var/lib/centreon-engine/rw` | each engine | tmpfs `uid=901,gid=901,mode=0770` | `centengine.cmd` FIFO, used only by the engine itself. |
 | `/var/log/centreon-engine` | each engine | none (container layer) | `centengine.log`, `status.dat`. Lost on recreate. |
@@ -33,11 +34,11 @@ No helper container on the poller. Docker seeds each empty named volume from the
 
 ## How the stack starts (`gls-e2e.sh up`)
 
-1. **Central poller:** its first configuration is the web's local copy into the shared config volumes. cbd is not running yet, so the channel cannot deliver it. Then:
-   - the central `poller_type` is flipped to `vm`;
-   - the harness adds `remote_actions` to the central cbmod config, for this bootstrap only;
-   - cbd starts on the generated config and creates its CA and server certificate (`GET /v1/ca` serves the public CA);
-   - the central switches to `remote_channel=broker`.
+1. **Central poller, from env only (contracts §9):** `up` generates `CENTRAL_POLLER_UID` once (decimal, 63-bit, saved in `central.env`) and passes it to fpm and `central-engine`.
+   - fpm installs the central (id 1) with that uid, `remote_channel=broker` and `poller_type=vm`;
+   - cbd renders a bootstrap `central-broker.json` (remote API 8099 + token, TLS input 5669, no output) and creates its CA and server certificate (`GET /v1/ca` serves the public CA);
+   - `central-engine` bootstraps like a poller (`POLLER_ID=1`, `POLLER_NAME=Central`, CA from the cbd certs volume) and announces `remote_actions`;
+   - fpm (`RUN_CONFIG_DELIVERY=true`) exports the central through `POST /v1/deployments`, retrying on 409 until the peer is capable. cbd reloads itself on the delivered config (SQL and RRD outputs). No local copy.
 2. **New poller, from env only:** it is created through the API once cbd is up. The answer gives `id`, `uid` and `broker_ca` (PEM and SHA-256 fingerprint). The container starts with `CENTRAL_BROKER_HOST`, `POLLER_NAME`, `POLLER_ID`, `POLLER_UID`, `BROKER_CA_PEM` and `BROKER_CA_FINGERPRINT`. The engine image writes the CA (and refuses to start on a fingerprint mismatch), renders a minimal bootstrap config, connects over TLS and announces `remote_actions`.
 3. **First configuration through the channel:** `generate-and-reload` on the new poller. The poller restarts on the delivered configuration and reports a `config_version`.
 
@@ -56,11 +57,12 @@ From the repository root, in WSL:
 
 ```sh
 docker login docker.centreon.com
-.github/docker/gls/scripts/gls-e2e.sh up        # PKI, central, new poller, first export (~10 min)
+.github/docker/gls/scripts/gls-e2e.sh up        # central from env, new poller, first exports (~10 min)
 .github/docker/gls/scripts/gls-e2e.sh step0     # no gorgone, data upstream, poller outbound-only, TLS cbmod
 .github/docker/gls/scripts/gls-e2e.sh c1 poller # realtime: forced check, downtime, ack (also: c1 central)
 .github/docker/gls/scripts/gls-e2e.sh c2 poller # export + reload applied (also: c2 central)
 .github/docker/gls/scripts/gls-e2e.sh plugins   # plugins.json deployed and the package installed
+.github/docker/gls/scripts/gls-e2e.sh rrd       # .rrd files of gls-hc/gls-perf in the rrdcached volumes, no RRD connect error
 .github/docker/gls/scripts/gls-e2e.sh c3 stop   # disconnected poller: explicit error <= 30 s (also: partition, pause)
 .github/docker/gls/scripts/gls-e2e.sh tls-negative # rogue central cert refused; renewal keeps the CA
 .github/docker/gls/scripts/gls-e2e.sh ca        # CA same as at creation, kept on cbd recreate, wrong fingerprint fails closed
@@ -69,7 +71,7 @@ docker login docker.centreon.com
 ```
 
 - Results are printed as `[ok]`/`[ko]` lines. Logs and API answers go to `$TMPDIR/gls-e2e/` (`/tmp/gls-e2e` on Linux/WSL, `C:/Users/<you>/AppData/Local/Temp/gls-e2e` from Git Bash), override with `LOG_DIR`.
-- The new poller's `id` and `uid` are saved in `poller.env` in that directory.
+- The new poller's `id` and `uid` are saved in `poller.env`, the central uid in `central.env`, in that directory.
 - `up` expects a fresh stack: run `down` before running it again.
 
 ## UI and API
@@ -84,7 +86,7 @@ The manual compose commands need the image pins:
 
 ```sh
 cd .github/docker/gls
-set -a; . ./images.env; set +a
+set -a; . ./images.env; . /tmp/gls-e2e/central.env; set +a
 docker compose -p gls-poller  -f docker-compose.poller.yml  logs -f poller-engine
 docker compose -p gls-central -f docker-compose.central.yml logs -f central-engine centreon-broker
 docker compose -p gls-central -f docker-compose.central.yml logs -f fpm
