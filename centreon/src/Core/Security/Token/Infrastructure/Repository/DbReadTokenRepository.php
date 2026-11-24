@@ -27,7 +27,6 @@ use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\RequestParameters\Interfaces\NormalizerInterface;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Domain\Exception\BusinessLogicException;
@@ -62,9 +61,6 @@ class DbReadTokenRepository extends DatabaseRepository implements ReadTokenRepos
     ) {
         parent::__construct($connection);
         $this->sqlRequestTranslator = $sqlRequestTranslator;
-        $this->sqlRequestTranslator
-            ->getRequestParameters()
-            ->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
         $this->sqlRequestTranslator->setConcordanceArray([
             'user.id' => 'user_id',
             'user.name' => 'user_name',

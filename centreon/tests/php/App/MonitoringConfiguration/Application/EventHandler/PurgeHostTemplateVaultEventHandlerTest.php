@@ -33,6 +33,7 @@ use App\MonitoringConfiguration\Domain\Exception\VaultPurgeFailedException;
 use App\Shared\Application\Vault\VaultCredentialWriter;
 use PHPUnit\Framework\TestCase;
 use Tests\App\Shared\Double\FakeVault;
+use Tests\App\Shared\Infrastructure\Messenger\Double\LoggerSpy;
 
 final class PurgeHostTemplateVaultEventHandlerTest extends TestCase
 {
@@ -42,10 +43,13 @@ final class PurgeHostTemplateVaultEventHandlerTest extends TestCase
 
     private PurgeHostTemplateVaultEventHandler $handler;
 
+    private LoggerSpy $logger;
+
     protected function setUp(): void
     {
         $this->vault = new FakeVault();
-        $this->handler = new PurgeHostTemplateVaultEventHandler($this->vault, new VaultCredentialWriter($this->vault));
+        $this->logger = new LoggerSpy();
+        $this->handler = new PurgeHostTemplateVaultEventHandler($this->vault, new VaultCredentialWriter($this->vault), $this->logger);
     }
 
     public function testItDoesNotPurgeAnythingWhenNothingIsVaulted(): void
@@ -72,6 +76,16 @@ final class PurgeHostTemplateVaultEventHandlerTest extends TestCase
         $this->expectException(VaultPurgeFailedException::class);
 
         ($this->handler)(new HostTemplateVaultPurgeRequested($this->hostTemplate(new SnmpCommunity(self::VAULTED_SNMP))));
+    }
+
+    public function testABestEffortPurgeThatFailsIsOnlyLogged(): void
+    {
+        $this->vault->extractedUuids[self::VAULTED_SNMP] = 'uuid-1';
+        $this->vault->deleteThrows = true;
+
+        ($this->handler)(new HostTemplateVaultPurgeRequested($this->hostTemplate(new SnmpCommunity(self::VAULTED_SNMP)), bestEffort: true));
+
+        self::assertCount(1, $this->logger->warningMessages);
     }
 
     public function testWithoutAVaultASharedEntryIsNeverPurged(): void

@@ -26,7 +26,6 @@ namespace Core\ServiceTemplate\Infrastructure\Repository;
 use Assert\AssertionFailedException;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Domain\TrimmedString;
@@ -379,7 +378,6 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
     {
         $this->info('Searching for service templates');
         $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
-        $sqlTranslator->getRequestParameters()->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
         $sqlTranslator->setConcordanceArray([
             'id' => 'service_id',
             'name' => 'service_description',
@@ -435,7 +433,6 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
 
         $this->info('Searching for service templates');
         $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
-        $sqlTranslator->getRequestParameters()->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
         $sqlTranslator->setConcordanceArray([
             'id' => 'service_id',
             'name' => 'service_description',

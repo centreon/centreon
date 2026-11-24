@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Application\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\DataProcessing;
 use App\Shared\Domain\Aggregate\TriStateEnum;
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 use App\Shared\Domain\NoValue;
 
 /**
@@ -56,6 +57,7 @@ final readonly class DataProcessingChanges
         public NoValue|int|null $lowFlapThreshold = new NoValue(),
         public NoValue|int|null $highFlapThreshold = new NoValue(),
         public NoValue|CommandId|null $eventHandlerCommandId = new NoValue(),
+        #[Sensitive]
         public NoValue|array $eventHandlerArgs = new NoValue(),
     ) {
     }
