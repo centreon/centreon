@@ -55,8 +55,8 @@ $gorgoneNodeId = $pollerId;
 // Gorgone-less PoC (MON-215450): CONFIG_DELIVERY_CHANNEL=broker (default when CENTREON_BROKER_API_URL is set and
 // GORGONE_API_BASE_URL is not) skips every Gorgone call. With the broker channel, generate-and-reload answers 204
 // only once the poller applied its configuration, and 409 when it is not connected to the central broker, so no
-// connection wait is needed: the calling shell loop retries on 409. On a fresh install the central poller is still
-// on the 'gorgone' channel with a local copy (no Gorgone involved either) until the harness switches it.
+// connection wait is needed: the calling shell loop retries on 409. With this channel 12-install.sh puts the central
+// poller on remote_channel=broker, so its first configuration goes through the central cbd as well (no local copy).
 $deliveryChannel = getenv('CONFIG_DELIVERY_CHANNEL') ?: (
     (getenv('CENTREON_BROKER_API_URL') ?: '') !== '' && (getenv('GORGONE_API_BASE_URL') ?: '') === ''
         ? 'broker'

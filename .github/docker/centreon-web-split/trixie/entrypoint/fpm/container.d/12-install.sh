@@ -42,6 +42,28 @@ export MYSQL_ROOT_USER="${MYSQL_ROOT_USER:-root}"
 # single install Job owns the database (helm chart); default keeps the
 # one-container behavior compose relies on.
 INSTALL_DB_STEPS="${INSTALL_DB_STEPS:-true}"
+# Gorgone-less PoC (MON-215450): same channel resolution as
+# generate-broker-configuration.php. With the broker channel the Central is a
+# peer of the central cbd like any poller: its configuration goes through the
+# cbd API (no fpm mount of /etc/centreon-engine nor /etc/centreon-broker).
+CONFIG_DELIVERY_CHANNEL="${CONFIG_DELIVERY_CHANNEL:-}"
+if [ -z "$CONFIG_DELIVERY_CHANNEL" ]; then
+  if [ -n "${CENTREON_BROKER_API_URL:-}" ] && [ -z "${GORGONE_API_BASE_URL:-}" ]; then
+    CONFIG_DELIVERY_CHANNEL=broker
+  else
+    CONFIG_DELIVERY_CHANNEL=gorgone
+  fi
+fi
+# CENTRAL_POLLER_UID (contracts 9): the uid the central engine announces to
+# cbd, decimal in 1..2^63-1 (nagios_server.uid is BIGINT UNSIGNED, cbd reads
+# it as int64). Fail closed: a mismatch would leave the Central unreachable.
+if [ -n "${CENTRAL_POLLER_UID:-}" ]; then
+  if ! printf '%s' "$CENTRAL_POLLER_UID" | grep -Eq '^[1-9][0-9]{0,18}$' \
+    || { [ ${#CENTRAL_POLLER_UID} -eq 19 ] && [ "$CENTRAL_POLLER_UID" \> 9223372036854775807 ]; }; then
+    echo "ERROR: CENTRAL_POLLER_UID must be a decimal integer in 1..9223372036854775807." >&2
+    exit 1
+  fi
+fi
 # Exported: the inline PHP blocks below read them with getenv(), and compose
 # does not set them (the Helm chart does).
 export MYSQL_DB_CONFIGURATION="${MYSQL_DB_CONFIGURATION:-centreon}"
@@ -337,12 +359,29 @@ fi
 # back to 1 for databases set up by earlier images (localhost=0). Must run
 # after insertBaseConf.php on a fresh install: it does, this block runs after
 # the install branch.
-echo "Marking Central as a containerized poller (poller_type=docker, pullwss)..."
-mysql -h"${MYSQL_HOST}" -P"${MYSQL_PORT}" -u"${MYSQL_ROOT_USER}" "${MYSQL_DB_CONFIGURATION}" -e "
-  UPDATE nagios_server
-     SET localhost = '1', poller_type = 'docker',
-         gorgone_communication_type = '4', gorgone_port = '8087'
-   WHERE id = ${CENTRAL_ID}"
+if [ "$CONFIG_DELIVERY_CHANNEL" = "broker" ]; then
+  # Broker channel (contracts 9): no gorgone node for the Central, its engine
+  # connects to the central cbd like any poller and the web delivers its
+  # configuration through POST /v1/deployments.
+  echo "Marking Central as a broker channel poller (remote_channel=broker, poller_type=vm)..."
+  mysql -h"${MYSQL_HOST}" -P"${MYSQL_PORT}" -u"${MYSQL_ROOT_USER}" "${MYSQL_DB_CONFIGURATION}" -e "
+    UPDATE nagios_server
+       SET localhost = '1', poller_type = 'vm', remote_channel = 'broker'
+     WHERE id = ${CENTRAL_ID}"
+else
+  echo "Marking Central as a containerized poller (poller_type=docker, pullwss)..."
+  mysql -h"${MYSQL_HOST}" -P"${MYSQL_PORT}" -u"${MYSQL_ROOT_USER}" "${MYSQL_DB_CONFIGURATION}" -e "
+    UPDATE nagios_server
+       SET localhost = '1', poller_type = 'docker',
+           gorgone_communication_type = '4', gorgone_port = '8087'
+     WHERE id = ${CENTRAL_ID}"
+fi
+
+if [ -n "${CENTRAL_POLLER_UID:-}" ]; then
+  echo "Setting Central's poller uid to ${CENTRAL_POLLER_UID}..."
+  mysql -h"${MYSQL_HOST}" -P"${MYSQL_PORT}" -u"${MYSQL_ROOT_USER}" "${MYSQL_DB_CONFIGURATION}" -e "
+    UPDATE nagios_server SET uid = ${CENTRAL_POLLER_UID} WHERE id = ${CENTRAL_ID}"
+fi
 
 # options.gorgone_api_address ships '127.0.0.1' (co-located gorgone on a VM):
 # triggerGorgoneNodesSyncIfPullwss() (configServers/DB-Func.php) uses it to
@@ -524,6 +563,12 @@ su www-data -s /bin/bash -c "php generationCache.php" > /dev/null
 # AND salt to decrypt the same data, so a self-picked salt here defeats the
 # whole point once a real centengine container (sharing this same pair via
 # APP_SECRET/SALT env vars, see docker-compose.yml) is in the picture.
+#
+# Written in every channel: the web itself reads it (config-generate's
+# object.class.php throws when it is empty, poller creation reads the pair
+# for the installation command). With the broker channel fpm does not mount
+# /etc/centreon-engine, so this is a container-local copy (image-owned dir)
+# and the central engine writes its own from the same APP_SECRET/SALT.
 echo "Creating engine context configuration..."
 printf '{"app_secret":"%s","salt":"%s"}\n' "${APP_SECRET_VALUE}" "${SALT_VALUE}" \
   > /etc/centreon-engine/engine-context.json
