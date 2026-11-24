@@ -19,6 +19,8 @@ import { HttpResponse } from 'msw';
 import { initReactI18next } from 'react-i18next';
 import { BrowserRouter as Router } from 'react-router';
 
+import navigationAtom from '../../../Navigation/navigationAtoms';
+import { pageAtom } from '../../ConfigurationBase/Listing/atoms';
 import Services from '..';
 import {
   getDuplicateServiceEndpoint,
@@ -60,6 +62,8 @@ import {
 export const patchableServiceIds = [0, 1, 2, 5];
 
 interface Props {
+  // The React pages the menu grants, by URL; none when left out.
+  allowedPages?: Array<string>;
   isEmpty?: boolean;
   hasWriteAccess?: boolean;
   intervalLength?: number;
@@ -70,17 +74,21 @@ interface Props {
   listingResponse?: object;
   // The services whose partial update the API refuses.
   patchFails?: Array<number>;
+  // The listing page another listing left in the shared atom.
+  page?: number;
   // Opens the page on a deep link, such as `?mode=edit&id=0`.
   searchParams?: string;
 }
 
 const initialize = ({
+  allowedPages = [],
   isEmpty = false,
   hasWriteAccess = true,
   intervalLength = 60,
   isAdditiveInheritanceEnabled = false,
   isCloudPlatform = false,
   listingResponse = getListingResponse(),
+  page,
   patchFails = [],
   searchParams = ''
 }: Props = {}): RenderResult => {
@@ -104,6 +112,11 @@ const initialize = ({
   } as UserPermissions);
   store.set(intervalLengthAtom, intervalLength);
   store.set(defaultLimitPerPageAtom, 10);
+  store.set(pageAtom, page);
+  store.set(navigationAtom, {
+    result: allowedPages.map((url) => ({ is_react: true, label: url, url })),
+    status: true
+  });
   store.set(platformFeaturesAtom, { isCloudPlatform } as PlatformFeatures);
   store.set(isAdditiveInheritanceEnabledAtom, isAdditiveInheritanceEnabled);
 
