@@ -28,6 +28,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\CreateHostTemplateDataProcessingInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\CreateHostTemplateExtendedInformationsInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\CreateHostTemplateSchedulingOptionsInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\HostTemplateMacroInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\PatchHostTemplateCheckOptionsInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\PatchHostTemplateInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\PatchHostTemplateNotificationsInput;
@@ -108,8 +109,20 @@ final class PatchHostTemplateCommandFactoryTest extends TestCase
         $type = $parameter->getType();
         $typeName = $type instanceof \ReflectionNamedType ? $type->getName() : 'mixed';
 
-        if ($typeName === 'array') {
+        if ($name === 'macros' || $name === 'macrosToUpsert') {
+            return [[new HostTemplateMacroInput(name: 'A', value: 'v')], [['name' => 'A', 'value' => 'v']]];
+        }
+
+        if (\in_array($name, ['options', 'optionsToAdd', 'optionsToRemove'], true)) {
+            return [['down'], ['down']];
+        }
+
+        if (\in_array($name, ['args', 'eventHandlerArgs'], true)) {
             return [['a'], ['a']];
+        }
+
+        if ($typeName === 'array') {
+            return [[1], [1]];
         }
 
         if (is_a($typeName, \BackedEnum::class, true)) {

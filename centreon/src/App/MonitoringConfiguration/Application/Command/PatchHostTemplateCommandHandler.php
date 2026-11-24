@@ -24,9 +24,14 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Application\Service\AdditiveInheritanceModeApplier;
+use App\MonitoringConfiguration\Application\Service\HostMacroSecretsSynchronizer;
+use App\MonitoringConfiguration\Application\Service\HostMacrosUpdater;
 use App\MonitoringConfiguration\Application\Service\HostReferencesChecker;
+use App\MonitoringConfiguration\Application\Service\HostTemplateRelationsUpdater;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\DataProcessing;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
@@ -37,7 +42,9 @@ use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\MonitoringConfiguration\Domain\Event\HostTemplateUpdated;
 use App\MonitoringConfiguration\Domain\Event\HostTemplateVaultPurgeRequested;
 use App\MonitoringConfiguration\Domain\Exception\CommandNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\HostMacroNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateAlreadyExistsException;
+use App\MonitoringConfiguration\Domain\Exception\HostTemplateMacroNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\VaultWriteFailedException;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
@@ -59,6 +66,9 @@ final readonly class PatchHostTemplateCommandHandler
     public function __construct(
         private HostTemplateRepository $repository,
         private HostReferencesChecker $references,
+        private HostTemplateRelationsUpdater $relations,
+        private HostMacrosUpdater $macros,
+        private HostMacroSecretsSynchronizer $macroSecrets,
         private CommandRepository $commandRepository,
         private AdditiveInheritanceModeApplier $additiveInheritanceModeApplier,
         private AccessScopeResolver $accessScopes,
@@ -70,7 +80,8 @@ final readonly class PatchHostTemplateCommandHandler
     }
 
     /**
-     * Every check runs before the vault write; a write that changes nothing saves and fires nothing.
+     * Every check runs before the vault write; a write that changes nothing saves and fires nothing. A
+     * relations, macros or contacts only change is saved and flags the pollers, but is not logged.
      */
     public function __invoke(PatchHostTemplateCommand $command): HostTemplate
     {
@@ -83,9 +94,10 @@ final readonly class PatchHostTemplateCommandHandler
         $template->assertUnlocked();
 
         $this->assertReferencesExist($command);
+        $withRelations = $this->relations->applyTo($template, $command);
         $this->assertNameIsAvailable($template, $command);
 
-        $changed = $template->with(
+        $changed = $withRelations->with(
             name: $command->name,
             alias: $command->alias,
             snmpVersion: $command->snmpVersion,
@@ -93,44 +105,94 @@ final readonly class PatchHostTemplateCommandHandler
             severityId: $this->severityToApply($template, $command),
             checkOptions: $command->checkOptions instanceof NoValue
                 ? new NoValue()
-                : $command->checkOptions->applyTo($template->checkOptions),
+                : $command->checkOptions->applyTo($withRelations->checkOptions),
             extendedInformations: $command->extendedInformations instanceof NoValue
                 ? new NoValue()
-                : $command->extendedInformations->applyTo($template->extendedInformations),
+                : $command->extendedInformations->applyTo($withRelations->extendedInformations),
             schedulingOptions: $command->schedulingOptions instanceof NoValue
                 ? new NoValue()
-                : $command->schedulingOptions->applyTo($template->schedulingOptions),
+                : $command->schedulingOptions->applyTo($withRelations->schedulingOptions),
             dataProcessing: $this->dataProcessing($template, $command),
             // Inheritance mode off: any notification change also resets the stored additive-inheritance flags.
             notifications: $command->notifications instanceof NoValue
                 ? new NoValue()
-                : $this->additiveInheritanceModeApplier->apply($command->notifications->applyTo($template->notifications)),
+                : $this->additiveInheritanceModeApplier->apply($command->notifications->applyTo($withRelations->notifications)),
         );
-
-        ['community' => $snmpCommunity, 'secretRewritten' => $secretRewritten, 'vaultWritten' => $vaultWritten] = $this->moveTheCommunityToTheVault($template, $command->snmpCommunity);
-        $changed = $changed->with(snmpCommunity: $snmpCommunity);
-
-        if (! $secretRewritten && $changed->hasSameConfigurationAs($template)) {
-            return $changed;
+        if ($command->macros instanceof MacroChanges) {
+            $changed = $changed->withMacros($this->resolveMacros($changed, $command->macros));
         }
 
+        $previousVaultUuid = $this->vault->isEnabled() ? $template->getVaultUuid($this->vault) : null;
+        $vaultUuid = $previousVaultUuid;
         try {
-            $this->repository->update($changed);
-        } catch (\Throwable $exception) {
-            if ($vaultWritten) {
-                $this->undoTheVaultWrite($template, $changed, $exception);
+            ['community' => $snmpCommunity, 'secretRewritten' => $secretRewritten] = $this->moveTheCommunityToTheVault($template, $command->snmpCommunity);
+            $changed = $changed->with(snmpCommunity: $snmpCommunity);
+            if ($snmpCommunity instanceof SnmpCommunity && $this->vault->isEnabled() && $this->vault->isVaultPath($snmpCommunity->value)) {
+                $vaultUuid = $this->vault->extractUuid($snmpCommunity->value);
             }
+
+            if ($command->macros instanceof MacroChanges && $this->vault->isEnabled()) {
+                $changed = $this->moveTheMacrosToTheVault($template, $changed, $vaultUuid);
+                // Every vaulted macro is now under the template's own entry.
+                $vaultUuid ??= $changed->getVaultUuid($this->vault);
+            }
+
+            $loggedChange = $this->save($template, $changed, $command, $secretRewritten);
+        } catch (\Throwable $exception) {
+            $this->recoverTheVault($template, $command, $previousVaultUuid, $vaultUuid, $exception);
 
             throw $exception;
         }
 
-        $this->eventBus->fire(new HostTemplateUpdated($changed, $command->actor->userId->value));
+        if ($loggedChange !== null) {
+            $this->eventBus->fire(new HostTemplateUpdated($changed, $command->actor->userId->value, loggable: $loggedChange));
 
-        if ($this->vault->isEnabled() && $changed->releasesVaultEntryOf($template, $this->vault)) {
-            $this->eventBus->fire(new HostTemplateVaultPurgeRequested($template, bestEffort: true));
+            if ($this->vault->isEnabled() && $changed->releasesVaultEntryOf($template, $this->vault)) {
+                $this->eventBus->fire(new HostTemplateVaultPurgeRequested($template, bestEffort: true));
+            }
         }
 
         return $changed;
+    }
+
+    /**
+     * The host rules, but the reserved names are left to the input, and a template reports its own
+     * unknown macros.
+     *
+     * @return list<HostMacro>
+     */
+    private function resolveMacros(HostTemplate $template, MacroChanges $changes): array
+    {
+        try {
+            return $this->macros->resolve($template->checkOptions->macros, $template->parentTemplateIds, $template->checkOptions->checkCommandId, $changes);
+        } catch (HostMacroNotFoundException $exception) {
+            throw new HostTemplateMacroNotFoundException($exception->ids, $exception);
+        }
+    }
+
+    /**
+     * @return ?bool whether the saved change is logged, null when nothing is saved
+     */
+    private function save(HostTemplate $template, HostTemplate $changed, PatchHostTemplateCommand $command, bool $secretRewritten): ?bool
+    {
+        $passwordRewritten = $this->providesAPassword($command);
+        $relationsChanged = ! $changed->hasSameRelationsAs($template) || ! $changed->hasSameContactsAs($template);
+        $macrosChanged = ! $changed->hasSameMacrosAs($template);
+        $loggedChange = $secretRewritten || ! $changed->hasSameLoggedConfigurationAs($template);
+
+        if (! $loggedChange && ! $passwordRewritten && ! $relationsChanged && ! $macrosChanged) {
+            return null;
+        }
+
+        $this->repository->update($changed);
+        if ($relationsChanged) {
+            $this->repository->replaceRelations($changed);
+        }
+        if ($macrosChanged) {
+            $this->repository->replaceMacros($changed);
+        }
+
+        return $loggedChange;
     }
 
     /**
@@ -215,59 +277,91 @@ final readonly class PatchHostTemplateCommandHandler
     /**
      * A vault reference sent back is ignored; a rewritten secret counts as a change even under the same reference.
      *
-     * @return array{community: NoValue|SnmpCommunity|null, secretRewritten: bool, vaultWritten: bool}
+     * @return array{community: NoValue|SnmpCommunity|null, secretRewritten: bool}
      */
     private function moveTheCommunityToTheVault(HostTemplate $template, NoValue|string|null $community): array
     {
         if ($community instanceof NoValue) {
-            return ['community' => new NoValue(), 'secretRewritten' => false, 'vaultWritten' => false];
+            return ['community' => new NoValue(), 'secretRewritten' => false];
         }
 
         if (! $this->vault->isEnabled()) {
-            return ['community' => $community === null ? null : new SnmpCommunity($community), 'secretRewritten' => false, 'vaultWritten' => false];
+            return ['community' => $community === null ? null : new SnmpCommunity($community), 'secretRewritten' => false];
         }
 
         $vaultUuid = $template->getVaultUuid($this->vault);
         if ($community === null) {
             if ($vaultUuid !== null && $template->snmpCommunity instanceof SnmpCommunity && $this->vault->isVaultPath($template->snmpCommunity->value)) {
                 $this->writeToTheVault($template, VaultCredentials::empty()->clear(VaultKeyEnum::HostSnmpCommunity), $vaultUuid);
-
-                return ['community' => null, 'secretRewritten' => false, 'vaultWritten' => true];
             }
 
-            return ['community' => null, 'secretRewritten' => false, 'vaultWritten' => false];
+            return ['community' => null, 'secretRewritten' => false];
         }
 
         if ($this->vault->isVaultPath($community)) {
-            return ['community' => new NoValue(), 'secretRewritten' => false, 'vaultWritten' => false];
+            return ['community' => new NoValue(), 'secretRewritten' => false];
         }
 
         $stored = $this->writeToTheVault($template, VaultCredentials::empty()->set(VaultKeyEnum::HostSnmpCommunity, $community), $vaultUuid);
 
-        return ['community' => new SnmpCommunity($stored[VaultKeyEnum::HostSnmpCommunity->value]), 'secretRewritten' => true, 'vaultWritten' => true];
+        return ['community' => new SnmpCommunity($stored[VaultKeyEnum::HostSnmpCommunity->value]), 'secretRewritten' => true];
+    }
+
+    /**
+     * The password macros share the template's vault entry, the one the community may just have
+     * created, or a new one.
+     */
+    private function moveTheMacrosToTheVault(HostTemplate $template, HostTemplate $changed, ?string $vaultUuid): HostTemplate
+    {
+        try {
+            $macros = $this->macroSecrets->synchronize(
+                $changed->checkOptions->macros,
+                $template->checkOptions->macros,
+                $vaultUuid,
+            );
+        } catch (\Throwable $exception) {
+            throw VaultWriteFailedException::forHostTemplate($template->id(), $exception);
+        }
+
+        return $changed->withMacros($macros);
+    }
+
+    /**
+     * A password given with a value is written to the vault under the same reference: it still counts.
+     */
+    private function providesAPassword(PatchHostTemplateCommand $command): bool
+    {
+        return $this->vault->isEnabled()
+            && $command->macros instanceof MacroChanges
+            && array_any($command->macros->changes, static fn (HostMacroChange $change): bool => $change->isPassword && $change->value !== null);
     }
 
     /**
      * Best effort, never masks $cause: purges an entry this write minted, else logs the divergence.
      */
-    private function undoTheVaultWrite(HostTemplate $before, HostTemplate $changed, \Throwable $cause): void
+    private function recoverTheVault(HostTemplate $template, PatchHostTemplateCommand $command, ?string $previousVaultUuid, ?string $vaultUuid, \Throwable $cause): void
     {
-        $mintedUuid = $before->getVaultUuid($this->vault) === null ? $changed->getVaultUuid($this->vault) : null;
-        if ($mintedUuid === null) {
-            $this->logger->warning(
-                'A host template update failed after writing to its vault entry: the vault may now diverge from the host template stored in the database.',
-                ['host_template_id' => $before->id()->value, 'exception' => $cause],
-            );
+        if (! $this->vault->isEnabled()) {
+            return;
+        }
+
+        if ($previousVaultUuid !== null || $vaultUuid === null) {
+            if ($previousVaultUuid !== null && (! $command->snmpCommunity instanceof NoValue || $command->macros instanceof MacroChanges)) {
+                $this->logger->warning(
+                    'A host template update failed after writing to its vault entry: the vault may now diverge from the host template stored in the database.',
+                    ['host_template_id' => $template->id()->value, 'exception' => $cause],
+                );
+            }
 
             return;
         }
 
         try {
-            $this->vaultCredentialWriter->delete(VaultPathEnum::MonitoringHosts, $mintedUuid);
-        } catch (\Throwable $vaultException) {
+            $this->vaultCredentialWriter->delete(VaultPathEnum::MonitoringHosts, $vaultUuid);
+        } catch (\Throwable $recoveryException) {
             $this->logger->warning('The vault entry minted for a failed host template update could not be purged.', [
-                'host_template_id' => $before->id()->value,
-                'exception' => $vaultException,
+                'host_template_id' => $template->id()->value,
+                'exception' => $recoveryException,
             ]);
         }
     }
