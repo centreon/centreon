@@ -91,7 +91,7 @@ final class UsageRecordingTest extends AiAssistanceApiTestCase
             id: null,
             name: new AiProviderName('Metered provider'),
             type: AiProviderTypeEnum::OpenAiCompatible,
-            endpointUrl: new EndpointUrl('https://llm.example.com'),
+            endpointUrl: new EndpointUrl('https://203.0.113.10'),
             apiToken: new StoredApiToken('a-token'),
             defaultModel: new ModelName('a-model'),
             fastModel: null,

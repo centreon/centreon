@@ -50,19 +50,29 @@ final readonly class EndpointUrl
     }
 
     /**
-     * Whether a literal IP is link-local (169.254.0.0/16, fe80::/10). Host names
-     * are not resolved.
+     * Whether a literal IP is link-local (169.254.0.0/16, fe80::/10): an early,
+     * readable refusal. Other spellings and host names are caught when connecting
+     * (see ai_configuration.http_client).
      */
     public static function isLinkLocal(string $host): bool
     {
-        $packed = filter_var($host, \FILTER_VALIDATE_IP) === false ? false : inet_pton($host);
-        if ($packed === false) {
+        if (filter_var($host, \FILTER_VALIDATE_IP, \FILTER_FLAG_IPV4) !== false) {
+            return str_starts_with($host, '169.254.');
+        }
+        if (filter_var($host, \FILTER_VALIDATE_IP, \FILTER_FLAG_IPV6) === false) {
             return false;
         }
 
-        return mb_strlen($packed) === 4
-            ? $packed[0] === "\xA9" && $packed[1] === "\xFE"
-            : $packed[0] === "\xFE" && (ord($packed[1]) & 0xC0) === 0x80;
+        $packed = inet_pton($host);
+        if ($packed === false) {
+            return false;
+        }
+        // an IPv4-mapped IPv6 address (::ffff:a.b.c.d) is its IPv4 address
+        if (str_starts_with($packed, str_repeat("\x00", 10) . "\xFF\xFF")) {
+            return $packed[12] === "\xA9" && $packed[13] === "\xFE";
+        }
+
+        return $packed[0] === "\xFE" && (ord($packed[1]) & 0xC0) === 0x80;
     }
 
     /**

@@ -65,6 +65,8 @@ final class EndpointTest extends TestCase
         yield 'IPv4 metadata service' => ['http://169.254.169.254'];
 
         yield 'IPv6 link-local' => ['http://[fe80::1]:8080'];
+
+        yield 'IPv4-mapped metadata service' => ['http://[::ffff:169.254.169.254]'];
     }
 
     #[DataProvider('linkLocalEndpoints')]

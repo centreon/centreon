@@ -42,6 +42,7 @@ use App\Shared\Infrastructure\Proxy\HttpProxyProvider;
 use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 final readonly class LlmClientFactory implements LlmClientFactoryInterface
@@ -51,6 +52,7 @@ final readonly class LlmClientFactory implements LlmClientFactoryInterface
 
     public function __construct(
         private AiProviderRepository $repository,
+        #[Autowire(service: 'ai_configuration.http_client')]
         private HttpClientInterface $httpClient,
         private HttpProxyProvider $proxyProvider,
         private AiProviderUsageRepository $usageRepository,

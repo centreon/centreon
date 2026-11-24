@@ -22,6 +22,9 @@
 declare(strict_types=1);
 
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+use Symfony\Component\HttpClient\NoPrivateNetworkHttpClient;
+
+use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
     $services = $containerConfigurator->services();
@@ -31,4 +34,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->autoconfigure();
 
     $services->load('App\\AiConfiguration\\', __DIR__ . '/../../src/App/AiConfiguration');
+
+    // Provider calls never reach link-local addresses (cloud instance metadata),
+    // checked on the address actually connected to, whatever the URL spelling.
+    // Private networks stay reachable: self-hosted models live there.
+    $services->set('ai_configuration.http_client', NoPrivateNetworkHttpClient::class)
+        ->args([service('http_client'), ['169.254.0.0/16', 'fe80::/10']]);
 };
