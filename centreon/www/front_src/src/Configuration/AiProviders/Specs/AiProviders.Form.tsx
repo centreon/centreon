@@ -662,7 +662,6 @@ export default (): void => {
       await waitForRequest('@unreadableTestConnection');
 
       expect(await screen.findByText(labelUnreadableAnswer)).toBeVisible();
-      // the test is over: the button is back
       await waitFor(() =>
         expect(screen.getByTestId(labelTestConnection)).toHaveTextContent(
           labelTestConnection

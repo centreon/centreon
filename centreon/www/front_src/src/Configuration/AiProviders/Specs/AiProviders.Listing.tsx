@@ -112,7 +112,6 @@ export default (): void => {
       await waitFor(() => expect(getSwitch(2)).not.toBeChecked());
       expect(getSwitch(1)).toBeChecked();
       observer.disconnect();
-      // a refused activation is not reported as a success
       expect(hasShownSuccess).toBe(false);
     });
 

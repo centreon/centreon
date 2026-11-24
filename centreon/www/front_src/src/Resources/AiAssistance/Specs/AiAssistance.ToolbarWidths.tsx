@@ -79,7 +79,7 @@ export default (): void => {
       });
 
       await waitForRequest('@getAiAvailability');
-      // the answer is applied
+      // let the availability answer apply before measuring
       await new Promise((resolve) => {
         setTimeout(resolve, 100);
       });

@@ -12,8 +12,7 @@ import {
   TranslateResourceFilterScope
 } from '../models';
 
-// Whether the answer was cut short by the provider's length limit: absent from
-// the responses of older platforms.
+// `truncated` is absent from the responses of older platforms.
 const optionalTruncated = JsonDecoder.optional(JsonDecoder.boolean);
 
 export const aiAvailabilityDecoder = JsonDecoder.object<AiAvailability>(

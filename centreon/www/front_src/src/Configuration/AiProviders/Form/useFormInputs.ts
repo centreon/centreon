@@ -68,7 +68,6 @@ interface FormInputsState {
 export const useFormInputs = ({ canEdit }: Props): FormInputsState => {
   const { t } = useTranslation();
 
-  // every field is read-only without the right to edit providers
   const getDisabled = (): boolean => !canEdit;
   // these actions call the provider with the configuration being edited: the
   // API requires the right to update it
