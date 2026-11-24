@@ -17825,6 +17825,9 @@ msgstr "Indéterminé"
 msgid "Undo"
 msgstr "Annuler"
 
+msgid "Unexpected response from the server"
+msgstr "Réponse inattendue du serveur"
+
 #: centreon/www/install/dashboard_widgets.php
 #: centreon/www/install/front_translate.php
 msgid "Unhandled"
@@ -20076,6 +20079,9 @@ msgstr "à"
 #: centreon/www/include/Administration/configChangelog/viewLogs.php
 msgid "unknown"
 msgstr "inconnu"
+
+msgid "update succeeded"
+msgstr "mise à jour réussie"
 
 #: centreon/www/install/front_translate.php
 msgid "updated"
