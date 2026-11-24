@@ -38,6 +38,7 @@ use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use App\Shared\Infrastructure\TransformerInterface;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
@@ -45,6 +46,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  * @phpstan-type RowTypeAlias = array{
  *   hc_id: int,
  *   hc_name: string,
+ *   level: int,
  * }
  */
 final readonly class DbalHostSeverityRepository extends DbalRepository implements HostSeverityRepository
@@ -77,7 +79,7 @@ final readonly class DbalHostSeverityRepository extends DbalRepository implement
         }
 
         $qb = $this->connection->createQueryBuilder();
-        $qb->select('hc.hc_id', 'hc.hc_name')
+        $qb->select('hc.hc_id', 'hc.hc_name', 'hc.level')
             ->from(self::TABLE_NAME, 'hc')
             // a HostSeverity is a hostcategories row carrying a severity level; levelless rows are
             // host categories, a distinct concept that must never surface here.
@@ -117,14 +119,28 @@ final readonly class DbalHostSeverityRepository extends DbalRepository implement
         $qb->select('hc.hc_name')
             ->from(self::TABLE_NAME, 'hc')
             ->where('hc.level IS NOT NULL') // a levelless row is a category, not a severity
-            ->andWhere($qb->expr()->eq('hc.hc_id', $qb->createNamedParameter($id->value)))
+            ->andWhere($qb->expr()->eq('hc.hc_id', $qb->createNamedParameter($id->value, ParameterType::INTEGER)))
             ->setMaxResults(1);
 
-        // `hc_name` is nullable; a nameless row reads as "not found", as in the sibling repositories.
-        /** @var false|string|null $name */
+        /** @var false|string $name */
         $name = $qb->executeQuery()->fetchOne();
 
-        return is_string($name) && $name !== '' ? new HostSeverityName($name) : null;
+        return $name !== false ? new HostSeverityName($name) : null;
+    }
+
+    public function findById(HostSeverityId $id): ?HostSeverity
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('hc.hc_id', 'hc.hc_name', 'hc.level')
+            ->from(self::TABLE_NAME, 'hc')
+            ->where('hc.level IS NOT NULL') // a levelless row is a category, not a severity
+            ->andWhere($qb->expr()->eq('hc.hc_id', $qb->createNamedParameter($id->value, ParameterType::INTEGER)))
+            ->setMaxResults(1);
+
+        /** @var false|RowTypeAlias $row */
+        $row = $qb->executeQuery()->fetchAssociative();
+
+        return $row !== false ? $this->transformer->transform($row) : null;
     }
 
     /**

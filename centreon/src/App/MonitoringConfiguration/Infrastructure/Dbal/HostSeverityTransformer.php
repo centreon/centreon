@@ -25,6 +25,7 @@ namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverity;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityLevel;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityName;
 use App\Shared\Infrastructure\TransformerInterface;
 
@@ -43,6 +44,7 @@ final readonly class HostSeverityTransformer implements TransformerInterface
         return new HostSeverity(
             id: new HostSeverityId($from['hc_id']),
             name: new HostSeverityName($from['hc_name']),
+            level: new HostSeverityLevel($from['level']),
         );
     }
 }
