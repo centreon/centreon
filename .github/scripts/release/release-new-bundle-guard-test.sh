@@ -136,7 +136,14 @@ run_case "4 override" 0 "would have refused (rule 4)" release-29.97-next 2029120
 # a mapping that cannot be read is never taken for a legacy line
 run_case "malformed mapping is refused" 1 "(rule mapping)" release-29.94-next 20291200 release cloud
 run_case "mapping that is not an object is refused" 1 "(rule mapping)" release-29.93-next 20291200 release cloud
-run_case "unknown branch is refused" 1 "(rule mapping)" release-29.92-next 20291200 release cloud
+run_case "unknown branch is refused" 1 "cannot be resolved" release-29.92-next 20291200 release cloud
+: > "$GITHUB_OUTPUT"
+run_case "unknown branch is refused even with the override" 1 "cannot be resolved" release-29.92-next 20291200 release cloud true
+if [[ ! -s "$GITHUB_OUTPUT" ]]; then
+  PASS=$((PASS + 1)); echo "PASS    unknown branch: no head_sha output"
+else
+  FAILED=$((FAILED + 1)); echo "FAILED  unknown branch: no head_sha output"; cat "$GITHUB_OUTPUT"
+fi
 
 # the override never drops the pin of the tagged commit
 : > "$GITHUB_OUTPUT"

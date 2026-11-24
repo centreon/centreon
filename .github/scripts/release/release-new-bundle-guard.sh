@@ -97,11 +97,12 @@ check() {
 
   # From here the release job tags this commit only, whatever happens below (override included):
   # it fails if the branch moved in between.
-  if HEAD_SHA=$(git rev-parse -q --verify "origin/$RELEASE_BRANCH^{commit}" 2> /dev/null); then
-    out head_sha "$HEAD_SHA"
-  else
-    HEAD_SHA=""
+  # A branch that cannot be resolved has nothing to pin: this fails even with skip_bundle_check.
+  if ! HEAD_SHA=$(git rev-parse -q --verify "origin/$RELEASE_BRANCH^{commit}" 2> /dev/null); then
+    echo "::error::Testing bundle check: origin/$RELEASE_BRANCH cannot be resolved, nothing can be released (skip_bundle_check does not apply)" >&2
+    exit 1
   fi
+  out head_sha "$HEAD_SHA"
 
   [[ "$mode" == "testing" ]] \
     || refuse "mapping" "Cannot read testing_tag_builds in $MAPPING_PATH on $RELEASE_BRANCH: the branch or the file is unreadable or malformed."
