@@ -110,7 +110,7 @@ final class HostTemplateWithTest extends TestCase
         self::assertSame(3, $template->schedulingOptions->maxCheckAttempts);
         self::assertSame(4, $changed->schedulingOptions->maxCheckAttempts);
         self::assertSame(1, $changed->id()->value);
-        self::assertFalse($changed->hasSameConfigurationAs($template));
+        self::assertFalse($changed->hasSameLoggedConfigurationAs($template));
     }
 
     public function testTheSameValuesResentChangeNothing(): void
@@ -125,14 +125,14 @@ final class HostTemplateWithTest extends TestCase
             notifications: Notifications::default()->with(enabled: TriStateEnum::True, options: [NotificationOptionEnum::Down], interval: 30),
         );
 
-        self::assertTrue($changed->hasSameConfigurationAs($template));
+        self::assertTrue($changed->hasSameLoggedConfigurationAs($template));
     }
 
     public function testNoNotificationsCompareAsTheDefaultNotifications(): void
     {
         $template = new HostTemplate(new HostTemplateId(1), new HostTemplateName('tpl'), new CheckOptions(null), notifications: null);
 
-        self::assertTrue($template->with(notifications: Notifications::default())->hasSameConfigurationAs($template));
+        self::assertTrue($template->with(notifications: Notifications::default())->hasSameLoggedConfigurationAs($template));
     }
 
     /**
@@ -143,7 +143,7 @@ final class HostTemplateWithTest extends TestCase
     {
         $template = $this->template();
 
-        self::assertFalse($change($template)->hasSameConfigurationAs($template));
+        self::assertFalse($change($template)->hasSameLoggedConfigurationAs($template));
     }
 
     /**

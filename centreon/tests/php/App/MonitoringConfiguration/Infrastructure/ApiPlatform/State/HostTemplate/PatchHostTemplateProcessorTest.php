@@ -201,21 +201,6 @@ final class PatchHostTemplateProcessorTest extends ApiTestCase
         yield 'is_locked' => [['is_locked' => false]];
 
         yield 'extended_informations.geo_coordinates' => [['extended_informations' => ['geo_coordinates' => '48.8,2.3']]];
-
-        // Lists and macros until the next PR of the stack supports them.
-        yield 'template_ids' => [['template_ids' => [1]]];
-
-        yield 'category_ids' => [['category_ids' => [1]]];
-
-        yield 'linked_service_template_ids' => [['linked_service_template_ids' => [1]]];
-
-        yield 'check_options.macros' => [['check_options' => ['macros' => [['name' => 'PORT', 'value' => '80']]]]];
-
-        yield 'notifications.contacts' => [['notifications' => ['contacts' => [1]]]];
-
-        yield 'notifications.contact_groups' => [['notifications' => ['contact_groups' => [1]]]];
-
-        yield 'notifications.options' => [['notifications' => ['options' => ['down']]]];
     }
 
     #[DataProvider('provideFieldsThatCannotBeCleared')]
