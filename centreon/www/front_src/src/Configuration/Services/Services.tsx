@@ -37,6 +37,7 @@ import {
   labelServicesDescription,
   labelWelcomeToServices
 } from './translatedLabels';
+import { useHostNameFilterFromUrl } from './useHostNameFilterFromUrl';
 import useServices from './useServices';
 import {
   columnsAtomKey,
@@ -85,6 +86,8 @@ const Services = () => {
     isMassChange: true
   });
   const setFormState = useSetAtom(formStateAtom);
+
+  useHostNameFilterFromUrl();
 
   const massChange = useMemo(() => {
     const context = {

@@ -1,8 +1,11 @@
+import { unsavedChangesTranslatedLabels } from '@centreon/ui';
+
 import { rs } from '@rstest/core';
 import { waitForRequest } from '@test-setup/api';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { formStateAtom } from '../../ConfigurationBase/atoms';
 import { listingDataTestIds } from '../../ConfigurationBase/Listing/dataTestIds';
 import {
   labelDelete,
@@ -46,7 +49,7 @@ const initializeListing = async (
 
 export default () => {
   describe('Actions: ', () => {
-    it('links the services icon to the legacy services listing for that host', async () => {
+    it('links the services icon to the legacy services listing while the Services page is not granted', async () => {
       await initializeListing();
 
       const open = rs.spyOn(window, 'open').mockImplementation(() => null);
@@ -57,6 +60,81 @@ export default () => {
         '/main.php?p=60201&search=host%200',
         '_self'
       );
+    });
+
+    it('opens the services of that host in the Services page when the menu grants it', async () => {
+      const { pathname } = window.location;
+
+      await initializeListing({ allowedPages: ['/configuration/services'] });
+
+      const open = rs.spyOn(window, 'open').mockImplementation(() => null);
+
+      await userEvent.click(screen.getByTestId('go-to-services_0'));
+
+      try {
+        await waitFor(() =>
+          expect(window.location.pathname).toBe('/configuration/services')
+        );
+        expect(window.location.search).toBe('?host=host%200');
+        expect(open).not.toHaveBeenCalled();
+      } finally {
+        // The page is not reloaded between tests.
+        window.history.pushState({}, '', pathname);
+      }
+    });
+
+    it('closes the open host form before opening the Services page', async () => {
+      const { pathname } = window.location;
+
+      const { store } = initialize({
+        allowedPages: ['/configuration/services']
+      });
+      await waitForRequest('@getAllHosts');
+
+      await userEvent.click(await screen.findByText('host 0'));
+      await waitForRequest('@getHost');
+
+      await userEvent.click(screen.getByTestId('go-to-services_1'));
+
+      try {
+        await waitFor(() =>
+          expect(window.location.pathname).toBe('/configuration/services')
+        );
+        expect(window.location.search).toBe('?host=host%201');
+        expect(store.get(formStateAtom).isOpen).toBe(false);
+      } finally {
+        window.history.pushState({}, '', pathname);
+      }
+    });
+
+    it('asks to keep or drop the unsaved changes of the open form before leaving', async () => {
+      const { pathname } = window.location;
+
+      initialize({ allowedPages: ['/configuration/services'] });
+      await waitForRequest('@getAllHosts');
+
+      await userEvent.click(await screen.findByText('host 0'));
+      await waitForRequest('@getHost');
+      await userEvent.type(
+        (await screen.findAllByTestId('host-form-alias'))[1] as HTMLElement,
+        ' edited'
+      );
+
+      const open = rs.spyOn(window, 'open').mockImplementation(() => null);
+
+      await userEvent.click(screen.getByTestId('go-to-services_1'));
+
+      try {
+        expect(
+          await screen.findByText(
+            unsavedChangesTranslatedLabels.labelDoYouWantToSaveChanges
+          )
+        ).toBeVisible();
+        expect(window.location.pathname).not.toBe('/configuration/services');
+        expect(open).not.toHaveBeenCalled();
+      } finally {
+        window.history.pushState({}, '', pathname);
+      }
     });
 
     it('deletes a host through the confirmation modal', async () => {
