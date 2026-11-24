@@ -79,7 +79,7 @@ bundle_s3_update_global() {
       | .updated_at = $now
       | ([.repos[]?.expected[]?] | unique) as $expected
       | ([.repos[]?.bundle_repos[]?] | unique) as $bundle_repos
-      | (.repos | keys) as $reported
+      | (.repos // {} | keys) as $reported
       | .status = (if ($expected | length) > 0
                      and ($bundle_repos - $reported | length) == 0
                      and ([$expected[] as $c | .components[$c].state] | all(. == "success"))
