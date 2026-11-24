@@ -1,6 +1,6 @@
 # Gorgone-less light Central PoC stack (MON-215451)
 
-Exploratory PoC, not meant to be merged. Epic MON-215448. Interfaces: `contracts.md` §1-§9 (gls study folder).
+Exploratory PoC, not meant to be merged. Epic MON-215448. Interfaces: `contracts.md` §1-§10 (gls study folder).
 
 ## Topology
 
@@ -61,7 +61,7 @@ docker login docker.centreon.com
 .github/docker/gls/scripts/gls-e2e.sh step0     # no gorgone, data upstream, poller outbound-only, TLS cbmod
 .github/docker/gls/scripts/gls-e2e.sh c1 poller # realtime: forced check, downtime, ack (also: c1 central)
 .github/docker/gls/scripts/gls-e2e.sh c2 poller # export + reload applied (also: c2 central)
-.github/docker/gls/scripts/gls-e2e.sh plugins   # plugins.json deployed and the package installed
+.github/docker/gls/scripts/gls-e2e.sh plugins   # no watcher; cbmod installs plugins.json, cbd reports INSTALLED, then PARTIAL with a missing package (§ 10)
 .github/docker/gls/scripts/gls-e2e.sh rrd       # .rrd files of gls-hc/gls-perf in the rrdcached volumes, no RRD connect error
 .github/docker/gls/scripts/gls-e2e.sh c3 stop   # disconnected poller: explicit error <= 30 s (also: partition, pause)
 .github/docker/gls/scripts/gls-e2e.sh tls-negative # rogue central cert refused; renewal keeps the CA

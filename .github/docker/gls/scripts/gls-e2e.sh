@@ -6,7 +6,7 @@
 #   gls-e2e.sh c1 central|poller  realtime actions (forced check, downtime, ack) in centengine.log
 #   gls-e2e.sh c2 central|poller  export + reload applied (marker host, no error, after T0)
 #   gls-e2e.sh c3 stop|partition|pause   explicit error <= 30 s on a disconnected poller, no replay
-#   gls-e2e.sh plugins            packages listed in the poller plugins.json get installed
+#   gls-e2e.sh plugins            no watcher; cbmod installs plugins.json packages, cbd reports INSTALLED / PARTIAL
 #   gls-e2e.sh tls-negative       central cert not signed by the CA: poller refuses, web answers 503/504; renewal keeps the CA
 #   gls-e2e.sh ca                 self-generated CA: same as at creation, kept on cbd recreate, wrong fingerprint fails closed
 #   gls-e2e.sh state              state volumes: layout, retention after recreate, cbmod queue while the central is down
@@ -758,26 +758,90 @@ cmd_state() {
 
 pkg_ok() { cp_ exec -T poller-engine dpkg-query -W -f '${Status}' "$1" 2>/dev/null | grep -q 'install ok installed'; }
 
-cmd_plugins() {
+plugin_result() { cbd_pollers | jq -c --arg u "$1" '.pollers[] | select(.poller_id == $u) | .plugins // empty' 2>/dev/null; }
+plugin_done() { # plugin_done <uid> <T0> [previous deployment id]: a final plugin result of a new deployment (contracts § 10.C)
+  plugin_result "$1" | jq -e --argjson t "$2" --arg prev "${3:-}" \
+    '.updated_at >= $t and .status != "RUNNING" and (.deployment_id // "") != "" and .deployment_id != $prev' >/dev/null 2>&1
+}
+deploy_plugins() { # deploy_plugins <pid> <plugins.json>: legacy generate, add plugins.json, move, reload
   # OSS web does not generate plugins.json (module hook): drop one into the
   # generated files between "generate" and "move", like a module would.
   # Generation wipes the cache dir, hence the legacy chain, not generate-and-reload.
-  local pkg="${GLS_PLUGIN_PKG:-centreon-plugin-applications-protocol-ftp}" pid
-  pid=$(poller_id)
+  legacy_xml generateFiles.php "generate=true&debug=true&poller=$1" || { echo "generate: $(head -c 200 "$LOG_DIR/legacy-generateFiles.xml")"; return 1; }
+  printf '%s\n' "$2" | cc exec -T -u www-data fpm sh -c 'cat > "/var/cache/centreon/config/engine/$0/plugins.json"' "$1"
+  legacy_xml moveFiles.php "poller=$1" || { echo "move: $(head -c 200 "$LOG_DIR/legacy-moveFiles.xml")"; return 1; }
+  legacy_xml restartPollers.php "mode=1&poller=$1" || { echo "reload: $(head -c 200 "$LOG_DIR/legacy-restartPollers.xml")"; return 1; }
+}
+
+cmd_plugins() {
+  local pkg="${GLS_PLUGIN_PKG:-centreon-plugin-applications-protocol-ftp}" bad=centreon-plugin-gls-does-not-exist
+  local pid uid t0 res did err
+  pid=$(poller_id); uid=$(sql centreon "SELECT uid FROM nagios_server WHERE id=$pid")
   login || { record "login" ko; return; }
+
+  # No watcher (contracts § 10.S2). Listings are grepped here: an empty one (exec failed) is a ko.
+  cp_ exec -T poller-engine sh -c 'for f in /proc/[0-9]*/cmdline; do tr "\0" " " <"$f"; echo; done 2>/dev/null' >"$LOG_DIR/plugins-procs.log"
+  if ! grep -q centengine "$LOG_DIR/plugins-procs.log"; then
+    record "plugins: no inotify watcher process in the poller" ko "no process list"
+  elif grep -E 'inotifywait|45-plugin-watcher' "$LOG_DIR/plugins-procs.log" >"$LOG_DIR/plugins-watcher.log"; then
+    record "plugins: no inotify watcher process in the poller" ko "$(head -c 200 "$LOG_DIR/plugins-watcher.log")"
+  else
+    record "plugins: no inotify watcher process in the poller" ok
+  fi
+  local cd
+  cd=$(cp_ exec -T poller-engine ls -1 /usr/local/lib/centreon-engine/container.d/ 2>/dev/null)
+  [[ -n "$cd" ]] && ! grep -q '^45-plugin-watcher' <<<"$cd" \
+    && record "plugins: no 45-plugin-watcher in container.d" ok || record "plugins: no 45-plugin-watcher in container.d" ko "$(tr '\n' ' ' <<<"$cd" | head -c 200)"
+  cp_ exec -T poller-engine sh -c 'tr "\0" "\n" </proc/1/environ | grep -q "^CENTREON_PLUGINS_INSTALL=."' \
+    && record "plugins: CENTREON_PLUGINS_INSTALL set in the engine env" ok || record "plugins: CENTREON_PLUGINS_INSTALL set in the engine env" ko
+
   pkg_ok "$pkg" && { record "$pkg absent from the image before deploy" ko "already installed"; return; }
   record "$pkg absent from the image before deploy" ok
-  legacy_xml generateFiles.php "generate=true&debug=true&poller=$pid" \
-    && record "legacy generate" ok || { record "legacy generate" ko "$(head -c 200 "$LOG_DIR/legacy-generateFiles.xml")"; return; }
-  printf '{"%s": ""}\n' "$pkg" | cc exec -T -u www-data fpm sh -c 'cat > "/var/cache/centreon/config/engine/$0/plugins.json"' "$pid"
-  legacy_xml moveFiles.php "poller=$pid" && record "legacy move (deploy, plugins.json included)" ok \
-    || record "legacy move (deploy)" ko "$(head -c 200 "$LOG_DIR/legacy-moveFiles.xml")"
-  legacy_xml restartPollers.php "mode=1&poller=$pid" && record "legacy reload" ok \
-    || record "legacy reload" ko "$(head -c 200 "$LOG_DIR/legacy-restartPollers.xml")"
+
+  # Good package: installed by the cbmod hook, result INSTALLED through cbd.
+  t0=$(date +%s)
+  err=$(deploy_plugins "$pid" "{\"$pkg\": \"\"}") && record "plugins: deploy with $pkg (generate, move, reload: statuscode 0)" ok \
+    || { record "plugins: deploy with $pkg (generate, move, reload: statuscode 0)" ko "$err"; return; }
   wait_until 60 eval "cp_ exec -T poller-engine grep -qF '$pkg' /etc/centreon-engine/plugins.json" \
     && record "plugins.json delivered to the poller" ok || { record "plugins.json delivered to the poller" ko; return; }
   wait_until 600 pkg_ok "$pkg" && record "$pkg installed on the poller (dpkg-query)" ok \
     || record "$pkg installed on the poller (dpkg-query)" ko
+  if wait_until 600 plugin_done "$uid" "$t0"; then
+    res=$(plugin_result "$uid"); echo "$res" >"$LOG_DIR/plugins-result-1.json"
+    jq -e --arg p "$pkg" '.status == "INSTALLED" and (.deployment_id // "") != "" and any(.packages[]; .name == $p and .status == "installed")' <<<"$res" >/dev/null \
+      && record "plugins: cbd reports INSTALLED with $pkg installed" ok "deployment $(jq -r .deployment_id <<<"$res")" \
+      || record "plugins: cbd reports INSTALLED with $pkg installed" ko "$(head -c 300 <<<"$res")"
+    did=$(jq -r '.deployment_id // empty' <<<"$res")
+    [[ -n "$did" && "$(cbd_get "/v1/deployments/$did" | jq -r '.plugins.status // empty' 2>/dev/null)" == INSTALLED ]] \
+      && record "plugins: GET /v1/deployments/{id} carries the same result" ok \
+      || record "plugins: GET /v1/deployments/{id} carries the same result" ko "$(cbd_get "/v1/deployments/$did" | head -c 300)"
+  else
+    record "plugins: cbd reports INSTALLED with $pkg installed" ko "no final result after T0: $(plugin_result "$uid" | head -c 300)"
+  fi
+
+  # Failing package: reported failed, the deployment is not broken.
+  t0=$(date +%s)
+  err=$(deploy_plugins "$pid" "{\"$pkg\": \"\", \"$bad\": \"\"}") && record "plugins: deploy with a failing package still succeeds (statuscode 0)" ok \
+    || { record "plugins: deploy with a failing package still succeeds (statuscode 0)" ko "$err"; return; }
+  if wait_until 600 plugin_done "$uid" "$t0" "$did"; then
+    res=$(plugin_result "$uid"); echo "$res" >"$LOG_DIR/plugins-result-2.json"
+    jq -e --arg p "$pkg" --arg b "$bad" '.status == "PARTIAL" and any(.packages[]; .name == $b and .status == "failed") and any(.packages[]; .name == $p and .status == "installed")' <<<"$res" >/dev/null \
+      && record "plugins: cbd reports PARTIAL with $bad failed" ok "$(jq -r '[.packages[] | select(.status == "failed") | .message] | first // ""' <<<"$res" | head -c 100)" \
+      || record "plugins: cbd reports PARTIAL with $bad failed" ko "$(head -c 300 <<<"$res")"
+  else
+    record "plugins: cbd reports PARTIAL with $bad failed" ko "no final result after T0: $(plugin_result "$uid" | head -c 300)"
+  fi
+  did=$(plugin_result "$uid" | jq -r '.deployment_id // empty')
+  pkg_ok "$pkg" && record "plugins: $pkg still installed after the failing deploy" ok || record "plugins: $pkg still installed after the failing deploy" ko
+  poller_capable "$uid" && record "plugins: poller still capable after the failing deploy" ok \
+    || record "plugins: poller still capable after the failing deploy" ko "$(cbd_pollers | head -c 300)"
+
+  # Restore: later steps recreate the poller, whose boot install reads plugins.json.
+  t0=$(date +%s)
+  err=$(deploy_plugins "$pid" "{\"$pkg\": \"\"}") || { record "plugins: restore deploy without $bad" ko "$err"; return; }
+  wait_until 600 plugin_done "$uid" "$t0" "$did" && [[ "$(plugin_result "$uid" | jq -r .status)" == INSTALLED ]] \
+    && record "plugins: restore deploy without $bad, back to INSTALLED" ok \
+    || record "plugins: restore deploy without $bad, back to INSTALLED" ko "$(plugin_result "$uid" | head -c 300)"
 }
 
 # ---------- rrd: perfdata reaches rrdcached ----------

@@ -90,7 +90,7 @@ jobs:
         run: SUMMARY_FILE="$GITHUB_STEP_SUMMARY" "$SCRIPT" c2 poller
         shell: bash
 
-      - name: "plugins.json applied on the poller"
+      - name: "plugins.json installed by cbmod (no watcher), result reported by cbd"
         if: ${{ !cancelled() && steps.up.outcome == 'success' }}
         continue-on-error: ${{ env.GLS_GATE_CRITERIA != 'true' }}
         run: SUMMARY_FILE="$GITHUB_STEP_SUMMARY" "$SCRIPT" plugins
