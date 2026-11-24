@@ -815,3 +815,33 @@ export const WithControlledCalculations: Story = {
   },
   argTypes
 };
+
+export const withTimeAreas: Story = {
+  args: {
+    ...argumentsData,
+    timeAreas: [
+      {
+        end: '2023-06-18T23:00:00+02:00',
+        label: 'Purged · 14-day retention',
+        pattern: {
+          height: 6,
+          orientation: ['diagonal'],
+          stroke: '#9e9e9e',
+          strokeWidth: 1,
+          width: 6
+        },
+        start: '2023-06-18T17:05:00+02:00'
+      },
+      {
+        backgroundColor: 'rgba(33, 150, 243, 0.15)',
+        end: '2023-06-19T10:00:00+02:00',
+        label: 'Maintenance',
+        start: '2023-06-19T08:00:00+02:00'
+      }
+    ]
+  },
+  argTypes,
+  render: (args) => (
+    <WrapperChart {...args} data={dataLastDay as unknown as LineChartData} />
+  )
+};

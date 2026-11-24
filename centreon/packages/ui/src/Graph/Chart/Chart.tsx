@@ -16,6 +16,7 @@ import BarGroup from '../BarChart/BarGroup';
 import AdditionalLine from '../common/BaseChart/AdditionalLine';
 import BaseChart from '../common/BaseChart/BaseChart';
 import ChartSvgWrapper from '../common/BaseChart/ChartSvgWrapper';
+import TimeAreas from '../common/BaseChart/TimeAreas';
 import { useComputeBaseChartDimensions } from '../common/BaseChart/useComputeBaseChartDimensions';
 import { useComputeYAxisMaxCharacters } from '../common/BaseChart/useComputeYAxisMaxCharacters';
 import type { Thresholds as ThresholdsModel } from '../common/models';
@@ -116,7 +117,8 @@ const Chart = ({
   additionalLines,
   min,
   max,
-  boundariesUnit
+  boundariesUnit,
+  timeAreas
 }: Props): ReactElement => {
   const { classes } = useChartStyles();
   const maxLeftAxisCharactersRef = useRef(0);
@@ -341,6 +343,13 @@ const Chart = ({
                 timeSeries={timeSeries}
                 xScale={xScale}
               >
+                {timeAreas && (
+                  <TimeAreas
+                    areas={timeAreas}
+                    size={graphHeight - margin.bottom}
+                    timeScale={xScale}
+                  />
+                )}
                 {!isEmpty(linesDisplayedAsBar) && (
                   <BarGroup
                     // @ts-expect-error - suppressing pre-existing type mismatch

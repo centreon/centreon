@@ -1,3 +1,6 @@
+import type { PatternLines } from '@visx/pattern';
+import type { ComponentProps } from 'react';
+
 import type { Metric } from './timeSeries/models';
 
 export interface LineChartGlobal {
@@ -30,4 +33,12 @@ export interface AdditionalLineProps {
   text?: string;
   color: string;
   unit: string;
+}
+
+export interface TimeArea {
+  start: Date | string;
+  end: Date | string;
+  backgroundColor?: string;
+  pattern?: Omit<ComponentProps<typeof PatternLines>, 'id'>;
+  label?: string;
 }

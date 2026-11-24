@@ -95,8 +95,9 @@ computed style before falling back.
 We are migrating component tests from Cypress to rstest (real Chromium,
 Testing Library, MSW 2). **Every new component test is an rstest browser test
 (`*.browser.test.tsx`); never add a Cypress spec.** Jest (`*.test.ts(x)`) stays
-for pure logic. In `packages/ui`, the chart specs (`Graph/`, `components/Zoom`)
-are still on Cypress; its other components are tested with rstest, run from
+for pure logic. In `packages/ui`, the chart specs (`Graph/` except `Chart` and
+`BarChart`, `components/Zoom`) are still on Cypress; its other components are
+tested with rstest, run from
 `centreon/packages/ui` with the same commands.
 
 Copy the shape of `Configuration/Hosts/Specs/`:

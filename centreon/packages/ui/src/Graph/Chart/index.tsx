@@ -80,6 +80,7 @@ const WrapperChart = ({
   min,
   max,
   boundariesUnit,
+  timeAreas,
   ...rest
 }: Props): JSX.Element | null => {
   const { classes, cx } = useChartStyles();
@@ -145,6 +146,7 @@ const WrapperChart = ({
           skipIntersectionObserver={rest.skipIntersectionObserver}
           thresholds={thresholds}
           thresholdUnit={thresholdUnit}
+          timeAreas={timeAreas}
           timeShiftZones={timeShiftZones}
           tooltip={tooltip}
           transformMatrix={transformMatrix}

@@ -20,6 +20,7 @@ import type { Data, LineChartProps } from '../Chart/models';
 import { useIntersection } from '../Chart/useChartIntersection';
 import BaseChart from '../common/BaseChart/BaseChart';
 import ChartSvgWrapper from '../common/BaseChart/ChartSvgWrapper';
+import TimeAreas from '../common/BaseChart/TimeAreas';
 import { useComputeBaseChartDimensions } from '../common/BaseChart/useComputeBaseChartDimensions';
 import { useComputeYAxisMaxCharacters } from '../common/BaseChart/useComputeYAxisMaxCharacters';
 import type { Thresholds as ThresholdsModel } from '../common/models';
@@ -49,6 +50,7 @@ interface Props
     | 'zoomPreview'
     | 'timeShiftZones'
     | 'annotationEvent'
+    | 'timeAreas'
   > {
   barStyle: BarStyle;
   graphData: Data;
@@ -89,7 +91,8 @@ const ResponsiveBarChart = ({
   end,
   timeShiftZones,
   zoomPreview,
-  annotationEvent
+  annotationEvent,
+  timeAreas
 }: Props): ReactElement => {
   const maxLeftAxisCharactersRef = useRef(0);
   const maxRightAxisCharactersRef = useRef(0);
@@ -306,6 +309,18 @@ const ResponsiveBarChart = ({
             title={title}
             xScale={xScale}
           >
+            {timeAreas && (
+              <TimeAreas
+                areas={timeAreas}
+                isHorizontal={isHorizontal}
+                size={
+                  isHorizontal
+                    ? graphHeight - margin.bottom
+                    : graphWidth - (margin.left - 15)
+                }
+                timeScale={xScaleLinear}
+              />
+            )}
             {isApplyingZoom && (
               <>
                 <BarGroup
