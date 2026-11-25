@@ -46,6 +46,14 @@ final class VaultWriteFailedException extends \RuntimeException
         );
     }
 
+    public static function forTokenRemoval(AiProviderId $aiProviderId, \Throwable $previous): self
+    {
+        return new self(
+            sprintf('AI provider configuration %d was not updated: its API token could not be removed from the vault.', $aiProviderId->value),
+            previous: $previous,
+        );
+    }
+
     public static function forDeletion(AiProviderId $aiProviderId, \Throwable $previous): self
     {
         return new self(

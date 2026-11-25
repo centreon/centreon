@@ -92,8 +92,16 @@ final readonly class UpdateAiProviderCommandHandler
             throw $exception;
         }
 
-        if ($previousApiToken instanceof StoredApiToken && $aiProvider->apiToken() !== $previousApiToken) {
-            // the configuration now references a new token, or none (removed)
+        if ($previousApiToken instanceof StoredApiToken && ! $aiProvider->apiToken() instanceof StoredApiToken) {
+            // removed on request: within the transaction, like a deletion, so that an
+            // unreachable vault saves nothing instead of leaving the secret behind
+            try {
+                $this->tokenStorage->remove($previousApiToken, $command->id);
+            } catch (\Throwable $exception) {
+                throw VaultWriteFailedException::forTokenRemoval($command->id, $exception);
+            }
+        } elseif ($previousApiToken instanceof StoredApiToken && $aiProvider->apiToken() !== $previousApiToken) {
+            // the configuration now references a new token
             $this->tokenStorage->discard($previousApiToken, $command->id);
         }
 

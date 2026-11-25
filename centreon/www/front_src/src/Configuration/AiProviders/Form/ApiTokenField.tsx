@@ -3,7 +3,7 @@ import type { InputPropsWithoutGroup } from '@centreon/ui';
 import { type FormikValues, useFormikContext } from 'formik';
 import { useAtomValue } from 'jotai';
 import { equals, path } from 'ramda';
-import { type ChangeEvent, JSX, useEffect, useState } from 'react';
+import { type ChangeEvent, JSX, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { formStateAtom } from '../../ConfigurationBase/atoms';
@@ -39,7 +39,8 @@ const ApiTokenField = ({
   const { mode } = useAtomValue(formStateAtom);
   const isEditing = equals(mode, 'edit');
 
-  const [isErased, setIsErased] = useState(false);
+  // kept with the form values, so that resetting the form restores it too
+  const isErased = Boolean(path(['apiTokenErased'], values));
 
   // a server that needs none may have no token stored
   const hasStoredToken =
@@ -64,11 +65,14 @@ const ApiTokenField = ({
     value === '' &&
     (isErased || !isStoredTokenUsable);
 
+  const removeApiToken = Boolean(path(['removeApiToken'], values));
+
+  // what is saved always matches what the field says
   useEffect(() => {
-    if (Boolean(path(['removeApiToken'], values)) !== willRemoveStoredToken) {
+    if (removeApiToken !== willRemoveStoredToken) {
       setFieldValue('removeApiToken', willRemoveStoredToken);
     }
-  }, [willRemoveStoredToken]);
+  }, [willRemoveStoredToken, removeApiToken]);
 
   const getHelperText = (): string | undefined => {
     if (willRemoveStoredToken) {
@@ -100,11 +104,11 @@ const ApiTokenField = ({
         setFieldValue(fieldName, event.target.value)
       }
       onErase={() => {
-        setIsErased(true);
+        setFieldValue('apiTokenErased', true);
         setFieldValue(fieldName, '');
       }}
       onRevert={() => {
-        setIsErased(false);
+        setFieldValue('apiTokenErased', false);
         setFieldValue(fieldName, '');
       }}
       required={!isOptional && !isDisabled}

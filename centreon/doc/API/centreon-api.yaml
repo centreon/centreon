@@ -17138,8 +17138,11 @@ components:
             - number
             - 'null'
         has_api_token:
-          readOnly: true
           description: 'Whether an API token is stored. Only an OpenAI-compatible server that needs none can be without one.'
+          type: boolean
+        remove_api_token:
+          writeOnly: true
+          description: 'Set to true to remove the stored API token, for an OpenAI-compatible server that needs none (refused for the other types). Ignored when a new api_token is given. Leaving api_token out never removes the token.'
           type: boolean
     AiProvider.jsonMergePatch:
       type: object
@@ -17266,7 +17269,11 @@ components:
           type:
             - number
             - 'null'
+        has_api_token:
+          description: 'Whether an API token is stored. Only an OpenAI-compatible server that needs none can be without one.'
+          type: boolean
         remove_api_token:
+          writeOnly: true
           description: 'Set to true to remove the stored API token, for an OpenAI-compatible server that needs none (refused for the other types). Ignored when a new api_token is given. Leaving api_token out never removes the token.'
           type: boolean
     AiProvider.jsonld:
@@ -17399,8 +17406,11 @@ components:
                 - number
                 - 'null'
             has_api_token:
-              readOnly: true
               description: 'Whether an API token is stored. Only an OpenAI-compatible server that needs none can be without one.'
+              type: boolean
+            remove_api_token:
+              writeOnly: true
+              description: 'Set to true to remove the stored API token, for an OpenAI-compatible server that needs none (refused for the other types). Ignored when a new api_token is given. Leaving api_token out never removes the token.'
               type: boolean
     CorrelateAlertsResource:
       type: object
@@ -17510,15 +17520,6 @@ components:
           description: 'Type of the AI provider'
           type: string
           example: anthropic
-        api_token:
-          minLength: 1
-          maxLength: 4096
-          pattern: '^(((?!^secret::).)*)$'
-          description: 'API token used to authenticate against the AI provider. Required, except for an OpenAI-compatible server that needs none. This field is write-only: it is never returned by the API.'
-          type:
-            - string
-            - 'null'
-          example: sk-...
         default_model:
           minLength: 1
           maxLength: 255
@@ -17536,6 +17537,15 @@ components:
             - string
             - 'null'
           example: 'https://api.anthropic.com'
+        api_token:
+          minLength: 1
+          maxLength: 4096
+          pattern: '^(((?!^secret::).)*)$'
+          description: 'API token used to authenticate against the AI provider. Required, except for an OpenAI-compatible server that needs none. This field is write-only: it is never returned by the API.'
+          type:
+            - string
+            - 'null'
+          example: sk-...
         fast_model:
           minLength: 1
           maxLength: 255
@@ -17638,15 +17648,6 @@ components:
               description: 'Type of the AI provider'
               type: string
               example: anthropic
-            api_token:
-              minLength: 1
-              maxLength: 4096
-              pattern: '^(((?!^secret::).)*)$'
-              description: 'API token used to authenticate against the AI provider. Required, except for an OpenAI-compatible server that needs none. This field is write-only: it is never returned by the API.'
-              type:
-                - string
-                - 'null'
-              example: sk-...
             default_model:
               minLength: 1
               maxLength: 255
@@ -17664,6 +17665,15 @@ components:
                 - string
                 - 'null'
               example: 'https://api.anthropic.com'
+            api_token:
+              minLength: 1
+              maxLength: 4096
+              pattern: '^(((?!^secret::).)*)$'
+              description: 'API token used to authenticate against the AI provider. Required, except for an OpenAI-compatible server that needs none. This field is write-only: it is never returned by the API.'
+              type:
+                - string
+                - 'null'
+              example: sk-...
             fast_model:
               minLength: 1
               maxLength: 255

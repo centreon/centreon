@@ -202,7 +202,7 @@ final class AiProvider extends AggregateRoot
      * @param bool $removeApiToken remove the stored token (ignored when a new one is given)
      *
      * @throws AiProviderCanNotBeUpdatedException when the endpoint changes without a new token,
-     *                                            unless the stored one is removed
+     *                                            unless the stored one is removed (or there is none)
      * @throws InvalidAiProviderConfigurationException when the endpoint does not fit the type, or
      *                                                 the token of a type that needs one is removed
      */
@@ -214,7 +214,9 @@ final class AiProvider extends AggregateRoot
         if ($removesApiToken && $this->type->requiresApiToken()) {
             throw InvalidAiProviderConfigurationException::apiTokenRequired($this->type);
         }
+        // with no stored token, there is nothing to keep from the new endpoint
         if (! $apiToken instanceof StoredApiToken && ! $removesApiToken
+            && $this->apiToken instanceof StoredApiToken
             && ! $this->canReuseApiTokenFor($this->type, $endpointUrl)
         ) {
             throw AiProviderCanNotBeUpdatedException::apiTokenRequiredForNewEndpoint($this->id());

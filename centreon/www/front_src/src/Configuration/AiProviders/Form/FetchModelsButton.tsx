@@ -25,6 +25,7 @@ import { useLatestInputs } from './useLatestInputs';
 
 interface FormValues {
   apiToken?: string | null;
+  removeApiToken?: boolean;
   endpointUrl?: string | null;
   type?: AiProviderType | null;
 }
@@ -55,7 +56,14 @@ const FetchModelsButton = (): JSX.Element => {
 
   // the models of another provider, endpoint or token are not offered
   const startRequest = useLatestInputs(
-    JSON.stringify([mode, id, values.type, values.endpointUrl, values.apiToken])
+    JSON.stringify([
+      mode,
+      id,
+      values.type,
+      values.endpointUrl,
+      values.apiToken,
+      Boolean(values.removeApiToken)
+    ])
   );
 
   const fetchModels = async (): Promise<void> => {
@@ -68,7 +76,8 @@ const FetchModelsButton = (): JSX.Element => {
       type: values.type,
       ...(hasTypedToken ? { api_token: values.apiToken } : {}),
       ...(values.endpointUrl ? { endpoint_url: values.endpointUrl } : {}),
-      ...(isEditing && id ? { provider_id: id } : {})
+      // the stored token is not used once its removal is pending
+      ...(isEditing && id && !values.removeApiToken ? { provider_id: id } : {})
     });
 
     if (!isLatest()) {

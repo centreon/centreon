@@ -164,6 +164,25 @@ final class UpdateAiProviderProcessorTest extends AiProviderApiTestCase
         ]);
 
         self::assertResponseStatusCodeSame(422);
+        // nothing changed: a token is never lost by being left out
+        $this->request('GET', self::ENDPOINT . '/' . $id);
+        self::assertJsonContains(['endpoint_url' => 'https://llm-gateway.example.com', 'has_api_token' => true]);
+    }
+
+    public function testTheTokenCanBeRemovedWithoutChangingTheEndpoint(): void
+    {
+        $this->login();
+
+        $id = $this->createProvider('Local gateway', 'openai_compatible', 'https://llm-gateway.example.com');
+
+        $this->request('PATCH', self::ENDPOINT . '/' . $id, [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'],
+            'json' => ['remove_api_token' => true],
+        ]);
+        self::assertResponseIsSuccessful();
+
+        $this->request('GET', self::ENDPOINT . '/' . $id);
+        self::assertJsonContains(['endpoint_url' => 'https://llm-gateway.example.com', 'has_api_token' => false]);
     }
 
     public function testTheTokenOfAServerThatNeedsNoneIsRemovedOnRequest(): void

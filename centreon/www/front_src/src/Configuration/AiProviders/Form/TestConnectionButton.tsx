@@ -41,6 +41,7 @@ import { isApiTokenOptional, isSameEndpoint } from '../utils';
 
 interface FormValues {
   apiToken?: string | null;
+  removeApiToken?: boolean;
   defaultModel?: string | null;
   defaultModelReasoning?: ReasoningMode | null;
   endpointUrl?: string | null;
@@ -57,12 +58,14 @@ const getInputs = ({
   defaultModel,
   defaultModelReasoning,
   endpointUrl,
+  removeApiToken,
   type
 }: FormValues): string =>
   JSON.stringify([
     type,
     endpointUrl,
     apiToken,
+    Boolean(removeApiToken),
     defaultModel,
     defaultModelReasoning
   ]);
@@ -161,7 +164,8 @@ const TestConnectionButton = (): JSX.Element => {
         : {}),
       ...(hasTypedToken ? { api_token: values.apiToken } : {}),
       ...(values.endpointUrl ? { endpoint_url: values.endpointUrl } : {}),
-      ...(isEditing && id ? { provider_id: id } : {})
+      // the stored token is not used once its removal is pending
+      ...(isEditing && id && !values.removeApiToken ? { provider_id: id } : {})
     });
 
     setTestedResult({
@@ -226,7 +230,7 @@ const TestConnectionButton = (): JSX.Element => {
           )}
           {t(note.label, {
             interpolation: { escapeValue: false },
-            reason: result?.message
+            reason: result?.message?.replace(/\.$/, '')
           })}
         </Typography>
       )}

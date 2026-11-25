@@ -9,6 +9,7 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { HttpResponse } from 'msw';
 
+import { panelDataTestIds } from '../../ConfigurationBase/Panel/dataTestIds';
 import { labelClose } from '../../ConfigurationBase/translatedLabels';
 import {
   aiProvidersEndpoint,
@@ -745,7 +746,7 @@ export default (): void => {
       expect(warning).toHaveTextContent(
         labelConnectionWarningRefused.replace(
           '{{reason}}',
-          'the answer was blocked by a content filter.'
+          'the answer was blocked by a content filter'
         )
       );
       expect(within(warning).getByTestId('WarningIcon')).toBeInTheDocument();
@@ -1088,6 +1089,137 @@ export default (): void => {
       const { request } = await waitForRequest('@updateAiProvider');
 
       expect((request.body as Payload).remove_api_token).toBe(true);
+    });
+
+    it('keeps the stored token of an OpenAI-compatible server edited without touching it', async () => {
+      await openProvider({
+        aiProvider: {
+          ...getAiProviderResponse(),
+          endpoint_url: 'https://llm-gateway.example.com',
+          type: 'openai_compatible'
+        }
+      });
+
+      await waitFor(async () =>
+        expect(await getApiToken()).toHaveValue('********')
+      );
+
+      await replaceValue(await getName(), 'Gateway, renamed');
+      await save();
+
+      const { request } = await waitForRequest('@updateAiProvider');
+      const body = request.body as Payload;
+
+      expect(body).not.toHaveProperty('api_token');
+      expect(body).not.toHaveProperty('remove_api_token');
+    });
+
+    it('keeps the stored token when its removal is withdrawn', async () => {
+      await openProvider({
+        aiProvider: {
+          ...getAiProviderResponse(),
+          endpoint_url: 'https://llm-gateway.example.com',
+          type: 'openai_compatible'
+        }
+      });
+
+      await waitFor(async () =>
+        expect(await getApiToken()).toHaveValue('********')
+      );
+
+      await userEvent.click(screen.getByTestId(`${labelApiToken}-clear`));
+      expect(await screen.findByText(labelApiTokenWillBeRemoved)).toBeVisible();
+
+      await userEvent.click(screen.getByTestId(`${labelApiToken}-revert`));
+      await waitFor(() =>
+        expect(screen.queryByText(labelApiTokenWillBeRemoved)).toBeNull()
+      );
+
+      // the endpoint changed and changed back: the stored token applies again
+      const endpoint = (await queryAllInPanel(endpointUrlTestId)).at(
+        -1
+      ) as HTMLElement;
+
+      await replaceValue(endpoint, 'https://other-gateway.example.com');
+      expect(await screen.findByText(labelApiTokenWillBeRemoved)).toBeVisible();
+      await replaceValue(endpoint, 'https://llm-gateway.example.com');
+      await waitFor(() =>
+        expect(screen.queryByText(labelApiTokenWillBeRemoved)).toBeNull()
+      );
+
+      await replaceValue(await getName(), 'Gateway, renamed');
+      await save();
+
+      const { request } = await waitForRequest('@updateAiProvider');
+
+      expect(request.body as Payload).not.toHaveProperty('remove_api_token');
+    });
+
+    it('restores the stored token when the form is reset', async () => {
+      await openProvider({
+        aiProvider: {
+          ...getAiProviderResponse(),
+          endpoint_url: 'https://llm-gateway.example.com',
+          type: 'openai_compatible'
+        }
+      });
+
+      await waitFor(async () =>
+        expect(await getApiToken()).toHaveValue('********')
+      );
+
+      await userEvent.click(screen.getByTestId(`${labelApiToken}-clear`));
+      expect(await screen.findByText(labelApiTokenWillBeRemoved)).toBeVisible();
+
+      await userEvent.click(screen.getByTestId(panelDataTestIds.reset));
+      await userEvent.click(await screen.findByTestId('confirm'));
+
+      await waitFor(async () =>
+        expect(await getApiToken()).toHaveValue('********')
+      );
+      expect(screen.queryByText(labelApiTokenWillBeRemoved)).toBeNull();
+    });
+
+    it('tests a server without its stored token once the token is to be removed', async () => {
+      await openProvider({
+        aiProvider: {
+          ...getAiProviderResponse(),
+          endpoint_url: 'https://llm-gateway.example.com',
+          type: 'openai_compatible'
+        }
+      });
+
+      await waitFor(async () =>
+        expect(await getApiToken()).toHaveValue('********')
+      );
+
+      await userEvent.click(screen.getByTestId(`${labelApiToken}-clear`));
+      await waitFor(() =>
+        expect(screen.getByTestId(labelTestConnection)).toBeEnabled()
+      );
+      await userEvent.click(screen.getByTestId(labelTestConnection));
+
+      const { request } = await waitForRequest('@testConnection');
+      const body = request.body as Payload;
+
+      // without the provider, the stored token can not be used
+      expect(body).not.toHaveProperty('provider_id');
+      expect(body).not.toHaveProperty('api_token');
+    });
+
+    it('requires the token of a hosted provider saved without one', async () => {
+      await openProvider({
+        aiProvider: { ...getAiProviderResponse(), has_api_token: false }
+      });
+
+      const token = await getApiToken();
+
+      await waitFor(() => expect(token).toHaveValue(''));
+      await replaceValue(await getName(), 'Anthropic, renamed');
+      await waitFor(() => expect(getSaveButton()).toBeDisabled());
+
+      await userEvent.type(token, 'a-new-token');
+      await waitFor(() => expect(getSaveButton()).toBeEnabled());
     });
 
     it('keeps the stored token of an edited provider', async () => {

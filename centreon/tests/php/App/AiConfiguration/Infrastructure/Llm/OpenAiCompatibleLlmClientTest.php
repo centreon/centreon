@@ -162,6 +162,7 @@ final class OpenAiCompatibleLlmClientTest extends TestCase
         self::assertStringNotContainsString($token, $refusal);
         self::assertStringStartsWith('Refused for [API token]', $refusal);
         self::assertSame(500, mb_strlen($refusal));
+        self::assertStringEndsWith('…', $refusal);
     }
 
     public function testUsesTheConfiguredMaxTokensField(): void

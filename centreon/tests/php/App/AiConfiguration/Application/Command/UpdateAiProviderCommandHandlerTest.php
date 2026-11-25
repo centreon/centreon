@@ -38,6 +38,7 @@ use App\AiConfiguration\Domain\Exception\AiProviderActivationConflictException;
 use App\AiConfiguration\Domain\Exception\AiProviderAlreadyExistsException;
 use App\AiConfiguration\Domain\Exception\AiProviderCanNotBeUpdatedException;
 use App\AiConfiguration\Domain\Exception\AiProviderNotFoundException;
+use App\AiConfiguration\Domain\Exception\InvalidAiProviderConfigurationException;
 use App\AiConfiguration\Domain\Exception\VaultWriteFailedException;
 use PHPUnit\Framework\TestCase;
 use Tests\App\AiConfiguration\Infrastructure\Double\FakeAiProviderRepository;
@@ -231,9 +232,59 @@ final class UpdateAiProviderCommandHandlerTest extends TestCase
 
         $updated = $this->repository->getById($aiProvider->id());
         self::assertSame('http://ollama.internal:11434', $updated->endpointUrl()->value);
-        // no longer referenced
+        // removed from the vault within the transaction, like a deletion
         self::assertNull($updated->apiToken());
-        self::assertSame(['initial-token'], $this->tokenStorage->discardedTokens);
+        self::assertSame(['initial-token'], $this->tokenStorage->removedTokens);
+        self::assertSame([], $this->tokenStorage->discardedTokens);
+    }
+
+    public function testTheTokenCanBeRemovedWithoutChangingTheEndpoint(): void
+    {
+        $aiProvider = $this->givenAiProvider('Local gateway');
+
+        ($this->handler)($this->updateCommand($aiProvider, removeApiToken: true));
+
+        self::assertNull($this->repository->getById($aiProvider->id())->apiToken());
+        self::assertSame(['initial-token'], $this->tokenStorage->removedTokens);
+    }
+
+    public function testAVaultFailureOnRemovalSavesNothing(): void
+    {
+        $aiProvider = $this->givenAiProvider('Local gateway');
+        $this->tokenStorage->removeThrows = true;
+
+        $this->expectException(VaultWriteFailedException::class);
+        $this->expectExceptionMessage('its API token could not be removed from the vault');
+
+        ($this->handler)($this->updateCommand($aiProvider, removeApiToken: true));
+    }
+
+    public function testARefusedRemovalLeavesTheVaultAlone(): void
+    {
+        $aiProvider = $this->givenAiProvider(
+            'Bedrock production',
+            type: AiProviderTypeEnum::Bedrock,
+            endpointUrl: 'https://bedrock-mantle.us-east-1.api.aws',
+        );
+
+        try {
+            ($this->handler)($this->updateCommand($aiProvider, removeApiToken: true));
+            self::fail('The token of a type that needs one can not be removed.');
+        } catch (InvalidAiProviderConfigurationException) {
+        }
+
+        self::assertSame('initial-token', $this->repository->getById($aiProvider->id())->apiToken()?->value);
+        self::assertSame([], $this->tokenStorage->removedTokens);
+        self::assertSame([], $this->tokenStorage->discardedTokens);
+    }
+
+    public function testAProviderWithoutATokenCanBeMovedToAnotherEndpoint(): void
+    {
+        $aiProvider = $this->givenAiProvider('Local Ollama', apiToken: null);
+
+        ($this->handler)($this->updateCommand($aiProvider, endpointUrl: 'http://ollama-b.internal:11434'));
+
+        self::assertSame('http://ollama-b.internal:11434', $this->repository->getById($aiProvider->id())->endpointUrl()->value);
     }
 
     public function testAProviderWithoutATokenCanBeEdited(): void

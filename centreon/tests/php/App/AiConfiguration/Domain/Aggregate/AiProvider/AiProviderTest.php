@@ -78,6 +78,35 @@ final class AiProviderTest extends TestCase
         self::assertSame('https://other.example.org', $aiProvider->endpointUrl()->value);
     }
 
+    public function testAServerWithoutATokenCanBeMovedToAnotherEndpoint(): void
+    {
+        $aiProvider = new AiProvider(
+            id: new AiProviderId(1),
+            name: new AiProviderName('Local Ollama'),
+            type: AiProviderTypeEnum::OpenAiCompatible,
+            endpointUrl: new EndpointUrl('http://ollama-a.internal:11434'),
+            apiToken: null,
+            defaultModel: new ModelName('llama3'),
+            fastModel: null,
+            description: null,
+            isActivated: true,
+        );
+
+        $aiProvider->retarget(new EndpointUrl('http://ollama-b.internal:11434'), null);
+
+        self::assertSame('http://ollama-b.internal:11434', $aiProvider->endpointUrl()->value);
+        self::assertNull($aiProvider->apiToken());
+    }
+
+    public function testTheTokenCanBeRemovedWithoutChangingTheEndpoint(): void
+    {
+        $aiProvider = $this->aiProvider();
+
+        $aiProvider->retarget(new EndpointUrl('http://ollama.internal:11434'), null, removeApiToken: true);
+
+        self::assertNull($aiProvider->apiToken());
+    }
+
     public function testRemovingTheTokenIsIgnoredWhenANewOneIsGiven(): void
     {
         $aiProvider = $this->aiProvider();

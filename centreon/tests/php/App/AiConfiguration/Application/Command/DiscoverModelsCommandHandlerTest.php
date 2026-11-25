@@ -126,6 +126,21 @@ final class DiscoverModelsCommandHandlerTest extends TestCase
         self::assertNotNull($result->error);
     }
 
+    public function testANewServerThatMayNeedNoTokenIsAskedWithoutOne(): void
+    {
+        $factory = new FakeLlmClientFactory(new FakeLlmClient());
+        $handler = new DiscoverModelsCommandHandler($this->repository, $factory);
+
+        $handler($this->command(
+            apiToken: null,
+            type: AiProviderTypeEnum::OpenAiCompatible,
+            endpointUrl: 'http://ollama.internal:11434',
+        ));
+
+        self::assertNotNull($factory->lastConnectionSpec);
+        self::assertNull($factory->lastConnectionSpec->apiToken);
+    }
+
     public function testTheStoredTokenOfAGatewayIsStillUsedOnItsOwnEndpoint(): void
     {
         $provider = new AiProvider(

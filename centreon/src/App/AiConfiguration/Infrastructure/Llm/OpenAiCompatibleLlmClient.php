@@ -285,7 +285,11 @@ final readonly class OpenAiCompatibleLlmClient implements LlmClientInterface
     {
         if (trim($refusal) !== '') {
             // shown to whoever tests the provider, who may not know its token
-            return mb_substr(ProviderPayload::masked(trim($refusal), $this->apiToken), 0, self::REFUSAL_MAX_LENGTH);
+            $masked = ProviderPayload::masked(trim($refusal), $this->apiToken);
+
+            return mb_strlen($masked) > self::REFUSAL_MAX_LENGTH
+                ? mb_substr($masked, 0, self::REFUSAL_MAX_LENGTH - 1) . '…'
+                : $masked;
         }
 
         return $finishReason === 'content_filter' ? 'the answer was blocked by its content filter.' : null;
