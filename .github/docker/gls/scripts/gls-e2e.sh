@@ -779,14 +779,14 @@ cmd_plugins() {
   pid=$(poller_id); uid=$(sql centreon "SELECT uid FROM nagios_server WHERE id=$pid")
   login || { record "login" ko; return; }
 
-  # No watcher (contracts § 10.S2). Listings are grepped here: an empty one (exec failed) is a ko.
+  # No plugins.json watcher (contracts § 10.S2; 46-custom-deps-watcher is out of scope). An empty listing (exec failed) is a ko.
   cp_ exec -T poller-engine sh -c 'for f in /proc/[0-9]*/cmdline; do tr "\0" " " <"$f"; echo; done 2>/dev/null' >"$LOG_DIR/plugins-procs.log"
   if ! grep -q centengine "$LOG_DIR/plugins-procs.log"; then
-    record "plugins: no inotify watcher process in the poller" ko "no process list"
-  elif grep -E 'inotifywait|45-plugin-watcher' "$LOG_DIR/plugins-procs.log" >"$LOG_DIR/plugins-watcher.log"; then
-    record "plugins: no inotify watcher process in the poller" ko "$(head -c 200 "$LOG_DIR/plugins-watcher.log")"
+    record "plugins: no plugins.json watcher process in the poller" ko "no process list"
+  elif grep -E 'inotifywait.*plugins|45-plugin-watcher' "$LOG_DIR/plugins-procs.log" >"$LOG_DIR/plugins-watcher.log"; then
+    record "plugins: no plugins.json watcher process in the poller" ko "$(head -c 200 "$LOG_DIR/plugins-watcher.log")"
   else
-    record "plugins: no inotify watcher process in the poller" ok
+    record "plugins: no plugins.json watcher process in the poller" ok
   fi
   local cd
   cd=$(cp_ exec -T poller-engine ls -1 /usr/local/lib/centreon-engine/container.d/ 2>/dev/null)
