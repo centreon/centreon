@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Application\Service;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
 use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Vault\VaultCredentials;
 use App\Shared\Domain\Vault\VaultPathEnum;

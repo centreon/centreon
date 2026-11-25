@@ -36,27 +36,27 @@ use App\MonitoringConfiguration\Application\Service\HostRelationsUpdater;
 use App\MonitoringConfiguration\Application\Service\HostTemplateLicenseGuard;
 use App\MonitoringConfiguration\Application\Service\HostTemplateServicesCleaner;
 use App\MonitoringConfiguration\Application\Service\UnlicensedHostTemplates;
+use App\MonitoringConfiguration\Domain\Aggregate\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandLine;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroChange;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroId;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroName;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroParentEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroChange;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroParentEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Event\HostMassChanged;
 use App\MonitoringConfiguration\Domain\Event\HostVaultPurgeRequested;
 use App\MonitoringConfiguration\Domain\Exception\DuplicateHostMacroNameException;
@@ -586,7 +586,7 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
         $this->templateRepository->hostTemplates[1] = new HostTemplate(
             new HostTemplateId(1),
             new HostTemplateName('template-1'),
-            new Collection([$this->macro('PORT', '80', false, 500)], HostMacro::class),
+            new CheckOptions(null, macros: [$this->templateMacro('PORT', '80', false, 500)]),
         );
         $this->repository->seed(new Host(
             id: null,
@@ -719,10 +719,7 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
             $this->templateRepository->hostTemplates[$templateId] = new HostTemplate(
                 new HostTemplateId($templateId),
                 new HostTemplateName('template-' . $templateId),
-                new Collection(
-                    array_map(fn (array $macro): HostMacro => $this->macro($macro[0], $macro[1], $macro[2], $macro[3]), $macros),
-                    HostMacro::class,
-                ),
+                new CheckOptions(null, macros: array_map(fn (array $macro): HostMacro => $this->templateMacro($macro[0], $macro[1], $macro[2], $macro[3]), $macros)),
             );
         }
 
@@ -990,6 +987,11 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
     private function macro(string $name, string $value, bool $isPassword = false, ?int $id = null): HostMacro
     {
         return new HostMacro(new HostMacroName($name), $value, $isPassword, $id === null ? null : new HostMacroId($id));
+    }
+
+    private function templateMacro(string $name, string $value, bool $isPassword, int $id): HostMacro
+    {
+        return new HostMacro(new HostMacroName($name), $value, $isPassword, new HostMacroId($id));
     }
 
     private function macroNamed(Host $host, string $name): HostMacro
