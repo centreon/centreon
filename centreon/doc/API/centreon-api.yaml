@@ -18356,7 +18356,7 @@ components:
           description: 'Whether the test request succeeded'
           type: boolean
         message:
-          description: 'Error message when the test failed'
+          description: 'Error message when the test failed, or the reason of a refusal when the warning is "refused"'
           type:
             - string
             - 'null'
@@ -18373,7 +18373,7 @@ components:
             - 'null'
           example: 'reasoning_effort: none'
         warning:
-          description: 'What a successful test still reveals about the model: "budget_used_without_answer" when it used its whole answer budget without writing anything, most likely reasoning; "empty_answer" when it wrote nothing within its budget (the AI features reject both); "no_reasoning_setting" when, set to reason as little as it allows, it accepted no setting that turns its reasoning down. Null otherwise'
+          description: 'What a successful test still reveals about the model: "budget_used_without_answer" when it used its whole answer budget without writing anything, most likely reasoning; "empty_answer" when it wrote nothing within its budget (the AI features reject both); "no_reasoning_setting" when, set to reason as little as it allows, it accepted no setting that turns its reasoning down; "refused" when the provider refused to answer, its reason in message. Null otherwise'
           type:
             - string
             - 'null'
@@ -18381,6 +18381,7 @@ components:
             - budget_used_without_answer
             - empty_answer
             - no_reasoning_setting
+            - refused
             - null
           example: no_reasoning_setting
     TestAiProviderResource.TestAiProviderInput:
@@ -18405,7 +18406,7 @@ components:
               description: 'Whether the test request succeeded'
               type: boolean
             message:
-              description: 'Error message when the test failed'
+              description: 'Error message when the test failed, or the reason of a refusal when the warning is "refused"'
               type:
                 - string
                 - 'null'
@@ -18422,7 +18423,7 @@ components:
                 - 'null'
               example: 'reasoning_effort: none'
             warning:
-              description: 'What a successful test still reveals about the model: "budget_used_without_answer" when it used its whole answer budget without writing anything, most likely reasoning; "empty_answer" when it wrote nothing within its budget (the AI features reject both); "no_reasoning_setting" when, set to reason as little as it allows, it accepted no setting that turns its reasoning down. Null otherwise'
+              description: 'What a successful test still reveals about the model: "budget_used_without_answer" when it used its whole answer budget without writing anything, most likely reasoning; "empty_answer" when it wrote nothing within its budget (the AI features reject both); "no_reasoning_setting" when, set to reason as little as it allows, it accepted no setting that turns its reasoning down; "refused" when the provider refused to answer, its reason in message. Null otherwise'
               type:
                 - string
                 - 'null'
@@ -18430,6 +18431,7 @@ components:
                 - budget_used_without_answer
                 - empty_answer
                 - no_reasoning_setting
+                - refused
                 - null
               example: no_reasoning_setting
     TestConnectionResource:
@@ -18439,7 +18441,7 @@ components:
           description: 'Whether the test request succeeded'
           type: boolean
         message:
-          description: 'Error message when the test failed'
+          description: 'Error message when the test failed, or the reason of a refusal when the warning is "refused"'
           type:
             - string
             - 'null'
@@ -18456,7 +18458,7 @@ components:
             - 'null'
           example: 'reasoning_effort: none'
         warning:
-          description: 'What a successful test still reveals about the model: "budget_used_without_answer" when it used its whole answer budget without writing anything, most likely reasoning; "empty_answer" when it wrote nothing within its budget (the AI features reject both); "no_reasoning_setting" when, set to reason as little as it allows, it accepted no setting that turns its reasoning down. Null otherwise'
+          description: 'What a successful test still reveals about the model: "budget_used_without_answer" when it used its whole answer budget without writing anything, most likely reasoning; "empty_answer" when it wrote nothing within its budget (the AI features reject both); "no_reasoning_setting" when, set to reason as little as it allows, it accepted no setting that turns its reasoning down; "refused" when the provider refused to answer, its reason in message. Null otherwise'
           type:
             - string
             - 'null'
@@ -18464,6 +18466,7 @@ components:
             - budget_used_without_answer
             - empty_answer
             - no_reasoning_setting
+            - refused
             - null
           example: no_reasoning_setting
     TestConnectionResource.TestConnectionInput:
@@ -18524,7 +18527,7 @@ components:
               description: 'Whether the test request succeeded'
               type: boolean
             message:
-              description: 'Error message when the test failed'
+              description: 'Error message when the test failed, or the reason of a refusal when the warning is "refused"'
               type:
                 - string
                 - 'null'
@@ -18541,7 +18544,7 @@ components:
                 - 'null'
               example: 'reasoning_effort: none'
             warning:
-              description: 'What a successful test still reveals about the model: "budget_used_without_answer" when it used its whole answer budget without writing anything, most likely reasoning; "empty_answer" when it wrote nothing within its budget (the AI features reject both); "no_reasoning_setting" when, set to reason as little as it allows, it accepted no setting that turns its reasoning down. Null otherwise'
+              description: 'What a successful test still reveals about the model: "budget_used_without_answer" when it used its whole answer budget without writing anything, most likely reasoning; "empty_answer" when it wrote nothing within its budget (the AI features reject both); "no_reasoning_setting" when, set to reason as little as it allows, it accepted no setting that turns its reasoning down; "refused" when the provider refused to answer, its reason in message. Null otherwise'
               type:
                 - string
                 - 'null'
@@ -18549,6 +18552,7 @@ components:
                 - budget_used_without_answer
                 - empty_answer
                 - no_reasoning_setting
+                - refused
                 - null
               example: no_reasoning_setting
     TranslateResourceFilterResource:

@@ -31,6 +31,8 @@ import {
   labelConnectionWarningBudgetUsed,
   labelConnectionWarningEmptyAnswer,
   labelConnectionWarningNoReasoningSetting,
+  labelConnectionWarningRefused,
+  labelConnectionWarningUnknown,
   labelTestConnection,
   labelTestConnectionHint,
   labelTestingConnection
@@ -99,7 +101,26 @@ const notes: Record<
   [ConnectionTestWarning.NoReasoningSetting]: {
     isWarning: false,
     label: labelConnectionWarningNoReasoningSetting
+  },
+  [ConnectionTestWarning.Refused]: {
+    isWarning: true,
+    label: labelConnectionWarningRefused
   }
+};
+
+// a code from a newer server than this page
+const unknownNote = { isWarning: false, label: labelConnectionWarningUnknown };
+
+const getNote = (
+  warning?: string | null
+): { isWarning: boolean; label: string } | undefined => {
+  if (!warning) {
+    return undefined;
+  }
+
+  return Object.values<string>(ConnectionTestWarning).includes(warning)
+    ? notes[warning as ConnectionTestWarning]
+    : unknownNote;
 };
 
 const TestConnectionButton = (): JSX.Element => {
@@ -125,9 +146,7 @@ const TestConnectionButton = (): JSX.Element => {
   // soon as one of them changes, including while the test is running
   const inputs = getInputs(values);
   const result = equals(testedResult?.inputs, inputs) ? testedResult : null;
-  const note = result?.success
-    ? notes[result.warning as ConnectionTestWarning]
-    : undefined;
+  const note = result?.success ? getNote(result.warning) : undefined;
 
   const test = async (): Promise<void> => {
     setTestedResult(null);
@@ -203,7 +222,10 @@ const TestConnectionButton = (): JSX.Element => {
           ) : (
             <InfoIcon fontSize="small" />
           )}
-          {t(note.label)}
+          {t(note.label, {
+            interpolation: { escapeValue: false },
+            reason: result?.message
+          })}
         </Typography>
       )}
     </div>

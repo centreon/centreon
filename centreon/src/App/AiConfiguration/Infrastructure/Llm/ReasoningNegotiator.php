@@ -267,7 +267,9 @@ final readonly class ReasoningNegotiator
             'model' => $model->value,
             'scope' => $this->scope,
             'setting' => $candidate->label,
-            'message' => mb_substr($exception->getMessage(), 0, self::LOGGED_MESSAGE_MAX_LENGTH),
+            'message' => mb_strlen($exception->getMessage()) > self::LOGGED_MESSAGE_MAX_LENGTH
+                ? mb_substr($exception->getMessage(), 0, self::LOGGED_MESSAGE_MAX_LENGTH) . '…'
+                : $exception->getMessage(),
         ]);
     }
 }

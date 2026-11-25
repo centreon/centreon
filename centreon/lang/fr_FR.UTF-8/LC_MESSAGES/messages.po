@@ -25084,8 +25084,16 @@ msgid "The model used its whole answer budget without writing anything, most lik
 msgstr "Le modèle a utilisé tout son budget de réponse sans rien écrire, probablement en raisonnant : les fonctionnalités d'IA risquent de ne pas en obtenir de réponse."
 
 #: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
-msgid "The model answered with nothing: the AI features may get no answer from it."
-msgstr "Le modèle a répondu sans rien écrire : les fonctionnalités d'IA risquent de ne pas en obtenir de réponse."
+msgid "The model answered with nothing: the AI features may get no answer from it. Try again, or choose another model."
+msgstr "Le modèle a répondu sans rien écrire : les fonctionnalités d'IA risquent de ne pas en obtenir de réponse. Réessayez, ou choisissez un autre modèle."
+
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "The provider refused to answer: {{reason}}"
+msgstr "Le fournisseur a refusé de répondre : {{reason}}"
+
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "The test reported something this page does not know: reload the page."
+msgstr "Le test a signalé quelque chose que cette page ne connaît pas : rechargez la page."
 
 #: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
 msgid "Connection failed"

@@ -45,10 +45,13 @@ final readonly class TestAiProviderResult
     {
         return new self(
             success: true,
+            // the reason of a refusal, the rest of the result being a success
+            message: $response->refusal,
             model: $response->model,
             reasoning: $response->reasoning,
             // an answer the AI features would reject comes first
             warning: match (true) {
+                $response->refusal !== null => ConnectionTestWarningEnum::Refused,
                 trim($response->content) === '' && $response->truncated => ConnectionTestWarningEnum::BudgetUsedWithoutAnswer,
                 trim($response->content) === '' => ConnectionTestWarningEnum::EmptyAnswer,
                 $response->reasoningMode === ReasoningModeEnum::Minimal && $response->reasoning === null => ConnectionTestWarningEnum::NoReasoningSetting,

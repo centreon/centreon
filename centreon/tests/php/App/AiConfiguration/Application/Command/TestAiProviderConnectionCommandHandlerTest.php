@@ -171,6 +171,16 @@ final class TestAiProviderConnectionCommandHandlerTest extends TestCase
             ConnectionTestWarningEnum::EmptyAnswer,
         ];
 
+        yield 'no setting accepted and an empty answer: the empty answer wins' => [
+            new LlmResponse('', 'a-model', $usage, reasoningMode: ReasoningModeEnum::Minimal),
+            ConnectionTestWarningEnum::EmptyAnswer,
+        ];
+
+        yield 'a refusal, not an empty answer' => [
+            new LlmResponse('', 'a-model', $usage, refusal: 'the answer was blocked by a content filter.', reasoningMode: ReasoningModeEnum::Minimal),
+            ConnectionTestWarningEnum::Refused,
+        ];
+
         yield 'a cut answer is still an answer' => [
             new LlmResponse('po', 'a-model', $usage, truncated: true, reasoningMode: ReasoningModeEnum::Default),
             null,
@@ -184,6 +194,8 @@ final class TestAiProviderConnectionCommandHandlerTest extends TestCase
 
         self::assertTrue($result->success);
         self::assertSame($warning, $result->warning);
+        // the reason of a refusal is the only message of a successful test
+        self::assertSame($response->refusal, $result->message);
     }
 
     public function testARefusalStillProvesTheConnection(): void

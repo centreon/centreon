@@ -20,7 +20,8 @@ export enum ReasoningMode {
 export enum ConnectionTestWarning {
   BudgetUsedWithoutAnswer = 'budget_used_without_answer',
   EmptyAnswer = 'empty_answer',
-  NoReasoningSetting = 'no_reasoning_setting'
+  NoReasoningSetting = 'no_reasoning_setting',
+  Refused = 'refused'
 }
 
 export interface AiProviderListItem {

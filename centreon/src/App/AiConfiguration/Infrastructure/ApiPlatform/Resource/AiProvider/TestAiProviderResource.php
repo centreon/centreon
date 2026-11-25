@@ -67,7 +67,7 @@ final readonly class TestAiProviderResource
         public bool $success,
 
         #[ApiProperty(
-            description: 'Error message when the test failed',
+            description: 'Error message when the test failed, or the reason of a refusal when the warning is "refused"',
             writable: false,
         )]
         public ?string $message,
@@ -91,10 +91,11 @@ final readonly class TestAiProviderResource
             description: 'What a successful test still reveals about the model: "budget_used_without_answer" when '
                 . 'it used its whole answer budget without writing anything, most likely reasoning; "empty_answer" when '
                 . 'it wrote nothing within its budget (the AI features reject both); "no_reasoning_setting" when, set '
-                . 'to reason as little as it allows, it accepted no setting that turns its reasoning down. Null otherwise',
+                . 'to reason as little as it allows, it accepted no setting that turns its reasoning down; "refused" when '
+                . 'the provider refused to answer, its reason in message. Null otherwise',
             writable: false,
             openapiContext: [
-                'enum' => ['budget_used_without_answer', 'empty_answer', 'no_reasoning_setting', null],
+                'enum' => ['budget_used_without_answer', 'empty_answer', 'no_reasoning_setting', 'refused', null],
                 'example' => 'no_reasoning_setting',
             ],
         )]

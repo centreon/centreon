@@ -20606,7 +20606,15 @@ msgid "The model used its whole answer budget without writing anything, most lik
 msgstr ""
 
 #: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
-msgid "The model answered with nothing: the AI features may get no answer from it."
+msgid "The model answered with nothing: the AI features may get no answer from it. Try again, or choose another model."
+msgstr ""
+
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "The provider refused to answer: {{reason}}"
+msgstr ""
+
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "The test reported something this page does not know: reload the page."
 msgstr ""
 
 #: centreon/www/install/front_translate.php

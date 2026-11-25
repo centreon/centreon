@@ -36,4 +36,7 @@ enum ConnectionTestWarningEnum: string
 
     /** The model wrote nothing, within its budget: the AI features reject such an answer. */
     case EmptyAnswer = 'empty_answer';
+
+    /** The provider refused to answer (e.g. a content filter): the AI features would fail the same way. */
+    case Refused = 'refused';
 }

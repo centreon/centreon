@@ -71,7 +71,11 @@ export const labelConnectionWarningNoReasoningSetting =
 export const labelConnectionWarningBudgetUsed =
   'The model used its whole answer budget without writing anything, most likely reasoning: the AI features may get no answer from it.';
 export const labelConnectionWarningEmptyAnswer =
-  'The model answered with nothing: the AI features may get no answer from it.';
+  'The model answered with nothing: the AI features may get no answer from it. Try again, or choose another model.';
+export const labelConnectionWarningRefused =
+  'The provider refused to answer: {{reason}}';
+export const labelConnectionWarningUnknown =
+  'The test reported something this page does not know: reload the page.';
 export const labelConnectionFailed = 'Connection failed';
 export const labelTestConnectionHint =
   'Sends a minimal request to the provider (billed by the provider, not counted toward the spend limit)';

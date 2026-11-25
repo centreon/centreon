@@ -26,7 +26,10 @@ import {
   labelConnectionSucceededWithModel,
   labelConnectionSucceededWithModelAndReasoning,
   labelConnectionSucceededWithReasoning,
+  labelConnectionWarningEmptyAnswer,
   labelConnectionWarningNoReasoningSetting,
+  labelConnectionWarningRefused,
+  labelConnectionWarningUnknown,
   labelCurrency,
   labelCurrencyChangeResetsUsage,
   labelCurrencyRequired,
@@ -607,7 +610,7 @@ export default (): void => {
       );
     });
 
-    it('warns, under a successful connection test, when the model accepted no setting to reason less', async () => {
+    it('notes, under a successful connection test, that the model accepted no setting to reason less', async () => {
       await openCreationForm();
       await selectType(labelAnthropic);
       await userEvent.type(await getApiToken(), 'a-very-secret-token');
@@ -639,9 +642,65 @@ export default (): void => {
       expect(
         screen.getByText(labelConnectionWarningNoReasoningSetting)
       ).toBeVisible();
+      // a note, not a warning: most often a model that does not reason
+      const note = screen.getByTestId('connectionTestWarning');
+
+      expect(within(note).getByTestId('InfoOutlinedIcon')).toBeInTheDocument();
+      expect(within(note).queryByTestId('WarningIcon')).toBeNull();
     });
 
-    it('ignores a warning code it does not know: the connection still shows as successful', async () => {
+    it('warns, under a successful connection test, about an answer the AI features would reject', async () => {
+      await openCreationForm();
+      await selectType(labelAnthropic);
+      await userEvent.type(await getApiToken(), 'a-very-secret-token');
+
+      interceptAPIRequest({
+        alias: 'testConnectionRefused',
+        method: Method.POST,
+        path: `**${testConnectionEndpoint}`,
+        response: {
+          ...connectionTestResponse,
+          message: 'the answer was blocked by a content filter.',
+          warning: 'refused'
+        }
+      });
+
+      await waitFor(() =>
+        expect(screen.getByTestId(labelTestConnection)).toBeEnabled()
+      );
+      await userEvent.click(screen.getByTestId(labelTestConnection));
+      await waitForRequest('@testConnectionRefused');
+
+      const warning = await screen.findByTestId('connectionTestWarning');
+
+      expect(warning).toHaveTextContent(
+        labelConnectionWarningRefused.replace(
+          '{{reason}}',
+          'the answer was blocked by a content filter.'
+        )
+      );
+      expect(within(warning).getByTestId('WarningIcon')).toBeInTheDocument();
+
+      interceptAPIRequest({
+        alias: 'testConnectionEmptyAnswer',
+        method: Method.POST,
+        path: `**${testConnectionEndpoint}`,
+        response: { ...connectionTestResponse, warning: 'empty_answer' }
+      });
+      await userEvent.click(screen.getByTestId(labelTestConnection));
+      await waitForRequest('@testConnectionEmptyAnswer');
+
+      expect(
+        await screen.findByText(labelConnectionWarningEmptyAnswer)
+      ).toBeVisible();
+      expect(
+        within(screen.getByTestId('connectionTestWarning')).getByTestId(
+          'WarningIcon'
+        )
+      ).toBeInTheDocument();
+    });
+
+    it('notes a warning code it does not know, the connection still showing as successful', async () => {
       await openCreationForm();
       await selectType(labelAnthropic);
       await userEvent.type(await getApiToken(), 'a-very-secret-token');
@@ -667,9 +726,7 @@ export default (): void => {
           )
         )
       ).toBeVisible();
-      expect(
-        screen.queryByTestId('connectionTestWarning')
-      ).not.toBeInTheDocument();
+      expect(screen.getByText(labelConnectionWarningUnknown)).toBeVisible();
     });
 
     it('shows no warning under a plain successful connection test', async () => {
