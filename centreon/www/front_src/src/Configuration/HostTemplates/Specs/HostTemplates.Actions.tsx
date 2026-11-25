@@ -3,11 +3,11 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { selectedRowsAtom } from '../../ConfigurationBase/Listing/atoms';
+import { listingDataTestIds } from '../../ConfigurationBase/Listing/dataTestIds';
 import {
   labelActions,
   labelDelete,
-  labelDuplicate,
-  labelMoreActions
+  labelDuplicate
 } from '../../ConfigurationBase/translatedLabels';
 import { labelName } from '../translatedLabels';
 import initialize, { getHeaderLabels } from './initialize';
@@ -24,7 +24,7 @@ const initializeListing = async (
 };
 
 const openMoreActions = async (): Promise<HTMLElement> => {
-  await userEvent.click(screen.getByTestId(labelMoreActions));
+  await userEvent.click(screen.getByTestId(listingDataTestIds.moreActions));
 
   // The last one opened: a closing menu may still be in the page.
   return (await screen.findAllByRole('menu')).at(-1) as HTMLElement;
@@ -36,8 +36,12 @@ export default () => {
       await initializeListing();
 
       [1, 2].forEach((id) => {
-        expect(screen.getByTestId(`${labelDuplicate}_${id}`)).toBeVisible();
-        expect(screen.getByTestId(`${labelDelete}_${id}`)).toBeVisible();
+        expect(
+          screen.getByTestId(listingDataTestIds.row.duplicate(id))
+        ).toBeVisible();
+        expect(
+          screen.getByTestId(listingDataTestIds.row.delete(id))
+        ).toBeVisible();
       });
     });
 
@@ -46,10 +50,10 @@ export default () => {
         await initializeListing();
 
         expect(
-          screen.queryByTestId(`${labelDuplicate}_3`)
+          screen.queryByTestId(listingDataTestIds.row.duplicate(3))
         ).not.toBeInTheDocument();
         expect(
-          screen.queryByTestId(`${labelDelete}_3`)
+          screen.queryByTestId(listingDataTestIds.row.delete(3))
         ).not.toBeInTheDocument();
       });
 
@@ -102,7 +106,9 @@ export default () => {
 
       it('hides the add button and more actions', () => {
         expect(screen.queryByTestId('add-resource')).not.toBeInTheDocument();
-        expect(screen.queryByTestId(labelMoreActions)).not.toBeInTheDocument();
+        expect(
+          screen.queryByTestId(listingDataTestIds.moreActions)
+        ).not.toBeInTheDocument();
       });
 
       it('offers no selection', () => {
@@ -112,10 +118,10 @@ export default () => {
 
       it('offers no row action, nor their column', () => {
         expect(
-          screen.queryByTestId(`${labelDuplicate}_1`)
+          screen.queryByTestId(listingDataTestIds.row.duplicate(1))
         ).not.toBeInTheDocument();
         expect(
-          screen.queryByTestId(`${labelDelete}_1`)
+          screen.queryByTestId(listingDataTestIds.row.delete(1))
         ).not.toBeInTheDocument();
         // Positive on the remaining headers, so an empty head cannot pass.
         const headers = getHeaderLabels();
