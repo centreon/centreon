@@ -40,12 +40,6 @@ class ValidatorErrorList implements JsonSerializable
     }
 
     /**
-     * @OA\Schema(
-     *   schema="ValidatorErrorList",
-     *       @OA\Property(property="field", type="string"),
-     *       @OA\Property(property="messages", type="array", items={"string"})
-     * )
-     *
      * JSON serialization of errors
      *
      * @return array<array{field: string, messages: string}>
