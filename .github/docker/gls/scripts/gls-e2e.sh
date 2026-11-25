@@ -11,6 +11,7 @@
 #   gls-e2e.sh ca                 self-generated CA: same as at creation, kept on cbd recreate, wrong fingerprint fails closed
 #   gls-e2e.sh state              state volumes: layout, retention after recreate, cbmod queue while the central is down
 #   gls-e2e.sh rrd                perfdata of a gls host reaches rrdcached (.rrd files), no RRD connect error
+#   gls-e2e.sh install-script     poller added with the generated install.sh command (broker channel), no secret leaked
 #   gls-e2e.sh logs | down
 #
 # Env: GLS_REGISTRY, GLS_WEB_TAG, GLS_ENGINE_TAG, GLS_BROKER_TAG override images.env;
@@ -46,12 +47,18 @@ ADMIN_PW="${ADMIN_PW:-Centreon!2021}"
 API="http://127.0.0.1:${HTTPD_PORT}/centreon/api/latest"
 MAX_ERROR_DELAY="${MAX_ERROR_DELAY:-30}"
 mkdir -p "$LOG_DIR"
+# Raw API bodies and install dirs (token, appsecret, salt): never in $LOG_DIR (uploaded artifact).
+PRIV_DIR=$(host_path "${GLS_PRIVATE_DIR:-${RUNNER_TEMP:-${TMPDIR:-/tmp}}/gls-private}")
+mkdir -p "$PRIV_DIR" && chmod 700 "$PRIV_DIR"
 
 # Central peer uid (contracts § 9): decimal in 1..2^63-1, generated once per
-# stack, read by both compose interpolations (fpm, central-engine).
+# stack, read by both compose interpolations (fpm, central-engine). Also keeps
+# GLS_BROKER_TLS_SAN once the install-script step widened it (contracts § 11.S2).
 if [[ -s "$LOG_DIR/central.env" ]]; then
+  set -a
   # shellcheck disable=SC1091
   . "$LOG_DIR/central.env"
+  set +a
 else
   CENTRAL_POLLER_UID=0
   while (( CENTRAL_POLLER_UID <= 0 )); do
@@ -102,9 +109,9 @@ login() {
   [[ -n "$TOKEN" ]]
 }
 
-api() { # api <METHOD> <path> [json] -> prints HTTP code, body in $LOG_DIR/last.json
+api() { # api <METHOD> <path> [json] -> prints HTTP code; raw body in $PRIV_DIR/last.json, redacted copy in $LOG_DIR/last.json
   local method=$1 path=$2 body=${3:-}
-  local args=(-s -o "$LOG_DIR/last.json" -w '%{http_code}' -X "$method" -H "X-AUTH-TOKEN: $TOKEN" --max-time "${API_MAX_TIME:-180}")
+  local args=(-s -o "$PRIV_DIR/last.json" -w '%{http_code}' -X "$method" -H "X-AUTH-TOKEN: $TOKEN" --max-time "${API_MAX_TIME:-180}")
   [[ -n "$body" ]] && args+=(-H 'Content-Type: application/json' -d "$body")
   # Exactly one code on stdout: curl's, or 000 when it got none. A curl error
   # after a code (e.g. rc 23, body not written) is logged, not appended.
@@ -112,8 +119,12 @@ api() { # api <METHOD> <path> [json] -> prints HTTP code, body in $LOG_DIR/last.
   code=$(curl "${args[@]}" "$API$path"); rc=$?
   if (( rc != 0 )); then
     echo "$(date -u +%FT%TZ) curl rc=$rc code=${code:-none} $method $path" >>"$LOG_DIR/curl-errors.log"
-    [[ -f "$LOG_DIR/last.json" ]] || : >"$LOG_DIR/last.json"
+    [[ -f "$PRIV_DIR/last.json" ]] || : >"$PRIV_DIR/last.json"
   fi
+  # The install command carries the poller token, appsecret and salt.
+  jq 'walk(if type == "object" then with_entries(select(.key | test("installation.?command"; "i") | not)) else . end)' \
+    "$PRIV_DIR/last.json" >"$LOG_DIR/last.json" 2>/dev/null \
+    || grep -viE 'installation.?command|appsecret|poller_token' "$PRIV_DIR/last.json" >"$LOG_DIR/last.json"
   [[ "$code" =~ ^[0-9]{3}$ ]] || code=000
   printf '%s' "$code"
 }
@@ -487,7 +498,15 @@ cmd_step0() {
   local ports
   ports=$(cp_ ps --format '{{.Ports}}' | tr -d '[:space:]')
   [[ "$ports" != *"->"* ]] && record "poller publishes no port" ok || record "poller publishes no port" ko "$ports"
-  docker ps --format '{{.Ports}}' | grep -q ':5669->' && record "no host port 5669" ko || record "no host port 5669" ok
+  # Central: only httpd (API) and cbd 5669 (external pollers, contracts § 11.S2) on the host; 8099 internal.
+  local pub
+  pub=$(docker ps --filter label=com.docker.compose.project=gls-central --format '{{.Label "com.docker.compose.service"}} {{.Ports}}' | grep -- '->' | sort)
+  if grep -q "^centreon-broker .*:${GLS_BROKER_PUBLIC_PORT:-5669}->5669/tcp" <<<"$pub" && ! grep -q -- '->8099' <<<"$pub" \
+     && [[ -z "$(grep -vE '^(httpd|centreon-broker) ' <<<"$pub")" ]]; then
+    record "central publishes only httpd and cbd 5669 (8099 internal)" ok
+  else
+    record "central publishes only httpd and cbd 5669 (8099 internal)" ko "$(tr '\n' ';' <<<"$pub" | head -c 300)"
+  fi
   wait_until 300 instance_running Central && record "central engine instance running (centreon_storage.instances)" ok \
     || record "central engine instance running" ko
   wait_until 300 instance_running "$POLLER_NAME" && record "poller instance running (centreon_storage.instances)" ok \
@@ -844,6 +863,217 @@ cmd_plugins() {
     || record "plugins: restore deploy without $bad, back to INSTALLED" ko "$(plugin_result "$uid" | head -c 300)"
 }
 
+# ---------- install-script: poller added with the generated command (contracts § 11) ----------
+
+IS_NAME="${IS_NAME:-gls-poller-is}"
+IS_HOST="${GLS_BROKER_PUBLIC_HOST:-host.docker.internal}"
+IS_DIR="$PRIV_DIR/gls-install-poller"
+IS_BAD_DIR="$PRIV_DIR/gls-install-poller-bad"
+
+is_opt() { # is_opt <option> <command>: value of --option in the generated command (shell-quoted args)
+  local cmd=$2 a prev=""
+  while IFS= read -r a; do
+    [[ "$prev" == "$1" ]] && { printf '%s' "$a"; return 0; }
+    prev=$a
+  done < <(xargs -n1 printf '%s\n' <<<"${cmd#*bash -s -- }" 2>/dev/null)
+  return 1
+}
+is_cid() { docker ps -aq --filter "name=^${IS_NAME}-centengine$" | head -1; }
+is_project() { # compose project of the installed engine, whatever name the script gives it
+  local c; c=$(is_cid); [[ -n "$c" ]] && docker inspect -f '{{index .Config.Labels "com.docker.compose.project"}}' "$c"
+}
+is_module_json() { # cbmod config of the container's engine (path from centengine.cfg)
+  docker exec "$1" sh -c 'f=$(grep -oE "/etc/centreon-broker/[^ \",]+\.json" /etc/centreon-engine/centengine.cfg | head -1); cat "$f"' 2>/dev/null
+}
+is_dials_external() { # the bbdo_client output dials IS_HOST:public port, TLS-checked on IS_HOST
+  is_module_json "$1" | jq -e --arg h "$IS_HOST" --arg p "${GLS_BROKER_PUBLIC_PORT:-5669}" \
+    '[.centreonBroker.output[]? | select(.type == "bbdo_client" and .host == $h and (.port | tostring) == $p and ((.ca_name // $h) == $h))] | length > 0' >/dev/null 2>&1
+}
+is_run() { # is_run <dir> <command> <console file>: runs the generated command from <dir>, returns its exit code
+  rm -rf "$1"; mkdir -p "$1"
+  ( cd "$1" && set +x && timeout 900 bash -o pipefail -c "$2" ) >"$3" 2>&1
+}
+
+served_san() { # SAN of the cert served on the published 5669
+  openssl s_client -alpn h2 -connect "127.0.0.1:${GLS_BROKER_PUBLIC_PORT:-5669}" -servername "$IS_HOST" </dev/null 2>/dev/null \
+    | openssl x509 -noout -ext subjectAltName 2>/dev/null | tr -d ' \n'
+}
+served_verified() { # the cert on the published 5669 chains to the cbd CA and is valid for IS_HOST
+  cbd_get /v1/ca | jq -r '.pem // empty' >"$PRIV_DIR/broker-ca.pem"
+  openssl s_client -alpn h2 -connect "127.0.0.1:${GLS_BROKER_PUBLIC_PORT:-5669}" -servername "$IS_HOST" \
+    -CAfile "$PRIV_DIR/broker-ca.pem" -verify_hostname "$IS_HOST" </dev/null 2>/dev/null | grep -q 'Verify return code: 0 (ok)'
+}
+
+cmd_install_script() {
+  login || { record "login" ko; return; }
+  local ca_fp ca_line code pid uid cmd extra tok appsecret salt v leaks=0 rc cid san
+  ca_fp=$(cbd_ca_fp)
+
+  # SAN = what pollers dial (contracts § 11.C2): add the external name to the running central.
+  san=$(served_san)
+  if [[ "$san" != *"DNS:$IS_HOST"* ]]; then
+    record "install-script: external name absent from the served cert before the change" ok "${san:-none}"
+    GLS_BROKER_TLS_SAN="centreon-broker,$IS_HOST"; export GLS_BROKER_TLS_SAN
+    printf 'GLS_BROKER_TLS_SAN=%s\n' "$GLS_BROKER_TLS_SAN" >>"$LOG_DIR/central.env"
+    cc up -d centreon-broker >>"$LOG_DIR/install-script.log" 2>&1
+    wait_until 300 service_ready cc centreon-broker || record "install-script: cbd up after the SAN change" ko
+  fi
+  san=$(served_san)
+  [[ "$san" == *"DNS:$IS_HOST"* && "$san" == *"DNS:centreon-broker"* ]] \
+    && record "install-script: published 5669 serves the external SAN ($IS_HOST)" ok "$san" \
+    || record "install-script: published 5669 serves the external SAN ($IS_HOST)" ko "${san:-no cert on 127.0.0.1:${GLS_BROKER_PUBLIC_PORT:-5669}}"
+  served_verified && record "install-script: served cert chains to the cbd CA, valid for $IS_HOST" ok \
+    || record "install-script: served cert chains to the cbd CA, valid for $IS_HOST" ko
+  [[ -n "$ca_fp" && "$(cbd_ca_fp)" == "$ca_fp" ]] && record "install-script: SAN change kept the CA" ok "sha256 ${ca_fp:0:16}..." \
+    || record "install-script: SAN change kept the CA" ko "$(cbd_ca_fp | cut -c1-16) vs ${ca_fp:0:16}"
+  { cc logs --no-color centreon-broker 2>/dev/null; cc exec -T centreon-broker sh -c 'cat /var/log/centreon-broker/*.log 2>/dev/null'; } \
+    | grep -qF "tls: SAN changed" && record "install-script: cbd renewed its server cert (tls: SAN changed)" ok \
+    || record "install-script: cbd renewed its server cert (tls: SAN changed)" ko
+  local puid
+  puid=$(sql centreon "SELECT uid FROM nagios_server WHERE name='${POLLER_NAME}'")
+  wait_until 300 poller_capable "$CENTRAL_POLLER_UID" && wait_until 300 poller_capable "$puid" \
+    && record "install-script: central engine and ${POLLER_NAME} capable after the SAN change" ok \
+    || record "install-script: central engine and ${POLLER_NAME} capable after the SAN change" ko "$(cbd_pollers | head -c 300)"
+  # Harness poller (gls-wan, no extra_hosts) keeps dialing centreon-broker (contracts § 11.S4).
+  poller_module_json | jq -e '[.centreonBroker.output[]? | select(.type == "bbdo_client" and .host == "centreon-broker")] | length > 0' >/dev/null 2>&1 \
+    && record "install-script: ${POLLER_NAME} still dials centreon-broker" ok \
+    || record "install-script: ${POLLER_NAME} still dials centreon-broker" ko "$(poller_module_json | jq -c '[.centreonBroker.output[]? | select(.type == "bbdo_client") | .host]' 2>/dev/null)"
+  # First base64 line of the CA PEM: a CA leak is any line of its body.
+  ca_line=$(cbd_get /v1/ca | jq -r '.pem // empty' | sed -n 2p)
+
+  # Poller created by the API on the broker channel; no SQL on it (11.S).
+  pid=$(sql centreon "SELECT id FROM nagios_server WHERE name='${IS_NAME}'" | head -1)
+  if [[ -z "$pid" ]]; then
+    api POST /administration/tokens '{"name":"gls-is-token","type":"poller","expiration_date":null}' >/dev/null
+    code=$(api POST /configuration/pollers "{\"name\":\"${IS_NAME}\",\"poller_type\":\"docker\",\"address\":\"${IS_NAME}\",\"poller_token_name\":\"gls-is-token\",\"central_address\":\"127.0.0.1:${HTTPD_PORT}\"}")
+    pid=$(jq -r '.id // empty' "$PRIV_DIR/last.json"); uid=$(jq -r '.uid // empty' "$PRIV_DIR/last.json")
+    cmd=$(jq -r '.installation_command // .installationCommand // empty' "$PRIV_DIR/last.json")
+    [[ -n "$pid" && -n "$cmd" ]] && record "install-script: poller ${IS_NAME} created by the API with its command" ok "HTTP $code id=$pid" \
+      || { record "install-script: poller ${IS_NAME} created by the API with its command" ko "HTTP $code $(head -c 200 "$LOG_DIR/last.json")"; return; }
+  else
+    uid=$(sql centreon "SELECT uid FROM nagios_server WHERE id=$pid")
+  fi
+  code=$(api GET "/configuration/pollers/installation-command/$pid")
+  v=$(jq -r '.installation_command // .installationCommand // empty' "$PRIV_DIR/last.json")
+  if [[ -z "$cmd" ]]; then cmd=$v; fi
+  [[ -n "$v" && "$v" == "$cmd" ]] && record "install-script: GET installation-command = creation answer" ok \
+    || record "install-script: GET installation-command = creation answer" ko "HTTP $code"
+  [[ "$(sql centreon "SELECT remote_channel FROM nagios_server WHERE id=$pid")" == broker ]] \
+    && record "install-script: broker channel set at creation" ok || record "install-script: broker channel set at creation" ko
+
+  # Secrets of the command: masked in the job log, then searched everywhere.
+  tok=$(is_opt --poller_token "$cmd"); tok=${tok#*:}
+  appsecret=$(is_opt --appsecret "$cmd"); salt=$(is_opt --salt "$cmd")
+  for v in "$tok" "$appsecret" "$salt"; do [[ -n "$v" ]] && echo "::add-mask::$v"; done
+  if [[ -n "$tok" && -n "$appsecret" && -n "$salt" && -n "$ca_line" ]]; then
+    record "install-script: token, appsecret, salt and CA read for the leak check" ok
+  else
+    record "install-script: token, appsecret, salt and CA read for the leak check" ko "empty value"; return
+  fi
+  [[ " $cmd " == *" --channel broker "* && "$(is_opt --broker_ca_sha256 "$cmd")" == "$ca_fp" && "$(is_opt --poller_id "$cmd")" == "$pid" \
+     && "$(is_opt --broker_host "$cmd")" == "$IS_HOST" && "$(is_opt --broker_port "$cmd")" == "${GLS_BROKER_PUBLIC_PORT:-5669}" ]] \
+    && record "install-script: broker variant (channel, external host:port, CA fingerprint, poller id)" ok \
+    || record "install-script: broker variant (channel, external host:port, CA fingerprint, poller id)" ko \
+         "channel=$(is_opt --channel "$cmd") host=$(is_opt --broker_host "$cmd"):$(is_opt --broker_port "$cmd") fp=$(is_opt --broker_ca_sha256 "$cmd" | cut -c1-16) id=$(is_opt --poller_id "$cmd")"
+  local url
+  url=$(is_opt --central_url "$cmd")
+  curl -fsSI "$url/poller/install.sh" >/dev/null && record "install-script: install.sh served at the central_url" ok "$url" \
+    || { record "install-script: install.sh served at the central_url" ko "$url"; return; }
+
+  v=$(is_opt --broker_tls_hostname "$cmd")
+  [[ -z "$v" || "$v" == "$IS_HOST" ]] && record "install-script: TLS check on the external name (no internal --broker_tls_hostname)" ok \
+    || record "install-script: TLS check on the external name (no internal --broker_tls_hostname)" ko "--broker_tls_hostname $v"
+
+  # Path probe: a container on a fresh default network reaches the published port by the external name.
+  docker run --rm --add-host "${IS_HOST}:host-gateway" --entrypoint bash "${REGISTRY}/centreon-engine-trixie:${ENGINE_TAG}" \
+    -c "timeout 5 bash -c '</dev/tcp/${IS_HOST}/${GLS_BROKER_PUBLIC_PORT:-5669}'" >>"$LOG_DIR/install-script.log" 2>&1 \
+    && record "install-script: ${IS_HOST}:${GLS_BROKER_PUBLIC_PORT:-5669} reachable from a non-gls network" ok \
+    || record "install-script: ${IS_HOST}:${GLS_BROKER_PUBLIC_PORT:-5669} reachable from a non-gls network" ko "see install-script.log"
+
+  # Test-only options: images of images.env; host.docker.internal is not in the Linux DNS.
+  extra=" --registry ${REGISTRY} --tag ${ENGINE_TAG} --add_host ${IS_HOST}:host-gateway"
+
+  # Negative first: same NAME, no container yet, so only the CA check can fail it.
+  local bad
+  bad=${cmd/--broker_ca_sha256 $ca_fp/--broker_ca_sha256 $(printf '0%.0s' {1..64})}
+  if [[ "$bad" == "$cmd" ]]; then
+    record "install-script: wrong --broker_ca_sha256 fails before any container" ko "option not substituted"
+  else
+    is_run "$IS_BAD_DIR" "$bad$extra" "$PRIV_DIR/install-bad.console"; rc=$?
+    local left
+    left=$(cd "$IS_BAD_DIR" && ls -A .env docker-compose.yaml broker-ca.crt 2>/dev/null | tr '\n' ' ')
+    if (( rc != 0 )) && grep -qi 'mismatch' "$PRIV_DIR/install-bad.console" && [[ -z "$left" && -z "$(is_cid)" ]]; then
+      record "install-script: wrong --broker_ca_sha256 fails before any file or container" ok "exit $rc"
+    else
+      record "install-script: wrong --broker_ca_sha256 fails before any file or container" ko "exit $rc, files: ${left:-none}, container: $(is_cid)"
+    fi
+  fi
+
+  # Fixture host on the new poller, exported once it is up.
+  add_host gls-hi "${IS_NAME}"
+  add_service gls-hi || record "fixture gls-hi/gls-crit" ko "see clapi.log"
+
+  is_run "$IS_DIR" "$cmd$extra" "$PRIV_DIR/install.console"; rc=$?
+  (( rc == 0 )) && record "install-script: generated command exits 0" ok \
+    || { record "install-script: generated command exits 0" ko "exit $rc, see install.console"; }
+  local svcs proj nets
+  cid=$(is_cid); proj=$(is_project)
+  printf 'IS_PROJECT=%s\n' "$proj" >"$PRIV_DIR/install.env"
+  svcs=$([[ -n "$proj" ]] && docker ps -a --filter "label=com.docker.compose.project=$proj" --format '{{.Label "com.docker.compose.service"}}' | sort -u | tr '\n' ' ')
+  [[ -n "$svcs" && "$svcs" != *gorgone* && "$svcs" != *trap* && $(wc -w <<<"$svcs") -eq 1 ]] \
+    && record "install-script: engine only, no gorgone" ok "$svcs" || record "install-script: engine only, no gorgone" ko "${svcs:-none}"
+  nets=$([[ -n "$cid" ]] && docker inspect -f '{{range $n, $c := .NetworkSettings.Networks}}{{$n}} {{end}}' "$cid")
+  [[ -n "$nets" && " $nets" != *" gls-wan "* && " $nets" != *" gls-central_"* ]] \
+    && record "install-script: poller on its own network only (reaches the central through the published port)" ok "$nets" \
+    || record "install-script: poller on its own network only (reaches the central through the published port)" ko "${nets:-no container}"
+  [[ -n "$cid" && -z "$(docker inspect -f '{{range $p, $b := .NetworkSettings.Ports}}{{range $b}}{{.HostPort}} {{end}}{{end}}' "$cid" 2>/dev/null | tr -d ' ')" ]] \
+    && record "install-script: no published port" ok || record "install-script: no published port" ko
+  [[ "$(stat -c %a "$IS_DIR/.env" 2>/dev/null)" == 600 ]] && record "install-script: .env mode 0600" ok \
+    || record "install-script: .env mode 0600" ko "$(stat -c %a "$IS_DIR/.env" 2>&1)"
+  docker inspect -f '{{range .Mounts}}{{.Destination}}={{.RW}} {{end}}' "$cid" 2>/dev/null | grep -q '/etc/centreon-poller/broker-ca.crt=false' \
+    && record "install-script: CA mounted read-only" ok || record "install-script: CA mounted read-only" ko
+  wait_until 120 eval 'docker logs "$cid" 2>&1 | grep -q "bootstrap: CA fingerprint verified"' \
+    && record "install-script: bootstrap verified the CA fingerprint" ok || record "install-script: bootstrap verified the CA fingerprint" ko
+
+  wait_until 300 poller_capable "$uid" && record "install-script: poller connected over TLS, capable" ok \
+    || { record "install-script: poller connected over TLS, capable" ko "$(cbd_pollers | head -c 300)"; }
+  code=$(api GET "/configuration/monitoring-servers/$pid/generate-and-reload")
+  [[ "$code" == 204 ]] && wait_until 300 eval '[[ -n "$(poller_config_version "$uid")" ]]' \
+    && record "install-script: first export applied (config_version)" ok \
+    || record "install-script: first export applied (config_version)" ko "HTTP $code"
+  # The delivered cbmod must dial what the command dialed (contracts § 11.S3).
+  wait_until 120 is_dials_external "$cid" \
+    && record "install-script: delivered cbmod dials ${IS_HOST}:${GLS_BROKER_PUBLIC_PORT:-5669} (ca_name ${IS_HOST})" ok \
+    || record "install-script: delivered cbmod dials ${IS_HOST}:${GLS_BROKER_PUBLIC_PORT:-5669} (ca_name ${IS_HOST})" ko \
+         "$(is_module_json "$cid" | jq -c '[.centreonBroker.output[]? | select(.type == "bbdo_client") | {host, port, ca_name}]' 2>/dev/null | head -c 200)"
+  sleep 30
+  wait_until 120 poller_capable "$uid" && record "install-script: poller capable after the export restart" ok \
+    || record "install-script: poller capable after the export restart" ko "$(cbd_pollers | head -c 300)"
+  wait_until 420 service_critical gls-hi && record "install-script: check result upstream (gls-hi/gls-crit CRITICAL)" ok \
+    || record "install-script: check result upstream (gls-hi/gls-crit CRITICAL)" ko
+
+  # Leak check: console + script logs + everything uploaded.
+  # The CA is public: searched in the script output only (the creation answer in $LOG_DIR carries it).
+  local logs=("$PRIV_DIR/install.console" "$PRIV_DIR/install-bad.console" "$IS_DIR/log" "$IS_BAD_DIR/log")
+  [[ -n "$cid" ]] && docker logs "$cid" >"$PRIV_DIR/install-engine.console" 2>&1 && logs+=("$PRIV_DIR/install-engine.console")
+  for v in "$tok" "$appsecret" "$salt"; do
+    grep -rqF -- "$v" "${logs[@]}" "$LOG_DIR" 2>/dev/null && leaks=$((leaks + 1))
+  done
+  grep -rqF -- "$ca_line" "${logs[@]}" 2>/dev/null && leaks=$((leaks + 1))
+  [[ -s "$IS_DIR/log/install-poller.log" ]] || leaks=$((leaks + 100))
+  (( leaks == 0 )) && record "install-script: no token, appsecret, salt nor CA PEM in console, logs or artifact" ok \
+    || record "install-script: no token, appsecret, salt nor CA PEM in console, logs or artifact" ko \
+         "$(( leaks % 100 )) of 4 values found$( (( leaks >= 100 )) && echo ', no install-poller.log')"
+  # Redacted console copies for the artifact.
+  local f out
+  for f in install install-bad install-engine; do
+    [[ -f "$PRIV_DIR/$f.console" ]] || continue
+    out=$(<"$PRIV_DIR/$f.console")
+    for v in "$tok" "$appsecret" "$salt"; do out=${out//"$v"/***}; done
+    printf '%s\n' "$out" >"$LOG_DIR/$f.console.log"
+  done
+}
+
 # ---------- rrd: perfdata reaches rrdcached ----------
 
 rrd_errors() { # count of RRD connect errors in the central cbd logs
@@ -888,6 +1118,11 @@ cmd_logs() {
 }
 
 cmd_down() { # only the gls projects this script started
+  local proj
+  proj=$(is_project)
+  [[ -z "$proj" && -s "$PRIV_DIR/install.env" ]] && proj=$(sed -n 's/^IS_PROJECT=//p' "$PRIV_DIR/install.env")
+  [[ -n "$proj" && -f "$IS_DIR/docker-compose.yaml" ]] \
+    && (cd "$IS_DIR" && docker compose -p "$proj" down -v --remove-orphans >/dev/null 2>&1)
   cp_ down -v --remove-orphans >/dev/null 2>&1
   cc down -v --remove-orphans >/dev/null 2>&1
   docker network rm gls-wan >/dev/null 2>&1
@@ -906,9 +1141,10 @@ case "$cmd" in
   tls-negative) cmd_tls_negative ;;
   state) cmd_state ;;
   rrd) cmd_rrd ;;
+  install-script) cmd_install_script ;;
   logs) cmd_logs; exit 0 ;;
   down) cmd_down; exit 0 ;;
-  *) sed -n '2,18p' "$0"; exit 2 ;;
+  *) sed -n '2,19p' "$0"; exit 2 ;;
 esac
 summary "$cmd $*"
 exit $(( failures > 0 ))

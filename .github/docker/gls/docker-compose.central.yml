@@ -78,6 +78,9 @@ services:
       # paths = § 6.2 defaults. No remote_actions_insecure anywhere.
       CENTREON_BROKER_TLS: "1"
       CENTREON_BROKER_TLS_HOSTNAME: centreon-broker
+      # What external pollers dial (install command, contracts § 11.S2): the published 5669.
+      CENTREON_BROKER_POLLER_HOST: "${GLS_BROKER_PUBLIC_HOST:-host.docker.internal}"
+      CENTREON_BROKER_POLLER_PORT: "${GLS_BROKER_PUBLIC_PORT:-5669}"
       # Engine retention on the state volume (contracts § 7), default for the
       # central (install) and for pollers created through the API.
       ENGINE_STATE_RETENTION_FILE: /var/lib/centreon-engine/retention.dat
@@ -137,7 +140,9 @@ services:
     environment:
       <<: [*tz, *secrets]
       # Self-generated CA + server cert at start when none is mounted (contracts § 8.1).
-      BROKER_TLS_SAN: centreon-broker
+      # SAN = what pollers dial (contracts § 11.C2): centreon-broker on gls-wan; the
+      # install-script step adds the external name (server cert renewed, same CA).
+      BROKER_TLS_SAN: "${GLS_BROKER_TLS_SAN:-centreon-broker}"
       # Bootstrap central-broker.json (remote_api + TLS input, no output) when
       # none is delivered yet; same token as fpm (contracts § 9.C).
       CENTREON_BROKER_API_TOKEN: "${CENTREON_BROKER_API_TOKEN:-gls-poc-token}"
@@ -160,6 +165,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 60
+    # 5669 published for external pollers (contracts § 11.S2); 8099 internal only.
+    ports: ["${GLS_BROKER_PUBLIC_PORT:-5669}:5669"]
     expose: ["5669", "8099"]
     networks:
       central: {}
