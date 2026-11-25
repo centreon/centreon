@@ -13716,16 +13716,12 @@ components:
       properties:
         timezone:
           anyOf:
-            -
-              $ref: '#/components/schemas/HostTimezoneOutput'
-            -
-              type: 'null'
+            - $ref: '#/components/schemas/HostTimezoneOutput'
+            - type: 'null'
         severity:
           anyOf:
-            -
-              $ref: '#/components/schemas/HostSeverityOutput'
-            -
-              type: 'null'
+            - $ref: '#/components/schemas/HostSeverityOutput'
+            - type: 'null'
         categories:
           type: array
           items:
@@ -13742,20 +13738,16 @@ components:
           $ref: '#/components/schemas/HostCheckOptionsOutput'
         extended_informations:
           anyOf:
-            -
-              $ref: '#/components/schemas/HostTemplateExtendedInformationsOutput'
-            -
-              type: 'null'
+            - $ref: '#/components/schemas/HostTemplateExtendedInformationsOutput'
+            - type: 'null'
         scheduling_options:
           $ref: '#/components/schemas/HostSchedulingOptionsOutput'
         data_processing:
           $ref: '#/components/schemas/DataProcessingOutput'
         notifications:
           anyOf:
-            -
-              $ref: '#/components/schemas/HostNotificationsOutput'
-            -
-              type: 'null'
+            - $ref: '#/components/schemas/HostNotificationsOutput'
+            - type: 'null'
         id:
           type: integer
         name:
@@ -13780,23 +13772,18 @@ components:
           type: boolean
     HostTemplate.jsonld:
       allOf:
-        -
-          $ref: '#/components/schemas/HydraItemBaseSchema'
+        - $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
             timezone:
               anyOf:
-                -
-                  $ref: '#/components/schemas/HostTimezoneOutput.jsonld'
-                -
-                  type: 'null'
+                - $ref: '#/components/schemas/HostTimezoneOutput.jsonld'
+                - type: 'null'
             severity:
               anyOf:
-                -
-                  $ref: '#/components/schemas/HostSeverityOutput.jsonld'
-                -
-                  type: 'null'
+                - $ref: '#/components/schemas/HostSeverityOutput.jsonld'
+                - type: 'null'
             categories:
               type: array
               items:
@@ -13813,20 +13800,16 @@ components:
               $ref: '#/components/schemas/HostCheckOptionsOutput.jsonld'
             extended_informations:
               anyOf:
-                -
-                  $ref: '#/components/schemas/HostTemplateExtendedInformationsOutput.jsonld'
-                -
-                  type: 'null'
+                - $ref: '#/components/schemas/HostTemplateExtendedInformationsOutput.jsonld'
+                - type: 'null'
             scheduling_options:
               $ref: '#/components/schemas/HostSchedulingOptionsOutput.jsonld'
             data_processing:
               $ref: '#/components/schemas/DataProcessingOutput.jsonld'
             notifications:
               anyOf:
-                -
-                  $ref: '#/components/schemas/HostNotificationsOutput.jsonld'
-                -
-                  type: 'null'
+                - $ref: '#/components/schemas/HostNotificationsOutput.jsonld'
+                - type: 'null'
             id:
               type: integer
             name:
@@ -13866,10 +13849,8 @@ components:
             - 'null'
         icon:
           anyOf:
-            -
-              $ref: '#/components/schemas/HostIconOutput'
-            -
-              type: 'null'
+            - $ref: '#/components/schemas/HostIconOutput'
+            - type: 'null'
         alt_icon:
           type:
             - string
@@ -13895,10 +13876,8 @@ components:
             - 'null'
         icon:
           anyOf:
-            -
-              $ref: '#/components/schemas/HostIconOutput.jsonld'
-            -
-              type: 'null'
+            - $ref: '#/components/schemas/HostIconOutput.jsonld'
+            - type: 'null'
         alt_icon:
           type:
             - string
