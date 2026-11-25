@@ -123,7 +123,7 @@ export const SubRouteContent = ({
 
   return (
     <Accordion
-      className="bg-transparent text-inherit shadow-none before:hidden"
+      className="border-0 bg-transparent text-inherit shadow-none before:hidden"
       defaultExpanded={isSelected}
       disableGutters
       slotProps={{ transition: { unmountOnExit: true } }}
