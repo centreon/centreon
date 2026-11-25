@@ -32,6 +32,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerTokenRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\InstallationCommandResource;
+use App\MonitoringConfiguration\Infrastructure\BrokerChannelInstallation;
 use App\MonitoringConfiguration\Infrastructure\CentralUrlFactory;
 use App\MonitoringConfiguration\Infrastructure\PollerInstallationCommandFactory;
 use App\Shared\Domain\Repository\EngineSecretsRepository;
@@ -50,6 +51,7 @@ final readonly class GetInstallationCommandProvider implements ProviderInterface
         private EngineSecretsRepository $engineSecretsRepository,
         private Security $security,
         private CentralUrlFactory $centralUrlFactory,
+        private BrokerChannelInstallation $brokerChannelInstallation,
         #[Autowire(env: 'bool:default::IS_CLOUD_PLATFORM')]
         private bool $isCloudPlatform = false,
     ) {
@@ -81,6 +83,8 @@ final readonly class GetInstallationCommandProvider implements ProviderInterface
             $this->engineSecretsRepository->getSalt(),
             $this->centralUrlFactory->create($poller->centralAddress),
             $this->isCloudPlatform,
+            // MON-215450 phase 2g: broker-channel variant for a poller on the broker channel (contracts.md § 11.W)
+            $this->brokerChannelInstallation->installOptions($pollerId, $poller->pollerType),
         );
 
         $installationCommand = $factory->generate();

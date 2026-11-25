@@ -11,6 +11,13 @@ security:
             pattern: '^/api(/latest)?/_(profiler|wdt)'
             security: false
 
+        # MON-215450 phase 2g: install.sh fetches the central broker CA with a poller token, no user session
+        # (GetPollerBrokerCaProvider checks the token). This exact path only.
+        pollerBrokerCa:
+            pattern: '^/api(/latest)?/configuration/pollers/\d+/broker-ca$'
+            stateless: true
+            security: false
+
         api:
             pattern: '^/api'
             stateless: true

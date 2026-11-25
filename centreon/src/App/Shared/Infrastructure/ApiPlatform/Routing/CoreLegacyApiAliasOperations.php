@@ -45,6 +45,7 @@ final class CoreLegacyApiAliasOperations implements LegacyApiAliasOperationProvi
             '_api_/configuration/plugins/{plugin_name}_get',
             '_api_/configuration/pollers_post',
             '_api_/configuration/pollers/installation-command/{id}_get',
+            '_api_/configuration/pollers/{uid}/broker-ca_get',
             '_api_/configuration/services/categories_post',
             '_api_/configuration/standard-macros_get_collection',
             '_api_/platform/updates_post',

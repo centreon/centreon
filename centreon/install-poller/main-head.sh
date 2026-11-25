@@ -105,6 +105,28 @@ COMPOSE_CMD=()
 CONTAINER_ENGINE=""
 ENGINE_ROOTLESS=0
 
+# MON-215450 phase 2g (gorgone-less PoC): --channel broker installs a Docker
+# poller reached through the central broker (BBDO gRPC TLS), without gorgone.
+# gorgone (default) keeps the historical behavior unchanged.
+CHANNEL="gorgone"
+# nagios_server.id of the poller (broker channel: the instance id the engine
+# bootstrap announces before its first configuration)
+POLLER_ID=""
+# Address the poller dials to reach the central broker, and the name checked
+# against the central broker certificate (default: the host itself)
+BROKER_HOST=""
+BROKER_PORT=""
+BROKER_TLS_HOSTNAME=""
+# SHA-256 of the central broker CA (DER), from the installation command: the
+# CA downloaded from the central is trusted only if it matches.
+BROKER_CA_SHA256=""
+# Optional extra network for the engine service (dev convenience) and extra
+# /etc/hosts entries (--add_host name:ip|host-gateway, repeatable)
+DOCKER_NETWORK=""
+ADD_HOSTS=()
+# Temporary files removed on exit (token header, CA download)
+TMP_FILES=()
+
 # Path to a centreon-plugins checkout, used to build the centreon-vmware
 # image when --with-vmware is set. Empty means use the default (see
 # _checkVmwarePrerequisites in commands/docker.sh).

@@ -695,7 +695,11 @@ class Broker extends AbstractObjectJSON
             $output['transport_protocol'] = 'grpc';
             $output['encryption'] = 'yes';
             $output['ca_certificate'] = $caCertificate;
-            $output['ca_name'] = $hostname !== '' ? $hostname : $host;
+            // MON-215450 phase 2g (contracts.md § 11.W3): the TLS name is what the poller dials, so that a poller
+            // dialing the central's public name checks that name. CENTREON_BROKER_TLS_HOSTNAME only names an IP
+            // literal (no SAN check by name possible on an IP the certificate does not carry).
+            $isNamedHost = $host !== '' && filter_var($host, FILTER_VALIDATE_IP) === false;
+            $output['ca_name'] = $isNamedHost || $hostname === '' ? $host : $hostname;
             $object['output'][$index] = $output;
         }
 

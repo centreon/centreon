@@ -41,11 +41,14 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUid;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\TrapConfiguration;
 use App\MonitoringConfiguration\Domain\Model\PollerToken;
+use App\MonitoringConfiguration\Domain\Repository\PollerBrokerChannelRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerTokenRepository;
+use App\MonitoringConfiguration\Domain\Service\BrokerCaProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\CreatePollerInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller\CreatePollerProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller\ResourcePollerTransformer;
+use App\MonitoringConfiguration\Infrastructure\BrokerChannelInstallation;
 use App\MonitoringConfiguration\Infrastructure\CentralUrlFactory;
 use App\Security\Domain\Aggregate\Credential;
 use App\Security\Domain\Aggregate\CredentialIdentifier;
@@ -198,6 +201,10 @@ final class CreatePollerProcessorCommunicationTypeTest extends TestCase
             gorgoneNodesSynchronizer: new FakeGorgoneNodesSynchronizer(),
             logger: new NullLogger(),
             centralUrlFactory: new CentralUrlFactory($requestStack ?? new RequestStack(), $isCloudPlatform),
+            brokerChannelInstallation: new BrokerChannelInstallation(
+                $this->createStub(PollerBrokerChannelRepository::class),
+                $this->createStub(BrokerCaProvider::class),
+            ),
             isCloudPlatform: $isCloudPlatform,
         );
     }

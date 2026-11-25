@@ -42,6 +42,7 @@ final readonly class PollerInstallationCommandFactory
         #[Sensitive] private string $salt,
         private CentralUrl $centralUrl,
         private bool $isCloudPlatform = false,
+        private ?BrokerChannelInstallOptions $brokerChannel = null,
     ) {
     }
 
@@ -56,6 +57,7 @@ final readonly class PollerInstallationCommandFactory
         string $salt,
         CentralUrl $centralUrl,
         bool $isCloudPlatform = false,
+        ?BrokerChannelInstallOptions $brokerChannel = null,
     ): self {
         return new self(
             $poller->uid,
@@ -66,11 +68,16 @@ final readonly class PollerInstallationCommandFactory
             $salt,
             $centralUrl,
             $isCloudPlatform,
+            $brokerChannel,
         );
     }
 
     public function generate(): string
     {
+        if ($this->brokerChannel instanceof BrokerChannelInstallOptions) {
+            return $this->generateBrokerChannel($this->brokerChannel);
+        }
+
         // Two free-form, admin-provided values reach this line: the poller name and the
         // poller token name. Upstream bounds nothing but their length (NewToken, 255
         // characters), so both are quoted with escapeshellarg(). The token name and its
@@ -99,5 +106,35 @@ final readonly class PollerInstallationCommandFactory
         }
 
         return $command;
+    }
+
+    /**
+     * MON-215450 phase 2g (contracts.md § 11.W): Docker poller reached through the central broker, no Gorgone.
+     * The host is a BrokerChannelEndpoint (no shell metacharacter), the fingerprint is 64 hex characters
+     * (BrokerCaReader), the TLS name comes from the environment and is quoted.
+     */
+    private function generateBrokerChannel(BrokerChannelInstallOptions $brokerChannel): string
+    {
+        $command = sprintf(
+            'curl -fsSL %s/poller/install.sh | bash -s -- --channel broker --poller_token %s --uid %s --poller_id %d --name %s --type %s --central_url %s --broker_host %s --broker_port %d',
+            $this->centralUrl->value,
+            escapeshellarg($this->pollerToken->name . ':' . $this->pollerToken->value),
+            $this->pollerUid->value,
+            $brokerChannel->pollerId->value,
+            escapeshellarg($this->pollerName->value),
+            $this->pollerType->value,
+            $this->centralUrl->value,
+            $brokerChannel->endpoint->host,
+            $brokerChannel->endpoint->port,
+        );
+
+        if ($brokerChannel->tlsHostname !== null) {
+            $command .= ' --broker_tls_hostname ' . escapeshellarg($brokerChannel->tlsHostname);
+        }
+        if ($brokerChannel->caFingerprintSha256 !== null) {
+            $command .= ' --broker_ca_sha256 ' . $brokerChannel->caFingerprintSha256;
+        }
+
+        return $command . sprintf(' --appsecret %s --salt %s', $this->appSecret, $this->salt);
     }
 }

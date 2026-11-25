@@ -19,7 +19,11 @@ function installCommand() {
 
   case "${POLLER_TYPE}" in
   docker)
-    runDockerInstall
+    if [ "${CHANNEL}" = "broker" ]; then
+      runDockerBrokerInstall
+    else
+      runDockerInstall
+    fi
     ;;
   vm)
     runVmInstall
@@ -118,6 +122,38 @@ function _installParseArguments() {
       fi
       CMA_HOSTNAME=$1
       ;;
+    --channel)
+      shift
+      CHANNEL=$1
+      ;;
+    --poller_id)
+      shift
+      POLLER_ID=$1
+      ;;
+    --broker_host)
+      shift
+      BROKER_HOST=$1
+      ;;
+    --broker_port)
+      shift
+      BROKER_PORT=$1
+      ;;
+    --broker_tls_hostname)
+      shift
+      BROKER_TLS_HOSTNAME=$1
+      ;;
+    --broker_ca_sha256)
+      shift
+      BROKER_CA_SHA256=$1
+      ;;
+    --docker_network)
+      shift
+      DOCKER_NETWORK=$1
+      ;;
+    --add_host)
+      shift
+      ADD_HOSTS+=("$1")
+      ;;
     --registry)
       shift
       FORCE_REGISTRY=$1
@@ -184,11 +220,45 @@ function _installValidateArgs() {
     case "${FORCE_REGISTRY}" in
     harbor | ghcr) ;;
     *)
-      consoleError "Invalid --registry '${FORCE_REGISTRY}'. Valid values: harbor, ghcr."
-      ret=1
+      # A full image prefix (registry host + path), e.g. registry.example.com/centreon:
+      # images become <prefix>/centreon-<component>-trixie (see _pollerImageRepo).
+      if ! [[ "${FORCE_REGISTRY}" =~ ^[A-Za-z0-9][A-Za-z0-9._:-]*(/[A-Za-z0-9._-]+)*/?$ ]] ||
+        ! [[ "${FORCE_REGISTRY}" == */* || "${FORCE_REGISTRY}" == *.* ]]; then
+        consoleError "Invalid --registry '${FORCE_REGISTRY}'. Valid values: harbor, ghcr, or an image prefix such as registry.example.com/centreon."
+        ret=1
+      fi
       ;;
     esac
   fi
+
+  if [ -n "${DOCKER_NETWORK}" ] && ! [[ "${DOCKER_NETWORK}" =~ ^[A-Za-z0-9][A-Za-z0-9_.-]*$ ]]; then
+    consoleError "Invalid --docker_network '${DOCKER_NETWORK}'. Expected an existing Docker network name."
+    ret=1
+  fi
+
+  local add_host
+  for add_host in "${ADD_HOSTS[@]+"${ADD_HOSTS[@]}"}"; do
+    if ! _isValidAddHost "${add_host}"; then
+      consoleError "Invalid --add_host '${add_host}'. Expected <hostname>:<IPv4|IPv6|host-gateway>."
+      ret=1
+    fi
+  done
+
+  case "${CHANNEL}" in
+  gorgone)
+    if [ -n "${DOCKER_NETWORK}" ] || [ ${#ADD_HOSTS[@]} -gt 0 ]; then
+      consoleError "--docker_network and --add_host are only available with --channel broker."
+      ret=1
+    fi
+    ;;
+  broker)
+    _installValidateBrokerArgs || ret=1
+    ;;
+  *)
+    consoleError "Invalid --channel '${CHANNEL}'. Valid values: gorgone, broker."
+    ret=1
+    ;;
+  esac
 
   if [ -n "${FORCE_STABILITY}" ]; then
     case "${FORCE_STABILITY}" in
@@ -253,4 +323,90 @@ function _installDeriveCentral() {
       CENTRAL_PORT="80"
     fi
   fi
+}
+
+# --add_host <hostname>:<IPv4|IPv6|host-gateway>, becomes a compose extra_hosts entry.
+function _isValidAddHost() {
+  local value=$1
+  local name="${value%%:*}"
+  local target="${value#*:}"
+  local label='[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?'
+
+  [ "${name}" != "${value}" ] || return 1
+  [[ "${name}" =~ ^${label}(\.${label})*$ ]] || return 1
+  [ "${target}" = "host-gateway" ] && return 0
+  [[ "${target}" =~ ^[0-9]{1,3}(\.[0-9]{1,3}){3}$ ]] && return 0
+  [[ "${target}" =~ ^[0-9A-Fa-f:]+$ && "${target}" == *:* ]] && return 0
+  return 1
+}
+
+# MON-215450 phase 2g (contracts.md § 11.W): Docker poller reached through the
+# central broker. Everything is checked before any file is written. The values
+# below end up in .env (single-quoted, read by compose) and, through the engine
+# bootstrap, in JSON files and a file name: refuse what would break either.
+function _installValidateBrokerArgs() {
+  local ret=0
+  local host_re='^[A-Za-z0-9._:-]{1,253}$'
+
+  if [ "${POLLER_TYPE}" != "docker" ]; then
+    consoleError "--channel broker requires --type docker."
+    ret=1
+  fi
+  if [ "${CLOUD_MODE}" = "true" ]; then
+    consoleError "--channel broker does not support --cloud."
+    ret=1
+  fi
+  if [ "${WITH_SNMPTRAP}" = "1" ] || [ "${WITH_VMWARE}" = "1" ]; then
+    consoleError "--with-snmptrap and --with-vmware need gorgone: not available with --channel broker."
+    ret=1
+  fi
+
+  if ! [[ "${GORGONE_UID}" =~ ^[1-9][0-9]{0,18}$ ]]; then
+    consoleError "--uid must be a positive integer."
+    ret=1
+  fi
+  if ! [[ "${POLLER_ID}" =~ ^[1-9][0-9]{0,9}$ ]]; then
+    consoleError "--poller_id is required with --channel broker (positive integer)."
+    ret=1
+  fi
+  if ! [[ "${BROKER_HOST}" =~ ${host_re} ]]; then
+    consoleError "--broker_host is required with --channel broker (hostname or IP address the poller dials)."
+    ret=1
+  fi
+  BROKER_PORT="${BROKER_PORT:-5669}"
+  if ! [[ "${BROKER_PORT}" =~ ^[0-9]{1,5}$ ]] || [ "${BROKER_PORT}" -lt 1 ] || [ "${BROKER_PORT}" -gt 65535 ]; then
+    consoleError "Invalid --broker_port '${BROKER_PORT}'."
+    ret=1
+  fi
+  if [ -n "${BROKER_TLS_HOSTNAME}" ] && ! [[ "${BROKER_TLS_HOSTNAME}" =~ ${host_re} ]]; then
+    consoleError "Invalid --broker_tls_hostname '${BROKER_TLS_HOSTNAME}'."
+    ret=1
+  fi
+
+  BROKER_CA_SHA256=$(printf '%s' "${BROKER_CA_SHA256}" | tr -d ':' | tr '[:upper:]' '[:lower:]')
+  if [ -z "${BROKER_CA_SHA256}" ]; then
+    consoleError "--broker_ca_sha256 is missing: the central broker CA was not available when the installation command was generated."
+    consoleError "Regenerate the installation command once the central broker is running, then run it again."
+    ret=1
+  elif ! [[ "${BROKER_CA_SHA256}" =~ ^[0-9a-f]{64}$ ]]; then
+    consoleError "Invalid --broker_ca_sha256: expected the 64 hex characters of a SHA-256."
+    ret=1
+  fi
+
+  if ! _isSafeEnvValue "${APP_SECRET}" || ! _isSafeEnvValue "${SALT}"; then
+    consoleError "--appsecret and --salt must not contain quotes, backslashes, '\$' or line breaks."
+    ret=1
+  fi
+  if ! _isSafeEnvValue "${POLLER_NAME}" || [[ "${POLLER_NAME}" == */* ]]; then
+    consoleError "--name must not contain quotes, backslashes, '\$', '/' or line breaks with --channel broker."
+    ret=1
+  fi
+
+  return ${ret}
+}
+
+function _isSafeEnvValue() {
+  local value=$1
+  local forbidden=$'[\'"\\$\n\r]'
+  ! [[ "${value}" =~ ${forbidden} ]]
 }

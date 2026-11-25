@@ -42,6 +42,7 @@ use App\MonitoringConfiguration\Domain\Service\GorgoneNodesSynchronizer;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\BrokerCaOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\CreatePollerInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\PollerResource;
+use App\MonitoringConfiguration\Infrastructure\BrokerChannelInstallation;
 use App\MonitoringConfiguration\Infrastructure\CentralUrlFactory;
 use App\MonitoringConfiguration\Infrastructure\PollerInstallationCommandFactory;
 use App\Security\Infrastructure\Security\CredentialUser;
@@ -75,6 +76,7 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
         #[Autowire(service: 'monolog.logger.poller-install')]
         private LoggerInterface $logger,
         private CentralUrlFactory $centralUrlFactory,
+        private BrokerChannelInstallation $brokerChannelInstallation,
         #[Autowire(env: 'bool:default::IS_CLOUD_PLATFORM')]
         private bool $isCloudPlatform = false,
         private ?BrokerCaProvider $brokerCaProvider = null,
@@ -119,9 +121,24 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
         $model = $this->commandBus->execute($command);
         Assert::isInstanceOf($model, Poller::class);
 
-        // Not from a PollerCreated handler: those run inside the create-poller transaction,
-        // and Gorgone reads the database on its own connection.
-        $this->synchronizeGorgoneNodes($model->id(), $model->name);
+        /** @var PollerId $pollerId */
+        $pollerId = $model->id();
+
+        // MON-215450 phase 2g (contracts.md § 11.W, 11.W3): a Docker poller on a broker-channel platform is
+        // reached through the central broker, not Gorgone: no Gorgone node, its engine module dials the address
+        // external pollers reach, and install.sh gets the broker-channel options.
+        $brokerChannel = null;
+        if ($this->brokerChannelInstallation->appliesTo($model->pollerType)) {
+            $this->brokerChannelInstallation->useBrokerChannel(
+                $pollerId,
+                $this->brokerChannelInstallation->endpointForNewPoller($centralAddress),
+            );
+            $brokerChannel = $this->brokerChannelInstallation->installOptions($pollerId, $model->pollerType);
+        } else {
+            // Not from a PollerCreated handler: those run inside the create-poller transaction,
+            // and Gorgone reads the database on its own connection.
+            $this->synchronizeGorgoneNodes($pollerId, $model->name);
+        }
 
         // Use the normalized value, not the raw input: the stored poller and the
         // returned command must match what GET /installation-command/{id} generates.
@@ -132,6 +149,7 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
             $salt,
             $centralUrl,
             $this->isCloudPlatform,
+            $brokerChannel,
         );
 
         $resource = $this->transformer->transform($model);
