@@ -23,10 +23,17 @@ declare(strict_types=1);
 
 namespace Tests\App\AiConfiguration\Infrastructure\ApiPlatform\State\AiProvider;
 
+use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProvider;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderName;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ReasoningModeEnum;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\StoredApiToken;
 use App\AiConfiguration\Domain\Llm\LlmClientFactoryInterface;
 use App\AiConfiguration\Domain\Llm\LlmResponse;
 use App\AiConfiguration\Domain\Llm\LlmUsage;
+use App\AiConfiguration\Infrastructure\Dbal\DbalAiProviderRepository;
 use Tests\App\AiConfiguration\Infrastructure\Double\FakeLlmClient;
 use Tests\App\AiConfiguration\Infrastructure\Double\FakeLlmClientFactory;
 
@@ -62,11 +69,26 @@ final class TestAiProviderProcessorTest extends AiProviderApiTestCase
 
     public function testASuccessfulTestReportsTheSettingAndTheWarning(): void
     {
+        // added through the repository: an API request would reboot the kernel and drop the fake factory
+        /** @var DbalAiProviderRepository $repository */
+        $repository = self::getContainer()->get(DbalAiProviderRepository::class);
+        $aiProvider = new AiProvider(
+            id: null,
+            name: new AiProviderName('Anthropic production'),
+            type: AiProviderTypeEnum::Anthropic,
+            endpointUrl: new EndpointUrl('https://api.anthropic.com'),
+            apiToken: new StoredApiToken('a-stored-token'),
+            defaultModel: new ModelName('claude-sonnet-4-6'),
+            fastModel: null,
+            description: null,
+            isActivated: true,
+        );
+        $repository->add($aiProvider);
+        $id = $aiProvider->id()->value;
         self::getContainer()->set(LlmClientFactoryInterface::class, new FakeLlmClientFactory(new FakeLlmClient(
             new LlmResponse('pong', 'a-model', new LlmUsage(1, 1), reasoningMode: ReasoningModeEnum::Minimal)
         )));
         $this->login();
-        $id = $this->createProvider('Anthropic production');
 
         $response = $this->request('POST', self::ENDPOINT . '/' . $id . '/test', ['json' => []]);
 
