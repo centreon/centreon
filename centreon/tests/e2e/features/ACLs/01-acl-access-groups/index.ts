@@ -106,8 +106,8 @@ Then(
     });
 
     cy.wait('@getTopCounter');
-    cy.getByTestId({ tag: 'button', testId: 'Mini Centreon Logo' }).click();
-    cy.contains('span', 'Home').should('exist');
+    cy.get('button[aria-label="Open panel"]').click();
+    cy.get('[data-testid="sidebar"]').contains('span', 'Home').should('exist');
 
     cy.logout();
     cy.loginByCredentials({
@@ -116,8 +116,8 @@ Then(
     });
 
     cy.wait('@getTopCounter');
-    cy.getByTestId({ tag: 'button', testId: 'Mini Centreon Logo' }).click();
-    cy.contains('span', 'Home').should('exist');
+    cy.get('button[aria-label="Open panel"]').click();
+    cy.get('[data-testid="sidebar"]').contains('span', 'Home').should('exist');
   }
 );
 
