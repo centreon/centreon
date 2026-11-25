@@ -971,7 +971,7 @@ cmd_install_script() {
   else
     uid=$(sql centreon "SELECT uid FROM nagios_server WHERE id=$pid")
   fi
-  code=$(api GET "/configuration/pollers/installation-command/$pid")
+  code=$(api GET "/configuration/pollers/installation-command/$pid?token-name=gls-is-token")
   v=$(jq -r '.installation_command // .installationCommand // empty' "$PRIV_DIR/last.json")
   if [[ -z "$cmd" ]]; then cmd=$v; fi
   [[ -n "$v" && "$v" == "$cmd" ]] && record "install-script: GET installation-command = creation answer" ok \
