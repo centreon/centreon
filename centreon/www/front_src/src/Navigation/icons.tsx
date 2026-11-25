@@ -1,6 +1,5 @@
-import ConfigurationIcon from '@mui/icons-material/SettingsOutlined';
-
 import AdministrationIcon from './MenuIcons/AdministrationIcon';
+import ConfigurationIcon from './MenuIcons/ConfigurationIcon';
 import DashboardsIcon from './MenuIcons/DashboardsIcon';
 import MonitoringIcon from './MenuIcons/MonitoringIcon';
 import ReportingIcon from './MenuIcons/ReportingIcon';

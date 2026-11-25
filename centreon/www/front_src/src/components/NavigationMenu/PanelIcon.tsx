@@ -2,9 +2,22 @@ import { SvgIcon, type SvgIconProps } from '@mui/material';
 
 import type { ReactElement } from 'react';
 
+// The viewBox frames the drawing so that its largest side fills 20/24 of
+// the icon, like the menu icons.
 const PanelIcon = (props: SvgIconProps): ReactElement => (
-  <SvgIcon viewBox="0 0 24 24" {...props}>
-    <path d="M12.6667 6.66667V17.3333L18 12L12.6667 6.66667ZM2.66667 24C1.93333 24 1.30556 23.7389 0.783333 23.2167C0.261111 22.6944 0 22.0667 0 21.3333V2.66667C0 1.93333 0.261111 1.30556 0.783333 0.783333C1.30556 0.261111 1.93333 0 2.66667 0H21.3333C22.0667 0 22.6944 0.261111 23.2167 0.783333C23.7389 1.30556 24 1.93333 24 2.66667V21.3333C24 22.0667 23.7389 22.6944 23.2167 23.2167C22.6944 23.7389 22.0667 24 21.3333 24H2.66667ZM7 22V2H2V22H7ZM9 22H22V2H9V22Z" />
+  <SvgIcon viewBox="0.32 0.12 23.76 23.76" {...props}>
+    <rect
+      fill="none"
+      height="18"
+      rx="1.6"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      width="18"
+      x="3.2"
+      y="3"
+    />
+    <path d="M9.3 3v18" fill="none" stroke="currentColor" strokeWidth="1.8" />
+    <path d="M12.6 6.9v9.6l4.6-4.8z" />
   </SvgIcon>
 );
 
