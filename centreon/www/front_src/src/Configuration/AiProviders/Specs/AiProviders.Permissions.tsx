@@ -1,6 +1,7 @@
 import { screen, waitFor, within } from '@testing-library/react';
 
 import { listingDataTestIds } from '../../ConfigurationBase/Listing/dataTestIds';
+import { panelDataTestIds } from '../../ConfigurationBase/Panel/dataTestIds';
 import {
   labelApiToken,
   labelCurrency,
@@ -89,6 +90,10 @@ export default (): void => {
       expect(name).toBeEnabled();
       expect(await getInput(descriptionTestId)).toBeEnabled();
 
+      // one Enabled switch: the panel header's
+      expect(screen.getByTestId(panelDataTestIds.enable)).toBeInTheDocument();
+      expect(screen.queryByTestId(isActivatedTestId)).not.toBeInTheDocument();
+
       // the type of a stored provider is fixed, the other fields are editable
       for (const label of customFields.filter((field) => field !== labelType)) {
         expect(await getCustomInput(label)).toBeEnabled();
@@ -118,6 +123,10 @@ export default (): void => {
           'checkbox'
         )
       ).toBeDisabled();
+      // the form shows the status: the panel header has no switch here
+      expect(
+        screen.queryByTestId(panelDataTestIds.enable)
+      ).not.toBeInTheDocument();
 
       for (const label of customFields) {
         expect(await getCustomInput(label)).toBeDisabled();

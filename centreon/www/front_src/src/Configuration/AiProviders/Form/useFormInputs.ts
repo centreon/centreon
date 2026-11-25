@@ -5,9 +5,11 @@ import {
   InputType
 } from '@centreon/ui';
 
+import { useAtomValue } from 'jotai';
 import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
+import { formStateAtom } from '../../ConfigurationBase/atoms';
 import {
   getBlock,
   stackedColumns,
@@ -70,6 +72,9 @@ interface FormInputsState {
 // nothing to reorder.
 export const useFormInputs = ({ canEdit }: Props): FormInputsState => {
   const { t } = useTranslation();
+  const { mode } = useAtomValue(formStateAtom);
+  // the panel header shows the switch to those who can edit a saved provider
+  const isSwitchInHeader = equals(mode, 'edit') && canEdit;
 
   const getDisabled = (): boolean => !canEdit;
   // these actions call the provider with the configuration being edited: the
@@ -110,7 +115,7 @@ export const useFormInputs = ({ canEdit }: Props): FormInputsState => {
     inputs: [
       section(labelGeneralInformation, 'general', [
         getBlock({
-          className: nameAndStatusColumns,
+          className: isSwitchInHeader ? stackedColumns : nameAndStatusColumns,
           columns: [
             {
               dataTestId: `${idPrefix}-name`,
@@ -124,6 +129,7 @@ export const useFormInputs = ({ canEdit }: Props): FormInputsState => {
               dataTestId: `${idPrefix}-is-activated`,
               fieldName: 'isActivated',
               getDisabled,
+              hideInput: () => isSwitchInHeader,
               // at most one provider is enabled: enabling this one disables
               // the other
               label: t(labelEnabled),
