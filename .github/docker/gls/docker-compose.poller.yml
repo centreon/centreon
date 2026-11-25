@@ -42,6 +42,9 @@ services:
       # unreachable) + retention.dat. Logs stay in the container layer.
       - poller-engine-state:/var/lib/centreon-engine
       - ./overrides/05-engine-config.sh:/usr/local/lib/centreon-engine/container.d/05-engine-config.sh:ro
+      # Host discovery stub (phase 3 P2, contracts § 12.M), allowed by the image's
+      # default exec allow-list (/usr/lib/centreon/plugins/*, § 12.C4).
+      - ./fixtures/gls_disco_stub:/usr/lib/centreon/plugins/gls_disco_stub:ro
     tmpfs:
       - /var/lib/centreon-engine/rw:uid=901,gid=901,mode=0770
     # Connected = an established outbound socket to port 5669 (0x1625).
