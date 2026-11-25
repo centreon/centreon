@@ -243,7 +243,7 @@ final class GetHostTemplateProviderTest extends ApiTestCase
         self::assertSame('2c', $body['snmp_version']);
         self::assertTrue($body['is_snmp_community_defined']);
         self::assertSame(['id' => $timezoneId, 'name' => "zone-{$this->tag}"], $body['timezone']);
-        self::assertSame(['id' => $severityId, 'name' => "severity-{$this->tag}"], $body['severity']);
+        self::assertSame(['id' => $severityId, 'name' => "severity-{$this->tag}", 'level' => 1], $body['severity']);
         self::assertSame([['id' => $categoryId, 'name' => "category-{$this->tag}"]], $body['categories']);
         self::assertSame(
             [['id' => $firstParentId, 'name' => "parent-a-{$this->tag}"], ['id' => $secondParentId, 'name' => "parent-b-{$this->tag}"]],
@@ -565,7 +565,7 @@ final class GetHostTemplateProviderTest extends ApiTestCase
 
         self::assertResponseStatusCodeSame(200);
         self::assertSame([['id' => $visibleCategoryId, 'name' => "visible-category-{$this->tag}"]], $body['categories']);
-        self::assertSame(['id' => $severityId, 'name' => "severity-{$this->tag}"], $body['severity']);
+        self::assertSame(['id' => $severityId, 'name' => "severity-{$this->tag}", 'level' => 1], $body['severity']);
     }
 
     /**
