@@ -43,18 +43,15 @@ describe('Advanced filters panel: ', () => {
   it.each([
     [60, 480],
     [undefined, 336]
-  ])(
-    'is %s spacing units wide (%spx), clear of the field above',
-    (width, pixels) => {
-      const panel = renderPanel(width);
-      const style = getComputedStyle(panel);
+  ])('is %s spacing units wide (%spx), clear of the field above', (width, pixels) => {
+    const panel = renderPanel(width);
+    const style = getComputedStyle(panel);
 
-      expect(panel.getBoundingClientRect().width).toBe(pixels);
-      expect(style.marginTop).toBe('8px');
-      expect(style.padding).toBe('16px');
-      expect(style.rowGap).toBe('12px');
-    }
-  );
+    expect(panel.getBoundingClientRect().width).toBe(pixels);
+    expect(style.marginTop).toBe('8px');
+    expect(style.padding).toBe('16px');
+    expect(style.rowGap).toBe('12px');
+  });
 
   it('has no top margin at full width', () => {
     expect(getComputedStyle(renderPanel('full')).marginTop).toBe('0px');
