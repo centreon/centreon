@@ -24732,3 +24732,12 @@ msgstr "alerte"
 #: unknown
 msgid "will display resources with host name starting by'"
 msgstr "affichera les ressources avec un nom d'hôte commençant par"
+
+msgid "Host templates"
+msgstr "Modèles d'hôtes"
+
+msgid "Create a host template"
+msgstr "Créer un modèle d'hôte"
+
+msgid "Welcome to the Host templates interface!"
+msgstr "Bienvenue dans l'interface des modèles d'hôtes !"
