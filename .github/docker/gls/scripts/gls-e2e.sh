@@ -886,7 +886,9 @@ ui_get() { # ui_get <path> -> HTTP code, body in $PRIV_DIR/ui.out
   curl -s -o "$PRIV_DIR/ui.out" -w '%{http_code}' -b "$MOD_JAR" --max-time 60 "http://127.0.0.1:${HTTPD_PORT}$1"
 }
 module_license() { # module_license <module>: is_valid of its license block (true/false/none)
-  jq -r --arg m "$1" '[.. | objects | select(((.id? // .name? // "") == $m) and has("license"))][0].license.is_valid // "none"' \
+  # Not "// none": jq's alternative operator also replaces false.
+  jq -r --arg m "$1" '[.. | objects | select(((.id? // .name? // "") == $m) and has("license"))][0].license
+    | if type == "object" and has("is_valid") then (.is_valid | tostring) else "none" end' \
     "$PRIV_DIR/ui.out" 2>/dev/null
 }
 licenses_state() { # "<module>=<is_valid> ..." for the licensed modules, from internal.php
@@ -932,20 +934,20 @@ cmd_modules() {
       && record "modules: $m installed" ok "$row" || record "modules: $m installed" ko "${row:-absent}"
   done
 
-  # Pages and APIs.
-  code=$(api GET /auto-discovery/jobs)
-  [[ "$code" == 200 ]] && jq -e '.result == [] and .meta.total == 0' "$LOG_DIR/last.json" >/dev/null 2>&1 \
-    && record "modules: autodiscovery job list API (empty)" ok "HTTP $code" \
-    || record "modules: autodiscovery job list API (empty)" ko "HTTP $code $(head -c 200 "$LOG_DIR/last.json")"
   ui_login && record "modules: UI session login" ok || { record "modules: UI session login" ko; return; }
   code=$(ui_get '/centreon/main.php?p=62001')
   [[ "$code" == 200 ]] && record "modules: PPM page (Monitoring Connectors)" ok "HTTP $code" \
     || record "modules: PPM page (Monitoring Connectors)" ko "HTTP $code"
 
-  # No license yet: LM answers cleanly. Only is_valid is ever printed.
+  # No license yet: LM answers cleanly (is_valid=false), and the licensed autodiscovery
+  # API refuses with an explicit 401, not a 500. Only is_valid is ever printed.
   st=$(licenses_state)
   licenses_are false && record "modules: no license, LM answers is_valid=false (no 500)" ok "$st" \
     || record "modules: no license, LM answers is_valid=false (no 500)" ko "$st"
+  code=$(api GET /auto-discovery/jobs)
+  [[ "$code" == 401 ]] && jq -e '.message | test("license"; "i")' "$LOG_DIR/last.json" >/dev/null 2>&1 \
+    && record "modules: no license, autodiscovery API answers 401 (license not valid)" ok \
+    || record "modules: no license, autodiscovery API answers 401 (license not valid)" ko "HTTP $code $(jq -c . "$LOG_DIR/last.json" 2>/dev/null | head -c 200)"
 
   # CI license copied from the modules image; LM must then report it valid.
   if license_install; then
@@ -962,6 +964,10 @@ cmd_modules() {
   else
     record "modules: CI license copied from centreon-modules (by digest)" ko "$MOD_IMAGE"
   fi
+  code=$(api GET /auto-discovery/jobs)
+  [[ "$code" == 200 ]] && jq -e '.result == [] and .meta.total == 0' "$LOG_DIR/last.json" >/dev/null 2>&1 \
+    && record "modules: licensed, autodiscovery job list API (empty)" ok "HTTP $code" \
+    || record "modules: licensed, autodiscovery job list API (empty)" ko "HTTP $code $(jq -c . "$LOG_DIR/last.json" 2>/dev/null | head -c 200)"
 
   # Still no gorgone process anywhere.
   n=$(gorgone_procs)
