@@ -1,5 +1,6 @@
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ErrorIcon from '@mui/icons-material/Error';
+import WarningIcon from '@mui/icons-material/Warning';
 import { Button, CircularProgress, Tooltip, Typography } from '@mui/material';
 
 import { useFormikContext } from 'formik';
@@ -11,6 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { formStateAtom } from '../../ConfigurationBase/atoms';
 import {
   type ConnectionTestResult,
+  ConnectionTestWarning,
   connectionTestResultDecoder,
   testConnectionEndpoint
 } from '../api';
@@ -22,6 +24,8 @@ import {
   labelConnectionSucceededWithModel,
   labelConnectionSucceededWithModelAndReasoning,
   labelConnectionSucceededWithReasoning,
+  labelConnectionWarningBudgetUsed,
+  labelConnectionWarningNoReasoningSetting,
   labelTestConnection,
   labelTestConnectionHint,
   labelTestingConnection
@@ -73,6 +77,13 @@ const getSuccessLabel = ({
     : labelConnectionSucceeded;
 };
 
+const warningLabels: Record<ConnectionTestWarning, string> = {
+  [ConnectionTestWarning.BudgetUsedWithoutAnswer]:
+    labelConnectionWarningBudgetUsed,
+  [ConnectionTestWarning.NoReasoningSetting]:
+    labelConnectionWarningNoReasoningSetting
+};
+
 const TestConnectionButton = (): JSX.Element => {
   const { t } = useTranslation();
   const { values, initialValues } = useFormikContext<FormValues>();
@@ -118,43 +129,56 @@ const TestConnectionButton = (): JSX.Element => {
   };
 
   return (
-    <div className="flex items-center gap-2">
-      <Tooltip title={t(labelTestConnectionHint)}>
-        <span>
-          <Button
-            data-testid={labelTestConnection}
-            disabled={!canTest || isTesting}
-            onClick={test}
-            size="small"
-            variant="outlined"
+    <div className="flex flex-col gap-1">
+      <div className="flex items-center gap-2">
+        <Tooltip title={t(labelTestConnectionHint)}>
+          <span>
+            <Button
+              data-testid={labelTestConnection}
+              disabled={!canTest || isTesting}
+              onClick={test}
+              size="small"
+              variant="outlined"
+            >
+              {isTesting ? t(labelTestingConnection) : t(labelTestConnection)}
+            </Button>
+          </span>
+        </Tooltip>
+        {isTesting && <CircularProgress size={16} />}
+        {result?.success && (
+          <Typography
+            className="flex items-center gap-1"
+            color="success.main"
+            variant="body2"
           >
-            {isTesting ? t(labelTestingConnection) : t(labelTestConnection)}
-          </Button>
-        </span>
-      </Tooltip>
-      {isTesting && <CircularProgress size={16} />}
-      {result?.success && (
+            <CheckCircleIcon fontSize="small" />
+            {t(getSuccessLabel(result), {
+              interpolation: { escapeValue: false },
+              model: result.model,
+              reasoning: result.reasoning
+            })}
+          </Typography>
+        )}
+        {result && !result.success && (
+          <Typography
+            className="flex items-center gap-1"
+            color="error.main"
+            variant="body2"
+          >
+            <ErrorIcon fontSize="small" />
+            {result.message || t(labelConnectionFailed)}
+          </Typography>
+        )}
+      </div>
+      {result?.success && result.warning && (
         <Typography
           className="flex items-center gap-1"
-          color="success.main"
+          color="warning.main"
+          data-testid="connectionTestWarning"
           variant="body2"
         >
-          <CheckCircleIcon fontSize="small" />
-          {t(getSuccessLabel(result), {
-            interpolation: { escapeValue: false },
-            model: result.model,
-            reasoning: result.reasoning
-          })}
-        </Typography>
-      )}
-      {result && !result.success && (
-        <Typography
-          className="flex items-center gap-1"
-          color="error.main"
-          variant="body2"
-        >
-          <ErrorIcon fontSize="small" />
-          {result.message || t(labelConnectionFailed)}
+          <WarningIcon fontSize="small" />
+          {t(warningLabels[result.warning])}
         </Typography>
       )}
     </div>

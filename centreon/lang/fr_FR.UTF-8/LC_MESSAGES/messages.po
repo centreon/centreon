@@ -25076,6 +25076,14 @@ msgid "Connection successful ({{model}}, reasoning: {{reasoning}})"
 msgstr "Connexion réussie ({{model}}, raisonnement : {{reasoning}})"
 
 #: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "The model accepts no setting that turns its reasoning down: if it reasons, it does as much as by default."
+msgstr "Le modèle n'accepte aucun réglage qui réduit son raisonnement : s'il raisonne, il le fait autant que par défaut."
+
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "The model used its whole answer budget without writing anything, most likely reasoning: the AI features may get no answer from it."
+msgstr "Le modèle a utilisé tout son budget de réponse sans rien écrire, probablement en raisonnant : les fonctionnalités d'IA risquent de ne pas en obtenir de réponse."
+
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
 msgid "Connection failed"
 msgstr "Échec de la connexion"
 

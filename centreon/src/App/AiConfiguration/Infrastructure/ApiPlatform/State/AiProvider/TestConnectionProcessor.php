@@ -81,6 +81,7 @@ final readonly class TestConnectionProcessor implements ProcessorInterface
             message: $result->message,
             model: $result->model,
             reasoning: $result->reasoning,
+            warning: $result->warning?->value,
         );
     }
 }

@@ -105,6 +105,13 @@ export interface ConnectionTestResult {
   // the reasoning setting sent to the model, e.g. "reasoning_effort: low"
   reasoning?: string | null;
   success: boolean;
+  warning?: ConnectionTestWarning | null;
+}
+
+// what a successful test still reveals about the model
+export enum ConnectionTestWarning {
+  BudgetUsedWithoutAnswer = 'budget_used_without_answer',
+  NoReasoningSetting = 'no_reasoning_setting'
 }
 
 export const connectionTestResultDecoder =
@@ -113,7 +120,15 @@ export const connectionTestResultDecoder =
       message: JsonDecoder.optional(JsonDecoder.nullable(JsonDecoder.string)),
       model: JsonDecoder.optional(JsonDecoder.nullable(JsonDecoder.string)),
       reasoning: JsonDecoder.optional(JsonDecoder.nullable(JsonDecoder.string)),
-      success: JsonDecoder.boolean
+      success: JsonDecoder.boolean,
+      warning: JsonDecoder.optional(
+        JsonDecoder.nullable(
+          JsonDecoder.enumeration<ConnectionTestWarning>(
+            ConnectionTestWarning,
+            'ConnectionTestWarning'
+          )
+        )
+      )
     },
     'Connection test result'
   );

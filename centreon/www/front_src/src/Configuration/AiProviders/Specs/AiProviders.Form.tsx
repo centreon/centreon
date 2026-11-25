@@ -26,6 +26,7 @@ import {
   labelConnectionSucceededWithModel,
   labelConnectionSucceededWithModelAndReasoning,
   labelConnectionSucceededWithReasoning,
+  labelConnectionWarningNoReasoningSetting,
   labelCurrency,
   labelCurrencyChangeResetsUsage,
   labelCurrencyRequired,
@@ -604,6 +605,63 @@ export default (): void => {
       expect((secondRequest.body as Payload).default_model_reasoning).toBe(
         'default'
       );
+    });
+
+    it('warns, under a successful connection test, when the model accepted no setting to reason less', async () => {
+      await openCreationForm();
+      await selectType(labelAnthropic);
+      await userEvent.type(await getApiToken(), 'a-very-secret-token');
+
+      interceptAPIRequest({
+        alias: 'testConnectionWithWarning',
+        method: Method.POST,
+        path: `**${testConnectionEndpoint}`,
+        response: {
+          ...connectionTestResponse,
+          warning: 'no_reasoning_setting'
+        }
+      });
+
+      await waitFor(() =>
+        expect(screen.getByTestId(labelTestConnection)).toBeEnabled()
+      );
+      await userEvent.click(screen.getByTestId(labelTestConnection));
+      await waitForRequest('@testConnectionWithWarning');
+
+      expect(
+        await screen.findByText(
+          labelConnectionSucceededWithModel.replace(
+            '{{model}}',
+            'claude-sonnet-5-5'
+          )
+        )
+      ).toBeVisible();
+      expect(
+        screen.getByText(labelConnectionWarningNoReasoningSetting)
+      ).toBeVisible();
+    });
+
+    it('shows no warning under a plain successful connection test', async () => {
+      await openCreationForm();
+      await selectType(labelAnthropic);
+      await userEvent.type(await getApiToken(), 'a-very-secret-token');
+
+      await waitFor(() =>
+        expect(screen.getByTestId(labelTestConnection)).toBeEnabled()
+      );
+      await userEvent.click(screen.getByTestId(labelTestConnection));
+
+      expect(
+        await screen.findByText(
+          labelConnectionSucceededWithModel.replace(
+            '{{model}}',
+            'claude-sonnet-5-5'
+          )
+        )
+      ).toBeVisible();
+      expect(
+        screen.queryByTestId('connectionTestWarning')
+      ).not.toBeInTheDocument();
     });
 
     it('shows the reasoning applied when the provider does not name the model that answered', async () => {

@@ -76,6 +76,16 @@ final readonly class TestConnectionResource
             openapiContext: ['example' => 'reasoning_effort: none'],
         )]
         public ?string $reasoning = null,
+
+        #[ApiProperty(
+            description: 'What a successful test still reveals about the model: "no_reasoning_setting" when, '
+                . 'set to reason as little as it allows, it accepted no setting that turns its reasoning down; '
+                . '"budget_used_without_answer" when it used its whole answer budget without writing anything, '
+                . 'most likely reasoning. Null otherwise',
+            writable: false,
+            openapiContext: ['example' => 'no_reasoning_setting'],
+        )]
+        public ?string $warning = null,
     ) {
     }
 }

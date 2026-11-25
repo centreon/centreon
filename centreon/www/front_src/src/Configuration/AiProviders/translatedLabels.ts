@@ -66,6 +66,10 @@ export const labelConnectionSucceededWithReasoning =
   'Connection successful (reasoning: {{reasoning}})';
 export const labelConnectionSucceededWithModelAndReasoning =
   'Connection successful ({{model}}, reasoning: {{reasoning}})';
+export const labelConnectionWarningNoReasoningSetting =
+  'The model accepts no setting that turns its reasoning down: if it reasons, it does as much as by default.';
+export const labelConnectionWarningBudgetUsed =
+  'The model used its whole answer budget without writing anything, most likely reasoning: the AI features may get no answer from it.';
 export const labelConnectionFailed = 'Connection failed';
 export const labelTestConnectionHint =
   'Sends a minimal request to the provider (billed by the provider, not counted toward the spend limit)';

@@ -20597,6 +20597,14 @@ msgstr ""
 msgid "Connection successful ({{model}}, reasoning: {{reasoning}})"
 msgstr ""
 
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "The model accepts no setting that turns its reasoning down: if it reasons, it does as much as by default."
+msgstr ""
+
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "The model used its whole answer budget without writing anything, most likely reasoning: the AI features may get no answer from it."
+msgstr ""
+
 #: centreon/www/install/front_translate.php
 msgid "Connection failed"
 msgstr ""

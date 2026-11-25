@@ -23,6 +23,9 @@ declare(strict_types=1);
 
 namespace App\AiConfiguration\Application\Command;
 
+use App\AiConfiguration\Domain\Aggregate\AiProvider\ReasoningModeEnum;
+use App\AiConfiguration\Domain\Llm\LlmResponse;
+
 final readonly class TestAiProviderResult
 {
     public function __construct(
@@ -31,6 +34,24 @@ final readonly class TestAiProviderResult
         public ?string $model = null,
         // the setting sent to turn the reasoning of the tested model down, if any
         public ?string $reasoning = null,
+        public ?ConnectionTestWarningEnum $warning = null,
     ) {
+    }
+
+    /**
+     * The provider answered: the connection works, whatever the model wrote.
+     */
+    public static function fromResponse(LlmResponse $response): self
+    {
+        return new self(
+            success: true,
+            model: $response->model,
+            reasoning: $response->reasoning,
+            warning: match (true) {
+                $response->truncated && trim($response->content) === '' => ConnectionTestWarningEnum::BudgetUsedWithoutAnswer,
+                $response->reasoningMode === ReasoningModeEnum::Minimal && $response->reasoning === null => ConnectionTestWarningEnum::NoReasoningSetting,
+                default => null,
+            },
+        );
     }
 }

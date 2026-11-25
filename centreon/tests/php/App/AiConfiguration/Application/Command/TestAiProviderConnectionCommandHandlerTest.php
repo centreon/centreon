@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\App\AiConfiguration\Application\Command;
 
+use App\AiConfiguration\Application\Command\ConnectionTestWarningEnum;
 use App\AiConfiguration\Application\Command\TestAiProviderConnectionCommand;
 use App\AiConfiguration\Application\Command\TestAiProviderConnectionCommandHandler;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProvider;
@@ -39,6 +40,7 @@ use App\AiConfiguration\Domain\Llm\Exception\LlmRequestFailedException;
 use App\AiConfiguration\Domain\Llm\LlmResponse;
 use App\AiConfiguration\Domain\Llm\LlmUsage;
 use App\Shared\Application\Command\NonTransactionalCommand;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Tests\App\AiConfiguration\Infrastructure\Double\FakeAiProviderRepository;
 use Tests\App\AiConfiguration\Infrastructure\Double\FakeLlmClient;
@@ -129,6 +131,49 @@ final class TestAiProviderConnectionCommandHandlerTest extends TestCase
 
         self::assertSame(ReasoningModeEnum::Default, $factory->lastConnectionSpec?->modelReasoning);
         self::assertSame('thinking: disabled', $result->reasoning);
+        self::assertNull($result->warning);
+    }
+
+    /**
+     * @return iterable<string, array{LlmResponse, ConnectionTestWarningEnum|null}>
+     */
+    public static function provideWarnings(): iterable
+    {
+        $usage = new LlmUsage(5, 16);
+
+        yield 'a setting accepted' => [
+            new LlmResponse('pong', 'a-model', $usage, reasoning: 'reasoning_effort: none', reasoningMode: ReasoningModeEnum::Minimal),
+            null,
+        ];
+
+        yield 'the model default' => [
+            new LlmResponse('pong', 'a-model', $usage, reasoningMode: ReasoningModeEnum::Default),
+            null,
+        ];
+
+        yield 'set to reason minimally, no setting accepted' => [
+            new LlmResponse('pong', 'a-model', $usage, reasoningMode: ReasoningModeEnum::Minimal),
+            ConnectionTestWarningEnum::NoReasoningSetting,
+        ];
+
+        yield 'the whole budget used without an answer' => [
+            new LlmResponse(' ', 'a-model', $usage, truncated: true, reasoning: 'reasoning_effort: low', reasoningMode: ReasoningModeEnum::Minimal),
+            ConnectionTestWarningEnum::BudgetUsedWithoutAnswer,
+        ];
+
+        yield 'a cut answer is still an answer' => [
+            new LlmResponse('po', 'a-model', $usage, truncated: true, reasoningMode: ReasoningModeEnum::Default),
+            null,
+        ];
+    }
+
+    #[DataProvider('provideWarnings')]
+    public function testASuccessfulTestWarnsAboutTheModel(LlmResponse $response, ?ConnectionTestWarningEnum $warning): void
+    {
+        $result = $this->handler(new FakeLlmClient(response: $response))($this->command(apiToken: new ApiToken('typed-token')));
+
+        self::assertTrue($result->success);
+        self::assertSame($warning, $result->warning);
     }
 
     public function testARefusalStillProvesTheConnection(): void

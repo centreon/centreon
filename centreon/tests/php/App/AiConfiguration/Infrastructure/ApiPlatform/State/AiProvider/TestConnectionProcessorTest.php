@@ -130,7 +130,8 @@ final class TestConnectionProcessorTest extends AiProviderApiTestCase
     public function testASuccessfulTestSendsTheChosenSettingAndReportsTheOneApplied(): void
     {
         $factory = new FakeLlmClientFactory(new FakeLlmClient(
-            new LlmResponse('pong', 'a-model', new LlmUsage(1, 1), reasoning: 'reasoning_effort: low')
+            // the whole budget used without an answer: still a working connection
+            new LlmResponse('', 'a-model', new LlmUsage(1, 16), truncated: true, reasoning: 'reasoning_effort: low')
         ));
         self::getContainer()->set(LlmClientFactoryInterface::class, $factory);
         $this->login();
@@ -147,10 +148,11 @@ final class TestConnectionProcessorTest extends AiProviderApiTestCase
 
         self::assertResponseStatusCodeSame(200);
         self::assertSame(ReasoningModeEnum::Default, $factory->lastConnectionSpec?->modelReasoning);
-        /** @var array{success: bool, reasoning?: string|null} $result */
+        /** @var array{success: bool, reasoning?: string|null, warning?: string|null} $result */
         $result = $response->toArray();
         self::assertTrue($result['success']);
         self::assertSame('reasoning_effort: low', $result['reasoning'] ?? null);
+        self::assertSame('budget_used_without_answer', $result['warning'] ?? null);
     }
 
     public function testAnUnknownReasoningSettingIsRejected(): void

@@ -88,6 +88,6 @@ final readonly class TestAiProviderConnectionCommandHandler
             return new TestAiProviderResult(success: false, message: $exception->getMessage());
         }
 
-        return new TestAiProviderResult(success: true, model: $response->model, reasoning: $response->reasoning);
+        return TestAiProviderResult::fromResponse($response);
     }
 }
