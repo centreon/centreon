@@ -58,6 +58,8 @@ dbms=${ENV_CENTREON_DBMS:-"MariaDB"}            #Default database system to be u
 operation=${ENV_CENTREON_OPERATION:-"install"}  #Default operation to be executed
 runtime_log_level=${ENV_LOG_LEVEL:-"INFO"}      #Default log level to be used
 selinux_mode=${ENV_SELINUX_MODE:-"permissive"}  #Default SELinux mode to be used
+selinux_mode=${selinux_mode,,}                  #Compared in lower case below
+selinux_enforcing_skipped="false"               #Set when enforcing is not applied (rules missing)
 wizard_autoplay=${ENV_WIZARD_AUTOPLAY:-"false"} #Default the install wizard is not run auto
 central_ip=${ENV_CENTRAL_IP:-$default_ip}       #Default central ip is the first of hostname -I
 tls=${ENV_DB_TLS:-"disabled"}                   #Default DB TLS mode
@@ -104,6 +106,7 @@ centreon_admin_password=
 # Variables will be defined later according to the target system OS
 BASE_PACKAGES=
 CENTREON_SELINUX_PACKAGES=
+CENTREON_SELINUX_MODULES=
 RELEASE_REPO_FILE=
 PHP_SERVICE_UNIT=
 HTTP_SERVICE_UNIT=
@@ -939,6 +942,40 @@ function set_selinux_config() {
 
 }
 #========= end of function set_selinux_config()
+
+#========= begin of function centreon_selinux_modules_loaded()
+# return 0 when every module of CENTREON_SELINUX_MODULES is loaded
+# and, when the web module defines it, the php-fpm port label is set
+#
+function centreon_selinux_modules_loaded() {
+	local _loaded _module _ports _web_pp=/usr/share/selinux/packages/centreon/centreon-web.pp
+	_loaded=$(semodule -l 2>/dev/null | awk '{print $1}') || return 1
+	for _module in "${CENTREON_SELINUX_MODULES[@]}"; do
+		if ! grep -qx -- "$_module" <<<"$_loaded"; then
+			log "WARN" "SELinux module [$_module] is not loaded"
+			return 1
+		fi
+	done
+	if [ ! -f "$_web_pp" ] && [[ " ${CENTREON_SELINUX_MODULES[*]} " == *" centreon-web "* ]]; then
+		log "WARN" "centreon-web SELinux package file is missing: cannot confirm the tcp/9042 label"
+		return 1
+	fi
+	# older centreon-web modules allow every unreserved port and need no label
+	if [ -f "$_web_pp" ] && grep -aq centreon_php_fpm_port_t "$_web_pp"; then
+		_ports=$(semanage port -l -C -n 2>/dev/null) || _ports=""
+		awk -v p=9042 '$1 == "centreon_php_fpm_port_t" && $2 == "tcp" {
+			for (i = 3; i <= NF; i++) {
+				f = $i; sub(/,$/, "", f)
+				if (split(f, r, "-") == 2 && r[1] + 0 <= p && p <= r[2] + 0) found = 1
+				else if (f == p) found = 1
+			}
+		}
+		END { exit !found }' <<<"$_ports" && return 0
+		log "WARN" "tcp/9042 is not labelled centreon_php_fpm_port_t"
+		return 1
+	fi
+}
+#========= end of function centreon_selinux_modules_loaded()
 
 #========= begin of function set_runtime_selinux_mode ()
 # set runtime SELinux mode: $1 (permissive | enforcing)
@@ -1908,6 +1945,13 @@ function update_after_installation() {
 			log "INFO" "Centreon SELinux rules are installed. Please consult the documentation https://docs.centreon.com/docs/administration/secure-platform for more details."
 		fi
 
+		# enforcing without the Centreon rules would deny php-fpm, broker, engine...
+		if [ "$selinux_mode" == "enforcing" ] && ! centreon_selinux_modules_loaded; then
+			log "WARN" "Centreon SELinux rules are missing: keeping SELinux [permissive] instead of [enforcing]"
+			selinux_mode="permissive"
+			selinux_enforcing_skipped="true"
+		fi
+
 		#then change the SELinux mode
 		set_runtime_selinux_mode $selinux_mode
 
@@ -2226,12 +2270,14 @@ install)
 	case $topology in
 	central)
 		CENTREON_SELINUX_PACKAGES=(centreon-common-selinux centreon-web-selinux centreon-broker-selinux centreon-engine-selinux $gorgone_selinux_package_name centreon-plugins-selinux)
+		CENTREON_SELINUX_MODULES=(centreon-common centreon-web centreon-broker centreon-engine centreon-gorgoned centreon-plugins)
 		install_central
 		CENTREON_DOC_URL="https://docs.centreon.com/docs/installation/web-and-post-installation/#web-installation"
 		;;
 
 	poller)
 		CENTREON_SELINUX_PACKAGES=(centreon-common-selinux centreon-broker-selinux centreon-engine-selinux $gorgone_selinux_package_name centreon-plugins-selinux)
+		CENTREON_SELINUX_MODULES=(centreon-common centreon-broker centreon-engine centreon-gorgoned centreon-plugins)
 		install_poller
 		CENTREON_DOC_URL="https://docs.centreon.com/docs/monitoring/monitoring-servers/add-a-poller-to-configuration/"
 		;;
@@ -2322,6 +2368,11 @@ if [ -e $tmp_passwords_file ] && [ "$topology" == "central" ] && [ "$operation" 
 fi
 if [ -e $tmp_passwords_file ] && [ "$operation" = "update" ]; then
 	rm -f $tmp_passwords_file
+fi
+
+# The admin asked for enforcing: say it on the console (fd 3), not only in the log file.
+if [ "${selinux_enforcing_skipped:-}" == "true" ]; then
+	echo "WARNING: SELinux left in [permissive] mode instead of [enforcing]: Centreon SELinux rules or the php-fpm port label are missing${LOG_FILE:+ - see $LOG_FILE}" >&3
 fi
 
 # A service left down must fail the run (non-zero exit) so CI and callers notice it;
