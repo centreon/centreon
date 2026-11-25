@@ -17136,6 +17136,10 @@ components:
           description: 'Monthly spend limit in the configured currency. Requires prices to be set.'
           type:
             - number
+        has_api_token:
+          readOnly: true
+          description: 'Whether an API token is stored. Only an OpenAI-compatible server that needs none can be without one.'
+          type: boolean
             - 'null'
     AiProvider.jsonMergePatch:
       type: object
@@ -17390,6 +17394,10 @@ components:
               description: 'Monthly spend limit in the configured currency. Requires prices to be set.'
               type:
                 - number
+            has_api_token:
+              readOnly: true
+              description: 'Whether an API token is stored. Only an OpenAI-compatible server that needs none can be without one.'
+              type: boolean
                 - 'null'
     CorrelateAlertsResource:
       type: object
@@ -17503,8 +17511,10 @@ components:
           minLength: 1
           maxLength: 4096
           pattern: '^(((?!^secret::).)*)$'
-          description: 'API token used to authenticate against the AI provider. This field is write-only: it is never returned by the API.'
-          type: string
+          description: 'API token used to authenticate against the AI provider. Required, except for an OpenAI-compatible server that needs none. This field is write-only: it is never returned by the API.'
+          type:
+            - string
+            - 'null'
           example: sk-...
         default_model:
           minLength: 1
@@ -17629,8 +17639,10 @@ components:
               minLength: 1
               maxLength: 4096
               pattern: '^(((?!^secret::).)*)$'
-              description: 'API token used to authenticate against the AI provider. This field is write-only: it is never returned by the API.'
-              type: string
+              description: 'API token used to authenticate against the AI provider. Required, except for an OpenAI-compatible server that needs none. This field is write-only: it is never returned by the API.'
+              type:
+                - string
+                - 'null'
               example: sk-...
             default_model:
               minLength: 1

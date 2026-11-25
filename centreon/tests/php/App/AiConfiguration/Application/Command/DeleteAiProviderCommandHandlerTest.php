@@ -96,6 +96,16 @@ final class DeleteAiProviderCommandHandlerTest extends TestCase
         self::assertSame(['initial-token'], $this->tokenStorage->removedTokens);
     }
 
+    public function testAProviderWithoutATokenHasNothingToRemove(): void
+    {
+        $aiProvider = $this->givenAiProvider('Local Ollama', type: AiProviderTypeEnum::OpenAiCompatible, apiToken: null);
+
+        ($this->handler)(new DeleteAiProviderCommand($aiProvider->id(), deletedBy: 1));
+
+        self::assertSame([], $this->tokenStorage->removedTokens);
+        self::assertNull($this->repository->findOneByName($aiProvider->name()));
+    }
+
     public function testVaultRemovalFailureAbortsTheDeletion(): void
     {
         $aiProvider = $this->givenAiProvider('Anthropic production');
@@ -120,14 +130,18 @@ final class DeleteAiProviderCommandHandlerTest extends TestCase
         self::assertTrue($this->eventBus->shouldHaveDispatched(AiProviderDeleted::class));
     }
 
-    private function givenAiProvider(string $name, bool $isActivated = false): AiProvider
-    {
+    private function givenAiProvider(
+        string $name,
+        bool $isActivated = false,
+        AiProviderTypeEnum $type = AiProviderTypeEnum::Anthropic,
+        ?StoredApiToken $apiToken = new StoredApiToken('initial-token'),
+    ): AiProvider {
         $aiProvider = new AiProvider(
             id: null,
             name: new AiProviderName($name),
-            type: AiProviderTypeEnum::Anthropic,
+            type: $type,
             endpointUrl: new EndpointUrl('https://api.anthropic.com'),
-            apiToken: new StoredApiToken('initial-token'),
+            apiToken: $apiToken,
             defaultModel: new ModelName('claude-sonnet-4-6'),
             fastModel: null,
             description: null,

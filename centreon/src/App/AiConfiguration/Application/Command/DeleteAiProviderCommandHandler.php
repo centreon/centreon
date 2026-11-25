@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\AiConfiguration\Application\Command;
 
+use App\AiConfiguration\Domain\Aggregate\AiProvider\StoredApiToken;
 use App\AiConfiguration\Domain\Event\AiProviderDeleted;
 use App\AiConfiguration\Domain\Exception\AiProviderNotFoundException;
 use App\AiConfiguration\Domain\Exception\VaultWriteFailedException;
@@ -53,8 +54,11 @@ final readonly class DeleteAiProviderCommandHandler
         $this->repository->delete($aiProvider);
 
         // removed within the transaction: an unreachable vault rolls the deletion back
+        $apiToken = $aiProvider->apiToken();
         try {
-            $this->tokenStorage->remove($aiProvider->apiToken(), $command->id);
+            if ($apiToken instanceof StoredApiToken) {
+                $this->tokenStorage->remove($apiToken, $command->id);
+            }
         } catch (\Throwable $exception) {
             throw VaultWriteFailedException::forDeletion($command->id, $exception);
         }

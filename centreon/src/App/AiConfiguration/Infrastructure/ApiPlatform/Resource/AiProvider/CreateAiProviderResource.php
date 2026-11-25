@@ -90,16 +90,6 @@ final class CreateAiProviderResource
         public string $type,
 
         #[ApiProperty(
-            description: 'API token used to authenticate against the AI provider. '
-                . 'This field is write-only: it is never returned by the API.',
-            openapiContext: ['example' => 'sk-...'],
-        )]
-        #[Assert\Length(min: 1, max: 4096)]
-        #[Assert\Regex(pattern: '/^secret::/', message: 'The API token cannot be a vault reference.', match: false)]
-        #[Sensitive]
-        public string $apiToken,
-
-        #[ApiProperty(
             description: 'Model used by AI features for this provider',
             openapiContext: ['example' => 'claude-sonnet-5-5'],
         )]
@@ -116,6 +106,17 @@ final class CreateAiProviderResource
         #[Assert\Length(min: 1, max: 2048)]
         #[Assert\Url(requireTld: false)]
         public ?string $endpointUrl = null,
+
+        #[ApiProperty(
+            description: 'API token used to authenticate against the AI provider. Required, except for an '
+                . 'OpenAI-compatible server that needs none. This field is write-only: it is never returned by '
+                . 'the API.',
+            openapiContext: ['example' => 'sk-...'],
+        )]
+        #[Assert\Length(min: 1, max: 4096)]
+        #[Assert\Regex(pattern: '/^secret::/', message: 'The API token cannot be a vault reference.', match: false)]
+        #[Sensitive]
+        public ?string $apiToken = null,
 
         #[ApiProperty(
             description: 'Model used by AI features requesting the fast tier. '

@@ -33,6 +33,7 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\ReasoningModeEnum;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\StoredApiToken;
 use App\AiConfiguration\Domain\Exception\AiProviderCanNotBeUpdatedException;
 use App\AiConfiguration\Domain\Exception\InvalidAiProviderConfigurationException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class AiProviderTest extends TestCase
@@ -44,17 +45,78 @@ final class AiProviderTest extends TestCase
         // a trailing slash does not change the target
         $aiProvider->retarget(new EndpointUrl('http://ollama.internal:11434/'), null);
 
-        self::assertSame('stored-token', $aiProvider->apiToken()->value);
+        self::assertSame('stored-token', $aiProvider->apiToken()?->value);
         self::assertSame('http://ollama.internal:11434/', $aiProvider->endpointUrl()->value);
     }
 
-    public function testRetargetingToAnotherEndpointRequiresANewToken(): void
+    public function testRetargetingToAnotherEndpointRequiresANewTokenForATypeThatNeedsOne(): void
     {
-        $aiProvider = $this->aiProvider();
+        $aiProvider = $this->aiProvider(AiProviderTypeEnum::Bedrock, 'https://bedrock-mantle.us-east-1.api.aws');
 
         $this->expectException(AiProviderCanNotBeUpdatedException::class);
 
+        $aiProvider->retarget(new EndpointUrl('https://bedrock-mantle.eu-west-1.api.aws'), null);
+    }
+
+    public function testRetargetingAServerThatMayNeedNoTokenDropsTheStoredOne(): void
+    {
+        $aiProvider = $this->aiProvider();
+
         $aiProvider->retarget(new EndpointUrl('https://attacker.example.org'), null);
+
+        // never sent to the new server
+        self::assertNull($aiProvider->apiToken());
+        self::assertSame('https://attacker.example.org', $aiProvider->endpointUrl()->value);
+    }
+
+    public function testAnOpenAiCompatibleServerMayBeCreatedWithoutAToken(): void
+    {
+        $aiProvider = AiProvider::create(
+            name: new AiProviderName('Local Ollama'),
+            type: AiProviderTypeEnum::OpenAiCompatible,
+            endpointUrl: new EndpointUrl('http://ollama.internal:11434'),
+            apiToken: null,
+            defaultModel: new ModelName('llama3'),
+            fastModel: null,
+            description: null,
+            isActivated: false,
+        );
+
+        self::assertNull($aiProvider->apiToken());
+    }
+
+    /**
+     * @return iterable<string, array{AiProviderTypeEnum, string}>
+     */
+    public static function provideTypesThatNeedAToken(): iterable
+    {
+        yield 'Anthropic' => [AiProviderTypeEnum::Anthropic, 'https://api.anthropic.com'];
+
+        yield 'OpenAI' => [AiProviderTypeEnum::OpenAi, 'https://api.openai.com'];
+
+        yield 'Mistral' => [AiProviderTypeEnum::Mistral, 'https://api.mistral.ai'];
+
+        yield 'Google' => [AiProviderTypeEnum::Google, 'https://generativelanguage.googleapis.com'];
+
+        yield 'Bedrock' => [AiProviderTypeEnum::Bedrock, 'https://bedrock-mantle.us-east-1.api.aws'];
+    }
+
+    #[DataProvider('provideTypesThatNeedAToken')]
+    public function testAHostedProviderCanNotBeCreatedWithoutAToken(AiProviderTypeEnum $type, string $endpointUrl): void
+    {
+        $this->expectException(InvalidAiProviderConfigurationException::class);
+        $this->expectExceptionMessage(sprintf("An API token is required for providers of type '%s'.", $type->value));
+
+        AiProvider::create(
+            name: new AiProviderName('Hosted'),
+            type: $type,
+            endpointUrl: new EndpointUrl($endpointUrl),
+            apiToken: null,
+            defaultModel: new ModelName('a-model'),
+            fastModel: null,
+            description: null,
+            isActivated: false,
+        );
     }
 
     public function testRetargetingWithANewToken(): void
@@ -63,7 +125,7 @@ final class AiProviderTest extends TestCase
 
         $aiProvider->retarget(new EndpointUrl('http://vllm.internal:8000'), new StoredApiToken('new-token'));
 
-        self::assertSame('new-token', $aiProvider->apiToken()->value);
+        self::assertSame('new-token', $aiProvider->apiToken()?->value);
         self::assertSame('http://vllm.internal:8000', $aiProvider->endpointUrl()->value);
     }
 

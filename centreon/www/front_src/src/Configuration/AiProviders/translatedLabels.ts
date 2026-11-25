@@ -11,6 +11,8 @@ export const labelType = 'Type';
 export const labelTypePlaceholder = 'Select a provider type';
 export const labelEndpointUrl = 'Endpoint URL';
 export const labelApiToken = 'API token';
+export const labelApiTokenOptionalHint =
+  'Optional: leave empty if the server needs none.';
 export const labelDefaultModel = 'Default model';
 export const labelDefaultModelPlaceholder =
   'e.g. claude-sonnet-5-5, mistral-large-latest, gpt-6.2-sol';

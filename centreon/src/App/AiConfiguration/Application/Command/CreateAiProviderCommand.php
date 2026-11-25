@@ -37,7 +37,8 @@ final readonly class CreateAiProviderCommand
     public function __construct(
         public AiProviderName $name,
         public AiProviderTypeEnum $type,
-        public ApiToken $apiToken,
+        // null for a server that needs none, if the type allows it
+        public ?ApiToken $apiToken,
         public EndpointUrl $endpointUrl,
         public ModelName $defaultModel,
         public ?ModelName $fastModel,

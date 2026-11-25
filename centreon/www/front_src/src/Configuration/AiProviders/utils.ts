@@ -85,3 +85,8 @@ export const isSameEndpoint = (
   storedEndpointUrl?: string | null
 ): boolean =>
   normalizeEndpoint(endpointUrl) === normalizeEndpoint(storedEndpointUrl);
+
+// an OpenAI-compatible server may need no token (e.g. a local Ollama); the
+// hosted providers always do
+export const isApiTokenOptional = (type?: AiProviderType | null): boolean =>
+  type === AiProviderType.OpenAiCompatible;

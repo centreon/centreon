@@ -115,7 +115,7 @@ final class TestAiProviderConnectionCommandHandlerTest extends TestCase
         self::assertNotNull($spec);
         self::assertSame(AiProviderTypeEnum::Anthropic, $spec->type);
         self::assertSame('https://api.anthropic.com', $spec->endpointUrl->value);
-        self::assertSame('typed-token', $spec->apiToken->value);
+        self::assertSame('typed-token', $spec->apiToken?->value);
         self::assertSame('claude-sonnet-4-6', $spec->model?->value);
         self::assertSame(ReasoningModeEnum::Minimal, $spec->modelReasoning);
     }
@@ -236,11 +236,46 @@ final class TestAiProviderConnectionCommandHandlerTest extends TestCase
         $result = $handler($this->command(
             apiToken: null,
             id: $provider->id()->value,
-            type: AiProviderTypeEnum::OpenAiCompatible,
+            type: AiProviderTypeEnum::Mistral,
+            endpointUrl: 'https://api.mistral.ai',
         ));
 
         self::assertFalse($result->success);
         self::assertNull($client->lastRequest);
+    }
+
+    public function testAServerThatMayNeedNoTokenIsTestedWithoutTheStoredOne(): void
+    {
+        $provider = $this->aiProvider();
+        $this->repository->add($provider);
+        $factory = new FakeLlmClientFactory(new FakeLlmClient(response: new LlmResponse('pong', 'm', new LlmUsage(5, 1))));
+        $handler = new TestAiProviderConnectionCommandHandler($this->repository, $factory);
+
+        $result = $handler($this->command(
+            apiToken: null,
+            id: $provider->id()->value,
+            type: AiProviderTypeEnum::OpenAiCompatible,
+            endpointUrl: 'http://ollama.internal:11434',
+        ));
+
+        self::assertTrue($result->success);
+        self::assertNotNull($factory->lastConnectionSpec);
+        self::assertNull($factory->lastConnectionSpec->apiToken);
+    }
+
+    public function testANewServerThatMayNeedNoTokenIsTestedWithoutOne(): void
+    {
+        $factory = new FakeLlmClientFactory(new FakeLlmClient(response: new LlmResponse('pong', 'm', new LlmUsage(5, 1))));
+        $handler = new TestAiProviderConnectionCommandHandler($this->repository, $factory);
+
+        $result = $handler($this->command(
+            apiToken: null,
+            type: AiProviderTypeEnum::OpenAiCompatible,
+            endpointUrl: 'http://ollama.internal:11434',
+        ));
+
+        self::assertTrue($result->success);
+        self::assertNull($factory->lastConnectionSpec?->apiToken);
     }
 
     public function testNoTokenAndNoIdFails(): void

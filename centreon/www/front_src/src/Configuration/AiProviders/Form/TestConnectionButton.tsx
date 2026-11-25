@@ -37,7 +37,7 @@ import {
   labelTestConnectionHint,
   labelTestingConnection
 } from '../translatedLabels';
-import { isSameEndpoint } from '../utils';
+import { isApiTokenOptional, isSameEndpoint } from '../utils';
 
 interface FormValues {
   apiToken?: string | null;
@@ -139,8 +139,10 @@ const TestConnectionButton = (): JSX.Element => {
   // the stored token is only reused against the endpoint it was configured for
   const canUseStoredToken =
     isEditing && isSameEndpoint(values.endpointUrl, initialValues.endpointUrl);
+  // an OpenAI-compatible server may need no token
   const canTest =
-    Boolean(values.defaultModel) && (hasTypedToken || canUseStoredToken);
+    Boolean(values.defaultModel) &&
+    (hasTypedToken || canUseStoredToken || isApiTokenOptional(values.type));
 
   // a result only holds for the inputs it was obtained with: it is hidden as
   // soon as one of them changes, including while the test is running

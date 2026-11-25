@@ -21635,6 +21635,10 @@ msgstr ""
 msgid "API token"
 msgstr ""
 
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "Optional: leave empty if the server needs none."
+msgstr ""
+
 #: centreon/www/install/front_translate.php
 msgid "Default model"
 msgstr ""

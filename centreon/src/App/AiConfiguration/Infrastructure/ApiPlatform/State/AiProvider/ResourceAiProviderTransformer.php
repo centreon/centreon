@@ -53,6 +53,7 @@ final readonly class ResourceAiProviderTransformer implements TransformerInterfa
             priceFastOutput: $from->billing()->pricing?->fast?->outputPricePerMillion,
             limitDaily: $from->billing()->limit?->daily,
             limitMonthly: $from->billing()->limit?->monthly,
+            hasApiToken: $from->apiToken() !== null,
         );
     }
 }

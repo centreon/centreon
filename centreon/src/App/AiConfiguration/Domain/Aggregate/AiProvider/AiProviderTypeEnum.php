@@ -46,6 +46,15 @@ enum AiProviderTypeEnum: string
     }
 
     /**
+     * An OpenAI-compatible server may need no token (e.g. a local Ollama or vLLM); the
+     * hosted providers always do.
+     */
+    public function requiresApiToken(): bool
+    {
+        return $this !== self::OpenAiCompatible;
+    }
+
+    /**
      * Official endpoint of a curated provider, always used for it. OpenAI-compatible
      * and Bedrock providers have none: their endpoint is configured (for Bedrock,
      * the Mantle endpoint of an AWS region).

@@ -86,6 +86,34 @@ final class OpenAiCompatibleLlmClientTest extends TestCase
         );
     }
 
+    public function testWithoutATokenNoAuthorizationHeaderIsSent(): void
+    {
+        $sentHeaders = [];
+        $httpClient = new MockHttpClient(
+            function (string $method, string $url, array $options) use (&$sentHeaders): MockResponse {
+                /** @var array{normalized_headers: array<string, list<string>>} $options */
+                $sentHeaders[] = $options['normalized_headers'];
+
+                return $method === 'GET'
+                    ? new MockResponse(json_encode(['data' => [['id' => 'a-model']]], \JSON_THROW_ON_ERROR))
+                    : new MockResponse(json_encode([
+                        'choices' => [['message' => ['content' => 'pong', 'role' => 'assistant']]],
+                        'model' => 'a-model',
+                        'usage' => ['completion_tokens' => 1, 'prompt_tokens' => 1],
+                    ], \JSON_THROW_ON_ERROR));
+            }
+        );
+        $client = $this->createClient($httpClient, apiToken: null);
+
+        $client->complete($this->createRequest());
+        $client->listModels();
+
+        self::assertCount(2, $sentHeaders);
+        foreach ($sentHeaders as $headers) {
+            self::assertArrayNotHasKey('authorization', $headers);
+        }
+    }
+
     public function testUsesTheConfiguredMaxTokensField(): void
     {
         $capturedBody = '';
@@ -628,12 +656,12 @@ final class OpenAiCompatibleLlmClientTest extends TestCase
     private function createClient(
         HttpClientInterface $httpClient,
         ?LoggerInterface $logger = null,
-        string $apiToken = 'a-token',
+        ?string $apiToken = 'a-token',
     ): OpenAiCompatibleLlmClient {
         return new OpenAiCompatibleLlmClient(
             $httpClient,
             new EndpointUrl('https://api.mistral.ai'),
-            new ApiToken($apiToken),
+            $apiToken !== null ? new ApiToken($apiToken) : null,
             new ModelName('mistral-small-latest'),
             fastModel: null,
             logger: $logger ?? new NullLogger(),

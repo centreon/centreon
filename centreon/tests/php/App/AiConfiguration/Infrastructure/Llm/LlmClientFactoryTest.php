@@ -179,6 +179,52 @@ final class LlmClientFactoryTest extends TestCase
         $this->factory->forProvider($this->createAiProvider(AiProviderTypeEnum::Anthropic, token: self::STORED_TOKEN));
     }
 
+    public function testAServerThatNeedsNoTokenIsSentNoAuthorizationHeader(): void
+    {
+        $headers = null;
+        $httpClient = new MockHttpClient(
+            function (string $method, string $url, array $options) use (&$headers): MockResponse {
+                /** @var array{normalized_headers: array<string, list<string>>} $options */
+                $headers = $options['normalized_headers'];
+
+                return new MockResponse(json_encode([
+                    'choices' => [['message' => ['content' => 'pong', 'role' => 'assistant']]],
+                    'model' => 'qwen3:0.6b',
+                    'usage' => ['completion_tokens' => 1, 'prompt_tokens' => 1],
+                ], \JSON_THROW_ON_ERROR));
+            }
+        );
+
+        $this->createFactory($httpClient)
+            ->forConnectionTest(new ConnectionSpec(
+                AiProviderTypeEnum::OpenAiCompatible,
+                new EndpointUrl('https://llm.example.org'),
+                null,
+                new ModelName('qwen3:0.6b'),
+            ))
+            ->complete(new LlmRequest(
+                messages: [new LlmMessage(LlmRoleEnum::User, 'ping')],
+                feature: AiFeatureEnum::ConnectionTest,
+                maxTokens: 16,
+            ));
+
+        self::assertIsArray($headers);
+        self::assertArrayNotHasKey('authorization', $headers);
+    }
+
+    public function testAHostedProviderWithoutATokenIsRefused(): void
+    {
+        $this->expectException(ApiTokenUnavailableException::class);
+        $this->expectExceptionMessage('This AI provider has no API token');
+
+        $this->factory->forConnectionTest(new ConnectionSpec(
+            AiProviderTypeEnum::Mistral,
+            new EndpointUrl('https://api.mistral.ai'),
+            null,
+            new ModelName('mistral-small-latest'),
+        ));
+    }
+
     public function testRequestsGoThroughThePlatformProxy(): void
     {
         self::assertSame(

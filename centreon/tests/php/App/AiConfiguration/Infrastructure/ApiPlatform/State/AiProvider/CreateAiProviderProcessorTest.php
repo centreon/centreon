@@ -198,6 +198,38 @@ final class CreateAiProviderProcessorTest extends AiProviderApiTestCase
         self::assertJsonContains(['endpoint_url' => 'http://ollama.internal:11434']);
     }
 
+    public function testAnOpenAiCompatibleServerIsCreatedWithoutAToken(): void
+    {
+        $this->login();
+
+        $this->request('POST', self::ENDPOINT, [
+            'json' => [
+                'name' => 'Local Ollama',
+                'type' => 'openai_compatible',
+                'endpoint_url' => 'http://ollama.internal:11434',
+                'default_model' => 'llama3',
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        self::assertJsonContains(['has_api_token' => false]);
+    }
+
+    public function testAHostedProviderWithoutATokenReturns422(): void
+    {
+        $this->login();
+
+        $this->request('POST', self::ENDPOINT, [
+            'json' => [
+                'name' => 'Anthropic production',
+                'type' => 'anthropic',
+                'default_model' => 'claude-sonnet-5-5',
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
     public function testCreateWithoutDefaultModelReturns400(): void
     {
         $this->login();

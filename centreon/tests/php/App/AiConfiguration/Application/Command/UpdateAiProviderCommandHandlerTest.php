@@ -147,7 +147,7 @@ final class UpdateAiProviderCommandHandlerTest extends TestCase
 
         $updated = ($this->handler)($this->updateCommand($aiProvider, apiToken: null));
 
-        self::assertSame('initial-token', $updated->apiToken()->value);
+        self::assertSame('initial-token', $updated->apiToken()?->value);
         self::assertSame([], $this->tokenStorage->persistedTokens);
     }
 
@@ -158,7 +158,7 @@ final class UpdateAiProviderCommandHandlerTest extends TestCase
         $updated = ($this->handler)($this->updateCommand($aiProvider, apiToken: 'new-token'));
 
         self::assertSame(['new-token'], $this->tokenStorage->persistedTokens);
-        self::assertSame(FakeAiProviderTokenStorage::STORED_PREFIX . 'new-token', $updated->apiToken()->value);
+        self::assertSame(FakeAiProviderTokenStorage::STORED_PREFIX . 'new-token', $updated->apiToken()?->value);
         // the replaced token is removed once the configuration references the new one
         self::assertSame(['initial-token'], $this->tokenStorage->discardedTokens);
     }
@@ -190,23 +190,41 @@ final class UpdateAiProviderCommandHandlerTest extends TestCase
         } catch (VaultWriteFailedException) {
         }
 
-        self::assertSame('initial-token', $this->repository->getById($aiProvider->id())->apiToken()->value);
+        self::assertSame('initial-token', $this->repository->getById($aiProvider->id())->apiToken()?->value);
         self::assertSame([], $this->tokenStorage->discardedTokens);
         self::assertTrue($this->eventBus->shouldNotHaveDispatched(AiProviderUpdated::class));
     }
 
-    public function testChangingTheEndpointRequiresTheTokenAgain(): void
+    public function testChangingTheEndpointRequiresTheTokenAgainForATypeThatNeedsOne(): void
     {
-        $aiProvider = $this->givenAiProvider('Anthropic production', isActivated: true);
+        $aiProvider = $this->givenAiProvider(
+            'Bedrock production',
+            isActivated: true,
+            type: AiProviderTypeEnum::Bedrock,
+            endpointUrl: 'https://bedrock-mantle.us-east-1.api.aws',
+        );
 
         try {
-            ($this->handler)($this->updateCommand($aiProvider, apiToken: null, endpointUrl: 'https://llm.example.com'));
+            ($this->handler)($this->updateCommand($aiProvider, apiToken: null, endpointUrl: 'https://bedrock-mantle.eu-west-1.api.aws'));
             self::fail('The stored token must not be kept for another endpoint.');
         } catch (AiProviderCanNotBeUpdatedException) {
         }
 
-        self::assertSame('https://api.anthropic.com', $this->repository->getById($aiProvider->id())->endpointUrl()->value);
+        self::assertSame('https://bedrock-mantle.us-east-1.api.aws', $this->repository->getById($aiProvider->id())->endpointUrl()->value);
         self::assertTrue($this->eventBus->shouldNotHaveDispatched(AiProviderUpdated::class));
+    }
+
+    public function testChangingTheEndpointOfAServerThatMayNeedNoTokenDropsTheStoredOne(): void
+    {
+        $aiProvider = $this->givenAiProvider('Local Ollama', isActivated: true);
+
+        ($this->handler)($this->updateCommand($aiProvider, apiToken: null, endpointUrl: 'http://ollama.internal:11434'));
+
+        $updated = $this->repository->getById($aiProvider->id());
+        self::assertSame('http://ollama.internal:11434', $updated->endpointUrl()->value);
+        // never sent to the new server, and no longer referenced
+        self::assertNull($updated->apiToken());
+        self::assertSame(['initial-token'], $this->tokenStorage->discardedTokens);
     }
 
     public function testChangingTheEndpointWithANewTokenIsAllowed(): void
@@ -229,7 +247,7 @@ final class UpdateAiProviderCommandHandlerTest extends TestCase
             $this->updateCommand($aiProvider, apiToken: null, endpointUrl: 'https://api.anthropic.com/')
         );
 
-        self::assertSame('initial-token', $updated->apiToken()->value);
+        self::assertSame('initial-token', $updated->apiToken()?->value);
     }
 
     public function testDispatchUpdatedEvent(): void
@@ -256,14 +274,18 @@ final class UpdateAiProviderCommandHandlerTest extends TestCase
         self::assertSame(ReasoningModeEnum::Minimal, $updated->fastModelReasoning());
     }
 
-    private function givenAiProvider(string $name, bool $isActivated = false): AiProvider
-    {
+    private function givenAiProvider(
+        string $name,
+        bool $isActivated = false,
+        // a type accepting any endpoint, to exercise the token reuse rule
+        AiProviderTypeEnum $type = AiProviderTypeEnum::OpenAiCompatible,
+        string $endpointUrl = 'https://api.anthropic.com',
+    ): AiProvider {
         $aiProvider = new AiProvider(
             id: null,
             name: new AiProviderName($name),
-            // a type accepting any endpoint, to exercise the token reuse rule
-            type: AiProviderTypeEnum::OpenAiCompatible,
-            endpointUrl: new EndpointUrl('https://api.anthropic.com'),
+            type: $type,
+            endpointUrl: new EndpointUrl($endpointUrl),
             apiToken: new StoredApiToken('initial-token'),
             defaultModel: new ModelName('claude-sonnet-4-6'),
             fastModel: null,

@@ -54,20 +54,23 @@ final readonly class DiscoverModelsCommandHandler
     public function __invoke(DiscoverModelsCommand $command): DiscoverModelsResult
     {
         $apiToken = $command->apiToken;
-        if (! $apiToken instanceof ApiToken) {
-            if (! $command->id instanceof AiProviderId) {
-                // nothing to authenticate with (the form gates this anyway)
-                return new DiscoverModelsResult(models: []);
-            }
-            // editing with an empty token field: use the stored token, but only
-            // against the stored target
-            $stored = $this->repository->getById($command->id);
-            if (! $stored->canReuseApiTokenFor($command->type, $command->endpointUrl)) {
-                return new DiscoverModelsResult(models: [], error: self::TOKEN_REQUIRED_MESSAGE);
-            }
-            $storedApiToken = $stored->apiToken();
-        } else {
+        // editing with an empty token field: use the stored token (if any), but only
+        // against the stored target
+        $stored = ! $apiToken instanceof ApiToken && $command->id instanceof AiProviderId
+            ? $this->repository->getById($command->id)
+            : null;
+        if ($apiToken instanceof ApiToken) {
             $storedApiToken = StoredApiToken::plain($apiToken);
+        } elseif ($stored?->canReuseApiTokenFor($command->type, $command->endpointUrl) === true) {
+            $storedApiToken = $stored->apiToken();
+        } elseif (! $command->type->requiresApiToken()) {
+            // a server that may need none is asked without one
+            $storedApiToken = null;
+        } elseif ($command->id instanceof AiProviderId) {
+            return new DiscoverModelsResult(models: [], error: self::TOKEN_REQUIRED_MESSAGE);
+        } else {
+            // nothing to authenticate with (the form gates this anyway)
+            return new DiscoverModelsResult(models: []);
         }
 
         $spec = new ConnectionSpec($command->type, $command->endpointUrl, $storedApiToken);

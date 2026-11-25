@@ -65,7 +65,8 @@ final readonly class CreateAiProviderProcessor implements ProcessorInterface
     /**
      * @param CreateAiProviderResource $data
      *
-     * @throws InvalidAiProviderConfigurationException when the endpoint does not fit the type
+     * @throws InvalidAiProviderConfigurationException when the endpoint does not fit the type, or the
+     *                                                 type needs a token and none is given
      */
     public function process($data, Operation $operation, array $uriVariables = [], array $context = []): AiProviderResource
     {
@@ -90,7 +91,7 @@ final readonly class CreateAiProviderProcessor implements ProcessorInterface
         $command = new CreateAiProviderCommand(
             name: new AiProviderName(trim($data->name)),
             type: $type,
-            apiToken: new ApiToken($data->apiToken),
+            apiToken: $data->apiToken !== null ? new ApiToken($data->apiToken) : null,
             endpointUrl: $endpointUrl,
             defaultModel: new ModelName($data->defaultModel),
             fastModel: $data->fastModel !== null ? new ModelName($data->fastModel) : null,

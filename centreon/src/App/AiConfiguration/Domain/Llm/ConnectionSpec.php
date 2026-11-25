@@ -47,7 +47,8 @@ final readonly class ConnectionSpec
     public function __construct(
         public AiProviderTypeEnum $type,
         EndpointUrl $endpointUrl,
-        public StoredApiToken $apiToken,
+        // null for a server that needs none
+        public ?StoredApiToken $apiToken,
         public ?ModelName $model = null,
         public ReasoningModeEnum $modelReasoning = ReasoningModeEnum::Minimal,
     ) {

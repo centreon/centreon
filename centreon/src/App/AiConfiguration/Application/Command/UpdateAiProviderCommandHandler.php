@@ -92,8 +92,8 @@ final readonly class UpdateAiProviderCommandHandler
             throw $exception;
         }
 
-        if ($storedApiToken instanceof StoredApiToken) {
-            // the configuration now references the new token
+        if ($previousApiToken instanceof StoredApiToken && $aiProvider->apiToken() !== $previousApiToken) {
+            // the configuration now references a new token, or none (dropped with its endpoint)
             $this->tokenStorage->discard($previousApiToken, $command->id);
         }
 

@@ -18,6 +18,7 @@ interface Props {
   dataTestId: string;
   disabled?: boolean;
   error?: string;
+  helperText?: string;
   // Cleared by the user, who now types the value to replace it with.
   isErased: boolean;
   // A value the server keeps but never sends back.
@@ -27,6 +28,7 @@ interface Props {
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
   onErase: () => void;
   onRevert: () => void;
+  required?: boolean;
   type?: string;
   value: string;
 }
@@ -38,6 +40,7 @@ const StoredSecretField = ({
   dataTestId,
   disabled = false,
   error,
+  helperText,
   isErased,
   isStored,
   label,
@@ -45,6 +48,7 @@ const StoredSecretField = ({
   onChange,
   onErase,
   onRevert,
+  required = false,
   type,
   value
 }: Props): ReactElement => {
@@ -84,10 +88,12 @@ const StoredSecretField = ({
       EndAdornment={action || undefined}
       error={isMasked ? undefined : error}
       fullWidth
+      helperText={helperText}
       inputRef={inputRef}
       label={label}
       onBlur={onBlur}
       onChange={onChange}
+      required={required}
       type={isMasked ? 'password' : type}
       value={isMasked ? mask : value}
     />

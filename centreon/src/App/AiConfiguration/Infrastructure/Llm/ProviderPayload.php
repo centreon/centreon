@@ -68,7 +68,7 @@ final class ProviderPayload
      * "detail" in it) or "detail" (FastAPI servers), if it has one, without the API token
      * a provider may echo in it. The document may come wrapped in a list (Gemini).
      */
-    public static function errorMessage(mixed $data, ApiToken $apiToken): ?string
+    public static function errorMessage(mixed $data, ?ApiToken $apiToken): ?string
     {
         if (! is_array($data)) {
             return null;
@@ -88,7 +88,7 @@ final class ProviderPayload
             return null;
         }
 
-        return mb_strlen($apiToken->value) >= self::MIN_MASKED_TOKEN_LENGTH
+        return $apiToken instanceof ApiToken && mb_strlen($apiToken->value) >= self::MIN_MASKED_TOKEN_LENGTH
             ? str_replace($apiToken->value, '[API token]', $message)
             : $message;
     }

@@ -8,8 +8,9 @@ import { useTranslation } from 'react-i18next';
 
 import { formStateAtom } from '../../ConfigurationBase/atoms';
 import StoredSecretField from '../../ConfigurationBase/Form/Macros/StoredSecretField';
-import { labelApiToken } from '../translatedLabels';
-import { isSameEndpoint } from '../utils';
+import { AiProviderType } from '../models';
+import { labelApiToken, labelApiTokenOptionalHint } from '../translatedLabels';
+import { isApiTokenOptional, isSameEndpoint } from '../utils';
 
 // The API never returns a stored token (write-only). In edit mode the field
 // therefore starts masked to signal that a token is configured; clearing it
@@ -36,12 +37,18 @@ const ApiTokenField = ({
 
   const [isErased, setIsErased] = useState(false);
 
+  // a server that needs none may have no token stored
   const isStoredTokenUsable =
     isEditing &&
+    path(['hasApiToken'], initialValues) !== false &&
     isSameEndpoint(
       path(['endpointUrl'], values) as string | null,
       path(['endpointUrl'], initialValues) as string | null
     );
+  const isOptional = isApiTokenOptional(
+    path(['type'], values) as AiProviderType | null
+  );
+  const isDisabled = getDisabled?.(values) ?? false;
 
   const value = (path([fieldName], values) as string | null) ?? '';
   // a changed endpoint explains right away why the token is needed again
@@ -53,8 +60,9 @@ const ApiTokenField = ({
   return (
     <StoredSecretField
       dataTestId={t(labelApiToken)}
-      disabled={getDisabled?.(values) ?? false}
+      disabled={isDisabled}
       error={error}
+      helperText={isOptional ? t(labelApiTokenOptionalHint) : undefined}
       isErased={isErased}
       isStored={isStoredTokenUsable}
       label={t(labelApiToken)}
@@ -70,6 +78,7 @@ const ApiTokenField = ({
         setIsErased(false);
         setFieldValue(fieldName, '');
       }}
+      required={!isOptional && !isDisabled}
       type="password"
       value={value}
     />

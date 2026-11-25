@@ -132,13 +132,18 @@ final readonly class LlmClientFactory implements LlmClientFactoryInterface
     private function buildClient(
         AiProviderTypeEnum $type,
         EndpointUrl $endpointUrl,
-        StoredApiToken $storedApiToken,
+        ?StoredApiToken $storedApiToken,
         ModelName $defaultModel,
         ?ModelName $fastModel,
         ReasoningModeEnum $defaultModelReasoning,
         ReasoningModeEnum $fastModelReasoning,
     ): LlmClientInterface {
-        $apiToken = $this->getApiToken($storedApiToken);
+        $apiToken = $storedApiToken instanceof StoredApiToken ? $this->getApiToken($storedApiToken) : null;
+        if (! $apiToken instanceof ApiToken && $type->requiresApiToken()) {
+            throw ApiTokenUnavailableException::missing();
+        }
+        // the clients of the types that need a token
+        $requiredApiToken = static fn (): ApiToken => $apiToken ?? throw ApiTokenUnavailableException::missing();
         $httpClient = $this->httpClientFor($endpointUrl);
 
         $openAiCompatible = fn (): OpenAiCompatibleLlmClient => new OpenAiCompatibleLlmClient(
@@ -157,7 +162,7 @@ final readonly class LlmClientFactory implements LlmClientFactoryInterface
         $anthropic = fn (string $messagesPath): AnthropicLlmClient => new AnthropicLlmClient(
             $httpClient,
             $endpointUrl,
-            $apiToken,
+            $requiredApiToken(),
             $defaultModel,
             $fastModel,
             $messagesPath,
@@ -174,7 +179,7 @@ final readonly class LlmClientFactory implements LlmClientFactoryInterface
                 $openAiCompatible(),
                 $httpClient,
                 $endpointUrl,
-                $apiToken,
+                $requiredApiToken(),
                 $this->logger,
             ),
             AiProviderTypeEnum::Bedrock => new BedrockLlmClient(

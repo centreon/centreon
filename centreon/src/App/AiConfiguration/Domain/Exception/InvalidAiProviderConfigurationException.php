@@ -52,6 +52,11 @@ final class InvalidAiProviderConfigurationException extends \InvalidArgumentExce
         return new self(sprintf("An endpoint URL is required for providers of type '%s'.", $type->value));
     }
 
+    public static function apiTokenRequired(AiProviderTypeEnum $type): self
+    {
+        return new self(sprintf("An API token is required for providers of type '%s'.", $type->value));
+    }
+
     public static function endpointNotAllowed(AiProviderTypeEnum $type): self
     {
         return new self(sprintf("Providers of type '%s' are reached at their official endpoint only.", $type->value));

@@ -24,6 +24,8 @@ declare(strict_types=1);
 namespace App\AiConfiguration\Application\Command;
 
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProvider;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\StoredApiToken;
 use App\AiConfiguration\Domain\Event\AiProviderCreated;
 use App\AiConfiguration\Domain\Event\AiProviderUpdated;
 use App\AiConfiguration\Domain\Exception\AiProviderActivationConflictException;
@@ -66,7 +68,7 @@ final readonly class CreateAiProviderCommandHandler
 
         // written before the configuration is saved, so that an unreachable vault saves nothing
         try {
-            $apiToken = $this->tokenStorage->persist($command->apiToken);
+            $apiToken = $command->apiToken instanceof ApiToken ? $this->tokenStorage->persist($command->apiToken) : null;
         } catch (\Throwable $exception) {
             throw VaultWriteFailedException::forCreation($exception);
         }
@@ -95,8 +97,10 @@ final readonly class CreateAiProviderCommandHandler
 
             $this->repository->add($aiProvider);
         } catch (\Throwable $exception) {
-            // nothing references the written token
-            $this->tokenStorage->discard($apiToken, null);
+            if ($apiToken instanceof StoredApiToken) {
+                // nothing references the written token
+                $this->tokenStorage->discard($apiToken, null);
+            }
 
             throw $exception;
         }

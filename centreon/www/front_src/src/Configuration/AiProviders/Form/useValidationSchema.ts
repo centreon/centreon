@@ -20,7 +20,7 @@ import {
   labelPricingRequiredForLimit,
   labelRequired
 } from '../translatedLabels';
-import { isSameEndpoint } from '../utils';
+import { isApiTokenOptional, isSameEndpoint } from '../utils';
 
 const billingFields = [
   'priceDefaultInput',
@@ -127,18 +127,26 @@ export const useValidationSchema = (): {
 
   const validationSchema = object({
     // when editing, an empty token keeps the stored one, which is only sent
-    // to the endpoint it was configured for
+    // to the endpoint it was configured for; an OpenAI-compatible server may
+    // need none
     apiToken: isEditing
       ? string()
           .nullable()
-          .when('endpointUrl', ([endpointUrl], schema) =>
+          .when(['endpointUrl', 'type'], ([endpointUrl, type], schema) =>
             // the API enforces it anyway: do not block before the details load
+            isApiTokenOptional(type) ||
             isNil(storedEndpointUrl) ||
             isSameEndpoint(endpointUrl, storedEndpointUrl)
               ? schema
               : schema.required(t(labelApiTokenRequiredForNewEndpoint))
           )
-      : string().required(t(labelRequired)),
+      : string()
+          .nullable()
+          .when('type', ([type], schema) =>
+            isApiTokenOptional(type)
+              ? schema
+              : schema.required(t(labelRequired))
+          ),
     // a price or a limit requires a currency
     currency: string()
       .nullable()

@@ -20,6 +20,7 @@ import {
 import {
   labelAnthropic,
   labelApiToken,
+  labelApiTokenOptionalHint,
   labelApiTokenRequiredForNewEndpoint,
   labelAwsRegion,
   labelBedrock,
@@ -291,6 +292,42 @@ export default (): void => {
 
       expect(isFollowing(endpoint, token)).toBe(true);
       expect(isFollowing(token, model)).toBe(true);
+    });
+
+    it('requires the token of a hosted provider, and makes it optional for an OpenAI-compatible server', async () => {
+      await openCreationForm();
+      await selectType(labelAnthropic);
+
+      expect(await getApiToken()).toBeRequired();
+      expect(screen.queryByText(labelApiTokenOptionalHint)).toBeNull();
+      expect(await screen.findByTestId(labelFetchModels)).toBeDisabled();
+
+      await selectType(labelOpenAiCompatible);
+
+      expect(await screen.findByText(labelApiTokenOptionalHint)).toBeVisible();
+      expect(await getApiToken()).not.toBeRequired();
+      // the server may need no token: its models can be listed without one
+      await waitFor(() =>
+        expect(screen.getByTestId(labelFetchModels)).toBeEnabled()
+      );
+    });
+
+    it('shows no stored token for a server saved without one', async () => {
+      await openProvider({
+        aiProvider: {
+          ...getAiProviderResponse(),
+          endpoint_url: 'http://ollama.internal:11434',
+          has_api_token: false,
+          type: 'openai_compatible'
+        }
+      });
+
+      const token = await getApiToken();
+
+      await waitFor(() => expect(token).toHaveValue(''));
+      expect(token).toBeEnabled();
+      expect(screen.queryByTestId(`${labelApiToken}-clear`)).toBeNull();
+      expect(screen.getByText(labelApiTokenOptionalHint)).toBeVisible();
     });
 
     it('sends a model discovery request gated on an available token', async () => {
@@ -910,12 +947,12 @@ export default (): void => {
       expect(body).not.toHaveProperty('api_token');
     });
 
-    it('asks for the token again when the endpoint of a provider is changed', async () => {
+    it('asks for the token again when the endpoint of a provider that needs one is changed', async () => {
       await openProvider({
         aiProvider: {
           ...getAiProviderResponse(),
-          endpoint_url: 'https://llm-gateway.example.com',
-          type: 'openai_compatible'
+          endpoint_url: 'https://bedrock-mantle.us-east-1.api.aws',
+          type: 'bedrock'
         }
       });
 
@@ -927,8 +964,8 @@ export default (): void => {
       );
 
       await replaceValue(
-        (await queryAllInPanel(endpointUrlTestId)).at(-1) as HTMLElement,
-        'https://other-gateway.example.com'
+        await getCustomInput(labelAwsRegion),
+        'eu-west-1{Escape}'
       );
 
       // the stored token is never sent to another endpoint: it must be typed
@@ -951,9 +988,49 @@ export default (): void => {
       const { request } = await waitForRequest('@updateAiProvider');
       const body = request.body as Payload;
 
-      expect(body.endpoint_url).toBe('https://other-gateway.example.com');
+      expect(body.endpoint_url).toBe(
+        'https://bedrock-mantle.eu-west-1.api.aws'
+      );
       expect(body.api_token).toBe('a-new-token');
     });
+
+    it('drops the stored token of an OpenAI-compatible server moved to another endpoint', async () => {
+      await openProvider({
+        aiProvider: {
+          ...getAiProviderResponse(),
+          endpoint_url: 'https://llm-gateway.example.com',
+          type: 'openai_compatible'
+        }
+      });
+
+      await waitFor(async () =>
+        expect(await getApiToken()).toHaveValue('********')
+      );
+
+      await replaceValue(
+        (await queryAllInPanel(endpointUrlTestId)).at(-1) as HTMLElement,
+        'https://other-gateway.example.com'
+      );
+
+      // never sent to the new endpoint, which may need no token
+      await waitFor(async () => expect(await getApiToken()).toHaveValue(''));
+      expect(
+        screen.queryByText(labelApiTokenRequiredForNewEndpoint)
+      ).toBeNull();
+      expect(screen.getByText(labelApiTokenOptionalHint)).toBeVisible();
+      await waitFor(() =>
+        expect(screen.getByTestId(labelTestConnection)).toBeEnabled()
+      );
+
+      await save();
+
+      const { request } = await waitForRequest('@updateAiProvider');
+      const body = request.body as Payload;
+
+      expect(body.endpoint_url).toBe('https://other-gateway.example.com');
+      expect(body).not.toHaveProperty('api_token');
+    });
+
     it('prefills the prices found for the models', async () => {
       await openCreationForm();
       await selectType(labelAnthropic);

@@ -227,6 +227,13 @@ final class AiProviderResource
         #[ApiProperty(description: 'Monthly spend limit in the configured currency. Requires prices to be set.')]
         #[Assert\Positive]
         public ?float $limitMonthly = null,
+
+        #[ApiProperty(
+            description: 'Whether an API token is stored. Only an OpenAI-compatible server that needs none '
+                . 'can be without one.',
+            writable: false,
+        )]
+        public bool $hasApiToken = true,
     ) {
     }
 }

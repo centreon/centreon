@@ -73,6 +73,12 @@ final class DbalAiProviderTransformerTest extends TestCase
         self::assertSame($fastModelReasoning, $aiProvider->fastModelReasoning());
     }
 
+    public function testAServerThatNeedsNoTokenIsReadWithoutOne(): void
+    {
+        self::assertNull($this->transform(['api_token' => null])->apiToken());
+        self::assertSame('a-token', $this->transform([])->apiToken()?->value);
+    }
+
     public function testAnUnknownReasoningValueFailsLikeAnUnknownType(): void
     {
         // read as another value, it would be overwritten on the next save

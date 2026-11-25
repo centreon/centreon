@@ -20,7 +20,7 @@ import {
   labelModelsFetched,
   labelNoModelsFound
 } from '../translatedLabels';
-import { isSameEndpoint } from '../utils';
+import { isApiTokenOptional, isSameEndpoint } from '../utils';
 import { useLatestInputs } from './useLatestInputs';
 
 interface FormValues {
@@ -49,7 +49,9 @@ const FetchModelsButton = (): JSX.Element => {
   // the stored token is only reused against the endpoint it was configured for
   const canUseStoredToken =
     isEditing && isSameEndpoint(values.endpointUrl, initialValues.endpointUrl);
-  const canFetch = hasTypedToken || canUseStoredToken;
+  // an OpenAI-compatible server may need no token
+  const canFetch =
+    hasTypedToken || canUseStoredToken || isApiTokenOptional(values.type);
 
   // the models of another provider, endpoint or token are not offered
   const startRequest = useLatestInputs(

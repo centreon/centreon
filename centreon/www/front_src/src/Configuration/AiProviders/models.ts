@@ -62,6 +62,8 @@ export interface AiProvider extends Billing {
   // setting applies otherwise
   fastModelReasoning: ReasoningMode;
   description?: string | null;
+  // false for an OpenAI-compatible server that needs none
+  hasApiToken?: boolean;
   isActivated: boolean;
 }
 

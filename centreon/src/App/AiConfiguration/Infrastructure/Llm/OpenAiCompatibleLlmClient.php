@@ -62,7 +62,8 @@ final readonly class OpenAiCompatibleLlmClient implements LlmClientInterface
     public function __construct(
         private HttpClientInterface $httpClient,
         private EndpointUrl $endpointUrl,
-        private ApiToken $apiToken,
+        // null for a server that needs none: no Authorization header is sent
+        private ?ApiToken $apiToken,
         private ModelName $defaultModel,
         private ?ModelName $fastModel,
         // most providers expose chat completions at /v1/chat/completions;
@@ -211,7 +212,7 @@ final readonly class OpenAiCompatibleLlmClient implements LlmClientInterface
 
         try {
             $response = $this->httpClient->request('GET', $url, [
-                'auth_bearer' => $this->apiToken->value,
+                ...$this->authentication(),
                 'timeout' => self::TIMEOUT_SECONDS,
                 // the provider's answer is reported back: never follow it elsewhere
                 'max_redirects' => 0,
@@ -374,7 +375,7 @@ final readonly class OpenAiCompatibleLlmClient implements LlmClientInterface
 
         try {
             return $this->httpClient->request('POST', $this->chatCompletionsUrl(), [
-                'auth_bearer' => $this->apiToken->value,
+                ...$this->authentication(),
                 'json' => $payload,
                 'timeout' => $this->timeoutFor($request),
                 'max_redirects' => 0,
@@ -484,5 +485,13 @@ final readonly class OpenAiCompatibleLlmClient implements LlmClientInterface
         }
 
         return ProviderPayload::errorMessage($data, $this->apiToken) ?? 'no error message in the response';
+    }
+
+    /**
+     * @return array{auth_bearer?: string}
+     */
+    private function authentication(): array
+    {
+        return $this->apiToken instanceof ApiToken ? ['auth_bearer' => $this->apiToken->value] : [];
     }
 }

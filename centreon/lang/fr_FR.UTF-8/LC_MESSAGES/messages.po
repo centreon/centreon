@@ -20198,6 +20198,10 @@ msgstr "Tous"
 msgid "API token"
 msgstr "Jeton d'API"
 
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "Optional: leave empty if the server needs none."
+msgstr "Facultatif : laissez vide si le serveur n'en demande pas."
+
 #: unknown
 msgid "Access not allowed"
 msgstr "Accès non autorisé"

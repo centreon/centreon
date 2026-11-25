@@ -36,6 +36,7 @@ use App\AiConfiguration\Domain\Event\AiProviderCreated;
 use App\AiConfiguration\Domain\Event\AiProviderUpdated;
 use App\AiConfiguration\Domain\Exception\AiProviderActivationConflictException;
 use App\AiConfiguration\Domain\Exception\AiProviderAlreadyExistsException;
+use App\AiConfiguration\Domain\Exception\InvalidAiProviderConfigurationException;
 use App\AiConfiguration\Domain\Exception\VaultWriteFailedException;
 use PHPUnit\Framework\TestCase;
 use Tests\App\AiConfiguration\Infrastructure\Double\FakeAiProviderRepository;
@@ -127,7 +128,32 @@ final class CreateAiProviderCommandHandlerTest extends TestCase
         $aiProvider = ($this->handler)($this->createCommand('Anthropic production'));
 
         self::assertSame(['a-token'], $this->tokenStorage->persistedTokens);
-        self::assertSame(FakeAiProviderTokenStorage::STORED_PREFIX . 'a-token', $aiProvider->apiToken()->value);
+        self::assertSame(FakeAiProviderTokenStorage::STORED_PREFIX . 'a-token', $aiProvider->apiToken()?->value);
+    }
+
+    public function testAServerThatNeedsNoTokenIsCreatedWithoutOne(): void
+    {
+        $aiProvider = ($this->handler)($this->createCommand(
+            'Local Ollama',
+            type: AiProviderTypeEnum::OpenAiCompatible,
+            apiToken: null,
+            endpointUrl: 'http://ollama.internal:11434',
+        ));
+
+        self::assertNull($aiProvider->apiToken());
+        self::assertSame([], $this->tokenStorage->persistedTokens);
+    }
+
+    public function testAHostedProviderIsNotCreatedWithoutAToken(): void
+    {
+        try {
+            ($this->handler)($this->createCommand('Anthropic production', apiToken: null));
+            self::fail('A hosted provider needs a token.');
+        } catch (InvalidAiProviderConfigurationException) {
+        }
+
+        self::assertSame(0, $this->repository->countAll());
+        self::assertSame([], $this->tokenStorage->persistedTokens);
     }
 
     public function testVaultWriteFailureSavesNothing(): void
@@ -187,13 +213,18 @@ final class CreateAiProviderCommandHandlerTest extends TestCase
         self::assertSame(ReasoningModeEnum::Minimal, $other->fastModelReasoning());
     }
 
-    private function createCommand(string $name, bool $isActivated = false): CreateAiProviderCommand
-    {
+    private function createCommand(
+        string $name,
+        bool $isActivated = false,
+        AiProviderTypeEnum $type = AiProviderTypeEnum::Anthropic,
+        ?ApiToken $apiToken = new ApiToken('a-token'),
+        string $endpointUrl = 'https://api.anthropic.com',
+    ): CreateAiProviderCommand {
         return new CreateAiProviderCommand(
             name: new AiProviderName($name),
-            type: AiProviderTypeEnum::Anthropic,
-            apiToken: new ApiToken('a-token'),
-            endpointUrl: new EndpointUrl('https://api.anthropic.com'),
+            type: $type,
+            apiToken: $apiToken,
+            endpointUrl: new EndpointUrl($endpointUrl),
             defaultModel: new ModelName('claude-sonnet-4-6'),
             fastModel: null,
             description: null,

@@ -57,19 +57,23 @@ final readonly class TestAiProviderConnectionCommandHandler
     public function __invoke(TestAiProviderConnectionCommand $command): TestAiProviderResult
     {
         $apiToken = $command->apiToken;
-        if (! $apiToken instanceof ApiToken) {
-            if (! $command->id instanceof AiProviderId) {
-                return new TestAiProviderResult(success: false, message: 'No API token to test.');
-            }
-            // editing with an empty token field: test the stored token, but only
-            // against the stored target
-            $stored = $this->repository->getById($command->id);
-            if (! $stored->canReuseApiTokenFor($command->type, $command->endpointUrl)) {
-                return new TestAiProviderResult(success: false, message: self::TOKEN_REQUIRED_MESSAGE);
-            }
-            $storedApiToken = $stored->apiToken();
-        } else {
+        // editing with an empty token field: test the stored token (if any), but only
+        // against the stored target
+        $stored = ! $apiToken instanceof ApiToken && $command->id instanceof AiProviderId
+            ? $this->repository->getById($command->id)
+            : null;
+        if ($apiToken instanceof ApiToken) {
             $storedApiToken = StoredApiToken::plain($apiToken);
+        } elseif ($stored?->canReuseApiTokenFor($command->type, $command->endpointUrl) === true) {
+            $storedApiToken = $stored->apiToken();
+        } elseif (! $command->type->requiresApiToken()) {
+            // a server that may need none is tested without one
+            $storedApiToken = null;
+        } else {
+            return new TestAiProviderResult(
+                success: false,
+                message: $command->id instanceof AiProviderId ? self::TOKEN_REQUIRED_MESSAGE : 'No API token to test.',
+            );
         }
 
         $spec = new ConnectionSpec(

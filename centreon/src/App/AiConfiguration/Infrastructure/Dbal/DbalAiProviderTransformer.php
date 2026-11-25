@@ -55,7 +55,7 @@ final readonly class DbalAiProviderTransformer implements TransformerInterface
         /**
          * @var array{
          *   endpoint_url: string,
-         *   api_token: string,
+         *   api_token?: string|null,
          *   default_model: string,
          *   fast_model?: string|null,
          *   default_model_reasoning?: string|null,
@@ -67,7 +67,6 @@ final readonly class DbalAiProviderTransformer implements TransformerInterface
          */
         $configuration = json_decode($from['ap_configuration'], true, 512, \JSON_THROW_ON_ERROR);
         Assert::keyExists($configuration, 'endpoint_url');
-        Assert::keyExists($configuration, 'api_token');
         Assert::keyExists($configuration, 'default_model');
 
         return new AiProvider(
@@ -75,7 +74,8 @@ final readonly class DbalAiProviderTransformer implements TransformerInterface
             name: new AiProviderName($from['ap_name']),
             type: AiProviderTypeEnum::from($from['ap_type']),
             endpointUrl: new EndpointUrl($configuration['endpoint_url']),
-            apiToken: new StoredApiToken($configuration['api_token']),
+            // none for a server that needs none
+            apiToken: isset($configuration['api_token']) ? new StoredApiToken($configuration['api_token']) : null,
             defaultModel: new ModelName($configuration['default_model']),
             fastModel: isset($configuration['fast_model'])
                 ? new ModelName($configuration['fast_model'])

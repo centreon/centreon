@@ -87,7 +87,7 @@ final class DiscoverModelsCommandHandlerTest extends TestCase
         self::assertNotNull($spec);
         self::assertSame(AiProviderTypeEnum::Anthropic, $spec->type);
         self::assertSame('https://api.anthropic.com', $spec->endpointUrl->value);
-        self::assertSame('initial-token', $spec->apiToken->value);
+        self::assertSame('initial-token', $spec->apiToken?->value);
         self::assertNull($spec->model);
     }
 
@@ -117,12 +117,31 @@ final class DiscoverModelsCommandHandlerTest extends TestCase
         $result = $handler($this->command(
             apiToken: null,
             id: $provider->id()->value,
-            type: AiProviderTypeEnum::OpenAiCompatible,
+            type: AiProviderTypeEnum::Mistral,
+            endpointUrl: 'https://api.mistral.ai',
         ));
 
         // the fake client would have listed models had it been called
         self::assertSame([], $result->models);
         self::assertNotNull($result->error);
+    }
+
+    public function testAServerThatMayNeedNoTokenIsAskedWithoutTheStoredOne(): void
+    {
+        $provider = $this->aiProvider();
+        $this->repository->add($provider);
+        $factory = new FakeLlmClientFactory(new FakeLlmClient());
+        $handler = new DiscoverModelsCommandHandler($this->repository, $factory);
+
+        $handler($this->command(
+            apiToken: null,
+            id: $provider->id()->value,
+            type: AiProviderTypeEnum::OpenAiCompatible,
+            endpointUrl: 'http://ollama.internal:11434',
+        ));
+
+        self::assertNotNull($factory->lastConnectionSpec);
+        self::assertNull($factory->lastConnectionSpec->apiToken);
     }
 
     public function testNoTokenAndNoIdReturnsNoModels(): void

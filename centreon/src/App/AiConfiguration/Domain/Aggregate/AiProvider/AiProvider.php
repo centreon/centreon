@@ -33,16 +33,16 @@ use App\Shared\Domain\Aggregate\AggregateRoot;
 final class AiProvider extends AggregateRoot
 {
     /**
-     * Rebuilds a provider as it is stored. Its endpoint is checked when it is set
-     * (create(), retarget()), not here: a rule tightened later must not make a stored
-     * provider unreadable, and so impossible to fix or delete.
+     * Rebuilds a provider as it is stored. Its endpoint and token are checked when
+     * they are set (create(), retarget()), not here: a rule tightened later must not
+     * make a stored provider unreadable, and so impossible to fix or delete.
      */
     public function __construct(
         ?AiProviderId $id,
         private AiProviderName $name,
         private readonly AiProviderTypeEnum $type,
         private EndpointUrl $endpointUrl,
-        private StoredApiToken $apiToken,
+        private ?StoredApiToken $apiToken,
         private ModelName $defaultModel,
         private ?ModelName $fastModel,
         private ?AiProviderDescription $description,
@@ -55,13 +55,16 @@ final class AiProvider extends AggregateRoot
     }
 
     /**
-     * @throws InvalidAiProviderConfigurationException when the endpoint does not fit the type
+     * @param StoredApiToken|null $apiToken null for a server that needs none, if the type allows it
+     *
+     * @throws InvalidAiProviderConfigurationException when the endpoint does not fit the type, or
+     *                                                 the type needs a token and there is none
      */
     public static function create(
         AiProviderName $name,
         AiProviderTypeEnum $type,
         EndpointUrl $endpointUrl,
-        StoredApiToken $apiToken,
+        ?StoredApiToken $apiToken,
         ModelName $defaultModel,
         ?ModelName $fastModel,
         ?AiProviderDescription $description,
@@ -71,6 +74,9 @@ final class AiProvider extends AggregateRoot
         ReasoningModeEnum $fastModelReasoning = ReasoningModeEnum::Minimal,
     ): self {
         self::assertEndpointFitsType($type, $endpointUrl);
+        if (! $apiToken instanceof StoredApiToken && $type->requiresApiToken()) {
+            throw InvalidAiProviderConfigurationException::apiTokenRequired($type);
+        }
 
         return new self(
             null,
@@ -103,7 +109,10 @@ final class AiProvider extends AggregateRoot
         return $this->endpointUrl;
     }
 
-    public function apiToken(): StoredApiToken
+    /**
+     * Null for a server that needs none.
+     */
+    public function apiToken(): ?StoredApiToken
     {
         return $this->apiToken;
     }
@@ -185,11 +194,13 @@ final class AiProvider extends AggregateRoot
 
     /**
      * Point the provider at an endpoint, with a new token or keeping the stored
-     * one, which is only allowed while the target does not change.
+     * one, which is only allowed while the target does not change. A type whose
+     * token is optional drops it instead: the new server may need none.
      *
      * @param StoredApiToken|null $apiToken the new token, or null to keep the stored one
      *
-     * @throws AiProviderCanNotBeUpdatedException when the endpoint changes without a new token
+     * @throws AiProviderCanNotBeUpdatedException when the endpoint changes without a new token,
+     *                                            for a type that needs one
      * @throws InvalidAiProviderConfigurationException when the endpoint does not fit the type
      */
     public function retarget(EndpointUrl $endpointUrl, ?StoredApiToken $apiToken): void
@@ -197,7 +208,11 @@ final class AiProvider extends AggregateRoot
         self::assertEndpointFitsType($this->type, $endpointUrl);
 
         if (! $apiToken instanceof StoredApiToken && ! $this->canReuseApiTokenFor($this->type, $endpointUrl)) {
-            throw AiProviderCanNotBeUpdatedException::apiTokenRequiredForNewEndpoint($this->id());
+            if ($this->type->requiresApiToken()) {
+                throw AiProviderCanNotBeUpdatedException::apiTokenRequiredForNewEndpoint($this->id());
+            }
+            // never sent to the new server
+            $this->apiToken = null;
         }
 
         $this->endpointUrl = $endpointUrl;
