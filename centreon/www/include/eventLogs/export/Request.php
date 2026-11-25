@@ -542,7 +542,14 @@ class Request
             } elseif ($type == 'HS' && isset($this->lca['LcaHost'][$hostId][$id])) {
                 $this->tabSvc[$hostId][$id] = $this->lca['LcaHost'][$hostId][$id];
             } elseif ($type == 'MS') {
-                $this->tabSvc['_Module_Meta'][$id] = 'meta_' . $id;
+                $this->tabSvc['_Module_Meta'] ??= [];
+                if (
+                    ctype_digit($id)
+                    && (int) $id > 0
+                    && ($this->is_admin || isset($this->lca['LcaHost'][$hostId][$id]))
+                ) {
+                    $this->tabSvc['_Module_Meta'][(int) $id] = 'meta_' . (int) $id;
+                }
             }
         }
 
