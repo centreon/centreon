@@ -19,6 +19,7 @@ parameters:
         # outside the Composer classmap and unknown to the analysis otherwise.
         - www/include/common/common-Func.php
         - www/include/eventLogs/export/Request.php
+        - www/include/eventLogs/xml/LogIterator.php
 
     paths:
         - tests/php/Centreon

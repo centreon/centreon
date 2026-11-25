@@ -28,6 +28,7 @@ use ApiPlatform\State\Pagination\Pagination as ApiPlatformPagination;
 use ApiPlatform\State\Pagination\TraversablePaginator;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverity;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityLevel;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceSeverityCriteria;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ServiceSeverity\ServiceSeverityChoicesOutput;
@@ -118,7 +119,7 @@ final class ListServiceSeveritiesChoicesProviderLogicTest extends TestCase
 
         $result = $this->provide([]);
 
-        self::assertEquals([new ServiceSeverityChoicesOutput(id: 7, name: 'first')], [...$result]);
+        self::assertEquals([new ServiceSeverityChoicesOutput(id: 7, name: 'first', level: 3)], [...$result]);
     }
 
     /**
@@ -182,6 +183,6 @@ final class ListServiceSeveritiesChoicesProviderLogicTest extends TestCase
 
     private function model(int $id, string $name): ServiceSeverity
     {
-        return new ServiceSeverity(new ServiceSeverityId($id), new ServiceSeverityName($name));
+        return new ServiceSeverity(new ServiceSeverityId($id), new ServiceSeverityName($name), new ServiceSeverityLevel(3));
     }
 }

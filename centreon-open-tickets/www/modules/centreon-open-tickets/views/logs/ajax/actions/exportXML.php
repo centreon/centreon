@@ -41,7 +41,7 @@ try {
 
     foreach ($tickets['tickets'] as $ticket) {
         echo '<line>';
-        echo '<day>' . $centreon_bg->GMT->getDate('Y/m/d', $ticket['timestamp']) . '</day><time>' . $centreon_bg->GMT->getDate('H:i:s', $ticket['timestamp']) . '</time><host_name>' . $ticket['host_name'] . '</host_name><service_description>' . $ticket['service_description'] . '</service_description><ticket_id>' . $ticket['ticket_id'] . '</ticket_id><user>' . $ticket['user'] . '</user><subject>' . $ticket['subject'] . '</subject>';
+        echo '<day>' . $centreon_bg->GMT->getDate('Y/m/d', $ticket['timestamp']) . '</day><time>' . $centreon_bg->GMT->getDate('H:i:s', $ticket['timestamp']) . '</time><host_name>' . $ticket['host_name'] . '</host_name><service_description>' . $ticket['service_description'] . '</service_description><ticket_id>' . htmlspecialchars((string) $ticket['ticket_id'], ENT_XML1 | ENT_QUOTES, 'UTF-8') . '</ticket_id><user>' . htmlspecialchars((string) $ticket['user'], ENT_XML1 | ENT_QUOTES, 'UTF-8') . '</user><subject>' . htmlspecialchars((string) $ticket['subject'], ENT_XML1 | ENT_QUOTES, 'UTF-8') . '</subject>';
         echo '</line>';
     }
     echo '</data>';

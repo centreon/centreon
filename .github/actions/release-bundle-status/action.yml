@@ -29,9 +29,8 @@ inputs:
     required: false
     default: "release-orchestrator"
   role_arn:
-    description: "OIDC role allowed to write the bundle status files"
-    required: false
-    default: "arn:aws:iam::625664829291:role/release-orchestrator-github-bundle-writer"
+    description: "OIDC role allowed to write the bundle status files (secrets.RELEASE_ORCHESTRATOR_BUNDLE_ROLE_ARN)"
+    required: true
 outputs:
   state:
     description: "Reported state: success, failed or cancelled (empty when nothing was reported)"

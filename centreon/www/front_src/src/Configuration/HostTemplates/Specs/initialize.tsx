@@ -1,6 +1,7 @@
 import { Form, SnackbarProvider } from '@centreon/ui';
 import {
   defaultLimitPerPageAtom,
+  isAdditiveInheritanceEnabledAtom,
   type PlatformFeatures,
   platformFeaturesAtom,
   type UserPermissions,
@@ -28,29 +29,42 @@ import {
   getHostTemplateEndpoint,
   getHostTemplateMacrosEndpoint,
   hostTemplateFormCommandsEndpoint,
+  hostTemplateFormContactGroupsEndpoint,
+  hostTemplateFormContactsEndpoint,
   hostTemplateFormHostCategoriesEndpoint,
   hostTemplateFormHostSeveritiesEndpoint,
   hostTemplateFormHostTemplatesEndpoint,
+  hostTemplateFormMediasEndpoint,
   hostTemplateFormServiceTemplatesEndpoint,
-  hostTemplatesListEndpoint
+  hostTemplateFormTimePeriodsEndpoint,
+  hostTemplatesListEndpoint,
+  timezonesEndpoint
 } from '../api/endpoints';
 import { getDefaultValues, useFormInputs } from '../Form';
 import {
   emptyListingResponse,
   getFormCommandsResponse,
+  getFormContactGroupsResponse,
+  getFormContactsResponse,
   getFormHostCategoriesResponse,
   getFormHostSeveritiesResponse,
+  getFormMediasResponse,
   getFormParentTemplatesResponse,
   getFormServiceTemplatesResponse,
+  getFormTimePeriodsResponse,
   getHostTemplateResponse,
   getListingResponse,
-  getTemplateMacrosResponses
+  getTemplateMacrosResponses,
+  getTimezonesResponse
 } from './utils';
 
 interface Props {
   isEmpty?: boolean;
   hasWriteAccess?: boolean;
+  isAdditiveInheritanceEnabled?: boolean;
   isCloudPlatform?: boolean;
+  // The templates the server refuses to update.
+  patchFails?: Array<number>;
   search?: string;
 }
 
@@ -69,7 +83,9 @@ export const getHeaderLabels = (): Array<string | null> =>
 const initialize = ({
   isEmpty = false,
   hasWriteAccess = true,
+  isAdditiveInheritanceEnabled = false,
   isCloudPlatform = false,
+  patchFails = [],
   search = ''
 }: Props = {}): InitializeResult => {
   i18next.use(initReactI18next).init({
@@ -88,6 +104,7 @@ const initialize = ({
   } as UserPermissions);
   store.set(defaultLimitPerPageAtom, 10);
   store.set(platformFeaturesAtom, { isCloudPlatform } as PlatformFeatures);
+  store.set(isAdditiveInheritanceEnabledAtom, isAdditiveInheritanceEnabled);
 
   interceptAPIRequest({
     alias: 'getAllHostTemplates',
@@ -114,8 +131,13 @@ const initialize = ({
       alias: `updateHostTemplate${id}`,
       method: Method.PATCH,
       path: `**${getHostTemplateEndpoint({ id })}`,
-      // No body, as the server answers a partial update.
-      statusCode: 204
+      // No body on success, as the server answers a partial update.
+      ...(patchFails.includes(id)
+        ? {
+            response: { code: 422, message: 'Update refused' },
+            statusCode: 422
+          }
+        : { statusCode: 204 })
     });
   });
 
@@ -137,6 +159,16 @@ const initialize = ({
       response: getFormCommandsResponse()
     },
     {
+      alias: 'getFormContacts',
+      path: hostTemplateFormContactsEndpoint,
+      response: getFormContactsResponse()
+    },
+    {
+      alias: 'getFormContactGroups',
+      path: hostTemplateFormContactGroupsEndpoint,
+      response: getFormContactGroupsResponse()
+    },
+    {
       alias: 'getFormHostCategories',
       path: hostTemplateFormHostCategoriesEndpoint,
       response: getFormHostCategoriesResponse()
@@ -150,6 +182,21 @@ const initialize = ({
       alias: 'getFormServiceTemplates',
       path: hostTemplateFormServiceTemplatesEndpoint,
       response: getFormServiceTemplatesResponse()
+    },
+    {
+      alias: 'getFormMedias',
+      path: hostTemplateFormMediasEndpoint,
+      response: getFormMediasResponse()
+    },
+    {
+      alias: 'getFormTimePeriods',
+      path: hostTemplateFormTimePeriodsEndpoint,
+      response: getFormTimePeriodsResponse()
+    },
+    {
+      alias: 'getFormTimezones',
+      path: timezonesEndpoint,
+      response: getTimezonesResponse()
     }
   ].forEach(({ alias, path, response }) => {
     interceptAPIRequest({

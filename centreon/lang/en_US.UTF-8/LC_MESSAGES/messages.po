@@ -14300,6 +14300,10 @@ msgstr "Rules are used to allow users to access resources."
 msgid "Run monitoring engine debug (-v)"
 msgstr "Run monitoring engine debug (-v)"
 
+#: centreon/www/include/eventLogs/viewLog.php
+msgid "Run query"
+msgstr "Run query"
+
 #: centreon/www/install/front_translate.php
 msgid "Run the following command on each host you want to monitor with the agent."
 msgstr ""

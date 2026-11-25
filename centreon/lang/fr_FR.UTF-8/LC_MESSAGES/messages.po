@@ -14268,6 +14268,10 @@ msgstr "Les règles sont utilisées pour permettre aux utilisateurs d'accéder a
 msgid "Run monitoring engine debug (-v)"
 msgstr "Lancer le débogage du moteur de supervision (-v)"
 
+#: centreon/www/include/eventLogs/viewLog.php
+msgid "Run query"
+msgstr "Exécuter la requête"
+
 #: centreon/www/install/front_translate.php
 msgid "Run the following command on each host you want to monitor with the agent."
 msgstr "Exécutez la commande suivante sur chaque hôte que vous souhaitez superviser avec l'agent."

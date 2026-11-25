@@ -76,6 +76,90 @@ var xslt_js = {
 };
 
 /**
+ * URL of the XSLT polyfill, resolved relative to this script so it works from any page;
+ * falls back to a path relative to the current page (main.php / main.get.php) when
+ * document.currentScript is unavailable.
+ *
+ * @type String
+ * @final
+ */
+var XSLT_POLYFILL_URL = (function () {
+    var polyfillPath = 'xslt-polyfill/xslt-polyfill-1.0.37.min.js';
+    if (document.currentScript && document.currentScript.src) {
+        return new URL(polyfillPath, document.currentScript.src).href;
+    }
+    return './include/common/javascript/' + polyfillPath;
+})();
+
+var xsltPolyfillPromise = null;
+
+/**
+ * Returns whether the browser itself can transform XML (native XSLTProcessor or MSXML).
+ * The polyfill's XSLTProcessor does not count: it is only usable once its module is ready.
+ *
+ * @return boolean
+ */
+function hasNativeXsltSupport() {
+    if (window.ActiveXObject || document.hasOwnProperty.call(window, "ActiveXObject")) {
+        return true;
+    }
+
+    if (typeof XSLTProcessor !== 'function' || XSLTProcessor.toString().indexOf('[native code]') === -1) {
+        return false;
+    }
+
+    // A browser can keep the native class but make it throw when XSLT is disabled.
+    try {
+        new XSLTProcessor();
+    } catch (error) {
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * Loads the XSLT polyfill once and resolves when its XSLTProcessor is ready to use.
+ * A network failure is not cached, so the next transformation tries again.
+ *
+ * @return Promise
+ */
+function loadXsltPolyfill() {
+    if (xsltPolyfillPromise !== null) {
+        return xsltPolyfillPromise;
+    }
+
+    xsltPolyfillPromise = new Promise(function (resolve, reject) {
+        // Polyfill options: never replace a native XSLTProcessor, never transform the
+        // current document, no install log.
+        window.xsltUsePolyfillOnlyIfNeeded = true;
+        window.xsltDontAutoloadXmlDocs = true;
+        window.xsltPolyfillQuiet = true;
+
+        var script = document.createElement('script');
+        script.src = XSLT_POLYFILL_URL;
+        // The WebAssembly module is embedded in the file and is only decoded correctly as UTF-8.
+        script.charset = 'utf-8';
+        script.onload = function () {
+            // A truncated or wrong file would otherwise leave every transformation pending.
+            if (typeof window.xsltPolyfillReady !== 'function') {
+                reject(new Error('The XSLT polyfill loaded from ' + XSLT_POLYFILL_URL + ' is not usable'));
+                return;
+            }
+            window.xsltPolyfillReady().then(resolve, reject);
+        };
+        script.onerror = function () {
+            xsltPolyfillPromise = null;
+            script.remove();
+            reject(new Error('Unable to load the XSLT polyfill from ' + XSLT_POLYFILL_URL));
+        };
+        document.head.appendChild(script);
+    });
+
+    return xsltPolyfillPromise;
+}
+
+/**
  * Constructor for client-side XSLT transformations.
  *
  * @author <a href="mailto:jb@eaio.com">Johann Burkard</a>
@@ -210,6 +294,24 @@ function Transformation() {
         callback = c;
         return this;
     }
+
+    /*
+     * Called instead of the callback when the transformation fails: an HTTP
+     * error, an invalid XML response, or an error during the XSLT transformation.
+     */
+    var errorCallback = null;
+
+    /**
+     * Sets the function called when the transformation fails
+     *
+     * @param c the error callback function
+     * @return this
+     * @type Transformation
+     */
+    this.setErrorCallback = function(c) {
+        errorCallback = c;
+        return this;
+    }
 	
 	/**
      * Returns the target Element.
@@ -244,6 +346,28 @@ function Transformation() {
         targetElem = target;
         var t = this;
 
+        if (hasNativeXsltSupport()) {
+            startTransform.call(t, target);
+            return;
+        }
+
+        // No native XSLT (e.g. recent Chrome): transform once the polyfill is ready.
+        loadXsltPolyfill().then(
+            function () {
+                startTransform.call(t, target);
+            },
+            function (error) {
+                console.error('XSLT transformation of ' + xml + ' with ' + xslt + ' skipped', error);
+                if (typeof _clear == 'function') {
+                    _clear("centreonMsg");
+                }
+            }
+        );
+    }
+
+    var startTransform = function(target) {
+        var t = this;
+
         if (!browserSupportsXSLT()) {
            return;
         }
@@ -258,9 +382,34 @@ function Transformation() {
              }
         }
 
+        var fail = function() {
+            transformed = true;
+            if (typeof _clear == 'function') {
+                _clear("centreonMsg");
+            }
+            if (errorCallback) {
+                errorCallback(t);
+                errorCallback = null;
+            }
+        }
+
         var change = function() {
+            if (transformed || xmlRequest == null || xsltRequest == null) {
+                return;
+            }
+            // Same rules as the success check below: both requests need an HTTP 200
+            // and a body. A server error can still send a valid XML document.
+            var xmlFailed = xmlRequest.readyState == 4
+                && (xmlRequest.status != 200 || !xmlRequest.responseXML);
+            var xsltFailed = xsltRequest.readyState == 4
+                && (xsltRequest.status != 200 || !xsltRequest.responseText);
+            if (xmlFailed || xsltFailed) {
+                fail();
+                return;
+            }
             if (
                 xmlRequest.readyState == 4
+                && xmlRequest.status == 200
                 && xmlRequest.responseXML
                 && xsltRequest.status == 200
                 && xsltRequest.readyState == 4
@@ -272,23 +421,29 @@ function Transformation() {
                 xsltDoc = xsltRequest.responseXML;
                 xmlDoc = xmlRequest.responseXML;
                 var targetNode = document.getElementById(target);
-                if (window.ActiveXObject || document.hasOwnProperty.call(window, "ActiveXObject")) {
-                    document.getElementById(target).innerHTML = xmlDoc.transformNode(xsltDoc);
-                } else {
-                    var resultDoc;
-                    var processor = new XSLTProcessor();
-                    if (targetNode) {
-                        // remove child nodes from DOM
-                        while (targetNode.firstChild) {
-                            targetNode.removeChild(targetNode.firstChild);
+                try {
+                    if (window.ActiveXObject || document.hasOwnProperty.call(window, "ActiveXObject")) {
+                        document.getElementById(target).innerHTML = xmlDoc.transformNode(xsltDoc);
+                    } else {
+                        var resultDoc;
+                        var processor = new XSLTProcessor();
+                        if (targetNode) {
+                            // remove child nodes from DOM
+                            while (targetNode.firstChild) {
+                                targetNode.removeChild(targetNode.firstChild);
+                            }
+                            targetNode.innerHTML = '';
                         }
-                        targetNode.innerHTML = '';
+                        processor.importStylesheet(xsltDoc);
+                        resultDoc = processor.transformToFragment(xmlDoc, document);
+                        targetNode.appendChild(resultDoc);
+                        resultDoc = null;
+                        processor = null;
                     }
-                    processor.importStylesheet(xsltDoc);
-                    resultDoc = processor.transformToFragment(xmlDoc, document);
-                    targetNode.appendChild(resultDoc);
-                    resultDoc = null;
-                    processor = null;
+                } catch (error) {
+                    // For example, a browser without XSLTProcessor. Keep the error in the console.
+                    fail();
+                    throw error;
                 }
                 if (callback) {
                     callback(t);

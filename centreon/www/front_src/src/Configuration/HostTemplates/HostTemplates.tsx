@@ -9,6 +9,7 @@ import { type ReactElement, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import ConfigurationBase from '../ConfigurationBase';
+import useMassChangeAction from '../ConfigurationBase/useMassChangeAction';
 import { type Actions, ResourceType } from '../models';
 import {
   filtersAtom,
@@ -16,7 +17,13 @@ import {
   selectedColumnIdsAtom
 } from './atoms';
 import useColumns from './Columns/useColumns';
-import { getDefaultValues, useFormInputs, useValidationSchema } from './Form';
+import {
+  getDefaultValues,
+  getMassChangeAdapter,
+  getMassChangeDefaultValues,
+  useFormInputs,
+  useValidationSchema
+} from './Form';
 import type { Filters } from './models';
 import {
   labelCreateHostTemplate,
@@ -59,6 +66,38 @@ const HostTemplates = (): ReactElement => {
     () => getDefaultValues({ isCloudPlatform }),
     [isCloudPlatform]
   );
+  const { groups: massChangeGroups, inputs: massChangeInputs } = useFormInputs({
+    canEdit,
+    isAdditiveInheritanceEnabled,
+    isCloudPlatform,
+    isMassChange: true
+  });
+  const { validationSchema: massChangeValidationSchema } = useValidationSchema({
+    isCloudPlatform,
+    isMassChange: true
+  });
+  const massChange = useMemo(() => {
+    const context = {
+      isAdditiveInheritanceEnabled,
+      isCloudPlatform,
+      isMassChange: true
+    };
+
+    return {
+      adapter: getMassChangeAdapter(context),
+      defaultValues: getMassChangeDefaultValues(context),
+      groups: massChangeGroups,
+      inputs: massChangeInputs,
+      validationSchema: massChangeValidationSchema
+    };
+  }, [
+    isAdditiveInheritanceEnabled,
+    isCloudPlatform,
+    massChangeGroups,
+    massChangeInputs,
+    massChangeValidationSchema
+  ]);
+  const massChangeAction = useMassChangeAction();
 
   const actions: Actions = useMemo(
     () => ({
@@ -67,10 +106,11 @@ const HostTemplates = (): ReactElement => {
       edit: canEdit,
       editable: isUnlocked,
       massive: canEdit && { delete: true, duplicate: true },
+      massiveActions: [massChangeAction],
       selectable: isUnlocked,
       viewDetails: true
     }),
-    [canEdit]
+    [canEdit, massChangeAction]
   );
 
   return (
@@ -85,7 +125,7 @@ const HostTemplates = (): ReactElement => {
       filtersConfiguration={filtersConfiguration}
       filtersInitialValues={filtersInitialValues}
       filtersPanelWidth="full"
-      form={{ defaultValues, groups, inputs, validationSchema }}
+      form={{ defaultValues, groups, inputs, massChange, validationSchema }}
       formVariant="panel"
       isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
       labels={{

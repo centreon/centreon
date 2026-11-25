@@ -80,7 +80,7 @@ final class HostTemplateFormSelectorsWiringTest extends ApiTestCase
             'counterpart' => '/api/configuration/hosts/host_severities',
             'message' => 'You are not allowed to access host severities',
             'item_iri' => '/api/configuration/host_severities/',
-            'keys' => ['id', 'name'],
+            'keys' => ['id', 'level', 'name'],
         ],
         'host_templates' => [
             'uri' => '/api/configuration/host_templates/host_templates',

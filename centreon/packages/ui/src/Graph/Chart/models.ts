@@ -7,7 +7,11 @@ import type {
   Axis as AxisYLeft,
   AxisYRight
 } from '../common/Axes/models';
-import type { AdditionalLineProps, LineChartData } from '../common/models';
+import type {
+  AdditionalLineProps,
+  LineChartData,
+  TimeArea
+} from '../common/models';
 import type { Line, TimeValue } from '../common/timeSeries/models';
 import type {
   AreaRegularLines,
@@ -107,6 +111,7 @@ export interface LineStyle {
 
 export interface LineChartProps {
   annotationEvent?: AnnotationEvent;
+  timeAreas?: Array<TimeArea>;
   axis?: ChartAxis;
   barStyle?: BarStyle | Array<BarStyle & { metricId: number }>;
   displayAnchor?: DisplayAnchor;

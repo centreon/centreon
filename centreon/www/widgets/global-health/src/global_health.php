@@ -19,6 +19,9 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+
 require_once '../../require.php';
 require_once $centreon_path . 'bootstrap.php';
 require_once $centreon_path . 'www/class/centreon.class.php';
@@ -157,11 +160,12 @@ if (isset($preferences['hosts_services']) && $preferences['hosts_services'] == '
     $template->display('global_health_host.ihtml');
 } elseif (isset($preferences['hosts_services']) && $preferences['hosts_services'] == 'services') {
     $sgName = false;
-    if (! empty($preferences['servicegroup'])) {
-        $sql = 'select sg.sg_name from servicegroup sg where sg.sg_id = ' . $dbb->escape($preferences['servicegroup']);
-        $dbResult = $db->query($sql);
-        $row = $dbResult->fetchRow();
-        $sgName = $row['sg_name'];
+    $servicegroupId = filter_var($preferences['servicegroup'] ?? null, FILTER_VALIDATE_INT);
+    if ($servicegroupId !== false) {
+        $sgName = $db->fetchOne(
+            'SELECT sg.sg_name FROM servicegroup sg WHERE sg.sg_id = :servicegroup_id',
+            QueryParameters::create([QueryParameter::int('servicegroup_id', $servicegroupId)])
+        );
     }
 
     $innerJoinGroup = '';

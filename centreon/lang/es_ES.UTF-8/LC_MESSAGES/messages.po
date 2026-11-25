@@ -15837,6 +15837,10 @@ msgstr ""
 msgid "Run monitoring engine debug (-v)"
 msgstr "Iniciar la depuración del motor de monitoreo (-v)"
 
+#: centreon/www/include/eventLogs/viewLog.php
+msgid "Run query"
+msgstr ""
+
 #: centreon/www/install/front_translate.php
 msgid "Run the following command on each host you want to monitor with the agent."
 msgstr ""

@@ -30,7 +30,6 @@ use Centreon\Domain\HostConfiguration\Interfaces\HostGroup\HostGroupReadReposito
 use Centreon\Domain\HostConfiguration\Interfaces\HostGroup\HostGroupWriteRepositoryInterface;
 use Centreon\Domain\HostConfiguration\Model\HostGroup;
 use Centreon\Domain\Repository\RepositoryException;
-use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\HostConfiguration\Repository\Model\HostGroupFactoryRdb;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
@@ -57,9 +56,6 @@ class HostGroupRepositoryRDB extends AbstractRepositoryDRB implements
     {
         $this->db = $db;
         $this->sqlRequestTranslator = $sqlRequestTranslator;
-        $this->sqlRequestTranslator
-            ->getRequestParameters()
-            ->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
     }
 
     /**

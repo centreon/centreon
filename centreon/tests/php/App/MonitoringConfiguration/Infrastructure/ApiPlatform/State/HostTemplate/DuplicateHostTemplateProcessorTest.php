@@ -309,6 +309,36 @@ final class DuplicateHostTemplateProcessorTest extends ApiTestCase
         self::assertSame($aclRows, $this->centreonAclRowCount());
     }
 
+    public function testTheCopyIsLoggedWithTheSourceFieldsUnderItsOwnName(): void
+    {
+        $name = $this->uniqueName();
+        $templateId = $this->insertTemplate(['host_name' => $name, 'host_alias' => 'Source alias', 'host_max_check_attempts' => 4]);
+        $this->login();
+
+        $this->request('POST', "/api/configuration/host_templates/{$templateId}/_duplicate");
+
+        self::assertResponseStatusCodeSame(204);
+        $copyId = $this->templateIdByName("{$name}_1");
+        self::assertNotFalse($copyId);
+        self::assertSame(
+            [['action_type' => 'a', 'object_name' => "{$name}_1"]],
+            $this->realTimeConnection->fetchAllAssociative(
+                "SELECT action_type, object_name FROM log_action WHERE object_type = 'host' AND object_id = ?",
+                [$copyId],
+            ),
+        );
+        $details = $this->realTimeConnection->fetchAllKeyValue(
+            "SELECT lam.field_name, lam.field_value
+             FROM log_action_modification lam
+             INNER JOIN log_action la ON la.action_log_id = lam.action_log_id
+             WHERE la.object_type = 'host' AND la.object_id = ?",
+            [$copyId],
+        );
+        self::assertSame('Source alias', $details['host_alias'] ?? null);
+        self::assertSame('4', $details['host_max_check_attempts'] ?? null);
+        self::assertArrayNotHasKey('host_address', $details);
+    }
+
     /**
      * @return list<string>
      */
