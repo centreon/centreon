@@ -23,7 +23,12 @@ const routes: Array<RouteHierarchy> = [
     route: '/hosts',
     subRoutes: [
       {
-        groups: [{ subRoutes: [{ label: 'Hosts list', route: '/hosts' }] }],
+        groups: [
+          {
+            label: 'Inventory',
+            subRoutes: [{ label: 'Hosts list', route: '/hosts' }]
+          }
+        ],
         label: 'Hosts',
         route: '/hosts'
       },
@@ -313,6 +318,18 @@ describe('NavigationMenu', () => {
       expect(
         getComputedStyle(screen.getByText('Business Views')).backgroundColor
       ).not.toBe(transparent);
+    });
+
+    it('labels the groups only when an entry has several of them', async () => {
+      renderMenu({ isOpen: true, selectedRoute: '/ba/views' });
+
+      expect(screen.getByText('Management')).toBeVisible();
+      expect(screen.getByText('Help')).toBeVisible();
+
+      await userEvent.click(screen.getByRole('button', { name: 'Hosts' }));
+
+      expect(await screen.findByText('Hosts list')).toBeVisible();
+      expect(screen.queryByText('Inventory')).not.toBeInTheDocument();
     });
 
     it('draws the guide line only along lists of pages', () => {

@@ -167,45 +167,50 @@ interface SubRouteListProps extends Omit<Props, 'variant'> {
 }
 
 /**
- * The children of an entry: its sub-routes, then its groups, each group under
- * an uppercase header when it has a label.
+ * The children of an entry: its sub-routes, then its groups. When there are
+ * several groups, each labelled group is under an uppercase header.
  */
 export const SubRouteList = ({
   actions,
   childVariant = 'nested',
   entry
-}: SubRouteListProps): ReactElement => (
-  <div className="flex flex-col gap-0.5">
-    {entry.subRoutes?.map((subRoute) => (
-      <SubRouteContent
-        actions={actions}
-        entry={subRoute}
-        key={`${subRoute.label}-${subRoute.route}`}
-        variant={childVariant}
-      />
-    ))}
-    {entry.groups?.map((group, index) => (
-      <div key={group.label ?? index}>
-        {group.label && (
-          <p className="m-0 px-2 pt-2 pb-1 text-xs font-bold uppercase text-white/60">
-            {group.label}
-          </p>
-        )}
-        <ul
-          aria-label={group.label}
-          className="m-0 flex list-none flex-col gap-0.5 p-0"
-        >
-          {group.subRoutes.map((subRoute) => (
-            <li key={`${subRoute.label}-${subRoute.route}`}>
-              <SubRouteContent
-                actions={actions}
-                entry={subRoute}
-                variant={childVariant}
-              />
-            </li>
-          ))}
-        </ul>
-      </div>
-    ))}
-  </div>
-);
+}: SubRouteListProps): ReactElement => {
+  // A single group has nothing to be told apart from.
+  const showsGroupLabels = (entry.groups?.length ?? 0) > 1;
+
+  return (
+    <div className="flex flex-col gap-0.5">
+      {entry.subRoutes?.map((subRoute) => (
+        <SubRouteContent
+          actions={actions}
+          entry={subRoute}
+          key={`${subRoute.label}-${subRoute.route}`}
+          variant={childVariant}
+        />
+      ))}
+      {entry.groups?.map((group, index) => (
+        <div key={group.label ?? index}>
+          {showsGroupLabels && group.label && (
+            <p className="m-0 px-2 pt-2 pb-1 text-xs font-bold uppercase text-white/60">
+              {group.label}
+            </p>
+          )}
+          <ul
+            aria-label={showsGroupLabels ? group.label : undefined}
+            className="m-0 flex list-none flex-col gap-0.5 p-0"
+          >
+            {group.subRoutes.map((subRoute) => (
+              <li key={`${subRoute.label}-${subRoute.route}`}>
+                <SubRouteContent
+                  actions={actions}
+                  entry={subRoute}
+                  variant={childVariant}
+                />
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  );
+};
