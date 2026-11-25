@@ -49,17 +49,18 @@ final class ServiceNameTest extends TestCase
         new ServiceName('');
     }
 
-    public function testItRejectsANameLongerThan255Characters(): void
+    public function testItRejectsANameLongerThan200Characters(): void
     {
+        // The size of the service_description column.
         $this->expectException(\InvalidArgumentException::class);
 
-        new ServiceName(str_repeat('a', 256));
+        new ServiceName(str_repeat('a', 201));
     }
 
-    public function testItAcceptsANameAtThe255CharacterLimit(): void
+    public function testItAcceptsANameAtThe200CharacterLimit(): void
     {
-        $name = new ServiceName(str_repeat('a', 255));
+        $name = new ServiceName(str_repeat('é', 200));
 
-        self::assertSame(255, mb_strlen($name->value));
+        self::assertSame(200, mb_strlen($name->value));
     }
 }

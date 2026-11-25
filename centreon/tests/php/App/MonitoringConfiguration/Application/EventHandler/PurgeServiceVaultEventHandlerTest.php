@@ -88,6 +88,8 @@ final class PurgeServiceVaultEventHandlerTest extends TestCase
             id: new ServiceId(1),
             name: new ServiceName('ping'),
             hostId: new HostId(1),
+            hostActivated: true,
+            hostPollerId: null,
             macros: $macros,
         );
     }

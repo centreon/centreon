@@ -67,8 +67,8 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
      */
     public function grantResourceAccess(AggregateRoot&AclScopedInterface $resource, Collection $accessGroupIds): void
     {
-        // Only Host implements AclScopedInterface today — extend this match when a second
-        // ACL-scoped resource type needs the same bookkeeping (see AclScopedInterface).
+        // Only Host is mapped: Service is ACL-scoped too, but nothing creates one through an
+        // event yet — map it here before something does (see AclScopedInterface).
         if (! $resource instanceof Host) {
             throw new \LogicException(sprintf('No ACL grant mapping for aggregate %s.', $resource::class));
         }
@@ -599,6 +599,11 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
             array_map(static fn (array $row): HostId => new HostId((int) $row['host_id']), $rows),
             $among,
         );
+    }
+
+    public function findServiceAccessGroupScope(UserId $userId): AccessScope
+    {
+        return AccessScope::restrictedTo(AccessGroupId::class, $this->accessGroupRepository->findActiveGroupIdsForUser($userId));
     }
 
     /**

@@ -28,7 +28,9 @@ use Webmozart\Assert\Assert;
 final readonly class ServiceName
 {
     public const MIN_LENGTH = 1;
-    public const MAX_LENGTH = 255;
+
+    // The size of the service_description column.
+    public const MAX_LENGTH = 200;
 
     public string $value;
 
