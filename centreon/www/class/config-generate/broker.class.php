@@ -524,6 +524,9 @@ class Broker extends AbstractObjectJSON
             }
             $dbSslCa = $_ENV['DATABASE_CA_PATH'] ?? null;
             foreach ($object['output'] as &$output) {
+                if ($output['type'] === 'victoria_metrics') {
+                    $output = $this->normalizeVictoriaMetricsOutput($output);
+                }
                 if (in_array($output['type'], ['sql', 'storage', 'unified_sql'])) {
                     if ($dbSslEnabled !== null) {
                         $output['db_ssl_enabled'] = $dbSslEnabled;
@@ -570,6 +573,45 @@ class Broker extends AbstractObjectJSON
         $this->generate_filename = 'watchdog.json';
         $this->generateFile($watchdog);
         $this->writeFile($this->backend_instance->getPath());
+    }
+
+    /**
+     * The victoria_metrics output requires db_user and db_password (empty means no authentication)
+     * and applies its default columns only when metrics_column/status_column are absent.
+     *
+     * @param array<string,mixed> $output
+     * @return array<string,mixed>
+     */
+    private function normalizeVictoriaMetricsOutput(array $output): array
+    {
+        $output['db_user'] ??= '';
+        $output['db_password'] ??= '';
+
+        foreach (['metrics_column', 'status_column'] as $columnKey) {
+            if (! isset($output[$columnKey]) || ! is_array($output[$columnKey])) {
+                continue;
+            }
+            $columns = [];
+            foreach ($output[$columnKey] as $column) {
+                if (
+                    ! is_array($column)
+                    || trim((string) ($column['name'] ?? '')) === ''
+                    || trim((string) ($column['value'] ?? '')) === ''
+                ) {
+                    continue;
+                }
+                $column['type'] = ($column['type'] ?? '') !== '' ? $column['type'] : 'string';
+                $column['is_tag'] = ($column['is_tag'] ?? '') !== '' ? $column['is_tag'] : 'false';
+                $columns[] = $column;
+            }
+            if ($columns === []) {
+                unset($output[$columnKey]);
+            } else {
+                $output[$columnKey] = $columns;
+            }
+        }
+
+        return $output;
     }
 
     /**
