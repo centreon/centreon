@@ -76,6 +76,12 @@ contents:
     file_info:
       mode: 0644
 
+  - src: "../logrotate/centreon-dsm"
+    dst: "/etc/logrotate.d/centreon-dsm"
+    type: config|noreplace
+    file_info:
+      mode: 0644
+
   - src: "../libinstall/systemd/dsmd.rpm.systemd"
     dst: "/etc/systemd/system/dsmd.service"
     file_info:
@@ -89,11 +95,13 @@ contents:
 
   - src: "../libinstall/systemd/dsmd.sysconfig"
     dst: "/etc/sysconfig/dsmd"
+    type: config|noreplace
     file_info:
       mode: 0400
     packager: rpm
   - src: "../libinstall/systemd/dsmd.sysconfig"
     dst: "/etc/default/dsmd"
+    type: config|noreplace
     file_info:
       mode: 0400
     packager: deb

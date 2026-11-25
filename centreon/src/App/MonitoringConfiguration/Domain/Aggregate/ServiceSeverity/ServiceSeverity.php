@@ -33,6 +33,7 @@ final class ServiceSeverity extends AggregateRoot
     public function __construct(
         ?ServiceSeverityId $id,
         public readonly ServiceSeverityName $name,
+        public readonly ServiceSeverityLevel $level,
     ) {
         parent::__construct($id);
     }

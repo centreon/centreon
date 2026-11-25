@@ -101,12 +101,47 @@ const hostTemplateDetails: Record<number, Record<string, unknown>> = {
         }
       ]
     },
+    // `low_flap_threshold` unset: left out.
+    data_processing: {
+      acknowledgment_timeout: 15,
+      check_freshness: 'true',
+      event_handler: { id: 8, name: 'check-centreon-ping' },
+      event_handler_args: ['80', 'graceful'],
+      event_handler_enabled: 'false',
+      flap_detection_enabled: 'true',
+      freshness_threshold: 120,
+      high_flap_threshold: 50
+    },
+    // `note_url` and `alt_icon` unset: left out.
+    extended_informations: {
+      action_url: 'https://example.com/actions',
+      comment: 'Racked in room B',
+      icon: { id: 12, name: 'server.png', url: hostTemplateIcon },
+      note: 'Front web servers'
+    },
     is_locked: false,
     linked_service_templates: [{ id: 31, name: 'generic-ping' }],
     name: 'generic-active-host-custom',
-    severity: { id: 2, name: 'Minor' },
+    // `first_delay` and `recovery_delay` unset: left out.
+    notifications: {
+      contact_groups: [{ id: 3, name: 'Supervisors' }],
+      contacts: [{ id: 1, name: 'admin' }],
+      enabled: 'false',
+      interval: 3,
+      options: ['down', 'recovery'],
+      timeperiod: { id: 1, name: '24x7' }
+    },
+    scheduling_options: {
+      active_check_enabled: 'false',
+      check_period: { id: 2, name: 'workhours' },
+      max_check_attempts: 3,
+      normal_check_interval: 5,
+      passive_check_enabled: 'true'
+    },
+    severity: { id: 2, level: 3, name: 'Minor' },
     snmp_version: '2c',
-    templates: [{ id: 2, name: 'generic-active-host' }]
+    templates: [{ id: 2, name: 'generic-active-host' }],
+    timezone: { id: 7, name: 'Europe/Paris' }
   },
   2: {
     categories: [],
@@ -213,12 +248,46 @@ export const getFormHostCategoriesResponse = () =>
 
 export const getFormHostSeveritiesResponse = () =>
   toCollection('host_severities', [
-    { id: 1, name: 'Critical' },
-    { id: 2, name: 'Minor' }
+    { id: 1, level: 1, name: 'Critical' },
+    { id: 2, level: 3, name: 'Minor' },
+    // No level sent: shown by its name alone.
+    { id: 3, name: 'Trivial' }
   ]);
 
 export const getFormServiceTemplatesResponse = () =>
   toCollection('service_templates', [
     { id: 31, name: 'generic-ping' },
     { id: 32, name: 'generic-cpu' }
+  ]);
+
+export const getFormMediasResponse = () =>
+  toCollection('medias', [
+    { id: 12, name: 'server.png', url: hostTemplateIcon },
+    { id: 13, name: 'router.png', url: hostTemplateIcon }
+  ]);
+
+export const getFormTimePeriodsResponse = () =>
+  toCollection('timeperiods', [
+    { id: 1, name: '24x7' },
+    { id: 2, name: 'workhours' }
+  ]);
+
+export const getTimezonesResponse = () => ({
+  ...toCollection('timezones', [
+    { id: 1, name: 'Europe/London' },
+    { id: 7, name: 'Europe/Paris' }
+  ]),
+  '@id': '/centreon/api/configuration/timezones'
+});
+
+export const getFormContactsResponse = () =>
+  toCollection('contacts', [
+    { id: 1, name: 'admin' },
+    { id: 2, name: 'guest' }
+  ]);
+
+export const getFormContactGroupsResponse = () =>
+  toCollection('contact_groups', [
+    { id: 3, name: 'Supervisors' },
+    { id: 4, name: 'Guests' }
   ]);

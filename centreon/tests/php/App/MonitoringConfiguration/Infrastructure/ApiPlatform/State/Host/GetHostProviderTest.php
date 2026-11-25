@@ -258,6 +258,10 @@ final class GetHostProviderTest extends ApiTestCase
             self::assertNull($macro['value'] ?? null, "password macro '{$macro['name']}' value must not be exposed");
         }
 
+        $severity = $getBody['severity'];
+        Assert::isArray($severity);
+        self::assertSame(1, $severity['level'] ?? null);
+
         // The whole contract, field for field, matches what CreateHost returned.
         self::assertEqualsCanonicalizing($createBody, $getBody);
 

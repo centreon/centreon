@@ -26,8 +26,8 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTempl
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\DataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\ExtendedInformations;
+use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverity;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
-use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\Media;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
@@ -123,9 +123,9 @@ final readonly class HostTemplateResourceBuilder
         }
 
         if ($template->severityId instanceof HostSeverityId && $this->accessScopes->hostSeverities($actor)->allows($template->severityId)) {
-            $severityName = $this->hostSeverityRepository->findNameById($template->severityId);
-            $resource->severity = $severityName instanceof HostSeverityName
-                ? new HostSeverityOutput($template->severityId->value, $severityName->value)
+            $severity = $this->hostSeverityRepository->findById($template->severityId);
+            $resource->severity = $severity instanceof HostSeverity
+                ? new HostSeverityOutput($template->severityId->value, $severity->name->value, $severity->level->value)
                 : null;
         }
 

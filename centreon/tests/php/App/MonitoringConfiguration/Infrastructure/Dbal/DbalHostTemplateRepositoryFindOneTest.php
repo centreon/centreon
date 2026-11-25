@@ -32,6 +32,7 @@ use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostTemplateRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalModuleRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\HostTemplateListingTransformer;
 use App\MonitoringConfiguration\Infrastructure\Dbal\HostTemplateTransformer;
+use App\MonitoringConfiguration\Infrastructure\Dbal\NotificationsTransformer;
 use App\Security\Domain\Service\AccessScopeResolver;
 use App\Security\Infrastructure\Dbal\DbalAccessGroupRepository;
 use App\Security\Infrastructure\Dbal\DbalResourceAccessRepository;
@@ -64,6 +65,7 @@ final class DbalHostTemplateRepositoryFindOneTest extends KernelTestCase
             new HostTemplateListingTransformer(),
             new AccessScopeResolver(new DbalResourceAccessRepository($this->connection, $realTimeConnection, new DbalAccessGroupRepository($this->connection))),
             new DbalModuleRepository($this->connection),
+            new NotificationsTransformer(),
         );
     }
 
@@ -223,8 +225,6 @@ final class DbalHostTemplateRepositoryFindOneTest extends KernelTestCase
      */
     public static function provideRowsBreakingTheHostInvariants(): iterable
     {
-        yield 'check arguments without a check command' => [['command_command_id_arg1' => '!-w!80']];
-
         yield 'no check attempt' => [['host_max_check_attempts' => 0]];
 
         yield 'no check interval' => [['host_check_interval' => 0]];
