@@ -102,6 +102,12 @@ jobs:
         run: SUMMARY_FILE="$GITHUB_STEP_SUMMARY" "$SCRIPT" rrd
         shell: bash
 
+      - name: "Modules: LM, PPM, autodiscovery, ITEE with the CI license, no gorgone"
+        if: ${{ !cancelled() && steps.up.outcome == 'success' }}
+        continue-on-error: ${{ env.GLS_GATE_CRITERIA != 'true' }}
+        run: SUMMARY_FILE="$GITHUB_STEP_SUMMARY" "$SCRIPT" modules
+        shell: bash
+
       - name: "Criterion 3: disconnected poller (stop)"
         if: ${{ !cancelled() && steps.up.outcome == 'success' }}
         continue-on-error: ${{ env.GLS_GATE_CRITERIA != 'true' }}

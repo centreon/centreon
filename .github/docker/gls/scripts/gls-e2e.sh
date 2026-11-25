@@ -11,6 +11,7 @@
 #   gls-e2e.sh ca                 self-generated CA: same as at creation, kept on cbd recreate, wrong fingerprint fails closed
 #   gls-e2e.sh state              state volumes: layout, retention after recreate, cbmod queue while the central is down
 #   gls-e2e.sh rrd                perfdata of a gls host reaches rrdcached (.rrd files), no RRD connect error
+#   gls-e2e.sh modules            LM, PPM, autodiscovery, ITEE installed and answering; CI license valid; no gorgone
 #   gls-e2e.sh install-script     poller added with the generated install.sh command (broker channel), no secret leaked
 #   gls-e2e.sh logs | down
 #
@@ -863,6 +864,109 @@ cmd_plugins() {
     || record "plugins: restore deploy without $bad, back to INSTALLED" ko "$(plugin_result "$uid" | head -c 300)"
 }
 
+# ---------- modules: LM, PPM, autodiscovery, ITEE on the light Central (phase 3 P0, contracts § 12.W-P0) ----------
+
+MOD_NAMES="centreon-license-manager centreon-pp-manager centreon-autodiscovery-server centreon-it-edition-extensions"
+MOD_RELEASE="${GLS_MOD_RELEASE:-26.10.1}"
+MOD_LICENSED="centreon-autodiscovery-server centreon-it-edition-extensions"
+MOD_LICENSE_DIR=/etc/centreon/license.d
+MOD_LICENSE_FILE=epp.license   # CI license, not machine-locked: autodiscovery, PPM, ITEE
+MOD_IMAGE="${GLS_MODULES_IMAGE:-${REGISTRY}/centreon-modules-trixie:27.01-unstable}"
+MOD_IMAGE_DIGEST=""
+MOD_JAR="$PRIV_DIR/session.cookies"   # session id: never in $LOG_DIR
+
+ui_login() { # legacy session cookie (internal.php, main.php)
+  rm -f "$MOD_JAR"
+  curl -s -o /dev/null -c "$MOD_JAR" -H 'Content-Type: application/json' \
+    -d "{\"login\":\"admin\",\"password\":\"${ADMIN_PW}\"}" \
+    "http://127.0.0.1:${HTTPD_PORT}/centreon/api/latest/authentication/providers/configurations/local"
+  [[ -s "$MOD_JAR" ]]
+}
+ui_get() { # ui_get <path> -> HTTP code, body in $PRIV_DIR/ui.out
+  curl -s -o "$PRIV_DIR/ui.out" -w '%{http_code}' -b "$MOD_JAR" --max-time 60 "http://127.0.0.1:${HTTPD_PORT}$1"
+}
+module_license() { # module_license <module>: is_valid of its license block (true/false/none)
+  jq -r --arg m "$1" '[.. | objects | select(((.id? // .name? // "") == $m) and has("license"))][0].license.is_valid // "none"' \
+    "$PRIV_DIR/ui.out" 2>/dev/null
+}
+licenses_state() { # "<module>=<is_valid> ..." for the licensed modules, from internal.php
+  local code m out=""
+  code=$(ui_get '/centreon/api/internal.php?object=centreon_module&action=list&types[]=module')
+  [[ "$code" == 200 ]] || { echo "HTTP $code"; return 1; }
+  for m in $MOD_LICENSED; do out+="$m=$(module_license "$m") "; done
+  echo "${out% }"
+}
+licenses_are() { [[ "$(licenses_state)" == "$(printf "%s=$1 " $MOD_LICENSED | sed 's/ $//')" ]]; }
+
+license_install() { # epp.license from the modules image into fpm, container to container (tar stream)
+  local ref c rc=1
+  docker pull --quiet "$MOD_IMAGE" >/dev/null 2>&1 || return 1
+  ref=$(docker inspect -f '{{index .RepoDigests 0}}' "$MOD_IMAGE" 2>/dev/null) || return 1
+  MOD_IMAGE_DIGEST=${ref#*@}
+  c=$(docker create "$ref" 2>/dev/null) || return 1
+  if docker cp "$c:$MOD_LICENSE_DIR/$MOD_LICENSE_FILE" - 2>/dev/null \
+       | docker cp - "$(cc ps -q fpm):$MOD_LICENSE_DIR/" 2>/dev/null; then
+    cc exec -T -u root fpm sh -c 'chown www-data: "$0" && chmod 0640 "$0" && test -s "$0"' "$MOD_LICENSE_DIR/$MOD_LICENSE_FILE" && rc=0
+  fi
+  docker rm "$c" >/dev/null 2>&1
+  return $rc
+}
+
+gorgone_procs() { # gorgoned processes in every container of the gls projects (cmdline dumps grepped here)
+  local c
+  for c in $(docker ps -q --filter label=com.docker.compose.project=gls-central) \
+           $(docker ps -q --filter label=com.docker.compose.project=gls-poller); do
+    docker exec "$c" sh -c 'for f in /proc/[0-9]*/cmdline; do tr "\0" " " <"$f"; echo; done 2>/dev/null' 2>/dev/null
+  done | grep -c 'gorgoned'
+}
+
+cmd_modules() {
+  login || { record "login" ko; return; }
+  local m row code st n
+
+  # The 4 modules, installed by the container flow (installBakedModules.php).
+  for m in $MOD_NAMES; do
+    row=$(sql centreon "SELECT mod_release FROM modules_informations WHERE name='$m'")
+    [[ "$row" == "$MOD_RELEASE" ]] && record "modules: $m installed" ok "$row" || record "modules: $m installed" ko "${row:-absent}"
+  done
+
+  # Pages and APIs.
+  code=$(api GET /auto-discovery/jobs)
+  [[ "$code" == 200 ]] && jq -e '.result == [] and .meta.total == 0' "$LOG_DIR/last.json" >/dev/null 2>&1 \
+    && record "modules: autodiscovery job list API (empty)" ok "HTTP $code" \
+    || record "modules: autodiscovery job list API (empty)" ko "HTTP $code $(head -c 200 "$LOG_DIR/last.json")"
+  ui_login && record "modules: UI session login" ok || { record "modules: UI session login" ko; return; }
+  code=$(ui_get '/centreon/main.php?p=62001')
+  [[ "$code" == 200 ]] && record "modules: PPM page (Monitoring Connectors)" ok "HTTP $code" \
+    || record "modules: PPM page (Monitoring Connectors)" ko "HTTP $code"
+
+  # No license yet: LM answers cleanly. Only is_valid is ever printed.
+  st=$(licenses_state)
+  licenses_are false && record "modules: no license, LM answers is_valid=false (no 500)" ok "$st" \
+    || record "modules: no license, LM answers is_valid=false (no 500)" ko "$st"
+
+  # CI license copied from the modules image; LM must then report it valid.
+  if license_install; then
+    record "modules: CI license copied from centreon-modules (by digest)" ok "${MOD_IMAGE_DIGEST:0:19}..."
+    if wait_until 60 licenses_are true; then
+      record "modules: LM reports the license valid (autodiscovery, ITEE)" ok "$(licenses_state)"
+    else
+      # Not verified upstream whether LM rereads license.d per request: restart fpm once (12.W-P0).
+      cc restart fpm >/dev/null 2>&1; wait_until 300 service_ready cc fpm; ui_login
+      wait_until 60 licenses_are true \
+        && record "modules: LM reports the license valid (autodiscovery, ITEE)" ok "after an fpm restart: $(licenses_state)" \
+        || record "modules: LM reports the license valid (autodiscovery, ITEE)" ko "$(licenses_state)"
+    fi
+  else
+    record "modules: CI license copied from centreon-modules (by digest)" ko "$MOD_IMAGE"
+  fi
+
+  # Still no gorgone process anywhere.
+  n=$(gorgone_procs)
+  [[ "$n" == 0 ]] && record "modules: no gorgone process in any gls container" ok || record "modules: no gorgone process in any gls container" ko "$n"
+  rm -f "$MOD_JAR" "$PRIV_DIR/ui.out"
+}
+
 # ---------- install-script: poller added with the generated command (contracts § 11) ----------
 
 IS_NAME="${IS_NAME:-gls-poller-is}"
@@ -1163,10 +1267,11 @@ case "$cmd" in
   tls-negative) cmd_tls_negative ;;
   state) cmd_state ;;
   rrd) cmd_rrd ;;
+  modules) cmd_modules ;;
   install-script) cmd_install_script ;;
   logs) cmd_logs; exit 0 ;;
   down) cmd_down; exit 0 ;;
-  *) sed -n '2,19p' "$0"; exit 2 ;;
+  *) sed -n '2,20p' "$0"; exit 2 ;;
 esac
 summary "$cmd $*"
 exit $(( failures > 0 ))

@@ -69,6 +69,7 @@ docker login docker.centreon.com
 .github/docker/gls/scripts/gls-e2e.sh tls-negative # rogue central cert refused; renewal keeps the CA
 .github/docker/gls/scripts/gls-e2e.sh ca        # CA same as at creation, kept on cbd recreate, wrong fingerprint fails closed
 .github/docker/gls/scripts/gls-e2e.sh state     # state volumes: retention after recreate, cbmod queue
+.github/docker/gls/scripts/gls-e2e.sh modules   # LM, PPM, autodiscovery, ITEE installed; no license then the CI license valid; no gorgone
 .github/docker/gls/scripts/gls-e2e.sh install-script # SAN widened, poller added with the generated install.sh command over 5669, no secret leaked
 .github/docker/gls/scripts/gls-e2e.sh down      # removes only the gls-* projects, their volumes and gls-wan
 ```
@@ -89,6 +90,14 @@ docker login docker.centreon.com
 4. Export the poller. It stays on the name it dialed, and the TLS check uses that name.
 
 The command holds the poller token, the appsecret and the salt: do not paste it into tickets or logs. The e2e keeps it out of `$LOG_DIR` (`GLS_PRIVATE_DIR`, default `$RUNNER_TEMP/gls-private`).
+
+## Modules and license (phase 3 P0)
+
+- The fpm image bakes LM, PPM, autodiscovery and ITEE (26.10.1). `12-install.sh` installs them, and they need no gorgone. The gorgone-dependent actions (discovery jobs, saving discovered hosts, service discovery scans) fail cleanly until P1 to P3 (contracts §12.W-P0).
+- The license lives in the `centreon-license` volume (`/etc/centreon/license.d`), which survives `up -d` but not `down`.
+- For a local run, drop a non-machine-locked license there as `epp.license`, owned by www-data:
+  `docker compose -p gls-central -f docker-compose.central.yml cp epp.license fpm:/etc/centreon/license.d/`
+- The e2e copies the CI license from the `centreon-modules-trixie` image (pinned by digest) container to container. It never writes the license on the host and never prints it.
 
 ## UI and API
 
