@@ -30,10 +30,10 @@ namespace App\AiConfiguration\Infrastructure\Llm;
  * block is all reasoning, so nothing of it is kept.
  *
  * Some chat templates (e.g. DeepSeek R1 on a raw vLLM or llama.cpp server) put the
- * opening tag in the prompt, so the answer reads "reasoning…</think>answer": a whole
- * answer (strip()) with no opening tag before its first closing tag loses everything
- * up to that closing tag and the blank lines after it. A streamed answer
- * without an opening tag is passed on as it comes, closing tag and all.
+ * opening tag in the prompt, so the answer reads "reasoning…</think>\n\nanswer".
+ * Only stripWithOpeningTagInPrompt() handles that, for the OpenAI-compatible APIs
+ * serving such models, and only for a whole answer: a streamed answer without an
+ * opening tag is passed on as it comes, closing tag and all.
  */
 final class ThinkBlockFilter
 {
@@ -53,15 +53,28 @@ final class ThinkBlockFilter
      */
     public static function strip(string $content): string
     {
-        $end = mb_strpos($content, self::CLOSING_TAG);
-        if ($end !== false && ! str_contains(mb_substr($content, 0, $end), self::OPENING_TAG)) {
-            // the opening tag was in the prompt
-            return ltrim(mb_substr($content, $end + mb_strlen(self::CLOSING_TAG)));
-        }
-
         $filter = new self();
 
         return $filter->push($content) . $filter->finish();
+    }
+
+    /**
+     * The whole answer, without its leading reasoning block, opened in the answer or
+     * in the prompt: a first closing tag with no opening tag before it, followed by a
+     * line break or the end of the answer, closes reasoning. Anywhere else, the tag is
+     * part of the answer (e.g. one about the tag).
+     */
+    public static function stripWithOpeningTagInPrompt(string $content): string
+    {
+        $end = mb_strpos($content, self::CLOSING_TAG);
+        if ($end !== false && ! str_contains(mb_substr($content, 0, $end), self::OPENING_TAG)) {
+            $rest = mb_substr($content, $end + mb_strlen(self::CLOSING_TAG));
+            if ($rest === '' || str_starts_with($rest, "\n") || str_starts_with($rest, "\r\n")) {
+                return ltrim($rest);
+            }
+        }
+
+        return self::strip($content);
     }
 
     /**

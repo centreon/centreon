@@ -23,13 +23,24 @@ declare(strict_types=1);
 
 namespace Tests\App\AiConfiguration\Infrastructure\Llm;
 
+use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\ReasoningModeEnum;
+use App\AiConfiguration\Domain\Llm\Exception\LlmRequestFailedException;
 use App\AiConfiguration\Infrastructure\Llm\ReasoningCandidate;
 use App\AiConfiguration\Infrastructure\Llm\ReasoningNegotiator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Component\HttpClient\MockHttpClient;
+use Symfony\Component\HttpClient\Response\MockResponse;
+use Symfony\Contracts\HttpClient\ResponseInterface;
 
 final class ReasoningNegotiatorTest extends TestCase
 {
+    /** @var list<string|null> the labels of the candidates sent, null when none was */
+    private array $sentLabels = [];
+
     /**
      * @return iterable<string, array{int, ReasoningCandidate|null, int}>
      */
@@ -67,5 +78,79 @@ final class ReasoningNegotiatorTest extends TestCase
                 array_map(static fn (ReasoningCandidate $candidate): bool => $candidate->turnsReasoningOff, $candidates)
             );
         }
+    }
+
+    public function testTheCacheKeyChangesWithTheCandidateList(): void
+    {
+        $cache = new ArrayAdapter();
+        $this->send($cache, ReasoningCandidate::reasoningEffort(), 'reasoning_effort: minimal');
+        self::assertSame(['reasoning_effort: none', 'reasoning_effort: minimal'], $this->sentLabels);
+
+        $this->sentLabels = [];
+        $this->send($cache, ReasoningCandidate::reasoningEffort(), 'reasoning_effort: minimal');
+        self::assertSame(['reasoning_effort: minimal'], $this->sentLabels);
+
+        // the remembered index 1 would still name an accepted setting: it is not used
+        $this->sentLabels = [];
+        $candidates = [
+            new ReasoningCandidate('reasoning_effort: low', ['reasoning_effort' => 'low']),
+            new ReasoningCandidate('reasoning_effort: minimal', ['reasoning_effort' => 'minimal']),
+        ];
+        $this->send($cache, $candidates, 'reasoning_effort: minimal');
+        self::assertSame(['reasoning_effort: low', 'reasoning_effort: minimal'], $this->sentLabels);
+        self::assertCount(2, $cache->getValues());
+    }
+
+    /**
+     * @return iterable<string, array{mixed}>
+     */
+    public static function provideRememberedValuesNotMatchingTheList(): iterable
+    {
+        yield 'an index out of range' => [7];
+
+        yield 'not an index' => ['reasoning_effort: minimal'];
+    }
+
+    #[DataProvider('provideRememberedValuesNotMatchingTheList')]
+    public function testARememberedValueNotMatchingTheListIsRediscoveredAndReplaced(mixed $remembered): void
+    {
+        $cache = new ArrayAdapter();
+        $this->send($cache, ReasoningCandidate::reasoningEffort(), 'reasoning_effort: minimal');
+        $key = array_key_first($cache->getValues());
+        self::assertIsString($key);
+        $item = $cache->getItem($key);
+        $item->set($remembered);
+
+        $cache->save($item);
+        $this->sentLabels = [];
+
+        $this->send($cache, ReasoningCandidate::reasoningEffort(), 'reasoning_effort: minimal');
+
+        self::assertSame(['reasoning_effort: none', 'reasoning_effort: minimal'], $this->sentLabels);
+        self::assertSame(1, $cache->getItem($key)->get());
+    }
+
+    /**
+     * Sends a request to a model that only accepts the given setting.
+     *
+     * @param non-empty-list<ReasoningCandidate> $candidates
+     *
+     * @throws LlmRequestFailedException
+     */
+    private function send(ArrayAdapter $cache, array $candidates, string $acceptedLabel): void
+    {
+        $negotiator = new ReasoningNegotiator($cache, new NullLogger(), 'openai_compatible https://api.example.com', $candidates);
+        $negotiator->send(
+            new ModelName('a-model'),
+            ReasoningModeEnum::Minimal,
+            function (?ReasoningCandidate $candidate) use ($acceptedLabel): ResponseInterface {
+                $this->sentLabels[] = $candidate?->label;
+                if ($candidate?->label !== $acceptedLabel) {
+                    throw LlmRequestFailedException::fromProviderError(400, 'this reasoning setting is not supported');
+                }
+
+                return (new MockHttpClient(new MockResponse('{}')))->request('POST', 'https://api.example.com');
+            }
+        );
     }
 }

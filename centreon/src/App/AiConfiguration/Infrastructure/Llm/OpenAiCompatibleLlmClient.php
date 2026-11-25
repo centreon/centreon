@@ -103,7 +103,7 @@ final readonly class OpenAiCompatibleLlmClient implements LlmClientInterface
         $usage = ProviderPayload::array($data['usage'] ?? null);
 
         return new LlmResponse(
-            content: ThinkBlockFilter::strip($this->textOf($message['content'] ?? null)),
+            content: ThinkBlockFilter::stripWithOpeningTagInPrompt($this->textOf($message['content'] ?? null)),
             model: ProviderPayload::string($data['model'] ?? null) ?? '',
             usage: new LlmUsage(
                 inputTokens: ProviderPayload::tokenCount($usage['prompt_tokens'] ?? null),

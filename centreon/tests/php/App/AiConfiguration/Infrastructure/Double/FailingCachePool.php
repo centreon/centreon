@@ -30,17 +30,20 @@ use Symfony\Component\Cache\Exception\InvalidArgumentException;
 
 /**
  * A cache that can not be read (it throws) or that can not save anything (it reports
- * the failure), as a broken cache backend does.
+ * the failure, or throws), as a broken cache backend does.
  */
 final readonly class FailingCachePool implements CacheItemPoolInterface
 {
     private ArrayAdapter $items;
 
-    public function __construct(private bool $failsToRead)
+    public function __construct(private bool $failsToRead, private bool $throwsOnSave = false)
     {
         $this->items = new ArrayAdapter();
     }
 
+    /**
+     * @throws InvalidArgumentException when the cache fails to read
+     */
     public function getItem(string $key): CacheItemInterface
     {
         if ($this->failsToRead) {
@@ -52,6 +55,8 @@ final readonly class FailingCachePool implements CacheItemPoolInterface
 
     /**
      * @param array<string> $keys
+     *
+     * @throws InvalidArgumentException when the cache fails to read
      *
      * @return iterable<string, CacheItemInterface>
      */
@@ -84,8 +89,15 @@ final readonly class FailingCachePool implements CacheItemPoolInterface
         return true;
     }
 
+    /**
+     * @throws InvalidArgumentException when the cache throws on save
+     */
     public function save(CacheItemInterface $item): bool
     {
+        if ($this->throwsOnSave) {
+            throw new InvalidArgumentException('The cache can not be written');
+        }
+
         return false;
     }
 

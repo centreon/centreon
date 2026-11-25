@@ -116,11 +116,8 @@ final class ProviderPayload
         $messages = [];
         foreach ($detail as $error) {
             $error = self::array($error);
-            $message = self::string($error['msg'] ?? null);
-            if ($message === null) {
-                continue;
-            }
-            if (trim((string) $message) === '') {
+            $message = self::string($error['msg'] ?? null) ?? '';
+            if (trim($message) === '') {
                 continue;
             }
             $location = array_filter(

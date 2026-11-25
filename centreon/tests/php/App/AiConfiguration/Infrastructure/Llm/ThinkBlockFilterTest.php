@@ -57,6 +57,7 @@ final class ThinkBlockFilterTest extends TestCase
     public function testTheLeadingBlockIsStripped(string $answer, string $expected): void
     {
         self::assertSame($expected, ThinkBlockFilter::strip($answer));
+        self::assertSame($expected, ThinkBlockFilter::stripWithOpeningTagInPrompt($answer));
     }
 
     /**
@@ -68,13 +69,41 @@ final class ThinkBlockFilterTest extends TestCase
 
         yield 'only reasoning' => ['The user wants pong.</think>', ''];
 
-        yield 'up to the first closing tag only' => ['hmm</think>pong </think>', 'pong </think>'];
+        yield 'up to the first closing tag only' => ["hmm</think>\npong </think>", 'pong </think>'];
+
+        yield 'a Windows line break' => ["hmm</think>\r\npong", 'pong'];
     }
 
     #[DataProvider('provideAnswersWithoutTheOpeningTag')]
     public function testAWholeAnswerLosesTheReasoningOfAnOpeningTagLeftInThePrompt(string $answer, string $expected): void
     {
-        self::assertSame($expected, ThinkBlockFilter::strip($answer));
+        self::assertSame($expected, ThinkBlockFilter::stripWithOpeningTagInPrompt($answer));
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function provideAnswersMentioningTheClosingTag(): iterable
+    {
+        yield 'mid-sentence' => ['Close the block with `</think>` then answer.'];
+
+        yield 'followed by text' => ['hmm</think>pong'];
+
+        yield 'followed by a space' => ["The tag </think> \ncloses it."];
+    }
+
+    #[DataProvider('provideAnswersMentioningTheClosingTag')]
+    public function testAnAnswerMentioningTheClosingTagIsKeptWhole(string $answer): void
+    {
+        self::assertSame($answer, ThinkBlockFilter::stripWithOpeningTagInPrompt($answer));
+    }
+
+    #[DataProvider('provideAnswersMentioningTheClosingTag')]
+    public function testOnlyALeadingBlockIsStrippedByDefault(string $answer): void
+    {
+        // e.g. Anthropic: its reasoning comes in separate thinking blocks
+        self::assertSame($answer, ThinkBlockFilter::strip($answer));
+        self::assertSame("hmm</think>\n\npong", ThinkBlockFilter::strip("hmm</think>\n\npong"));
     }
 
     public function testAStreamedAnswerWithoutTheOpeningTagIsPassedOnAsItComes(): void

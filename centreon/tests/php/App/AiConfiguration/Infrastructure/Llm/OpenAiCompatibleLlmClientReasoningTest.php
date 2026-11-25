@@ -168,6 +168,25 @@ final class OpenAiCompatibleLlmClientReasoningTest extends TestCase
         self::assertSame(['minimal', 'none', 'none'], array_column($this->sentBodies, 'reasoning_effort'));
     }
 
+    public function testARejectedRememberedEffortIsNotSentAgain(): void
+    {
+        $cache = new ArrayAdapter();
+        $this->createClient([$this->rejection('reasoning_effort none is not supported'), $this->answer('pong')], cache: $cache)
+            ->complete($this->createRequest());
+        $this->forgetSentBodies();
+
+        // the alias now names a model that only accepts "low"
+        $response = $this->createClient([
+            $this->rejection('reasoning_effort minimal is not supported'),
+            $this->rejection('reasoning_effort none is not supported'),
+            $this->answer('pong'),
+        ], cache: $cache)->complete($this->createRequest());
+
+        self::assertSame('reasoning_effort: low', $response->reasoning);
+        self::assertCount(3, $this->sentBodies);
+        self::assertSame(['minimal', 'none', 'low'], array_column($this->sentBodies, 'reasoning_effort'));
+    }
+
     public function testTheOutcomeIsRememberedPerModel(): void
     {
         $cache = new ArrayAdapter();
@@ -342,6 +361,17 @@ final class OpenAiCompatibleLlmClientReasoningTest extends TestCase
         self::assertCount(1, $this->sentBodies);
     }
 
+    public function testAShortModelNameDoesNotHideARejection(): void
+    {
+        // removing every "in" would turn "reasoning" into "reasong"
+        $response = $this->createClient([
+            $this->rejection('Unsupported parameter: reasoning none'),
+            $this->answer('pong'),
+        ])->complete($this->createRequest(model: new ModelName('in')));
+
+        self::assertSame('reasoning_effort: minimal', $response->reasoning);
+    }
+
     public function testARejectionNamingTheSettingBesidesTheModelIsStillOne(): void
     {
         $response = $this->createClient([
@@ -424,14 +454,15 @@ final class OpenAiCompatibleLlmClientReasoningTest extends TestCase
             $this->rejection('Unrecognized request argument supplied: reasoning_effort'),
             $this->rejection('Unrecognized request argument supplied: reasoning_effort'),
             $this->rejection('Unrecognized request argument supplied: reasoning_effort'),
-            $this->rejection('Unrecognized request argument supplied: reasoning_effort'),
             $this->answer('pong'),
             $this->answer('pong again'),
         ], cache: $cache, logger: $logger);
         $response = $client->complete($this->createRequest());
         self::assertNull($response->reasoning);
-        self::assertSame(['minimal', 'none', 'minimal', 'low'], array_column($this->sentBodies, 'reasoning_effort'));
-        self::assertArrayNotHasKey('reasoning_effort', $this->sentBodies[4]);
+        // the rejected remembered effort is not sent again
+        self::assertSame(['minimal', 'none', 'low'], array_column($this->sentBodies, 'reasoning_effort'));
+        self::assertCount(4, $this->sentBodies);
+        self::assertArrayNotHasKey('reasoning_effort', $this->sentBodies[3]);
         $this->forgetSentBodies();
 
         $client->complete($this->createRequest());
@@ -474,6 +505,7 @@ final class OpenAiCompatibleLlmClientReasoningTest extends TestCase
 
         self::assertSame('reasoning_effort: minimal', $response->reasoning);
         self::assertStringContainsString('can not be read from the cache', $logger->records()[0]['message'] ?? '');
+        self::assertSame('mistral-large-latest', $logger->records()[0]['context']['model'] ?? null);
     }
 
     public function testACacheThatCanNotSaveMakesEachRequestDiscoverAgain(): void
@@ -496,6 +528,26 @@ final class OpenAiCompatibleLlmClientReasoningTest extends TestCase
         self::assertNotNull($lastRecord);
         self::assertSame('warning', $lastRecord['level']);
         self::assertStringContainsString('can not be saved in the cache', $lastRecord['message']);
+        self::assertSame('mistral-large-latest', $lastRecord['context']['model'] ?? null);
+        self::assertSame(1, $lastRecord['context']['index'] ?? null);
+    }
+
+    public function testACacheThatThrowsOnSaveStillReturnsTheAnswer(): void
+    {
+        $logger = new RecordingLogger();
+        $response = $this->createClient(
+            [$this->rejection('reasoning_effort none is not supported'), $this->answer('pong')],
+            cache: new FailingCachePool(failsToRead: false, throwsOnSave: true),
+            logger: $logger,
+        )->complete($this->createRequest());
+
+        self::assertSame('pong', $response->content);
+        $lastRecord = $logger->lastRecord();
+        self::assertNotNull($lastRecord);
+        self::assertSame('warning', $lastRecord['level']);
+        self::assertStringContainsString('can not be saved in the cache', $lastRecord['message']);
+        self::assertArrayHasKey('exception', $lastRecord['context']);
+        self::assertSame('mistral-large-latest', $lastRecord['context']['model'] ?? null);
     }
 
     public function testARequestNamingAModelGetsTheSettingOfTheTierItServes(): void
@@ -566,6 +618,14 @@ final class OpenAiCompatibleLlmClientReasoningTest extends TestCase
             ->complete($this->createRequest());
 
         self::assertSame('pong', $response->content);
+    }
+
+    public function testAnAnswerMentioningTheClosingTagIsKeptWhole(): void
+    {
+        $answer = 'Close the block with `</think>` then answer.';
+        $response = $this->createClient([$this->answer($answer)])->complete($this->createRequest());
+
+        self::assertSame($answer, $response->content);
     }
 
     private function forgetSentBodies(): void

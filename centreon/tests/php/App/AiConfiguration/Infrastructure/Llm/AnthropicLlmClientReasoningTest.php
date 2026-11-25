@@ -151,6 +151,17 @@ final class AnthropicLlmClientReasoningTest extends TestCase
         self::assertSame('pong', $response->content);
     }
 
+    public function testAnAnswerWithAClosingTagButNoOpeningOneIsKeptWhole(): void
+    {
+        $answer = "Close the reasoning block with:\n</think>\nthen write the answer.";
+        $response = $this->createClient([new MockResponse(json_encode([
+            'content' => [['type' => 'text', 'text' => $answer]],
+            'model' => 'claude-sonnet-4-6',
+        ], \JSON_THROW_ON_ERROR))])->complete($this->createRequest());
+
+        self::assertSame($answer, $response->content);
+    }
+
     public function testStreamedThinkingIsNotPartOfTheAnswer(): void
     {
         $generator = $this->createClient([new MockResponse([

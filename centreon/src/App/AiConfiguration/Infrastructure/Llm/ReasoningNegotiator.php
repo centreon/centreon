@@ -36,8 +36,8 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
  * Sends a request with the first setting turning the model's reasoning down that
  * the provider accepts for it. A provider rejects a value the model does not
  * support (HTTP 400, or 422 from FastAPI servers) rather than ignoring it, so the
- * candidates are tried in order, and the outcome is remembered per endpoint and
- * model.
+ * candidates are tried in order, and the outcome (an index in the candidates, so
+ * per candidate list too) is remembered per endpoint and model.
  *
  * The cache is only read and written around the requests, never locked while they
  * run: two concurrent requests may both discover the setting, which is harmless.
@@ -101,31 +101,33 @@ final readonly class ReasoningNegotiator
             return [$send(null), null];
         }
 
-        $item = $this->findItem(self::CACHE_KEY_PREFIX . hash('xxh128', $this->scope . "\n" . $model->value));
+        $item = $this->findItem($model);
+        $rejectedIndex = null;
         if ($item?->isHit() === true) {
             $index = $item->get();
             if ($index === self::NONE_ACCEPTED) {
                 return [$send(null), null];
             }
 
-            $candidate = is_int($index) ? ($this->candidates[$index] ?? null) : null;
-            if ($candidate instanceof ReasoningCandidate) {
+            if (is_int($index) && isset($this->candidates[$index])) {
+                $candidate = $this->candidates[$index];
                 try {
                     return [$send($candidate), $candidate];
                 } catch (LlmRequestFailedException $exception) {
                     if (! $this->isRejection($exception, $model)) {
                         throw $exception;
                     }
+                    $rejectedIndex = $index;
                 }
             }
             // the remembered candidate no longer applies (e.g. the model alias now
-            // names another model): discover again, once
+            // names another model): discover again, once, without resending it
         }
 
         // a failed discovery is not remembered: its exception propagates
-        [$response, $candidate, $index] = $this->discover($model, $send);
+        [$response, $candidate, $index] = $this->discover($model, $send, $rejectedIndex);
         if ($item instanceof CacheItemInterface) {
-            $this->remember($item, $index);
+            $this->remember($item, $index, $model);
         }
 
         return [$response, $candidate];
@@ -134,12 +136,18 @@ final readonly class ReasoningNegotiator
     /**
      * A cache that fails is worked around: the setting is discovered again.
      */
-    private function findItem(string $key): ?CacheItemInterface
+    private function findItem(ModelName $model): ?CacheItemInterface
     {
+        // the remembered index only means something for this candidate list
+        $labels = array_map(static fn (ReasoningCandidate $candidate): string => $candidate->label, $this->candidates);
+        $key = self::CACHE_KEY_PREFIX . hash('xxh128', implode("\n", [$this->scope, $model->value, ...$labels]));
+
         try {
             return $this->cache->getItem($key);
         } catch (CacheException $exception) {
             $this->logger->warning('The reasoning setting of the model can not be read from the cache', [
+                'model' => $model->value,
+                'scope' => $this->scope,
                 'exception' => $exception,
             ]);
 
@@ -147,17 +155,17 @@ final readonly class ReasoningNegotiator
         }
     }
 
-    private function remember(CacheItemInterface $item, int $index): void
+    private function remember(CacheItemInterface $item, int $index, ModelName $model): void
     {
         $item->set($index);
         $item->expiresAfter(self::CACHE_TTL_SECONDS);
 
+        $context = ['model' => $model->value, 'scope' => $this->scope, 'index' => $index];
         try {
             $saved = $this->cache->save($item);
-            $context = [];
         } catch (CacheException $exception) {
             $saved = false;
-            $context = ['exception' => $exception];
+            $context['exception'] = $exception;
         }
 
         if (! $saved) {
@@ -170,15 +178,20 @@ final readonly class ReasoningNegotiator
 
     /**
      * @param callable(?ReasoningCandidate): ResponseInterface $send
+     * @param int|null $skippedIndex a candidate already rejected, not sent again
      *
      * @throws LlmRequestFailedException when the request fails, other than by a rejected candidate
      *
      * @return array{ResponseInterface, ReasoningCandidate|null, int} the response, the candidate it
      *                                                                was sent with and its index
      */
-    private function discover(ModelName $model, callable $send): array
+    private function discover(ModelName $model, callable $send, ?int $skippedIndex): array
     {
         foreach ($this->candidates as $index => $candidate) {
+            if ($index === $skippedIndex) {
+                continue;
+            }
+
             try {
                 return [$send($candidate), $candidate, $index];
             } catch (LlmRequestFailedException $exception) {
@@ -198,11 +211,23 @@ final readonly class ReasoningNegotiator
 
     /**
      * The model name is left out of the match: it often echoes in the message, and
-     * may itself name reasoning (e.g. deepseek-reasoner, a *-thinking-* model).
+     * may itself name reasoning (e.g. deepseek-reasoner, a *-thinking-* model). Only
+     * whole occurrences are, so that a short name can not hide a word of the message.
      */
     private function isRejection(LlmRequestFailedException $exception, ModelName $model): bool
     {
-        return in_array($exception->getCode(), self::REJECTION_STATUS_CODES, true)
-            && preg_match(self::REJECTION_PATTERN, str_ireplace($model->value, '', $exception->getMessage())) === 1;
+        if (! in_array($exception->getCode(), self::REJECTION_STATUS_CODES, true)) {
+            return false;
+        }
+
+        $message = $exception->getMessage();
+        $withoutModel = preg_replace(
+            '/(?<![\w.:\/-])' . preg_quote($model->value, '/') . '(?![\w.:\/-])/i',
+            '',
+            $message
+        );
+
+        // on a regular expression error, the whole message is matched
+        return preg_match(self::REJECTION_PATTERN, $withoutModel ?? $message) === 1;
     }
 }
