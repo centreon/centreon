@@ -12,7 +12,7 @@ The trap is to test the filter's container rather than its value: after a select
 
 One alternative was weighed: **let the API ignore empty filters.** It lost: the frontend cannot assume it, and a request that differs from the user's intent is wrong even when the API tolerates it.
 
-Settled in [MON-216175](https://centreon.atlassian.net/browse/MON-216175).
+Settled in [#12827](https://github.com/centreon/centreon/pull/12827).
 
 ## Decision
 

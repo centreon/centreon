@@ -15,7 +15,7 @@ Two alternatives were weighed:
 - **Semantic versioning with a major bump on every break.** It lost for now: the version is derived from the Centreon version by the publish workflow, and the modules pin a Centreon version, not a semver range.
 - **Build the modules in this repository's CI on every `packages/ui` change.** It lost for now: the modules live in another repository with their own lockfiles; it is a candidate enforcement, not a rule.
 
-Settled in [MON-216175](https://centreon.atlassian.net/browse/MON-216175).
+Settled in [#12827](https://github.com/centreon/centreon/pull/12827).
 
 ## Decision
 

@@ -10,7 +10,7 @@
 
 One alternative was weighed: **allow any utility library in the package.** It lost: the package's dependencies are every consumer's dependencies.
 
-Settled in [MON-216175](https://centreon.atlassian.net/browse/MON-216175).
+Settled in [#12827](https://github.com/centreon/centreon/pull/12827).
 
 ## Decision
 

@@ -10,7 +10,7 @@
 
 One alternative was weighed: **allow any utility library, and let the bundler deduplicate.** It lost: two libraries for one job means two idioms in review and two bundles for the user.
 
-Settled in [MON-216175](https://centreon.atlassian.net/browse/MON-216175).
+Settled in [#12827](https://github.com/centreon/centreon/pull/12827).
 
 ## Decision
 

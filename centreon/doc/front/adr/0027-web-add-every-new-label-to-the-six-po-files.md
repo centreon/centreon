@@ -15,7 +15,7 @@ Two alternatives were weighed:
 - **Leave every translation to the periodic update.** It lost: between two updates, a release can ship a screen untranslated in every locale, French included.
 - **Fill every locale in the feature pull request.** It lost: the developer is not a translator; an empty `msgstr` is a visible task, a wrong one is a silent bug.
 
-Settled in [MON-216175](https://centreon.atlassian.net/browse/MON-216175).
+Settled in [#12827](https://github.com/centreon/centreon/pull/12827).
 
 ## Decision
 

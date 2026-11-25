@@ -15,7 +15,7 @@ Two alternatives were weighed:
 - **Test ids everywhere, for stability.** It lost: a test id proves nothing about what the user sees, and it is one more attribute to keep in the markup.
 - **Semantic queries only.** It lost: some elements have no accessible name yet, and the rule would block the test rather than the markup.
 
-Settled in [MON-216175](https://centreon.atlassian.net/browse/MON-216175).
+Settled in [#12827](https://github.com/centreon/centreon/pull/12827).
 
 ## Decision
 
