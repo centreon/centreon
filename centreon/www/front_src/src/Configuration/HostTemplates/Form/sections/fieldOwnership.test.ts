@@ -2,14 +2,16 @@ import { getFieldsOwnedTwice } from '../../../ResourceForm/testUtils';
 import { getHostTemplateResponse } from '../../Specs/utils';
 import { blocks, type PlatformContext } from '.';
 
-// Every form the platform can build. A host template has no mass change.
+// Every form the platform and the mass change can build.
 const contexts: Array<[name: string, context: PlatformContext]> = [
   ['onPrem', { isCloudPlatform: false }],
   [
     'onPrem with additive inheritance',
     { isAdditiveInheritanceEnabled: true, isCloudPlatform: false }
   ],
-  ['cloud', { isCloudPlatform: true }]
+  ['cloud', { isCloudPlatform: true }],
+  ['onPrem mass change', { isCloudPlatform: false, isMassChange: true }],
+  ['cloud mass change', { isCloudPlatform: true, isMassChange: true }]
 ];
 
 describe('Host template field blocks', () => {

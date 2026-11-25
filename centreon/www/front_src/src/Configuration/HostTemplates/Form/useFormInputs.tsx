@@ -9,16 +9,23 @@ interface Props {
   canEdit: boolean;
   isAdditiveInheritanceEnabled: boolean;
   isCloudPlatform: boolean;
+  isMassChange?: boolean;
 }
 
 const useFormInputs = ({
   canEdit,
   isAdditiveInheritanceEnabled,
-  isCloudPlatform
+  isCloudPlatform,
+  isMassChange = false
 }: Props): FormInputs => {
   const { t } = useTranslation();
 
-  const context = { isAdditiveInheritanceEnabled, isCloudPlatform, t };
+  const context = {
+    isAdditiveInheritanceEnabled,
+    isCloudPlatform,
+    isMassChange,
+    t
+  };
 
   return getFormInputs({
     canEdit,

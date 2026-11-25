@@ -1,6 +1,7 @@
 import { Form, SnackbarProvider } from '@centreon/ui';
 import {
   defaultLimitPerPageAtom,
+  isAdditiveInheritanceEnabledAtom,
   type PlatformFeatures,
   platformFeaturesAtom,
   type UserPermissions,
@@ -60,7 +61,10 @@ import {
 interface Props {
   isEmpty?: boolean;
   hasWriteAccess?: boolean;
+  isAdditiveInheritanceEnabled?: boolean;
   isCloudPlatform?: boolean;
+  // The templates the server refuses to update.
+  patchFails?: Array<number>;
   search?: string;
 }
 
@@ -79,7 +83,9 @@ export const getHeaderLabels = (): Array<string | null> =>
 const initialize = ({
   isEmpty = false,
   hasWriteAccess = true,
+  isAdditiveInheritanceEnabled = false,
   isCloudPlatform = false,
+  patchFails = [],
   search = ''
 }: Props = {}): InitializeResult => {
   i18next.use(initReactI18next).init({
@@ -98,6 +104,7 @@ const initialize = ({
   } as UserPermissions);
   store.set(defaultLimitPerPageAtom, 10);
   store.set(platformFeaturesAtom, { isCloudPlatform } as PlatformFeatures);
+  store.set(isAdditiveInheritanceEnabledAtom, isAdditiveInheritanceEnabled);
 
   interceptAPIRequest({
     alias: 'getAllHostTemplates',
@@ -124,8 +131,13 @@ const initialize = ({
       alias: `updateHostTemplate${id}`,
       method: Method.PATCH,
       path: `**${getHostTemplateEndpoint({ id })}`,
-      // No body, as the server answers a partial update.
-      statusCode: 204
+      // No body on success, as the server answers a partial update.
+      ...(patchFails.includes(id)
+        ? {
+            response: { code: 422, message: 'Update refused' },
+            statusCode: 422
+          }
+        : { statusCode: 204 })
     });
   });
 
