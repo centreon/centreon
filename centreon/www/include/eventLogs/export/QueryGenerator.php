@@ -441,12 +441,15 @@ class QueryGenerator
                 )
             ) {
                 $req_append = '';
+                $serviceIndex = 0;
                 foreach ($this->tabSvc as $host_id => $services) {
                     $str = '';
                     $str_append = '';
                     foreach ($services as $svc_id => $svc_name) {
                         if ($svc_id != '') {
-                            $str .= $str_append . $svc_id;
+                            $placeholder = ':serviceId' . $serviceIndex++;
+                            $this->queryValues[$placeholder] = [\PDO::PARAM_INT => (int) $svc_id];
+                            $str .= $str_append . $placeholder;
                             $str_append = ', ';
                         }
                     }
@@ -470,6 +473,8 @@ class QueryGenerator
                 }
                 if ($str_unitH != '' || $str_unitSVC != '') {
                     $req .= ' AND (' . $str_unitH . $str_unitSVC . ')';
+                } else {
+                    $req .= ' AND 0 ';
                 }
             } else {
                 $req .= 'AND 0 ';
