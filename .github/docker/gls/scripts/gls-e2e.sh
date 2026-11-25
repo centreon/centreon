@@ -889,6 +889,24 @@ is_dials_external() { # the bbdo_client output dials IS_HOST:public port, TLS-ch
   is_module_json "$1" | jq -e --arg h "$IS_HOST" --arg p "${GLS_BROKER_PUBLIC_PORT:-5669}" \
     '[.centreonBroker.output[]? | select(.type == "bbdo_client" and .host == $h and (.port | tostring) == $p and ((.ca_name // $h) == $h))] | length > 0' >/dev/null 2>&1
 }
+is_cmd_diff() { # is_cmd_diff <cmd1> <cmd2>: names of the options that differ, never their values
+  local a b
+  a=$(xargs -n1 printf '%s\n' <<<"${1#*bash -s -- }" 2>/dev/null | grep '^--')
+  b=$(xargs -n1 printf '%s\n' <<<"${2#*bash -s -- }" 2>/dev/null | grep '^--')
+  [[ -z "$2" ]] && { echo "empty GET command"; return; }
+  [[ "${1%%|*}" != "${2%%|*}" ]] && echo -n "curl part differs; "
+  [[ "$a" != "$b" ]] && { echo "options or order differ: [$(tr '\n' ' ' <<<"$a")] vs [$(tr '\n' ' ' <<<"$b")]"; return; }
+  local o diff=""
+  for o in $a; do [[ "$(is_opt "$o" "$1")" == "$(is_opt "$o" "$2")" ]] || diff+="$o "; done
+  echo "values differ for: ${diff:-none (quoting or spacing)}"
+}
+is_engine_diag() { # why the installed engine is not capable: container state, delivered CA path
+  local st mod ca
+  st=$(docker inspect -f 'status={{.State.Status}} exit={{.State.ExitCode}} restarts={{.RestartCount}}' "$1" 2>/dev/null)
+  mod=$(is_module_json "$1")
+  ca=$(jq -r '[.centreonBroker.output[]? | select(.type == "bbdo_client") | .ca_certificate // "none"] | first // "none"' <<<"$mod" 2>/dev/null)
+  echo "$st; delivered ca_certificate=$ca ($(docker exec "$1" sh -c "test -s '$ca' && echo present || echo missing" 2>/dev/null))"
+}
 is_run() { # is_run <dir> <command> <console file>: runs the generated command from <dir>, returns its exit code
   rm -rf "$1"; mkdir -p "$1"
   ( cd "$1" && set +x && timeout 900 bash -o pipefail -c "$2" ) >"$3" 2>&1
@@ -901,7 +919,7 @@ served_san() { # SAN of the cert served on the published 5669
 served_verified() { # the cert on the published 5669 chains to the cbd CA and is valid for IS_HOST
   cbd_get /v1/ca | jq -r '.pem // empty' >"$PRIV_DIR/broker-ca.pem"
   openssl s_client -alpn h2 -connect "127.0.0.1:${GLS_BROKER_PUBLIC_PORT:-5669}" -servername "$IS_HOST" \
-    -CAfile "$PRIV_DIR/broker-ca.pem" -verify_hostname "$IS_HOST" </dev/null 2>/dev/null | grep -q 'Verify return code: 0 (ok)'
+    -CAfile "$PRIV_DIR/broker-ca.pem" -verify_hostname "$IS_HOST" </dev/null 2>/dev/null | grep -cF 'Verify return code: 0 (ok)' >/dev/null
 }
 
 cmd_install_script() {
@@ -927,7 +945,7 @@ cmd_install_script() {
   [[ -n "$ca_fp" && "$(cbd_ca_fp)" == "$ca_fp" ]] && record "install-script: SAN change kept the CA" ok "sha256 ${ca_fp:0:16}..." \
     || record "install-script: SAN change kept the CA" ko "$(cbd_ca_fp | cut -c1-16) vs ${ca_fp:0:16}"
   { cc logs --no-color centreon-broker 2>/dev/null; cc exec -T centreon-broker sh -c 'cat /var/log/centreon-broker/*.log 2>/dev/null'; } \
-    | grep -qF "tls: SAN changed" && record "install-script: cbd renewed its server cert (tls: SAN changed)" ok \
+    | grep -cF "tls: SAN changed" >/dev/null && record "install-script: cbd renewed its server cert (tls: SAN changed)" ok \
     || record "install-script: cbd renewed its server cert (tls: SAN changed)" ko
   local puid
   puid=$(sql centreon "SELECT uid FROM nagios_server WHERE name='${POLLER_NAME}'")
@@ -957,7 +975,7 @@ cmd_install_script() {
   v=$(jq -r '.installation_command // .installationCommand // empty' "$PRIV_DIR/last.json")
   if [[ -z "$cmd" ]]; then cmd=$v; fi
   [[ -n "$v" && "$v" == "$cmd" ]] && record "install-script: GET installation-command = creation answer" ok \
-    || record "install-script: GET installation-command = creation answer" ko "HTTP $code"
+    || record "install-script: GET installation-command = creation answer" ko "HTTP $code, $(is_cmd_diff "$cmd" "$v")"
   [[ "$(sql centreon "SELECT remote_channel FROM nagios_server WHERE id=$pid")" == broker ]] \
     && record "install-script: broker channel set at creation" ok || record "install-script: broker channel set at creation" ko
 
@@ -1030,10 +1048,14 @@ cmd_install_script() {
     && record "install-script: no published port" ok || record "install-script: no published port" ko
   [[ "$(stat -c %a "$IS_DIR/.env" 2>/dev/null)" == 600 ]] && record "install-script: .env mode 0600" ok \
     || record "install-script: .env mode 0600" ko "$(stat -c %a "$IS_DIR/.env" 2>&1)"
-  docker inspect -f '{{range .Mounts}}{{.Destination}}={{.RW}} {{end}}' "$cid" 2>/dev/null | grep -q '/etc/centreon-poller/broker-ca.crt=false' \
+  docker inspect -f '{{range .Mounts}}{{.Destination}}={{.RW}} {{end}}' "$cid" 2>/dev/null | grep -cF '/etc/centreon-poller/broker-ca.crt=false' >/dev/null \
     && record "install-script: CA mounted read-only" ok || record "install-script: CA mounted read-only" ko
-  wait_until 120 eval 'docker logs "$cid" 2>&1 | grep -q "bootstrap: CA fingerprint verified"' \
+  wait_until 120 eval 'docker logs "$cid" 2>&1 | grep -cF "bootstrap: CA fingerprint verified" >/dev/null' \
     && record "install-script: bootstrap verified the CA fingerprint" ok || record "install-script: bootstrap verified the CA fingerprint" ko
+  # One CA path for every poller (contracts § 11.C5): the mounted CA copied to the web-rendered default.
+  docker exec "$cid" sh -c 'cmp -s /etc/centreon-poller/broker-ca.crt /etc/centreon-broker/certs/ca.crt' 2>/dev/null \
+    && record "install-script: CA copied to /etc/centreon-broker/certs/ca.crt (11.C5)" ok \
+    || record "install-script: CA copied to /etc/centreon-broker/certs/ca.crt (11.C5)" ko
 
   wait_until 300 poller_capable "$uid" && record "install-script: poller connected over TLS, capable" ok \
     || { record "install-script: poller connected over TLS, capable" ko "$(cbd_pollers | head -c 300)"; }
@@ -1048,7 +1070,7 @@ cmd_install_script() {
          "$(is_module_json "$cid" | jq -c '[.centreonBroker.output[]? | select(.type == "bbdo_client") | {host, port, ca_name}]' 2>/dev/null | head -c 200)"
   sleep 30
   wait_until 120 poller_capable "$uid" && record "install-script: poller capable after the export restart" ok \
-    || record "install-script: poller capable after the export restart" ko "$(cbd_pollers | head -c 300)"
+    || record "install-script: poller capable after the export restart" ko "$(is_engine_diag "$cid")"
   wait_until 420 service_critical gls-hi && record "install-script: check result upstream (gls-hi/gls-crit CRITICAL)" ok \
     || record "install-script: check result upstream (gls-hi/gls-crit CRITICAL)" ko
 
