@@ -7100,6 +7100,51 @@ paths:
             type: string
           style: simple
           explode: false
+  '/api/configuration/pollers/{uid}/broker-ca':
+    get:
+      operationId: api_configurationpollers_uidbroker-ca_get
+      tags:
+        - Poller
+      responses:
+        '401':
+          description: 'Missing, invalid, revoked or expired poller token'
+        '404':
+          description: 'No poller with this uid'
+        '503':
+          description: 'Central broker CA unavailable'
+        '200':
+          description: 'PollerBrokerCaResource resource'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/PollerBrokerCaResource.jsonld'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PollerBrokerCaResource'
+      summary: 'Retrieves the central broker CA for a poller installation'
+      description: 'Authenticated by a poller token (X-Centreon-Poller-Token: <token_name>:<token_value>), not by a user session. Used by install.sh for broker-channel Docker pollers.'
+      parameters:
+        -
+          name: uid
+          in: path
+          description: 'Uid of the poller being installed.'
+          required: true
+          deprecated: false
+          schema:
+            type: integer
+          style: simple
+          explode: false
+        -
+          name: X-Centreon-Poller-Token
+          in: header
+          description: 'Poller token, as <token_name>:<token_value>.'
+          required: true
+          deprecated: false
+          schema:
+            type: string
+          style: simple
+          explode: false
+      security: []
 components:
   securitySchemes:
     Token:
@@ -16148,3 +16193,49 @@ components:
           description: 'SHA-256 of the DER certificate, 64 lowercase hex characters'
           type: string
           example: 3f2a...e9
+    PollerBrokerCaResource:
+      type: object
+      description: |-
+        MON-215450 phase 2g (contracts.md § 11.W): public CA of the central broker, fetched by install.sh with the poller
+        token (no user session). The script trusts it only after comparing its fingerprint with the one in the
+        installation command.
+      properties:
+        uid:
+          description: 'Uid of the poller'
+          type: integer
+        pem:
+          description: 'CA certificate (PEM) the poller uses to verify the central broker'
+          type: string
+          example: |
+            -----BEGIN CERTIFICATE-----
+            ...
+            -----END CERTIFICATE-----
+        fingerprint_sha256:
+          description: 'SHA-256 of the DER certificate, 64 lowercase hex characters'
+          type: string
+          example: 3f2a...e9
+    PollerBrokerCaResource.jsonld:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            uid:
+              description: 'Uid of the poller'
+              type: integer
+            pem:
+              description: 'CA certificate (PEM) the poller uses to verify the central broker'
+              type: string
+              example: |
+                -----BEGIN CERTIFICATE-----
+                ...
+                -----END CERTIFICATE-----
+            fingerprint_sha256:
+              description: 'SHA-256 of the DER certificate, 64 lowercase hex characters'
+              type: string
+              example: 3f2a...e9
+      description: |-
+        MON-215450 phase 2g (contracts.md § 11.W): public CA of the central broker, fetched by install.sh with the poller
+        token (no user session). The script trusts it only after comparing its fingerprint with the one in the
+        installation command.
