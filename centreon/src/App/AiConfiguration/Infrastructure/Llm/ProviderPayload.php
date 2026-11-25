@@ -63,13 +63,19 @@ final class ProviderPayload
     }
 
     /**
-     * The message of an {"error": {"message": "..."}} or {"error": "..."}
-     * document, if it has one, without the API token a provider may echo in it.
+     * The message of an {"error": {"message": "..."}} or {"error": "..."} document, or of
+     * one with a top-level "message" (Mistral) or "detail" (FastAPI servers), if it has one,
+     * without the API token a provider may echo in it.
      */
     public static function errorMessage(mixed $data, ApiToken $apiToken): ?string
     {
-        $error = is_array($data) ? ($data['error'] ?? null) : null;
+        if (! is_array($data)) {
+            return null;
+        }
+
+        $error = $data['error'] ?? null;
         $message = is_array($error) ? ($error['message'] ?? null) : $error;
+        $message ??= $data['message'] ?? $data['detail'] ?? null;
 
         if (! is_string($message) || trim($message) === '') {
             return null;

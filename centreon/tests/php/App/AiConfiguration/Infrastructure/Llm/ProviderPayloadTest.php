@@ -71,6 +71,10 @@ final class ProviderPayloadTest extends TestCase
 
         yield 'error string' => [['error' => 'model not found'], 'model not found'];
 
+        yield 'top-level message (Mistral)' => [['object' => 'error', 'message' => 'reasoning_effort none is not supported for this model', 'type' => 'invalid_request_invalid_args'], 'reasoning_effort none is not supported for this model'];
+
+        yield 'top-level detail (FastAPI)' => [['detail' => 'Model not found'], 'Model not found'];
+
         yield 'whitespace-only message' => [['error' => ['message' => "  \n"]], null];
 
         yield 'whitespace-only error string' => [['error' => ' '], null];
