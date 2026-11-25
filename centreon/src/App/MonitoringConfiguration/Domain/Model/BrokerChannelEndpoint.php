@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2026 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,6 @@ final readonly class BrokerChannelEndpoint
 {
     /** A DNS name, an IPv4 or an IPv6 literal: no shell or JSON metacharacter can reach the command */
     private const HOST_PATTERN = '/^[A-Za-z0-9._:\-]{1,253}$/D';
-
     private const IPV4_PATTERN = '/^\d{1,3}(?:\.\d{1,3}){3}$/D';
 
     public function __construct(

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2026 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,12 +91,12 @@ final readonly class GetPollerBrokerCaProvider implements ProviderInterface
     private function checkPollerToken(): void
     {
         $header = trim((string) $this->requestStack->getCurrentRequest()?->headers->get(self::TOKEN_HEADER));
-        $separator = strrpos($header, ':');
-        if ($separator === false || $separator === 0 || $separator === strlen($header) - 1) {
+        $separator = mb_strrpos($header, ':');
+        if ($separator === false || $separator === 0 || $separator === mb_strlen($header) - 1) {
             throw $this->invalidToken();
         }
-        $tokenName = substr($header, 0, $separator);
-        $tokenValue = substr($header, $separator + 1);
+        $tokenName = mb_substr($header, 0, $separator);
+        $tokenValue = mb_substr($header, $separator + 1);
 
         try {
             $token = $this->pollerTokenRepository->getValidPollerTokenByName($tokenName);
