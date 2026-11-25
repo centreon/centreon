@@ -237,7 +237,8 @@ if (isset($preferences['downtime_filter']) && $preferences['downtime_filter']) {
 }
 
 if (isset($preferences['poller_filter']) && $preferences['poller_filter']) {
-    $baseQuery = CentreonUtils::conditionBuilder($baseQuery, ' instance_id = ' . $preferences['poller_filter'] . ' ');
+    $mainQueryParameters[] = QueryParameter::int('instance_id', (int) $preferences['poller_filter']);
+    $baseQuery = CentreonUtils::conditionBuilder($baseQuery, ' instance_id = :instance_id ');
 }
 
 if (isset($preferences['state_type_filter']) && $preferences['state_type_filter']) {
