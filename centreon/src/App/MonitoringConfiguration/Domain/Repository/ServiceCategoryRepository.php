@@ -25,10 +25,19 @@ namespace App\MonitoringConfiguration\Domain\Repository;
 
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategory;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryName;
+use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceCategoryCriteria;
 
 interface ServiceCategoryRepository
 {
     public function add(ServiceCategory $serviceCategory): void;
 
     public function findOneByName(ServiceCategoryName $name): ?ServiceCategory;
+
+    /**
+     * Service categories (severities excluded), disabled ones included, ordered by id. Only the
+     * service categories the criteria's access scope allows are listed.
+     *
+     * @return \IteratorAggregate<int, ServiceCategory>&\Countable
+     */
+    public function findAll(ServiceCategoryCriteria $criteria): \IteratorAggregate&\Countable;
 }

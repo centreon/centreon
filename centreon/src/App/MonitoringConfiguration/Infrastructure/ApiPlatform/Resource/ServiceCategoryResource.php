@@ -25,10 +25,15 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource;
 
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\NotExposed;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Security\ServiceCategoryPermissionEnum;
+use App\MonitoringConfiguration\Domain\Security\ServicePermissionEnum;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ServiceCategory\ServiceCategoryChoicesOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\CreateServiceCategoryProcessor;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\ServiceCategory\ListServiceCategoriesChoicesProvider;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
@@ -46,6 +51,19 @@ use Symfony\Component\Validator\Constraints as Assert;
             security: "is_granted('" . ServiceCategoryPermissionEnum::CanWrite->value . "')",
             securityMessage: 'You are not allowed to create service categories',
         ),
+        new GetCollection(
+            uriTemplate: '/configuration/services/service_categories',
+            openapi: false,
+            security: 'is_granted("' . ServicePermissionEnum::CanReadAndWrite->value . '")',
+            securityMessage: 'You are not allowed to access service categories',
+            itemUriTemplate: '/configuration/service_categories/{id}',
+            output: ServiceCategoryChoicesOutput::class,
+            provider: ListServiceCategoriesChoicesProvider::class,
+        ),
+        // Placeholder item operation: it gives the selector items and the category created by the POST
+        // above their IRI (@id and Location). Replace it with a real Get when one exists, never just
+        // remove it.
+        new NotExposed(uriTemplate: '/configuration/service_categories/{id}'),
     ],
 )]
 final class ServiceCategoryResource
