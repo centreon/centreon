@@ -73,6 +73,7 @@ final class AiProviderActivityLogFactoryTest extends TestCase
             'type' => 'openai',
             'endpoint_url' => 'https://api.openai.com',
             'default_model' => 'gpt-5',
+            'default_model_reasoning' => 'minimal',
             'is_activated' => '1',
         ], $activityLog->details);
         self::assertStringNotContainsString(self::TOKEN, json_encode($activityLog->details, \JSON_THROW_ON_ERROR));

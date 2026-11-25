@@ -25,6 +25,7 @@ namespace App\AiConfiguration\Infrastructure\ApiPlatform\Dto;
 
 use ApiPlatform\Metadata\ApiProperty;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\ReasoningModeEnum;
 use App\Shared\Domain\Logging\Attribute\Sensitive;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -56,6 +57,16 @@ final class TestConnectionInput
 
         #[ApiProperty(description: 'Id of the provider being edited, to reuse its stored token')]
         public ?int $providerId = null,
+
+        #[ApiProperty(
+            description: 'How much the model may reason: "minimal" (as little as it allows) or "default" (no setting sent)',
+            openapiContext: [
+                'example' => ReasoningModeEnum::Minimal->value,
+                'enum' => [ReasoningModeEnum::Minimal->value, ReasoningModeEnum::Default->value],
+            ],
+        )]
+        #[Assert\Choice(callback: [ReasoningModeEnum::class, 'values'])]
+        public string $defaultModelReasoning = 'minimal',
     ) {
     }
 }

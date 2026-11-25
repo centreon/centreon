@@ -29,6 +29,8 @@ final readonly class TestAiProviderResult
         public bool $success,
         public ?string $message = null,
         public ?string $model = null,
+        // the setting sent to turn the reasoning of the tested model down, if any
+        public ?string $reasoning = null,
     ) {
     }
 }

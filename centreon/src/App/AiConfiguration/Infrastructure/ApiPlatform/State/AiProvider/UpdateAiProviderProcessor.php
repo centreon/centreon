@@ -33,6 +33,7 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderName;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\ReasoningModeEnum;
 use App\AiConfiguration\Domain\Exception\InvalidAiProviderConfigurationException;
 use App\AiConfiguration\Infrastructure\ApiPlatform\AiProvider\BillingInput;
 use App\AiConfiguration\Infrastructure\ApiPlatform\Resource\AiProvider\AiProviderResource;
@@ -94,6 +95,9 @@ final readonly class UpdateAiProviderProcessor implements ProcessorInterface
             apiToken: $data->apiToken !== null ? new ApiToken($data->apiToken) : null,
             defaultModel: new ModelName($data->defaultModel),
             fastModel: $data->fastModel !== null ? new ModelName($data->fastModel) : null,
+            // a PATCH without them keeps the stored settings, read into $data beforehand
+            defaultModelReasoning: ReasoningModeEnum::from($data->defaultModelReasoning),
+            fastModelReasoning: ReasoningModeEnum::from($data->fastModelReasoning),
             description: $data->description !== null ? new AiProviderDescription($data->description) : null,
             isActivated: $data->isActivated,
             updatedBy: $credentialUser->credential->userId->value,

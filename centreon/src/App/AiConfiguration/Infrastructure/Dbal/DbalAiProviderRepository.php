@@ -378,6 +378,8 @@ final readonly class DbalAiProviderRepository extends DbalRepository implements 
             'api_token' => $aiProvider->apiToken()->value,
             'default_model' => $aiProvider->defaultModel()->value,
             'fast_model' => $aiProvider->fastModel()?->value,
+            'default_model_reasoning' => $aiProvider->defaultModelReasoning()->value,
+            'fast_model_reasoning' => $aiProvider->fastModelReasoning()->value,
             'currency' => $aiProvider->billing()->currency?->value,
             'pricing' => $pricing instanceof Pricing ? [
                 'default' => [

@@ -30,6 +30,7 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\Billing;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\ReasoningModeEnum;
 
 final readonly class UpdateAiProviderCommand
 {
@@ -41,6 +42,8 @@ final readonly class UpdateAiProviderCommand
         public ?ApiToken $apiToken,
         public ModelName $defaultModel,
         public ?ModelName $fastModel,
+        public ReasoningModeEnum $defaultModelReasoning,
+        public ReasoningModeEnum $fastModelReasoning,
         public ?AiProviderDescription $description,
         public bool $isActivated,
         public int $updatedBy,

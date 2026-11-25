@@ -28,12 +28,14 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderName;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\ReasoningModeEnum;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\StoredApiToken;
 use App\AiConfiguration\Domain\Llm\AiFeatureEnum;
 use App\AiConfiguration\Domain\Llm\ConnectionSpec;
 use App\AiConfiguration\Domain\Llm\Exception\ApiTokenUnavailableException;
 use App\AiConfiguration\Domain\Llm\Exception\LlmConfigurationException;
 use App\AiConfiguration\Domain\Llm\LlmMessage;
+use App\AiConfiguration\Domain\Llm\LlmModelTierEnum;
 use App\AiConfiguration\Domain\Llm\LlmRequest;
 use App\AiConfiguration\Domain\Llm\LlmRoleEnum;
 use App\AiConfiguration\Domain\Usage\BudgetStatusChecker;
@@ -49,6 +51,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\HttpClient\MockHttpClient;
@@ -312,6 +315,120 @@ final class LlmClientFactoryTest extends TestCase
         yield 'a host only the proxy can resolve' => ['https://llm.invalid', false, []];
     }
 
+    public function testEachTierIsSentTheReasoningSettingOfItsModel(): void
+    {
+        $bodies = $this->bodiesSentFor(
+            $this->createAiProvider(
+                AiProviderTypeEnum::Mistral,
+                fastModel: new ModelName('a-fast-model'),
+                defaultModelReasoning: ReasoningModeEnum::Default,
+                fastModelReasoning: ReasoningModeEnum::Minimal,
+            ),
+            LlmModelTierEnum::Default,
+            LlmModelTierEnum::Fast,
+        );
+
+        self::assertSame('a-model', $bodies[0]['model'] ?? null);
+        self::assertArrayNotHasKey('reasoning_effort', $bodies[0]);
+        self::assertSame('a-fast-model', $bodies[1]['model'] ?? null);
+        self::assertSame('none', $bodies[1]['reasoning_effort'] ?? null);
+    }
+
+    public function testWithoutAFastModelTheFastTierFollowsTheDefaultModelSetting(): void
+    {
+        $bodies = $this->bodiesSentFor(
+            $this->createAiProvider(
+                AiProviderTypeEnum::Mistral,
+                defaultModelReasoning: ReasoningModeEnum::Default,
+                fastModelReasoning: ReasoningModeEnum::Minimal,
+            ),
+            LlmModelTierEnum::Fast,
+        );
+
+        self::assertSame('a-model', $bodies[0]['model'] ?? null);
+        self::assertArrayNotHasKey('reasoning_effort', $bodies[0]);
+    }
+
+    public function testBedrockPassesTheSettingsToBothTransports(): void
+    {
+        $bodies = $this->bodiesSentFor(
+            $this->createAiProvider(
+                AiProviderTypeEnum::Bedrock,
+                defaultModel: new ModelName('anthropic.claude-sonnet-4-6'),
+                fastModel: new ModelName('qwen.qwen3-32b'),
+            ),
+            LlmModelTierEnum::Default,
+            LlmModelTierEnum::Fast,
+        );
+
+        self::assertSame(['type' => 'disabled'], $bodies[0]['thinking'] ?? null);
+        self::assertSame('none', $bodies[1]['reasoning_effort'] ?? null);
+    }
+
+    public function testAConnectionTestSendsTheSettingOfTheTestedModel(): void
+    {
+        $bodies = [];
+        $httpClient = new MockHttpClient(
+            static function (string $method, string $url, array $options) use (&$bodies): MockResponse {
+                \assert(is_string($options['body']));
+                $bodies[] = json_decode($options['body'], true, 512, \JSON_THROW_ON_ERROR);
+
+                return new MockResponse('{"choices":[{"message":{"content":"pong"}}],"model":"llama3"}');
+            }
+        );
+
+        foreach ([ReasoningModeEnum::Minimal, ReasoningModeEnum::Default] as $reasoning) {
+            $response = $this->createFactory($httpClient)
+                ->forConnectionTest(new ConnectionSpec(
+                    AiProviderTypeEnum::OpenAiCompatible,
+                    new EndpointUrl('https://llm.example.org'),
+                    new StoredApiToken('a-token'),
+                    new ModelName('llama3'),
+                    $reasoning,
+                ))
+                ->complete(LlmRequest::connectionTest(new ModelName('llama3')));
+            self::assertSame($reasoning === ReasoningModeEnum::Minimal ? 'reasoning_effort: none' : null, $response->reasoning);
+        }
+
+        /** @var list<array<string, mixed>> $bodies */
+        self::assertSame('none', $bodies[0]['reasoning_effort'] ?? null);
+        self::assertArrayNotHasKey('reasoning_effort', $bodies[1]);
+    }
+
+    /**
+     * Sends a request per tier through the metered client of the provider and
+     * returns the bodies the provider received.
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function bodiesSentFor(AiProvider $aiProvider, LlmModelTierEnum ...$tiers): array
+    {
+        $bodies = [];
+        $httpClient = new MockHttpClient(
+            static function (string $method, string $url, array $options) use (&$bodies): MockResponse {
+                \assert(is_string($options['body']));
+                $bodies[] = json_decode($options['body'], true, 512, \JSON_THROW_ON_ERROR);
+
+                return new MockResponse(str_contains($url, '/anthropic/')
+                    ? '{"content":[{"type":"text","text":"pong"}],"model":"a-model"}'
+                    : '{"choices":[{"message":{"content":"pong"}}],"model":"a-model"}');
+            }
+        );
+
+        $this->repository->add($aiProvider);
+        $client = $this->createFactory($httpClient)->forProvider($aiProvider);
+        foreach ($tiers as $tier) {
+            $client->complete(new LlmRequest(
+                messages: [new LlmMessage(LlmRoleEnum::User, 'ping')],
+                feature: AiFeatureEnum::ResourceExplanation,
+                tier: $tier,
+            ));
+        }
+
+        /** @var list<array<string, mixed>> $bodies */
+        return $bodies;
+    }
+
     /**
      * Sends a metered request and returns the proxy option the HTTP client received.
      */
@@ -392,6 +509,7 @@ final class LlmClientFactoryTest extends TestCase
             $this->vault,
             $logger ?? new NullLogger(),
             $hostLookup ?? new FakeHostLookup(['api.anthropic.com' => '198.51.100.10', 'llm.example.org' => '198.51.100.7']),
+            new ArrayAdapter(),
         );
     }
 
@@ -399,6 +517,10 @@ final class LlmClientFactoryTest extends TestCase
         AiProviderTypeEnum $type,
         bool $isActivated = false,
         string $token = 'a-token',
+        ?ModelName $defaultModel = null,
+        ?ModelName $fastModel = null,
+        ReasoningModeEnum $defaultModelReasoning = ReasoningModeEnum::Minimal,
+        ReasoningModeEnum $fastModelReasoning = ReasoningModeEnum::Minimal,
     ): AiProvider {
         return new AiProvider(
             id: null,
@@ -408,10 +530,12 @@ final class LlmClientFactoryTest extends TestCase
                 $type === AiProviderTypeEnum::Bedrock ? 'https://bedrock-mantle.us-east-1.api.aws' : 'https://api.example.org'
             ),
             apiToken: new StoredApiToken($token),
-            defaultModel: new ModelName('a-model'),
-            fastModel: null,
+            defaultModel: $defaultModel ?? new ModelName('a-model'),
+            fastModel: $fastModel,
             description: null,
             isActivated: $isActivated,
+            defaultModelReasoning: $defaultModelReasoning,
+            fastModelReasoning: $fastModelReasoning,
         );
     }
 

@@ -30,6 +30,8 @@ final readonly class LlmResponse
      *                        token limit of the request
      * @param string|null $refusal why the provider refused to answer, if it did:
      *                             the tokens are billed all the same
+     * @param string|null $reasoning the setting sent to turn the model's reasoning down
+     *                               (e.g. "reasoning_effort: none"), if one was
      */
     public function __construct(
         public string $content,
@@ -37,6 +39,7 @@ final readonly class LlmResponse
         public LlmUsage $usage,
         public bool $truncated = false,
         public ?string $refusal = null,
+        public ?string $reasoning = null,
     ) {
     }
 }

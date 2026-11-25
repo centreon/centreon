@@ -30,6 +30,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\OpenApi\Model;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\ReasoningModeEnum;
 use App\AiConfiguration\Domain\Security\AiProviderActionEnum;
 use App\AiConfiguration\Infrastructure\ApiPlatform\State\AiProvider\DeleteAiProviderProcessor;
 use App\AiConfiguration\Infrastructure\ApiPlatform\State\AiProvider\FindAiProviderProvider;
@@ -146,6 +147,29 @@ final class AiProviderResource
         )]
         #[Assert\Length(min: 1, max: 255)]
         public ?string $fastModel,
+
+        #[ApiProperty(
+            description: 'How much the default model may reason before it answers: "minimal" turns its reasoning as '
+                . 'far down as the model allows, "default" sends no setting and lets the model reason as it does by '
+                . 'default.',
+            openapiContext: [
+                'example' => ReasoningModeEnum::Minimal->value,
+                'enum' => [ReasoningModeEnum::Minimal->value, ReasoningModeEnum::Default->value],
+            ],
+        )]
+        #[Assert\Choice(callback: [ReasoningModeEnum::class, 'values'])]
+        public string $defaultModelReasoning,
+
+        #[ApiProperty(
+            description: 'How much the fast model may reason before it answers, like default_model_reasoning. '
+                . 'Without a fast model, the fast tier follows default_model_reasoning.',
+            openapiContext: [
+                'example' => ReasoningModeEnum::Minimal->value,
+                'enum' => [ReasoningModeEnum::Minimal->value, ReasoningModeEnum::Default->value],
+            ],
+        )]
+        #[Assert\Choice(callback: [ReasoningModeEnum::class, 'values'])]
+        public string $fastModelReasoning,
 
         #[ApiProperty(
             description: 'Description of the AI provider configuration',

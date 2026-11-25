@@ -41,6 +41,8 @@ final readonly class ResourceAiProviderTransformer implements TransformerInterfa
             endpointUrl: $from->endpointUrl()->value,
             defaultModel: $from->defaultModel()->value,
             fastModel: $from->fastModel()?->value,
+            defaultModelReasoning: $from->defaultModelReasoning()->value,
+            fastModelReasoning: $from->fastModelReasoning()->value,
             description: $from->description()?->value,
             isActivated: $from->isActivated(),
             apiToken: null, // the token is write-only and never exposed

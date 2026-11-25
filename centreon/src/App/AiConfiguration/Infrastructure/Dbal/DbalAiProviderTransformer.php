@@ -33,6 +33,7 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\Currency;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\Pricing;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\ReasoningModeEnum;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\SpendLimit;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\StoredApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\TierPricing;
@@ -57,6 +58,8 @@ final readonly class DbalAiProviderTransformer implements TransformerInterface
          *   api_token: string,
          *   default_model: string,
          *   fast_model?: string|null,
+         *   default_model_reasoning?: string|null,
+         *   fast_model_reasoning?: string|null,
          *   currency?: string|null,
          *   pricing?: array{default: array{input: float, output: float}, fast?: array{input: float, output: float}|null}|null,
          *   limits?: array{daily?: float|null, monthly?: float|null}|null
@@ -88,7 +91,17 @@ final readonly class DbalAiProviderTransformer implements TransformerInterface
                 pricing: $this->transformPricing($configuration['pricing'] ?? null),
                 limit: $this->transformLimit($configuration['limits'] ?? null),
             ),
+            defaultModelReasoning: $this->transformReasoning($configuration['default_model_reasoning'] ?? null),
+            fastModelReasoning: $this->transformReasoning($configuration['fast_model_reasoning'] ?? null),
         );
+    }
+
+    /**
+     * A provider saved before the setting existed reasons minimally.
+     */
+    private function transformReasoning(?string $reasoning): ReasoningModeEnum
+    {
+        return ReasoningModeEnum::tryFrom($reasoning ?? '') ?? ReasoningModeEnum::Minimal;
     }
 
     /**

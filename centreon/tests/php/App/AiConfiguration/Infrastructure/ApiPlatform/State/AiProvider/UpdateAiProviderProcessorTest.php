@@ -59,6 +59,44 @@ final class UpdateAiProviderProcessorTest extends AiProviderApiTestCase
         self::assertArrayNotHasKey('api_token', $response->toArray());
     }
 
+    public function testPatchChangesOnlyTheGivenReasoningSetting(): void
+    {
+        $this->login();
+
+        $id = $this->createProvider('Anthropic production');
+
+        $this->request('PATCH', self::ENDPOINT . '/' . $id, [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'],
+            'json' => ['fast_model_reasoning' => 'default'],
+        ]);
+
+        self::assertResponseIsSuccessful();
+        self::assertJsonContains(['default_model_reasoning' => 'minimal', 'fast_model_reasoning' => 'default']);
+
+        // a PATCH without the settings keeps them
+        $this->request('PATCH', self::ENDPOINT . '/' . $id, [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'],
+            'json' => ['name' => 'Anthropic renamed'],
+        ]);
+
+        self::assertResponseIsSuccessful();
+        self::assertJsonContains(['default_model_reasoning' => 'minimal', 'fast_model_reasoning' => 'default']);
+    }
+
+    public function testPatchWithAnUnknownReasoningSettingIsRejected(): void
+    {
+        $this->login();
+
+        $id = $this->createProvider('Anthropic production');
+
+        $response = $this->request('PATCH', self::ENDPOINT . '/' . $id, [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'],
+            'json' => ['default_model_reasoning' => 'high'],
+        ]);
+
+        self::assertContains($response->getStatusCode(), [400, 422]);
+    }
+
     public function testPatchCuratedProviderIgnoresCustomEndpoint(): void
     {
         $this->login();

@@ -120,7 +120,12 @@ final readonly class UpdateAiProviderCommandHandler
         // the stored token is never sent to another server than the one it was configured for
         $aiProvider->retarget($command->endpointUrl, $storedApiToken);
         $aiProvider->rename($command->name);
-        $aiProvider->changeModels($command->defaultModel, $command->fastModel);
+        $aiProvider->changeModels(
+            $command->defaultModel,
+            $command->fastModel,
+            $command->defaultModelReasoning,
+            $command->fastModelReasoning,
+        );
         $aiProvider->describe($command->description);
         $aiProvider->changeBilling($command->billing);
 

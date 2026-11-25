@@ -28,6 +28,7 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\ReasoningModeEnum;
 use App\Shared\Application\Command\NonTransactionalCommand;
 
 /**
@@ -43,6 +44,7 @@ final readonly class TestAiProviderConnectionCommand implements NonTransactional
         public EndpointUrl $endpointUrl,
         public ?ApiToken $apiToken = null,
         public ?AiProviderId $id = null,
+        public ReasoningModeEnum $modelReasoning = ReasoningModeEnum::Minimal,
     ) {
     }
 }

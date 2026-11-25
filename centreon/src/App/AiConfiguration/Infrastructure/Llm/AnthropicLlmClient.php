@@ -26,6 +26,7 @@ namespace App\AiConfiguration\Infrastructure\Llm;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\ReasoningModeEnum;
 use App\AiConfiguration\Domain\Llm\Exception\LlmRequestFailedException;
 use App\AiConfiguration\Domain\Llm\LlmClientInterface;
 use App\AiConfiguration\Domain\Llm\LlmMessage;
@@ -35,6 +36,8 @@ use App\AiConfiguration\Domain\Llm\LlmResponse;
 use App\AiConfiguration\Domain\Llm\LlmUsage;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface as HttpClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TimeoutExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
@@ -43,6 +46,10 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 
 /**
  * Client for the Anthropic Messages API (https://docs.anthropic.com).
+ *
+ * A model set to reason minimally is sent the least thinking it accepts. Its
+ * thinking is never part of the answer: only the text blocks are, without a
+ * leading <think> block.
  */
 final readonly class AnthropicLlmClient implements LlmClientInterface
 {
@@ -50,6 +57,8 @@ final readonly class AnthropicLlmClient implements LlmClientInterface
     private const TIMEOUT_SECONDS = 120;
     private const MODEL_PAGE_SIZE = 1000;
     private const MAX_MODEL_PAGES = 10;
+
+    private ReasoningNegotiator $reasoningNegotiator;
 
     public function __construct(
         private HttpClientInterface $httpClient,
@@ -61,12 +70,23 @@ final readonly class AnthropicLlmClient implements LlmClientInterface
         // Mantle exposes the same API at /anthropic/v1/messages
         private string $messagesPath = '/v1/messages',
         private LoggerInterface $logger = new NullLogger(),
+        private ReasoningModeEnum $defaultModelReasoning = ReasoningModeEnum::Minimal,
+        // without a fast model, the default model serves the fast tier with its own setting
+        private ReasoningModeEnum $fastModelReasoning = ReasoningModeEnum::Minimal,
+        // remembers which reasoning setting each model accepts
+        CacheInterface $cache = new ArrayAdapter(),
     ) {
+        $this->reasoningNegotiator = new ReasoningNegotiator(
+            $cache,
+            $logger,
+            'anthropic ' . $this->messagesUrl(),
+            ReasoningCandidate::anthropicThinking(),
+        );
     }
 
     public function complete(LlmRequest $request): LlmResponse
     {
-        $response = $this->sendRequest($request, stream: false);
+        [$response, $reasoning] = $this->send($request, stream: false);
         $data = $this->decodeOrFail($response, $this->timeoutFor($request));
 
         if (! is_array($data['content'] ?? null)) {
@@ -79,6 +99,7 @@ final readonly class AnthropicLlmClient implements LlmClientInterface
         $content = '';
         foreach ($data['content'] as $block) {
             $block = ProviderPayload::array($block);
+            // thinking and redacted_thinking blocks are the model's reasoning, not its answer
             if (($block['type'] ?? null) === 'text') {
                 $content .= ProviderPayload::string($block['text'] ?? null) ?? '';
             }
@@ -87,7 +108,7 @@ final readonly class AnthropicLlmClient implements LlmClientInterface
         $usage = ProviderPayload::array($data['usage'] ?? null);
 
         return new LlmResponse(
-            content: $content,
+            content: ThinkBlockFilter::strip($content),
             model: ProviderPayload::string($data['model'] ?? null) ?? '',
             usage: new LlmUsage(
                 inputTokens: ProviderPayload::tokenCount($usage['input_tokens'] ?? null),
@@ -95,16 +116,18 @@ final readonly class AnthropicLlmClient implements LlmClientInterface
             ),
             truncated: $stopReason === 'max_tokens',
             refusal: $this->refusalOf($stopReason),
+            reasoning: $reasoning?->label,
         );
     }
 
     public function stream(LlmRequest $request): \Generator
     {
         $timeout = $this->timeoutFor($request);
-        $response = $this->sendRequest($request, stream: true);
-        $this->assertSuccessful($response, $timeout);
+        // a rejected reasoning setting comes with the status, before any chunk
+        [$response, $reasoning] = $this->send($request, stream: true);
 
         $parser = new ServerSentEventParser();
+        $thinkBlockFilter = new ThinkBlockFilter();
         $content = '';
         $model = '';
         $inputTokens = 0;
@@ -132,8 +155,11 @@ final readonly class AnthropicLlmClient implements LlmClientInterface
                             }
                             break;
                         case 'content_block_delta':
-                            $text = ProviderPayload::string($delta['text'] ?? null) ?? '';
-                            if (($delta['type'] ?? null) === 'text_delta' && $text !== '') {
+                            // thinking_delta and signature_delta carry the reasoning, not the answer
+                            $text = ($delta['type'] ?? null) === 'text_delta'
+                                ? $thinkBlockFilter->push(ProviderPayload::string($delta['text'] ?? null) ?? '')
+                                : '';
+                            if ($text !== '') {
                                 $content .= $text;
 
                                 yield $text;
@@ -159,12 +185,20 @@ final readonly class AnthropicLlmClient implements LlmClientInterface
             throw LlmRequestFailedException::fromTransportError($exception->getMessage(), $exception);
         }
 
+        $text = $thinkBlockFilter->finish();
+        if ($text !== '') {
+            $content .= $text;
+
+            yield $text;
+        }
+
         return new LlmResponse(
             $content,
             $model,
             new LlmUsage($inputTokens, $outputTokens),
             $stopReason === 'max_tokens',
             $this->refusalOf($stopReason),
+            $reasoning?->label,
         );
     }
 
@@ -224,14 +258,41 @@ final readonly class AnthropicLlmClient implements LlmClientInterface
     }
 
     /**
-     * @throws LlmRequestFailedException when the request can not be sent
+     * Send the request, with the thinking setting the model accepts when it is set to
+     * reason minimally.
+     *
+     * @throws LlmRequestFailedException when the request fails or the provider answers with an error status
+     *
+     * @return array{ResponseInterface, ReasoningCandidate|null} the successful response, and the
+     *                                                           reasoning setting it was sent with
      */
-    private function sendRequest(LlmRequest $request, bool $stream): ResponseInterface
+    private function send(LlmRequest $request, bool $stream): array
     {
         $model = $request->model ?? $this->resolveTierModel($request->tier);
 
+        return $this->reasoningNegotiator->send(
+            $model,
+            $this->resolveReasoning($request, $model),
+            function (?ReasoningCandidate $reasoning) use ($request, $model, $stream): ResponseInterface {
+                $response = $this->sendRequest($request, $model, $reasoning, $stream);
+                $this->assertSuccessful($response, $this->timeoutFor($request));
+
+                return $response;
+            },
+        );
+    }
+
+    /**
+     * @throws LlmRequestFailedException when the request can not be sent
+     */
+    private function sendRequest(
+        LlmRequest $request,
+        ModelName $model,
+        ?ReasoningCandidate $reasoning,
+        bool $stream,
+    ): ResponseInterface {
         $payload = [
-            'max_tokens' => $request->maxTokens,
+            'max_tokens' => ReasoningNegotiator::maxTokensFor($request->maxTokens, $reasoning),
             'messages' => array_map(
                 static fn (LlmMessage $message): array => [
                     'content' => $message->content,
@@ -240,6 +301,7 @@ final readonly class AnthropicLlmClient implements LlmClientInterface
                 $request->messages
             ),
             'model' => $model->value,
+            ...($reasoning instanceof ReasoningCandidate ? $reasoning->payload : []),
         ];
         if ($request->systemPrompt !== null) {
             $payload['system'] = $request->systemPrompt;
@@ -249,7 +311,7 @@ final readonly class AnthropicLlmClient implements LlmClientInterface
         }
 
         try {
-            return $this->httpClient->request('POST', rtrim($this->endpointUrl->value, '/') . $this->messagesPath, [
+            return $this->httpClient->request('POST', $this->messagesUrl(), [
                 'headers' => [
                     'anthropic-version' => self::ANTHROPIC_VERSION,
                     'x-api-key' => $this->apiToken->value,
@@ -263,6 +325,11 @@ final readonly class AnthropicLlmClient implements LlmClientInterface
         }
     }
 
+    private function messagesUrl(): string
+    {
+        return rtrim($this->endpointUrl->value, '/') . $this->messagesPath;
+    }
+
     private function timeoutFor(LlmRequest $request): int
     {
         return $request->timeoutSeconds ?? self::TIMEOUT_SECONDS;
@@ -274,6 +341,24 @@ final readonly class AnthropicLlmClient implements LlmClientInterface
             LlmModelTierEnum::Default => $this->defaultModel,
             LlmModelTierEnum::Fast => $this->fastModel ?? $this->defaultModel,
         };
+    }
+
+    /**
+     * The setting of the tier the model serves; a model named by the request that
+     * serves neither tier gets the setting of the default model.
+     */
+    private function resolveReasoning(LlmRequest $request, ModelName $model): ReasoningModeEnum
+    {
+        if (! $this->fastModel instanceof ModelName) {
+            return $this->defaultModelReasoning;
+        }
+
+        $servesFastTier = $request->model instanceof ModelName
+            ? $model->value === $this->fastModel->value
+                && ($model->value !== $this->defaultModel->value || $request->tier === LlmModelTierEnum::Fast)
+            : $request->tier === LlmModelTierEnum::Fast;
+
+        return $servesFastTier ? $this->fastModelReasoning : $this->defaultModelReasoning;
     }
 
     /**

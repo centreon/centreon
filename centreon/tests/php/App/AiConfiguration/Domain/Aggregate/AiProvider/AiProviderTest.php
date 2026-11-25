@@ -29,6 +29,7 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderName;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\ReasoningModeEnum;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\StoredApiToken;
 use App\AiConfiguration\Domain\Exception\AiProviderCanNotBeUpdatedException;
 use App\AiConfiguration\Domain\Exception\InvalidAiProviderConfigurationException;
@@ -123,6 +124,55 @@ final class AiProviderTest extends TestCase
 
         $aiProvider->activate();
         self::assertTrue($aiProvider->isActivated());
+    }
+
+    public function testModelsReasonMinimallyByDefault(): void
+    {
+        foreach ([$this->aiProvider(), $this->createdAiProvider(AiProviderTypeEnum::OpenAi, 'https://api.openai.com')] as $aiProvider) {
+            self::assertSame(ReasoningModeEnum::Minimal, $aiProvider->defaultModelReasoning());
+            self::assertSame(ReasoningModeEnum::Minimal, $aiProvider->fastModelReasoning());
+        }
+    }
+
+    public function testTheReasoningSettingsAreSetOnCreation(): void
+    {
+        $aiProvider = AiProvider::create(
+            name: new AiProviderName('A provider'),
+            type: AiProviderTypeEnum::Mistral,
+            endpointUrl: new EndpointUrl('https://api.mistral.ai'),
+            apiToken: new StoredApiToken('a-token'),
+            defaultModel: new ModelName('mistral-large-latest'),
+            fastModel: new ModelName('mistral-small-latest'),
+            description: null,
+            isActivated: false,
+            defaultModelReasoning: ReasoningModeEnum::Default,
+            fastModelReasoning: ReasoningModeEnum::Minimal,
+        );
+
+        self::assertSame(ReasoningModeEnum::Default, $aiProvider->defaultModelReasoning());
+        self::assertSame(ReasoningModeEnum::Minimal, $aiProvider->fastModelReasoning());
+    }
+
+    public function testTheReasoningSettingsChangeWithTheModels(): void
+    {
+        $aiProvider = $this->aiProvider();
+
+        $aiProvider->changeModels(
+            new ModelName('qwen3:32b'),
+            new ModelName('qwen3:8b'),
+            ReasoningModeEnum::Minimal,
+            ReasoningModeEnum::Default,
+        );
+
+        self::assertSame('qwen3:32b', $aiProvider->defaultModel()->value);
+        self::assertSame('qwen3:8b', $aiProvider->fastModel()?->value);
+        self::assertSame(ReasoningModeEnum::Minimal, $aiProvider->defaultModelReasoning());
+        self::assertSame(ReasoningModeEnum::Default, $aiProvider->fastModelReasoning());
+    }
+
+    public function testTheReasoningModesAreTheContractValues(): void
+    {
+        self::assertSame(['minimal', 'default'], ReasoningModeEnum::values());
     }
 
     private function createdAiProvider(AiProviderTypeEnum $type, string $endpointUrl): AiProvider

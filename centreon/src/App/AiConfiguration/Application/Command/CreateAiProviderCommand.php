@@ -30,6 +30,7 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\Billing;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\ReasoningModeEnum;
 
 final readonly class CreateAiProviderCommand
 {
@@ -44,6 +45,8 @@ final readonly class CreateAiProviderCommand
         public bool $isActivated,
         public int $creatorId,
         public Billing $billing = new Billing(),
+        public ReasoningModeEnum $defaultModelReasoning = ReasoningModeEnum::Minimal,
+        public ReasoningModeEnum $fastModelReasoning = ReasoningModeEnum::Minimal,
     ) {
     }
 }

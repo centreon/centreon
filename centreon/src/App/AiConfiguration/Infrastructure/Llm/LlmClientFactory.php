@@ -28,6 +28,7 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\ReasoningModeEnum;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\StoredApiToken;
 use App\AiConfiguration\Domain\Llm\ConnectionSpec;
 use App\AiConfiguration\Domain\Llm\Exception\ApiTokenUnavailableException;
@@ -44,6 +45,7 @@ use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 final readonly class LlmClientFactory implements LlmClientFactoryInterface
@@ -65,6 +67,8 @@ final readonly class LlmClientFactory implements LlmClientFactoryInterface
         private VaultInterface $vault,
         private LoggerInterface $logger,
         private HostLookup $hostLookup,
+        // remembers which reasoning setting each model accepts, across requests
+        private CacheInterface $cache,
     ) {
     }
 
@@ -93,6 +97,8 @@ final readonly class LlmClientFactory implements LlmClientFactoryInterface
                 $aiProvider->apiToken(),
                 $aiProvider->defaultModel(),
                 $aiProvider->fastModel(),
+                $aiProvider->defaultModelReasoning(),
+                $aiProvider->fastModelReasoning(),
             ),
             $aiProvider,
             $this->usageRepository,
@@ -115,6 +121,8 @@ final readonly class LlmClientFactory implements LlmClientFactoryInterface
             $spec->apiToken,
             $spec->model ?? new ModelName(self::NO_MODEL),
             null,
+            $spec->modelReasoning,
+            $spec->modelReasoning,
         );
     }
 
@@ -127,6 +135,8 @@ final readonly class LlmClientFactory implements LlmClientFactoryInterface
         StoredApiToken $storedApiToken,
         ModelName $defaultModel,
         ?ModelName $fastModel,
+        ReasoningModeEnum $defaultModelReasoning,
+        ReasoningModeEnum $fastModelReasoning,
     ): LlmClientInterface {
         $apiToken = $this->getApiToken($storedApiToken);
         $httpClient = $this->httpClientFor($endpointUrl);
@@ -140,6 +150,9 @@ final readonly class LlmClientFactory implements LlmClientFactoryInterface
             $type->chatCompletionsPath(),
             $type->chatMaxTokensField(),
             $this->logger,
+            $defaultModelReasoning,
+            $fastModelReasoning,
+            $this->cache,
         );
         $anthropic = fn (string $messagesPath): AnthropicLlmClient => new AnthropicLlmClient(
             $httpClient,
@@ -149,6 +162,9 @@ final readonly class LlmClientFactory implements LlmClientFactoryInterface
             $fastModel,
             $messagesPath,
             $this->logger,
+            $defaultModelReasoning,
+            $fastModelReasoning,
+            $this->cache,
         );
 
         // Gemini and Bedrock mix transports: see GeminiLlmClient and BedrockLlmClient

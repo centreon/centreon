@@ -72,7 +72,13 @@ final readonly class TestAiProviderConnectionCommandHandler
             $storedApiToken = StoredApiToken::plain($apiToken);
         }
 
-        $spec = new ConnectionSpec($command->type, $command->endpointUrl, $storedApiToken, $command->model);
+        $spec = new ConnectionSpec(
+            $command->type,
+            $command->endpointUrl,
+            $storedApiToken,
+            $command->model,
+            $command->modelReasoning,
+        );
 
         try {
             // a refusal still proves the connection works: the provider answered
@@ -82,6 +88,6 @@ final readonly class TestAiProviderConnectionCommandHandler
             return new TestAiProviderResult(success: false, message: $exception->getMessage());
         }
 
-        return new TestAiProviderResult(success: true, model: $response->model);
+        return new TestAiProviderResult(success: true, model: $response->model, reasoning: $response->reasoning);
     }
 }

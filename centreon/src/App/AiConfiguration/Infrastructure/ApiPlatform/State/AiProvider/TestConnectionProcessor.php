@@ -31,6 +31,7 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderId;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\ReasoningModeEnum;
 use App\AiConfiguration\Domain\Exception\InvalidAiProviderConfigurationException;
 use App\AiConfiguration\Infrastructure\AiFeatureAvailability;
 use App\AiConfiguration\Infrastructure\ApiPlatform\Dto\TestConnectionInput;
@@ -71,6 +72,7 @@ final readonly class TestConnectionProcessor implements ProcessorInterface
             endpointUrl: $endpointUrl,
             apiToken: $typedToken,
             id: $data->providerId !== null ? new AiProviderId($data->providerId) : null,
+            modelReasoning: ReasoningModeEnum::from($data->defaultModelReasoning),
         ));
         Assert::isInstanceOf($result, TestAiProviderResult::class);
 
@@ -78,6 +80,7 @@ final readonly class TestConnectionProcessor implements ProcessorInterface
             success: $result->success,
             message: $result->message,
             model: $result->model,
+            reasoning: $result->reasoning,
         );
     }
 }

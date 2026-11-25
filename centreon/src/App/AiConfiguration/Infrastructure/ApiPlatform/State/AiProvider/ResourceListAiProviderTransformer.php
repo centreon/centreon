@@ -47,6 +47,8 @@ final readonly class ResourceListAiProviderTransformer implements TransformerInt
             endpointUrl: $from->endpointUrl()->value,
             defaultModel: $from->defaultModel()->value,
             fastModel: $from->fastModel()?->value,
+            defaultModelReasoning: $from->defaultModelReasoning()->value,
+            fastModelReasoning: $from->fastModelReasoning()->value,
             description: $from->description()?->value,
             isActivated: $from->isActivated(),
             currency: $from->billing()->currency?->value,

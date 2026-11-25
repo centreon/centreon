@@ -68,6 +68,14 @@ final readonly class TestConnectionResource
             openapiContext: ['example' => 'claude-sonnet-5-5'],
         )]
         public ?string $model,
+
+        #[ApiProperty(
+            description: 'Setting sent to turn the reasoning of the tested model down, e.g. "reasoning_effort: none" '
+                . 'or "thinking: disabled"; null when none was sent (the model reasons as it does by default)',
+            writable: false,
+            openapiContext: ['example' => 'reasoning_effort: none'],
+        )]
+        public ?string $reasoning = null,
     ) {
     }
 }

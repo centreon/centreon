@@ -32,6 +32,7 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderName;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\ReasoningModeEnum;
 use App\AiConfiguration\Domain\Exception\InvalidAiProviderConfigurationException;
 use App\AiConfiguration\Infrastructure\AiFeatureAvailability;
 use App\AiConfiguration\Infrastructure\ApiPlatform\AiProvider\BillingInput;
@@ -97,6 +98,8 @@ final readonly class CreateAiProviderProcessor implements ProcessorInterface
             isActivated: $data->isActivated,
             creatorId: $credentialUser->credential->userId->value,
             billing: $billing,
+            defaultModelReasoning: ReasoningModeEnum::from($data->defaultModelReasoning),
+            fastModelReasoning: ReasoningModeEnum::from($data->fastModelReasoning),
         );
 
         $aiProvider = $this->commandBus->execute($command);

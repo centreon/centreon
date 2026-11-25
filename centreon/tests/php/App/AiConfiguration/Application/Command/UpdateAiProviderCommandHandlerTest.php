@@ -31,6 +31,7 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\ReasoningModeEnum;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\StoredApiToken;
 use App\AiConfiguration\Domain\Event\AiProviderUpdated;
 use App\AiConfiguration\Domain\Exception\AiProviderActivationConflictException;
@@ -240,6 +241,21 @@ final class UpdateAiProviderCommandHandlerTest extends TestCase
         self::assertTrue($this->eventBus->shouldHaveDispatched(AiProviderUpdated::class));
     }
 
+    public function testTheReasoningSettingsAreUpdated(): void
+    {
+        $aiProvider = $this->givenAiProvider('Anthropic production', isActivated: true);
+
+        ($this->handler)($this->updateCommand(
+            $aiProvider,
+            defaultModelReasoning: ReasoningModeEnum::Default,
+            fastModelReasoning: ReasoningModeEnum::Minimal,
+        ));
+
+        $updated = $this->repository->getById($aiProvider->id());
+        self::assertSame(ReasoningModeEnum::Default, $updated->defaultModelReasoning());
+        self::assertSame(ReasoningModeEnum::Minimal, $updated->fastModelReasoning());
+    }
+
     private function givenAiProvider(string $name, bool $isActivated = false): AiProvider
     {
         $aiProvider = new AiProvider(
@@ -265,6 +281,8 @@ final class UpdateAiProviderCommandHandlerTest extends TestCase
         ?string $apiToken = null,
         ?bool $isActivated = null,
         ?string $endpointUrl = null,
+        ?ReasoningModeEnum $defaultModelReasoning = null,
+        ?ReasoningModeEnum $fastModelReasoning = null,
     ): UpdateAiProviderCommand {
         return new UpdateAiProviderCommand(
             id: $aiProvider->id(),
@@ -273,6 +291,8 @@ final class UpdateAiProviderCommandHandlerTest extends TestCase
             apiToken: $apiToken !== null ? new ApiToken($apiToken) : null,
             defaultModel: $aiProvider->defaultModel(),
             fastModel: $aiProvider->fastModel(),
+            defaultModelReasoning: $defaultModelReasoning ?? $aiProvider->defaultModelReasoning(),
+            fastModelReasoning: $fastModelReasoning ?? $aiProvider->fastModelReasoning(),
             description: $aiProvider->description(),
             isActivated: $isActivated ?? $aiProvider->isActivated(),
             updatedBy: 1,

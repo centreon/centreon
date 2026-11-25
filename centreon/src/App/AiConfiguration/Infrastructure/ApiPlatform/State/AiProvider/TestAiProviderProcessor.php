@@ -65,6 +65,7 @@ final readonly class TestAiProviderProcessor implements ProcessorInterface
             success: $result->success,
             message: $result->message,
             model: $result->model,
+            reasoning: $result->reasoning,
         );
     }
 }

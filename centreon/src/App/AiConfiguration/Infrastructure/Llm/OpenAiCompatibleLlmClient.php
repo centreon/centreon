@@ -26,6 +26,7 @@ namespace App\AiConfiguration\Infrastructure\Llm;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\ReasoningModeEnum;
 use App\AiConfiguration\Domain\Llm\Exception\LlmRequestFailedException;
 use App\AiConfiguration\Domain\Llm\LlmClientInterface;
 use App\AiConfiguration\Domain\Llm\LlmMessage;
@@ -35,6 +36,8 @@ use App\AiConfiguration\Domain\Llm\LlmResponse;
 use App\AiConfiguration\Domain\Llm\LlmUsage;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface as HttpClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TimeoutExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
@@ -44,10 +47,17 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 /**
  * Client for the OpenAI chat completions API and compatible providers
  * (OpenAI, Mistral, Ollama, vLLM, LiteLLM, ...).
+ *
+ * A model set to reason minimally is sent the lowest `reasoning_effort` it
+ * accepts. Its reasoning is never part of the answer: the separate `reasoning`
+ * or `reasoning_content` fields and the typed thinking parts are ignored, and a
+ * leading <think> block is dropped.
  */
 final readonly class OpenAiCompatibleLlmClient implements LlmClientInterface
 {
     private const TIMEOUT_SECONDS = 120;
+
+    private ReasoningNegotiator $reasoningNegotiator;
 
     public function __construct(
         private HttpClientInterface $httpClient,
@@ -61,12 +71,23 @@ final readonly class OpenAiCompatibleLlmClient implements LlmClientInterface
         // OpenAI's recent models require 'max_completion_tokens' over 'max_tokens'
         private string $maxTokensField = 'max_tokens',
         private LoggerInterface $logger = new NullLogger(),
+        private ReasoningModeEnum $defaultModelReasoning = ReasoningModeEnum::Minimal,
+        // without a fast model, the default model serves the fast tier with its own setting
+        private ReasoningModeEnum $fastModelReasoning = ReasoningModeEnum::Minimal,
+        // remembers which reasoning setting each model accepts
+        CacheInterface $cache = new ArrayAdapter(),
     ) {
+        $this->reasoningNegotiator = new ReasoningNegotiator(
+            $cache,
+            $logger,
+            'openai_compatible ' . $this->chatCompletionsUrl(),
+            ReasoningCandidate::reasoningEffort(),
+        );
     }
 
     public function complete(LlmRequest $request): LlmResponse
     {
-        $response = $this->sendRequest($request, stream: false);
+        [$response, $reasoning] = $this->send($request, stream: false);
         $data = $this->decodeOrFail($response, $this->timeoutFor($request));
 
         $choice = ProviderPayload::array(ProviderPayload::array($data['choices'] ?? null)[0] ?? null);
@@ -82,7 +103,7 @@ final readonly class OpenAiCompatibleLlmClient implements LlmClientInterface
         $usage = ProviderPayload::array($data['usage'] ?? null);
 
         return new LlmResponse(
-            content: $this->textOf($message['content'] ?? null),
+            content: ThinkBlockFilter::strip($this->textOf($message['content'] ?? null)),
             model: ProviderPayload::string($data['model'] ?? null) ?? '',
             usage: new LlmUsage(
                 inputTokens: ProviderPayload::tokenCount($usage['prompt_tokens'] ?? null),
@@ -90,16 +111,18 @@ final readonly class OpenAiCompatibleLlmClient implements LlmClientInterface
             ),
             truncated: $finishReason === 'length',
             refusal: $this->refusalOf(ProviderPayload::string($message['refusal'] ?? null) ?? '', $finishReason),
+            reasoning: $reasoning?->label,
         );
     }
 
     public function stream(LlmRequest $request): \Generator
     {
         $timeout = $this->timeoutFor($request);
-        $response = $this->sendRequest($request, stream: true);
-        $this->assertSuccessful($response, $timeout);
+        // a rejected reasoning setting comes with the status, before any chunk
+        [$response, $reasoning] = $this->send($request, stream: true);
 
         $parser = new ServerSentEventParser();
+        $thinkBlockFilter = new ThinkBlockFilter();
         $content = '';
         $model = '';
         $inputTokens = 0;
@@ -145,7 +168,7 @@ final readonly class OpenAiCompatibleLlmClient implements LlmClientInterface
                     }
                     $refusal .= ProviderPayload::string($delta['refusal'] ?? null) ?? '';
 
-                    $text = $this->textOf($delta['content'] ?? null);
+                    $text = $thinkBlockFilter->push($this->textOf($delta['content'] ?? null));
                     if ($text !== '') {
                         $content .= $text;
 
@@ -159,12 +182,20 @@ final readonly class OpenAiCompatibleLlmClient implements LlmClientInterface
             throw LlmRequestFailedException::fromTransportError($exception->getMessage(), $exception);
         }
 
+        $text = $thinkBlockFilter->finish();
+        if ($text !== '') {
+            $content .= $text;
+
+            yield $text;
+        }
+
         return new LlmResponse(
             $content,
             $model,
             new LlmUsage($inputTokens, $outputTokens),
             $truncated,
             $this->refusalOf($refusal, $finishReason),
+            $reasoning?->label,
         );
     }
 
@@ -277,12 +308,39 @@ final readonly class OpenAiCompatibleLlmClient implements LlmClientInterface
     }
 
     /**
-     * @throws LlmRequestFailedException when the request can not be sent
+     * Send the request, with the reasoning setting the model accepts when it is set to
+     * reason minimally.
+     *
+     * @throws LlmRequestFailedException when the request fails or the provider answers with an error status
+     *
+     * @return array{ResponseInterface, ReasoningCandidate|null} the successful response, and the
+     *                                                           reasoning setting it was sent with
      */
-    private function sendRequest(LlmRequest $request, bool $stream): ResponseInterface
+    private function send(LlmRequest $request, bool $stream): array
     {
         $model = $request->model ?? $this->resolveTierModel($request->tier);
 
+        return $this->reasoningNegotiator->send(
+            $model,
+            $this->resolveReasoning($request, $model),
+            function (?ReasoningCandidate $reasoning) use ($request, $model, $stream): ResponseInterface {
+                $response = $this->sendRequest($request, $model, $reasoning, $stream);
+                $this->assertSuccessful($response, $this->timeoutFor($request));
+
+                return $response;
+            },
+        );
+    }
+
+    /**
+     * @throws LlmRequestFailedException when the request can not be sent
+     */
+    private function sendRequest(
+        LlmRequest $request,
+        ModelName $model,
+        ?ReasoningCandidate $reasoning,
+        bool $stream,
+    ): ResponseInterface {
         $messages = array_map(
             static fn (LlmMessage $message): array => [
                 'content' => $message->content,
@@ -295,16 +353,17 @@ final readonly class OpenAiCompatibleLlmClient implements LlmClientInterface
         }
 
         $payload = [
-            $this->maxTokensField => $request->maxTokens,
+            $this->maxTokensField => ReasoningNegotiator::maxTokensFor($request->maxTokens, $reasoning),
             'messages' => $messages,
             'model' => $model->value,
+            ...($reasoning instanceof ReasoningCandidate ? $reasoning->payload : []),
         ];
         if ($stream) {
             $payload['stream'] = true;
         }
 
         try {
-            return $this->httpClient->request('POST', rtrim($this->endpointUrl->value, '/') . $this->chatCompletionsPath, [
+            return $this->httpClient->request('POST', $this->chatCompletionsUrl(), [
                 'auth_bearer' => $this->apiToken->value,
                 'json' => $payload,
                 'timeout' => $this->timeoutFor($request),
@@ -313,6 +372,11 @@ final readonly class OpenAiCompatibleLlmClient implements LlmClientInterface
         } catch (TransportExceptionInterface $exception) {
             throw LlmRequestFailedException::fromTransportError($exception->getMessage(), $exception);
         }
+    }
+
+    private function chatCompletionsUrl(): string
+    {
+        return rtrim($this->endpointUrl->value, '/') . $this->chatCompletionsPath;
     }
 
     private function timeoutFor(LlmRequest $request): int
@@ -326,6 +390,24 @@ final readonly class OpenAiCompatibleLlmClient implements LlmClientInterface
             LlmModelTierEnum::Default => $this->defaultModel,
             LlmModelTierEnum::Fast => $this->fastModel ?? $this->defaultModel,
         };
+    }
+
+    /**
+     * The setting of the tier the model serves; a model named by the request that
+     * serves neither tier gets the setting of the default model.
+     */
+    private function resolveReasoning(LlmRequest $request, ModelName $model): ReasoningModeEnum
+    {
+        if (! $this->fastModel instanceof ModelName) {
+            return $this->defaultModelReasoning;
+        }
+
+        $servesFastTier = $request->model instanceof ModelName
+            ? $model->value === $this->fastModel->value
+                && ($model->value !== $this->defaultModel->value || $request->tier === LlmModelTierEnum::Fast)
+            : $request->tier === LlmModelTierEnum::Fast;
+
+        return $servesFastTier ? $this->fastModelReasoning : $this->defaultModelReasoning;
     }
 
     /**

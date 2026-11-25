@@ -17057,6 +17057,20 @@ components:
             - string
             - 'null'
           example: claude-haiku-5-5
+        default_model_reasoning:
+          enum:
+            - minimal
+            - default
+          description: 'How much the default model may reason before it answers: "minimal" turns its reasoning as far down as the model allows, "default" sends no setting and lets the model reason as it does by default.'
+          type: string
+          example: minimal
+        fast_model_reasoning:
+          enum:
+            - minimal
+            - default
+          description: 'How much the fast model may reason before it answers, like default_model_reasoning. Without a fast model, the fast tier follows default_model_reasoning.'
+          type: string
+          example: minimal
         description:
           minLength: 1
           maxLength: 65535
@@ -17168,6 +17182,20 @@ components:
             - string
             - 'null'
           example: claude-haiku-5-5
+        default_model_reasoning:
+          enum:
+            - minimal
+            - default
+          description: 'How much the default model may reason before it answers: "minimal" turns its reasoning as far down as the model allows, "default" sends no setting and lets the model reason as it does by default.'
+          type: string
+          example: minimal
+        fast_model_reasoning:
+          enum:
+            - minimal
+            - default
+          description: 'How much the fast model may reason before it answers, like default_model_reasoning. Without a fast model, the fast tier follows default_model_reasoning.'
+          type: string
+          example: minimal
         description:
           minLength: 1
           maxLength: 65535
@@ -17283,6 +17311,20 @@ components:
                 - string
                 - 'null'
               example: claude-haiku-5-5
+            default_model_reasoning:
+              enum:
+                - minimal
+                - default
+              description: 'How much the default model may reason before it answers: "minimal" turns its reasoning as far down as the model allows, "default" sends no setting and lets the model reason as it does by default.'
+              type: string
+              example: minimal
+            fast_model_reasoning:
+              enum:
+                - minimal
+                - default
+              description: 'How much the fast model may reason before it answers, like default_model_reasoning. Without a fast model, the fast tier follows default_model_reasoning.'
+              type: string
+              example: minimal
             description:
               minLength: 1
               maxLength: 65535
@@ -17489,6 +17531,20 @@ components:
             - string
             - 'null'
           example: claude-haiku-5-5
+        default_model_reasoning:
+          enum:
+            - minimal
+            - default
+          description: 'How much the default model may reason before it answers: "minimal" turns its reasoning as far down as the model allows, "default" sends no setting and lets the model reason as it does by default.'
+          type: string
+          example: minimal
+        fast_model_reasoning:
+          enum:
+            - minimal
+            - default
+          description: 'How much the fast model may reason before it answers, like default_model_reasoning. Without a fast model, the fast tier follows default_model_reasoning.'
+          type: string
+          example: minimal
         description:
           minLength: 1
           maxLength: 65535
@@ -17601,6 +17657,20 @@ components:
                 - string
                 - 'null'
               example: claude-haiku-5-5
+            default_model_reasoning:
+              enum:
+                - minimal
+                - default
+              description: 'How much the default model may reason before it answers: "minimal" turns its reasoning as far down as the model allows, "default" sends no setting and lets the model reason as it does by default.'
+              type: string
+              example: minimal
+            fast_model_reasoning:
+              enum:
+                - minimal
+                - default
+              description: 'How much the fast model may reason before it answers, like default_model_reasoning. Without a fast model, the fast tier follows default_model_reasoning.'
+              type: string
+              example: minimal
             description:
               minLength: 1
               maxLength: 65535
@@ -17981,6 +18051,20 @@ components:
             - string
             - 'null'
           example: claude-haiku-5-5
+        default_model_reasoning:
+          enum:
+            - minimal
+            - default
+          description: 'How much the default model may reason before it answers: "minimal" turns its reasoning as far down as the model allows, "default" sends no setting and lets the model reason as it does by default.'
+          type: string
+          example: minimal
+        fast_model_reasoning:
+          enum:
+            - minimal
+            - default
+          description: 'How much the fast model may reason before it answers, like default_model_reasoning. Without a fast model, the fast tier follows default_model_reasoning.'
+          type: string
+          example: minimal
         description:
           description: 'Description of the AI provider configuration'
           type:
@@ -18052,6 +18136,20 @@ components:
                 - string
                 - 'null'
               example: claude-haiku-5-5
+            default_model_reasoning:
+              enum:
+                - minimal
+                - default
+              description: 'How much the default model may reason before it answers: "minimal" turns its reasoning as far down as the model allows, "default" sends no setting and lets the model reason as it does by default.'
+              type: string
+              example: minimal
+            fast_model_reasoning:
+              enum:
+                - minimal
+                - default
+              description: 'How much the fast model may reason before it answers, like default_model_reasoning. Without a fast model, the fast tier follows default_model_reasoning.'
+              type: string
+              example: minimal
             description:
               description: 'Description of the AI provider configuration'
               type:
@@ -18268,6 +18366,12 @@ components:
             - string
             - 'null'
           example: claude-sonnet-5-5
+        reasoning:
+          description: 'Setting sent to turn the reasoning of the tested model down, e.g. "reasoning_effort: none" or "thinking: disabled"; null when none was sent (the model reasons as it does by default)'
+          type:
+            - string
+            - 'null'
+          example: 'reasoning_effort: none'
     TestAiProviderResource.TestAiProviderInput:
       type: object
       properties:
@@ -18300,6 +18404,12 @@ components:
                 - string
                 - 'null'
               example: claude-sonnet-5-5
+            reasoning:
+              description: 'Setting sent to turn the reasoning of the tested model down, e.g. "reasoning_effort: none" or "thinking: disabled"; null when none was sent (the model reasons as it does by default)'
+              type:
+                - string
+                - 'null'
+              example: 'reasoning_effort: none'
     TestConnectionResource:
       type: object
       properties:
@@ -18317,6 +18427,12 @@ components:
             - string
             - 'null'
           example: claude-sonnet-5-5
+        reasoning:
+          description: 'Setting sent to turn the reasoning of the tested model down, e.g. "reasoning_effort: none" or "thinking: disabled"; null when none was sent (the model reasons as it does by default)'
+          type:
+            - string
+            - 'null'
+          example: 'reasoning_effort: none'
     TestConnectionResource.TestConnectionInput:
       type: object
       properties:
@@ -18357,6 +18473,13 @@ components:
           type:
             - integer
             - 'null'
+        default_model_reasoning:
+          enum:
+            - minimal
+            - default
+          description: 'How much the model may reason: "minimal" (as little as it allows) or "default" (no setting sent)'
+          type: string
+          example: minimal
     TestConnectionResource.jsonld:
       allOf:
         -
@@ -18378,6 +18501,12 @@ components:
                 - string
                 - 'null'
               example: claude-sonnet-5-5
+            reasoning:
+              description: 'Setting sent to turn the reasoning of the tested model down, e.g. "reasoning_effort: none" or "thinking: disabled"; null when none was sent (the model reasons as it does by default)'
+              type:
+                - string
+                - 'null'
+              example: 'reasoning_effort: none'
     TranslateResourceFilterResource:
       type: object
       properties:

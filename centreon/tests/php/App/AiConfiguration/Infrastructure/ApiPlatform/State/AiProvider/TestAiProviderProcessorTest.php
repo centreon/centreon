@@ -74,9 +74,11 @@ final class TestAiProviderProcessorTest extends AiProviderApiTestCase
         $testResponse = $this->request('POST', self::ENDPOINT . '/' . $id . '/test', ['json' => []]);
 
         self::assertResponseStatusCodeSame(200);
-        /** @var array{success: bool, message: string|null} $result */
+        /** @var array{success: bool, message: string|null, reasoning?: string|null} $result */
         $result = $testResponse->toArray();
         self::assertFalse($result['success']);
         self::assertNotEmpty($result['message']);
+        // a failed test reports no setting
+        self::assertNull($result['reasoning'] ?? null);
     }
 }

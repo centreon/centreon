@@ -32,6 +32,7 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\Billing;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\Currency;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\Pricing;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\ReasoningModeEnum;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\SpendLimit;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\StoredApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\TierPricing;
@@ -107,6 +108,28 @@ final class DbalAiProviderRepositoryTest extends KernelTestCase
         self::assertNull($fetched->billing()->limit);
         self::assertEquals($pricing, $fetched->billing()->pricing);
         self::assertSame('USD', $fetched->billing()->currency?->value);
+    }
+
+    public function testTheReasoningSettingsAreReadBackAsSaved(): void
+    {
+        $aiProvider = $this->newAiProvider('Anthropic production');
+        $this->repository->add($aiProvider);
+
+        $fetched = $this->repository->getById($aiProvider->id());
+        self::assertSame(ReasoningModeEnum::Minimal, $fetched->defaultModelReasoning());
+        self::assertSame(ReasoningModeEnum::Minimal, $fetched->fastModelReasoning());
+
+        $aiProvider->changeModels(
+            $aiProvider->defaultModel(),
+            $aiProvider->fastModel(),
+            ReasoningModeEnum::Default,
+            ReasoningModeEnum::Minimal,
+        );
+        $this->repository->update($aiProvider);
+
+        $fetched = $this->repository->getById($aiProvider->id());
+        self::assertSame(ReasoningModeEnum::Default, $fetched->defaultModelReasoning());
+        self::assertSame(ReasoningModeEnum::Minimal, $fetched->fastModelReasoning());
     }
 
     public function testGetByIdNotFound(): void

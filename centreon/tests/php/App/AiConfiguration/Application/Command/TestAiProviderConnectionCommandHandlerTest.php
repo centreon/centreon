@@ -32,6 +32,7 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\ReasoningModeEnum;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\StoredApiToken;
 use App\AiConfiguration\Domain\Llm\Exception\ApiTokenUnavailableException;
 use App\AiConfiguration\Domain\Llm\Exception\LlmRequestFailedException;
@@ -114,6 +115,20 @@ final class TestAiProviderConnectionCommandHandlerTest extends TestCase
         self::assertSame('https://api.anthropic.com', $spec->endpointUrl->value);
         self::assertSame('typed-token', $spec->apiToken->value);
         self::assertSame('claude-sonnet-4-6', $spec->model?->value);
+        self::assertSame(ReasoningModeEnum::Minimal, $spec->modelReasoning);
+    }
+
+    public function testTheReasoningSettingIsTestedAndReported(): void
+    {
+        $factory = new FakeLlmClientFactory(new FakeLlmClient(
+            response: new LlmResponse('pong', 'claude-sonnet-4-6', new LlmUsage(5, 1), reasoning: 'thinking: disabled')
+        ));
+        $handler = new TestAiProviderConnectionCommandHandler($this->repository, $factory);
+
+        $result = $handler($this->command(apiToken: new ApiToken('typed-token'), modelReasoning: ReasoningModeEnum::Default));
+
+        self::assertSame(ReasoningModeEnum::Default, $factory->lastConnectionSpec?->modelReasoning);
+        self::assertSame('thinking: disabled', $result->reasoning);
     }
 
     public function testARefusalStillProvesTheConnection(): void
@@ -204,6 +219,7 @@ final class TestAiProviderConnectionCommandHandlerTest extends TestCase
         ?int $id = null,
         AiProviderTypeEnum $type = AiProviderTypeEnum::Anthropic,
         string $endpointUrl = 'https://api.anthropic.com',
+        ReasoningModeEnum $modelReasoning = ReasoningModeEnum::Minimal,
     ): TestAiProviderConnectionCommand {
         return new TestAiProviderConnectionCommand(
             type: $type,
@@ -211,6 +227,7 @@ final class TestAiProviderConnectionCommandHandlerTest extends TestCase
             endpointUrl: new EndpointUrl($endpointUrl),
             apiToken: $apiToken,
             id: $id !== null ? new AiProviderId($id) : null,
+            modelReasoning: $modelReasoning,
         );
     }
 

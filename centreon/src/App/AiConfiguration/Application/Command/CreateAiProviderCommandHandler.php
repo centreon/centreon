@@ -82,6 +82,8 @@ final readonly class CreateAiProviderCommandHandler
                 description: $command->description,
                 isActivated: $isActivated,
                 billing: $command->billing,
+                defaultModelReasoning: $command->defaultModelReasoning,
+                fastModelReasoning: $command->fastModelReasoning,
             );
 
             // at most one provider is activated: enabling this one disables the current one

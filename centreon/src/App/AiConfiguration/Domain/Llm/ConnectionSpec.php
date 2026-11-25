@@ -26,6 +26,7 @@ namespace App\AiConfiguration\Domain\Llm;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\ReasoningModeEnum;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\StoredApiToken;
 use App\AiConfiguration\Domain\Exception\InvalidAiProviderConfigurationException;
 
@@ -39,6 +40,7 @@ final readonly class ConnectionSpec
 
     /**
      * @param ModelName|null $model the model to address, if the check sends a request to one
+     * @param ReasoningModeEnum $modelReasoning how much that model may reason
      *
      * @throws InvalidAiProviderConfigurationException when the endpoint is not acceptable for the type
      */
@@ -47,6 +49,7 @@ final readonly class ConnectionSpec
         EndpointUrl $endpointUrl,
         public StoredApiToken $apiToken,
         public ?ModelName $model = null,
+        public ReasoningModeEnum $modelReasoning = ReasoningModeEnum::Minimal,
     ) {
         // the same rule as for a saved provider: a curated provider is only
         // reached at its official endpoint

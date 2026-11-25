@@ -53,7 +53,7 @@ final class LlmRequestFailedException extends LlmException implements ExpectedFa
         if ($truncated) {
             return new self(sprintf(
                 'The model used its whole budget of %d tokens without writing an answer, probably '
-                . 'reasoning. Choose another model.',
+                . 'reasoning. Turn reasoning down for this model, or choose another model.',
                 $maxTokens
             ));
         }

@@ -78,9 +78,52 @@ final class CreateAiProviderProcessorTest extends AiProviderApiTestCase
             'endpoint_url' => 'https://api.anthropic.com',
             'default_model' => 'claude-sonnet-4-6',
             'fast_model' => 'claude-haiku-4-5',
+            // the models reason minimally unless told otherwise
+            'default_model_reasoning' => 'minimal',
+            'fast_model_reasoning' => 'minimal',
             'is_activated' => true, // the first configuration always becomes the default one
         ]);
         self::assertArrayNotHasKey('api_token', $response->toArray());
+    }
+
+    public function testCreateWithReasoningSettings(): void
+    {
+        $this->login();
+
+        $this->request('POST', self::ENDPOINT, [
+            'json' => [
+                'name' => 'Mistral production',
+                'type' => 'mistral',
+                'api_token' => 'a-very-secret-token',
+                'default_model' => 'mistral-large-latest',
+                'fast_model' => 'mistral-small-latest',
+                'default_model_reasoning' => 'default',
+                'fast_model_reasoning' => 'minimal',
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        self::assertJsonContains([
+            'default_model_reasoning' => 'default',
+            'fast_model_reasoning' => 'minimal',
+        ]);
+    }
+
+    public function testCreateWithAnUnknownReasoningSettingIsRejected(): void
+    {
+        $this->login();
+
+        $response = $this->request('POST', self::ENDPOINT, [
+            'json' => [
+                'name' => 'Mistral production',
+                'type' => 'mistral',
+                'api_token' => 'a-very-secret-token',
+                'default_model' => 'mistral-large-latest',
+                'default_model_reasoning' => 'high',
+            ],
+        ]);
+
+        self::assertContains($response->getStatusCode(), [400, 422]);
     }
 
     public function testCreateCuratedProviderIgnoresCustomEndpoint(): void

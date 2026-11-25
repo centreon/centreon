@@ -98,6 +98,44 @@ final class TestConnectionProcessorTest extends AiProviderApiTestCase
         self::assertNotEmpty($result['message']);
     }
 
+    public function testTheReasoningSettingOfTheModelIsAccepted(): void
+    {
+        $this->login();
+
+        // no service listens on port 1: the test fails, and so sends no setting
+        $response = $this->request('POST', self::TEST_ENDPOINT, [
+            'json' => [
+                'type' => 'openai_compatible',
+                'default_model' => 'a-model',
+                'default_model_reasoning' => 'default',
+                'api_token' => 'a-token',
+                'endpoint_url' => 'http://127.0.0.1:1',
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(200);
+        /** @var array{success: bool, reasoning?: string|null} $result */
+        $result = $response->toArray();
+        self::assertFalse($result['success']);
+        self::assertNull($result['reasoning'] ?? null);
+    }
+
+    public function testAnUnknownReasoningSettingIsRejected(): void
+    {
+        $this->login();
+
+        $response = $this->request('POST', self::TEST_ENDPOINT, [
+            'json' => [
+                'type' => 'anthropic',
+                'default_model' => 'a-model',
+                'default_model_reasoning' => 'high',
+                'api_token' => 'a-token',
+            ],
+        ]);
+
+        self::assertContains($response->getStatusCode(), [400, 422]);
+    }
+
     public function testUnknownTypeReturns400(): void
     {
         $this->login();

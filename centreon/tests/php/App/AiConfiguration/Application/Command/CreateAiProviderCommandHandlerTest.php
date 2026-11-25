@@ -31,6 +31,7 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\ReasoningModeEnum;
 use App\AiConfiguration\Domain\Event\AiProviderCreated;
 use App\AiConfiguration\Domain\Event\AiProviderUpdated;
 use App\AiConfiguration\Domain\Exception\AiProviderActivationConflictException;
@@ -162,6 +163,28 @@ final class CreateAiProviderCommandHandlerTest extends TestCase
         ($this->handler)($this->createCommand('Anthropic production'));
 
         self::assertTrue($this->eventBus->shouldHaveDispatched(AiProviderCreated::class));
+    }
+
+    public function testModelsReasonMinimallyUnlessSetOtherwise(): void
+    {
+        $aiProvider = ($this->handler)($this->createCommand('Anthropic production'));
+        $other = ($this->handler)(new CreateAiProviderCommand(
+            name: new AiProviderName('Mistral fallback'),
+            type: AiProviderTypeEnum::Mistral,
+            apiToken: new ApiToken('a-token'),
+            endpointUrl: new EndpointUrl('https://api.mistral.ai'),
+            defaultModel: new ModelName('mistral-large-latest'),
+            fastModel: new ModelName('mistral-small-latest'),
+            description: null,
+            isActivated: false,
+            creatorId: 1,
+            defaultModelReasoning: ReasoningModeEnum::Default,
+        ));
+
+        self::assertSame(ReasoningModeEnum::Minimal, $aiProvider->defaultModelReasoning());
+        self::assertSame(ReasoningModeEnum::Minimal, $aiProvider->fastModelReasoning());
+        self::assertSame(ReasoningModeEnum::Default, $other->defaultModelReasoning());
+        self::assertSame(ReasoningModeEnum::Minimal, $other->fastModelReasoning());
     }
 
     private function createCommand(string $name, bool $isActivated = false): CreateAiProviderCommand

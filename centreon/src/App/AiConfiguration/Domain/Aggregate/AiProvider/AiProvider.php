@@ -48,6 +48,8 @@ final class AiProvider extends AggregateRoot
         private ?AiProviderDescription $description,
         private bool $isActivated,
         private Billing $billing = new Billing(),
+        private ReasoningModeEnum $defaultModelReasoning = ReasoningModeEnum::Minimal,
+        private ReasoningModeEnum $fastModelReasoning = ReasoningModeEnum::Minimal,
     ) {
         parent::__construct($id);
     }
@@ -65,10 +67,25 @@ final class AiProvider extends AggregateRoot
         ?AiProviderDescription $description,
         bool $isActivated,
         Billing $billing = new Billing(),
+        ReasoningModeEnum $defaultModelReasoning = ReasoningModeEnum::Minimal,
+        ReasoningModeEnum $fastModelReasoning = ReasoningModeEnum::Minimal,
     ): self {
         self::assertEndpointFitsType($type, $endpointUrl);
 
-        return new self(null, $name, $type, $endpointUrl, $apiToken, $defaultModel, $fastModel, $description, $isActivated, $billing);
+        return new self(
+            null,
+            $name,
+            $type,
+            $endpointUrl,
+            $apiToken,
+            $defaultModel,
+            $fastModel,
+            $description,
+            $isActivated,
+            $billing,
+            $defaultModelReasoning,
+            $fastModelReasoning,
+        );
     }
 
     public function name(): AiProviderName
@@ -101,6 +118,19 @@ final class AiProvider extends AggregateRoot
         return $this->fastModel;
     }
 
+    public function defaultModelReasoning(): ReasoningModeEnum
+    {
+        return $this->defaultModelReasoning;
+    }
+
+    /**
+     * Ignored without a fast model: the fast tier is then served by the default model, with its setting.
+     */
+    public function fastModelReasoning(): ReasoningModeEnum
+    {
+        return $this->fastModelReasoning;
+    }
+
     public function description(): ?AiProviderDescription
     {
         return $this->description;
@@ -126,10 +156,16 @@ final class AiProvider extends AggregateRoot
         $this->description = $description;
     }
 
-    public function changeModels(ModelName $defaultModel, ?ModelName $fastModel): void
-    {
+    public function changeModels(
+        ModelName $defaultModel,
+        ?ModelName $fastModel,
+        ReasoningModeEnum $defaultModelReasoning,
+        ReasoningModeEnum $fastModelReasoning,
+    ): void {
         $this->defaultModel = $defaultModel;
         $this->fastModel = $fastModel;
+        $this->defaultModelReasoning = $defaultModelReasoning;
+        $this->fastModelReasoning = $fastModelReasoning;
     }
 
     public function changeBilling(Billing $billing): void

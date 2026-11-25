@@ -61,6 +61,8 @@ final class ListAiProvidersProviderTest extends AiProviderApiTestCase
         self::assertCount(2, $members);
         foreach ($members as $member) {
             self::assertArrayNotHasKey('api_token', $member);
+            self::assertSame('minimal', $member['default_model_reasoning'] ?? null);
+            self::assertSame('minimal', $member['fast_model_reasoning'] ?? null);
         }
     }
 
@@ -177,5 +179,6 @@ final class ListAiProvidersProviderTest extends AiProviderApiTestCase
 
         self::assertResponseIsSuccessful();
         self::assertArrayNotHasKey('api_token', $response->toArray());
+        self::assertJsonContains(['default_model_reasoning' => 'minimal', 'fast_model_reasoning' => 'minimal']);
     }
 }

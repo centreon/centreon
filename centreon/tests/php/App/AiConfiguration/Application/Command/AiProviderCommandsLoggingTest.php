@@ -36,6 +36,7 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\Currency;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\Pricing;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\ReasoningModeEnum;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\SpendLimit;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\TierPricing;
 use App\Shared\Infrastructure\Logging\Attribute\SensitivityScanner;
@@ -83,6 +84,8 @@ final class AiProviderCommandsLoggingTest extends TestCase
             apiToken: new ApiToken(self::TOKEN),
             defaultModel: new ModelName('gpt-5'),
             fastModel: null,
+            defaultModelReasoning: ReasoningModeEnum::Minimal,
+            fastModelReasoning: ReasoningModeEnum::Minimal,
             description: null,
             isActivated: true,
             updatedBy: 1,

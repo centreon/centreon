@@ -79,6 +79,19 @@ final class TestAiProviderCommandHandlerTest extends TestCase
         self::assertTrue($result->success);
         self::assertSame('claude-sonnet-4-6', $result->model);
         self::assertNull($result->message);
+        self::assertNull($result->reasoning);
+    }
+
+    public function testTheReasoningSettingSentIsReported(): void
+    {
+        $client = new FakeLlmClient(
+            response: new LlmResponse('pong', 'claude-sonnet-4-6', new LlmUsage(12, 2), reasoning: 'thinking: disabled')
+        );
+        $handler = new TestAiProviderCommandHandler($this->repository, new FakeLlmClientFactory($client));
+
+        $result = $handler(new TestAiProviderCommand($this->aiProvider->id()));
+
+        self::assertSame('thinking: disabled', $result->reasoning);
     }
 
     public function testModelOverrideIsForwardedToTheClient(): void

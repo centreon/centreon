@@ -54,6 +54,7 @@ final readonly class AiProviderActivityLogFactory implements ActivityLogFactoryI
             'type' => $aggregate->type()->value,
             'endpoint_url' => $aggregate->endpointUrl()->value,
             'default_model' => $aggregate->defaultModel()->value,
+            'default_model_reasoning' => $aggregate->defaultModelReasoning()->value,
             'is_activated' => $aggregate->isActivated() ? '1' : '0',
         ];
 
