@@ -11,6 +11,7 @@ import type {
 } from '../../../ResourceForm/models';
 import type { TemplateRow } from '../../../ResourceForm/OrderedTemplates';
 import { toIds } from '../../../ResourceForm/selector';
+import { withUpdateMode } from '../../../ResourceForm/updateMode';
 import { labelTemplates } from '../../translatedLabels';
 import ParentTemplates from '../ParentTemplates';
 
@@ -33,22 +34,29 @@ export const getTemplatesBlock = ({
       )
     ).map((value) => value ?? [])
   },
-  getInputs: ({ t }) => ({
+  getInputs: ({ isMassChange, t }) => ({
     templates: getBlock({
       columns: [
-        {
-          custom: { Component: ParentTemplates },
-          dataTestId: `${idPrefix}-templates`,
-          fieldName: 'templates',
-          label: t(labelTemplates),
-          type: InputType.Custom
-        }
+        withUpdateMode({
+          field: 'templates',
+          idPrefix,
+          input: {
+            custom: { Component: ParentTemplates },
+            dataTestId: `${idPrefix}-templates`,
+            fieldName: 'templates',
+            label: t(labelTemplates),
+            type: InputType.Custom
+          },
+          isMassChange,
+          t
+        })
       ],
       idPrefix,
       name: 'templates-block'
     })
   }),
   getSchema: () => ({}),
+  massChange: { updateModeFields: { templates: [['template_ids']] } },
   toPayload: (values) => ({
     // In order, rows left unpicked aside.
     template_ids: toIds(
