@@ -97,11 +97,15 @@ final readonly class DbalAiProviderTransformer implements TransformerInterface
     }
 
     /**
-     * A provider saved before the setting existed reasons minimally.
+     * A provider saved before the setting existed reasons minimally. An unknown value
+     * fails like an unknown type: read as another value, it would be overwritten on
+     * the next save.
+     *
+     * @throws \ValueError when the stored value is not a reasoning mode
      */
     private function transformReasoning(?string $reasoning): ReasoningModeEnum
     {
-        return ReasoningModeEnum::tryFrom($reasoning ?? '') ?? ReasoningModeEnum::Minimal;
+        return $reasoning === null ? ReasoningModeEnum::Minimal : ReasoningModeEnum::from($reasoning);
     }
 
     /**

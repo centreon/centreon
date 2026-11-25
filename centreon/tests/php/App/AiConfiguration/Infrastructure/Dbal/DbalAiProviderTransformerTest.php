@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\App\AiConfiguration\Infrastructure\Dbal;
 
+use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProvider;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ReasoningModeEnum;
 use App\AiConfiguration\Infrastructure\Dbal\DbalAiProviderTransformer;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -31,7 +32,7 @@ use PHPUnit\Framework\TestCase;
 final class DbalAiProviderTransformerTest extends TestCase
 {
     /**
-     * @return iterable<string, array{array<string, string>, ReasoningModeEnum, ReasoningModeEnum}>
+     * @return iterable<string, array{array<string, string|null>, ReasoningModeEnum, ReasoningModeEnum}>
      */
     public static function provideReasoningSettings(): iterable
     {
@@ -49,15 +50,15 @@ final class DbalAiProviderTransformerTest extends TestCase
             ReasoningModeEnum::Default,
         ];
 
-        yield 'an unknown value' => [
-            ['default_model_reasoning' => 'high'],
+        yield 'stored as null' => [
+            ['default_model_reasoning' => null, 'fast_model_reasoning' => null],
             ReasoningModeEnum::Minimal,
             ReasoningModeEnum::Minimal,
         ];
     }
 
     /**
-     * @param array<string, string> $settings
+     * @param array<string, string|null> $settings
      */
     #[DataProvider('provideReasoningSettings')]
     public function testTheReasoningSettingsAreRead(
@@ -65,7 +66,27 @@ final class DbalAiProviderTransformerTest extends TestCase
         ReasoningModeEnum $defaultModelReasoning,
         ReasoningModeEnum $fastModelReasoning,
     ): void {
-        $aiProvider = new DbalAiProviderTransformer()->transform([
+        $aiProvider = $this->transform($settings);
+
+        self::assertSame('mistral-large-latest', $aiProvider->defaultModel()->value);
+        self::assertSame($defaultModelReasoning, $aiProvider->defaultModelReasoning());
+        self::assertSame($fastModelReasoning, $aiProvider->fastModelReasoning());
+    }
+
+    public function testAnUnknownReasoningValueFailsLikeAnUnknownType(): void
+    {
+        // read as another value, it would be overwritten on the next save
+        $this->expectException(\ValueError::class);
+
+        $this->transform(['default_model_reasoning' => 'high']);
+    }
+
+    /**
+     * @param array<string, string|null> $settings
+     */
+    private function transform(array $settings): AiProvider
+    {
+        return new DbalAiProviderTransformer()->transform([
             'ap_id' => '1',
             'ap_type' => 'mistral',
             'ap_name' => 'Mistral',
@@ -79,9 +100,5 @@ final class DbalAiProviderTransformerTest extends TestCase
                 ...$settings,
             ], \JSON_THROW_ON_ERROR),
         ]);
-
-        self::assertSame('mistral-large-latest', $aiProvider->defaultModel()->value);
-        self::assertSame($defaultModelReasoning, $aiProvider->defaultModelReasoning());
-        self::assertSame($fastModelReasoning, $aiProvider->fastModelReasoning());
     }
 }
