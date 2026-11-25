@@ -927,7 +927,9 @@ cmd_modules() {
   # The 4 modules, installed by the container flow (installBakedModules.php).
   for m in $MOD_NAMES; do
     row=$(sql centreon "SELECT mod_release FROM modules_informations WHERE name='$m'")
-    [[ "$row" == "$MOD_RELEASE" ]] && record "modules: $m installed" ok "$row" || record "modules: $m installed" ko "${row:-absent}"
+    # autodiscovery moves to the unencoded disco-modules build (develop version): any release.
+    if [[ "$m" == centreon-autodiscovery-server ]]; then [[ -n "$row" ]]; else [[ "$row" == "$MOD_RELEASE" ]]; fi \
+      && record "modules: $m installed" ok "$row" || record "modules: $m installed" ko "${row:-absent}"
   done
 
   # Pages and APIs.
