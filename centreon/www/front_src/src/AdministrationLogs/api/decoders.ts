@@ -57,10 +57,11 @@ const activityLogDecoder = JsonDecoder.object<ActivityLog>(
     date: JsonDecoder.string,
     hasChanges: JsonDecoder.boolean,
     id: JsonDecoder.number,
-    target: targetDecoder
+    target: targetDecoder,
+    tokenName: JsonDecoder.optional(JsonDecoder.nullable(JsonDecoder.string))
   },
   'Activity log',
-  { hasChanges: 'has_changes' }
+  { hasChanges: 'has_changes', tokenName: 'token_name' }
 );
 
 const namedActorDecoder = JsonDecoder.object<{ id: number; name: string }>(
@@ -109,4 +110,18 @@ export const actorsDecoder = buildListingDecoder({
   entityDecoder: namedActorDecoder,
   entityDecoderName: 'Actor',
   listingDecoderName: 'Actors'
+});
+
+const tokenDecoder = JsonDecoder.object<{ name: string }>(
+  {
+    name: JsonDecoder.string
+  },
+  'Token'
+);
+
+export const tokensDecoder = buildListingDecoder({
+  apiFormat: 'JSON-LD',
+  entityDecoder: tokenDecoder,
+  entityDecoderName: 'Token',
+  listingDecoderName: 'Tokens'
 });

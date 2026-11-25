@@ -13,7 +13,7 @@ import PeriodFilter from './Filters/PeriodFilter';
 import Listing from './Listing/Listing';
 import type { ActivityLog } from './models';
 import SidePanelLayout from './SidePanel/SidePanelLayout';
-import { labelLogs, labelLogsDescription } from './translatedLabels';
+import { labelAuditLogs, labelLogsDescription } from './translatedLabels';
 import { useActivityLogsQueryParameters } from './useActivityLogsQueryParameters';
 import { useSelectedLog } from './useSelectedLog';
 import {
@@ -54,7 +54,7 @@ const AdministrationLogsPage = (): JSX.Element => {
             <PageHeader.Title
               description={t(labelLogsDescription)}
               descriptionPosition="inline"
-              title={t(labelLogs)}
+              title={t(labelAuditLogs)}
             />
           </PageHeader.Main>
         </PageHeader>

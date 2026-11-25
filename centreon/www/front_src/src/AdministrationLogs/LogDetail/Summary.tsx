@@ -14,6 +14,7 @@ import { useTranslation } from 'react-i18next';
 
 import Author from '../Author';
 import type { ActivityLog } from '../models';
+import TokenName from '../TokenName';
 import {
   labelAuthor,
   labelDate,
@@ -57,7 +58,7 @@ const Summary = ({ log }: Props): JSX.Element => {
   const { timezone } = useAtomValue(userAtom);
   const getParentLabel = useTargetParentLabel();
 
-  const { actor, date, id, target } = log;
+  const { actor, date, id, target, tokenName } = log;
   const localDate = dayjs(date).tz(timezone).locale(locale);
   const parentLabel = getParentLabel(target);
 
@@ -73,7 +74,10 @@ const Summary = ({ log }: Props): JSX.Element => {
         </Typography>
       </Item>
       <Item label={t(labelAuthor)}>
-        <Author actor={actor} />
+        <div className="flex min-w-0 flex-col">
+          <Author actor={actor} />
+          {tokenName && <TokenName name={tokenName} />}
+        </div>
       </Item>
       <Item label={t(labelObjectType)}>
         <Typography variant="body2">

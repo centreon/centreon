@@ -63,6 +63,13 @@ use App\ActivityLogging\Infrastructure\ApiPlatform\State\ListActivityLogsProvide
                 schema: ['type' => 'array', 'items' => ['type' => 'integer']],
             ),
             new Model\Parameter(
+                name: 'token_name[]',
+                in: 'query',
+                description: 'Filter by the name of the API token the change was made with (exact match)',
+                required: false,
+                schema: ['type' => 'array', 'items' => ['type' => 'string']],
+            ),
+            new Model\Parameter(
                 name: 'target_type[]',
                 in: 'query',
                 description: 'Filter by target type',
@@ -169,6 +176,12 @@ final class ActivityLogResource
 
         #[ApiProperty(description: 'Whether field changes were recorded for this log')]
         public bool $hasChanges,
+
+        #[ApiProperty(
+            description: 'Name of the API token the change was made with, null for a change made from the UI',
+            openapiContext: ['example' => 'ci-deploy'],
+        )]
+        public ?string $tokenName = null,
     ) {
     }
 }

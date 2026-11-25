@@ -4,6 +4,7 @@ import { useLocale } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
 import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
 import { useAtomValue } from 'jotai';
@@ -13,6 +14,7 @@ import { labelToday, labelYesterday } from '../translatedLabels';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
+dayjs.extend(relativeTime);
 
 const dayKeyFormat = 'YYYY-MM-DD';
 
@@ -49,6 +51,10 @@ const DayHeader = ({ date, sticky = true }: Props): JSX.Element => {
     return day.format(day.isSame(today, 'year') ? 'dddd D MMMM' : 'dddd LL');
   };
 
+  const isRecent = day.isAfter(today.subtract(2, 'day').endOf('day'));
+  // Day to day, so every log of the group is the same number of days ago
+  const daysAgo = day.startOf('day').from(today.startOf('day'));
+
   return (
     <div
       className={
@@ -62,6 +68,7 @@ const DayHeader = ({ date, sticky = true }: Props): JSX.Element => {
         variant="body2"
       >
         {getLabel()}
+        {!isRecent && <span className="font-normal"> · {daysAgo}</span>}
       </Typography>
     </div>
   );

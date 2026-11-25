@@ -41,6 +41,9 @@ final class ActivityLogCriteria implements PaginableCriteria
     /** @var list<int> */
     private array $actorIds = [];
 
+    /** @var list<string> */
+    private array $tokenNames = [];
+
     /** @var list<TargetTypeEnum> */
     private array $targetTypes = [];
 
@@ -74,6 +77,19 @@ final class ActivityLogCriteria implements PaginableCriteria
 
         $new = clone $this;
         $new->actorIds = array_values(array_unique([...$this->actorIds, $actorId]));
+
+        return $new;
+    }
+
+    /**
+     * Exact match on the name of the API token the change was made with.
+     */
+    public function withTokenName(string $tokenName): self
+    {
+        Assert::notEmpty($tokenName);
+
+        $new = clone $this;
+        $new->tokenNames = array_values(array_unique([...$this->tokenNames, $tokenName]));
 
         return $new;
     }
@@ -147,6 +163,14 @@ final class ActivityLogCriteria implements PaginableCriteria
     public function getActorIds(): array
     {
         return $this->actorIds;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function getTokenNames(): array
+    {
+        return $this->tokenNames;
     }
 
     /**

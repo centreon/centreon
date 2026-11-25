@@ -18,13 +18,14 @@ import TypeColumn from './Columns/TypeColumn';
 export const useColumns = (): Array<Column> => {
   const { t } = useTranslation();
 
+  // Only the object takes the free space, the other columns fit their content
   const objectColumns: Array<Column> = [
     {
       Component: TypeColumn,
       id: 'target_type',
       label: t(labelObjectType),
       type: ColumnType.component,
-      width: 'minmax(120px, 0.5fr)'
+      width: 'minmax(120px, max-content)'
     },
     {
       Component: ObjectColumn,
@@ -42,7 +43,7 @@ export const useColumns = (): Array<Column> => {
       label: t(labelDate),
       sortable: true,
       type: ColumnType.component,
-      width: 'minmax(140px, 0.5fr)'
+      width: 'max-content'
     },
     {
       Component: ActionColumn,
@@ -59,7 +60,7 @@ export const useColumns = (): Array<Column> => {
       id: 'author',
       label: t(labelAuthor),
       type: ColumnType.component,
-      width: 'minmax(140px, 0.5fr)'
+      width: 'minmax(140px, max-content)'
     }
   ];
 };

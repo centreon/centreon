@@ -1,4 +1,4 @@
-export const labelLogs = 'Logs';
+export const labelAuditLogs = 'Audit Logs';
 export const labelLogsDescription =
   'Track the configuration changes made on your platform.';
 export const labelSearchObjectName = 'Search by object name';
@@ -88,3 +88,5 @@ export const labelTargetTypes: Record<string, string> = {
   TimePeriod: 'Time period',
   Trap: 'SNMP trap'
 };
+export const labelViaToken = 'via {{token}}';
+export const labelApiToken = 'API token';

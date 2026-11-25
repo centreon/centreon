@@ -45,6 +45,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *     object_name: string|null,
  *     action_type: string,
  *     log_contact_id: int|string|null,
+ *     token_name: string|null,
  *     has_changes: int|string
  * }
  */
@@ -146,6 +147,21 @@ final readonly class DbalActivityLogReadRepository implements ActivityLogReadRep
         return array_map(static fn (mixed $actorId): int => is_numeric($actorId) ? (int) $actorId : 0, $qb->executeQuery()->fetchFirstColumn());
     }
 
+    public function findTokenNames(): array
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('DISTINCT l.token_name')
+            ->from(self::TABLE_NAME, 'l')
+            ->where($qb->expr()->isNotNull('l.token_name'))
+            ->andWhere("l.token_name <> ''")
+            ->orderBy('l.token_name', 'ASC');
+
+        /** @var list<string> $tokenNames */
+        $tokenNames = $qb->executeQuery()->fetchFirstColumn();
+
+        return $tokenNames;
+    }
+
     /**
      * Same decoding as the legacy viewLogs.php: names were stored HTML-encoded, slash-escaped,
      * with "/" and "\" replaced by placeholders.
@@ -168,6 +184,7 @@ final readonly class DbalActivityLogReadRepository implements ActivityLogReadRep
             'l.object_name',
             'l.action_type',
             'l.log_contact_id',
+            'l.token_name',
             sprintf('EXISTS (SELECT 1 FROM %s m WHERE m.action_log_id = l.action_log_id) AS has_changes', self::DETAIL_TABLE_NAME),
         )
             ->from(self::TABLE_NAME, 'l')
@@ -192,6 +209,11 @@ final readonly class DbalActivityLogReadRepository implements ActivityLogReadRep
         if (($actorIds = $criteria->getActorIds()) !== []) {
             $qb->andWhere('l.log_contact_id IN (:actorIds)')
                 ->setParameter('actorIds', $actorIds, ArrayParameterType::INTEGER);
+        }
+
+        if (($tokenNames = $criteria->getTokenNames()) !== []) {
+            $qb->andWhere('l.token_name IN (:tokenNames)')
+                ->setParameter('tokenNames', $tokenNames, ArrayParameterType::STRING);
         }
 
         if (($targetTypes = $criteria->getTargetTypes()) !== []) {
@@ -248,6 +270,7 @@ final readonly class DbalActivityLogReadRepository implements ActivityLogReadRep
                 targetName: self::decodeName($row['object_name'] ?? ''),
                 actorId: $actorId !== null && $actorId > 0 ? $actorId : null,
                 hasChanges: (bool) $row['has_changes'],
+                tokenName: $row['token_name'],
             );
         }
 

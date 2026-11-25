@@ -12,12 +12,13 @@ import { isEmpty, pick, reject } from 'ramda';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { actorsDecoder } from '../api/decoders';
-import { actorsEndpoint } from '../api/endpoints';
+import { actorsDecoder, tokensDecoder } from '../api/decoders';
+import { actorsEndpoint, tokensEndpoint } from '../api/endpoints';
 import { filtersAtom, pageAtom } from '../atoms';
 import { Action, type Filters } from '../models';
 import {
   labelAction,
+  labelApiToken,
   labelClear,
   labelObjectType,
   labelSearch,
@@ -26,12 +27,13 @@ import {
 } from '../translatedLabels';
 import { actionLabels } from '../utils';
 
-type MultiFilterKey = 'actions' | 'actors' | 'targetTypes';
+type MultiFilterKey = 'actions' | 'actors' | 'targetTypes' | 'tokens';
 
 type AdvancedFiltersValues = Pick<Filters, MultiFilterKey>;
 
 const multiFilterKeys: Array<MultiFilterKey> = [
   'actors',
+  'tokens',
   'targetTypes',
   'actions'
 ];
@@ -39,7 +41,8 @@ const multiFilterKeys: Array<MultiFilterKey> = [
 const emptyAdvancedFilters: AdvancedFiltersValues = {
   actions: [],
   actors: [],
-  targetTypes: []
+  targetTypes: [],
+  tokens: []
 };
 
 interface Props {
@@ -67,6 +70,18 @@ const AdvancedFilters = ({ close }: Props): JSX.Element => {
 
   const actorOptions: Array<SelectEntry> = (actors?.result ?? []).map(
     ({ id, name }) => ({ id, name })
+  );
+
+  const { data: tokens } = useFetchQuery({
+    decoder: tokensDecoder,
+    getEndpoint: () => tokensEndpoint,
+    getQueryKey: () => ['activity-log-tokens'],
+    queryOptions: { suspense: false }
+  });
+
+  // The name is the id: the filter matches on it
+  const tokenOptions: Array<SelectEntry> = (tokens?.result ?? []).map(
+    ({ name }) => ({ id: name, name })
   );
 
   const targetTypeOptions: Array<SelectEntry> = Object.entries(
@@ -127,6 +142,14 @@ const AdvancedFilters = ({ close }: Props): JSX.Element => {
         onChange={changeMulti('actors')}
         options={actorOptions}
         value={values.actors}
+      />
+      <MultiAutocompleteField
+        chipProps={getChipProps('tokens')}
+        dataTestId={labelApiToken}
+        label={t(labelApiToken)}
+        onChange={changeMulti('tokens')}
+        options={tokenOptions}
+        value={values.tokens}
       />
       <MultiAutocompleteField
         chipProps={getChipProps('targetTypes')}

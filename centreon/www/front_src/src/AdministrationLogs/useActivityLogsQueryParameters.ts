@@ -73,6 +73,10 @@ export const useActivityLogsQueryParameters = ({
         filters.actors.map(({ id }) => id)
       ),
       ...toArrayParameters(
+        'token_name[]',
+        filters.tokens.map(({ id }) => id)
+      ),
+      ...toArrayParameters(
         'target_type[]',
         filters.targetTypes.map(({ id }) => id)
       ),

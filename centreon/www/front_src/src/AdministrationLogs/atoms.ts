@@ -9,7 +9,8 @@ export const defaultFilters: Filters = {
   period: Period.All,
   search: '',
   targetTypes: [],
-  to: null
+  to: null,
+  tokens: []
 };
 
 export const filtersAtom = atom<Filters>(defaultFilters);

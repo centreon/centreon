@@ -42,6 +42,8 @@ export interface ActivityLog {
   hasChanges: boolean;
   id: number;
   target: Target;
+  // Name of the API token the change was made with, null when made from the UI
+  tokenName?: string | null;
 }
 
 export interface Change {
@@ -58,4 +60,5 @@ export interface Filters {
   search: string;
   targetTypes: Array<SelectEntry>;
   to: Date | null;
+  tokens: Array<SelectEntry>;
 }

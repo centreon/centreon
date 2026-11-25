@@ -5,7 +5,7 @@ import { any, propEq } from 'ramda';
 
 import { filtersAtom, pageAtom } from './atoms';
 
-type FilterKey = 'actions' | 'actors' | 'targetTypes';
+type FilterKey = 'actions' | 'actors' | 'targetTypes' | 'tokens';
 
 // Click to filter, as in the Okta system log: a value of a row is added to
 // the advanced filters

@@ -16,6 +16,7 @@ import AdvancedFilters from './AdvancedFilters';
 const countAdvancedFilters = (filters: FiltersModel): number =>
   [
     !isEmpty(filters.actors),
+    !isEmpty(filters.tokens),
     !isEmpty(filters.targetTypes),
     !isEmpty(filters.actions)
   ].filter(Boolean).length;

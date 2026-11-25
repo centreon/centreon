@@ -108,6 +108,10 @@ final readonly class ListActivityLogsProvider implements ProviderInterface
             $criteria = $criteria->withActorId((int) $this->handlePositiveIntFilter($actorId, 'actor_id'));
         }
 
+        foreach ($this->listFilter($filters, 'token_name') as $tokenName) {
+            $criteria = $criteria->withTokenName($tokenName);
+        }
+
         foreach ($this->listFilter($filters, 'target_type') as $targetType) {
             $criteria = $criteria->withTargetType(
                 TargetTypeEnum::tryFrom($targetType)
@@ -242,6 +246,7 @@ final readonly class ListActivityLogsProvider implements ProviderInterface
                         ? new ActivityLogActorOutput($entry->actorId, $actorNames[$entry->actorId] ?? null)
                         : null,
                     hasChanges: $entry->hasChanges,
+                    tokenName: $entry->tokenName,
                 );
             },
             $entries,

@@ -36,6 +36,7 @@ final class ActivityLogLegacyApiAliasOperations implements LegacyApiAliasOperati
             '_api_/administration/activity-logs_get_collection',
             '_api_/administration/activity-logs/{id}/changes_get_collection',
             '_api_/administration/activity-logs/actors_get_collection',
+            '_api_/administration/activity-logs/tokens_get_collection',
         ];
     }
 }

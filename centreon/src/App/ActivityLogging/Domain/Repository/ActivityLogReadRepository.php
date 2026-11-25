@@ -57,4 +57,11 @@ interface ActivityLogReadRepository
      * @return list<int>
      */
     public function findActorIds(): array;
+
+    /**
+     * The distinct names of the API tokens at least one logged change was made with, sorted by name.
+     *
+     * @return list<string>
+     */
+    public function findTokenNames(): array;
 }

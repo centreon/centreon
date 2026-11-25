@@ -165,6 +165,7 @@ CREATE TABLE `log_action` (
   `object_name` varchar(255) NOT NULL,
   `action_type` varchar(255) NOT NULL,
   `log_contact_id` int(11) DEFAULT NULL,
+  `token_name` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`action_log_id`),
   KEY `log_contact_id` (`log_contact_id`),
   KEY `action_log_date` (`action_log_date`),

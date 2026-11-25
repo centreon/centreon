@@ -24712,6 +24712,14 @@ msgstr "Lorsque les services héritent uniquement des contacts et groupes de con
 msgid "Track the configuration changes made on your platform."
 msgstr "Suivez les modifications de configuration effectuées sur votre plateforme."
 
+#: centreon/www/install/insertTopology.sql, centreon/www/front_src/src/AdministrationLogs/translatedLabels.ts
+msgid "Audit Logs"
+msgstr "Journaux d'audit"
+
+#: centreon/www/front_src/src/AdministrationLogs/translatedLabels.ts
+msgid "via {{token}}"
+msgstr "via {{token}}"
+
 msgid "Search by object name"
 msgstr "Rechercher par nom d'objet"
 

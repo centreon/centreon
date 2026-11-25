@@ -44,6 +44,8 @@ final readonly class ActivityLogEntry
         public string $targetName,
         public ?int $actorId,
         public bool $hasChanges,
+        // Name of the API token the change was made with, null when made from the UI
+        public ?string $tokenName = null,
     ) {
     }
 }
