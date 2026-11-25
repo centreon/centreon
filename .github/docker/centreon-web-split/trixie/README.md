@@ -970,6 +970,27 @@ removed, this stack's own `db` never touched).
 
 ### T0 baked-in modules (Autodiscovery, License Manager, IT Edition, PP Manager)
 
+**Update (MON-215450 phase 3 P0, gorgone-less PoC).** The modules were
+removed from the PoC images (135d342a93) and are now baked in again, from the
+public **stable** suite `packages.centreon.com/apt-standard`
+`trixie-26.10-stable`, all 4 at `26.10.1-1+deb13u1`. Autodiscovery comes from
+that suite too, not from the centreon-autodisco image. apt-unstable only keeps
+the latest build of each package, so the exact versions pinned below vanished
+from it and broke the build; the stable pool keeps every release. Without
+gorgone:
+- the module install (`installBakedModules.php`) needs no gorgone: SQL install
+  and a cache clear only;
+- the gorgone files of autodiscovery (`41-autodiscovery.yaml`, the
+  `41-service-discovery` cron) are not shipped;
+- every autodiscovery action that calls gorgone (job create, update, pause,
+  delete, run now, manual save, service scan) fails cleanly: the job is set
+  FAILED. Phase 3 P1 to P3 replace them with a worker and the cbd exec channel
+  (contracts.md § 12);
+- local run: drop the license file (`epp.license`) into the
+  `centreon-license` volume (`/etc/centreon/license.d`).
+
+The text below describes the original T0 setup.
+
 **Fetched via `apt-get download` against Centreon's real signed apt repo
 (2026-10-01, SEC-09 fix)**, not plain `curl`: the `modules_fetcher` stage
 imports `apt-key.centreon.com`'s GPG key, adds

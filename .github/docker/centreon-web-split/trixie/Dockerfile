@@ -114,6 +114,81 @@ bash build.sh "${CENTREON_MAJOR_VERSION}" "${CENTREON_MINOR_VERSION}" unstable
 EOF
 
 #############################################
+# Stage 2b: T0 baked-in modules (License Manager, PP Manager/Monitoring
+# Connector Manager, Autodiscovery, IT Edition extensions) + the
+# SourceGuardian loader their PHP code needs to even run (they're not plain
+# PHP — every one declares `Pre-Depends: php8.4-sourceguardian-loader` and
+# `License: Proprietary`). Pulled from Centreon's own signed apt repo since
+# none of these are vendored in this monorepo.
+#
+# MON-215450 phase 3 P0 (gorgone-less PoC): re-baked after 135d342a93 had
+# removed them, from the public **stable** suite this time
+# (apt-standard trixie-26.10-stable): its pool keeps every released version,
+# while apt-unstable only keeps the latest build (the previously pinned
+# 26.10.2 builds vanished from it, which broke the build). Autodiscovery comes
+# from the same suite as the 3 others instead of the centreon-autodisco
+# image. Pinned exact versions, verified by apt (GPG + hash) through
+# `apt-get download` (not `install`: only the files are wanted, no postinst).
+#
+# Known, accepted risk: every module's control file declares
+# `Depends: centreon-web (>= 26.10~) (<< 26.11~)`, older than this codebase.
+# Extracting the file trees (not `dpkg -i`) does not enforce it; the compose
+# smoke test and the gated e2e `modules` step are what prove the
+# combination. Only usr/share/centreon is copied forward: the gorgone
+# configuration the autodiscovery package ships (41-autodiscovery.yaml, the
+# 41-service-discovery cron) and logrotate files are left out.
+#############################################
+FROM debian:trixie-slim AS modules_fetcher
+
+# Interim fix (MON-213836 tracks the real one, owned by centreon-autodisco):
+# Centreon's own php8.4-sourceguardian-loader .deb is amd64-only. arm64
+# vendors the official SourceGuardian loader archive (sha256-verified),
+# installed at the exact same path the .deb would have used.
+ARG TARGETARCH
+ARG CENTREON_APT_SUITE=trixie-26.10-stable
+ARG SOURCEGUARDIAN_LOADER_VERSION=8.4-1+deb13u1
+ARG SOURCEGUARDIAN_LOADER_ARM64_SHA256=85123735697faafc6adcaae7a4e9b093bcff1eec8708d0ed671c64c16171c411
+ARG LICENSE_MANAGER_VERSION=26.10.1-1+deb13u1
+ARG PP_MANAGER_VERSION=26.10.1-1+deb13u1
+ARG AUTODISCOVERY_VERSION=26.10.1-1+deb13u1
+ARG IT_EDITION_VERSION=26.10.1-1+deb13u1
+
+WORKDIR /modules
+
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
+    bash -eo pipefail <<'EOF'
+apt-get update
+apt-get install -y --no-install-recommends curl ca-certificates gnupg
+curl -sfL https://apt-key.centreon.com/ | gpg --dearmor > /etc/apt/trusted.gpg.d/centreon.gpg
+echo "deb https://packages.centreon.com/apt-standard/ ${CENTREON_APT_SUITE} main" \
+  > /etc/apt/sources.list.d/centreon-stable.list
+apt-get update
+mkdir -p extracted
+modules=(
+  "centreon-license-manager=${LICENSE_MANAGER_VERSION}"
+  "centreon-pp-manager=${PP_MANAGER_VERSION}"
+  "centreon-auto-discovery-server=${AUTODISCOVERY_VERSION}"
+  "centreon-it-edition-extensions=${IT_EDITION_VERSION}"
+)
+if [ "${TARGETARCH}" = "amd64" ]; then
+  apt-get download "php8.4-sourceguardian-loader=${SOURCEGUARDIAN_LOADER_VERSION}" "${modules[@]}"
+else
+  apt-get download "${modules[@]}"
+fi
+for deb in *.deb; do dpkg-deb -x "$deb" extracted; done
+if [ "${TARGETARCH}" != "amd64" ]; then
+  curl -sfLo /tmp/sg.tgz https://www.sourceguardian.com/loaders/download/loaders.linux-aarch64.tar.gz
+  tar -xzf /tmp/sg.tgz -C /tmp ixed.8.4.lin
+  echo "${SOURCEGUARDIAN_LOADER_ARM64_SHA256}  /tmp/ixed.8.4.lin" | sha256sum -c -
+  install -D -m 644 /tmp/ixed.8.4.lin extracted/usr/lib/php/20240924/ixed.8.4.lin
+fi
+for module in centreon-license-manager centreon-pp-manager centreon-autodiscovery-server centreon-it-edition-extensions; do
+  test -f "extracted/usr/share/centreon/www/modules/${module}/conf.php" || { echo "missing module ${module}" >&2; exit 1; }
+done
+EOF
+
+#############################################
 # Plugin packs (centreon-pack-*): the JSON definitions centreon-pp-manager
 # lists and installs from /usr/share/centreon-packs/ (EMS_PP_PATH, a plain
 # glob of *.json, no dpkg lookup). Each package holds one JSON file and no
@@ -230,6 +305,12 @@ xargs -0 -r sed -i \
 rm -f /tmp/all-files /tmp/macro-files
 EOF
 
+# T0 baked-in modules (see modules_fetcher above) —
+# already fully macro-resolved by Centreon's own package build, nothing
+# left to substitute here. Lands in the exact same tree the partition step
+# below already scans, so module static assets reach httpd the same way
+# core www/ files do, no module-specific logic needed there.
+COPY --from=modules_fetcher --link /modules/extracted/usr/share/centreon/ .
 
 # Source maps for production JS/CSS — 106MB on their own (confirmed by
 # `find ... -name '*.map' | du -ch`, bigger than every other dead-weight
@@ -474,6 +555,19 @@ COPY --from=fpm_extensions --link /usr/local/etc/php/conf.d/ /usr/local/etc/php/
 COPY --from=app_assembler --chown=www-data:www-data \
     /usr/share/centreon /usr/share/centreon
 
+# SourceGuardian loader the 4 baked-in T0 modules need to run their
+# (proprietary, SourceGuardian-encoded) PHP at all — see modules_fetcher
+# above. Own path + own ini rather than the package's own Debian-convention
+# one (bare "zend_extension = ixed.8.4.lin", resolved against php.ini's
+# extension_dir): the official php:8.4-fpm image doesn't use Debian's
+# /etc/php/8.4/... layout, so a full absolute path here avoids depending on
+# this base image's own extension_dir naming.
+COPY --from=modules_fetcher --link /modules/extracted/usr/lib/php/20240924/ixed.8.4.lin \
+    /usr/local/lib/php-sourceguardian/ixed.8.4.lin
+COPY --chown=www-data:www-data <<EOF /usr/local/etc/php/conf.d/sourceguardian.ini
+zend_extension = /usr/local/lib/php-sourceguardian/ixed.8.4.lin
+EOF
+
 # Plugin packs for centreon-pp-manager (see packs_fetcher), read-only.
 COPY --from=packs_fetcher --link /packs/extracted/usr/share/centreon-packs/ \
     /usr/share/centreon-packs/
@@ -495,6 +589,7 @@ if grep -i 'warning' <<<"$mods"; then echo "PHP startup warning" >&2; exit 1; fi
 for ext in gd gettext gnupg intl ldap mysqli pcntl pdo_mysql redis snmp sysvsem zip; do
   grep -qix "$ext" <<<"$mods" || { echo "$ext extension not loaded" >&2; exit 1; }
 done
+grep -qi 'SourceGuardian' <<<"$(php -v)" || { echo "SourceGuardian loader not active" >&2; exit 1; }
 EOF
 
 COPY --chown=www-data:www-data .github/docker/centreon-web-split/trixie/configuration/fpm/centreon.ini.template \
@@ -830,9 +925,22 @@ EOF
 COPY --from=app_cron --chown=www-data:www-data \
     /usr/share/centreon /usr/share/centreon
 
+# Same SourceGuardian loader as fpm (see that stage for the full story) —
+# needed here too, found only by waiting for a real scheduled run:
+# centKnowledgeSynchronizer.php's own DI container bootstrap autoloads
+# CentreonAutoDiscovery\ServiceProvider (a T0 module's SourceGuardian-encoded
+# class) regardless of what that specific job actually does, same shared
+# legacy bootstrap as fpm. gnupg (fpm's other PECL extension) is NOT needed
+# here — nothing in the cron jobs touches license upload/verification.
+# Debian's own extension dir (API 20240924) and CLI conf.d.
+COPY --from=modules_fetcher --link /modules/extracted/usr/lib/php/20240924/ixed.8.4.lin \
+    /usr/lib/php/20240924/ixed.8.4.lin
+COPY <<EOF /etc/php/8.4/cli/conf.d/05-sourceguardian.ini
+zend_extension = /usr/lib/php/20240924/ixed.8.4.lin
+EOF
 # Build-time check: the same PHP modules as the official-image build this
 # replaced (a missing one only shows up when a job hits it), no startup
-# warning. MON-215450 PoC: package-less, no SourceGuardian modules.
+# warning, SourceGuardian active.
 RUN bash -eo pipefail <<'EOF'
 mods=$(php -m 2>&1)
 if grep -i 'warning' <<<"$mods"; then echo "PHP startup warning" >&2; exit 1; fi
@@ -842,6 +950,7 @@ for ext in ctype curl date dom fileinfo filter gd gettext hash iconv intl json \
     standard sysvsem tokenizer xml xmlreader xmlwriter zip zlib; do
   grep -qix "$ext" <<<"$mods" || { echo "$ext extension not loaded" >&2; exit 1; }
 done
+grep -qi 'SourceGuardian' <<<"$(php -v)" || { echo "SourceGuardian loader not active" >&2; exit 1; }
 EOF
 
 # Same install-fixture JSON fpm's own container.sh reads (www/install/tmp/
