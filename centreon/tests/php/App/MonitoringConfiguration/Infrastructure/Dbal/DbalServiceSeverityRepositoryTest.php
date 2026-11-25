@@ -77,6 +77,16 @@ final class DbalServiceSeverityRepositoryTest extends KernelTestCase
         self::assertSame(["severity-{$this->tag}"], $names);
     }
 
+    public function testItReadsTheLevel(): void
+    {
+        $this->insertSeverity("sev-{$this->tag}", level: -5);
+
+        $result = iterator_to_array($this->repository->findAll(ServiceSeverityCriteria::unscoped()->withName($this->tag)));
+
+        self::assertCount(1, $result);
+        self::assertSame(-5, $result[0]->level->value);
+    }
+
     public function testItIncludesDisabledSeverities(): void
     {
         $this->insertSeverity("enabled-{$this->tag}");
@@ -191,6 +201,31 @@ final class DbalServiceSeverityRepositoryTest extends KernelTestCase
         self::assertSame("sev-{$this->tag}", $this->repository->findNameById(new ServiceSeverityId($severityId))?->value);
     }
 
+    public function testFindByIdResolvesASeverityDisabledOrNot(): void
+    {
+        $severityId = $this->insertSeverity("sev-{$this->tag}", activate: '0', level: 7);
+
+        $severity = $this->repository->findById(new ServiceSeverityId($severityId));
+
+        self::assertNotNull($severity);
+        self::assertSame(
+            [$severityId, "sev-{$this->tag}", 7],
+            [$severity->id()->value, $severity->name->value, $severity->level->value],
+        );
+    }
+
+    public function testFindByIdIgnoresACategoryAnUnknownAndANamelessId(): void
+    {
+        $categoryId = $this->insertCategory("cat-{$this->tag}");
+        $nullNameId = $this->insertSeverity(null);
+        $emptyNameId = $this->insertSeverity('');
+
+        self::assertNull($this->repository->findById(new ServiceSeverityId($categoryId)));
+        self::assertNull($this->repository->findById(new ServiceSeverityId($nullNameId)));
+        self::assertNull($this->repository->findById(new ServiceSeverityId($emptyNameId)));
+        self::assertNull($this->repository->findById(new ServiceSeverityId($emptyNameId + 1000000)));
+    }
+
     public function testFindNameByIdIgnoresACategoryAnUnknownAndANamelessId(): void
     {
         $categoryId = $this->insertCategory("cat-{$this->tag}");
@@ -239,13 +274,13 @@ final class DbalServiceSeverityRepositoryTest extends KernelTestCase
         return (int) $this->connection->lastInsertId();
     }
 
-    private function insertSeverity(?string $name, string $activate = '1'): int
+    private function insertSeverity(?string $name, string $activate = '1', int $level = 1): int
     {
         // a service category carrying a level is a service severity
         $this->connection->insert('service_categories', [
             'sc_name' => $name,
             'sc_description' => $name,
-            'level' => 1,
+            'level' => $level,
             'sc_activate' => $activate,
         ]);
 

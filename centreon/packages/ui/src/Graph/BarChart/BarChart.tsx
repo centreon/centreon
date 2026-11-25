@@ -40,6 +40,7 @@ export interface BarChartProps
       | 'timeShiftZones'
       | 'zoomPreview'
       | 'annotationEvent'
+      | 'timeAreas'
     >
   > {
   barStyle?: BarStyle;
@@ -87,7 +88,8 @@ const BarChart = ({
   boundariesUnit,
   zoomPreview,
   timeShiftZones,
-  annotationEvent
+  annotationEvent,
+  timeAreas
 }: BarChartProps): ReactElement => {
   // @ts-expect-error - suppressing pre-existing type mismatch
   const { adjustedData } = useChartData({ data, end, max, min, start });
@@ -132,6 +134,7 @@ const BarChart = ({
             start={start}
             thresholds={thresholds}
             thresholdUnit={thresholdUnit}
+            timeAreas={timeAreas}
             timeShiftZones={timeShiftZones}
             tooltip={tooltip}
             width={width || 0}

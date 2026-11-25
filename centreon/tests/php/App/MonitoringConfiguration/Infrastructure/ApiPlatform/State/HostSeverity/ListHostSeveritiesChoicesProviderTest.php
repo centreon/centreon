@@ -89,7 +89,7 @@ final class ListHostSeveritiesChoicesProviderTest extends ApiTestCase
     public function testItListsHostSeveritiesForAUserGrantedTheHostReadWriteTopologyRole(): void
     {
         $name = "hostsev-{$this->tag}";
-        $this->insertHostSeverity($name);
+        $this->insertHostSeverity($name, level: 3);
 
         $username = bin2hex(random_bytes(8));
         $contactId = $this->createNonAdminContact($username);
@@ -106,7 +106,8 @@ final class ListHostSeveritiesChoicesProviderTest extends ApiTestCase
         $member = $response->toArray()['member'];
         self::assertSame([$name], array_column($member, 'name'));
         $keys = array_keys($member[0]);
-        self::assertSame([], array_diff($keys, ['@id', '@type', 'id', 'name']));
+        self::assertEqualsCanonicalizing(['@id', '@type', 'id', 'name', 'level'], $keys);
+        self::assertSame(3, $member[0]['level']);
     }
 
     public function testItExcludesCategoriesFromListing(): void

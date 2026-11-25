@@ -2,7 +2,7 @@ import { InputType } from '@centreon/ui';
 
 import type { TFunction } from 'i18next';
 import { JsonDecoder } from 'ts.data.json';
-import { string } from 'yup';
+import { type ObjectShape, string } from 'yup';
 
 import { getBlock } from '../../../ResourceForm/grid';
 import type { FieldBlock, ResourceOptions } from '../../../ResourceForm/models';
@@ -57,35 +57,46 @@ export const getHostTemplateIdentityBlock = ({
     ),
     name: JsonDecoder.string
   },
-  getInputs: ({ t }) => ({
-    basicInformation: getBlock({
-      // The design's four-column identity row, two of its fields removed.
-      className: 'grid-cols-4',
-      columns: [
-        {
-          dataTestId: `${idPrefix}-name`,
-          fieldName: 'name',
-          label: t(labelName),
-          required: true,
-          type: InputType.Text
+  // Name and alias belong to one template: a mass change has neither.
+  getInputs: ({ isMassChange, t }) =>
+    isMassChange
+      ? {}
+      : {
+          basicInformation: getBlock({
+            // The design's four-column identity row, two of its fields removed.
+            className: 'grid-cols-4',
+            columns: [
+              {
+                dataTestId: `${idPrefix}-name`,
+                fieldName: 'name',
+                label: t(labelName),
+                required: true,
+                type: InputType.Text
+              },
+              {
+                dataTestId: `${idPrefix}-alias`,
+                fieldName: 'alias',
+                label: t(labelAlias),
+                required: true,
+                type: InputType.Text
+              }
+            ],
+            idPrefix,
+            name: 'basic-information',
+            title: t(labelHostBasicInformation)
+          })
         },
-        {
-          dataTestId: `${idPrefix}-alias`,
-          fieldName: 'alias',
-          label: t(labelAlias),
-          required: true,
-          type: InputType.Text
-        }
-      ],
-      idPrefix,
-      name: 'basic-information',
-      title: t(labelHostBasicInformation)
-    })
-  }),
-  getSchema: ({ t }) => ({
-    alias: getTrimmedSchema({ label: labelAlias, max: aliasMaxLength, t }),
-    name: getTrimmedSchema({ label: labelName, max: nameMaxLength, t })
-  }),
+  getSchema: ({ isMassChange, t }): ObjectShape =>
+    isMassChange
+      ? {}
+      : {
+          alias: getTrimmedSchema({
+            label: labelAlias,
+            max: aliasMaxLength,
+            t
+          }),
+          name: getTrimmedSchema({ label: labelName, max: nameMaxLength, t })
+        },
   toPayload: (values) => {
     const { alias, name } = values as { alias?: string; name?: string };
 

@@ -27,7 +27,6 @@ use Centreon\Domain\Acknowledgement\Acknowledgement;
 use Centreon\Domain\Acknowledgement\Interfaces\AcknowledgementRepositoryInterface;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Entity\EntityCreator;
-use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
@@ -79,9 +78,6 @@ final class AcknowledgementRepositoryRDB extends AbstractRepositoryDRB implement
     ) {
         $this->db = $db;
         $this->sqlRequestTranslator = $sqlRequestTranslator;
-        $this->sqlRequestTranslator
-            ->getRequestParameters()
-            ->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
         $this->serviceConcordanceArray = array_merge(
             $this->hostConcordanceArray,
             [

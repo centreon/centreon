@@ -42,6 +42,8 @@ export const INTERCEPTORS = {
     monitor_resources_details: '/monitor/api/latest/monitoring/resources/hosts/*/services/*'
   },
   pages: {
+    event_logs_export: '/centreon/include/eventLogs/export/data.php',
+    event_logs_search: '/centreon/include/eventLogs/xml/data.php',
     time_zone: '/centreon/include/common/userTimezone.php',
     monitor_time_zone: '/monitor/include/common/userTimezone.php',
     centreon_proxy: '/centreon/include/common/webServices/rest/internal.php?object=centreon_proxy',

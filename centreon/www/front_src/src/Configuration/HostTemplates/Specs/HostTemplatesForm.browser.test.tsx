@@ -1,5 +1,8 @@
 import Form from './HostTemplates.Form';
+import Advanced from './HostTemplates.Form.Advanced';
+import MonitoringEngine from './HostTemplates.Form.MonitoringEngine';
 import MonitoringProperties from './HostTemplates.Form.MonitoringProperties';
+import Notifications from './HostTemplates.Form.Notifications';
 import ParentTemplates from './HostTemplates.Form.ParentTemplates';
 import Relations from './HostTemplates.Form.Relations';
 
@@ -14,4 +17,7 @@ describe('Host templates configuration: ', () => {
   describe('Form: ', MonitoringProperties);
   describe('Form: ', ParentTemplates);
   describe('Form: ', Relations);
+  describe('Form: ', MonitoringEngine);
+  describe('Form: ', Notifications);
+  describe('Form: ', Advanced);
 });

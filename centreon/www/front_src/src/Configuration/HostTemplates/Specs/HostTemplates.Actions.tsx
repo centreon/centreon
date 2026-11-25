@@ -7,7 +7,8 @@ import { listingDataTestIds } from '../../ConfigurationBase/Listing/dataTestIds'
 import {
   labelActions,
   labelDelete,
-  labelDuplicate
+  labelDuplicate,
+  labelMassChange
 } from '../../ConfigurationBase/translatedLabels';
 import { labelName } from '../translatedLabels';
 import initialize, { getHeaderLabels } from './initialize';
@@ -85,7 +86,7 @@ export default () => {
       });
     });
 
-    it('offers duplicate and delete for a selection, and no activation', async () => {
+    it('offers duplicate, delete and mass change for a selection, and no activation', async () => {
       await initializeListing();
 
       await userEvent.click(screen.getByLabelText('Select row 1'));
@@ -96,7 +97,7 @@ export default () => {
         within(menu)
           .getAllByRole('menuitem')
           .map((entry) => entry.textContent)
-      ).toEqual([labelDuplicate, labelDelete]);
+      ).toEqual([labelDuplicate, labelDelete, labelMassChange]);
     });
 
     describe('Read-only user: ', () => {

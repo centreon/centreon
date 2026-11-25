@@ -9,14 +9,16 @@ interface UseValidationSchemaState {
 }
 
 const useValidationSchema = ({
-  isCloudPlatform
+  isCloudPlatform,
+  isMassChange = false
 }: {
   isCloudPlatform: boolean;
+  isMassChange?: boolean;
 }): UseValidationSchemaState => {
   const { t } = useTranslation();
 
   const validationSchema = object(
-    getSchemaShape(blocks, { isCloudPlatform, t })
+    getSchemaShape(blocks, { isCloudPlatform, isMassChange, t })
   );
 
   return { validationSchema };

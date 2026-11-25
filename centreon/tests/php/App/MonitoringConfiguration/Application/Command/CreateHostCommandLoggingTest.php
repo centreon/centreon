@@ -30,11 +30,14 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroChange;
 use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\CheckOptionsInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\DataProcessingInput;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Logging\Attribute\SensitivityScanner;
 use App\Shared\Infrastructure\Logging\LogPayloadNormalizer;
 use App\Shared\Infrastructure\Logging\PayloadSanitizer;
 use App\Shared\Infrastructure\Logging\SensitiveKeywordDenylist;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 use Tests\App\Security\Infrastructure\Double\TestActingUsers;
@@ -93,5 +96,49 @@ final class CreateHostCommandLoggingTest extends TestCase
         self::assertIsArray($sanitised);
         self::assertSame('***', $sanitised['macro_changes']);
         self::assertStringNotContainsString('top-secret', json_encode($sanitised, flags: JSON_THROW_ON_ERROR));
+    }
+
+    public function testTheCheckArgumentsNeverReachTheLogs(): void
+    {
+        SensitivityScanner::reset();
+        SensitiveKeywordDenylist::reset();
+
+        $command = new CreateHostCommand(
+            name: new HostName('server-01'),
+            address: new HostAddress('127.0.0.1'),
+            pollerId: new PollerId(1),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            actor: TestActingUsers::unrestricted(1),
+            checkCommandArgs: ['--password=top-secret'],
+        );
+
+        $payload = new LogPayloadNormalizer(new CamelCaseToSnakeCaseNameConverter())->normalize($command);
+        $sanitised = new PayloadSanitizer()->sanitize($payload, CreateHostCommand::class);
+
+        self::assertIsArray($sanitised);
+        self::assertSame('***', $sanitised['check_command_args']);
+    }
+
+    #[DataProvider('provideInputsCarryingCommandArguments')]
+    public function testTheCommandArgumentsOfAnInputNeverReachTheLogs(object $input, string $key): void
+    {
+        SensitivityScanner::reset();
+        SensitiveKeywordDenylist::reset();
+
+        $payload = new LogPayloadNormalizer(new CamelCaseToSnakeCaseNameConverter())->normalize($input);
+        $sanitised = new PayloadSanitizer()->sanitize($payload, $input::class);
+
+        self::assertIsArray($sanitised);
+        self::assertSame('***', $sanitised[$key]);
+    }
+
+    /**
+     * @return iterable<string, array{object, string}>
+     */
+    public static function provideInputsCarryingCommandArguments(): iterable
+    {
+        yield 'the check arguments' => [new CheckOptionsInput(args: ['top-secret']), 'args'];
+
+        yield 'the event handler arguments' => [new DataProcessingInput(eventHandlerArgs: ['top-secret']), 'event_handler_args'];
     }
 }

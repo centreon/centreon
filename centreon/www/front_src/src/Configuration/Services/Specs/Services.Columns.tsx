@@ -58,13 +58,51 @@ export default () => {
       expect(within(getRow('memory')).getByText('host B')).toBeVisible();
     });
 
-    it('links the host to its configuration form', async () => {
+    it('links the host to its legacy form while the Hosts page is not granted', async () => {
       await initializeListing();
 
       expect(screen.getByTestId('service-host-link_0')).toHaveAttribute(
         'href',
         '/main.php?p=60101&o=c&host_id=10'
       );
+    });
+
+    it('links the host to its form in the Hosts page when the menu grants it', async () => {
+      await initializeListing({ allowedPages: ['/configuration/hosts'] });
+
+      expect(screen.getByTestId('service-host-link_0')).toHaveAttribute(
+        'href',
+        '/configuration/hosts?mode=edit&id=10'
+      );
+    });
+
+    it('keeps the legacy host form when only another page under the hosts is granted', async () => {
+      await initializeListing({
+        allowedPages: ['/configuration/hosts/groups']
+      });
+
+      expect(screen.getByTestId('service-host-link_0')).toHaveAttribute(
+        'href',
+        '/main.php?p=60101&o=c&host_id=10'
+      );
+    });
+
+    it('opens the host form in the Hosts page, not the service, when the host link is clicked', async () => {
+      const { pathname } = window.location;
+
+      await initializeListing({ allowedPages: ['/configuration/hosts'] });
+
+      await userEvent.click(screen.getByTestId('service-host-link_0'));
+
+      try {
+        await waitFor(() =>
+          expect(window.location.pathname).toBe('/configuration/hosts')
+        );
+        expect(window.location.search).toBe('?mode=edit&id=10');
+      } finally {
+        // The page is not reloaded between tests.
+        window.history.pushState({}, '', pathname);
+      }
     });
 
     it('opens the service when its host cell is clicked outside the link', async () => {

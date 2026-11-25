@@ -1,8 +1,15 @@
 import type { TFunction } from 'i18next';
 
 import {
+  threeColumnsFromWide,
+  twoColumnsFromWide
+} from '../../ResourceForm/grid';
+import {
+  labelAdvanced,
   labelGeneralInformation,
   labelHostMonitoringProperties,
+  labelMonitoringEngineSchedulingOptions,
+  labelNotifications,
   labelRelations
 } from '../translatedLabels';
 import { getPlacedBlockIds, placeBlocks } from './layout';
@@ -14,14 +21,16 @@ import {
 
 const t = ((label: string): string => label) as TFunction;
 
-// Every form the platform can build. A host template has no mass change.
+// Every form the platform and the mass change can build.
 const contexts: Array<[name: string, context: SectionContext]> = [
   ['onPrem', { isCloudPlatform: false, t }],
   [
     'onPrem with additive inheritance',
     { isAdditiveInheritanceEnabled: true, isCloudPlatform: false, t }
   ],
-  ['cloud', { isCloudPlatform: true, t }]
+  ['cloud', { isCloudPlatform: true, t }],
+  ['onPrem mass change', { isCloudPlatform: false, isMassChange: true, t }],
+  ['cloud mass change', { isCloudPlatform: true, isMassChange: true, t }]
 ];
 
 const getSectionLabels = (context: SectionContext): Array<string> =>
@@ -60,14 +69,53 @@ describe('layout', () => {
     expect(getSectionLabels({ isCloudPlatform: false, t })).toEqual([
       labelGeneralInformation,
       labelHostMonitoringProperties,
-      labelRelations
+      labelRelations,
+      labelMonitoringEngineSchedulingOptions,
+      labelNotifications,
+      labelAdvanced
     ]);
+  });
+
+  it('has no notifications section on a cloud platform', () => {
     expect(getSectionLabels({ isCloudPlatform: true, t })).toEqual([
       labelGeneralInformation,
       labelHostMonitoringProperties,
-      labelRelations
+      labelRelations,
+      labelMonitoringEngineSchedulingOptions,
+      labelAdvanced
     ]);
   });
+
+  it('has no general information section in a mass change', () => {
+    expect(
+      getSectionLabels({ isCloudPlatform: false, isMassChange: true, t })
+    ).toEqual([
+      labelHostMonitoringProperties,
+      labelRelations,
+      labelMonitoringEngineSchedulingOptions,
+      labelNotifications,
+      labelAdvanced
+    ]);
+  });
+
+  it.each([
+    [false, 3, threeColumnsFromWide],
+    [true, 2, twoColumnsFromWide]
+  ])(
+    'lays the advanced settings out in as many columns as the platform keeps (cloud: %s)',
+    (isCloudPlatform, columnCount, className) => {
+      const advanced = placeBlocks({
+        blocks: getBlocks({ isCloudPlatform, t }),
+        t
+      }).find(({ label }) => label === labelAdvanced);
+      const grid = advanced?.inputs.find(
+        ({ fieldName }) => fieldName === 'advanced-layout'
+      )?.grid;
+
+      expect(grid?.columns).toHaveLength(columnCount);
+      expect(grid?.className).toBe(className);
+    }
+  );
 
   it('shows the SNMP fields right after the check command', () => {
     const [, monitoringProperties] = placeBlocks({

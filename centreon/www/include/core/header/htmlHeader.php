@@ -275,7 +275,9 @@ while ($topology_js = $DBRESULT->fetch()) {
             check_session(<?php echo $tM; ?>);
         });
     </script>
-    <script src="./include/common/javascript/xslt.js" type="text/javascript"></script>
+    <script src="./include/common/javascript/xslt.js?v=<?php
+        // The version makes browsers load the new file after an upgrade instead of their cached copy.
+        echo (int) filemtime(__DIR__ . '/../../common/javascript/xslt.js'); ?>" type="text/javascript"></script>
 </head>
 <body>
 
