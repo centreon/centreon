@@ -693,6 +693,7 @@ jobs:
         if: always()
         uses: ./.github/actions/release-bundle-status
         with:
+          role_arn: ${{ secrets.RELEASE_ORCHESTRATOR_BUNDLE_ROLE_ARN }}
           component: centreon-awie
           bundle: ${{ needs.get-environment.outputs.testing_tag }}
           bundle_path: ${{ needs.get-environment.outputs.testing_bundle_path }}
