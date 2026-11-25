@@ -27,7 +27,7 @@ use App\Shared\Domain\Exception\ExpectedFailureInterface;
 
 /**
  * The AI provider configuration does not allow the LLM request (no enabled
- * provider, spend limit reached).
+ * provider, spend limit reached, no API token for a type that needs one).
  */
 final class LlmConfigurationException extends LlmException implements ExpectedFailureInterface
 {
@@ -39,5 +39,13 @@ final class LlmConfigurationException extends LlmException implements ExpectedFa
     public static function budgetExceeded(): self
     {
         return new self('The AI provider spend limit has been reached for the current period.');
+    }
+
+    /**
+     * Only possible for a provider stored before the rule, or edited by hand.
+     */
+    public static function noApiToken(): self
+    {
+        return new self('This AI provider has no API token: enter one in its configuration.');
     }
 }

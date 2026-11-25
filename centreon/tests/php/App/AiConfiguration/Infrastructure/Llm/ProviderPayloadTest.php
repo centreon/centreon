@@ -120,6 +120,11 @@ final class ProviderPayloadTest extends TestCase
         yield 'null' => [null, null];
     }
 
+    public function testAnErrorMessageNeedsNoTokenToBeRead(): void
+    {
+        self::assertSame('model not found', ProviderPayload::errorMessage(['error' => 'model not found'], null));
+    }
+
     #[DataProvider('errorDocuments')]
     public function testErrorMessageIsExtractedFromKnownShapes(mixed $data, ?string $expected): void
     {

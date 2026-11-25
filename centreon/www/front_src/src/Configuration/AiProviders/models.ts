@@ -71,6 +71,8 @@ export interface AiProvider extends Billing {
 // stored one).
 export interface AiProviderFormValues extends AiProvider {
   apiToken?: string;
+  // the stored token is removed (an OpenAI-compatible server that needs none)
+  removeApiToken?: boolean;
 }
 
 export interface Payload {

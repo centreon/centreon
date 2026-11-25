@@ -263,6 +263,33 @@ final class TestAiProviderConnectionCommandHandlerTest extends TestCase
         self::assertNull($factory->lastConnectionSpec->apiToken);
     }
 
+    public function testTheStoredTokenOfAGatewayIsStillUsedOnItsOwnEndpoint(): void
+    {
+        $provider = new AiProvider(
+            id: null,
+            name: new AiProviderName('Gateway'),
+            type: AiProviderTypeEnum::OpenAiCompatible,
+            endpointUrl: new EndpointUrl('https://llm-gateway.example.com'),
+            apiToken: new StoredApiToken('gateway-token'),
+            defaultModel: new ModelName('a-model'),
+            fastModel: null,
+            description: null,
+            isActivated: false,
+        );
+        $this->repository->add($provider);
+        $factory = new FakeLlmClientFactory(new FakeLlmClient(response: new LlmResponse('pong', 'm', new LlmUsage(5, 1))));
+        $handler = new TestAiProviderConnectionCommandHandler($this->repository, $factory);
+
+        $handler($this->command(
+            apiToken: null,
+            id: $provider->id()->value,
+            type: AiProviderTypeEnum::OpenAiCompatible,
+            endpointUrl: 'https://llm-gateway.example.com',
+        ));
+
+        self::assertSame('gateway-token', $factory->lastConnectionSpec?->apiToken?->value);
+    }
+
     public function testANewServerThatMayNeedNoTokenIsTestedWithoutOne(): void
     {
         $factory = new FakeLlmClientFactory(new FakeLlmClient(response: new LlmResponse('pong', 'm', new LlmUsage(5, 1))));

@@ -166,6 +166,40 @@ final class UpdateAiProviderProcessorTest extends AiProviderApiTestCase
         self::assertResponseStatusCodeSame(422);
     }
 
+    public function testTheTokenOfAServerThatNeedsNoneIsRemovedOnRequest(): void
+    {
+        $this->login();
+
+        $id = $this->createProvider('Local gateway', 'openai_compatible', 'https://llm-gateway.example.com');
+
+        $this->request('PATCH', self::ENDPOINT . '/' . $id, [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'],
+            'json' => ['endpoint_url' => 'http://ollama.internal:11434', 'remove_api_token' => true],
+        ]);
+        self::assertResponseIsSuccessful();
+        self::assertJsonContains(['has_api_token' => false]);
+
+        // read back from the database
+        $this->request('GET', self::ENDPOINT . '/' . $id);
+        self::assertJsonContains(['endpoint_url' => 'http://ollama.internal:11434', 'has_api_token' => false]);
+    }
+
+    public function testTheTokenOfAHostedProviderCanNotBeRemoved(): void
+    {
+        $this->login();
+
+        $id = $this->createProvider('Anthropic production');
+
+        $this->request('PATCH', self::ENDPOINT . '/' . $id, [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'],
+            'json' => ['remove_api_token' => true],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+        $this->request('GET', self::ENDPOINT . '/' . $id);
+        self::assertJsonContains(['has_api_token' => true]);
+    }
+
     public function testPatchUnknownProviderReturns404(): void
     {
         $this->login();

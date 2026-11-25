@@ -60,6 +60,9 @@ export const useValidationSchema = (): {
   const storedEndpointUrl = (
     storedProvider as { endpointUrl?: string } | undefined
   )?.endpointUrl;
+  const storedHasApiToken = (
+    storedProvider as { hasApiToken?: boolean } | undefined
+  )?.hasApiToken;
 
   // id of the existing provider using a given name (null when unused),
   // cached so that re-validations do not query the API again
@@ -132,14 +135,23 @@ export const useValidationSchema = (): {
     apiToken: isEditing
       ? string()
           .nullable()
-          .when(['endpointUrl', 'type'], ([endpointUrl, type], schema) =>
+          .when(['endpointUrl', 'type'], ([endpointUrl, type], schema) => {
+            // an OpenAI-compatible server may need none: its stored token is
+            // removed instead (see ApiTokenField)
+            if (isApiTokenOptional(type)) {
+              return schema;
+            }
+            // a provider saved without one, by hand
+            if (storedHasApiToken === false) {
+              return schema.required(t(labelRequired));
+            }
+
             // the API enforces it anyway: do not block before the details load
-            isApiTokenOptional(type) ||
-            isNil(storedEndpointUrl) ||
-            isSameEndpoint(endpointUrl, storedEndpointUrl)
+            return isNil(storedEndpointUrl) ||
+              isSameEndpoint(endpointUrl, storedEndpointUrl)
               ? schema
-              : schema.required(t(labelApiTokenRequiredForNewEndpoint))
-          )
+              : schema.required(t(labelApiTokenRequiredForNewEndpoint));
+          })
       : string()
           .nullable()
           .when('type', ([type], schema) =>

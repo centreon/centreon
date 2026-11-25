@@ -102,6 +102,7 @@ final readonly class UpdateAiProviderProcessor implements ProcessorInterface
             isActivated: $data->isActivated,
             updatedBy: $credentialUser->credential->userId->value,
             billing: $billing,
+            removeApiToken: $data->removeApiToken,
         );
 
         $aiProvider = $this->commandBus->execute($command);

@@ -39,6 +39,7 @@ interface LlmClientFactoryInterface
 
     /**
      * @throws ApiTokenUnavailableException when the API token can not be read from the vault
+     * @throws LlmConfigurationException when a provider of a type that needs a token has none
      */
     public function forProvider(AiProvider $aiProvider): LlmClientInterface;
 
@@ -47,6 +48,7 @@ interface LlmClientFactoryInterface
      * discovery): unmetered and uncapped, and usable before the provider is saved.
      *
      * @throws ApiTokenUnavailableException when the API token can not be read from the vault
+     * @throws LlmConfigurationException when a type that needs a token is given none
      */
     public function forConnectionTest(ConnectionSpec $spec): LlmClientInterface;
 }

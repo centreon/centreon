@@ -195,28 +195,33 @@ final class AiProvider extends AggregateRoot
     /**
      * Point the provider at an endpoint, with a new token or keeping the stored
      * one, which is only allowed while the target does not change. A type whose
-     * token is optional drops it instead: the new server may need none.
+     * token is optional may have it removed instead, explicitly: a token is never
+     * lost because it was left out.
      *
      * @param StoredApiToken|null $apiToken the new token, or null to keep the stored one
+     * @param bool $removeApiToken remove the stored token (ignored when a new one is given)
      *
      * @throws AiProviderCanNotBeUpdatedException when the endpoint changes without a new token,
-     *                                            for a type that needs one
-     * @throws InvalidAiProviderConfigurationException when the endpoint does not fit the type
+     *                                            unless the stored one is removed
+     * @throws InvalidAiProviderConfigurationException when the endpoint does not fit the type, or
+     *                                                 the token of a type that needs one is removed
      */
-    public function retarget(EndpointUrl $endpointUrl, ?StoredApiToken $apiToken): void
+    public function retarget(EndpointUrl $endpointUrl, ?StoredApiToken $apiToken, bool $removeApiToken = false): void
     {
         self::assertEndpointFitsType($this->type, $endpointUrl);
 
-        if (! $apiToken instanceof StoredApiToken && ! $this->canReuseApiTokenFor($this->type, $endpointUrl)) {
-            if ($this->type->requiresApiToken()) {
-                throw AiProviderCanNotBeUpdatedException::apiTokenRequiredForNewEndpoint($this->id());
-            }
-            // never sent to the new server
-            $this->apiToken = null;
+        $removesApiToken = $removeApiToken && ! $apiToken instanceof StoredApiToken;
+        if ($removesApiToken && $this->type->requiresApiToken()) {
+            throw InvalidAiProviderConfigurationException::apiTokenRequired($this->type);
+        }
+        if (! $apiToken instanceof StoredApiToken && ! $removesApiToken
+            && ! $this->canReuseApiTokenFor($this->type, $endpointUrl)
+        ) {
+            throw AiProviderCanNotBeUpdatedException::apiTokenRequiredForNewEndpoint($this->id());
         }
 
         $this->endpointUrl = $endpointUrl;
-        $this->apiToken = $apiToken ?? $this->apiToken;
+        $this->apiToken = $apiToken ?? ($removesApiToken ? null : $this->apiToken);
     }
 
     /**

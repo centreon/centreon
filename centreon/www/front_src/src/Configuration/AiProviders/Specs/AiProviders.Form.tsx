@@ -22,6 +22,7 @@ import {
   labelApiToken,
   labelApiTokenOptionalHint,
   labelApiTokenRequiredForNewEndpoint,
+  labelApiTokenWillBeRemoved,
   labelAwsRegion,
   labelBedrock,
   labelConnectionSucceededWithModel,
@@ -328,6 +329,37 @@ export default (): void => {
       expect(token).toBeEnabled();
       expect(screen.queryByTestId(`${labelApiToken}-clear`)).toBeNull();
       expect(screen.getByText(labelApiTokenOptionalHint)).toBeVisible();
+    });
+
+    it('saves an OpenAI-compatible server without a token', async () => {
+      await openCreationForm();
+      await selectType(labelOpenAiCompatible);
+
+      await userEvent.type(
+        (await queryAllInPanel(endpointUrlTestId)).at(-1) as HTMLElement,
+        'http://ollama.internal:11434'
+      );
+      await replaceValue(await getCustomInput(labelDefaultModel), 'qwen3:0.6b');
+
+      await waitFor(() => expect(getSaveButton()).toBeEnabled());
+      await save();
+
+      const { request } = await waitForRequest('@createAiProvider');
+      const body = request.body as Payload;
+
+      expect(body.type).toBe('openai_compatible');
+      expect(body).not.toHaveProperty('api_token');
+    });
+
+    it('does not save a hosted provider without its token', async () => {
+      await openCreationForm();
+      await selectType(labelAnthropic);
+
+      await waitFor(() => expect(getSaveButton()).toBeDisabled());
+
+      await userEvent.type(await getApiToken(), 'a-secret-token');
+
+      await waitFor(() => expect(getSaveButton()).toBeEnabled());
     });
 
     it('sends a model discovery request gated on an available token', async () => {
@@ -994,7 +1026,7 @@ export default (): void => {
       expect(body.api_token).toBe('a-new-token');
     });
 
-    it('drops the stored token of an OpenAI-compatible server moved to another endpoint', async () => {
+    it('removes the stored token of an OpenAI-compatible server moved to another endpoint, and says so', async () => {
       await openProvider({
         aiProvider: {
           ...getAiProviderResponse(),
@@ -1012,12 +1044,13 @@ export default (): void => {
         'https://other-gateway.example.com'
       );
 
-      // never sent to the new endpoint, which may need no token
+      // never sent to the new endpoint, which may need no token: left empty,
+      // it is removed, and the form says so
       await waitFor(async () => expect(await getApiToken()).toHaveValue(''));
       expect(
         screen.queryByText(labelApiTokenRequiredForNewEndpoint)
       ).toBeNull();
-      expect(screen.getByText(labelApiTokenOptionalHint)).toBeVisible();
+      expect(await screen.findByText(labelApiTokenWillBeRemoved)).toBeVisible();
       await waitFor(() =>
         expect(screen.getByTestId(labelTestConnection)).toBeEnabled()
       );
@@ -1029,6 +1062,48 @@ export default (): void => {
 
       expect(body.endpoint_url).toBe('https://other-gateway.example.com');
       expect(body).not.toHaveProperty('api_token');
+      expect(body.remove_api_token).toBe(true);
+    });
+
+    it('removes the stored token of an OpenAI-compatible server only when it is cleared and left empty', async () => {
+      await openProvider({
+        aiProvider: {
+          ...getAiProviderResponse(),
+          endpoint_url: 'https://llm-gateway.example.com',
+          type: 'openai_compatible'
+        }
+      });
+
+      await waitFor(async () =>
+        expect(await getApiToken()).toHaveValue('********')
+      );
+      expect(screen.queryByText(labelApiTokenWillBeRemoved)).toBeNull();
+
+      await userEvent.click(screen.getByTestId(`${labelApiToken}-clear`));
+
+      expect(await screen.findByText(labelApiTokenWillBeRemoved)).toBeVisible();
+
+      await save();
+
+      const { request } = await waitForRequest('@updateAiProvider');
+
+      expect((request.body as Payload).remove_api_token).toBe(true);
+    });
+
+    it('keeps the stored token of an edited provider', async () => {
+      await openProvider();
+
+      await waitFor(async () =>
+        expect(await getApiToken()).toHaveValue('********')
+      );
+      await replaceValue(await getName(), 'Anthropic, renamed');
+      await save();
+
+      const { request } = await waitForRequest('@updateAiProvider');
+      const body = request.body as Payload;
+
+      expect(body).not.toHaveProperty('api_token');
+      expect(body).not.toHaveProperty('remove_api_token');
     });
 
     it('prefills the prices found for the models', async () => {

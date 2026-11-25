@@ -24,5 +24,6 @@ export const getDefaultValues = ({ isActivated }: Options) => ({
   priceDefaultOutput: null,
   priceFastInput: null,
   priceFastOutput: null,
+  removeApiToken: false,
   type: null
 });

@@ -86,6 +86,7 @@ final readonly class LlmClientFactory implements LlmClientFactoryInterface
 
     /**
      * @throws ApiTokenUnavailableException
+     * @throws LlmConfigurationException when a provider of a type that needs a token has none
      */
     public function forProvider(AiProvider $aiProvider): LlmClientInterface
     {
@@ -110,6 +111,7 @@ final readonly class LlmClientFactory implements LlmClientFactoryInterface
 
     /**
      * @throws ApiTokenUnavailableException
+     * @throws LlmConfigurationException when a type that needs a token is given none
      */
     public function forConnectionTest(ConnectionSpec $spec): LlmClientInterface
     {
@@ -128,6 +130,7 @@ final readonly class LlmClientFactory implements LlmClientFactoryInterface
 
     /**
      * @throws ApiTokenUnavailableException
+     * @throws LlmConfigurationException when a type that needs a token is given none
      */
     private function buildClient(
         AiProviderTypeEnum $type,
@@ -140,10 +143,10 @@ final readonly class LlmClientFactory implements LlmClientFactoryInterface
     ): LlmClientInterface {
         $apiToken = $storedApiToken instanceof StoredApiToken ? $this->getApiToken($storedApiToken) : null;
         if (! $apiToken instanceof ApiToken && $type->requiresApiToken()) {
-            throw ApiTokenUnavailableException::missing();
+            throw LlmConfigurationException::noApiToken();
         }
         // the clients of the types that need a token
-        $requiredApiToken = static fn (): ApiToken => $apiToken ?? throw ApiTokenUnavailableException::missing();
+        $requiredApiToken = static fn (): ApiToken => $apiToken ?? throw LlmConfigurationException::noApiToken();
         $httpClient = $this->httpClientFor($endpointUrl);
 
         $openAiCompatible = fn (): OpenAiCompatibleLlmClient => new OpenAiCompatibleLlmClient(

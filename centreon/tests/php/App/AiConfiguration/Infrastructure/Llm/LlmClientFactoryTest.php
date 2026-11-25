@@ -212,17 +212,51 @@ final class LlmClientFactoryTest extends TestCase
         self::assertArrayNotHasKey('authorization', $headers);
     }
 
-    public function testAHostedProviderWithoutATokenIsRefused(): void
+    /**
+     * @return iterable<string, array{AiProviderTypeEnum}>
+     */
+    public static function provideTypesThatNeedAToken(): iterable
     {
-        $this->expectException(ApiTokenUnavailableException::class);
-        $this->expectExceptionMessage('This AI provider has no API token');
+        foreach (AiProviderTypeEnum::cases() as $type) {
+            if ($type->requiresApiToken()) {
+                yield $type->value => [$type];
+            }
+        }
+    }
 
-        $this->factory->forConnectionTest(new ConnectionSpec(
-            AiProviderTypeEnum::Mistral,
-            new EndpointUrl('https://api.mistral.ai'),
-            null,
-            new ModelName('mistral-small-latest'),
-        ));
+    /**
+     * A provider stored before the rule, or edited by hand: a configuration problem, not a vault outage.
+     */
+    #[DataProvider('provideTypesThatNeedAToken')]
+    public function testAHostedProviderWithoutATokenIsRefusedBeforeAnyRequest(AiProviderTypeEnum $type): void
+    {
+        $httpClient = new MockHttpClient(static function (): MockResponse {
+            self::fail('No request may be sent without the token of a type that needs one.');
+        });
+        $factory = $this->createFactory($httpClient);
+        $aiProvider = new AiProvider(
+            id: null,
+            name: new AiProviderName('hand-edited'),
+            type: $type,
+            endpointUrl: $type->defaultEndpointUrl() ?? new EndpointUrl('https://bedrock-mantle.us-east-1.api.aws'),
+            apiToken: null,
+            defaultModel: new ModelName('a-model'),
+            fastModel: null,
+            description: null,
+            isActivated: true,
+        );
+
+        foreach ([
+            static fn (): \App\AiConfiguration\Domain\Llm\LlmClientInterface => $factory->forProvider($aiProvider),
+            static fn (): \App\AiConfiguration\Domain\Llm\LlmClientInterface => $factory->forConnectionTest(new ConnectionSpec($type, $aiProvider->endpointUrl(), null, new ModelName('a-model'))),
+        ] as $build) {
+            try {
+                $build();
+                self::fail('A type that needs a token was given a client without one.');
+            } catch (LlmConfigurationException $exception) {
+                self::assertStringContainsString('has no API token', $exception->getMessage());
+            }
+        }
     }
 
     public function testRequestsGoThroughThePlatformProxy(): void

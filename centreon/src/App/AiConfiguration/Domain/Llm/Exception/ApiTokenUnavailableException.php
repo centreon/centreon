@@ -34,13 +34,4 @@ final class ApiTokenUnavailableException extends LlmException
     {
         return new self('The API token of this AI provider can not be read from the vault.', previous: $previous);
     }
-
-    /**
-     * A provider of a type that needs a token has none: only possible for a provider
-     * stored before the rule, or edited by hand.
-     */
-    public static function missing(): self
-    {
-        return new self('This AI provider has no API token: enter one in its configuration.');
-    }
 }

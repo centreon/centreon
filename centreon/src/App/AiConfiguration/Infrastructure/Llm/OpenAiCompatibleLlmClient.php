@@ -55,6 +55,8 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
  */
 final readonly class OpenAiCompatibleLlmClient implements LlmClientInterface
 {
+    /** A refusal is shown up to this length: the provider decides its size. */
+    private const REFUSAL_MAX_LENGTH = 500;
     private const TIMEOUT_SECONDS = 120;
 
     private ReasoningNegotiator $reasoningNegotiator;
@@ -282,7 +284,8 @@ final readonly class OpenAiCompatibleLlmClient implements LlmClientInterface
     private function refusalOf(string $refusal, ?string $finishReason): ?string
     {
         if (trim($refusal) !== '') {
-            return trim($refusal);
+            // shown to whoever tests the provider, who may not know its token
+            return mb_substr(ProviderPayload::masked(trim($refusal), $this->apiToken), 0, self::REFUSAL_MAX_LENGTH);
         }
 
         return $finishReason === 'content_filter' ? 'the answer was blocked by its content filter.' : null;

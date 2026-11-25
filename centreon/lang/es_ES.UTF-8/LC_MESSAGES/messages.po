@@ -8313,6 +8313,10 @@ msgstr "Expandir"
 msgid "Optional: leave empty if the server needs none."
 msgstr ""
 
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "The stored token will be removed when you save: type it again if the server needs one."
+msgstr ""
+
 #: centreon/www/install/front_translate.php
 msgid "Expand information panel"
 msgstr ""
@@ -25731,7 +25735,7 @@ msgid "The model answered with nothing: the AI features may get no answer from i
 msgstr ""
 
 #: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
-msgid "The provider refused to answer: {{reason}}"
+msgid "The provider refused to answer: {{reason}}. The AI features would fail the same way: check its content filter, or choose another model."
 msgstr ""
 
 #: www/front_src/src/Configuration/AiProviders/translatedLabels.ts

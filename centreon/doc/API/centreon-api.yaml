@@ -7858,7 +7858,7 @@ paths:
                 $ref: '#/components/schemas/ConstraintViolation'
           links: {}
       summary: 'Update an AI provider configuration'
-      description: 'Update an AI provider configuration. The provider type can not be changed. Omitting the api_token field keeps the current token, unless the endpoint URL changes: the token must then be provided again. At most one provider is enabled: enabling a provider disables the currently enabled one, and disabling the enabled provider turns AI features off.'
+      description: 'Update an AI provider configuration. The provider type can not be changed. Omitting the api_token field keeps the current token, unless the endpoint URL changes: the token must then be provided again, or, for an OpenAI-compatible server that needs none, removed with remove_api_token. At most one provider is enabled: enabling a provider disables the currently enabled one, and disabling the enabled provider turns AI features off.'
       parameters:
         -
           name: id
@@ -17136,11 +17136,11 @@ components:
           description: 'Monthly spend limit in the configured currency. Requires prices to be set.'
           type:
             - number
+            - 'null'
         has_api_token:
           readOnly: true
           description: 'Whether an API token is stored. Only an OpenAI-compatible server that needs none can be without one.'
           type: boolean
-            - 'null'
     AiProvider.jsonMergePatch:
       type: object
       properties:
@@ -17266,6 +17266,9 @@ components:
           type:
             - number
             - 'null'
+        remove_api_token:
+          description: 'Set to true to remove the stored API token, for an OpenAI-compatible server that needs none (refused for the other types). Ignored when a new api_token is given. Leaving api_token out never removes the token.'
+          type: boolean
     AiProvider.jsonld:
       allOf:
         -
@@ -17394,11 +17397,11 @@ components:
               description: 'Monthly spend limit in the configured currency. Requires prices to be set.'
               type:
                 - number
+                - 'null'
             has_api_token:
               readOnly: true
               description: 'Whether an API token is stored. Only an OpenAI-compatible server that needs none can be without one.'
               type: boolean
-                - 'null'
     CorrelateAlertsResource:
       type: object
       properties:

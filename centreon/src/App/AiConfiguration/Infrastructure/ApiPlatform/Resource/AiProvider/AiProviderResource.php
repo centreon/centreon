@@ -62,7 +62,8 @@ use Symfony\Component\Validator\Constraints as Assert;
                 summary: 'Update an AI provider configuration',
                 description: 'Update an AI provider configuration. The provider type can not be changed. '
                     . 'Omitting the api_token field keeps the current token, unless the endpoint URL '
-                    . 'changes: the token must then be provided again. At most one provider is '
+                    . 'changes: the token must then be provided again, or, for an OpenAI-compatible server '
+                    . 'that needs none, removed with remove_api_token. At most one provider is '
                     . 'enabled: enabling a provider disables the currently enabled one, and disabling '
                     . 'the enabled provider turns AI features off.',
                 responses: [
@@ -234,6 +235,14 @@ final class AiProviderResource
             writable: false,
         )]
         public bool $hasApiToken = true,
+
+        #[ApiProperty(
+            description: 'Set to true to remove the stored API token, for an OpenAI-compatible server that needs '
+                . 'none (refused for the other types). Ignored when a new api_token is given. Leaving api_token out '
+                . 'never removes the token.',
+            readable: false,
+        )]
+        public bool $removeApiToken = false,
     ) {
     }
 }

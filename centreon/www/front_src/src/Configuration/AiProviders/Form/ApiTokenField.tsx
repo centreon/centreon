@@ -3,13 +3,17 @@ import type { InputPropsWithoutGroup } from '@centreon/ui';
 import { type FormikValues, useFormikContext } from 'formik';
 import { useAtomValue } from 'jotai';
 import { equals, path } from 'ramda';
-import { type ChangeEvent, JSX, useState } from 'react';
+import { type ChangeEvent, JSX, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { formStateAtom } from '../../ConfigurationBase/atoms';
 import StoredSecretField from '../../ConfigurationBase/Form/Macros/StoredSecretField';
 import { AiProviderType } from '../models';
-import { labelApiToken, labelApiTokenOptionalHint } from '../translatedLabels';
+import {
+  labelApiToken,
+  labelApiTokenOptionalHint,
+  labelApiTokenWillBeRemoved
+} from '../translatedLabels';
 import { isApiTokenOptional, isSameEndpoint } from '../utils';
 
 // The API never returns a stored token (write-only). In edit mode the field
@@ -38,9 +42,10 @@ const ApiTokenField = ({
   const [isErased, setIsErased] = useState(false);
 
   // a server that needs none may have no token stored
+  const hasStoredToken =
+    isEditing && path(['hasApiToken'], initialValues) !== false;
   const isStoredTokenUsable =
-    isEditing &&
-    path(['hasApiToken'], initialValues) !== false &&
+    hasStoredToken &&
     isSameEndpoint(
       path(['endpointUrl'], values) as string | null,
       path(['endpointUrl'], initialValues) as string | null
@@ -51,6 +56,30 @@ const ApiTokenField = ({
   const isDisabled = getDisabled?.(values) ?? false;
 
   const value = (path([fieldName], values) as string | null) ?? '';
+  // left empty once cleared, or once the endpoint changed: only a server that
+  // may need no token can have its stored one removed, and never implicitly
+  const willRemoveStoredToken =
+    isOptional &&
+    hasStoredToken &&
+    value === '' &&
+    (isErased || !isStoredTokenUsable);
+
+  useEffect(() => {
+    if (Boolean(path(['removeApiToken'], values)) !== willRemoveStoredToken) {
+      setFieldValue('removeApiToken', willRemoveStoredToken);
+    }
+  }, [willRemoveStoredToken]);
+
+  const getHelperText = (): string | undefined => {
+    if (willRemoveStoredToken) {
+      return t(labelApiTokenWillBeRemoved);
+    }
+
+    return isOptional && !isStoredTokenUsable
+      ? t(labelApiTokenOptionalHint)
+      : undefined;
+  };
+
   // a changed endpoint explains right away why the token is needed again
   const error =
     path([fieldName], touched) || (isEditing && !isStoredTokenUsable)
@@ -62,7 +91,7 @@ const ApiTokenField = ({
       dataTestId={t(labelApiToken)}
       disabled={isDisabled}
       error={error}
-      helperText={isOptional ? t(labelApiTokenOptionalHint) : undefined}
+      helperText={getHelperText()}
       isErased={isErased}
       isStored={isStoredTokenUsable}
       label={t(labelApiToken)}

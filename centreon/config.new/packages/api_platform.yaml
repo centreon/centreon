@@ -19,7 +19,7 @@ api_platform:
         App\MonitoringConfiguration\Domain\Exception\VaultPurgeFailedException: 502 # the change is committed, only the vault (an upstream dependency) failed
         App\MonitoringConfiguration\Domain\Exception\VaultWriteFailedException: 502 # nothing was saved, the vault (an upstream dependency) failed first
         App\AiConfiguration\Domain\Exception\AiProviderCanNotBeUpdatedException: 422
-        App\AiConfiguration\Domain\Llm\Exception\LlmConfigurationException: 409 # no provider enabled, or its spend limit reached
+        App\AiConfiguration\Domain\Llm\Exception\LlmConfigurationException: 409 # no provider enabled, its spend limit reached, or it has no API token
         App\AiConfiguration\Domain\Llm\Exception\LlmRequestFailedException: 502
         App\AiConfiguration\Domain\Llm\Exception\ApiTokenUnavailableException: 502 # the vault (an upstream dependency) could not give the stored token back
         App\AiConfiguration\Domain\Llm\Exception\PriceCatalogUnavailableException: 502 # the third-party price list could not be fetched

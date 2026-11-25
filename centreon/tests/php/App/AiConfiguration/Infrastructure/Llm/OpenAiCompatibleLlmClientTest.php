@@ -114,6 +114,56 @@ final class OpenAiCompatibleLlmClientTest extends TestCase
         }
     }
 
+    public function testAnErrorFromAServerUsedWithoutATokenIsReported(): void
+    {
+        $httpClient = new MockHttpClient(new MockResponse(
+            json_encode(['error' => "model 'llama3' not found"], \JSON_THROW_ON_ERROR),
+            ['http_code' => 404],
+        ));
+
+        $this->expectException(LlmRequestFailedException::class);
+        $this->expectExceptionMessage("model 'llama3' not found");
+
+        $this->createClient($httpClient, apiToken: null)->complete($this->createRequest());
+    }
+
+    public function testModelListingSendsTheToken(): void
+    {
+        $authorization = [];
+        $httpClient = new MockHttpClient(
+            function (string $method, string $url, array $options) use (&$authorization): MockResponse {
+                /** @var array{normalized_headers: array<string, list<string>>} $options */
+                $authorization = $options['normalized_headers']['authorization'] ?? [];
+
+                return new MockResponse(json_encode(['data' => [['id' => 'mistral-small-latest']]], \JSON_THROW_ON_ERROR));
+            }
+        );
+
+        $this->createClient($httpClient)->listModels();
+
+        self::assertSame(['Authorization: Bearer a-token'], $authorization);
+    }
+
+    public function testARefusalIsShownWithoutTheTokenAndCapped(): void
+    {
+        $token = 'sk-a-long-enough-token';
+        $httpClient = new MockHttpClient(new MockResponse(json_encode([
+            'choices' => [[
+                'message' => ['content' => null, 'refusal' => 'Refused for ' . $token . ' ' . str_repeat('x', 1000), 'role' => 'assistant'],
+                'finish_reason' => 'stop',
+            ]],
+            'model' => 'a-model',
+            'usage' => ['completion_tokens' => 1, 'prompt_tokens' => 1],
+        ], \JSON_THROW_ON_ERROR)));
+
+        $refusal = $this->createClient($httpClient, apiToken: $token)->complete($this->createRequest())->refusal;
+
+        self::assertNotNull($refusal);
+        self::assertStringNotContainsString($token, $refusal);
+        self::assertStringStartsWith('Refused for [API token]', $refusal);
+        self::assertSame(500, mb_strlen($refusal));
+    }
+
     public function testUsesTheConfiguredMaxTokensField(): void
     {
         $capturedBody = '';

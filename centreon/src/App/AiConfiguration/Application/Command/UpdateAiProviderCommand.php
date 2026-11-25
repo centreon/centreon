@@ -48,6 +48,8 @@ final readonly class UpdateAiProviderCommand
         public bool $isActivated,
         public int $updatedBy,
         public Billing $billing = new Billing(),
+        /** Remove the stored token (a type whose token is optional), unless a new one is given. */
+        public bool $removeApiToken = false,
     ) {
     }
 }

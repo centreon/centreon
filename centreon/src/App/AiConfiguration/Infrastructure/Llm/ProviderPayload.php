@@ -88,9 +88,17 @@ final class ProviderPayload
             return null;
         }
 
+        return self::masked($message, $apiToken);
+    }
+
+    /**
+     * A text from the provider, without the API token it may echo.
+     */
+    public static function masked(string $text, ?ApiToken $apiToken): string
+    {
         return $apiToken instanceof ApiToken && mb_strlen($apiToken->value) >= self::MIN_MASKED_TOKEN_LENGTH
-            ? str_replace($apiToken->value, '[API token]', $message)
-            : $message;
+            ? str_replace($apiToken->value, '[API token]', $text)
+            : $text;
     }
 
     /**

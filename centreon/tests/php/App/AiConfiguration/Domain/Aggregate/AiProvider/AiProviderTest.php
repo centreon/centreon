@@ -58,15 +58,42 @@ final class AiProviderTest extends TestCase
         $aiProvider->retarget(new EndpointUrl('https://bedrock-mantle.eu-west-1.api.aws'), null);
     }
 
-    public function testRetargetingAServerThatMayNeedNoTokenDropsTheStoredOne(): void
+    public function testRetargetingAServerThatMayNeedNoTokenStillRequiresANewOneOrItsRemoval(): void
     {
         $aiProvider = $this->aiProvider();
 
-        $aiProvider->retarget(new EndpointUrl('https://attacker.example.org'), null);
+        // a token is never lost because it was left out
+        $this->expectException(AiProviderCanNotBeUpdatedException::class);
 
-        // never sent to the new server
+        $aiProvider->retarget(new EndpointUrl('https://attacker.example.org'), null);
+    }
+
+    public function testTheTokenOfAServerThatMayNeedNoneCanBeRemoved(): void
+    {
+        $aiProvider = $this->aiProvider();
+
+        $aiProvider->retarget(new EndpointUrl('https://other.example.org'), null, removeApiToken: true);
+
         self::assertNull($aiProvider->apiToken());
-        self::assertSame('https://attacker.example.org', $aiProvider->endpointUrl()->value);
+        self::assertSame('https://other.example.org', $aiProvider->endpointUrl()->value);
+    }
+
+    public function testRemovingTheTokenIsIgnoredWhenANewOneIsGiven(): void
+    {
+        $aiProvider = $this->aiProvider();
+
+        $aiProvider->retarget(new EndpointUrl('http://ollama.internal:11434'), new StoredApiToken('new-token'), removeApiToken: true);
+
+        self::assertSame('new-token', $aiProvider->apiToken()?->value);
+    }
+
+    public function testTheTokenOfAHostedProviderCanNotBeRemoved(): void
+    {
+        $aiProvider = $this->aiProvider(AiProviderTypeEnum::Bedrock, 'https://bedrock-mantle.us-east-1.api.aws');
+
+        $this->expectException(InvalidAiProviderConfigurationException::class);
+
+        $aiProvider->retarget(new EndpointUrl('https://bedrock-mantle.us-east-1.api.aws'), null, removeApiToken: true);
     }
 
     public function testAnOpenAiCompatibleServerMayBeCreatedWithoutAToken(): void

@@ -93,7 +93,7 @@ final readonly class UpdateAiProviderCommandHandler
         }
 
         if ($previousApiToken instanceof StoredApiToken && $aiProvider->apiToken() !== $previousApiToken) {
-            // the configuration now references a new token, or none (dropped with its endpoint)
+            // the configuration now references a new token, or none (removed)
             $this->tokenStorage->discard($previousApiToken, $command->id);
         }
 
@@ -118,7 +118,7 @@ final readonly class UpdateAiProviderCommandHandler
         ?StoredApiToken $storedApiToken,
     ): ?AiProvider {
         // the stored token is never sent to another server than the one it was configured for
-        $aiProvider->retarget($command->endpointUrl, $storedApiToken);
+        $aiProvider->retarget($command->endpointUrl, $storedApiToken, $command->removeApiToken);
         $aiProvider->rename($command->name);
         $aiProvider->changeModels(
             $command->defaultModel,

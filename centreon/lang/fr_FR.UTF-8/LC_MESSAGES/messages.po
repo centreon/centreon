@@ -20202,6 +20202,10 @@ msgstr "Jeton d'API"
 msgid "Optional: leave empty if the server needs none."
 msgstr "Facultatif : laissez vide si le serveur n'en demande pas."
 
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "The stored token will be removed when you save: type it again if the server needs one."
+msgstr "Le jeton enregistré sera supprimé à l'enregistrement : saisissez-le de nouveau si le serveur en a besoin."
+
 #: unknown
 msgid "Access not allowed"
 msgstr "Accès non autorisé"
@@ -25092,8 +25096,8 @@ msgid "The model answered with nothing: the AI features may get no answer from i
 msgstr "Le modèle a répondu sans rien écrire : les fonctionnalités d'IA risquent de ne pas en obtenir de réponse. Réessayez, ou choisissez un autre modèle."
 
 #: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
-msgid "The provider refused to answer: {{reason}}"
-msgstr "Le fournisseur a refusé de répondre : {{reason}}"
+msgid "The provider refused to answer: {{reason}}. The AI features would fail the same way: check its content filter, or choose another model."
+msgstr "Le fournisseur a refusé de répondre : {{reason}}. Les fonctionnalités d'IA échoueraient de la même façon : vérifiez son filtre de contenu, ou choisissez un autre modèle."
 
 #: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
 msgid "The test reported something this page does not know: reload the page."

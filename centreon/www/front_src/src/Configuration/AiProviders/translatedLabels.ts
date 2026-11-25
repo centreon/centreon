@@ -13,6 +13,8 @@ export const labelEndpointUrl = 'Endpoint URL';
 export const labelApiToken = 'API token';
 export const labelApiTokenOptionalHint =
   'Optional: leave empty if the server needs none.';
+export const labelApiTokenWillBeRemoved =
+  'The stored token will be removed when you save: type it again if the server needs one.';
 export const labelDefaultModel = 'Default model';
 export const labelDefaultModelPlaceholder =
   'e.g. claude-sonnet-5-5, mistral-large-latest, gpt-6.2-sol';
@@ -75,7 +77,7 @@ export const labelConnectionWarningBudgetUsed =
 export const labelConnectionWarningEmptyAnswer =
   'The model answered with nothing: the AI features may get no answer from it. Try again, or choose another model.';
 export const labelConnectionWarningRefused =
-  'The provider refused to answer: {{reason}}';
+  'The provider refused to answer: {{reason}}. The AI features would fail the same way: check its content filter, or choose another model.';
 export const labelConnectionWarningUnknown =
   'The test reported something this page does not know: reload the page.';
 export const labelConnectionFailed = 'Connection failed';

@@ -69,6 +69,8 @@ final class UpdateAiProviderCommandHandlerTest extends TestCase
         ($this->handler)($this->updateCommand($aiProvider, name: 'Anthropic renamed'));
 
         self::assertNotNull($this->repository->findOneByName(new AiProviderName('Anthropic renamed')));
+        // the token in use is kept, not discarded
+        self::assertSame([], $this->tokenStorage->discardedTokens);
     }
 
     public function testUpdateUnknownProviderThrows(): void
@@ -149,6 +151,8 @@ final class UpdateAiProviderCommandHandlerTest extends TestCase
 
         self::assertSame('initial-token', $updated->apiToken()?->value);
         self::assertSame([], $this->tokenStorage->persistedTokens);
+        // the token in use is kept, not discarded
+        self::assertSame([], $this->tokenStorage->discardedTokens);
     }
 
     public function testProvidedTokenGoesThroughTokenStorage(): void
@@ -214,17 +218,45 @@ final class UpdateAiProviderCommandHandlerTest extends TestCase
         self::assertTrue($this->eventBus->shouldNotHaveDispatched(AiProviderUpdated::class));
     }
 
-    public function testChangingTheEndpointOfAServerThatMayNeedNoTokenDropsTheStoredOne(): void
+    public function testTheStoredTokenOfAServerThatMayNeedNoneIsRemovedOnRequest(): void
     {
         $aiProvider = $this->givenAiProvider('Local Ollama', isActivated: true);
 
-        ($this->handler)($this->updateCommand($aiProvider, apiToken: null, endpointUrl: 'http://ollama.internal:11434'));
+        ($this->handler)($this->updateCommand(
+            $aiProvider,
+            apiToken: null,
+            endpointUrl: 'http://ollama.internal:11434',
+            removeApiToken: true,
+        ));
 
         $updated = $this->repository->getById($aiProvider->id());
         self::assertSame('http://ollama.internal:11434', $updated->endpointUrl()->value);
-        // never sent to the new server, and no longer referenced
+        // no longer referenced
         self::assertNull($updated->apiToken());
         self::assertSame(['initial-token'], $this->tokenStorage->discardedTokens);
+    }
+
+    public function testAProviderWithoutATokenCanBeEdited(): void
+    {
+        $aiProvider = $this->givenAiProvider('Local Ollama', apiToken: null);
+
+        ($this->handler)($this->updateCommand($aiProvider, name: 'Local Ollama, renamed'));
+
+        $updated = $this->repository->getById($aiProvider->id());
+        self::assertNull($updated->apiToken());
+        self::assertSame([], $this->tokenStorage->persistedTokens);
+        self::assertSame([], $this->tokenStorage->discardedTokens);
+    }
+
+    public function testAProviderWithoutATokenCanBeGivenOne(): void
+    {
+        $aiProvider = $this->givenAiProvider('Local Ollama', apiToken: null);
+
+        ($this->handler)($this->updateCommand($aiProvider, apiToken: 'a-new-token'));
+
+        self::assertSame(['a-new-token'], $this->tokenStorage->persistedTokens);
+        self::assertNotNull($this->repository->getById($aiProvider->id())->apiToken());
+        self::assertSame([], $this->tokenStorage->discardedTokens);
     }
 
     public function testChangingTheEndpointWithANewTokenIsAllowed(): void
@@ -248,6 +280,8 @@ final class UpdateAiProviderCommandHandlerTest extends TestCase
         );
 
         self::assertSame('initial-token', $updated->apiToken()?->value);
+        // the token in use is kept, not discarded
+        self::assertSame([], $this->tokenStorage->discardedTokens);
     }
 
     public function testDispatchUpdatedEvent(): void
@@ -280,13 +314,14 @@ final class UpdateAiProviderCommandHandlerTest extends TestCase
         // a type accepting any endpoint, to exercise the token reuse rule
         AiProviderTypeEnum $type = AiProviderTypeEnum::OpenAiCompatible,
         string $endpointUrl = 'https://api.anthropic.com',
+        ?StoredApiToken $apiToken = new StoredApiToken('initial-token'),
     ): AiProvider {
         $aiProvider = new AiProvider(
             id: null,
             name: new AiProviderName($name),
             type: $type,
             endpointUrl: new EndpointUrl($endpointUrl),
-            apiToken: new StoredApiToken('initial-token'),
+            apiToken: $apiToken,
             defaultModel: new ModelName('claude-sonnet-4-6'),
             fastModel: null,
             description: null,
@@ -305,6 +340,7 @@ final class UpdateAiProviderCommandHandlerTest extends TestCase
         ?string $endpointUrl = null,
         ?ReasoningModeEnum $defaultModelReasoning = null,
         ?ReasoningModeEnum $fastModelReasoning = null,
+        bool $removeApiToken = false,
     ): UpdateAiProviderCommand {
         return new UpdateAiProviderCommand(
             id: $aiProvider->id(),
@@ -318,6 +354,7 @@ final class UpdateAiProviderCommandHandlerTest extends TestCase
             description: $aiProvider->description(),
             isActivated: $isActivated ?? $aiProvider->isActivated(),
             updatedBy: 1,
+            removeApiToken: $removeApiToken,
         );
     }
 }

@@ -109,7 +109,7 @@ const notes: Record<
 };
 
 // a code from a newer server than this page
-const unknownNote = { isWarning: false, label: labelConnectionWarningUnknown };
+const unknownNote = { isWarning: true, label: labelConnectionWarningUnknown };
 
 const getNote = (
   warning?: string | null

@@ -59,7 +59,10 @@ final readonly class TestConnectionResource
         #[ApiProperty(description: 'Whether the test request succeeded', writable: false)]
         public bool $success,
 
-        #[ApiProperty(description: 'Error message when the test failed', writable: false)]
+        #[ApiProperty(
+            description: 'Error message when the test failed, or the reason of a refusal when the warning is "refused"',
+            writable: false,
+        )]
         public ?string $message,
 
         #[ApiProperty(
