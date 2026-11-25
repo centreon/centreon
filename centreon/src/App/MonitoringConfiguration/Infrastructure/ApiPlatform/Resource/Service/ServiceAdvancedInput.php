@@ -92,7 +92,7 @@ final readonly class ServiceAdvancedInput
         #[WhenPlatform(forCloud: true, constraints: [
             new Assert\Count(exactly: 0, exactMessage: 'stalking_options is not available on a Cloud platform.'),
         ])]
-        #[Assert\All([new Assert\Choice(callback: [self::class, 'apiStalkingOptions'])])]
+        #[Assert\All([new Assert\Sequentially([new Assert\NotNull(message: 'This value should be of type string.'), new Assert\Type('string'), new Assert\Choice(callback: [self::class, 'apiStalkingOptions'])])])]
         public array $stalkingOptions = [],
 
         public ?TriStateEnum $eventHandlerEnabled = null,

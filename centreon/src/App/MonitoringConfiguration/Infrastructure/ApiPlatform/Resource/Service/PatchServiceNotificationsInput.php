@@ -104,7 +104,7 @@ final readonly class PatchServiceNotificationsInput
             openapiContext: ['type' => 'array', 'items' => ['type' => 'string', 'enum' => ServiceNotificationOptionEnumResolver::API_VALUES]],
         )]
         #[Assert\Sequentially([
-            new Assert\All([new Assert\Choice(callback: [self::class, 'apiOptions'])]),
+            new Assert\All([new Assert\Sequentially([new Assert\NotNull(message: 'This value should be of type string.'), new Assert\Type('string'), new Assert\Choice(callback: [self::class, 'apiOptions'])])]),
             new ExclusiveNotificationOption(),
         ])]
         public array $options = [],
@@ -114,7 +114,7 @@ final readonly class PatchServiceNotificationsInput
             openapiContext: ['type' => 'array', 'items' => ['type' => 'string', 'enum' => ServiceNotificationOptionEnumResolver::API_VALUES]],
         )]
         #[Assert\Sequentially([
-            new Assert\All([new Assert\Choice(callback: [self::class, 'apiOptions'])]),
+            new Assert\All([new Assert\Sequentially([new Assert\NotNull(message: 'This value should be of type string.'), new Assert\Type('string'), new Assert\Choice(callback: [self::class, 'apiOptions'])])]),
             new ExclusiveNotificationOption(),
         ])]
         public array $optionsToAdd = [],
@@ -123,7 +123,7 @@ final readonly class PatchServiceNotificationsInput
             description: 'Removed from the current options.',
             openapiContext: ['type' => 'array', 'items' => ['type' => 'string', 'enum' => ServiceNotificationOptionEnumResolver::API_VALUES]],
         )]
-        #[Assert\All([new Assert\Choice(callback: [self::class, 'apiOptions'])])]
+        #[Assert\All([new Assert\Sequentially([new Assert\NotNull(message: 'This value should be of type string.'), new Assert\Type('string'), new Assert\Choice(callback: [self::class, 'apiOptions'])])])]
         public array $optionsToRemove = [],
 
         #[Assert\PositiveOrZero]

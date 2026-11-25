@@ -100,7 +100,7 @@ final readonly class PatchServiceAdvancedInput
             openapiContext: ['type' => 'array', 'items' => ['type' => 'string', 'enum' => ServiceStalkingOptionEnumResolver::API_VALUES]],
         )]
         #[WhenPlatform(forCloud: true, constraints: [new Assert\Count(exactly: 0, exactMessage: self::STALKING_OPTIONS_ON_CLOUD)])]
-        #[Assert\All([new Assert\Choice(callback: [self::class, 'apiStalkingOptions'])])]
+        #[Assert\All([new Assert\Sequentially([new Assert\NotNull(message: 'This value should be of type string.'), new Assert\Type('string'), new Assert\Choice(callback: [self::class, 'apiStalkingOptions'])])])]
         public array $stalkingOptions = [],
 
         #[ApiProperty(
@@ -108,7 +108,7 @@ final readonly class PatchServiceAdvancedInput
             openapiContext: ['type' => 'array', 'items' => ['type' => 'string', 'enum' => ServiceStalkingOptionEnumResolver::API_VALUES]],
         )]
         #[WhenPlatform(forCloud: true, constraints: [new Assert\Count(exactly: 0, exactMessage: self::STALKING_OPTIONS_ON_CLOUD)])]
-        #[Assert\All([new Assert\Choice(callback: [self::class, 'apiStalkingOptions'])])]
+        #[Assert\All([new Assert\Sequentially([new Assert\NotNull(message: 'This value should be of type string.'), new Assert\Type('string'), new Assert\Choice(callback: [self::class, 'apiStalkingOptions'])])])]
         public array $stalkingOptionsToAdd = [],
 
         #[ApiProperty(
@@ -116,7 +116,7 @@ final readonly class PatchServiceAdvancedInput
             openapiContext: ['type' => 'array', 'items' => ['type' => 'string', 'enum' => ServiceStalkingOptionEnumResolver::API_VALUES]],
         )]
         #[WhenPlatform(forCloud: true, constraints: [new Assert\Count(exactly: 0, exactMessage: self::STALKING_OPTIONS_ON_CLOUD)])]
-        #[Assert\All([new Assert\Choice(callback: [self::class, 'apiStalkingOptions'])])]
+        #[Assert\All([new Assert\Sequentially([new Assert\NotNull(message: 'This value should be of type string.'), new Assert\Type('string'), new Assert\Choice(callback: [self::class, 'apiStalkingOptions'])])])]
         public array $stalkingOptionsToRemove = [],
 
         public ?TriStateEnum $eventHandlerEnabled = null,
