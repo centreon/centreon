@@ -35,4 +35,12 @@ final readonly class HostTemplateName
     ) {
         Assert::lengthBetween($value, self::MIN_LENGTH, self::MAX_LENGTH);
     }
+
+    /**
+     * A name typed by a user: trimmed, its inner spaces turned into underscores.
+     */
+    public static function fromUserInput(string $value): self
+    {
+        return new self(str_replace(' ', '_', trim($value)));
+    }
 }
