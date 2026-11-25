@@ -3,13 +3,12 @@ import { MenuItem, TextField } from '@mui/material';
 import type { InputPropsWithoutGroup } from '@centreon/ui';
 
 import { useFormikContext } from 'formik';
-import { equals, path } from 'ramda';
+import { path } from 'ramda';
 import { JSX } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { ReasoningMode } from '../models';
 import {
-  labelReasoningHint,
   labelReasoningMinimal,
   labelReasoningModelDefault
 } from '../translatedLabels';
@@ -18,11 +17,6 @@ const options = [
   { label: labelReasoningMinimal, value: ReasoningMode.Minimal },
   { label: labelReasoningModelDefault, value: ReasoningMode.ModelDefault }
 ];
-
-// the hint is shown once, under the default model's setting: it applies to
-// both
-const hasHint = (fieldName: string): boolean =>
-  equals(fieldName, 'defaultModelReasoning');
 
 // The reasoning setting of a model, under its model field. The hidden input
 // holds the value and the test id; the visible button opens the options.
@@ -43,7 +37,6 @@ const ReasoningField = ({
     <TextField
       disabled={getDisabled?.(values) ?? false}
       fullWidth
-      helperText={hasHint(fieldName) ? t(labelReasoningHint) : undefined}
       label={t(label)}
       onChange={(event) => setFieldValue(fieldName, event.target.value)}
       select

@@ -46,6 +46,7 @@ import FetchPricesButton from './FetchPricesButton';
 import ModelField from './ModelField';
 import MoneyField from './MoneyField';
 import ReasoningField from './ReasoningField';
+import ReasoningHint from './ReasoningHint';
 import RegionField from './RegionField';
 import TestConnectionButton from './TestConnectionButton';
 import TypeField from './TypeField';
@@ -196,6 +197,15 @@ export const useFormInputs = ({ canEdit }: Props): FormInputsState => {
         }
       ]),
       section(labelModels, 'models', [
+        {
+          // lists the provider's models into the fields below; uses the token
+          // from the Connection section
+          custom: { Component: FetchModelsButton },
+          fieldName: 'fetchModels',
+          hideInput: hideWithoutWriteAccess,
+          label: `${idPrefix}-fetchModels`,
+          type: InputType.Custom
+        },
         // each model with its reasoning setting under it, side by side from
         // 600px, stacked in that order below
         pair('models-row', [
@@ -246,12 +256,9 @@ export const useFormInputs = ({ canEdit }: Props): FormInputsState => {
           })
         ]),
         {
-          // lists the provider's models into the fields above; uses the token
-          // from the Connection section
-          custom: { Component: FetchModelsButton },
-          fieldName: 'fetchModels',
-          hideInput: hideWithoutWriteAccess,
-          label: `${idPrefix}-fetchModels`,
+          custom: { Component: ReasoningHint },
+          fieldName: 'reasoningHint',
+          label: `${idPrefix}-reasoningHint`,
           type: InputType.Custom
         }
       ]),
