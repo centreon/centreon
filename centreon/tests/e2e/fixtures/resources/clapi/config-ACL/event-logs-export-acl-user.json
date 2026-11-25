@@ -1,0 +1,52 @@
+[
+    {
+        "action": "ADD",
+        "object": "CONTACT",
+        "values": "event-logs-export-user;event-logs-export-user;event-logs-export-user@centreon.test;Centreon!2021User;0;1;en_US;local"
+    },
+    {
+        "action": "ADD",
+        "object": "ACLGROUP",
+        "values": "event-logs-export-ACLGROUP;event-logs-export-ACLGROUP"
+    },
+    {
+        "action": "ADD",
+        "object": "ACLMENU",
+        "values": "event-logs-export-ACLMENU;event-logs-export-ACLMENU"
+    },
+    {
+        "action": "GRANTRO",
+        "object": "ACLMENU",
+        "values": "event-logs-export-ACLMENU;0;Monitoring;Event Logs;Event Logs"
+    },
+    {
+        "action": "ADDMENU",
+        "object": "ACLGROUP",
+        "values": "event-logs-export-ACLGROUP;event-logs-export-ACLMENU"
+    },
+    {
+        "action": "ADD",
+        "object": "ACLRESOURCE",
+        "values": "event-logs-export-ACLRESOURCE;event-logs-export-ACLRESOURCE"
+    },
+    {
+        "action": "GRANT_METASERVICE",
+        "object": "ACLRESOURCE",
+        "values": "event-logs-export-ACLRESOURCE;event-logs-export-meta-1"
+    },
+    {
+        "action": "ADDRESOURCE",
+        "object": "ACLGROUP",
+        "values": "event-logs-export-ACLGROUP;event-logs-export-ACLRESOURCE"
+    },
+    {
+        "action": "SETCONTACT",
+        "object": "ACLGROUP",
+        "values": "event-logs-export-ACLGROUP;event-logs-export-user"
+    },
+    {
+        "action": "RELOAD",
+        "object": "ACL",
+        "values": ""
+    }
+]

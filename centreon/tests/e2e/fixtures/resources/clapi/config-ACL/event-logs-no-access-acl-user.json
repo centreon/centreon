@@ -1,0 +1,37 @@
+[
+    {
+        "action": "ADD",
+        "object": "CONTACT",
+        "values": "event-logs-no-access-user;event-logs-no-access-user;event-logs-no-access-user@centreon.test;Centreon!2021User;0;1;en_US;local"
+    },
+    {
+        "action": "ADD",
+        "object": "ACLGROUP",
+        "values": "event-logs-no-access-ACLGROUP;event-logs-no-access-ACLGROUP"
+    },
+    {
+        "action": "ADD",
+        "object": "ACLMENU",
+        "values": "event-logs-no-access-ACLMENU;event-logs-no-access-ACLMENU"
+    },
+    {
+        "action": "GRANTRO",
+        "object": "ACLMENU",
+        "values": "event-logs-no-access-ACLMENU;0;Monitoring;Resources Status"
+    },
+    {
+        "action": "ADDMENU",
+        "object": "ACLGROUP",
+        "values": "event-logs-no-access-ACLGROUP;event-logs-no-access-ACLMENU"
+    },
+    {
+        "action": "SETCONTACT",
+        "object": "ACLGROUP",
+        "values": "event-logs-no-access-ACLGROUP;event-logs-no-access-user"
+    },
+    {
+        "action": "RELOAD",
+        "object": "ACL",
+        "values": ""
+    }
+]
