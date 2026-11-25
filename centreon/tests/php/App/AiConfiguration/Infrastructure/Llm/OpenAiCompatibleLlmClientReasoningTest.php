@@ -35,12 +35,14 @@ use App\AiConfiguration\Domain\Llm\LlmRequest;
 use App\AiConfiguration\Domain\Llm\LlmRoleEnum;
 use App\AiConfiguration\Infrastructure\Llm\OpenAiCompatibleLlmClient;
 use PHPUnit\Framework\TestCase;
+use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
-use Symfony\Contracts\Cache\CacheInterface;
+use Tests\App\AiConfiguration\Infrastructure\Double\FailingCachePool;
 use Tests\App\Shared\Infrastructure\Legacy\Double\RecordingLogger;
 
 final class OpenAiCompatibleLlmClientReasoningTest extends TestCase
@@ -276,6 +278,296 @@ final class OpenAiCompatibleLlmClientReasoningTest extends TestCase
         self::assertTrue($this->sentBodies[1]['stream'] ?? false);
     }
 
+    public function testAMistralRejectionFallsBackToTheNextEffort(): void
+    {
+        $response = $this->createClient([
+            new MockResponse(
+                '{"object":"error","message":"reasoning_effort none is not supported","type":"invalid_request_invalid_args"}',
+                ['http_code' => 400]
+            ),
+            $this->answer('pong'),
+        ])->complete($this->createRequest());
+
+        self::assertSame(['none', 'minimal'], array_column($this->sentBodies, 'reasoning_effort'));
+        self::assertSame('reasoning_effort: minimal', $response->reasoning);
+    }
+
+    public function testAFastApiValidationErrorFallsBackToTheNextEffort(): void
+    {
+        $response = $this->createClient([
+            new MockResponse(json_encode(['detail' => [[
+                'loc' => ['body', 'reasoning_effort'],
+                'msg' => "Input should be 'minimal', 'low', 'medium' or 'high'",
+                'type' => 'literal_error',
+            ]]], \JSON_THROW_ON_ERROR), ['http_code' => 422]),
+            $this->answer('pong'),
+        ])->complete($this->createRequest());
+
+        self::assertSame(['none', 'minimal'], array_column($this->sentBodies, 'reasoning_effort'));
+        self::assertSame('reasoning_effort: minimal', $response->reasoning);
+    }
+
+    public function testAFastApiValidationErrorNotAboutReasoningIsNotRetried(): void
+    {
+        $client = $this->createClient([
+            new MockResponse(
+                '{"detail":[{"loc":["body","messages"],"msg":"Field required","type":"missing"}]}',
+                ['http_code' => 422]
+            ),
+            $this->answer('pong'),
+        ]);
+
+        try {
+            $client->complete($this->createRequest());
+            self::fail('The request should have failed');
+        } catch (LlmRequestFailedException $exception) {
+            self::assertStringContainsString('body.messages: Field required', $exception->getMessage());
+        }
+        self::assertCount(1, $this->sentBodies);
+    }
+
+    public function testTheModelNameIsNotTakenForARejection(): void
+    {
+        $client = $this->createClient([
+            $this->rejection('The model `deepseek-reasoner` does not support this request'),
+            $this->answer('pong'),
+        ]);
+
+        try {
+            $client->complete($this->createRequest(model: new ModelName('DeepSeek-Reasoner')));
+            self::fail('The request should have failed');
+        } catch (LlmRequestFailedException $exception) {
+            self::assertStringContainsString('deepseek-reasoner', $exception->getMessage());
+        }
+        self::assertCount(1, $this->sentBodies);
+    }
+
+    public function testARejectionNamingTheSettingBesidesTheModelIsStillOne(): void
+    {
+        $response = $this->createClient([
+            $this->rejection('qwen3-thinking does not support reasoning_effort none'),
+            $this->answer('pong'),
+        ])->complete($this->createRequest(model: new ModelName('qwen3-thinking')));
+
+        self::assertSame('reasoning_effort: minimal', $response->reasoning);
+    }
+
+    public function testTheOutcomeIsRememberedPerEndpoint(): void
+    {
+        $cache = new ArrayAdapter();
+        $this->createClient([
+            $this->rejection('reasoning_effort is not supported'),
+            $this->rejection('reasoning_effort is not supported'),
+            $this->rejection('reasoning_effort is not supported'),
+            $this->answer('pong'),
+        ], cache: $cache)->complete($this->createRequest());
+        $this->forgetSentBodies();
+
+        $this->createClient([$this->answer('pong')], cache: $cache, endpoint: 'https://mistral.example.com')
+            ->complete($this->createRequest());
+
+        self::assertSame(['none'], array_column($this->sentBodies, 'reasoning_effort'));
+    }
+
+    public function testARememberedEffortFailingForAnotherReasonIsNotRediscovered(): void
+    {
+        $cache = new ArrayAdapter();
+        $this->createClient([$this->rejection('reasoning_effort none is not supported'), $this->answer('pong')], cache: $cache)
+            ->complete($this->createRequest());
+        $this->forgetSentBodies();
+
+        try {
+            $this->createClient([
+                new MockResponse('{"error":{"message":"reasoning backend unavailable"}}', ['http_code' => 500]),
+                $this->answer('pong'),
+            ], cache: $cache)->complete($this->createRequest());
+            self::fail('The request should have failed');
+        } catch (LlmRequestFailedException $exception) {
+            self::assertStringContainsString('reasoning backend unavailable', $exception->getMessage());
+        }
+        self::assertSame(['minimal'], array_column($this->sentBodies, 'reasoning_effort'));
+        $this->forgetSentBodies();
+
+        // still remembered
+        $this->createClient([$this->answer('pong')], cache: $cache)->complete($this->createRequest());
+        self::assertSame(['minimal'], array_column($this->sentBodies, 'reasoning_effort'));
+    }
+
+    public function testAFailedDiscoveryIsNotRemembered(): void
+    {
+        $cache = new ArrayAdapter();
+        try {
+            $this->createClient([
+                $this->rejection('reasoning_effort none is not supported'),
+                new MockResponse('{"error":{"message":"overloaded"}}', ['http_code' => 503]),
+            ], cache: $cache)->complete($this->createRequest());
+            self::fail('The request should have failed');
+        } catch (LlmRequestFailedException $exception) {
+            self::assertStringContainsString('overloaded', $exception->getMessage());
+        }
+        $this->forgetSentBodies();
+
+        $this->createClient([$this->answer('pong')], cache: $cache)->complete($this->createRequest());
+
+        self::assertSame(['none'], array_column($this->sentBodies, 'reasoning_effort'));
+    }
+
+    public function testARememberedEffortRejectedByAModelAcceptingNoneIsForgotten(): void
+    {
+        $cache = new ArrayAdapter();
+        $this->createClient([$this->rejection('reasoning_effort none is not supported'), $this->answer('pong')], cache: $cache)
+            ->complete($this->createRequest());
+        $this->forgetSentBodies();
+
+        $logger = new RecordingLogger();
+        $client = $this->createClient([
+            $this->rejection('Unrecognized request argument supplied: reasoning_effort'),
+            $this->rejection('Unrecognized request argument supplied: reasoning_effort'),
+            $this->rejection('Unrecognized request argument supplied: reasoning_effort'),
+            $this->rejection('Unrecognized request argument supplied: reasoning_effort'),
+            $this->answer('pong'),
+            $this->answer('pong again'),
+        ], cache: $cache, logger: $logger);
+        $response = $client->complete($this->createRequest());
+        self::assertNull($response->reasoning);
+        self::assertSame(['minimal', 'none', 'minimal', 'low'], array_column($this->sentBodies, 'reasoning_effort'));
+        self::assertArrayNotHasKey('reasoning_effort', $this->sentBodies[4]);
+        $this->forgetSentBodies();
+
+        $client->complete($this->createRequest());
+
+        self::assertCount(1, $this->sentBodies);
+        self::assertArrayNotHasKey('reasoning_effort', $this->sentBodies[0]);
+        $warnings = array_filter(
+            $logger->records(),
+            static fn (array $record): bool => $record['level'] === 'warning' && str_contains($record['message'], 'reasoning'),
+        );
+        self::assertCount(1, $warnings);
+    }
+
+    public function testTheOutcomeIsForgottenAfterADay(): void
+    {
+        $clock = new MockClock('2026-11-25 12:00:00');
+        $cache = new ArrayAdapter(clock: $clock);
+        $this->createClient([$this->rejection('reasoning_effort none is not supported'), $this->answer('pong')], cache: $cache)
+            ->complete($this->createRequest());
+        $this->forgetSentBodies();
+
+        $clock->modify('+23 hours');
+        $this->createClient([$this->answer('pong')], cache: $cache)->complete($this->createRequest());
+        self::assertSame(['minimal'], array_column($this->sentBodies, 'reasoning_effort'));
+        $this->forgetSentBodies();
+
+        $clock->modify('+1 hour +1 second');
+        $this->createClient([$this->answer('pong')], cache: $cache)->complete($this->createRequest());
+        self::assertSame(['none'], array_column($this->sentBodies, 'reasoning_effort'));
+    }
+
+    public function testACacheThatCanNotBeReadIsWorkedAround(): void
+    {
+        $logger = new RecordingLogger();
+        $response = $this->createClient(
+            [$this->rejection('reasoning_effort none is not supported'), $this->answer('pong')],
+            cache: new FailingCachePool(failsToRead: true),
+            logger: $logger,
+        )->complete($this->createRequest());
+
+        self::assertSame('reasoning_effort: minimal', $response->reasoning);
+        self::assertStringContainsString('can not be read from the cache', $logger->records()[0]['message'] ?? '');
+    }
+
+    public function testACacheThatCanNotSaveMakesEachRequestDiscoverAgain(): void
+    {
+        $logger = new RecordingLogger();
+        $client = $this->createClient([
+            $this->rejection('reasoning_effort none is not supported'),
+            $this->answer('pong'),
+            $this->rejection('reasoning_effort none is not supported'),
+            $this->answer('pong again'),
+        ], cache: new FailingCachePool(failsToRead: false), logger: $logger);
+
+        $client->complete($this->createRequest());
+
+        $response = $client->complete($this->createRequest());
+
+        self::assertSame('pong again', $response->content);
+        self::assertSame(['none', 'minimal', 'none', 'minimal'], array_column($this->sentBodies, 'reasoning_effort'));
+        $lastRecord = $logger->lastRecord();
+        self::assertNotNull($lastRecord);
+        self::assertSame('warning', $lastRecord['level']);
+        self::assertStringContainsString('can not be saved in the cache', $lastRecord['message']);
+    }
+
+    public function testARequestNamingAModelGetsTheSettingOfTheTierItServes(): void
+    {
+        $client = $this->createClient(
+            [$this->answer('pong'), $this->answer('pong'), $this->answer('pong')],
+            fastModel: new ModelName('mistral-small-latest'),
+            defaultModelReasoning: ReasoningModeEnum::Default,
+            fastModelReasoning: ReasoningModeEnum::Minimal,
+        );
+
+        $client->complete($this->createRequest(model: new ModelName('mistral-small-latest')));
+        $client->complete($this->createRequest(model: new ModelName('mistral-large-latest'), tier: LlmModelTierEnum::Fast));
+        $client->complete($this->createRequest(model: new ModelName('magistral-medium-latest'), tier: LlmModelTierEnum::Fast));
+
+        self::assertSame('none', $this->sentBodies[0]['reasoning_effort'] ?? null);
+        self::assertArrayNotHasKey('reasoning_effort', $this->sentBodies[1]);
+        self::assertSame('magistral-medium-latest', $this->sentBodies[2]['model'] ?? null);
+        self::assertArrayNotHasKey('reasoning_effort', $this->sentBodies[2]);
+    }
+
+    public function testAFastModelEqualToTheDefaultOneFollowsTheTier(): void
+    {
+        $client = $this->createClient(
+            [$this->answer('pong'), $this->answer('pong'), $this->answer('pong'), $this->answer('pong')],
+            fastModel: new ModelName('mistral-large-latest'),
+            defaultModelReasoning: ReasoningModeEnum::Default,
+            fastModelReasoning: ReasoningModeEnum::Minimal,
+        );
+
+        $client->complete($this->createRequest());
+        $client->complete($this->createRequest(tier: LlmModelTierEnum::Fast));
+        $client->complete($this->createRequest(model: new ModelName('mistral-large-latest')));
+        $client->complete($this->createRequest(model: new ModelName('mistral-large-latest'), tier: LlmModelTierEnum::Fast));
+
+        self::assertArrayNotHasKey('reasoning_effort', $this->sentBodies[0]);
+        self::assertSame('none', $this->sentBodies[1]['reasoning_effort'] ?? null);
+        self::assertArrayNotHasKey('reasoning_effort', $this->sentBodies[2]);
+        self::assertSame('none', $this->sentBodies[3]['reasoning_effort'] ?? null);
+    }
+
+    public function testTheResponseReportsTheTokenLimitSentAndTheReasoningMode(): void
+    {
+        $minimal = $this->createClient([$this->rejection('reasoning_effort none is not supported'), $this->answer('pong')])
+            ->complete($this->createRequest(maxTokens: 512));
+        $default = $this->createClient([$this->answer('pong')], defaultModelReasoning: ReasoningModeEnum::Default)
+            ->complete($this->createRequest(maxTokens: 512));
+
+        self::assertSame(512 + 2048, $minimal->maxTokens);
+        self::assertSame(ReasoningModeEnum::Minimal, $minimal->reasoningMode);
+        self::assertSame(512 + 2048, $default->maxTokens);
+        self::assertSame(ReasoningModeEnum::Default, $default->reasoningMode);
+    }
+
+    public function testAStreamedResponseReportsTheTokenLimitSent(): void
+    {
+        $generator = $this->createClient([$this->stream(['pong'])])->stream($this->createRequest(maxTokens: 512));
+        iterator_to_array($generator, false);
+
+        self::assertSame(512, $generator->getReturn()->maxTokens);
+        self::assertSame(ReasoningModeEnum::Minimal, $generator->getReturn()->reasoningMode);
+    }
+
+    public function testReasoningClosedWithoutAnOpeningTagIsNotPartOfTheAnswer(): void
+    {
+        // the chat template put the opening tag in the prompt
+        $response = $this->createClient([$this->answer("The user wants pong.\n</think>\n\npong")])
+            ->complete($this->createRequest());
+
+        self::assertSame('pong', $response->content);
+    }
+
     private function forgetSentBodies(): void
     {
         $this->sentBodies = [];
@@ -289,8 +581,9 @@ final class OpenAiCompatibleLlmClientReasoningTest extends TestCase
         ?ModelName $fastModel = null,
         ReasoningModeEnum $defaultModelReasoning = ReasoningModeEnum::Minimal,
         ReasoningModeEnum $fastModelReasoning = ReasoningModeEnum::Minimal,
-        ?CacheInterface $cache = null,
+        ?CacheItemPoolInterface $cache = null,
         ?LoggerInterface $logger = null,
+        string $endpoint = 'https://api.mistral.ai',
     ): OpenAiCompatibleLlmClient {
         $httpClient = new MockHttpClient(
             function (string $method, string $url, array $options) use (&$responses): MockResponse {
@@ -309,7 +602,7 @@ final class OpenAiCompatibleLlmClientReasoningTest extends TestCase
 
         return new OpenAiCompatibleLlmClient(
             $httpClient,
-            new EndpointUrl('https://api.mistral.ai'),
+            new EndpointUrl($endpoint),
             new ApiToken('a-token'),
             new ModelName('mistral-large-latest'),
             $fastModel,

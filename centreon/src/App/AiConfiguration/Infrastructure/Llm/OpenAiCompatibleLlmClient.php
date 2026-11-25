@@ -34,10 +34,10 @@ use App\AiConfiguration\Domain\Llm\LlmModelTierEnum;
 use App\AiConfiguration\Domain\Llm\LlmRequest;
 use App\AiConfiguration\Domain\Llm\LlmResponse;
 use App\AiConfiguration\Domain\Llm\LlmUsage;
+use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
-use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface as HttpClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TimeoutExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
@@ -75,7 +75,7 @@ final readonly class OpenAiCompatibleLlmClient implements LlmClientInterface
         // without a fast model, the default model serves the fast tier with its own setting
         private ReasoningModeEnum $fastModelReasoning = ReasoningModeEnum::Minimal,
         // remembers which reasoning setting each model accepts
-        CacheInterface $cache = new ArrayAdapter(),
+        CacheItemPoolInterface $cache = new ArrayAdapter(),
     ) {
         $this->reasoningNegotiator = new ReasoningNegotiator(
             $cache,
@@ -87,7 +87,7 @@ final readonly class OpenAiCompatibleLlmClient implements LlmClientInterface
 
     public function complete(LlmRequest $request): LlmResponse
     {
-        [$response, $reasoning] = $this->send($request, stream: false);
+        [$response, $reasoning, $reasoningMode] = $this->send($request, stream: false);
         $data = $this->decodeOrFail($response, $this->timeoutFor($request));
 
         $choice = ProviderPayload::array(ProviderPayload::array($data['choices'] ?? null)[0] ?? null);
@@ -112,6 +112,8 @@ final readonly class OpenAiCompatibleLlmClient implements LlmClientInterface
             truncated: $finishReason === 'length',
             refusal: $this->refusalOf(ProviderPayload::string($message['refusal'] ?? null) ?? '', $finishReason),
             reasoning: $reasoning?->label,
+            maxTokens: ReasoningNegotiator::maxTokensFor($request->maxTokens, $reasoning),
+            reasoningMode: $reasoningMode,
         );
     }
 
@@ -119,7 +121,7 @@ final readonly class OpenAiCompatibleLlmClient implements LlmClientInterface
     {
         $timeout = $this->timeoutFor($request);
         // a rejected reasoning setting comes with the status, before any chunk
-        [$response, $reasoning] = $this->send($request, stream: true);
+        [$response, $reasoning, $reasoningMode] = $this->send($request, stream: true);
 
         $parser = new ServerSentEventParser();
         $thinkBlockFilter = new ThinkBlockFilter();
@@ -196,6 +198,8 @@ final readonly class OpenAiCompatibleLlmClient implements LlmClientInterface
             $truncated,
             $this->refusalOf($refusal, $finishReason),
             $reasoning?->label,
+            ReasoningNegotiator::maxTokensFor($request->maxTokens, $reasoning),
+            $reasoningMode,
         );
     }
 
@@ -313,16 +317,20 @@ final readonly class OpenAiCompatibleLlmClient implements LlmClientInterface
      *
      * @throws LlmRequestFailedException when the request fails or the provider answers with an error status
      *
-     * @return array{ResponseInterface, ReasoningCandidate|null} the successful response, and the
-     *                                                           reasoning setting it was sent with
+     * @return array{ResponseInterface, ReasoningCandidate|null, ReasoningModeEnum} the successful
+     *                                                                              response, the
+     *                                                                              reasoning setting it
+     *                                                                              was sent with, and
+     *                                                                              the mode of the model
      */
     private function send(LlmRequest $request, bool $stream): array
     {
         $model = $request->model ?? $this->resolveTierModel($request->tier);
+        $mode = $this->resolveReasoning($request, $model);
 
-        return $this->reasoningNegotiator->send(
+        [$response, $reasoning] = $this->reasoningNegotiator->send(
             $model,
-            $this->resolveReasoning($request, $model),
+            $mode,
             function (?ReasoningCandidate $reasoning) use ($request, $model, $stream): ResponseInterface {
                 $response = $this->sendRequest($request, $model, $reasoning, $stream);
                 $this->assertSuccessful($response, $this->timeoutFor($request));
@@ -330,6 +338,8 @@ final readonly class OpenAiCompatibleLlmClient implements LlmClientInterface
                 return $response;
             },
         );
+
+        return [$response, $reasoning, $mode];
     }
 
     /**

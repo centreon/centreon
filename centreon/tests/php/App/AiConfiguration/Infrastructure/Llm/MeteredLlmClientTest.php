@@ -32,6 +32,7 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\Currency;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\Pricing;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\ReasoningModeEnum;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\SpendLimit;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\StoredApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\TierPricing;
@@ -219,6 +220,55 @@ final class MeteredLlmClientTest extends TestCase
         $this->expectExceptionMessage('whole budget of 1024 tokens');
 
         $client->complete($this->request());
+    }
+
+    public function testATruncatedEmptyAnswerNamesTheTokenLimitSent(): void
+    {
+        $client = $this->metered(
+            $this->provider(),
+            new FakeAiProviderUsageRepository(),
+            new FakeLlmClient(new LlmResponse(
+                '',
+                'deepseek-reasoner',
+                new LlmUsage(37, 3072),
+                truncated: true,
+                maxTokens: 3072,
+                reasoningMode: ReasoningModeEnum::Default,
+            )),
+        );
+
+        try {
+            $client->complete($this->request());
+            self::fail('Expected an empty answer to fail');
+        } catch (LlmRequestFailedException $exception) {
+            self::assertStringContainsString('whole budget of 3072 tokens', $exception->getMessage());
+            self::assertStringContainsString('Turn reasoning down for this model', $exception->getMessage());
+        }
+    }
+
+    public function testATruncatedEmptyAnswerOfAModelAlreadyReasoningMinimallyAdvisesAnotherModel(): void
+    {
+        $client = $this->metered(
+            $this->provider(),
+            new FakeAiProviderUsageRepository(),
+            new FakeLlmClient(new LlmResponse(
+                '',
+                'deepseek-reasoner',
+                new LlmUsage(37, 3072),
+                truncated: true,
+                maxTokens: 3072,
+                reasoningMode: ReasoningModeEnum::Minimal,
+            )),
+        );
+
+        try {
+            $client->complete($this->request());
+            self::fail('Expected an empty answer to fail');
+        } catch (LlmRequestFailedException $exception) {
+            self::assertStringContainsString('whole budget of 3072 tokens', $exception->getMessage());
+            self::assertStringContainsString('reasons even at its lowest setting: choose another model', $exception->getMessage());
+            self::assertStringNotContainsString('Turn reasoning down', $exception->getMessage());
+        }
     }
 
     public function testConnectionTestAcceptsAnEmptyAnswer(): void

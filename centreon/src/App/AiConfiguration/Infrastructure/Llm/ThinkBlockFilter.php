@@ -28,6 +28,12 @@ namespace App\AiConfiguration\Infrastructure\Llm;
  * on Ollama or vLLM) write at the start of their answer: it is their reasoning,
  * not the answer. Fed the answer in pieces as they stream in; an unterminated
  * block is all reasoning, so nothing of it is kept.
+ *
+ * Some chat templates (e.g. DeepSeek R1 on a raw vLLM or llama.cpp server) put the
+ * opening tag in the prompt, so the answer reads "reasoning…</think>answer": a whole
+ * answer (strip()) with no opening tag before its first closing tag loses everything
+ * up to that closing tag and the blank lines after it. A streamed answer
+ * without an opening tag is passed on as it comes, closing tag and all.
  */
 final class ThinkBlockFilter
 {
@@ -47,6 +53,12 @@ final class ThinkBlockFilter
      */
     public static function strip(string $content): string
     {
+        $end = mb_strpos($content, self::CLOSING_TAG);
+        if ($end !== false && ! str_contains(mb_substr($content, 0, $end), self::OPENING_TAG)) {
+            // the opening tag was in the prompt
+            return ltrim(mb_substr($content, $end + mb_strlen(self::CLOSING_TAG)));
+        }
+
         $filter = new self();
 
         return $filter->push($content) . $filter->finish();

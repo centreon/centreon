@@ -65,17 +65,21 @@ final class ProviderPayload
     /**
      * The message of an {"error": {"message": "..."}} or {"error": "..."} document, or of
      * one with a top-level "message" (Mistral) or "detail" (FastAPI servers), if it has one,
-     * without the API token a provider may echo in it.
+     * without the API token a provider may echo in it. The document may come wrapped in a
+     * list (Gemini).
      */
     public static function errorMessage(mixed $data, ApiToken $apiToken): ?string
     {
         if (! is_array($data)) {
             return null;
         }
+        if (array_is_list($data) && is_array($data[0] ?? null)) {
+            $data = $data[0];
+        }
 
         $error = $data['error'] ?? null;
         $message = is_array($error) ? ($error['message'] ?? null) : $error;
-        $message ??= $data['message'] ?? $data['detail'] ?? null;
+        $message ??= $data['message'] ?? self::detailMessage($data['detail'] ?? null);
 
         if (! is_string($message) || trim($message) === '') {
             return null;
@@ -97,5 +101,35 @@ final class ProviderPayload
             'status_code' => $statusCode,
             'body_length' => mb_strlen($body),
         ]);
+    }
+
+    /**
+     * A FastAPI "detail": a message, or the list of validation errors of a 422, each with
+     * its "msg" and the "loc" of the field it is about.
+     */
+    private static function detailMessage(mixed $detail): ?string
+    {
+        if (! is_array($detail)) {
+            return self::string($detail);
+        }
+
+        $messages = [];
+        foreach ($detail as $error) {
+            $error = self::array($error);
+            $message = self::string($error['msg'] ?? null);
+            if ($message === null) {
+                continue;
+            }
+            if (trim((string) $message) === '') {
+                continue;
+            }
+            $location = array_filter(
+                self::array($error['loc'] ?? null),
+                static fn (mixed $part): bool => is_string($part) || is_int($part),
+            );
+            $messages[] = $location !== [] ? implode('.', $location) . ': ' . $message : $message;
+        }
+
+        return $messages !== [] ? implode('; ', $messages) : null;
     }
 }

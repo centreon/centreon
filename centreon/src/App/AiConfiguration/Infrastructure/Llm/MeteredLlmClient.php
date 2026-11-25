@@ -112,7 +112,11 @@ final readonly class MeteredLlmClient implements LlmClientInterface
         }
 
         if (trim($response->content) === '') {
-            throw LlmRequestFailedException::fromEmptyAnswer($response->truncated, $request->maxTokens);
+            throw LlmRequestFailedException::fromEmptyAnswer(
+                $response->truncated,
+                $response->maxTokens ?? $request->maxTokens,
+                $response->reasoningMode,
+            );
         }
     }
 

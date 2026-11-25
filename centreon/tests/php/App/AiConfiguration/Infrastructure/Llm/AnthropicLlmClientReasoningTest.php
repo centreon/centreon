@@ -35,12 +35,12 @@ use App\AiConfiguration\Domain\Llm\LlmRequest;
 use App\AiConfiguration\Domain\Llm\LlmRoleEnum;
 use App\AiConfiguration\Infrastructure\Llm\AnthropicLlmClient;
 use PHPUnit\Framework\TestCase;
+use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
-use Symfony\Contracts\Cache\CacheInterface;
 use Tests\App\Shared\Infrastructure\Legacy\Double\RecordingLogger;
 
 final class AnthropicLlmClientReasoningTest extends TestCase
@@ -180,6 +180,32 @@ final class AnthropicLlmClientReasoningTest extends TestCase
         self::assertSame('thinking: between_tools', $generator->getReturn()->reasoning);
     }
 
+    public function testARequestNamingAModelGetsTheSettingOfTheTierItServes(): void
+    {
+        $client = $this->createClient(
+            [$this->answer('pong'), $this->answer('pong'), $this->answer('pong')],
+            defaultModelReasoning: ReasoningModeEnum::Default,
+            fastModelReasoning: ReasoningModeEnum::Minimal,
+        );
+
+        $client->complete($this->createRequest(model: new ModelName('claude-haiku-4-5')));
+        $client->complete($this->createRequest(tier: LlmModelTierEnum::Fast, model: new ModelName('claude-sonnet-4-6')));
+        $client->complete($this->createRequest(tier: LlmModelTierEnum::Fast, model: new ModelName('claude-opus-4-6')));
+
+        self::assertSame(['type' => 'disabled'], $this->sentBodies[0]['thinking'] ?? null);
+        self::assertArrayNotHasKey('thinking', $this->sentBodies[1]);
+        self::assertSame('claude-opus-4-6', $this->sentBodies[2]['model'] ?? null);
+        self::assertArrayNotHasKey('thinking', $this->sentBodies[2]);
+    }
+
+    public function testTheResponseReportsTheTokenLimitSentAndTheReasoningMode(): void
+    {
+        $response = $this->createClient([$this->answer('pong')])->complete($this->createRequest(maxTokens: 256));
+
+        self::assertSame(256, $response->maxTokens);
+        self::assertSame(ReasoningModeEnum::Minimal, $response->reasoningMode);
+    }
+
     private function forgetSentBodies(): void
     {
         $this->sentBodies = [];
@@ -192,7 +218,7 @@ final class AnthropicLlmClientReasoningTest extends TestCase
         array $responses,
         ReasoningModeEnum $defaultModelReasoning = ReasoningModeEnum::Minimal,
         ReasoningModeEnum $fastModelReasoning = ReasoningModeEnum::Minimal,
-        ?CacheInterface $cache = null,
+        ?CacheItemPoolInterface $cache = null,
         ?LoggerInterface $logger = null,
     ): AnthropicLlmClient {
         $httpClient = new MockHttpClient(
@@ -223,11 +249,15 @@ final class AnthropicLlmClientReasoningTest extends TestCase
         );
     }
 
-    private function createRequest(int $maxTokens = 512, LlmModelTierEnum $tier = LlmModelTierEnum::Default): LlmRequest
-    {
+    private function createRequest(
+        int $maxTokens = 512,
+        LlmModelTierEnum $tier = LlmModelTierEnum::Default,
+        ?ModelName $model = null,
+    ): LlmRequest {
         return new LlmRequest(
             messages: [new LlmMessage(LlmRoleEnum::User, 'ping')],
             feature: AiFeatureEnum::ResourceExplanation,
+            model: $model,
             tier: $tier,
             maxTokens: $maxTokens,
         );

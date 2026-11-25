@@ -25,6 +25,7 @@ import {
   labelBedrock,
   labelConnectionSucceededWithModel,
   labelConnectionSucceededWithModelAndReasoning,
+  labelConnectionSucceededWithReasoning,
   labelCurrency,
   labelCurrencyChangeResetsUsage,
   labelCurrencyRequired,
@@ -603,6 +604,38 @@ export default (): void => {
       expect((secondRequest.body as Payload).default_model_reasoning).toBe(
         'default'
       );
+    });
+
+    it('shows the reasoning applied when the provider does not name the model that answered', async () => {
+      await openCreationForm();
+      await selectType(labelAnthropic);
+      await userEvent.type(await getApiToken(), 'a-very-secret-token');
+
+      interceptAPIRequest({
+        alias: 'testConnectionWithoutModel',
+        method: Method.POST,
+        path: `**${testConnectionEndpoint}`,
+        response: {
+          ...connectionTestResponse,
+          model: null,
+          reasoning: 'thinking: disabled'
+        }
+      });
+
+      await waitFor(() =>
+        expect(screen.getByTestId(labelTestConnection)).toBeEnabled()
+      );
+      await userEvent.click(screen.getByTestId(labelTestConnection));
+      await waitForRequest('@testConnectionWithoutModel');
+
+      expect(
+        await screen.findByText(
+          labelConnectionSucceededWithReasoning.replace(
+            '{{reasoning}}',
+            'thinking: disabled'
+          )
+        )
+      ).toBeVisible();
     });
 
     it('shows why the prices could not be fetched', async () => {

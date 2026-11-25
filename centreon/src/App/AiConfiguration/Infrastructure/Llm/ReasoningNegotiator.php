@@ -26,16 +26,21 @@ namespace App\AiConfiguration\Infrastructure\Llm;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ReasoningModeEnum;
 use App\AiConfiguration\Domain\Llm\Exception\LlmRequestFailedException;
+use Psr\Cache\CacheException;
+use Psr\Cache\CacheItemInterface;
+use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerInterface;
-use Symfony\Contracts\Cache\CacheInterface;
-use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
 /**
  * Sends a request with the first setting turning the model's reasoning down that
  * the provider accepts for it. A provider rejects a value the model does not
- * support (HTTP 400) rather than ignoring it, so the candidates are tried in
- * order, and the outcome is remembered per endpoint and model.
+ * support (HTTP 400, or 422 from FastAPI servers) rather than ignoring it, so the
+ * candidates are tried in order, and the outcome is remembered per endpoint and
+ * model.
+ *
+ * The cache is only read and written around the requests, never locked while they
+ * run: two concurrent requests may both discover the setting, which is harmless.
  */
 final readonly class ReasoningNegotiator
 {
@@ -50,7 +55,8 @@ final readonly class ReasoningNegotiator
     private const SMALL_BUDGET_ALLOWANCE = 1024;
     private const BUDGET_ALLOWANCE = 2048;
 
-    /** A rejected candidate is a 400 whose message names the setting. */
+    /** A rejected candidate is a 400 or 422 whose message names the setting. */
+    private const REJECTION_STATUS_CODES = [400, 422];
     private const REJECTION_PATTERN = '/reasoning|thinking|effort/i';
 
     /**
@@ -59,7 +65,7 @@ final readonly class ReasoningNegotiator
      * @param non-empty-list<ReasoningCandidate> $candidates least reasoning first
      */
     public function __construct(
-        private CacheInterface $cache,
+        private CacheItemPoolInterface $cache,
         private LoggerInterface $logger,
         private string $scope,
         private array $candidates,
@@ -95,50 +101,71 @@ final readonly class ReasoningNegotiator
             return [$send(null), null];
         }
 
-        $key = self::CACHE_KEY_PREFIX . hash('xxh128', $this->scope . "\n" . $model->value);
-        // the response of the request that discovered the setting, when the cache did not know it
-        $discovered = null;
-        $discover = function (ItemInterface $item) use ($model, $send, &$discovered): int {
-            $item->expiresAfter(self::CACHE_TTL_SECONDS);
-            [$response, $candidate, $index] = $this->discover($model, $send);
-            $discovered = [$response, $candidate];
+        $item = $this->findItem(self::CACHE_KEY_PREFIX . hash('xxh128', $this->scope . "\n" . $model->value));
+        if ($item?->isHit() === true) {
+            $index = $item->get();
+            if ($index === self::NONE_ACCEPTED) {
+                return [$send(null), null];
+            }
 
-            return $index;
-        };
-
-        // a failed discovery is not remembered: the callback exception propagates
-        $index = $this->cache->get($key, $discover);
-        /** @var array{ResponseInterface, ReasoningCandidate|null}|null $discovered */
-        if ($discovered !== null) {
-            return $discovered;
-        }
-
-        if ($index === self::NONE_ACCEPTED) {
-            return [$send(null), null];
-        }
-
-        $candidate = is_int($index) ? ($this->candidates[$index] ?? null) : null;
-        if ($candidate instanceof ReasoningCandidate) {
-            try {
-                return [$send($candidate), $candidate];
-            } catch (LlmRequestFailedException $exception) {
-                if (! $this->isRejection($exception)) {
-                    throw $exception;
+            $candidate = is_int($index) ? ($this->candidates[$index] ?? null) : null;
+            if ($candidate instanceof ReasoningCandidate) {
+                try {
+                    return [$send($candidate), $candidate];
+                } catch (LlmRequestFailedException $exception) {
+                    if (! $this->isRejection($exception, $model)) {
+                        throw $exception;
+                    }
                 }
             }
+            // the remembered candidate no longer applies (e.g. the model alias now
+            // names another model): discover again, once
         }
 
-        // the remembered candidate no longer applies (e.g. the model alias now names
-        // another model): discover again, once
+        // a failed discovery is not remembered: its exception propagates
         [$response, $candidate, $index] = $this->discover($model, $send);
-        // forced: replaces the remembered candidate
-        $this->cache->get($key, static function (ItemInterface $item) use ($index): int {
-            $item->expiresAfter(self::CACHE_TTL_SECONDS);
-
-            return $index;
-        }, \INF);
+        if ($item instanceof CacheItemInterface) {
+            $this->remember($item, $index);
+        }
 
         return [$response, $candidate];
+    }
+
+    /**
+     * A cache that fails is worked around: the setting is discovered again.
+     */
+    private function findItem(string $key): ?CacheItemInterface
+    {
+        try {
+            return $this->cache->getItem($key);
+        } catch (CacheException $exception) {
+            $this->logger->warning('The reasoning setting of the model can not be read from the cache', [
+                'exception' => $exception,
+            ]);
+
+            return null;
+        }
+    }
+
+    private function remember(CacheItemInterface $item, int $index): void
+    {
+        $item->set($index);
+        $item->expiresAfter(self::CACHE_TTL_SECONDS);
+
+        try {
+            $saved = $this->cache->save($item);
+            $context = [];
+        } catch (CacheException $exception) {
+            $saved = false;
+            $context = ['exception' => $exception];
+        }
+
+        if (! $saved) {
+            $this->logger->warning(
+                'The reasoning setting of the model can not be saved in the cache: it is discovered again next time',
+                $context
+            );
+        }
     }
 
     /**
@@ -155,7 +182,7 @@ final readonly class ReasoningNegotiator
             try {
                 return [$send($candidate), $candidate, $index];
             } catch (LlmRequestFailedException $exception) {
-                if (! $this->isRejection($exception)) {
+                if (! $this->isRejection($exception, $model)) {
                     throw $exception;
                 }
             }
@@ -169,9 +196,13 @@ final readonly class ReasoningNegotiator
         return [$send(null), null, self::NONE_ACCEPTED];
     }
 
-    private function isRejection(LlmRequestFailedException $exception): bool
+    /**
+     * The model name is left out of the match: it often echoes in the message, and
+     * may itself name reasoning (e.g. deepseek-reasoner, a *-thinking-* model).
+     */
+    private function isRejection(LlmRequestFailedException $exception, ModelName $model): bool
     {
-        return $exception->getCode() === 400
-            && preg_match(self::REJECTION_PATTERN, $exception->getMessage()) === 1;
+        return in_array($exception->getCode(), self::REJECTION_STATUS_CODES, true)
+            && preg_match(self::REJECTION_PATTERN, str_ireplace($model->value, '', $exception->getMessage())) === 1;
     }
 }

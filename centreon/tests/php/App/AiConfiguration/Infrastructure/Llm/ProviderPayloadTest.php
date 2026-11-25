@@ -75,6 +75,25 @@ final class ProviderPayloadTest extends TestCase
 
         yield 'top-level detail (FastAPI)' => [['detail' => 'Model not found'], 'Model not found'];
 
+        yield 'validation errors (FastAPI 422)' => [
+            ['detail' => [
+                ['loc' => ['body', 'reasoning_effort'], 'msg' => "Input should be 'low', 'medium' or 'high'", 'type' => 'literal_error'],
+                ['loc' => ['body', 'messages', 0], 'msg' => 'Field required', 'type' => 'missing'],
+                ['msg' => 'Value error'],
+                ['loc' => ['body'], 'msg' => ' '],
+                'not an object',
+            ]],
+            "body.reasoning_effort: Input should be 'low', 'medium' or 'high'; body.messages.0: Field required; Value error",
+        ];
+
+        yield 'validation errors without a message' => [['detail' => [['loc' => ['body']]]], null];
+
+        yield 'error wrapped in a list (Gemini)' => [[['error' => ['code' => 400, 'message' => 'Invalid JSON payload', 'status' => 'INVALID_ARGUMENT']]], 'Invalid JSON payload'];
+
+        yield 'list of strings' => [['an error'], null];
+
+        yield 'empty list' => [[], null];
+
         yield 'whitespace-only message' => [['error' => ['message' => "  \n"]], null];
 
         yield 'whitespace-only error string' => [['error' => ' '], null];

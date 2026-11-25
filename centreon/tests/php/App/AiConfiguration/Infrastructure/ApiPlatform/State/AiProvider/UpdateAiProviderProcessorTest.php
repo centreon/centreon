@@ -73,14 +73,31 @@ final class UpdateAiProviderProcessorTest extends AiProviderApiTestCase
         self::assertResponseIsSuccessful();
         self::assertJsonContains(['default_model_reasoning' => 'minimal', 'fast_model_reasoning' => 'default']);
 
-        // a PATCH without the settings keeps them
+        $this->request('PATCH', self::ENDPOINT . '/' . $id, [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'],
+            'json' => ['default_model_reasoning' => 'default', 'fast_model_reasoning' => 'default'],
+        ]);
+
+        self::assertResponseIsSuccessful();
+        self::assertJsonContains(['default_model_reasoning' => 'default', 'fast_model_reasoning' => 'default']);
+
+        // a PATCH without the settings keeps them, rather than resetting them to minimal
         $this->request('PATCH', self::ENDPOINT . '/' . $id, [
             'headers' => ['Content-Type' => 'application/merge-patch+json'],
             'json' => ['name' => 'Anthropic renamed'],
         ]);
 
         self::assertResponseIsSuccessful();
-        self::assertJsonContains(['default_model_reasoning' => 'minimal', 'fast_model_reasoning' => 'default']);
+        self::assertJsonContains(['default_model_reasoning' => 'default', 'fast_model_reasoning' => 'default']);
+
+        $this->request('GET', self::ENDPOINT . '/' . $id);
+
+        self::assertResponseIsSuccessful();
+        self::assertJsonContains([
+            'name' => 'Anthropic renamed',
+            'default_model_reasoning' => 'default',
+            'fast_model_reasoning' => 'default',
+        ]);
     }
 
     public function testPatchWithAnUnknownReasoningSettingIsRejected(): void

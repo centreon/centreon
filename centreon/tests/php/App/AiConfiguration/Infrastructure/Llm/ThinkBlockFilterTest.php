@@ -59,6 +59,31 @@ final class ThinkBlockFilterTest extends TestCase
         self::assertSame($expected, ThinkBlockFilter::strip($answer));
     }
 
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function provideAnswersWithoutTheOpeningTag(): iterable
+    {
+        yield 'reasoning closed by the tag' => ["The user wants pong.\n</think>\n\npong", 'pong'];
+
+        yield 'only reasoning' => ['The user wants pong.</think>', ''];
+
+        yield 'up to the first closing tag only' => ['hmm</think>pong </think>', 'pong </think>'];
+    }
+
+    #[DataProvider('provideAnswersWithoutTheOpeningTag')]
+    public function testAWholeAnswerLosesTheReasoningOfAnOpeningTagLeftInThePrompt(string $answer, string $expected): void
+    {
+        self::assertSame($expected, ThinkBlockFilter::strip($answer));
+    }
+
+    public function testAStreamedAnswerWithoutTheOpeningTagIsPassedOnAsItComes(): void
+    {
+        $filter = new ThinkBlockFilter();
+
+        self::assertSame('hmm</think>pong', $filter->push('hmm</think>pong') . $filter->finish());
+    }
+
     #[DataProvider('provideAnswers')]
     public function testTheLeadingBlockIsStrippedFromAnAnswerStreamedCharacterByCharacter(string $answer, string $expected): void
     {

@@ -41,11 +41,11 @@ use App\AiConfiguration\Domain\Usage\BudgetStatusChecker;
 use App\Shared\Domain\VaultInterface;
 use App\Shared\Infrastructure\Proxy\HttpProxyProvider;
 use App\Shared\Infrastructure\Proxy\ProxyUrl;
+use Psr\Cache\CacheItemPoolInterface;
 use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 final readonly class LlmClientFactory implements LlmClientFactoryInterface
@@ -68,7 +68,7 @@ final readonly class LlmClientFactory implements LlmClientFactoryInterface
         private LoggerInterface $logger,
         private HostLookup $hostLookup,
         // remembers which reasoning setting each model accepts, across requests
-        private CacheInterface $cache,
+        private CacheItemPoolInterface $cache,
     ) {
     }
 
