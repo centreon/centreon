@@ -2,7 +2,6 @@ export {
   aiProviderDecoder,
   aiProvidersListDecoder,
   type ConnectionTestResult,
-  ConnectionTestWarning,
   connectionTestResultDecoder,
   type DiscoveredModels,
   discoveredModelsDecoder,

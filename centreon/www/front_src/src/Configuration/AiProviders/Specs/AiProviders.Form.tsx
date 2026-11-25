@@ -641,6 +641,37 @@ export default (): void => {
       ).toBeVisible();
     });
 
+    it('ignores a warning code it does not know: the connection still shows as successful', async () => {
+      await openCreationForm();
+      await selectType(labelAnthropic);
+      await userEvent.type(await getApiToken(), 'a-very-secret-token');
+
+      interceptAPIRequest({
+        alias: 'testConnectionWithUnknownWarning',
+        method: Method.POST,
+        path: `**${testConnectionEndpoint}`,
+        response: { ...connectionTestResponse, warning: 'something_new' }
+      });
+
+      await waitFor(() =>
+        expect(screen.getByTestId(labelTestConnection)).toBeEnabled()
+      );
+      await userEvent.click(screen.getByTestId(labelTestConnection));
+      await waitForRequest('@testConnectionWithUnknownWarning');
+
+      expect(
+        await screen.findByText(
+          labelConnectionSucceededWithModel.replace(
+            '{{model}}',
+            'claude-sonnet-5-5'
+          )
+        )
+      ).toBeVisible();
+      expect(
+        screen.queryByTestId('connectionTestWarning')
+      ).not.toBeInTheDocument();
+    });
+
     it('shows no warning under a plain successful connection test', async () => {
       await openCreationForm();
       await selectType(labelAnthropic);

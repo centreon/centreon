@@ -91,8 +91,8 @@ final readonly class DbalAiProviderTransformer implements TransformerInterface
                 pricing: $this->transformPricing($configuration['pricing'] ?? null),
                 limit: $this->transformLimit($configuration['limits'] ?? null),
             ),
-            defaultModelReasoning: $this->transformReasoning($configuration['default_model_reasoning'] ?? null),
-            fastModelReasoning: $this->transformReasoning($configuration['fast_model_reasoning'] ?? null),
+            defaultModelReasoning: $this->transformReasoning($configuration, 'default_model_reasoning', $from['ap_id']),
+            fastModelReasoning: $this->transformReasoning($configuration, 'fast_model_reasoning', $from['ap_id']),
         );
     }
 
@@ -101,11 +101,28 @@ final readonly class DbalAiProviderTransformer implements TransformerInterface
      * fails like an unknown type: read as another value, it would be overwritten on
      * the next save.
      *
-     * @throws \ValueError when the stored value is not a reasoning mode
+     * @param array<string, mixed> $configuration
+     *
+     * @throws \UnexpectedValueException when the stored value is not a reasoning mode
      */
-    private function transformReasoning(?string $reasoning): ReasoningModeEnum
+    private function transformReasoning(array $configuration, string $key, int|string $providerId): ReasoningModeEnum
     {
-        return $reasoning === null ? ReasoningModeEnum::Minimal : ReasoningModeEnum::from($reasoning);
+        $reasoning = $configuration[$key] ?? null;
+        if ($reasoning === null) {
+            return ReasoningModeEnum::Minimal;
+        }
+
+        $mode = is_string($reasoning) ? ReasoningModeEnum::tryFrom($reasoning) : null;
+        if (! $mode instanceof ReasoningModeEnum) {
+            throw new \UnexpectedValueException(sprintf(
+                'The AI provider %s has an unknown %s: %s',
+                $providerId,
+                $key,
+                json_encode($reasoning, \JSON_THROW_ON_ERROR)
+            ));
+        }
+
+        return $mode;
     }
 
     /**

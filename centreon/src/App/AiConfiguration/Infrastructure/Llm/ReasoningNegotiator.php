@@ -59,6 +59,9 @@ final readonly class ReasoningNegotiator
     private const REJECTION_STATUS_CODES = [400, 422];
     private const REJECTION_PATTERN = '/reasoning|thinking|effort/i';
 
+    /** A provider message is logged up to this length: the endpoint decides its size. */
+    private const LOGGED_MESSAGE_MAX_LENGTH = 1000;
+
     /**
      * @param string $scope what besides the model decides which candidates are accepted:
      *                      the client kind and its endpoint
@@ -74,15 +77,13 @@ final readonly class ReasoningNegotiator
 
     /**
      * The output token limit to request: the requested one, plus an allowance when
-     * the model may still reason with the setting sent. A model set to reason
-     * minimally that accepts no setting gets none: it most likely does not reason.
+     * the model may still reason with the setting sent. A model that accepts no
+     * setting gets it too, whatever its mode: it reasons as it does by default, and
+     * setting it to reason minimally must not leave it less room than that.
      */
-    public static function maxTokensFor(int $maxTokens, ReasoningModeEnum $mode, ?ReasoningCandidate $candidate): int
+    public static function maxTokensFor(int $maxTokens, ?ReasoningCandidate $candidate): int
     {
-        $mayReason = $candidate instanceof ReasoningCandidate
-            ? ! $candidate->turnsReasoningOff
-            : $mode === ReasoningModeEnum::Default;
-        if (! $mayReason) {
+        if ($candidate instanceof ReasoningCandidate && $candidate->turnsReasoningOff) {
             return $maxTokens;
         }
 
@@ -266,7 +267,7 @@ final readonly class ReasoningNegotiator
             'model' => $model->value,
             'scope' => $this->scope,
             'setting' => $candidate->label,
-            'message' => $exception->getMessage(),
+            'message' => mb_substr($exception->getMessage(), 0, self::LOGGED_MESSAGE_MAX_LENGTH),
         ]);
     }
 }

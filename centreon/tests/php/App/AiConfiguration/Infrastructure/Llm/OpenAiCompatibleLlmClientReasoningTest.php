@@ -98,9 +98,9 @@ final class OpenAiCompatibleLlmClientReasoningTest extends TestCase
         self::assertArrayNotHasKey('reasoning_effort', $this->sentBodies[3]);
         // remembered: the second request goes straight without a setting
         self::assertArrayNotHasKey('reasoning_effort', $this->sentBodies[4]);
-        // most likely a model that does not reason: no extra output tokens
-        self::assertSame(2048, $this->sentBodies[3]['max_tokens'] ?? null);
-        self::assertSame(2048, $first->maxTokens);
+        // it reasons as by default, if at all: the same room as at the model default
+        self::assertSame(2048 + 2048, $this->sentBodies[3]['max_tokens'] ?? null);
+        self::assertSame(2048 + 2048, $first->maxTokens);
 
         $records = array_values(array_filter(
             $logger->records(),

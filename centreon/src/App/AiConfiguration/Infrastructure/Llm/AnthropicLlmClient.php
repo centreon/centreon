@@ -117,7 +117,7 @@ final readonly class AnthropicLlmClient implements LlmClientInterface
             truncated: $stopReason === 'max_tokens',
             refusal: $this->refusalOf($stopReason),
             reasoning: $reasoning?->label,
-            maxTokens: ReasoningNegotiator::maxTokensFor($request->maxTokens, $reasoningMode, $reasoning),
+            maxTokens: ReasoningNegotiator::maxTokensFor($request->maxTokens, $reasoning),
             reasoningMode: $reasoningMode,
         );
     }
@@ -201,7 +201,7 @@ final readonly class AnthropicLlmClient implements LlmClientInterface
             $stopReason === 'max_tokens',
             $this->refusalOf($stopReason),
             $reasoning?->label,
-            ReasoningNegotiator::maxTokensFor($request->maxTokens, $reasoningMode, $reasoning),
+            ReasoningNegotiator::maxTokensFor($request->maxTokens, $reasoning),
             $reasoningMode,
         );
     }
@@ -281,8 +281,8 @@ final readonly class AnthropicLlmClient implements LlmClientInterface
         [$response, $reasoning] = $this->reasoningNegotiator->send(
             $model,
             $mode,
-            function (?ReasoningCandidate $reasoning) use ($request, $model, $mode, $stream): ResponseInterface {
-                $response = $this->sendRequest($request, $model, $mode, $reasoning, $stream);
+            function (?ReasoningCandidate $reasoning) use ($request, $model, $stream): ResponseInterface {
+                $response = $this->sendRequest($request, $model, $reasoning, $stream);
                 $this->assertSuccessful($response, $this->timeoutFor($request));
 
                 return $response;
@@ -298,12 +298,11 @@ final readonly class AnthropicLlmClient implements LlmClientInterface
     private function sendRequest(
         LlmRequest $request,
         ModelName $model,
-        ReasoningModeEnum $mode,
         ?ReasoningCandidate $reasoning,
         bool $stream,
     ): ResponseInterface {
         $payload = [
-            'max_tokens' => ReasoningNegotiator::maxTokensFor($request->maxTokens, $mode, $reasoning),
+            'max_tokens' => ReasoningNegotiator::maxTokensFor($request->maxTokens, $reasoning),
             'messages' => array_map(
                 static fn (LlmMessage $message): array => [
                     'content' => $message->content,

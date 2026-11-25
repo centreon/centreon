@@ -33,4 +33,7 @@ enum ConnectionTestWarningEnum: string
 
     /** The model used its whole answer budget without writing anything, most likely reasoning. */
     case BudgetUsedWithoutAnswer = 'budget_used_without_answer';
+
+    /** The model wrote nothing, within its budget: the AI features reject such an answer. */
+    case EmptyAnswer = 'empty_answer';
 }

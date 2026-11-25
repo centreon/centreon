@@ -1,5 +1,6 @@
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ErrorIcon from '@mui/icons-material/Error';
+import InfoIcon from '@mui/icons-material/InfoOutlined';
 import WarningIcon from '@mui/icons-material/Warning';
 import { Button, CircularProgress, Tooltip, Typography } from '@mui/material';
 
@@ -12,12 +13,15 @@ import { useTranslation } from 'react-i18next';
 import { formStateAtom } from '../../ConfigurationBase/atoms';
 import {
   type ConnectionTestResult,
-  ConnectionTestWarning,
   connectionTestResultDecoder,
   testConnectionEndpoint
 } from '../api';
 import useProviderCall from '../api/useProviderCall';
-import { AiProviderType, ReasoningMode } from '../models';
+import {
+  AiProviderType,
+  ConnectionTestWarning,
+  ReasoningMode
+} from '../models';
 import {
   labelConnectionFailed,
   labelConnectionSucceeded,
@@ -25,6 +29,7 @@ import {
   labelConnectionSucceededWithModelAndReasoning,
   labelConnectionSucceededWithReasoning,
   labelConnectionWarningBudgetUsed,
+  labelConnectionWarningEmptyAnswer,
   labelConnectionWarningNoReasoningSetting,
   labelTestConnection,
   labelTestConnectionHint,
@@ -77,11 +82,24 @@ const getSuccessLabel = ({
     : labelConnectionSucceeded;
 };
 
-const warningLabels: Record<ConnectionTestWarning, string> = {
-  [ConnectionTestWarning.BudgetUsedWithoutAnswer]:
-    labelConnectionWarningBudgetUsed,
-  [ConnectionTestWarning.NoReasoningSetting]:
-    labelConnectionWarningNoReasoningSetting
+// an answer the AI features would reject is a warning; a model that accepts no
+// setting to reason less, most often one that does not reason, is a note
+const notes: Record<
+  ConnectionTestWarning,
+  { isWarning: boolean; label: string }
+> = {
+  [ConnectionTestWarning.BudgetUsedWithoutAnswer]: {
+    isWarning: true,
+    label: labelConnectionWarningBudgetUsed
+  },
+  [ConnectionTestWarning.EmptyAnswer]: {
+    isWarning: true,
+    label: labelConnectionWarningEmptyAnswer
+  },
+  [ConnectionTestWarning.NoReasoningSetting]: {
+    isWarning: false,
+    label: labelConnectionWarningNoReasoningSetting
+  }
 };
 
 const TestConnectionButton = (): JSX.Element => {
@@ -107,6 +125,9 @@ const TestConnectionButton = (): JSX.Element => {
   // soon as one of them changes, including while the test is running
   const inputs = getInputs(values);
   const result = equals(testedResult?.inputs, inputs) ? testedResult : null;
+  const note = result?.success
+    ? notes[result.warning as ConnectionTestWarning]
+    : undefined;
 
   const test = async (): Promise<void> => {
     setTestedResult(null);
@@ -170,15 +191,19 @@ const TestConnectionButton = (): JSX.Element => {
           </Typography>
         )}
       </div>
-      {result?.success && result.warning && (
+      {note && (
         <Typography
           className="flex items-center gap-1"
-          color="warning.main"
+          color={note.isWarning ? 'warning.main' : 'text.secondary'}
           data-testid="connectionTestWarning"
           variant="body2"
         >
-          <WarningIcon fontSize="small" />
-          {t(warningLabels[result.warning])}
+          {note.isWarning ? (
+            <WarningIcon fontSize="small" />
+          ) : (
+            <InfoIcon fontSize="small" />
+          )}
+          {t(note.label)}
         </Typography>
       )}
     </div>

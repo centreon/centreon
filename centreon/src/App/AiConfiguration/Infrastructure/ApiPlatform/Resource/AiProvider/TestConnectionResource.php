@@ -78,12 +78,15 @@ final readonly class TestConnectionResource
         public ?string $reasoning = null,
 
         #[ApiProperty(
-            description: 'What a successful test still reveals about the model: "no_reasoning_setting" when, '
-                . 'set to reason as little as it allows, it accepted no setting that turns its reasoning down; '
-                . '"budget_used_without_answer" when it used its whole answer budget without writing anything, '
-                . 'most likely reasoning. Null otherwise',
+            description: 'What a successful test still reveals about the model: "budget_used_without_answer" when '
+                . 'it used its whole answer budget without writing anything, most likely reasoning; "empty_answer" when '
+                . 'it wrote nothing within its budget (the AI features reject both); "no_reasoning_setting" when, set '
+                . 'to reason as little as it allows, it accepted no setting that turns its reasoning down. Null otherwise',
             writable: false,
-            openapiContext: ['example' => 'no_reasoning_setting'],
+            openapiContext: [
+                'enum' => ['budget_used_without_answer', 'empty_answer', 'no_reasoning_setting', null],
+                'example' => 'no_reasoning_setting',
+            ],
         )]
         public ?string $warning = null,
     ) {

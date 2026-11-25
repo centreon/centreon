@@ -25084,6 +25084,10 @@ msgid "The model used its whole answer budget without writing anything, most lik
 msgstr "Le modèle a utilisé tout son budget de réponse sans rien écrire, probablement en raisonnant : les fonctionnalités d'IA risquent de ne pas en obtenir de réponse."
 
 #: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "The model answered with nothing: the AI features may get no answer from it."
+msgstr "Le modèle a répondu sans rien écrire : les fonctionnalités d'IA risquent de ne pas en obtenir de réponse."
+
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
 msgid "Connection failed"
 msgstr "Échec de la connexion"
 

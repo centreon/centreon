@@ -76,7 +76,8 @@ final class DbalAiProviderTransformerTest extends TestCase
     public function testAnUnknownReasoningValueFailsLikeAnUnknownType(): void
     {
         // read as another value, it would be overwritten on the next save
-        $this->expectException(\ValueError::class);
+        $this->expectException(\UnexpectedValueException::class);
+        $this->expectExceptionMessage('The AI provider 1 has an unknown default_model_reasoning: "high"');
 
         $this->transform(['default_model_reasoning' => 'high']);
     }

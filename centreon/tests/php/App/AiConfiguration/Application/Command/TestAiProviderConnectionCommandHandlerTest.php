@@ -161,6 +161,16 @@ final class TestAiProviderConnectionCommandHandlerTest extends TestCase
             ConnectionTestWarningEnum::BudgetUsedWithoutAnswer,
         ];
 
+        yield 'no setting accepted and the whole budget used: the budget warning wins' => [
+            new LlmResponse('', 'a-model', $usage, truncated: true, reasoningMode: ReasoningModeEnum::Minimal),
+            ConnectionTestWarningEnum::BudgetUsedWithoutAnswer,
+        ];
+
+        yield 'an empty answer within the budget' => [
+            new LlmResponse('', 'a-model', $usage, reasoning: 'reasoning_effort: none', reasoningMode: ReasoningModeEnum::Minimal),
+            ConnectionTestWarningEnum::EmptyAnswer,
+        ];
+
         yield 'a cut answer is still an answer' => [
             new LlmResponse('po', 'a-model', $usage, truncated: true, reasoningMode: ReasoningModeEnum::Default),
             null,

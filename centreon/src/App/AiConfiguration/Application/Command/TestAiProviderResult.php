@@ -47,8 +47,10 @@ final readonly class TestAiProviderResult
             success: true,
             model: $response->model,
             reasoning: $response->reasoning,
+            // an answer the AI features would reject comes first
             warning: match (true) {
-                $response->truncated && trim($response->content) === '' => ConnectionTestWarningEnum::BudgetUsedWithoutAnswer,
+                trim($response->content) === '' && $response->truncated => ConnectionTestWarningEnum::BudgetUsedWithoutAnswer,
+                trim($response->content) === '' => ConnectionTestWarningEnum::EmptyAnswer,
                 $response->reasoningMode === ReasoningModeEnum::Minimal && $response->reasoning === null => ConnectionTestWarningEnum::NoReasoningSetting,
                 default => null,
             },

@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\App\AiConfiguration\Application\Command;
 
+use App\AiConfiguration\Application\Command\ConnectionTestWarningEnum;
 use App\AiConfiguration\Application\Command\TestAiProviderCommand;
 use App\AiConfiguration\Application\Command\TestAiProviderCommandHandler;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProvider;
@@ -31,6 +32,7 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderName;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\ReasoningModeEnum;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\StoredApiToken;
 use App\AiConfiguration\Domain\Exception\AiProviderNotFoundException;
 use App\AiConfiguration\Domain\Llm\Exception\ApiTokenUnavailableException;
@@ -92,6 +94,19 @@ final class TestAiProviderCommandHandlerTest extends TestCase
         $result = $handler(new TestAiProviderCommand($this->aiProvider->id()));
 
         self::assertSame('thinking: disabled', $result->reasoning);
+    }
+
+    public function testASuccessfulTestWarnsWhenTheModelAcceptsNoReasoningSetting(): void
+    {
+        $client = new FakeLlmClient(
+            response: new LlmResponse('pong', 'a-model', new LlmUsage(12, 2), reasoningMode: ReasoningModeEnum::Minimal)
+        );
+        $handler = new TestAiProviderCommandHandler($this->repository, new FakeLlmClientFactory($client));
+
+        $result = $handler(new TestAiProviderCommand($this->aiProvider->id()));
+
+        self::assertTrue($result->success);
+        self::assertSame(ConnectionTestWarningEnum::NoReasoningSetting, $result->warning);
     }
 
     public function testModelOverrideIsForwardedToTheClient(): void

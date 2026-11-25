@@ -16,6 +16,13 @@ export enum ReasoningMode {
   ModelDefault = 'default'
 }
 
+// what a successful connection test still reveals about the model
+export enum ConnectionTestWarning {
+  BudgetUsedWithoutAnswer = 'budget_used_without_answer',
+  EmptyAnswer = 'empty_answer',
+  NoReasoningSetting = 'no_reasoning_setting'
+}
+
 export interface AiProviderListItem {
   id: number;
   name: string;

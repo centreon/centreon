@@ -23,6 +23,13 @@ declare(strict_types=1);
 
 namespace Tests\App\AiConfiguration\Infrastructure\ApiPlatform\State\AiProvider;
 
+use App\AiConfiguration\Domain\Aggregate\AiProvider\ReasoningModeEnum;
+use App\AiConfiguration\Domain\Llm\LlmClientFactoryInterface;
+use App\AiConfiguration\Domain\Llm\LlmResponse;
+use App\AiConfiguration\Domain\Llm\LlmUsage;
+use Tests\App\AiConfiguration\Infrastructure\Double\FakeLlmClient;
+use Tests\App\AiConfiguration\Infrastructure\Double\FakeLlmClientFactory;
+
 final class TestAiProviderProcessorTest extends AiProviderApiTestCase
 {
     public function testUnauthenticatedReturns401(): void
@@ -51,6 +58,24 @@ final class TestAiProviderProcessorTest extends AiProviderApiTestCase
         $this->request('POST', self::ENDPOINT . '/999999/test', ['json' => []]);
 
         self::assertResponseStatusCodeSame(404);
+    }
+
+    public function testASuccessfulTestReportsTheSettingAndTheWarning(): void
+    {
+        self::getContainer()->set(LlmClientFactoryInterface::class, new FakeLlmClientFactory(new FakeLlmClient(
+            new LlmResponse('pong', 'a-model', new LlmUsage(1, 1), reasoningMode: ReasoningModeEnum::Minimal)
+        )));
+        $this->login();
+        $id = $this->createProvider('Anthropic production');
+
+        $response = $this->request('POST', self::ENDPOINT . '/' . $id . '/test', ['json' => []]);
+
+        self::assertResponseStatusCodeSame(200);
+        /** @var array{success: bool, reasoning?: string|null, warning?: string|null} $result */
+        $result = $response->toArray();
+        self::assertTrue($result['success']);
+        self::assertNull($result['reasoning'] ?? null);
+        self::assertSame('no_reasoning_setting', $result['warning'] ?? null);
     }
 
     public function testUnreachableProviderIsReportedAsFailedTest(): void

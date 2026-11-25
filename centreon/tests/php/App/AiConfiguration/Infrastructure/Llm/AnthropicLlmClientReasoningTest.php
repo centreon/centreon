@@ -88,7 +88,7 @@ final class AnthropicLlmClientReasoningTest extends TestCase
         self::assertNull($response->reasoning);
         self::assertArrayNotHasKey('thinking', $this->sentBodies[3]);
         self::assertArrayNotHasKey('output_config', $this->sentBodies[3]);
-        self::assertSame(512, $this->sentBodies[3]['max_tokens'] ?? null);
+        self::assertSame(512 + 2048, $this->sentBodies[3]['max_tokens'] ?? null);
         self::assertSame('warning', $logger->lastRecord()['level'] ?? null);
     }
 

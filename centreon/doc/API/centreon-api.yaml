@@ -18373,10 +18373,15 @@ components:
             - 'null'
           example: 'reasoning_effort: none'
         warning:
-          description: 'What a successful test still reveals about the model: "no_reasoning_setting" when, set to reason as little as it allows, it accepted no setting that turns its reasoning down; "budget_used_without_answer" when it used its whole answer budget without writing anything, most likely reasoning. Null otherwise'
+          description: 'What a successful test still reveals about the model: "budget_used_without_answer" when it used its whole answer budget without writing anything, most likely reasoning; "empty_answer" when it wrote nothing within its budget (the AI features reject both); "no_reasoning_setting" when, set to reason as little as it allows, it accepted no setting that turns its reasoning down. Null otherwise'
           type:
             - string
             - 'null'
+          enum:
+            - budget_used_without_answer
+            - empty_answer
+            - no_reasoning_setting
+            - null
           example: no_reasoning_setting
     TestAiProviderResource.TestAiProviderInput:
       type: object
@@ -18417,10 +18422,15 @@ components:
                 - 'null'
               example: 'reasoning_effort: none'
             warning:
-              description: 'What a successful test still reveals about the model: "no_reasoning_setting" when, set to reason as little as it allows, it accepted no setting that turns its reasoning down; "budget_used_without_answer" when it used its whole answer budget without writing anything, most likely reasoning. Null otherwise'
+              description: 'What a successful test still reveals about the model: "budget_used_without_answer" when it used its whole answer budget without writing anything, most likely reasoning; "empty_answer" when it wrote nothing within its budget (the AI features reject both); "no_reasoning_setting" when, set to reason as little as it allows, it accepted no setting that turns its reasoning down. Null otherwise'
               type:
                 - string
                 - 'null'
+              enum:
+                - budget_used_without_answer
+                - empty_answer
+                - no_reasoning_setting
+                - null
               example: no_reasoning_setting
     TestConnectionResource:
       type: object
@@ -18446,10 +18456,15 @@ components:
             - 'null'
           example: 'reasoning_effort: none'
         warning:
-          description: 'What a successful test still reveals about the model: "no_reasoning_setting" when, set to reason as little as it allows, it accepted no setting that turns its reasoning down; "budget_used_without_answer" when it used its whole answer budget without writing anything, most likely reasoning. Null otherwise'
+          description: 'What a successful test still reveals about the model: "budget_used_without_answer" when it used its whole answer budget without writing anything, most likely reasoning; "empty_answer" when it wrote nothing within its budget (the AI features reject both); "no_reasoning_setting" when, set to reason as little as it allows, it accepted no setting that turns its reasoning down. Null otherwise'
           type:
             - string
             - 'null'
+          enum:
+            - budget_used_without_answer
+            - empty_answer
+            - no_reasoning_setting
+            - null
           example: no_reasoning_setting
     TestConnectionResource.TestConnectionInput:
       type: object
@@ -18526,10 +18541,15 @@ components:
                 - 'null'
               example: 'reasoning_effort: none'
             warning:
-              description: 'What a successful test still reveals about the model: "no_reasoning_setting" when, set to reason as little as it allows, it accepted no setting that turns its reasoning down; "budget_used_without_answer" when it used its whole answer budget without writing anything, most likely reasoning. Null otherwise'
+              description: 'What a successful test still reveals about the model: "budget_used_without_answer" when it used its whole answer budget without writing anything, most likely reasoning; "empty_answer" when it wrote nothing within its budget (the AI features reject both); "no_reasoning_setting" when, set to reason as little as it allows, it accepted no setting that turns its reasoning down. Null otherwise'
               type:
                 - string
                 - 'null'
+              enum:
+                - budget_used_without_answer
+                - empty_answer
+                - no_reasoning_setting
+                - null
               example: no_reasoning_setting
     TranslateResourceFilterResource:
       type: object
