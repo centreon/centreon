@@ -34,6 +34,7 @@ import {
   labelMonthlyLimit,
   labelName,
   labelPricing,
+  labelReasoning,
   labelSpendLimits,
   labelType
 } from '../translatedLabels';
@@ -44,6 +45,7 @@ import FetchModelsButton from './FetchModelsButton';
 import FetchPricesButton from './FetchPricesButton';
 import ModelField from './ModelField';
 import MoneyField from './MoneyField';
+import ReasoningField from './ReasoningField';
 import RegionField from './RegionField';
 import TestConnectionButton from './TestConnectionButton';
 import TypeField from './TypeField';
@@ -194,22 +196,54 @@ export const useFormInputs = ({ canEdit }: Props): FormInputsState => {
         }
       ]),
       section(labelModels, 'models', [
+        // each model with its reasoning setting under it, side by side from
+        // 600px, stacked in that order below
         pair('models-row', [
-          {
-            custom: { Component: ModelField },
-            fieldName: 'defaultModel',
-            getDisabled,
-            label: t(labelDefaultModel),
-            required: canEdit,
-            type: InputType.Custom
-          },
-          {
-            custom: { Component: ModelField },
-            fieldName: 'fastModel',
-            getDisabled,
-            label: t(labelFastModel),
-            type: InputType.Custom
-          }
+          getBlock({
+            columns: [
+              {
+                custom: { Component: ModelField },
+                fieldName: 'defaultModel',
+                getDisabled,
+                label: t(labelDefaultModel),
+                required: canEdit,
+                type: InputType.Custom
+              },
+              {
+                custom: { Component: ReasoningField },
+                dataTestId: `${idPrefix}-default-model-reasoning`,
+                fieldName: 'defaultModelReasoning',
+                getDisabled,
+                label: t(labelReasoning),
+                type: InputType.Custom
+              }
+            ],
+            idPrefix,
+            name: 'default-model'
+          }),
+          getBlock({
+            columns: [
+              {
+                custom: { Component: ModelField },
+                fieldName: 'fastModel',
+                getDisabled,
+                label: t(labelFastModel),
+                type: InputType.Custom
+              },
+              {
+                custom: { Component: ReasoningField },
+                dataTestId: `${idPrefix}-fast-model-reasoning`,
+                fieldName: 'fastModelReasoning',
+                getDisabled,
+                // without a fast model, the default model's setting applies
+                hideInput: (values) => !values.fastModel,
+                label: t(labelReasoning),
+                type: InputType.Custom
+              }
+            ],
+            idPrefix,
+            name: 'fast-model'
+          })
         ]),
         {
           // lists the provider's models into the fields above; uses the token

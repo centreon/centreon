@@ -17,6 +17,11 @@ export const labelDefaultModelPlaceholder =
 export const labelFastModel = 'Fast model';
 export const labelFastModelPlaceholder =
   'e.g. claude-haiku-5-5, mistral-small-latest, gpt-6-luna — defaults to the default model';
+export const labelReasoning = 'Reasoning';
+export const labelReasoningMinimal = 'As little as the model allows';
+export const labelReasoningModelDefault = 'Model default';
+export const labelReasoningHint =
+  'Reasoning makes answers slower and costlier, and can use up the answer budget. Keep it minimal unless the model needs it.';
 export const labelDescription = 'Description';
 export const labelEnabled = 'Enabled';
 
@@ -57,6 +62,10 @@ export const labelTestingConnection = 'Testing connection…';
 export const labelConnectionSucceeded = 'Connection successful';
 export const labelConnectionSucceededWithModel =
   'Connection successful ({{model}})';
+export const labelConnectionSucceededWithReasoning =
+  'Connection successful (reasoning: {{reasoning}})';
+export const labelConnectionSucceededWithModelAndReasoning =
+  'Connection successful ({{model}}, reasoning: {{reasoning}})';
 export const labelConnectionFailed = 'Connection failed';
 export const labelTestConnectionHint =
   'Sends a minimal request to the provider (billed by the provider, not counted toward the spend limit)';

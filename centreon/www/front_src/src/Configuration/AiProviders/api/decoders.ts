@@ -2,11 +2,21 @@ import { buildListingDecoder } from '@centreon/ui';
 
 import { JsonDecoder } from 'ts.data.json';
 
-import { AiProvider, AiProviderListItem, AiProviderType } from '../models';
+import {
+  AiProvider,
+  AiProviderListItem,
+  AiProviderType,
+  ReasoningMode
+} from '../models';
 
 const typeDecoder = JsonDecoder.enumeration<AiProviderType>(
   AiProviderType,
   'AiProviderType'
+);
+
+const reasoningDecoder = JsonDecoder.enumeration<ReasoningMode>(
+  ReasoningMode,
+  'ReasoningMode'
 );
 
 const listOptionalNumber = JsonDecoder.optional(
@@ -57,9 +67,11 @@ export const aiProviderDecoder = JsonDecoder.object<AiProvider>(
   {
     currency: JsonDecoder.optional(JsonDecoder.nullable(JsonDecoder.string)),
     defaultModel: JsonDecoder.string,
+    defaultModelReasoning: reasoningDecoder,
     description: JsonDecoder.optional(JsonDecoder.nullable(JsonDecoder.string)),
     endpointUrl: JsonDecoder.string,
     fastModel: JsonDecoder.optional(JsonDecoder.nullable(JsonDecoder.string)),
+    fastModelReasoning: reasoningDecoder,
     isActivated: JsonDecoder.boolean,
     limitDaily: optionalNumber,
     limitMonthly: optionalNumber,
@@ -73,8 +85,10 @@ export const aiProviderDecoder = JsonDecoder.object<AiProvider>(
   'AiProvider',
   {
     defaultModel: 'default_model',
+    defaultModelReasoning: 'default_model_reasoning',
     endpointUrl: 'endpoint_url',
     fastModel: 'fast_model',
+    fastModelReasoning: 'fast_model_reasoning',
     isActivated: 'is_activated',
     limitDaily: 'limit_daily',
     limitMonthly: 'limit_monthly',
@@ -88,6 +102,8 @@ export const aiProviderDecoder = JsonDecoder.object<AiProvider>(
 export interface ConnectionTestResult {
   message?: string | null;
   model?: string | null;
+  // the reasoning setting sent to the model, e.g. "reasoning_effort: low"
+  reasoning?: string | null;
   success: boolean;
 }
 
@@ -96,6 +112,7 @@ export const connectionTestResultDecoder =
     {
       message: JsonDecoder.optional(JsonDecoder.nullable(JsonDecoder.string)),
       model: JsonDecoder.optional(JsonDecoder.nullable(JsonDecoder.string)),
+      reasoning: JsonDecoder.optional(JsonDecoder.nullable(JsonDecoder.string)),
       success: JsonDecoder.boolean
     },
     'Connection test result'

@@ -15,11 +15,13 @@ import {
   testConnectionEndpoint
 } from '../api';
 import useProviderCall from '../api/useProviderCall';
-import { AiProviderType } from '../models';
+import { AiProviderType, ReasoningMode } from '../models';
 import {
   labelConnectionFailed,
   labelConnectionSucceeded,
   labelConnectionSucceededWithModel,
+  labelConnectionSucceededWithModelAndReasoning,
+  labelConnectionSucceededWithReasoning,
   labelTestConnection,
   labelTestConnectionHint,
   labelTestingConnection
@@ -29,6 +31,7 @@ import { isSameEndpoint } from '../utils';
 interface FormValues {
   apiToken?: string | null;
   defaultModel?: string | null;
+  defaultModelReasoning?: ReasoningMode | null;
   endpointUrl?: string | null;
   type?: AiProviderType | null;
 }
@@ -41,10 +44,34 @@ interface TestedResult extends ConnectionTestResult {
 const getInputs = ({
   apiToken,
   defaultModel,
+  defaultModelReasoning,
   endpointUrl,
   type
 }: FormValues): string =>
-  JSON.stringify([type, endpointUrl, apiToken, defaultModel]);
+  JSON.stringify([
+    type,
+    endpointUrl,
+    apiToken,
+    defaultModel,
+    defaultModelReasoning
+  ]);
+
+const getSuccessLabel = ({
+  model,
+  reasoning
+}: ConnectionTestResult): string => {
+  if (model && reasoning) {
+    return labelConnectionSucceededWithModelAndReasoning;
+  }
+
+  if (model) {
+    return labelConnectionSucceededWithModel;
+  }
+
+  return reasoning
+    ? labelConnectionSucceededWithReasoning
+    : labelConnectionSucceeded;
+};
 
 const TestConnectionButton = (): JSX.Element => {
   const { t } = useTranslation();
@@ -76,6 +103,9 @@ const TestConnectionButton = (): JSX.Element => {
     const { data, error } = await call({
       default_model: values.defaultModel,
       type: values.type,
+      ...(values.defaultModelReasoning
+        ? { default_model_reasoning: values.defaultModelReasoning }
+        : {}),
       ...(hasTypedToken ? { api_token: values.apiToken } : {}),
       ...(values.endpointUrl ? { endpoint_url: values.endpointUrl } : {}),
       ...(isEditing && id ? { provider_id: id } : {})
@@ -110,12 +140,11 @@ const TestConnectionButton = (): JSX.Element => {
           variant="body2"
         >
           <CheckCircleIcon fontSize="small" />
-          {result.model
-            ? t(labelConnectionSucceededWithModel, {
-                interpolation: { escapeValue: false },
-                model: result.model
-              })
-            : t(labelConnectionSucceeded)}
+          {t(getSuccessLabel(result), {
+            interpolation: { escapeValue: false },
+            model: result.model,
+            reasoning: result.reasoning
+          })}
         </Typography>
       )}
       {result && !result.success && (

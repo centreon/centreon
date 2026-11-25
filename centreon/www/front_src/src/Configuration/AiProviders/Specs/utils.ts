@@ -10,9 +10,11 @@ export const getListingResponse = () => ({
       '@type': 'ListAiProviderResource',
       currency: 'USD',
       default_model: 'claude-sonnet-4-6',
+      default_model_reasoning: 'minimal',
       description: 'Main provider',
       endpoint_url: 'https://api.anthropic.com',
       fast_model: 'claude-haiku-4-5',
+      fast_model_reasoning: 'minimal',
       id: 1,
       is_activated: true,
       limit_daily: null,
@@ -26,9 +28,11 @@ export const getListingResponse = () => ({
       '@id': '/centreon/api/latest/list_ai_provider_resources/2',
       '@type': 'ListAiProviderResource',
       default_model: 'mistral-small-latest',
+      default_model_reasoning: 'default',
       description: null,
       endpoint_url: 'https://api.mistral.ai',
       fast_model: null,
+      fast_model_reasoning: 'minimal',
       id: 2,
       is_activated: false,
       name: 'Mistral fallback',
@@ -43,9 +47,11 @@ export const getAiProviderResponse = () => ({
   '@id': '/centreon/api/latest/administration/ai-providers/1',
   '@type': 'AiProviderResource',
   default_model: 'claude-sonnet-4-6',
+  default_model_reasoning: 'minimal',
   description: 'Main provider',
   endpoint_url: 'https://api.anthropic.com',
   fast_model: null,
+  fast_model_reasoning: 'minimal',
   id: 1,
   is_activated: true,
   name: 'Anthropic production',
@@ -65,6 +71,7 @@ export const getProvidersCountResponse = (total: number) => ({
 export const connectionTestResponse = {
   message: null,
   model: 'claude-sonnet-5-5',
+  reasoning: null,
   success: true
 };
 

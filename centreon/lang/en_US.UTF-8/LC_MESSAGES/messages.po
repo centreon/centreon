@@ -20469,6 +20469,22 @@ msgstr ""
 msgid "e.g. claude-haiku-5-5, mistral-small-latest, gpt-6-luna — defaults to the default model"
 msgstr ""
 
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "Reasoning"
+msgstr ""
+
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "As little as the model allows"
+msgstr ""
+
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "Model default"
+msgstr ""
+
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "Reasoning makes answers slower and costlier, and can use up the answer budget. Keep it minimal unless the model needs it."
+msgstr ""
+
 #: centreon/www/install/front_translate.php
 msgid "Anthropic"
 msgstr ""
@@ -20571,6 +20587,14 @@ msgstr ""
 
 #: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
 msgid "Connection successful ({{model}})"
+msgstr ""
+
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "Connection successful (reasoning: {{reasoning}})"
+msgstr ""
+
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "Connection successful ({{model}}, reasoning: {{reasoning}})"
 msgstr ""
 
 #: centreon/www/install/front_translate.php

@@ -36,8 +36,11 @@ export const adaptFormToApiPayload = (data: unknown): Payload => {
   return {
     currency: formData.currency || null,
     default_model: formData.defaultModel,
+    default_model_reasoning: formData.defaultModelReasoning,
     description: formData.description || null,
     fast_model: formData.fastModel || null,
+    // sent even without a fast model: it is kept for when one is set
+    fast_model_reasoning: formData.fastModelReasoning,
     is_activated: formData.isActivated,
     limit_daily: toNumber(formData.limitDaily),
     limit_monthly: toNumber(formData.limitMonthly),

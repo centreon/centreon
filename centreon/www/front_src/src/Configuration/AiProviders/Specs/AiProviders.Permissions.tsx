@@ -14,6 +14,7 @@ import {
   labelType
 } from '../translatedLabels';
 import {
+  defaultReasoningTestId,
   descriptionTestId,
   getApiToken,
   getCustomInput,
@@ -30,6 +31,7 @@ const customFields = [
   labelType,
   labelDefaultModel,
   labelFastModel,
+  defaultReasoningTestId,
   labelCurrency,
   labelDefaultModelInputPrice,
   labelDailyLimit
@@ -120,6 +122,10 @@ export default (): void => {
       for (const label of customFields) {
         expect(await getCustomInput(label)).toBeDisabled();
       }
+      // shown like the other fields
+      expect(await getCustomInput(defaultReasoningTestId)).toHaveValue(
+        'minimal'
+      );
 
       expect(await getApiToken()).toBeDisabled();
       expect(

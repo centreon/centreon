@@ -11,6 +11,9 @@ export const nameTestId = `${idPrefix}-name`;
 export const descriptionTestId = `${idPrefix}-description`;
 export const endpointUrlTestId = `${idPrefix}-endpoint-url`;
 export const isActivatedTestId = `${idPrefix}-is-activated`;
+// the hidden input of a reasoning select: it holds the value
+export const defaultReasoningTestId = `${idPrefix}-default-model-reasoning`;
+export const fastReasoningTestId = `${idPrefix}-fast-model-reasoning`;
 
 export const initializeListing = async (
   props: Parameters<typeof initialize>[0] = {}
@@ -85,3 +88,15 @@ export const queryAllInPanel = async (
   testId: string
 ): Promise<Array<HTMLElement>> =>
   within(await getPanel()).queryAllByTestId(testId);
+
+// a reasoning setting is a select: open it, then pick the option by its label
+export const selectReasoning = async (
+  testId: string,
+  option: string
+): Promise<void> => {
+  await userEvent.click(await screen.findByTestId(`${testId}-select`));
+  await userEvent.click(await screen.findByRole('option', { name: option }));
+  await waitFor(() =>
+    expect(screen.queryByRole('option', { name: option })).toBeNull()
+  );
+};

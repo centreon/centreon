@@ -5,9 +5,11 @@ const formValues = {
   apiToken: '',
   currency: null,
   defaultModel: 'claude-sonnet-5-5',
+  defaultModelReasoning: 'minimal',
   description: null,
   endpointUrl: '',
   fastModel: null,
+  fastModelReasoning: 'minimal',
   isActivated: false,
   limitDaily: null,
   limitMonthly: null,
@@ -24,8 +26,10 @@ describe('AI provider payload', () => {
     expect(adaptFormToApiPayload(formValues)).toEqual({
       currency: null,
       default_model: 'claude-sonnet-5-5',
+      default_model_reasoning: 'minimal',
       description: null,
       fast_model: null,
+      fast_model_reasoning: 'minimal',
       is_activated: false,
       limit_daily: null,
       limit_monthly: null,
@@ -137,6 +141,20 @@ describe('AI provider payload', () => {
       description: 'Main provider',
       fast_model: 'claude-haiku-5-5',
       is_activated: true
+    });
+  });
+
+  it('sends the reasoning settings as chosen, the fast one without a fast model too', () => {
+    const payload = adaptFormToApiPayload({
+      ...formValues,
+      defaultModelReasoning: 'default',
+      fastModelReasoning: 'default'
+    });
+
+    expect(payload).toMatchObject({
+      default_model_reasoning: 'default',
+      fast_model: null,
+      fast_model_reasoning: 'default'
     });
   });
 });

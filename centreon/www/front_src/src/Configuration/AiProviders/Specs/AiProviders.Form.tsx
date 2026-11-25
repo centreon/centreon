@@ -24,6 +24,7 @@ import {
   labelAwsRegion,
   labelBedrock,
   labelConnectionSucceededWithModel,
+  labelConnectionSucceededWithModelAndReasoning,
   labelCurrency,
   labelCurrencyChangeResetsUsage,
   labelCurrencyRequired,
@@ -40,11 +41,14 @@ import {
   labelOpenAiCompatible,
   labelPricesFilled,
   labelPricingRequiredForLimit,
+  labelReasoningModelDefault,
   labelTestConnection,
   labelUnreadableAnswer
 } from '../translatedLabels';
 import {
+  defaultReasoningTestId,
   endpointUrlTestId,
+  fastReasoningTestId,
   getApiToken,
   getCustomInput,
   getName,
@@ -56,9 +60,11 @@ import {
   queryAllInPanel,
   replaceValue,
   save,
+  selectReasoning,
   selectType
 } from './helpers';
 import {
+  connectionTestResponse,
   discoveredModelsResponse,
   getAiProviderResponse,
   getProvidersCountResponse,
@@ -127,6 +133,10 @@ export default (): void => {
       await expectValue(labelDefaultModel, 'claude-sonnet-5-5');
       await expectValue(labelFastModel, 'claude-haiku-5-5');
 
+      // both models reason as little as they allow by default
+      await expectValue(defaultReasoningTestId, 'minimal');
+      await expectValue(fastReasoningTestId, 'minimal');
+
       await userEvent.type(await getApiToken(), 'a-very-secret-token');
 
       await save();
@@ -134,6 +144,8 @@ export default (): void => {
       const { request } = await waitForRequest('@createAiProvider');
       const body = request.body as Payload;
 
+      expect(body.default_model_reasoning).toBe('minimal');
+      expect(body.fast_model_reasoning).toBe('minimal');
       expect(body.name).toBe('Anthropic test');
       expect(body.type).toBe('anthropic');
       expect(body.api_token).toBe('a-very-secret-token');
@@ -477,6 +489,120 @@ export default (): void => {
       await replaceValue(await getCustomInput(labelDefaultModel), 'other');
 
       await waitFor(() => expect(screen.queryByText(success)).toBeNull());
+    });
+
+    it('sends the reasoning settings chosen for a new provider', async () => {
+      await openCreationForm();
+      await selectType(labelAnthropic);
+      await userEvent.type(await getApiToken(), 'a-very-secret-token');
+
+      await selectReasoning(defaultReasoningTestId, labelReasoningModelDefault);
+      await selectReasoning(fastReasoningTestId, labelReasoningModelDefault);
+
+      await expectValue(defaultReasoningTestId, 'default');
+      await expectValue(fastReasoningTestId, 'default');
+
+      await save();
+
+      const { request } = await waitForRequest('@createAiProvider');
+      const body = request.body as Payload;
+
+      expect(body.default_model_reasoning).toBe('default');
+      expect(body.fast_model_reasoning).toBe('default');
+    });
+
+    it('shows the stored reasoning settings and sends the changed one when a provider is updated', async () => {
+      await openProvider({
+        aiProvider: {
+          ...getAiProviderResponse(),
+          default_model_reasoning: 'default',
+          fast_model: 'claude-haiku-4-5',
+          fast_model_reasoning: 'minimal'
+        }
+      });
+
+      await expectValue(defaultReasoningTestId, 'default');
+      await expectValue(fastReasoningTestId, 'minimal');
+
+      await selectReasoning(fastReasoningTestId, labelReasoningModelDefault);
+      await expectValue(fastReasoningTestId, 'default');
+
+      await save();
+
+      const { request } = await waitForRequest('@updateAiProvider');
+      const body = request.body as Payload;
+
+      expect(body.default_model_reasoning).toBe('default');
+      expect(body.fast_model_reasoning).toBe('default');
+    });
+
+    it('offers the fast model reasoning setting only when a fast model is set', async () => {
+      await openCreationForm();
+      await selectType(labelAnthropic);
+
+      // the fast model is prefilled for curated providers
+      await expectValue(labelFastModel, 'claude-haiku-5-5');
+      expect(await queryAllInPanel(fastReasoningTestId)).toHaveLength(1);
+
+      // without a fast model, the default model's setting applies
+      await userEvent.clear(await getCustomInput(labelFastModel));
+
+      await waitFor(async () =>
+        expect(await queryAllInPanel(fastReasoningTestId)).toHaveLength(0)
+      );
+      expect(await queryAllInPanel(defaultReasoningTestId)).toHaveLength(1);
+
+      await userEvent.type(await getCustomInput(labelFastModel), 'other');
+
+      await waitFor(async () =>
+        expect(await queryAllInPanel(fastReasoningTestId)).toHaveLength(1)
+      );
+    });
+
+    it('sends the reasoning setting with the connection test and shows the reasoning applied', async () => {
+      await openCreationForm();
+      await selectType(labelAnthropic);
+      await userEvent.type(await getApiToken(), 'a-very-secret-token');
+
+      interceptAPIRequest({
+        alias: 'testConnectionWithReasoning',
+        method: Method.POST,
+        path: `**${testConnectionEndpoint}`,
+        response: {
+          ...connectionTestResponse,
+          reasoning: 'reasoning_effort: low'
+        }
+      });
+
+      await waitFor(() =>
+        expect(screen.getByTestId(labelTestConnection)).toBeEnabled()
+      );
+      await userEvent.click(screen.getByTestId(labelTestConnection));
+
+      const { request } = await waitForRequest('@testConnectionWithReasoning');
+
+      expect((request.body as Payload).default_model_reasoning).toBe('minimal');
+
+      const success = labelConnectionSucceededWithModelAndReasoning
+        .replace('{{model}}', 'claude-sonnet-5-5')
+        .replace('{{reasoning}}', 'reasoning_effort: low');
+
+      expect(await screen.findByText(success)).toBeVisible();
+
+      // the result only holds for the reasoning setting it was obtained with
+      await selectReasoning(defaultReasoningTestId, labelReasoningModelDefault);
+
+      await waitFor(() => expect(screen.queryByText(success)).toBeNull());
+
+      await userEvent.click(screen.getByTestId(labelTestConnection));
+
+      const { request: secondRequest } = await waitForRequest(
+        '@testConnectionWithReasoning'
+      );
+
+      expect((secondRequest.body as Payload).default_model_reasoning).toBe(
+        'default'
+      );
     });
 
     it('shows why the prices could not be fetched', async () => {

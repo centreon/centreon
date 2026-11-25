@@ -9,6 +9,13 @@ export enum AiProviderType {
   OpenAiCompatible = 'openai_compatible'
 }
 
+// How much a model reasons before answering: as little as it allows, or as
+// its provider configures it by default.
+export enum ReasoningMode {
+  Minimal = 'minimal',
+  ModelDefault = 'default'
+}
+
 export interface AiProviderListItem {
   id: number;
   name: string;
@@ -41,7 +48,11 @@ export interface AiProvider extends Billing {
   type: AiProviderType;
   endpointUrl: string;
   defaultModel: string;
+  defaultModelReasoning: ReasoningMode;
   fastModel?: string | null;
+  // applies to the fast model only when one is set: the default model's
+  // setting applies otherwise
+  fastModelReasoning: ReasoningMode;
   description?: string | null;
   isActivated: boolean;
 }
@@ -55,8 +66,10 @@ export interface AiProviderFormValues extends AiProvider {
 export interface Payload {
   currency: string | null;
   default_model: string;
+  default_model_reasoning: ReasoningMode;
   description: string | null;
   fast_model: string | null;
+  fast_model_reasoning: ReasoningMode;
   is_activated: boolean;
   limit_daily: number | null;
   limit_monthly: number | null;
