@@ -80,14 +80,46 @@ final class AnthropicLlmClientReasoningTest extends TestCase
         $response = $this->createClient([
             $this->rejection('thinking: Extra inputs are not permitted'),
             $this->rejection('thinking: Extra inputs are not permitted'),
-            $this->rejection('output_config.effort: Extra inputs are not permitted'),
+            // a server that does not know the field names only it
+            $this->rejection('output_config: Extra inputs are not permitted'),
             $this->answer('pong'),
-        ], logger: $logger)->complete($this->createRequest());
+        ], logger: $logger)->complete($this->createRequest(maxTokens: 512));
 
         self::assertNull($response->reasoning);
         self::assertArrayNotHasKey('thinking', $this->sentBodies[3]);
         self::assertArrayNotHasKey('output_config', $this->sentBodies[3]);
+        self::assertSame(512, $this->sentBodies[3]['max_tokens'] ?? null);
         self::assertSame('warning', $logger->lastRecord()['level'] ?? null);
+    }
+
+    public function testWithoutAFastModelTheFastTierFollowsTheDefaultModel(): void
+    {
+        $this->createClient(
+            [$this->answer('pong')],
+            defaultModelReasoning: ReasoningModeEnum::Default,
+            fastModelReasoning: ReasoningModeEnum::Minimal,
+            fastModel: null,
+        )->complete($this->createRequest(tier: LlmModelTierEnum::Fast));
+
+        self::assertSame('claude-sonnet-4-6', $this->sentBodies[0]['model'] ?? null);
+        self::assertArrayNotHasKey('thinking', $this->sentBodies[0]);
+        self::assertArrayNotHasKey('output_config', $this->sentBodies[0]);
+    }
+
+    public function testAFastModelEqualToTheDefaultOneFollowsTheTier(): void
+    {
+        $client = $this->createClient(
+            [$this->answer('pong'), $this->answer('pong')],
+            defaultModelReasoning: ReasoningModeEnum::Default,
+            fastModelReasoning: ReasoningModeEnum::Minimal,
+            fastModel: new ModelName('claude-sonnet-4-6'),
+        );
+
+        $client->complete($this->createRequest());
+        $client->complete($this->createRequest(tier: LlmModelTierEnum::Fast));
+
+        self::assertArrayNotHasKey('thinking', $this->sentBodies[0]);
+        self::assertSame(['type' => 'disabled'], $this->sentBodies[1]['thinking'] ?? null);
     }
 
     public function testAnErrorNotAboutThinkingIsNotRetried(): void
@@ -231,6 +263,7 @@ final class AnthropicLlmClientReasoningTest extends TestCase
         ReasoningModeEnum $fastModelReasoning = ReasoningModeEnum::Minimal,
         ?CacheItemPoolInterface $cache = null,
         ?LoggerInterface $logger = null,
+        ?ModelName $fastModel = new ModelName('claude-haiku-4-5'),
     ): AnthropicLlmClient {
         $httpClient = new MockHttpClient(
             function (string $method, string $url, array $options) use (&$responses): MockResponse {
@@ -252,7 +285,7 @@ final class AnthropicLlmClientReasoningTest extends TestCase
             new EndpointUrl('https://api.anthropic.com'),
             new ApiToken('a-token'),
             new ModelName('claude-sonnet-4-6'),
-            new ModelName('claude-haiku-4-5'),
+            $fastModel,
             logger: $logger ?? new NullLogger(),
             defaultModelReasoning: $defaultModelReasoning,
             fastModelReasoning: $fastModelReasoning,

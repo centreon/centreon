@@ -73,6 +73,17 @@ final class ProviderPayloadTest extends TestCase
 
         yield 'top-level message (Mistral)' => [['object' => 'error', 'message' => 'reasoning_effort none is not supported for this model', 'type' => 'invalid_request_invalid_args'], 'reasoning_effort none is not supported for this model'];
 
+        yield 'validation errors nested in the message (Mistral 422)' => [
+            [
+                'object' => 'error',
+                'message' => ['detail' => [['type' => 'extra_forbidden', 'loc' => ['body', 'reasoning_effort'], 'msg' => 'Extra inputs are not permitted']]],
+                'type' => 'invalid_request_message_error',
+            ],
+            'body.reasoning_effort: Extra inputs are not permitted',
+        ];
+
+        yield 'a message that is neither text nor details' => [['message' => ['code' => 3]], null];
+
         yield 'top-level detail (FastAPI)' => [['detail' => 'Model not found'], 'Model not found'];
 
         yield 'validation errors (FastAPI 422)' => [

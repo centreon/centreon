@@ -42,32 +42,39 @@ final class ReasoningNegotiatorTest extends TestCase
     private array $sentLabels = [];
 
     /**
-     * @return iterable<string, array{int, ReasoningCandidate|null, int}>
+     * @return iterable<string, array{int, ReasoningModeEnum, ReasoningCandidate|null, int}>
      */
     public static function provideBudgets(): iterable
     {
         [$effortNone, $effortMinimal, $effortLow] = ReasoningCandidate::reasoningEffort();
         [$thinkingDisabled, $thinkingBetweenTools, $effortLowAnthropic] = ReasoningCandidate::anthropicThinking();
+        $minimal = ReasoningModeEnum::Minimal;
 
-        yield 'reasoning turned off' => [2048, $effortNone, 2048];
+        yield 'reasoning turned off' => [2048, $minimal, $effortNone, 2048];
 
-        yield 'thinking turned off' => [256, $thinkingDisabled, 256];
+        yield 'thinking turned off' => [256, $minimal, $thinkingDisabled, 256];
 
-        yield 'a small budget, reasoning a little' => [256, $effortMinimal, 256 + 1024];
+        yield 'a small budget, reasoning a little' => [256, $minimal, $effortMinimal, 256 + 1024];
 
-        yield 'a large budget, reasoning a little' => [2048, $effortLow, 2048 + 2048];
+        yield 'a large budget, reasoning a little' => [2048, $minimal, $effortLow, 2048 + 2048];
 
-        yield 'just above the small budget' => [257, $thinkingBetweenTools, 257 + 2048];
+        yield 'just above the small budget' => [257, $minimal, $thinkingBetweenTools, 257 + 2048];
 
-        yield 'a low effort' => [16, $effortLowAnthropic, 16 + 1024];
+        yield 'a low effort' => [16, $minimal, $effortLowAnthropic, 16 + 1024];
 
-        yield 'no setting sent' => [2048, null, 2048 + 2048];
+        yield 'the model default' => [2048, ReasoningModeEnum::Default, null, 2048 + 2048];
+
+        yield 'no setting accepted: most likely a model that does not reason' => [2048, $minimal, null, 2048];
     }
 
     #[DataProvider('provideBudgets')]
-    public function testAModelThatMayReasonGetsAnAllowance(int $maxTokens, ?ReasoningCandidate $candidate, int $expected): void
-    {
-        self::assertSame($expected, ReasoningNegotiator::maxTokensFor($maxTokens, $candidate));
+    public function testAModelThatMayReasonGetsAnAllowance(
+        int $maxTokens,
+        ReasoningModeEnum $mode,
+        ?ReasoningCandidate $candidate,
+        int $expected,
+    ): void {
+        self::assertSame($expected, ReasoningNegotiator::maxTokensFor($maxTokens, $mode, $candidate));
     }
 
     public function testOnlyTheFirstCandidatesTurnReasoningOff(): void

@@ -256,6 +256,7 @@ final class MeteredLlmClientTest extends TestCase
                 'deepseek-reasoner',
                 new LlmUsage(37, 3072),
                 truncated: true,
+                reasoning: 'reasoning_effort: low',
                 maxTokens: 3072,
                 reasoningMode: ReasoningModeEnum::Minimal,
             )),
@@ -268,6 +269,30 @@ final class MeteredLlmClientTest extends TestCase
             self::assertStringContainsString('whole budget of 3072 tokens', $exception->getMessage());
             self::assertStringContainsString('reasons even at its lowest setting: choose another model', $exception->getMessage());
             self::assertStringNotContainsString('Turn reasoning down', $exception->getMessage());
+        }
+    }
+
+    public function testATruncatedEmptyAnswerOfAModelAcceptingNoSettingSaysSo(): void
+    {
+        $client = $this->metered(
+            $this->provider(),
+            new FakeAiProviderUsageRepository(),
+            new FakeLlmClient(new LlmResponse(
+                '',
+                'some-reasoning-model',
+                new LlmUsage(37, 1024),
+                truncated: true,
+                maxTokens: 1024,
+                reasoningMode: ReasoningModeEnum::Minimal,
+            )),
+        );
+
+        try {
+            $client->complete($this->request());
+            self::fail('Expected an empty answer to fail');
+        } catch (LlmRequestFailedException $exception) {
+            self::assertStringContainsString('accepts no setting that turns its reasoning down', $exception->getMessage());
+            self::assertStringNotContainsString('lowest setting', $exception->getMessage());
         }
     }
 

@@ -88,8 +88,8 @@ final class OpenAiCompatibleLlmClientReasoningTest extends TestCase
             $this->answer('pong again'),
         ], logger: $logger);
 
-        $first = $client->complete($this->createRequest());
-        $second = $client->complete($this->createRequest());
+        $first = $client->complete($this->createRequest(maxTokens: 2048));
+        $second = $client->complete($this->createRequest(maxTokens: 2048));
 
         self::assertNull($first->reasoning);
         self::assertSame('pong again', $second->content);
@@ -98,12 +98,20 @@ final class OpenAiCompatibleLlmClientReasoningTest extends TestCase
         self::assertArrayNotHasKey('reasoning_effort', $this->sentBodies[3]);
         // remembered: the second request goes straight without a setting
         self::assertArrayNotHasKey('reasoning_effort', $this->sentBodies[4]);
-        $warnings = array_filter(
+        // most likely a model that does not reason: no extra output tokens
+        self::assertSame(2048, $this->sentBodies[3]['max_tokens'] ?? null);
+        self::assertSame(2048, $first->maxTokens);
+
+        $records = array_values(array_filter(
             $logger->records(),
             static fn (array $record): bool => str_contains($record['message'], 'reasoning'),
+        ));
+        // each rejected setting, then the outcome, once
+        self::assertSame(['info', 'info', 'info', 'warning'], array_column($records, 'level'));
+        self::assertSame(
+            ['reasoning_effort: none', 'reasoning_effort: minimal', 'reasoning_effort: low'],
+            array_map(static fn (array $record): mixed => $record['context']['setting'] ?? null, array_slice($records, 0, 3)),
         );
-        self::assertCount(1, $warnings);
-        self::assertSame('warning', array_values($warnings)[0]['level']);
     }
 
     public function testAnErrorNotAboutReasoningIsNotRetried(): void

@@ -74,11 +74,15 @@ final readonly class ReasoningNegotiator
 
     /**
      * The output token limit to request: the requested one, plus an allowance when
-     * the model may still reason with the setting sent.
+     * the model may still reason with the setting sent. A model set to reason
+     * minimally that accepts no setting gets none: it most likely does not reason.
      */
-    public static function maxTokensFor(int $maxTokens, ?ReasoningCandidate $candidate): int
+    public static function maxTokensFor(int $maxTokens, ReasoningModeEnum $mode, ?ReasoningCandidate $candidate): int
     {
-        if ($candidate instanceof ReasoningCandidate && $candidate->turnsReasoningOff) {
+        $mayReason = $candidate instanceof ReasoningCandidate
+            ? ! $candidate->turnsReasoningOff
+            : $mode === ReasoningModeEnum::Default;
+        if (! $mayReason) {
             return $maxTokens;
         }
 
@@ -114,9 +118,10 @@ final readonly class ReasoningNegotiator
                 try {
                     return [$send($candidate), $candidate];
                 } catch (LlmRequestFailedException $exception) {
-                    if (! $this->isRejection($exception, $model)) {
+                    if (! $this->isRejection($exception, $model, $candidate)) {
                         throw $exception;
                     }
+                    $this->logRejection($exception, $model, $candidate);
                     $rejectedIndex = $index;
                 }
             }
@@ -195,27 +200,35 @@ final readonly class ReasoningNegotiator
             try {
                 return [$send($candidate), $candidate, $index];
             } catch (LlmRequestFailedException $exception) {
-                if (! $this->isRejection($exception, $model)) {
+                if (! $this->isRejection($exception, $model, $candidate)) {
                     throw $exception;
                 }
+                $this->logRejection($exception, $model, $candidate);
             }
         }
 
         $this->logger->warning(
             'The model accepts none of the settings that turn its reasoning down: it is sent none',
-            ['model' => $model->value]
+            ['model' => $model->value, 'scope' => $this->scope]
         );
 
         return [$send(null), null, self::NONE_ACCEPTED];
     }
 
     /**
+     * The message names the setting, or the field the candidate was sent in (a server
+     * that does not know the field names only it, e.g. "output_config: Extra inputs
+     * are not permitted").
+     *
      * The model name is left out of the match: it often echoes in the message, and
      * may itself name reasoning (e.g. deepseek-reasoner, a *-thinking-* model). Only
      * whole occurrences are, so that a short name can not hide a word of the message.
      */
-    private function isRejection(LlmRequestFailedException $exception, ModelName $model): bool
-    {
+    private function isRejection(
+        LlmRequestFailedException $exception,
+        ModelName $model,
+        ReasoningCandidate $candidate,
+    ): bool {
         if (! in_array($exception->getCode(), self::REJECTION_STATUS_CODES, true)) {
             return false;
         }
@@ -225,9 +238,35 @@ final readonly class ReasoningNegotiator
             '/(?<![\w.:\/-])' . preg_quote($model->value, '/') . '(?![\w.:\/-])/i',
             '',
             $message
-        );
+        ) ?? $message; // on a regular expression error, the whole message is matched
 
-        // on a regular expression error, the whole message is matched
-        return preg_match(self::REJECTION_PATTERN, $withoutModel ?? $message) === 1;
+        if (preg_match(self::REJECTION_PATTERN, $withoutModel) === 1) {
+            return true;
+        }
+
+        foreach (array_keys($candidate->payload) as $field) {
+            if (str_contains($withoutModel, (string) $field)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * An expected step: the next candidate is tried. The message is the provider's,
+     * already without the API token.
+     */
+    private function logRejection(
+        LlmRequestFailedException $exception,
+        ModelName $model,
+        ReasoningCandidate $candidate,
+    ): void {
+        $this->logger->info('The model rejects a reasoning setting: the next one is tried', [
+            'model' => $model->value,
+            'scope' => $this->scope,
+            'setting' => $candidate->label,
+            'message' => $exception->getMessage(),
+        ]);
     }
 }

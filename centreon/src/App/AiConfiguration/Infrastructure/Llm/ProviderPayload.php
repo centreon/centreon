@@ -64,9 +64,9 @@ final class ProviderPayload
 
     /**
      * The message of an {"error": {"message": "..."}} or {"error": "..."} document, or of
-     * one with a top-level "message" (Mistral) or "detail" (FastAPI servers), if it has one,
-     * without the API token a provider may echo in it. The document may come wrapped in a
-     * list (Gemini).
+     * one with a top-level "message" (Mistral, whose validation errors nest a FastAPI
+     * "detail" in it) or "detail" (FastAPI servers), if it has one, without the API token
+     * a provider may echo in it. The document may come wrapped in a list (Gemini).
      */
     public static function errorMessage(mixed $data, ApiToken $apiToken): ?string
     {
@@ -79,7 +79,10 @@ final class ProviderPayload
 
         $error = $data['error'] ?? null;
         $message = is_array($error) ? ($error['message'] ?? null) : $error;
-        $message ??= $data['message'] ?? self::detailMessage($data['detail'] ?? null);
+        $topMessage = $data['message'] ?? null;
+        $message ??= is_array($topMessage)
+            ? self::detailMessage($topMessage['detail'] ?? null)
+            : ($topMessage ?? self::detailMessage($data['detail'] ?? null));
 
         if (! is_string($message) || trim($message) === '') {
             return null;

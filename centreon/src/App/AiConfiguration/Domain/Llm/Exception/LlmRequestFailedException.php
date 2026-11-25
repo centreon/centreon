@@ -52,16 +52,23 @@ final class LlmRequestFailedException extends LlmException implements ExpectedFa
     /**
      * @param int $maxTokens the output token limit sent
      * @param ReasoningModeEnum|null $reasoningMode how much the model was set to reason, if known
+     * @param bool $reasoningSettingSent whether a setting to turn its reasoning down was sent
      */
-    public static function fromEmptyAnswer(bool $truncated, int $maxTokens, ?ReasoningModeEnum $reasoningMode = null): self
-    {
+    public static function fromEmptyAnswer(
+        bool $truncated,
+        int $maxTokens,
+        ?ReasoningModeEnum $reasoningMode = null,
+        bool $reasoningSettingSent = true,
+    ): self {
         if ($truncated) {
             return new self(sprintf(
                 'The model used its whole budget of %d tokens without writing an answer, probably reasoning. %s',
                 $maxTokens,
-                $reasoningMode === ReasoningModeEnum::Minimal
-                    ? 'It reasons even at its lowest setting: choose another model.'
-                    : 'Turn reasoning down for this model, or choose another model.'
+                match (true) {
+                    $reasoningMode !== ReasoningModeEnum::Minimal => 'Turn reasoning down for this model, or choose another model.',
+                    $reasoningSettingSent => 'It reasons even at its lowest setting: choose another model.',
+                    default => 'It accepts no setting that turns its reasoning down: choose another model.',
+                }
             ));
         }
 

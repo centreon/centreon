@@ -116,6 +116,7 @@ final readonly class MeteredLlmClient implements LlmClientInterface
                 $response->truncated,
                 $response->maxTokens ?? $request->maxTokens,
                 $response->reasoningMode,
+                $response->reasoning !== null,
             );
         }
     }

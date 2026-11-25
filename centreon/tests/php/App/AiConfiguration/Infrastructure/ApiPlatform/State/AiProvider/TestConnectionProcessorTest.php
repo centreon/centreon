@@ -23,6 +23,13 @@ declare(strict_types=1);
 
 namespace Tests\App\AiConfiguration\Infrastructure\ApiPlatform\State\AiProvider;
 
+use App\AiConfiguration\Domain\Aggregate\AiProvider\ReasoningModeEnum;
+use App\AiConfiguration\Domain\Llm\LlmClientFactoryInterface;
+use App\AiConfiguration\Domain\Llm\LlmResponse;
+use App\AiConfiguration\Domain\Llm\LlmUsage;
+use Tests\App\AiConfiguration\Infrastructure\Double\FakeLlmClient;
+use Tests\App\AiConfiguration\Infrastructure\Double\FakeLlmClientFactory;
+
 final class TestConnectionProcessorTest extends AiProviderApiTestCase
 {
     private const TEST_ENDPOINT = self::ENDPOINT . '/test-connection';
@@ -118,6 +125,32 @@ final class TestConnectionProcessorTest extends AiProviderApiTestCase
         $result = $response->toArray();
         self::assertFalse($result['success']);
         self::assertNull($result['reasoning'] ?? null);
+    }
+
+    public function testASuccessfulTestSendsTheChosenSettingAndReportsTheOneApplied(): void
+    {
+        $factory = new FakeLlmClientFactory(new FakeLlmClient(
+            new LlmResponse('pong', 'a-model', new LlmUsage(1, 1), reasoning: 'reasoning_effort: low')
+        ));
+        self::getContainer()->set(LlmClientFactoryInterface::class, $factory);
+        $this->login();
+
+        $response = $this->request('POST', self::TEST_ENDPOINT, [
+            'json' => [
+                'type' => 'openai_compatible',
+                'default_model' => 'a-model',
+                'default_model_reasoning' => 'default',
+                'api_token' => 'a-token',
+                'endpoint_url' => 'https://llm.example.com/v1',
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(200);
+        self::assertSame(ReasoningModeEnum::Default, $factory->lastConnectionSpec?->modelReasoning);
+        /** @var array{success: bool, reasoning?: string|null} $result */
+        $result = $response->toArray();
+        self::assertTrue($result['success']);
+        self::assertSame('reasoning_effort: low', $result['reasoning'] ?? null);
     }
 
     public function testAnUnknownReasoningSettingIsRejected(): void
