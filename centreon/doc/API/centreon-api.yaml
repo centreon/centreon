@@ -11566,10 +11566,8 @@ components:
             $ref: '#/components/schemas/HostTemplateOutput'
         icon:
           anyOf:
-            -
-              $ref: '#/components/schemas/HostIconOutput'
-            -
-              type: 'null'
+            - $ref: '#/components/schemas/HostIconOutput'
+            - type: 'null'
         id:
           type: integer
         name:
@@ -11586,10 +11584,27 @@ components:
         -
           type: object
           properties:
+            linked_service_templates_count:
+              default: 0
+              type: integer
+            parent_templates:
+              type: array
+              items:
+                $ref: '#/components/schemas/HostTemplateOutput.jsonld'
+            icon:
+              anyOf:
+                - $ref: '#/components/schemas/HostIconOutput.jsonld'
+                - type: 'null'
             id:
               type: integer
             name:
               type: string
+            alias:
+              type:
+                - string
+                - 'null'
+            is_locked:
+              type: boolean
     HostCategory.HostCategoryCollectionOutput:
       type: object
       properties:
@@ -11603,29 +11618,10 @@ components:
         -
           type: object
           properties:
-            linked_service_templates_count:
-              default: 0
-              type: integer
-            parent_templates:
-              type: array
-              items:
-                $ref: '#/components/schemas/HostTemplateOutput.jsonld'
-            icon:
-              anyOf:
-                -
-                  $ref: '#/components/schemas/HostIconOutput.jsonld'
-                -
-                  type: 'null'
             id:
               type: integer
             name:
               type: string
-            alias:
-              type:
-                - string
-                - 'null'
-            is_locked:
-              type: boolean
     Host.HostCollectionOutput:
       type: object
       properties:
