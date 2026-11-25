@@ -32,6 +32,11 @@ ARG CENTREON_MINOR_VERSION=0
 # engine_verifier below. Multi-arch, Debian trixie, same base family as
 # php:8.4-fpm: no --platform pin needed.
 ARG ENGINE_IMAGE=docker.centreon.com/centreon/centreon-engine-trixie:develop
+# MON-215450 phase 3 P2 (gorgone-less PoC): Autodiscovery comes from the
+# centreon-autodisco image built by centreon-modules CI on the disco-modules
+# branch (MON-216208), unencoded, with the gorgone-less worker. amd64-only
+# image; the module is plain PHP, architecture-independent.
+ARG AUTODISCO_IMAGE=docker.centreon.com/centreon/centreon-autodisco-trixie:develop
 
 #############################################
 # Stage 1: frontend build (pnpm / rspack)
@@ -115,7 +120,8 @@ EOF
 
 #############################################
 # Stage 2b: T0 baked-in modules (License Manager, PP Manager/Monitoring
-# Connector Manager, Autodiscovery, IT Edition extensions) + the
+# Connector Manager, IT Edition extensions; Autodiscovery comes from
+# autodisco_source below) + the
 # SourceGuardian loader their PHP code needs to even run (they're not plain
 # PHP — every one declares `Pre-Depends: php8.4-sourceguardian-loader` and
 # `License: Proprietary`). Pulled from Centreon's own signed apt repo since
@@ -125,9 +131,8 @@ EOF
 # removed them, from the public **stable** suite this time
 # (apt-standard trixie-26.10-stable): its pool keeps every released version,
 # while apt-unstable only keeps the latest build (the previously pinned
-# 26.10.2 builds vanished from it, which broke the build). Autodiscovery comes
-# from the same suite as the 3 others instead of the centreon-autodisco
-# image. Pinned exact versions, verified by apt (GPG + hash) through
+# 26.10.2 builds vanished from it, which broke the build). Pinned exact
+# versions, verified by apt (GPG + hash) through
 # `apt-get download` (not `install`: only the files are wanted, no postinst).
 #
 # Known, accepted risk: every module's control file declares
@@ -150,7 +155,6 @@ ARG SOURCEGUARDIAN_LOADER_VERSION=8.4-1+deb13u1
 ARG SOURCEGUARDIAN_LOADER_ARM64_SHA256=85123735697faafc6adcaae7a4e9b093bcff1eec8708d0ed671c64c16171c411
 ARG LICENSE_MANAGER_VERSION=26.10.1-1+deb13u1
 ARG PP_MANAGER_VERSION=26.10.1-1+deb13u1
-ARG AUTODISCOVERY_VERSION=26.10.1-1+deb13u1
 ARG IT_EDITION_VERSION=26.10.1-1+deb13u1
 
 WORKDIR /modules
@@ -168,7 +172,6 @@ mkdir -p extracted
 modules=(
   "centreon-license-manager=${LICENSE_MANAGER_VERSION}"
   "centreon-pp-manager=${PP_MANAGER_VERSION}"
-  "centreon-auto-discovery-server=${AUTODISCOVERY_VERSION}"
   "centreon-it-edition-extensions=${IT_EDITION_VERSION}"
 )
 if [ "${TARGETARCH}" = "amd64" ]; then
@@ -183,7 +186,7 @@ if [ "${TARGETARCH}" != "amd64" ]; then
   echo "${SOURCEGUARDIAN_LOADER_ARM64_SHA256}  /tmp/ixed.8.4.lin" | sha256sum -c -
   install -D -m 644 /tmp/ixed.8.4.lin extracted/usr/lib/php/20240924/ixed.8.4.lin
 fi
-for module in centreon-license-manager centreon-pp-manager centreon-autodiscovery-server centreon-it-edition-extensions; do
+for module in centreon-license-manager centreon-pp-manager centreon-it-edition-extensions; do
   test -f "extracted/usr/share/centreon/www/modules/${module}/conf.php" || { echo "missing module ${module}" >&2; exit 1; }
 done
 EOF
@@ -219,6 +222,23 @@ for deb in *.deb; do dpkg-deb -x "$deb" extracted; done
 count=$(find extracted/usr/share/centreon-packs -name '*.json' | wc -l)
 echo "Plugin packs extracted: ${count}"
 [ "$count" -gt 0 ]
+EOF
+
+#############################################
+# Autodiscovery (MON-215450 phase 3 P2): extracted from the centreon-autodisco
+# image (centreon-modules CI, branch MON-216208, unencoded, gorgone-less worker
+# included) through that image's own dpkg database: every file the package
+# owns under /usr/share/centreon/. LM, PPM and ITEE stay on the stable 26.10.1
+# packages (modules_fetcher above).
+#############################################
+FROM --platform=linux/amd64 ${AUTODISCO_IMAGE} AS autodisco_source
+
+RUN bash -eo pipefail <<'EOF'
+mkdir -p /out
+dpkg -L centreon-auto-discovery-server | grep '^/usr/share/centreon/' | while read -r f; do
+  [ -f "$f" ] && cp --parents -a "$f" /out/
+done
+test -f /out/usr/share/centreon/www/modules/centreon-autodiscovery-server/conf.php
 EOF
 
 #############################################
@@ -311,6 +331,7 @@ EOF
 # below already scans, so module static assets reach httpd the same way
 # core www/ files do, no module-specific logic needed there.
 COPY --from=modules_fetcher --link /modules/extracted/usr/share/centreon/ .
+COPY --from=autodisco_source --link /out/usr/share/centreon/ .
 
 # Source maps for production JS/CSS — 106MB on their own (confirmed by
 # `find ... -name '*.map' | du -ch`, bigger than every other dead-weight
