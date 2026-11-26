@@ -241,7 +241,7 @@ class Upgrader extends Module
             $this->upgradePhpFiles($path, false);
         } catch (ExecutedQueriesChangedException $exception) {
             $refusal = new \RuntimeException(sprintf(
-                '%s: restore them, or delete the "%s" option to replay the whole file',
+                '%s: restore the file, or delete the "%s" option to replay it whole',
                 $exception->getMessage(),
                 ModuleUpgradeProgressRepository::KEY_PREFIX . $this->moduleName
             ), 0, $exception);
@@ -258,25 +258,30 @@ class Upgrader extends Module
             throw $refusal;
         } catch (\Throwable $exception) {
             $isSql = str_ends_with($step, '.sql');
-            LoggerUpgrade::create()->error(
-                $version,
-                $this->recordingProgress
-                    ? sprintf(
+            if ($this->recordingProgress) {
+                LoggerUpgrade::create()->error(
+                    $version,
+                    sprintf(
                         'The upgrade of the "%s" module could not record its progress in %s%s: it will be replayed',
                         $this->moduleName,
                         $step,
                         $isSql ? sprintf(' after query %d', $state['sql']) : ''
-                    )
-                    : sprintf(
-                        'The upgrade of the "%s" module failed in %s%s',
-                        $this->moduleName,
-                        $step,
-                        $isSql ? sprintf(' at query %d', $state['sql'] + 1) : ''
                     ),
-                $exception
-            );
+                    $exception
+                );
 
-            throw $exception;
+                throw $exception;
+            }
+
+            $failure = sprintf(
+                'The upgrade of the "%s" module failed in %s%s',
+                $this->moduleName,
+                $step,
+                $isSql ? sprintf(' at query %d', $state['sql'] + 1) : ''
+            );
+            LoggerUpgrade::create()->error($version, $failure, $exception);
+
+            throw new \RuntimeException($failure . ': ' . $exception->getMessage(), 0, $exception);
         }
     }
 

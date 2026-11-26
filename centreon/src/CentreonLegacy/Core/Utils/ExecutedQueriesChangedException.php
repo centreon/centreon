@@ -27,10 +27,10 @@ final class ExecutedQueriesChangedException extends \RuntimeException
 {
     public static function inFile(string $fileName, int $executedQueries): self
     {
-        return new self(\sprintf(
-            'The first %d queries of "%s" already ran, but have changed since',
-            $executedQueries,
-            $fileName
-        ));
+        return new self(
+            $executedQueries === 1
+                ? \sprintf('The first query of "%s" already ran, but has changed since', $fileName)
+                : \sprintf('The first %d queries of "%s" already ran, but have changed since', $executedQueries, $fileName)
+        );
     }
 }
