@@ -601,7 +601,7 @@ jobs:
           persist-credentials: false
 
       - name: Deliver sources
-        uses: ./.github/actions/release-sources
+        uses: centreon/github-actions/download-site/sources-delivery@download-site/v1
         with:
           bucket_directory: centreon-open-tickets
           module_directory: centreon-open-tickets
