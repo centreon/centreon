@@ -270,7 +270,10 @@ class Upgrader extends Module
                     $exception
                 );
 
-                throw $exception;
+                throw new \RuntimeException(sprintf(
+                    'The upgrade of the "%s" module stopped: its progress could not be saved in the database. Update it again.',
+                    $this->moduleName
+                ), 0, $exception);
             }
 
             $failure = sprintf(

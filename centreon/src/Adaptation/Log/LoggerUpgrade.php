@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Adaptation\Log;
 
+use Adaptation\Log\Adapter\MonologAdapter;
 use Adaptation\Log\Enum\LogChannelEnum;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
@@ -42,6 +43,11 @@ final class LoggerUpgrade
         }
 
         return self::$instance;
+    }
+
+    public static function logFile(): string
+    {
+        return MonologAdapter::logFile(LogChannelEnum::UPGRADE);
     }
 
     public function start(string $fromVersion, string $toVersion): void

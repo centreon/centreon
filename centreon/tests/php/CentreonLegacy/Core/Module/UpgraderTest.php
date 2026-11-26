@@ -392,7 +392,9 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
         try {
             $upgrader->upgrade();
             $this->fail('The progress failure must propagate');
-        } catch (RepositoryException) {
+        } catch (\RuntimeException $exception) {
+            $this->assertSame('The upgrade of the "my-module" module stopped: its progress could not be saved in the database. Update it again.', $exception->getMessage());
+            $this->assertInstanceOf(RepositoryException::class, $exception->getPrevious());
         }
 
         $this->assertSame(['script:upgrade.pre.php'], $journal->getArrayCopy(), 'Nothing runs once the progress cannot be kept');

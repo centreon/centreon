@@ -23,7 +23,10 @@ declare(strict_types=1);
 
 namespace CentreonLegacy\Core\Migration;
 
+use Adaptation\Log\LoggerUpgrade;
 use CentreonLegacy\Core\Process\PhpConsole;
+use Composer\InstalledVersions;
+use Symfony\Component\Process\Exception\ProcessFailedException;
 
 class MigrationLauncher
 {
@@ -44,9 +47,20 @@ class MigrationLauncher
         $process->run();
 
         if (! $process->isSuccessful()) {
+            // The whole output: the message keeps only the reason.
+            LoggerUpgrade::create()->error(
+                InstalledVersions::getRootPackage()['pretty_version'],
+                'The migrations console command failed',
+                new ProcessFailedException($process)
+            );
             $reason = self::extractFailureReason($process->getErrorOutput() . $process->getOutput());
 
-            throw new \RuntimeException($reason !== '' ? $reason : sprintf('Exit code %s (%s)', $process->getExitCode(), $process->getExitCodeText()));
+            throw new \RuntimeException($reason !== '' ? $reason : sprintf(
+                'Exit code %s (%s): check "%s"',
+                $process->getExitCode(),
+                $process->getExitCodeText(),
+                LoggerUpgrade::logFile()
+            ));
         }
     }
 

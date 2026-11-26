@@ -96,7 +96,11 @@ class CacheClearer
         $process->run();
 
         if (! $process->isSuccessful()) {
-            throw new ProcessFailedException($process);
+            throw new RuntimeException(
+                sprintf('"%s" failed with exit code %s: check "%s"', implode(' ', $command), $process->getExitCode(), LoggerUpgrade::logFile()),
+                0,
+                new ProcessFailedException($process)
+            );
         }
     }
 }
