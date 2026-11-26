@@ -21,12 +21,12 @@
 
 ARG NODE_VERSION=24
 ARG PHP_VERSION=8.4
-# Matches the repo root's .version/.version.centreon-web (MAJOR=26.12,
+# Matches the repo root's .version/.version.centreon-web (MAJOR=27.01,
 # MINOR=0) — not read automatically from those files at build time since
 # the build context only copies the centreon/ subdirectory (COPY centreon/
 # . below), not the monorepo root they live at. Bump alongside a real
 # version change, same spirit as NODE_VERSION/PHP_VERSION above.
-ARG CENTREON_MAJOR_VERSION=26.12
+ARG CENTREON_MAJOR_VERSION=27.01
 ARG CENTREON_MINOR_VERSION=0
 # Real centengine, for config-verification only (MON-214031) — see
 # engine_verifier below. Multi-arch, Debian trixie, same base family as
