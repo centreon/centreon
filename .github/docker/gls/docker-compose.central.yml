@@ -240,8 +240,6 @@ services:
       # State (contracts § 7): cbmod cache_directory + retention.dat. Logs stay
       # in the container layer.
       - central-engine-state:/var/lib/centreon-engine
-      # Keeps the engine gRPC on what the config says (127.0.0.1 for vm pollers).
-      - ./overrides/05-engine-config.sh:/usr/local/lib/centreon-engine/container.d/05-engine-config.sh:ro
     # command_file FIFO: only the engine uses it now (no gorgone).
     tmpfs:
       - /var/lib/centreon-engine/rw:uid=901,gid=901,mode=0770
