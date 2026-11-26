@@ -468,6 +468,50 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
         $this->assertSame(['pre' => true, 'sql' => 1, 'checksum' => 'checksum of query 1'], $progress->get('my-module', '1.0.1'), 'The progress is kept');
     }
 
+    public function testRefusesToResumeAnUpgradeSqlRemovedSinceItsQueriesRan(): void
+    {
+        $filesystem = $this->createMock(\Symfony\Component\Filesystem\Filesystem::class);
+        $filesystem->method('exists')->willReturnCallback(static fn (string $file): bool => ! str_ends_with($file, '/sql/upgrade.sql'));
+        $this->container->registerProvider(new FilesystemProvider($filesystem));
+
+        $finder = $this->createMock(\Symfony\Component\Finder\Finder::class);
+        $finder->method('directories')->willReturn($finder);
+        $finder->method('depth')->willReturn($finder);
+        $finder->method('in')->willReturn($finder);
+        $finder->method('getIterator')->willReturn(new \ArrayIterator([new \SplFileInfo('1.0.1')]));
+        $this->container->registerProvider(new FinderProvider($finder));
+
+        $this->db->addResultSet(
+            'UPDATE modules_informations '
+            . 'SET `name` = :name , `rname` = :rname , `is_removeable` = :is_removeable , '
+            . '`infos` = :infos , `author` = :author , '
+            . '`svc_tools` = :svc_tools , `host_tools` = :host_tools WHERE id = :id',
+            []
+        );
+        $this->container->registerProvider(new ConfigurationDBProvider($this->db));
+        $this->container[ServiceProvider::CENTREON_LEGACY_MIGRATION_LAUNCHER] = $this->createMock(MigrationLauncher::class);
+        $this->container[ServiceProvider::CENTREON_LEGACY_CACHE_CLEARER] = $this->createMock(CacheClearer::class);
+        $this->container[ServiceProvider::CENTREON_LEGACY_MODULE_UPGRADE_PROGRESS] = $progress = new ModuleUpgradeProgressRepository(new InMemoryOptionsConnection());
+
+        $progress->save('my-module', '1.0.1', ['pre' => true, 'sql' => 2, 'checksum' => 'checksum of query 2']);
+        $phpScripts = [];
+        $this->utils->method('executePhpFile')->willReturnCallback(static function (string $file) use (&$phpScripts): void {
+            $phpScripts[] = basename($file);
+        });
+        $this->utils->expects($this->never())->method('executeSqlFile');
+
+        try {
+            (new Upgrader(new Container($this->container), $this->information, 'my-module', $this->utils, 1))->upgrade();
+            $this->fail('A removed upgrade.sql whose queries ran must not be skipped');
+        } catch (\RuntimeException $exception) {
+            $this->assertStringContainsString('The first 2 queries of', $exception->getMessage());
+            $this->assertStringContainsString('delete the "module_upgrade_progress:my-module" option', $exception->getMessage());
+        }
+
+        $this->assertSame([], $phpScripts, 'upgrade.php does not run');
+        $this->assertSame(['pre' => true, 'sql' => 2, 'checksum' => 'checksum of query 2'], $progress->get('my-module', '1.0.1'), 'The progress is kept');
+    }
+
     public function testReplaysOnlyTheFinalScriptWhenItFailed(): void
     {
         $filesystem = $this->createMock(\Symfony\Component\Filesystem\Filesystem::class);
