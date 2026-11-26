@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace Tests\www\include\eventLogs\export;
 
 use Centreon\Legacy\EventLogs\Export\Request;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 require_once __DIR__ . '/../../../../../../www/include/eventLogs/export/Request.php';
@@ -50,7 +49,9 @@ final class RequestTest extends TestCase
         self::assertSame(['_Module_Meta' => [42 => 'meta_42']], $request->getTabSvc());
     }
 
-    #[DataProvider('invalidMetaServiceIdProvider')]
+    /**
+     * @dataProvider invalidMetaServiceIdProvider
+     */
     public function testKeepsAnEmptyMetaServiceSelectionForAnIdThatIsNotAPositiveInteger(string $openId): void
     {
         $request = $this->createRequest($openId, 1);
