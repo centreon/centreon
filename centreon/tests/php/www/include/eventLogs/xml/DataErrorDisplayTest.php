@@ -24,11 +24,10 @@ declare(strict_types=1);
 namespace Tests\www\include\eventLogs\xml;
 
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Process\Process;
 
 final class DataErrorDisplayTest extends TestCase
 {
-    private const PROBE_MESSAGE = 'MON-216209-probe';
+    private const PROBE_MESSAGE = 'event-logs-data-probe';
 
     private string $rootDirectory;
 
@@ -56,19 +55,27 @@ final class DataErrorDisplayTest extends TestCase
 
     public function testPhpNoticeRaisedDuringRequestIsNotWrittenToResponse(): void
     {
-        $process = new Process(
+        $process = proc_open(
             [
                 PHP_BINARY,
                 '-d', 'display_errors=1',
                 '-d', 'error_reporting=-1',
-                '-d', 'log_errors=0',
+                '-d', 'log_errors=1',
                 __DIR__ . '/../../../../../../www/include/eventLogs/xml/data.php',
             ],
+            [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']],
+            $pipes,
             $this->rootDirectory . '/a/b/c/d'
         );
-        $process->run();
+        self::assertIsResource($process);
+        fclose($pipes[0]);
+        $output = (string) stream_get_contents($pipes[1]);
+        $errorOutput = (string) stream_get_contents($pipes[2]);
+        fclose($pipes[1]);
+        fclose($pipes[2]);
+        $exitCode = proc_close($process);
 
-        self::assertSame(0, $process->getExitCode(), $process->getErrorOutput());
-        self::assertStringNotContainsString(self::PROBE_MESSAGE, $process->getOutput());
+        self::assertSame(0, $exitCode, "stdout:\n{$output}\nstderr:\n{$errorOutput}");
+        self::assertStringNotContainsString(self::PROBE_MESSAGE, $output);
     }
 }
