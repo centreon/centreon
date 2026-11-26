@@ -869,7 +869,8 @@ cmd_plugins() {
 # ---------- modules: LM, PPM, autodiscovery, ITEE on the light Central (phase 3 P0, contracts § 12.W-P0) ----------
 
 MOD_NAMES="centreon-license-manager centreon-pp-manager centreon-autodiscovery-server centreon-it-edition-extensions"
-MOD_RELEASE="${GLS_MOD_RELEASE:-26.10.1}"
+MOD_RELEASE_RE="${GLS_MOD_RELEASE_RE:-^27\.01\.[0-9]+$}"   # all 4 modules on the 27.01 line
+MOD_AUTODISCO_DIR=/usr/share/centreon/www/modules/centreon-autodiscovery-server
 MOD_LICENSED="centreon-autodiscovery-server centreon-it-edition-extensions"
 MOD_LICENSE_DIR=/etc/centreon/license.d
 MOD_LICENSE_FILE=epp.license   # CI license, not machine-locked: autodiscovery, PPM, ITEE
@@ -931,10 +932,17 @@ cmd_modules() {
   # The 4 modules, installed by the container flow (installBakedModules.php).
   for m in $MOD_NAMES; do
     row=$(sql centreon "SELECT mod_release FROM modules_informations WHERE name='$m'")
-    # autodiscovery moves to the unencoded disco-modules build (develop version): any release.
-    if [[ "$m" == centreon-autodiscovery-server ]]; then [[ -n "$row" ]]; else [[ "$row" == "$MOD_RELEASE" ]]; fi \
+    [[ "$row" =~ $MOD_RELEASE_RE ]] \
       && record "modules: $m installed" ok "$row" || record "modules: $m installed" ko "${row:-absent}"
   done
+  # autodiscovery ships SourceGuardian-encoded: count PHP files whose head calls sg_load
+  # (counts only, no file content printed).
+  st=$(cc exec -T fpm sh -c 'find "$0" -name "*.php" -type f | { n=0; e=0; while IFS= read -r f; do
+      n=$((n+1)); head -c 1024 "$f" | grep -c "sg_load" >/dev/null && e=$((e+1)); done; echo "$e $n"; }' \
+      "$MOD_AUTODISCO_DIR" 2>/dev/null)
+  [[ "$st" =~ ^([0-9]+)\ ([0-9]+)$ && ${BASH_REMATCH[1]} -gt 0 && ${BASH_REMATCH[1]} == "${BASH_REMATCH[2]}" ]] \
+    && record "modules: autodiscovery is SourceGuardian-encoded" ok "${st%% *}/${st##* } php files" \
+    || record "modules: autodiscovery is SourceGuardian-encoded" ko "${st:-no answer}"
 
   ui_login && record "modules: UI session login" ok || { record "modules: UI session login" ko; return; }
   code=$(ui_get '/centreon/main.php?p=62001')

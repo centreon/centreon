@@ -95,7 +95,7 @@ The command holds the poller token, the appsecret and the salt: do not paste it 
 
 ## Modules and license (phase 3 P0)
 
-- The fpm image bakes LM, PPM, autodiscovery and ITEE (26.10.1). `12-install.sh` installs them, and they need no gorgone. The gorgone-dependent actions (discovery jobs, saving discovered hosts, service discovery scans) fail cleanly until P1 to P3 (contracts §12.W-P0).
+- The fpm image bakes LM, PPM, autodiscovery (SourceGuardian-encoded) and ITEE, all 27.01.x. `12-install.sh` installs them, and they need no gorgone. The e2e asserts the 27.01 versions and that autodiscovery PHP files are encoded (counts only, contracts §12.W-P0).
 - The license lives in the `centreon-license` volume (`/etc/centreon/license.d`), which survives `up -d` but not `down`.
 - For a local run, drop a non-machine-locked license there as `epp.license`, owned by www-data:
   `docker compose -p gls-central -f docker-compose.central.yml cp epp.license fpm:/etc/centreon/license.d/`
