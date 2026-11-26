@@ -23,6 +23,7 @@ on:
       - ".version"
       - ".version.centreon-awie"
       - "centreon-awie/**"
+      - "php-tools/**"
   push:
     branches:
       - develop
@@ -118,6 +119,7 @@ jobs:
         "centreon-awie/phpstan.*"
         "centreon-awie/rector.*"
         "centreon-awie/tests/php/**"
+        "php-tools/**"
       e2e_test_paths: |
         "centreon-awie/tests/e2e/**"
       is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
@@ -165,23 +167,47 @@ jobs:
           files: |
             **/*.php
 
+      - name: Get changed PHP tools files
+        id: changed-php-tools
+        uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 # v47.0.6
+        with:
+          use_rest_api: ${{ github.event_name == 'pull_request' }}
+          files: |
+            php-tools/**
+
       - name: 🛠️ Rector checks
-        if: steps.changed-php.outputs.any_changed == 'true'
+        if: steps.changed-php.outputs.any_changed == 'true' || steps.changed-php-tools.outputs.any_changed == 'true'
         working-directory: centreon-awie
         env:
           PHP_DIFF_FILES: ${{ steps.changed-php.outputs.all_changed_files }}
+          PHP_TOOLS_CHANGED: ${{ steps.changed-php-tools.outputs.any_changed }}
         run: |
-          echo "Run of these Rector tests: rector:legacy on diff" && set -e
-          composer rector:diff
+          set -e
+          if [ "$PHP_TOOLS_CHANGED" = "true" ]; then
+            echo "php-tools changed: run Rector on the whole module"
+            composer rector
+          else
+            echo "Run of these Rector tests: rector:legacy on diff"
+            composer rector:diff
+          fi
+        shell: bash
 
       - name: 🧹 PHP-CS-Fixer checks
-        if: steps.changed-php.outputs.any_changed == 'true'
+        if: steps.changed-php.outputs.any_changed == 'true' || steps.changed-php-tools.outputs.any_changed == 'true'
         working-directory: centreon-awie
         env:
           PHP_DIFF_FILES: ${{ steps.changed-php.outputs.all_changed_files }}
+          PHP_TOOLS_CHANGED: ${{ steps.changed-php-tools.outputs.any_changed }}
         run: |
-          echo "Run of these PHP-CS-Fixer tests: cs:legacy on diff" && set -e
-          composer cs:diff
+          set -e
+          if [ "$PHP_TOOLS_CHANGED" = "true" ]; then
+            echo "php-tools changed: run PHP-CS-Fixer on the whole module"
+            composer cs
+          else
+            echo "Run of these PHP-CS-Fixer tests: cs:legacy on diff"
+            composer cs:diff
+          fi
+        shell: bash
 
       - name: Restore PHPStan result cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -220,6 +246,7 @@ jobs:
           run_task legacy
 
           exit $exit_code
+        shell: bash
 
   gherkin-lint:
     needs: [get-environment, changes]

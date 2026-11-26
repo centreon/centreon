@@ -31,6 +31,7 @@ on:
       - ".version"
       - ".version.centreon-web"
       - "centreon/**"
+      - "php-tools/**"
   push:
     branches:
       - develop
@@ -160,6 +161,7 @@ jobs:
         "centreon/rector.*"
         "centreon/tests/acl/**"
         "centreon/tests/php/**"
+        "php-tools/**"
       frontend_test_paths: |
         "centreon/cypress.config.ts"
         "centreon/**/cypress/**"
@@ -743,12 +745,14 @@ jobs:
       - name: Create configuration file
         run: cp config/centreon.config.php.template config/centreon.config.php
         working-directory: centreon
+        shell: bash
 
       - name: Ensure Symfony cache and log directories exist and are writable (legacy and new)
         # /var/log/centreon is created by the package on prod hosts; mkdir it here for MON-151077 handlers.
         run: |
           sudo mkdir -p /var/cache/centreon/symfony /var/cache/centreon/symfony.new /var/log/centreon
           sudo chown -R "$USER:$USER" /var/cache/centreon/symfony /var/cache/centreon/symfony.new /var/log/centreon
+        shell: bash
 
       - name: Install dependencies for centreon-web
         run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-scripts
@@ -758,6 +762,7 @@ jobs:
       - name: ⚙️ Check Symfony configuration (legacy and new)
         run: composer symfony:check && composer symfony:new:check
         working-directory: centreon
+        shell: bash
 
       - name: 🔧 Setup Node
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -788,10 +793,12 @@ jobs:
           git diff --exit-code doc/API/centreon-api.yaml \
             || { echo "::error::doc/API/centreon-api.yaml is out of date — run 'bin/console.new app:open-api:merge --override' and commit the result."; exit 1; }
         working-directory: centreon
+        shell: bash
 
       - name: 🔍 Validate the OpenAPI documentation
         run: pnpm exec redocly lint centreon-api.yaml centreon-cloud-api.yaml
         working-directory: centreon/doc/API
+        shell: bash
 
       - name: Get changed PHP files
         id: changed-php
@@ -801,23 +808,47 @@ jobs:
           files: |
             **/*.php
 
+      - name: Get changed PHP tools files
+        id: changed-php-tools
+        uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 # v47.0.6
+        with:
+          use_rest_api: ${{ github.event_name == 'pull_request' }}
+          files: |
+            php-tools/**
+
       - name: 🛠️ Rector checks
-        if: steps.changed-php.outputs.any_changed == 'true'
+        if: steps.changed-php.outputs.any_changed == 'true' || steps.changed-php-tools.outputs.any_changed == 'true'
         working-directory: centreon
         env:
           PHP_DIFF_FILES: ${{ steps.changed-php.outputs.all_changed_files }}
+          PHP_TOOLS_CHANGED: ${{ steps.changed-php-tools.outputs.any_changed }}
         run: |
-          echo "Run of these Rector tests: rector:legacy, rector:core, rector:new on diff" && set -e
-          composer rector:diff
+          set -e
+          if [ "$PHP_TOOLS_CHANGED" = "true" ]; then
+            echo "php-tools changed: run Rector on the whole module"
+            composer rector
+          else
+            echo "Run of these Rector tests: rector:legacy, rector:core, rector:new on diff"
+            composer rector:diff
+          fi
+        shell: bash
 
       - name: 🧹 PHP-CS-Fixer checks
-        if: steps.changed-php.outputs.any_changed == 'true'
+        if: steps.changed-php.outputs.any_changed == 'true' || steps.changed-php-tools.outputs.any_changed == 'true'
         working-directory: centreon
         env:
           PHP_DIFF_FILES: ${{ steps.changed-php.outputs.all_changed_files }}
+          PHP_TOOLS_CHANGED: ${{ steps.changed-php-tools.outputs.any_changed }}
         run: |
-          echo "Run of these PHP-CS-Fixer tests: cs:legacy, cs:core, cs:new on diff" && set -e
-          composer cs:diff
+          set -e
+          if [ "$PHP_TOOLS_CHANGED" = "true" ]; then
+            echo "php-tools changed: run PHP-CS-Fixer on the whole module"
+            composer cs
+          else
+            echo "Run of these PHP-CS-Fixer tests: cs:legacy, cs:core, cs:new on diff"
+            composer cs:diff
+          fi
+        shell: bash
 
       - name: Restore PHPStan result cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -868,6 +899,7 @@ jobs:
           run_task new:test
 
           exit $exit_code
+        shell: bash
 
       - name: 📐 Deptrac checks
         working-directory: centreon
@@ -902,6 +934,7 @@ jobs:
           done
 
           exit $exit_code
+        shell: bash
 
   gherkin-lint:
     runs-on: ubuntu-24.04
