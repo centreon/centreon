@@ -34,8 +34,8 @@ ARG CENTREON_MINOR_VERSION=0
 ARG ENGINE_IMAGE=docker.centreon.com/centreon/centreon-engine-trixie:develop
 # MON-215450 phase 3 P2 (gorgone-less PoC): Autodiscovery comes from the
 # centreon-autodisco image built by centreon-modules CI on the disco-modules
-# branch (MON-216208), unencoded, with the gorgone-less worker. amd64-only
-# image; the module is plain PHP, architecture-independent.
+# branch (MON-216208), SourceGuardian-encoded, with the gorgone-less worker. amd64-only
+# image; the encoded PHP needs the 8.4 loader (fpm and cron stages), not an arch.
 ARG AUTODISCO_IMAGE=docker.centreon.com/centreon/centreon-autodisco-trixie:develop
 
 #############################################
@@ -226,7 +226,7 @@ EOF
 
 #############################################
 # Autodiscovery (MON-215450 phase 3 P2): extracted from the centreon-autodisco
-# image (centreon-modules CI, branch MON-216208, unencoded, gorgone-less worker
+# image (centreon-modules CI, branch MON-216208, encoded, gorgone-less worker
 # included) through that image's own dpkg database: every file the package
 # owns under /usr/share/centreon/. LM, PPM and ITEE stay on the stable 26.10.1
 # packages (modules_fetcher above).

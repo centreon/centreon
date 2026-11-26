@@ -85,6 +85,7 @@ jobs:
       broker_tag: ${{ steps.deps.outputs.broker_tag }}
       engine_tag: ${{ steps.deps.outputs.engine_tag }}
       autodisco_tag: ${{ steps.deps.outputs.autodisco_tag }}
+      autodisco_ref: ${{ steps.deps.outputs.autodisco_ref }}
     steps:
       - name: Checkout sources
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -131,6 +132,18 @@ jobs:
             echo "${key,,}=${value}" >> "$GITHUB_OUTPUT"
             echo "${key}=${value}"
           done
+          # Optional digest pin of the autodiscovery image (tag@digest).
+          autodisco_ref=$(sed -nE 's/^AUTODISCO_TAG=([A-Za-z0-9._-]+)$/\1/p' "$file" | tail -1)
+          if grep -q '^AUTODISCO_DIGEST=' "$file"; then
+            digest=$(sed -nE 's/^AUTODISCO_DIGEST=(sha256:[0-9a-f]{64})$/\1/p' "$file" | tail -1)
+            if [[ -z "$digest" ]]; then
+              echo "::error file=${file}::invalid AUTODISCO_DIGEST"
+              exit 1
+            fi
+            autodisco_ref="${autodisco_ref}@${digest}"
+          fi
+          echo "autodisco_ref=${autodisco_ref}" >> "$GITHUB_OUTPUT"
+          echo "AUTODISCO_REF=${autodisco_ref}"
         shell: bash
 
   dockerize:
@@ -203,7 +216,7 @@ jobs:
           build-contexts: |
             perl-libs=centreon-collect/perl-libs/lib
           build-args: |
-            AUTODISCO_IMAGE=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-autodisco-trixie:${{ needs.prepare.outputs.autodisco_tag }}
+            AUTODISCO_IMAGE=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-autodisco-trixie:${{ needs.prepare.outputs.autodisco_ref }}
             ENGINE_IMAGE=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-engine-trixie:${{ needs.prepare.outputs.engine_tag }}
             BUILD_DATE=${{ steps.build-date.outputs.date }}
             BUILD_VERSION=${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }}-${{ needs.get-environment.outputs.release }}
