@@ -14475,16 +14475,20 @@ components:
           $ref: '#/components/schemas/ServiceHostOutput'
         template:
           anyOf:
-            - $ref: '#/components/schemas/ServiceTemplateOutput'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/ServiceTemplateOutput'
+            -
+              type: 'null'
         check_options:
           $ref: '#/components/schemas/ServiceCheckOptionsOutput'
         monitoring_engine:
           $ref: '#/components/schemas/ServiceMonitoringEngineOutput'
         notifications:
           anyOf:
-            - $ref: '#/components/schemas/ServiceNotificationsOutput'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/ServiceNotificationsOutput'
+            -
+              type: 'null'
         advanced:
           $ref: '#/components/schemas/ServiceAdvancedOutput'
         service_groups:
@@ -14497,13 +14501,18 @@ components:
             $ref: '#/components/schemas/ServiceCategoryOutput'
         severity:
           anyOf:
-            - $ref: '#/components/schemas/ServiceSeverityOutput'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/ServiceSeverityOutput'
+            -
+              type: 'null'
         graph_template:
           anyOf:
-            - $ref: '#/components/schemas/ServiceGraphTemplateOutput'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/ServiceGraphTemplateOutput'
+            -
+              type: 'null'
         traps:
+          description: 'null, and so left out, on a Cloud platform'
           type: array
           items:
             $ref: '#/components/schemas/ServiceTrapOutput'
@@ -14524,16 +14533,20 @@ components:
               $ref: '#/components/schemas/ServiceHostOutput.jsonld'
             template:
               anyOf:
-                - $ref: '#/components/schemas/ServiceTemplateOutput.jsonld'
-                - type: 'null'
+                -
+                  $ref: '#/components/schemas/ServiceTemplateOutput.jsonld'
+                -
+                  type: 'null'
             check_options:
               $ref: '#/components/schemas/ServiceCheckOptionsOutput.jsonld'
             monitoring_engine:
               $ref: '#/components/schemas/ServiceMonitoringEngineOutput.jsonld'
             notifications:
               anyOf:
-                - $ref: '#/components/schemas/ServiceNotificationsOutput.jsonld'
-                - type: 'null'
+                -
+                  $ref: '#/components/schemas/ServiceNotificationsOutput.jsonld'
+                -
+                  type: 'null'
             advanced:
               $ref: '#/components/schemas/ServiceAdvancedOutput.jsonld'
             service_groups:
@@ -14546,13 +14559,18 @@ components:
                 $ref: '#/components/schemas/ServiceCategoryOutput.jsonld'
             severity:
               anyOf:
-                - $ref: '#/components/schemas/ServiceSeverityOutput.jsonld'
-                - type: 'null'
+                -
+                  $ref: '#/components/schemas/ServiceSeverityOutput.jsonld'
+                -
+                  type: 'null'
             graph_template:
               anyOf:
-                - $ref: '#/components/schemas/ServiceGraphTemplateOutput.jsonld'
-                - type: 'null'
+                -
+                  $ref: '#/components/schemas/ServiceGraphTemplateOutput.jsonld'
+                -
+                  type: 'null'
             traps:
+              description: 'null, and so left out, on a Cloud platform'
               type: array
               items:
                 $ref: '#/components/schemas/ServiceTrapOutput.jsonld'
@@ -14645,20 +14663,29 @@ components:
             - 'null'
         check_options:
           anyOf:
-            - $ref: '#/components/schemas/PatchServiceCheckOptionsInput'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/PatchServiceCheckOptionsInput'
+            -
+              type: 'null'
         monitoring_engine:
           anyOf:
-            - $ref: '#/components/schemas/ServiceMonitoringEngineInput'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/ServiceMonitoringEngineInput'
+            -
+              type: 'null'
         notifications:
+          description: 'Not available on a Cloud platform, where notifications follow a different model.'
           anyOf:
-            - $ref: '#/components/schemas/PatchServiceNotificationsInput'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/PatchServiceNotificationsInput'
+            -
+              type: 'null'
         advanced:
           anyOf:
-            - $ref: '#/components/schemas/PatchServiceAdvancedInput'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/PatchServiceAdvancedInput'
+            -
+              type: 'null'
     ServiceAdvancedOutput:
       type: object
       properties:
@@ -14737,8 +14764,10 @@ components:
             - use_default
         event_handler:
           anyOf:
-            - $ref: '#/components/schemas/ServiceEventHandlerCommandOutput'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/ServiceEventHandlerCommandOutput'
+            -
+              type: 'null'
         event_handler_args:
           type: array
           items:
@@ -14825,8 +14854,10 @@ components:
             - use_default
         event_handler:
           anyOf:
-            - $ref: '#/components/schemas/ServiceEventHandlerCommandOutput.jsonld'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/ServiceEventHandlerCommandOutput.jsonld'
+            -
+              type: 'null'
         event_handler_args:
           type: array
           items:
@@ -14868,14 +14899,19 @@ components:
       properties:
         command:
           anyOf:
-            - $ref: '#/components/schemas/ServiceCheckCommandOutput'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/ServiceCheckCommandOutput'
+            -
+              type: 'null'
         args:
           description: 'ordered check-command arguments'
           type: array
           items:
             type: string
         macros:
+          description: |-
+            every macro the service effectively has: its own, then the ones it
+            inherits
           type: array
           items:
             $ref: '#/components/schemas/ServiceMacroOutput'
@@ -14884,14 +14920,19 @@ components:
       properties:
         command:
           anyOf:
-            - $ref: '#/components/schemas/ServiceCheckCommandOutput.jsonld'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/ServiceCheckCommandOutput.jsonld'
+            -
+              type: 'null'
         args:
           description: 'ordered check-command arguments'
           type: array
           items:
             type: string
         macros:
+          description: |-
+            every macro the service effectively has: its own, then the ones it
+            inherits
           type: array
           items:
             $ref: '#/components/schemas/ServiceMacroOutput.jsonld'
@@ -15020,8 +15061,10 @@ components:
       properties:
         check_period:
           anyOf:
-            - $ref: '#/components/schemas/TimePeriod'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/TimePeriod'
+            -
+              type: 'null'
         max_check_attempts:
           type:
             - integer
@@ -15075,8 +15118,10 @@ components:
             - 'null'
         icon:
           anyOf:
-            - $ref: '#/components/schemas/ServiceIconOutput'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/ServiceIconOutput'
+            -
+              type: 'null'
         alt_icon:
           type:
             - string
@@ -15090,8 +15135,10 @@ components:
       properties:
         check_period:
           anyOf:
-            - $ref: '#/components/schemas/TimePeriod.jsonld'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/TimePeriod.jsonld'
+            -
+              type: 'null'
         max_check_attempts:
           type:
             - integer
@@ -15145,8 +15192,10 @@ components:
             - 'null'
         icon:
           anyOf:
-            - $ref: '#/components/schemas/ServiceIconOutput.jsonld'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/ServiceIconOutput.jsonld'
+            -
+              type: 'null'
         alt_icon:
           type:
             - string
@@ -15184,8 +15233,10 @@ components:
             - 'null'
         timeperiod:
           anyOf:
-            - $ref: '#/components/schemas/TimePeriod'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/TimePeriod'
+            -
+              type: 'null'
         options:
           type: array
           items:
@@ -15235,8 +15286,10 @@ components:
             - 'null'
         timeperiod:
           anyOf:
-            - $ref: '#/components/schemas/TimePeriod.jsonld'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/TimePeriod.jsonld'
+            -
+              type: 'null'
         options:
           type: array
           items:
@@ -15369,20 +15422,29 @@ components:
             - 'null'
         check_options:
           anyOf:
-            - $ref: '#/components/schemas/ServiceCheckOptionsInput'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/ServiceCheckOptionsInput'
+            -
+              type: 'null'
         monitoring_engine:
           anyOf:
-            - $ref: '#/components/schemas/ServiceMonitoringEngineInput'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/ServiceMonitoringEngineInput'
+            -
+              type: 'null'
         notifications:
+          description: 'Not available on a Cloud platform, where notifications follow a different model.'
           anyOf:
-            - $ref: '#/components/schemas/ServiceNotificationsInput'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/ServiceNotificationsInput'
+            -
+              type: 'null'
         advanced:
           anyOf:
-            - $ref: '#/components/schemas/ServiceAdvancedInput'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/ServiceAdvancedInput'
+            -
+              type: 'null'
     ServiceAdvancedInput:
       type: object
       properties:
@@ -15503,6 +15565,7 @@ components:
           items:
             type: string
         macros:
+          description: "the service's own custom macros, and the inherited ones it overrides"
           type: array
           items:
             $ref: '#/components/schemas/ServiceMacroInput'
@@ -15944,20 +16007,29 @@ components:
             - 'null'
         check_options:
           anyOf:
-            - $ref: '#/components/schemas/ServiceCheckOptionsInput'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/ServiceCheckOptionsInput'
+            -
+              type: 'null'
         monitoring_engine:
           anyOf:
-            - $ref: '#/components/schemas/ServiceMonitoringEngineInput'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/ServiceMonitoringEngineInput'
+            -
+              type: 'null'
         notifications:
+          description: 'Not available on a Cloud platform, where notifications follow a different model.'
           anyOf:
-            - $ref: '#/components/schemas/ServiceNotificationsInput'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/ServiceNotificationsInput'
+            -
+              type: 'null'
         advanced:
           anyOf:
-            - $ref: '#/components/schemas/ServiceAdvancedInput'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/ServiceAdvancedInput'
+            -
+              type: 'null'
     PatchServiceAdvancedInput:
       type: object
       properties:
@@ -16100,10 +16172,12 @@ components:
           items:
             type: string
         macros:
+          description: 'Replaces the custom macros: the service''s own macros left out are removed. Each macro points to the macro it changes by id (and parent, for an inherited one), or is new without an id. A password macro without value keeps its stored value. Only one of this, "macros_to_upsert" and "macros_to_remove" can be sent.'
           type: array
           items:
             $ref: '#/components/schemas/ServiceMacroInput'
         macros_to_upsert:
+          description: 'Writes these macros and keeps the other ones. Same macros as above.'
           type: array
           items:
             $ref: '#/components/schemas/ServiceMacroInput'
@@ -16500,24 +16574,35 @@ components:
             type: integer
         check_options:
           anyOf:
-            - $ref: '#/components/schemas/CreateHostTemplateCheckOptionsInput'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/CreateHostTemplateCheckOptionsInput'
+            -
+              type: 'null'
         extended_informations:
           anyOf:
-            - $ref: '#/components/schemas/CreateHostTemplateExtendedInformationsInput'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/CreateHostTemplateExtendedInformationsInput'
+            -
+              type: 'null'
         scheduling_options:
           anyOf:
-            - $ref: '#/components/schemas/CreateHostTemplateSchedulingOptionsInput'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/CreateHostTemplateSchedulingOptionsInput'
+            -
+              type: 'null'
         data_processing:
           anyOf:
-            - $ref: '#/components/schemas/CreateHostTemplateDataProcessingInput'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/CreateHostTemplateDataProcessingInput'
+            -
+              type: 'null'
         notifications:
+          description: 'Not available on a Cloud platform, where notifications follow a different model.'
           anyOf:
-            - $ref: '#/components/schemas/CreateHostTemplateNotificationsInput'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/CreateHostTemplateNotificationsInput'
+            -
+              type: 'null'
     HostTemplate.PatchHostTemplateInput.jsonMergePatch:
       type: object
       properties:
@@ -16603,24 +16688,35 @@ components:
             type: integer
         check_options:
           anyOf:
-            - $ref: '#/components/schemas/PatchHostTemplateCheckOptionsInput'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/PatchHostTemplateCheckOptionsInput'
+            -
+              type: 'null'
         extended_informations:
           anyOf:
-            - $ref: '#/components/schemas/CreateHostTemplateExtendedInformationsInput'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/CreateHostTemplateExtendedInformationsInput'
+            -
+              type: 'null'
         scheduling_options:
           anyOf:
-            - $ref: '#/components/schemas/CreateHostTemplateSchedulingOptionsInput'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/CreateHostTemplateSchedulingOptionsInput'
+            -
+              type: 'null'
         data_processing:
           anyOf:
-            - $ref: '#/components/schemas/CreateHostTemplateDataProcessingInput'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/CreateHostTemplateDataProcessingInput'
+            -
+              type: 'null'
         notifications:
+          description: 'Not available on a Cloud platform, where notifications follow a different model.'
           anyOf:
-            - $ref: '#/components/schemas/PatchHostTemplateNotificationsInput'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/PatchHostTemplateNotificationsInput'
+            -
+              type: 'null'
     HostTemplateMacroInput:
       type: object
       required:
@@ -16666,10 +16762,12 @@ components:
           items:
             type: string
         macros:
+          description: 'Replaces the macros: the template''s own macros left out are removed. Each macro points to the macro it changes by id (and parent, for an inherited one), or is new without an id. A password macro without value keeps its stored value. Only one of this, "macros_to_upsert" and "macros_to_remove" can be sent.'
           type: array
           items:
             $ref: '#/components/schemas/HostTemplateMacroInput'
         macros_to_upsert:
+          description: 'Writes these macros and keeps the other ones. Same macros as above.'
           type: array
           items:
             $ref: '#/components/schemas/HostTemplateMacroInput'
