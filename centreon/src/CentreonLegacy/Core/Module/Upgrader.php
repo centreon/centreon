@@ -296,15 +296,18 @@ class Upgrader extends Module
      */
     private function upgradeSqlFiles($path, ?ExecutedQueries $alreadyExecuted = null, ?callable $onQueryExecuted = null)
     {
-        $installed = false;
-
         $sqlFile = $path . '/sql/upgrade.sql';
-        if ($this->services->get('filesystem')->exists($sqlFile)) {
-            $this->utils->executeSqlFile($sqlFile, [], false, $alreadyExecuted, $onQueryExecuted);
-            $installed = true;
+        if (! $this->services->get('filesystem')->exists($sqlFile)) {
+            if (($alreadyExecuted->count ?? 0) > 0) {
+                throw ExecutedQueriesChangedException::inFile($sqlFile, $alreadyExecuted->count);
+            }
+
+            return false;
         }
 
-        return $installed;
+        $this->utils->executeSqlFile($sqlFile, [], false, $alreadyExecuted, $onQueryExecuted);
+
+        return true;
     }
 
     /**
