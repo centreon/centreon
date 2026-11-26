@@ -23,53 +23,9 @@ namespace CentreonModule\Application\Webservice;
 
 use CentreonRemote\Application\Webservice\CentreonWebServiceAbstract;
 
-/**
- * @OA\Tag(name="centreon_modules_webservice", description="Resource for external public access")
- */
 class CentreonModulesWebservice extends CentreonWebServiceAbstract
 {
     /**
-     * @OA\Post(
-     *   path="/external.php?object=centreon_modules_webservice&action=getBamModuleInfo",
-     *   description="Get list of modules and widgets",
-     *   tags={"centreon_modules_webservice"},
-     *
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="object",
-     *       description="the name of the API object class",
-     *       required=true,
-     *
-     *       @OA\Schema(
-     *          type="string",
-     *          enum={"centreon_modules_webservice"}
-     *       )
-     *   ),
-     *
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="action",
-     *       description="the name of the action in the API class",
-     *       required=true,
-     *
-     *       @OA\Schema(
-     *          type="string",
-     *          enum={"getBamModuleInfo"}
-     *       )
-     *   ),
-     *
-     *   @OA\Response(
-     *      response="200",
-     *      description="JSON with BAM module info",
-     *
-     *      @OA\JsonContent(
-     *
-     *          @OA\Property(property="enabled", type="boolean"),
-     *          @OA\Property(property="status", type="boolean")
-     *      )
-     *   )
-     * )
-     *
      * Get info for BAM module
      *
      * @return array<string,bool>
