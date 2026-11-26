@@ -4,7 +4,7 @@ description: >
   no rebuild). Fails hard if the deterministic version_tag candidate isn't
   found on Harbor, or if the ghcr.io push itself fails — callers should wrap
   this with continue-on-error and warn on failure, mirroring
-  promote-to-stable-pulp.
+  the shared pulp promote-to-stable action.
 inputs:
   ghcr_image:
     description: "Destination image ref on ghcr.io, no tag (e.g. ghcr.io/centreon/centreon-trapd)"
