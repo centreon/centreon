@@ -27,9 +27,6 @@ use Centreon\Domain\Repository\AclGroupRepository;
 use Centreon\Infrastructure\Webservice;
 use Centreon\ServiceProvider;
 
-/**
- * @OA\Tag(name="centreon_acl_group", description="Web Service for ACL Groups")
- */
 class AclGroupWebservice extends Webservice\WebServiceAbstract implements
     Webservice\WebserviceAutorizeRestApiInterface
 {
@@ -55,86 +52,6 @@ class AclGroupWebservice extends Webservice\WebServiceAbstract implements
     }
 
     /**
-     * @OA\Get(
-     *   path="/internal.php?object=centreon_acl_group&action=list",
-     *   description="Get a list of ACL groups",
-     *   tags={"centreon_acl_group"},
-     *   security={{"Session": {}}},
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="object",
-     *       @OA\Schema(
-     *          type="string",
-     *          enum={"centreon_acl_group"},
-     *          default="centreon_acl_group"
-     *       ),
-     *       description="the name of the API object class",
-     *       required=true
-     *   ),
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="action",
-     *       @OA\Schema(
-     *          type="string",
-     *          enum={"list"},
-     *          default="list"
-     *       ),
-     *       description="the name of the action in the API class",
-     *       required=true
-     *   ),
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="name",
-     *       @OA\Schema(
-     *          type="string"
-     *       ),
-     *       description="filter the list by name",
-     *       required=false
-     *   ),
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="id",
-     *       @OA\Schema(
-     *          type="string"
-     *       ),
-     *       description="filter the list by id",
-     *       required=false
-     *   ),
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="offset",
-     *       @OA\Schema(
-     *          type="integer"
-     *       ),
-     *       description="offset",
-     *       required=false
-     *   ),
-     *   @OA\Parameter(
-     *       in="query",
-     *       name="limit",
-     *       @OA\Schema(
-     *          type="integer"
-     *       ),
-     *       description="limit",
-     *       required=false
-     *   ),
-     *   @OA\Response(
-     *       response="200",
-     *       description="OK",
-     *       @OA\JsonContent(
-     *          @OA\Property(
-     *              property="entities",
-     *              type="array",
-     *              @OA\Items(ref="#/components/schemas/AclGroupEntity")
-     *          ),
-     *          @OA\Property(
-     *              property="pagination",
-     *              ref="#/components/schemas/Pagination"
-     *          )
-     *      )
-     *   )
-     * )
-     *
      * Get a list of ACL groups
      *
      * @throws \RestBadRequestException

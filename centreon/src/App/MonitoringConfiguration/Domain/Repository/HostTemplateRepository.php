@@ -133,7 +133,39 @@ interface HostTemplateRepository
      */
     public function findOne(HostTemplateId $id): ?HostTemplate;
 
-    public function isNameUsedByHostOrTemplate(HostTemplateName $name): bool;
+    /**
+     * @param ?HostTemplateId $excluding the template being renamed, whose own name does not count
+     */
+    public function isNameUsedByHostOrTemplate(HostTemplateName $name, ?HostTemplateId $excluding = null): bool;
+
+    /**
+     * Persists a new template, active and unlocked, with its relations and macros, and gives it its id.
+     */
+    public function add(HostTemplate $hostTemplate): void;
+
+    /**
+     * Saves its own columns, extended information and severity; never activation, lock, relations or macros.
+     */
+    public function update(HostTemplate $hostTemplate): void;
+
+    /**
+     * Replaces the parents (in order), the categories (the severity is left alone), the contacts, the
+     * contact groups and every linked service template row of the template.
+     */
+    public function replaceRelations(HostTemplate $hostTemplate): void;
+
+    /**
+     * Writes the template's own macros in place: a stored macro keeps its id, a new one is inserted, a
+     * stored one no longer listed is deleted. Only the template's own rows are touched.
+     */
+    public function replaceMacros(HostTemplate $hostTemplate): void;
+
+    /**
+     * Every inheritance edge between two templates, active or not, in one query.
+     *
+     * @return array<int, list<int>> template id => its parent template ids
+     */
+    public function findTemplateParentIds(): array;
 
     /**
      * Persists $copy (name, SNMP community, re-minted password macros) and copies everything else from $sourceId.

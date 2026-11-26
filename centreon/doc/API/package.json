@@ -3,12 +3,12 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "redoc-latest": "redocly build-docs --theme.openapi.hideDownloadButton=true --output ./index.html $OPENAPI_FILE"
+    "redoc-latest": "redocly build-docs --openapi.hideDownloadButtons=true --output ./index.html $OPENAPI_FILE"
   },
   "keywords": [],
   "author": "",
   "license": "Apache-2.0",
   "devDependencies": {
-    "@redocly/cli": "1.34.5"
+    "@redocly/cli": "2.77.0"
   }
 }
