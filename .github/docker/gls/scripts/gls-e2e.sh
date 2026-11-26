@@ -994,8 +994,9 @@ disco_fixture() { # stub pluginpack / provider / command, ids 9001 (fixture § 3
       VALUES (9001, 'gls-disco-stub', '\$_PROGRAM\$ \$_STUBARGS\$', 4);
     INSERT IGNORE INTO mod_host_disco_provider_type (id, name, encryption_salt) VALUES (9001, 'gls-stub', 'gls-stub');
     INSERT IGNORE INTO mod_host_disco_provider
-      (id, pluginpack_id, version, name, slug, description, type_id, command_id, need_proxy, host_template_id, uuid_attributes)
-      VALUES (9001, 9001, '3.1', 'GLS discovery stub', 'gls-disco-stub', 'PoC stub', 9001, 9001, 0, 9001, '[\"name\",\"ip\"]');" \
+      (id, pluginpack_id, version, name, slug, description, type_id, command_id, need_proxy, host_template_id, uuid_attributes, parameters_template)
+      VALUES (9001, 9001, '3.1', 'GLS discovery stub', 'gls-disco-stub', 'PoC stub', 9001, 9001, 0, 9001, '[\"name\",\"ip\"]',
+        '[{\"name\":\"program\",\"value\":\"\"},{\"name\":\"stubargs\",\"value\":\"\"}]');" \
     >>"$LOG_DIR/disco.log" 2>&1
   [[ "$(sql centreon "SELECT COUNT(*) FROM mod_host_disco_provider WHERE id=9001")" == 1 ]]
 }
