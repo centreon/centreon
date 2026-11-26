@@ -105,7 +105,7 @@ jobs:
           persist-credentials: false
 
       - name: Setup pulp-cli
-        uses: ./.github/actions/setup-pulp-cli
+        uses: centreon/github-actions/pulp/setup-cli@pulp/v1
         with:
           pulp_url: ${{ vars.PULP_API_URL }}
           audience: ${{ vars.PULP_OIDC_AUDIENCE }}
