@@ -24117,23 +24117,3 @@ msgstr "período de tempo"
 #: unknown
 msgid "topology_name"
 msgstr "Nome da Topologia"
-
-#: centreon/www/install/front_translate.php
-msgid "Add a host template"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Modify a host template"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "View a host template"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Host template created"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Host template updated"
-msgstr ""

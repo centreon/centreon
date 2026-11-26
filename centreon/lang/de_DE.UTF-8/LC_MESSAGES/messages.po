@@ -21626,23 +21626,3 @@ msgstr "Standard"
 #: unknown
 msgid "it's required"
 msgstr "es ist erforderlich"
-
-#: centreon/www/install/front_translate.php
-msgid "Add a host template"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Modify a host template"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "View a host template"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Host template created"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Host template updated"
-msgstr ""
