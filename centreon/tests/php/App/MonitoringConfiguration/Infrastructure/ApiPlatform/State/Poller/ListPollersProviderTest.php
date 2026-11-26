@@ -23,11 +23,11 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller;
 
-use ApiPlatform\State\Pagination\Pagination;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\PollerResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller\ListPollersProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller\PollerCollectionOutputTransformer;
+use App\Shared\Infrastructure\ApiPlatform\State\PaginationResolver;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\SecurityBundle\Security;
 use Tests\App\Shared\ApiTestCase;
@@ -368,14 +368,14 @@ final class ListPollersProviderTest extends ApiTestCase
         $transformer = $container->get(PollerCollectionOutputTransformer::class);
         /** @var PollerRepository $repository */
         $repository = $container->get(PollerRepository::class);
-        /** @var Pagination $pagination */
-        $pagination = $container->get(Pagination::class);
+        /** @var PaginationResolver $paginationResolver */
+        $paginationResolver = $container->get(PaginationResolver::class);
         /** @var Security $security */
         $security = $container->get(Security::class);
 
         $container->set(
             ListPollersProvider::class,
-            new ListPollersProvider($transformer, $repository, $pagination, $security, true),
+            new ListPollersProvider($transformer, $repository, $paginationResolver, $security, true),
         );
     }
 
@@ -392,14 +392,14 @@ final class ListPollersProviderTest extends ApiTestCase
         $transformer = $container->get(PollerCollectionOutputTransformer::class);
         /** @var PollerRepository $repository */
         $repository = $container->get(PollerRepository::class);
-        /** @var Pagination $pagination */
-        $pagination = $container->get(Pagination::class);
+        /** @var PaginationResolver $paginationResolver */
+        $paginationResolver = $container->get(PaginationResolver::class);
         /** @var Security $security */
         $security = $container->get(Security::class);
 
         $container->set(
             ListPollersProvider::class,
-            new ListPollersProvider($transformer, $repository, $pagination, $security, false),
+            new ListPollersProvider($transformer, $repository, $paginationResolver, $security, false),
         );
     }
 }

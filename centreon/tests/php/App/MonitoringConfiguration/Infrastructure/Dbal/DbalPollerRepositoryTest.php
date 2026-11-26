@@ -56,6 +56,7 @@ use App\Security\Domain\Aggregate\UserId;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Aggregate\PollerScopedInterface;
 use App\Shared\Domain\Collection;
+use App\Shared\Domain\Repository\Pagination;
 use App\Shared\Domain\Repository\Paginator;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -194,7 +195,7 @@ final class DbalPollerRepositoryTest extends KernelTestCase
         $this->insertPoller(2, 'Poller-A');
         $this->insertPoller(3, 'Poller-B');
 
-        $pollers = $this->repository->findAll(PollerCriteria::unscoped()->withPagination(1, 2));
+        $pollers = $this->repository->findAll(PollerCriteria::unscoped()->withPagination(new Pagination(1, 2)));
 
         self::assertInstanceOf(Paginator::class, $pollers);
         self::assertCount(2, $pollers);
@@ -235,7 +236,7 @@ final class DbalPollerRepositoryTest extends KernelTestCase
         $this->connection->insert('platform_topology', ['address' => '10.0.0.2', 'name' => 'Poller-A', 'type' => 'poller', 'server_id' => 2, 'pending' => '0']);
         $this->connection->insert('platform_topology', ['address' => '10.0.0.2', 'name' => 'Poller-A-dup', 'type' => 'poller', 'server_id' => 2, 'pending' => '0']);
 
-        $pollers = $this->repository->findAll(PollerCriteria::unscoped()->withPagination(1, 10));
+        $pollers = $this->repository->findAll(PollerCriteria::unscoped()->withPagination(new Pagination(1, 10)));
 
         self::assertInstanceOf(Paginator::class, $pollers);
         self::assertCount(3, $pollers); // setUp()'s Central + Poller-A + Poller-B, each counted once
@@ -250,7 +251,7 @@ final class DbalPollerRepositoryTest extends KernelTestCase
         $this->connection->insert('remote_servers', ['ip' => '127.0.0.1', 'version' => '24.10', 'created_at' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'), 'server_id' => 2]);
         $this->connection->insert('remote_servers', ['ip' => '127.0.0.1', 'version' => '24.10', 'created_at' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'), 'server_id' => 2]);
 
-        $pollers = $this->repository->findAll(PollerCriteria::unscoped()->withExcludeUnknownCentral(true)->withPagination(1, 10));
+        $pollers = $this->repository->findAll(PollerCriteria::unscoped()->withExcludeUnknownCentral(true)->withPagination(new Pagination(1, 10)));
 
         self::assertInstanceOf(Paginator::class, $pollers);
         self::assertCount(2, $pollers); // Central (kept: its address matches a remote server) + Poller-A
@@ -305,7 +306,7 @@ final class DbalPollerRepositoryTest extends KernelTestCase
 
         self::assertCount(0, $this->repository->findAll($criteria));
 
-        $paginated = $this->repository->findAll($criteria->withPagination(1, 10));
+        $paginated = $this->repository->findAll($criteria->withPagination(new Pagination(1, 10)));
         self::assertInstanceOf(Paginator::class, $paginated, 'Pagination metadata must survive an empty ACL result.');
         self::assertSame(0, $paginated->getTotalItems());
         self::assertCount(0, $paginated);
