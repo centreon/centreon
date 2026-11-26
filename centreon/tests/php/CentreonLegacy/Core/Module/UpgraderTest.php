@@ -316,7 +316,8 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
             $upgrader->upgrade();
             $this->fail('The SQL failure must propagate');
         } catch (\Exception $exception) {
-            $this->assertSame('Duplicate column name', $exception->getMessage());
+            $this->assertMatchesRegularExpression('#^The upgrade of the "my-module" module failed in .*/sql/upgrade\.sql at query 2: Duplicate column name$#', $exception->getMessage());
+            $this->assertSame('Duplicate column name', $exception->getPrevious()?->getMessage());
         }
         $this->assertSame([], $versions, 'A failed version is not recorded');
         $this->assertSame(['pre' => true, 'sql' => 1, 'checksum' => 'checksum of query 1'], $progress->get('my-module', '1.0.1'));
@@ -358,7 +359,8 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
             $upgrader->upgrade();
             $this->fail('The SQL failure must propagate');
         } catch (\Exception $exception) {
-            $this->assertSame('Duplicate column name', $exception->getMessage());
+            $this->assertMatchesRegularExpression('#^The upgrade of the "my-module" module failed in .*/1\.0\.2/sql/upgrade\.sql at query 2: Duplicate column name$#', $exception->getMessage());
+            $this->assertSame('Duplicate column name', $exception->getPrevious()?->getMessage());
         }
         $this->assertContains('version:1.0.1', $journal->getArrayCopy(), 'The version that passed is recorded');
         $this->assertNotContains('version:1.0.2', $journal->getArrayCopy());
@@ -390,7 +392,9 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
         try {
             $upgrader->upgrade();
             $this->fail('The progress failure must propagate');
-        } catch (RepositoryException) {
+        } catch (\RuntimeException $exception) {
+            $this->assertSame('The upgrade of the "my-module" module stopped: its progress could not be saved in the database. Update it again.', $exception->getMessage());
+            $this->assertInstanceOf(RepositoryException::class, $exception->getPrevious());
         }
 
         $this->assertSame(['script:upgrade.pre.php'], $journal->getArrayCopy(), 'Nothing runs once the progress cannot be kept');
@@ -456,7 +460,7 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
             (new Upgrader(new Container($this->container), $this->information, 'my-module', $this->utils, 1))->upgrade();
             $this->fail('A changed upgrade.sql must not be resumed');
         } catch (\RuntimeException $exception) {
-            $this->assertStringContainsString('The first 1 queries of', $exception->getMessage());
+            $this->assertStringContainsString('The first query of', $exception->getMessage());
             $this->assertStringContainsString('delete the "module_upgrade_progress:my-module" option', $exception->getMessage());
         }
 
@@ -512,7 +516,8 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
             $upgrader->upgrade();
             $this->fail('The upgrade.php failure must propagate');
         } catch (\Exception $exception) {
-            $this->assertSame('upgrade.php failed', $exception->getMessage());
+            $this->assertMatchesRegularExpression('#^The upgrade of the "my-module" module failed in .*/php/upgrade\.php: upgrade\.php failed$#', $exception->getMessage());
+            $this->assertSame('upgrade.php failed', $exception->getPrevious()?->getMessage());
         }
         $upgrader->upgrade();
 

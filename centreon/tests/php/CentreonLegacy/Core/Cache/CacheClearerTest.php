@@ -25,6 +25,7 @@ namespace CentreonLegacy\Core\Cache;
 
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Process\Exception\ProcessFailedException;
+use Symfony\Component\Process\Exception\RuntimeException;
 use Symfony\Component\Process\Process;
 
 class CacheClearerTest extends TestCase
@@ -55,10 +56,14 @@ class CacheClearerTest extends TestCase
 
     public function testAFailingConsoleCommandThrows(): void
     {
-        $this->expectException(ProcessFailedException::class);
-
-        // The real command runner, against a console that does not exist.
-        (new \ReflectionMethod(CacheClearer::class, 'run'))->invoke(new CacheClearer(), ['bin/does-not-exist']);
+        try {
+            // The real command runner, against a console that does not exist.
+            (new \ReflectionMethod(CacheClearer::class, 'run'))->invoke(new CacheClearer(), ['bin/does-not-exist']);
+            $this->fail('A failing console command must throw');
+        } catch (RuntimeException $exception) {
+            $this->assertMatchesRegularExpression('#^"bin/does-not-exist" failed with exit code \d+: check ".+\.upgrade\.log"$#', $exception->getMessage());
+            $this->assertInstanceOf(ProcessFailedException::class, $exception->getPrevious(), 'The output of the command is kept for the log');
+        }
     }
 
     public function testIgnoresTheClearsRequestedWhileSuspended(): void
