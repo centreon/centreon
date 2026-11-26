@@ -96,6 +96,44 @@ services:
       retries: 120
     networks: [central]
 
+  # Autodiscovery worker (phase 3 P2/P3, contracts § 12.M, 12.W-worker): runs the
+  # discovery jobs through cbd /v1/executions, no gorgone. Same image as fpm.
+  autodiscovery-worker:
+    image: "${REGISTRY}/centreon-web-split-fpm-trixie:${WEB_TAG}"
+    env_file: [../.env]
+    depends_on:
+      db: {condition: service_healthy}
+      fpm: {condition: service_healthy}
+    restart: unless-stopped
+    command: ["su", "-s", "/bin/sh", "www-data", "-c", "exec /usr/share/centreon/bin/console centreon-autodiscovery:worker"]
+    environment:
+      <<: [*tz, *secrets]
+      # Per-container steps only: renders centreon.conf.php and .env, no DB install.
+      RUN_INSTALL: "true"
+      INSTALL_DB_STEPS: "false"
+      RUN_CONFIG_DELIVERY: "false"
+      RRD_VOLUMES_CHOWN: "false"
+      MYSQL_HOST: db
+      MYSQL_PORT: "3306"
+      PHP_TIMEZONE: "${TZ:-Europe/Paris}"
+      CENTREON_BROKER_API_URL: "http://centreon-broker:8099"
+      CENTREON_BROKER_API_TOKEN: "${CENTREON_BROKER_API_TOKEN:-gls-poc-token}"
+      # e2e TIMEOUT case (default 300 s).
+      CENTREON_AUTODISCOVERY_EXEC_TIMEOUT: "${CENTREON_AUTODISCOVERY_EXEC_TIMEOUT:-10}"
+      # P3 automatic save + export through the web API (install defaults, PoC only).
+      CENTREON_INTERNAL_API_BASE_URL: "http://httpd:80"
+      CENTREON_API_USERNAME: "${CENTREON_API_USERNAME:-admin}"
+      CENTREON_API_PASSWORD: "${CENTREON_API_PASSWORD:-Centreon!2021}"
+    volumes:
+      - centreon-license:/etc/centreon/license.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "find /tmp/autodiscovery-worker.alive -mmin -10 | grep -q ."]
+      interval: 15s
+      timeout: 5s
+      start_period: 2m
+      retries: 8
+    networks: [central]
+
   httpd:
     image: "${REGISTRY}/centreon-web-split-httpd-trixie:${WEB_TAG}"
     depends_on:

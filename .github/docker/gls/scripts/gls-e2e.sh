@@ -12,6 +12,8 @@
 #   gls-e2e.sh state              state volumes: layout, retention after recreate, cbmod queue while the central is down
 #   gls-e2e.sh rrd                perfdata of a gls host reaches rrdcached (.rrd files), no RRD connect error
 #   gls-e2e.sh modules            LM, PPM, autodiscovery, ITEE installed and answering; CI license valid; no gorgone
+#   gls-e2e.sh disco              host discovery through cbd /v1/executions: FINISH, REJECTED, TIMEOUT, cap, exit, secret, NOT_CONNECTED
+#   gls-e2e.sh disco-scheduled    cron discovery job, automatic save + export to the poller, pause
 #   gls-e2e.sh install-script     poller added with the generated install.sh command (broker channel), no secret leaked
 #   gls-e2e.sh logs | down
 #
@@ -975,6 +977,156 @@ cmd_modules() {
   rm -f "$MOD_JAR" "$PRIV_DIR/ui.out"
 }
 
+# ---------- disco: host discovery without gorgone (phase 3 P2, contracts § 12.M, fixture phase3-p2) ----------
+
+DISCO_STUB=/usr/lib/centreon/plugins/gls_disco_stub
+DISCO_MARKER=GLS_SECRET_MARKER
+
+disco_fixture() { # stub pluginpack / provider / command, ids 9001 (fixture § 3)
+  sql centreon "
+    INSERT IGNORE INTO mod_ppm_icons (icon_id, icon_file) VALUES (9001, NULL);
+    INSERT IGNORE INTO mod_ppm_categories (id, name, slug) VALUES (9001, 'GLS stub', 'gls-stub');
+    INSERT IGNORE INTO mod_ppm_pluginpack (pluginpack_id, name, slug, version, status, discovery_category_id, icon, complete)
+      VALUES (9001, 'GLS discovery stub', 'gls-disco-stub', '1.0.0', 'installed', 9001, 9001, 1);
+    INSERT IGNORE INTO host (host_id, host_name, host_alias, host_register, host_activate)
+      VALUES (9001, 'gls-disco-stub-tpl', 'GLS discovery stub template', '0', '1');
+    INSERT IGNORE INTO command (command_id, command_name, command_line, command_type)
+      VALUES (9001, 'gls-disco-stub', '\$_PROGRAM\$ \$_STUBARGS\$', 4);
+    INSERT IGNORE INTO mod_host_disco_provider_type (id, name, encryption_salt) VALUES (9001, 'gls-stub', 'gls-stub');
+    INSERT IGNORE INTO mod_host_disco_provider
+      (id, pluginpack_id, version, name, slug, description, type_id, command_id, need_proxy, host_template_id, uuid_attributes)
+      VALUES (9001, 9001, '3.1', 'GLS discovery stub', 'gls-disco-stub', 'PoC stub', 9001, 9001, 0, 9001, '[\"name\",\"ip\"]');" \
+    >>"$LOG_DIR/disco.log" 2>&1
+  [[ "$(sql centreon "SELECT COUNT(*) FROM mod_host_disco_provider WHERE id=9001")" == 1 ]]
+}
+disco_body() { # disco_body <case> <program> <args> <poller id>: API v2 job body (fixture § 4)
+  jq -nc --arg a "gls-p2-$1" --arg p "$2" --arg s "$3" --argjson id "$4" '{
+    alias: $a, execution_mode: 0, analysis_mode: 0, credential_id: null, provider_id: 9001,
+    monitoring_server_id: $id, proxy: {url: null},
+    job_parameters: [{name: "program", value: $p}, {name: "stubargs", value: $s}],
+    mappers: [
+      {type: "property", parameters: {source: [{type: "discovery", value: "discovery.results.name"}], destination: "host.name", conditions: []}},
+      {type: "property", parameters: {source: [{type: "discovery", value: "discovery.results.name"}], destination: "host.alias", conditions: []}},
+      {type: "property", parameters: {source: [{type: "discovery", value: "discovery.results.ip"}], destination: "host.ip", conditions: []}},
+      {type: "monitoring", parameters: {value: "", type: "from_job", conditions: []}}]}'
+}
+disco_job_id() { sql centreon "SELECT id FROM mod_host_disco_job WHERE alias='gls-p2-$1'" | head -1; }
+disco_job() { sql centreon "SELECT status, message, discovered_items FROM mod_host_disco_job WHERE id=$1"; }
+disco_done() { local s; s=$(disco_job "$1" | cut -f1); [[ "$s" == 1 || "$s" == 2 ]]; }
+
+disco_case() { # disco_case <case> <program> <args> <want status> <message prefix> [max s]
+  local name=$1 pid id code row st msg t0 el
+  pid=$(poller_id)
+  t0=$(date +%s)
+  code=$(api POST /auto-discovery/jobs "$(disco_body "$name" "$2" "$3" "$pid")")
+  if [[ "$code" != 204 && "$code" != 201 ]]; then
+    record "disco $name: job created" ko "HTTP $code $(jq -c . "$LOG_DIR/last.json" 2>/dev/null | head -c 200)"; return 1
+  fi
+  id=$(disco_job_id "$name")
+  [[ -n "$id" ]] || { record "disco $name: job created" ko "no mod_host_disco_job row"; return 1; }
+  wait_until "${6:-120}" disco_done "$id"; el=$(( $(date +%s) - t0 ))
+  row=$(disco_job "$id"); st=$(cut -f1 <<<"$row"); msg=$(cut -f2 <<<"$row")
+  [[ "$st" == "$4" && "$msg" == "$5"* ]] \
+    && record "disco $name: status $4, message '$5'" ok "job $id in ${el} s" \
+    || record "disco $name: status $4, message '$5'" ko "job $id status=$st message='${msg:0:150}' (${el} s)"
+  echo "$id" >"$PRIV_DIR/disco-$name.id"
+}
+
+cmd_disco() {
+  login || { record "login" ko; return; }
+  local id rows want n c
+  # Prerequisites: P0 license (job API), worker up, poller announces remote_exec.
+  [[ "$(api GET /auto-discovery/jobs)" == 200 ]] && record "disco: autodiscovery API licensed" ok \
+    || { record "disco: autodiscovery API licensed" ko "run the modules step first"; return; }
+  wait_until 180 service_ready cc autodiscovery-worker && record "disco: worker running (heartbeat)" ok \
+    || { record "disco: worker running (heartbeat)" ko "$(cc logs --no-color --tail 20 autodiscovery-worker 2>&1 | tail -c 300)"; return; }
+  local puid; puid=$(sql centreon "SELECT uid FROM nagios_server WHERE name='${POLLER_NAME}'")
+  cbd_pollers | jq -e --arg u "$puid" '.pollers[] | select(.poller_id == $u and .remote_exec == true)' >/dev/null 2>&1 \
+    && record "disco: ${POLLER_NAME} announces remote_exec" ok || record "disco: ${POLLER_NAME} announces remote_exec" ko "$(cbd_pollers | head -c 300)"
+  disco_fixture && record "disco: stub provider fixture (ids 9001)" ok || { record "disco: stub provider fixture (ids 9001)" ko "see disco.log"; return; }
+
+  # 1 FINISH: 2 hosts, exact uuids and rows.
+  disco_case finish "$DISCO_STUB" "--size 2" 1 "Finished"
+  id=$(<"$PRIV_DIR/disco-finish.id")
+  [[ "$(disco_job "$id" | cut -f3)" == 2 ]] && record "disco finish: discovered_items = 2" ok || record "disco finish: discovered_items = 2" ko "$(disco_job "$id" | cut -f3)"
+  rows=$(sql centreon "SELECT uuid, discovery_result FROM mod_host_disco_host WHERE job_id=$id ORDER BY id")
+  want=$'eb76cab9-f34e-8206-49a2-e5562b98e3d3\t{"name":"gls-disco-1","ip":"192.0.2.1","os":"linux"}\n405c6160-c68d-7308-b866-f0b936136533\t{"name":"gls-disco-2","ip":"192.0.2.2","os":"linux"}'
+  [[ "$rows" == "$want" ]] && record "disco finish: mod_host_disco_host rows and uuids" ok \
+    || record "disco finish: mod_host_disco_host rows and uuids" ko "$(tr '\t\n' ' ;' <<<"$rows" | head -c 300)"
+  [[ "$(sql centreon "SELECT status, request_id IS NOT NULL FROM mod_host_disco_run_request WHERE job_id=$id")" == $'done\t1' ]] \
+    && record "disco finish: run request done, request_id set" ok \
+    || record "disco finish: run request done, request_id set" ko "$(sql centreon "SELECT status, request_id FROM mod_host_disco_run_request WHERE job_id=$id" | tr '\t\n' ' ;')"
+
+  # 2 REJECTED by the poller allow-list (default deny outside the plugin dirs).
+  disco_case rejected /bin/sh "-c true" 2 "REJECTED: program not in the allow-list"
+  # 3 TIMEOUT (worker CENTREON_AUTODISCOVERY_EXEC_TIMEOUT=10).
+  disco_case timeout "$DISCO_STUB" "--sleep 30" 2 "TIMEOUT: killed after 10 s"
+  # 5 output over the 8 MiB cap.
+  disco_case truncated "$DISCO_STUB" "--bytes 9437184" 2 "output too large ("
+  # 6 plugin exit code.
+  disco_case exit3 "$DISCO_STUB" "--exit 3" 2 "discovery plugin exited with code 3:"
+  # 7 secret in argv: job FINISH, marker in no log.
+  disco_case secret "$DISCO_STUB" "--size 1 --password=$DISCO_MARKER" 1 "Finished"
+  n=0
+  for c in centreon-broker fpm autodiscovery-worker; do
+    cc logs --no-color "$c" 2>&1 | grep -cF "$DISCO_MARKER" >/dev/null && n=$((n + 1))
+  done
+  cc exec -T centreon-broker sh -c 'cat /var/log/centreon-broker/*.log 2>/dev/null' | grep -cF "$DISCO_MARKER" >/dev/null && n=$((n + 1))
+  cc exec -T fpm sh -c 'cat /var/log/centreon/*.log 2>/dev/null' | grep -cF "$DISCO_MARKER" >/dev/null && n=$((n + 1))
+  cp_ logs --no-color poller-engine 2>&1 | grep -cF "$DISCO_MARKER" >/dev/null && n=$((n + 1))
+  cp_ exec -T poller-engine sh -c 'cat /var/log/centreon-engine/*.log /var/log/centreon-broker/*.log 2>/dev/null' | grep -cF "$DISCO_MARKER" >/dev/null && n=$((n + 1))
+  (( n == 0 )) && record "disco secret: argv marker in no log of cbd, engine, fpm, worker" ok \
+    || record "disco secret: argv marker in no log of cbd, engine, fpm, worker" ko "$n log sources"
+
+  # 4 NOT_CONNECTED: poller stopped, FAILED within ~3 s; then back.
+  cp_ stop -t 30 poller-engine >>"$LOG_DIR/disco.log" 2>&1
+  wait_until 60 eval '! poller_capable "$puid"'
+  disco_case notconnected "$DISCO_STUB" "--size 2" 2 "poller not connected" 30
+  cp_ start poller-engine >>"$LOG_DIR/disco.log" 2>&1
+  wait_until 300 poller_capable "$puid" && record "disco: ${POLLER_NAME} capable again" ok || record "disco: ${POLLER_NAME} capable again" ko
+
+  [[ "$(gorgone_procs)" == 0 ]] && record "disco: no gorgone process" ok || record "disco: no gorgone process" ko
+}
+
+# ---------- disco-scheduled: cron job, automatic save + export (phase 3 P3, fixture § 6) ----------
+
+cmd_disco_scheduled() {
+  login || { record "login" ko; return; }
+  local pid id code body rr st n
+  pid=$(poller_id)
+  disco_fixture || { record "disco-scheduled: stub provider fixture" ko; return; }
+  body=$(disco_body p3-scheduled "$DISCO_STUB" "--size 1" "$pid" \
+    | jq -c '.alias = "gls-p3-scheduled" | .execution_mode = 1 | .scheduling = {cron_expression: "* * * * *"} | .analysis_mode = 1 | .save_mode = 9')
+  code=$(api POST /auto-discovery/jobs "$body")
+  id=$(sql centreon "SELECT id FROM mod_host_disco_job WHERE alias='gls-p3-scheduled'" | head -1)
+  [[ ( "$code" == 204 || "$code" == 201 ) && -n "$id" ]] && record "disco-scheduled: cron job created (* * * * *, save + export)" ok "job $id" \
+    || { record "disco-scheduled: cron job created (* * * * *, save + export)" ko "HTTP $code $(jq -c . "$LOG_DIR/last.json" 2>/dev/null | head -c 200)"; return; }
+
+  wait_until 240 eval '[[ "$(sql centreon "SELECT COUNT(*) FROM mod_host_disco_run_request WHERE job_id=$id AND trigger_source='"'"'schedule'"'"' AND status='"'"'done'"'"'")" -ge 1 ]]' \
+    && record "disco-scheduled: run request from the schedule, done" ok \
+    || record "disco-scheduled: run request from the schedule, done" ko "$(sql centreon "SELECT trigger_source, status FROM mod_host_disco_run_request WHERE job_id=$id" | tr '\t\n' ' ;')"
+  wait_until 240 eval '[[ "$(disco_job "$id" | cut -f1)" == 5 ]]' \
+    && record "disco-scheduled: job SAVE_FINISH (5)" ok \
+    || record "disco-scheduled: job SAVE_FINISH (5)" ko "$(disco_job "$id" | tr '\t' ' ' | head -c 200)"
+  [[ "$(sql centreon "SELECT h.host_address, ns.name FROM host h JOIN ns_host_relation r ON r.host_host_id=h.host_id JOIN nagios_server ns ON ns.id=r.nagios_server_id WHERE h.host_name='gls-disco-1'")" == $'192.0.2.1\t'"${POLLER_NAME}" ]] \
+    && record "disco-scheduled: host gls-disco-1 saved on ${POLLER_NAME}" ok \
+    || record "disco-scheduled: host gls-disco-1 saved on ${POLLER_NAME}" ko "$(sql centreon "SELECT host_id, host_address FROM host WHERE host_name='gls-disco-1'" | tr '\t\n' ' ;')"
+  wait_until 240 eval 'cp_ exec -T poller-engine grep -rqs "gls-disco-1" /etc/centreon-engine' \
+    && record "disco-scheduled: export reached ${POLLER_NAME} over cbd (gls-disco-1 in its config)" ok \
+    || record "disco-scheduled: export reached ${POLLER_NAME} over cbd (gls-disco-1 in its config)" ko
+
+  # Pause: no new schedule run afterwards.
+  code=$(api PATCH "/auto-discovery/jobs/$id" '{"execution_mode": 2}')
+  [[ "$code" == 204 || "$code" == 200 ]] || record "disco-scheduled: job paused" ko "HTTP $code"
+  sleep 20
+  n=$(sql centreon "SELECT COUNT(*) FROM mod_host_disco_run_request WHERE job_id=$id AND trigger_source='schedule'")
+  sleep 75
+  [[ "$(sql centreon "SELECT COUNT(*) FROM mod_host_disco_run_request WHERE job_id=$id AND trigger_source='schedule'")" == "$n" ]] \
+    && record "disco-scheduled: paused job runs no more" ok "$n schedule run(s)" \
+    || record "disco-scheduled: paused job runs no more" ko "$n -> more"
+  [[ "$(gorgone_procs)" == 0 ]] && record "disco-scheduled: no gorgone process" ok || record "disco-scheduled: no gorgone process" ko
+}
+
 # ---------- install-script: poller added with the generated command (contracts § 11) ----------
 
 IS_NAME="${IS_NAME:-gls-poller-is}"
@@ -1276,10 +1428,12 @@ case "$cmd" in
   state) cmd_state ;;
   rrd) cmd_rrd ;;
   modules) cmd_modules ;;
+  disco) cmd_disco ;;
+  disco-scheduled) cmd_disco_scheduled ;;
   install-script) cmd_install_script ;;
   logs) cmd_logs; exit 0 ;;
   down) cmd_down; exit 0 ;;
-  *) sed -n '2,20p' "$0"; exit 2 ;;
+  *) sed -n '2,22p' "$0"; exit 2 ;;
 esac
 summary "$cmd $*"
 exit $(( failures > 0 ))

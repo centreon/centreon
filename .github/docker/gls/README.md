@@ -70,6 +70,8 @@ docker login docker.centreon.com
 .github/docker/gls/scripts/gls-e2e.sh ca        # CA same as at creation, kept on cbd recreate, wrong fingerprint fails closed
 .github/docker/gls/scripts/gls-e2e.sh state     # state volumes: retention after recreate, cbmod queue
 .github/docker/gls/scripts/gls-e2e.sh modules   # LM, PPM, autodiscovery, ITEE installed; no license then the CI license valid; no gorgone
+.github/docker/gls/scripts/gls-e2e.sh disco     # host discovery jobs through cbd RemoteExec (needs modules first: license)
+.github/docker/gls/scripts/gls-e2e.sh disco-scheduled # cron job: automatic save + export to the poller, then paused
 .github/docker/gls/scripts/gls-e2e.sh install-script # SAN widened, poller added with the generated install.sh command over 5669, no secret leaked
 .github/docker/gls/scripts/gls-e2e.sh down      # removes only the gls-* projects, their volumes and gls-wan
 ```
@@ -98,6 +100,12 @@ The command holds the poller token, the appsecret and the salt: do not paste it 
 - For a local run, drop a non-machine-locked license there as `epp.license`, owned by www-data:
   `docker compose -p gls-central -f docker-compose.central.yml cp epp.license fpm:/etc/centreon/license.d/`
 - The e2e copies the CI license from the `centreon-modules-trixie` image (pinned by digest) container to container. It never writes the license on the host and never prints it.
+
+## Host discovery without gorgone (phase 3 P2/P3)
+
+- The `autodiscovery-worker` service, on the fpm image, runs the discovery jobs. It sends each plugin to the poller through cbd (`POST /v1/executions`, RemoteExec over the TLS stream) and saves the results. The automatic save exports and reloads through the web API (contracts §12).
+- The poller runs only programs from its allow-list (`/etc/centreon-engine-exec/*.json`; by default `/usr/lib/centreon/plugins/*`). The e2e mounts a stub plugin there: `fixtures/gls_disco_stub`.
+- Discovery jobs need a valid autodiscovery license (see above).
 
 ## UI and API
 

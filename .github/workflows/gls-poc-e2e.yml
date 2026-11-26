@@ -108,6 +108,18 @@ jobs:
         run: SUMMARY_FILE="$GITHUB_STEP_SUMMARY" "$SCRIPT" modules
         shell: bash
 
+      - name: "Discovery: run-now jobs through cbd RemoteExec (FINISH, REJECTED, TIMEOUT, cap, exit, secret, NOT_CONNECTED)"
+        if: ${{ !cancelled() && steps.up.outcome == 'success' }}
+        continue-on-error: ${{ env.GLS_GATE_CRITERIA != 'true' }}
+        run: SUMMARY_FILE="$GITHUB_STEP_SUMMARY" "$SCRIPT" disco
+        shell: bash
+
+      - name: "Discovery: scheduled job, automatic save and export"
+        if: ${{ !cancelled() && steps.up.outcome == 'success' }}
+        continue-on-error: ${{ env.GLS_GATE_CRITERIA != 'true' }}
+        run: SUMMARY_FILE="$GITHUB_STEP_SUMMARY" "$SCRIPT" disco-scheduled
+        shell: bash
+
       - name: "Criterion 3: disconnected poller (stop)"
         if: ${{ !cancelled() && steps.up.outcome == 'success' }}
         continue-on-error: ${{ env.GLS_GATE_CRITERIA != 'true' }}
