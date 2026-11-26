@@ -108,7 +108,8 @@ export const blocks = [
   getSeverityBlock({
     endpoint: hostTemplateFormHostSeveritiesEndpoint,
     label: labelHostSeverity,
-    resource
+    resource,
+    withLevel: true
   }),
   getRelationListBlock({
     decoderNames: ['Service template', 'Service templates'],
