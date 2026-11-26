@@ -24,6 +24,8 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Repository;
 
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverity;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceSeverityCriteria;
 
 interface ServiceSeverityRepository
@@ -36,4 +38,15 @@ interface ServiceSeverityRepository
      * @return \IteratorAggregate<int, ServiceSeverity>&\Countable
      */
     public function findAll(ServiceSeverityCriteria $criteria): \IteratorAggregate&\Countable;
+
+    /**
+     * Never returns a category, though both share the `service_categories` table. Null when the id is no
+     * severity, or has no name.
+     */
+    public function findNameById(ServiceSeverityId $id): ?ServiceSeverityName;
+
+    /**
+     * Null in the same cases as findNameById().
+     */
+    public function findById(ServiceSeverityId $id): ?ServiceSeverity;
 }

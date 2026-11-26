@@ -1080,10 +1080,21 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         self::assertFalse($this->eventBus->shouldHaveDispatched(HostServicesDeploymentRequested::class));
     }
 
-    /**
-     * Legacy resolves what to deploy by walking host_template_relation, so without templates there
-     * is nothing to do — and reaching it would boot a second Symfony kernel for nothing.
-     */
+    public function testTheServicesDeploymentIsRequestedForTheActingUser(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->hostTemplateRepository->hostTemplates[3] = new HostTemplate(new HostTemplateId(3), new HostTemplateName('generic-active-host'));
+        $actor = TestActingUsers::unrestricted(9);
+
+        $host = ($this->handler)($this->relationCommand($poller->id(), templateIds: [3], actor: $actor));
+
+        /** @var list<HostServicesDeploymentRequested> $requests */
+        $requests = $this->eventBus->getDispatchedEvents(HostServicesDeploymentRequested::class);
+        self::assertCount(1, $requests);
+        self::assertSame($host->id()->value, $requests[0]->hostId->value);
+        self::assertSame($actor, $requests[0]->actor);
+    }
+
     public function testItDoesNotRequestServiceDeploymentWithoutTemplates(): void
     {
         $poller = $this->addPoller($this->pollerRepository, 1);

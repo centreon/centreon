@@ -25,6 +25,7 @@ namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceGroup\ServiceGroup;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceGroup\ServiceGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceGroup\ServiceGroupName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceGroupCriteria;
 use App\MonitoringConfiguration\Domain\Repository\ServiceGroupRepository;
 use App\Security\Domain\Service\AccessScopeResolver;
@@ -116,6 +117,32 @@ final readonly class DbalServiceGroupRepository extends DbalRepository implement
             currentPage: $pagination->page,
             itemsPerPage: $pagination->itemsPerPage,
         );
+    }
+
+    public function findNamesByIds(Collection $ids): Collection
+    {
+        $idValues = array_values(array_map(static fn (ServiceGroupId $id): int => $id->value, $ids->toArray()));
+        if ($idValues === []) {
+            return new Collection([], ServiceGroupName::class);
+        }
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('sg.sg_id', 'sg.sg_name')
+            ->from(self::TABLE_NAME, 'sg')
+            ->where($qb->expr()->in('sg.sg_id', $qb->createNamedParameter($idValues, ArrayParameterType::INTEGER)));
+
+        /** @var list<array{sg_id: int|string, sg_name: string|null}> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        // `sg_name` is nullable; a nameless row reads as "not found".
+        $names = [];
+        foreach ($rows as $row) {
+            if (($name = (string) $row['sg_name']) !== '') {
+                $names[(int) $row['sg_id']] = new ServiceGroupName($name);
+            }
+        }
+
+        return new Collection($names, ServiceGroupName::class);
     }
 
     /**

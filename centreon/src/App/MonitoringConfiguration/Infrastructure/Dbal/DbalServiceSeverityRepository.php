@@ -25,6 +25,7 @@ namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverity;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ServiceSeverityCriteria;
 use App\MonitoringConfiguration\Domain\Repository\ServiceSeverityRepository;
 use App\Security\Domain\Service\AccessScopeResolver;
@@ -36,12 +37,14 @@ use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use App\Shared\Infrastructure\TransformerInterface;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ParameterType;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
  * @phpstan-type RowTypeAlias = array{
  *   sc_id: int,
  *   sc_name: string,
+ *   level: int,
  * }
  */
 final readonly class DbalServiceSeverityRepository extends DbalRepository implements ServiceSeverityRepository
@@ -72,7 +75,7 @@ final readonly class DbalServiceSeverityRepository extends DbalRepository implem
         }
 
         $qb = $this->connection->createQueryBuilder();
-        $qb->select('sc.sc_id', 'sc.sc_name')
+        $qb->select('sc.sc_id', 'sc.sc_name', 'sc.level')
             ->from(self::TABLE_NAME, 'sc')
             // A service severity is a service category carrying a level; levelless ones are regular
             // categories, offered by their own selector.
@@ -116,6 +119,38 @@ final readonly class DbalServiceSeverityRepository extends DbalRepository implem
             currentPage: $pagination->page,
             itemsPerPage: $pagination->itemsPerPage,
         );
+    }
+
+    public function findNameById(ServiceSeverityId $id): ?ServiceSeverityName
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('sc.sc_name')
+            ->from(self::TABLE_NAME, 'sc')
+            ->where('sc.level IS NOT NULL') // a levelless row is a category, not a severity
+            ->andWhere($qb->expr()->eq('sc.sc_id', $qb->createNamedParameter($id->value, ParameterType::INTEGER)))
+            ->setMaxResults(1);
+
+        // A null or empty `sc_name` reads as not found.
+        /** @var false|string|null $name */
+        $name = $qb->executeQuery()->fetchOne();
+
+        return is_string($name) && $name !== '' ? new ServiceSeverityName($name) : null;
+    }
+
+    public function findById(ServiceSeverityId $id): ?ServiceSeverity
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('sc.sc_id', 'sc.sc_name', 'sc.level')
+            ->from(self::TABLE_NAME, 'sc')
+            ->where('sc.level IS NOT NULL') // a levelless row is a category, not a severity
+            ->andWhere("sc.sc_name IS NOT NULL AND sc.sc_name != ''")
+            ->andWhere($qb->expr()->eq('sc.sc_id', $qb->createNamedParameter($id->value, ParameterType::INTEGER)))
+            ->setMaxResults(1);
+
+        /** @var false|RowTypeAlias $row */
+        $row = $qb->executeQuery()->fetchAssociative();
+
+        return $row !== false ? $this->transformer->transform($row) : null;
     }
 
     /**
