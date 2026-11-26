@@ -585,7 +585,7 @@ jobs:
           persist-credentials: false
 
       - name: Deliver sources
-        uses: ./.github/actions/release-sources
+        uses: centreon/github-actions/download-site/sources-delivery@download-site/v1
         with:
           bucket_directory: centreon-awie
           module_directory: centreon-awie
