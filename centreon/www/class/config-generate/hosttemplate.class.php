@@ -186,6 +186,14 @@ class HostTemplate extends AbstractHost
     }
 
     /**
+     * @return Severity
+     */
+    protected function getSeverityInstance(): Severity
+    {
+        return Severity::getInstance($this->dependencyInjector);
+    }
+
+    /**
      * @throws PDOException
      * @return void
      */
@@ -207,18 +215,14 @@ class HostTemplate extends AbstractHost
      * @param $host_id
      *
      * @throws PDOException
-     * @return int|void
+     * @return void
      */
-    private function getSeverity($host_id)
+    private function getSeverity($host_id): void
     {
-        if (isset($this->hosts[$host_id]['severity_id'])) {
-            return 0;
-        }
-
         $this->hosts[$host_id]['severity_id']
-            = Severity::getInstance($this->dependencyInjector)->getHostSeverityByHostId($host_id);
+            = $this->getSeverityInstance()->getHostSeverityByHostId($host_id);
         $severity
-            = Severity::getInstance($this->dependencyInjector)
+            = $this->getSeverityInstance()
                 ->getHostSeverityById($this->hosts[$host_id]['severity_id']);
         if (! is_null($severity)) {
             $macros = [
