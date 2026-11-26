@@ -160,32 +160,27 @@ export default () => {
     it.each([
       ['on-premise', false],
       ['cloud', true]
-    ])(
-      'creates a template linked to service templates read from the host template route (%s)',
-      async (_platform, isCloudPlatform) => {
-        await openCreationForm({ isCloudPlatform });
+    ])('creates a template linked to service templates read from the host template route (%s)', async (_platform, isCloudPlatform) => {
+      await openCreationForm({ isCloudPlatform });
 
-        await userEvent.click(
-          screen.getByTestId(testIds.linkedServiceTemplates)
-        );
-        const { request: serviceTemplatesRequest } = await waitForRequest(
-          '@getFormServiceTemplates'
-        );
+      await userEvent.click(screen.getByTestId(testIds.linkedServiceTemplates));
+      const { request: serviceTemplatesRequest } = await waitForRequest(
+        '@getFormServiceTemplates'
+      );
 
-        expect(serviceTemplatesRequest.url.pathname).toContain(
-          '/api/configuration/host_templates/service_templates'
-        );
-        await pickOption('generic-cpu');
+      expect(serviceTemplatesRequest.url.pathname).toContain(
+        '/api/configuration/host_templates/service_templates'
+      );
+      await pickOption('generic-cpu');
 
-        await save();
+      await save();
 
-        const { request } = await waitForRequest('@createHostTemplate');
+      const { request } = await waitForRequest('@createHostTemplate');
 
-        expect(
-          (request.body as Record<string, unknown>).linked_service_template_ids
-        ).toEqual([32]);
-      }
-    );
+      expect(
+        (request.body as Record<string, unknown>).linked_service_template_ids
+      ).toEqual([32]);
+    });
 
     it('unlinks every service template of a template', async () => {
       await openTemplate(1);
@@ -211,26 +206,26 @@ export default () => {
       ).toEqual([]);
     });
 
-    it.each(['narrow', 'wide'] as const)(
-      'shows the linked service templates left of the host categories (%s)',
-      async (width) => {
-        initializeFormLayout({ width });
+    it.each([
+      'narrow',
+      'wide'
+    ] as const)('shows the linked service templates left of the host categories (%s)', async (width) => {
+      initializeFormLayout({ width });
 
-        await waitFor(() =>
-          expect(screen.getByTestId(testIds.categories)).toBeInTheDocument()
-        );
+      await waitFor(() =>
+        expect(screen.getByTestId(testIds.categories)).toBeInTheDocument()
+      );
 
-        const linked = screen
-          .getByTestId(testIds.linkedServiceTemplates)
-          .getBoundingClientRect();
-        const categories = screen
-          .getByTestId(testIds.categories)
-          .getBoundingClientRect();
+      const linked = screen
+        .getByTestId(testIds.linkedServiceTemplates)
+        .getBoundingClientRect();
+      const categories = screen
+        .getByTestId(testIds.categories)
+        .getBoundingClientRect();
 
-        expect(categories.left).toBeGreaterThanOrEqual(linked.right);
-        expect(categories.top).toBe(linked.top);
-      }
-    );
+      expect(categories.left).toBeGreaterThanOrEqual(linked.right);
+      expect(categories.top).toBe(linked.top);
+    });
 
     it('opens a template with its relations read-only for a user who may only look at templates', async () => {
       initialize({ hasWriteAccess: false, search: '?mode=edit&id=1' });

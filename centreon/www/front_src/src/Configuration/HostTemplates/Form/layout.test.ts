@@ -51,19 +51,18 @@ describe('layout', () => {
     expect(getPlacedBlockIds().filter((id) => !handedOver.has(id))).toEqual([]);
   });
 
-  it.each(contexts)(
-    'places every block the sections hand over (%s)',
-    (_name, context) => {
-      const placed = new Set<string>(getPlacedBlockIds());
-      const blockIds = getAvailableSections(context).flatMap(({ section }) =>
-        Object.keys(section.getInputs(context))
-      );
+  it.each(
+    contexts
+  )('places every block the sections hand over (%s)', (_name, context) => {
+    const placed = new Set<string>(getPlacedBlockIds());
+    const blockIds = getAvailableSections(context).flatMap(({ section }) =>
+      Object.keys(section.getInputs(context))
+    );
 
-      // Merged into one object, a block two sections named would hide one.
-      expect(new Set(blockIds).size).toBe(blockIds.length);
-      expect(blockIds.filter((id) => !placed.has(id))).toEqual([]);
-    }
-  );
+    // Merged into one object, a block two sections named would hide one.
+    expect(new Set(blockIds).size).toBe(blockIds.length);
+    expect(blockIds.filter((id) => !placed.has(id))).toEqual([]);
+  });
 
   it('shows the sections in the order of the design', () => {
     expect(getSectionLabels({ isCloudPlatform: false, t })).toEqual([
@@ -101,21 +100,18 @@ describe('layout', () => {
   it.each([
     [false, 3, threeColumnsFromWide],
     [true, 2, twoColumnsFromWide]
-  ])(
-    'lays the advanced settings out in as many columns as the platform keeps (cloud: %s)',
-    (isCloudPlatform, columnCount, className) => {
-      const advanced = placeBlocks({
-        blocks: getBlocks({ isCloudPlatform, t }),
-        t
-      }).find(({ label }) => label === labelAdvanced);
-      const grid = advanced?.inputs.find(
-        ({ fieldName }) => fieldName === 'advanced-layout'
-      )?.grid;
+  ])('lays the advanced settings out in as many columns as the platform keeps (cloud: %s)', (isCloudPlatform, columnCount, className) => {
+    const advanced = placeBlocks({
+      blocks: getBlocks({ isCloudPlatform, t }),
+      t
+    }).find(({ label }) => label === labelAdvanced);
+    const grid = advanced?.inputs.find(
+      ({ fieldName }) => fieldName === 'advanced-layout'
+    )?.grid;
 
-      expect(grid?.columns).toHaveLength(columnCount);
-      expect(grid?.className).toBe(className);
-    }
-  );
+    expect(grid?.columns).toHaveLength(columnCount);
+    expect(grid?.className).toBe(className);
+  });
 
   it('shows the SNMP fields right after the check command', () => {
     const [, monitoringProperties] = placeBlocks({

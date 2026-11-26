@@ -422,24 +422,24 @@ export default () => {
   });
 
   describe('Layout: ', () => {
-    it.each(['narrow', 'wide'] as const)(
-      'shows the name and the alias side by side, equally wide (%s)',
-      async (width) => {
-        initializeFormLayout({ width });
+    it.each([
+      'narrow',
+      'wide'
+    ] as const)('shows the name and the alias side by side, equally wide (%s)', async (width) => {
+      initializeFormLayout({ width });
 
-        await waitFor(() =>
-          expect(
-            screen.getAllByTestId('host-template-form-alias')
-          ).toHaveLength(2)
-        );
+      await waitFor(() =>
+        expect(screen.getAllByTestId('host-template-form-alias')).toHaveLength(
+          2
+        )
+      );
 
-        const name = getRect('host-template-form-name');
-        const alias = getRect('host-template-form-alias');
+      const name = getRect('host-template-form-name');
+      const alias = getRect('host-template-form-alias');
 
-        expect(alias.left).toBeGreaterThanOrEqual(name.right);
-        expect(alias.top).toBe(name.top);
-        expect(alias.width).toBe(name.width);
-      }
-    );
+      expect(alias.left).toBeGreaterThanOrEqual(name.right);
+      expect(alias.top).toBe(name.top);
+      expect(alias.width).toBe(name.width);
+    });
   });
 };
