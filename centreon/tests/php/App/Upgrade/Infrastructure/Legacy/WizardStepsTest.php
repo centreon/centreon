@@ -98,7 +98,7 @@ final class WizardStepsTest extends TestCase
                 "session_start(); \$_SESSION['CURRENT_VERSION'] = '0.0.1'; session_write_close();"
                 . " include 'www/install/step_upgrade/process/process_migrations.php'; echo \"\\n\", \$_SESSION['CURRENT_VERSION'];",
             );
-            $upgrade = json_decode(mb_substr($output, 0, (int) mb_strrpos($output, "\n")), true);
+            $upgrade = json_decode(mb_substr($output, 0, (int) mb_strrpos($output, "\n")), true, flags: JSON_THROW_ON_ERROR);
             self::assertIsArray($upgrade);
             self::assertSame(1, $upgrade['result']);
             self::assertSame('0.0.1', trim(mb_substr($output, (int) mb_strrpos($output, "\n"))), 'The version shown is the one of the legacy scripts');
@@ -159,8 +159,12 @@ final class WizardStepsTest extends TestCase
     {
         $output = $this->runCode(\sprintf('$_POST = %s; include %s;', var_export($post, true), var_export($script, true)));
 
-        $response = json_decode($output, true);
-        self::assertIsArray($response, 'Not a JSON response: ' . $output);
+        try {
+            $response = json_decode($output, true, flags: JSON_THROW_ON_ERROR);
+        } catch (\JsonException) {
+            self::fail('Not a JSON response: ' . $output);
+        }
+        self::assertIsArray($response);
 
         return $response;
     }
