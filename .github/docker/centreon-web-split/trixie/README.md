@@ -970,14 +970,23 @@ removed, this stack's own `db` never touched).
 
 ### T0 baked-in modules (Autodiscovery, License Manager, IT Edition, PP Manager)
 
-**Update (MON-215450 phase 3 P0, gorgone-less PoC).** The modules were
-removed from the PoC images (135d342a93) and are now baked in again, from the
-public **stable** suite `packages.centreon.com/apt-standard`
-`trixie-26.10-stable`, all 4 at `26.10.1-1+deb13u1`. Autodiscovery comes from
-that suite too, not from the centreon-autodisco image. apt-unstable only keeps
-the latest build of each package, so the exact versions pinned below vanished
-from it and broke the build; the stable pool keeps every release. Without
-gorgone:
+**Update (MON-215450 phase 3, gorgone-less PoC).** The modules were
+removed from the PoC images (135d342a93) and are now baked in again, at 27.01
+like the web:
+- License Manager, PP Manager and IT Edition extensions: copied from the
+  nightly `centreon-modules-trixie:27.01-unstable` image, pinned by digest
+  (`MODULES_IMAGE`), only the files the three packages own (`dpkg -L`), never
+  the image layers. The nightly apt suite drops old builds, a digest does not;
+- Autodiscovery: copied the same way from the centreon-autodisco image of the
+  disco-modules branch (`AUTODISCO_TAG`/`AUTODISCO_DIGEST` in
+  `dependencies.env`), SourceGuardian-encoded, with the gorgone-less worker;
+- the SourceGuardian loader stays on the public stable suite
+  (`apt-standard trixie-26.10-stable`, `8.4-1+deb13u1`, the same version the
+  27.01 modules image ships);
+- on a kept database, `installBakedModules.php` runs the module upgrade
+  (as "Update" in the UI) when the image ships a newer module version.
+
+Without gorgone:
 - the module install (`installBakedModules.php`) needs no gorgone: SQL install
   and a cache clear only;
 - the gorgone files of autodiscovery (`41-autodiscovery.yaml`, the

@@ -37,6 +37,11 @@ ARG ENGINE_IMAGE=docker.centreon.com/centreon/centreon-engine-trixie:develop
 # branch (MON-216208), SourceGuardian-encoded, with the gorgone-less worker. amd64-only
 # image; the encoded PHP needs the 8.4 loader (fpm and cron stages), not an arch.
 ARG AUTODISCO_IMAGE=docker.centreon.com/centreon/centreon-autodisco-trixie:develop
+# License Manager, PP Manager and IT Edition extensions 27.01: the nightly
+# centreon-modules image (develop, 27.01-unstable), pinned by digest (the
+# nightly apt suite drops old builds; a digest stays reproducible). Only the
+# files the three packages own are copied, see modules_source below.
+ARG MODULES_IMAGE=docker.centreon.com/centreon/centreon-modules-trixie:27.01-unstable@sha256:c763b151d6f98d2e1c8f7e392235468b15bc46289625cd979e9958c0affbec98
 
 #############################################
 # Stage 1: frontend build (pnpm / rspack)
@@ -119,29 +124,18 @@ bash build.sh "${CENTREON_MAJOR_VERSION}" "${CENTREON_MINOR_VERSION}" unstable
 EOF
 
 #############################################
-# Stage 2b: T0 baked-in modules (License Manager, PP Manager/Monitoring
-# Connector Manager, IT Edition extensions; Autodiscovery comes from
-# autodisco_source below) + the
-# SourceGuardian loader their PHP code needs to even run (they're not plain
-# PHP — every one declares `Pre-Depends: php8.4-sourceguardian-loader` and
-# `License: Proprietary`). Pulled from Centreon's own signed apt repo since
-# none of these are vendored in this monorepo.
-#
-# MON-215450 phase 3 P0 (gorgone-less PoC): re-baked after 135d342a93 had
-# removed them, from the public **stable** suite this time
+# Stage 2b: the SourceGuardian loader the baked-in modules need to even run
+# (they're not plain PHP — every one declares
+# `Pre-Depends: php8.4-sourceguardian-loader` and `License: Proprietary`).
+# Pulled from Centreon's own signed apt repo, public **stable** suite
 # (apt-standard trixie-26.10-stable): its pool keeps every released version,
-# while apt-unstable only keeps the latest build (the previously pinned
-# 26.10.2 builds vanished from it, which broke the build). Pinned exact
-# versions, verified by apt (GPG + hash) through
-# `apt-get download` (not `install`: only the files are wanted, no postinst).
+# while apt-unstable only keeps the latest build. Pinned exact version,
+# verified by apt (GPG + hash) through `apt-get download` (not `install`:
+# only the file is wanted, no postinst). The 27.01 nightly modules image
+# ships the same loader version.
 #
-# Known, accepted risk: every module's control file declares
-# `Depends: centreon-web (>= 26.10~) (<< 26.11~)`, older than this codebase.
-# Extracting the file trees (not `dpkg -i`) does not enforce it; the compose
-# smoke test and the gated e2e `modules` step are what prove the
-# combination. Only usr/share/centreon is copied forward: the gorgone
-# configuration the autodiscovery package ships (41-autodiscovery.yaml, the
-# 41-service-discovery cron) and logrotate files are left out.
+# The modules themselves come from modules_source (LM, PPM, ITEE) and
+# autodisco_source (Autodiscovery) below.
 #############################################
 FROM debian:trixie-slim AS modules_fetcher
 
@@ -153,9 +147,6 @@ ARG TARGETARCH
 ARG CENTREON_APT_SUITE=trixie-26.10-stable
 ARG SOURCEGUARDIAN_LOADER_VERSION=8.4-1+deb13u1
 ARG SOURCEGUARDIAN_LOADER_ARM64_SHA256=85123735697faafc6adcaae7a4e9b093bcff1eec8708d0ed671c64c16171c411
-ARG LICENSE_MANAGER_VERSION=26.10.1-1+deb13u1
-ARG PP_MANAGER_VERSION=26.10.1-1+deb13u1
-ARG IT_EDITION_VERSION=26.10.1-1+deb13u1
 
 WORKDIR /modules
 
@@ -169,25 +160,48 @@ echo "deb https://packages.centreon.com/apt-standard/ ${CENTREON_APT_SUITE} main
   > /etc/apt/sources.list.d/centreon-stable.list
 apt-get update
 mkdir -p extracted
-modules=(
-  "centreon-license-manager=${LICENSE_MANAGER_VERSION}"
-  "centreon-pp-manager=${PP_MANAGER_VERSION}"
-  "centreon-it-edition-extensions=${IT_EDITION_VERSION}"
-)
 if [ "${TARGETARCH}" = "amd64" ]; then
-  apt-get download "php8.4-sourceguardian-loader=${SOURCEGUARDIAN_LOADER_VERSION}" "${modules[@]}"
+  apt-get download "php8.4-sourceguardian-loader=${SOURCEGUARDIAN_LOADER_VERSION}"
+  dpkg-deb -x php8.4-sourceguardian-loader_*.deb extracted
 else
-  apt-get download "${modules[@]}"
-fi
-for deb in *.deb; do dpkg-deb -x "$deb" extracted; done
-if [ "${TARGETARCH}" != "amd64" ]; then
   curl -sfLo /tmp/sg.tgz https://www.sourceguardian.com/loaders/download/loaders.linux-aarch64.tar.gz
   tar -xzf /tmp/sg.tgz -C /tmp ixed.8.4.lin
   echo "${SOURCEGUARDIAN_LOADER_ARM64_SHA256}  /tmp/ixed.8.4.lin" | sha256sum -c -
   install -D -m 644 /tmp/ixed.8.4.lin extracted/usr/lib/php/20240924/ixed.8.4.lin
 fi
+test -f extracted/usr/lib/php/20240924/ixed.8.4.lin
+EOF
+
+#############################################
+# License Manager, PP Manager and IT Edition extensions (MON-215450, 27.01):
+# extracted from the pinned centreon-modules image (MODULES_IMAGE) through
+# that image's own dpkg database, never its layers (it is built FROM a
+# develop web image). Every file the three packages own under
+# /usr/share/centreon/ (www/modules, src, config, config.new, cron). Left
+# out: the disabled gorgone cron (/etc/centreon-gorgone/.../
+# 43-centreon-helios.yaml.disabled) and /usr/share/doc. Their postinst only
+# chowns their dirs to www-data and clears the Symfony cache: 15-cache.sh
+# does the latter at every start, and the files stay root-owned and
+# world-readable here, as a `dpkg-deb -x` extraction gives (the image's
+# ownership, e.g. centreon-gorgone on cron/centreon-helios.php, has no
+# matching user in this image). amd64-only image; the files are
+# architecture-independent (Architecture: all).
+#############################################
+FROM --platform=linux/amd64 ${MODULES_IMAGE} AS modules_source
+
+USER root
+RUN bash -eo pipefail <<'EOF'
+mkdir -p /out
+for pkg in centreon-license-manager centreon-pp-manager centreon-it-edition-extensions; do
+  dpkg-query -W -f='${Package} ${Version}\n' "$pkg"
+  dpkg -L "$pkg" | grep '^/usr/share/centreon/' | while read -r f; do
+    [ -f "$f" ] && cp --parents --no-preserve=ownership -p "$f" /out/
+  done
+done
+chown -R root:root /out
+chmod -R a+rX,go-w /out
 for module in centreon-license-manager centreon-pp-manager centreon-it-edition-extensions; do
-  test -f "extracted/usr/share/centreon/www/modules/${module}/conf.php" || { echo "missing module ${module}" >&2; exit 1; }
+  test -f "/out/usr/share/centreon/www/modules/${module}/conf.php" || { echo "missing module ${module}" >&2; exit 1; }
 done
 EOF
 
@@ -325,12 +339,12 @@ xargs -0 -r sed -i \
 rm -f /tmp/all-files /tmp/macro-files
 EOF
 
-# T0 baked-in modules (see modules_fetcher above) —
+# T0 baked-in modules (see modules_source above) —
 # already fully macro-resolved by Centreon's own package build, nothing
 # left to substitute here. Lands in the exact same tree the partition step
 # below already scans, so module static assets reach httpd the same way
 # core www/ files do, no module-specific logic needed there.
-COPY --from=modules_fetcher --link /modules/extracted/usr/share/centreon/ .
+COPY --from=modules_source --link /out/usr/share/centreon/ .
 COPY --from=autodisco_source --link /out/usr/share/centreon/ .
 
 # Source maps for production JS/CSS — 106MB on their own (confirmed by
