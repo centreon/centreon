@@ -6,83 +6,90 @@ const excludeNodeModulesExceptCentreonUi =
 module.exports = {
   cache: false,
   excludeNodeModulesExceptCentreonUi,
-  getModuleConfiguration: (enableCoverage, postCssBase = './') => ({
-    rules: [
-      {
-        exclude: [excludeNodeModulesExceptCentreonUi],
-        test: /\.[jt]sx?$/,
-        use: {
-          loader: 'swc-loader',
-          options: {
-            jsc: {
-              experimental: {
-                plugins: [
-                  enableCoverage && ['swc-plugin-coverage-instrument', {}]
-                ].filter(Boolean)
-              },
-              parser: {
-                syntax: 'typescript',
-                tsx: true
-              },
-              transform: {
-                react: {
-                  development: isDev,
-                  refresh: isDev
-                },
-                reactCompiler: !enableCoverage && {
-                  compilationMode: 'infer',
-                  panicThreshold: 'none',
-                  target: '19'
-                }
-              }
-            }
-          }
-        }
-      },
-      {
-        test: /\.icon.svg$/,
-        use: ['@svgr/webpack']
-      },
-      {
-        exclude: excludeNodeModulesExceptCentreonUi,
-        test: /\.(bmp|png|jpg|jpeg|gif|svg)$/,
-        type: 'asset/inline'
-      },
-      {
-        generator: {
-          filename: '[name][ext]',
-          // Fonts are referenced from emitted CSS files, which sit next to
-          // them: a relative output.publicPath would be applied twice.
-          publicPath: ''
-        },
-        test: /\.(woff|woff2|eot|ttf|otf)$/i,
-        type: 'asset/resource'
-      },
-      {
-        test: /\.module\.css$/,
-        type: 'css/module'
-      },
-      {
-        test: /\.css$/,
-        exclude: /\.module\.css$/,
-        type: 'css/auto',
-        use: [
-          {
-            loader: 'postcss-loader',
+  getModuleConfiguration: (enableCoverage, postCssBase = './') => {
+    // Only a literal `true` enables coverage: the rspack CLI passes its env
+    // object as the first argument of a config exported as a function, and
+    // that object must not turn instrumentation on in production builds.
+    const coverage = enableCoverage === true;
+
+    return {
+      rules: [
+        {
+          exclude: [excludeNodeModulesExceptCentreonUi],
+          test: /\.[jt]sx?$/,
+          use: {
+            loader: 'swc-loader',
             options: {
-              postcssOptions: {
-                plugins: {
-                  '@tailwindcss/postcss': {
-                    base: postCssBase
+              jsc: {
+                experimental: {
+                  plugins: [
+                    coverage && ['swc-plugin-coverage-instrument', {}]
+                  ].filter(Boolean)
+                },
+                parser: {
+                  syntax: 'typescript',
+                  tsx: true
+                },
+                transform: {
+                  react: {
+                    development: isDev,
+                    refresh: isDev
+                  },
+                  reactCompiler: !coverage && {
+                    compilationMode: 'infer',
+                    panicThreshold: 'none',
+                    target: '19'
                   }
                 }
               }
             }
           }
-        ]
-      }
-    ]
-  }),
+        },
+        {
+          test: /\.icon.svg$/,
+          use: ['@svgr/webpack']
+        },
+        {
+          exclude: excludeNodeModulesExceptCentreonUi,
+          test: /\.(bmp|png|jpg|jpeg|gif|svg)$/,
+          type: 'asset/inline'
+        },
+        {
+          generator: {
+            filename: '[name][ext]',
+            // Fonts are referenced from emitted CSS files, which sit next to
+            // them: a relative output.publicPath would be applied twice.
+            publicPath: ''
+          },
+          test: /\.(woff|woff2|eot|ttf|otf)$/i,
+          type: 'asset/resource'
+        },
+        {
+          test: /\.module\.css$/,
+          type: 'css/module'
+        },
+        {
+          test: /\.css$/,
+          exclude: /\.module\.css$/,
+          type: 'css/auto',
+          use: [
+            {
+              loader: 'postcss-loader',
+              options: {
+                postcssOptions: {
+                  plugins: {
+                    '@tailwindcss/postcss': {
+                      base: postCssBase
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    };
+  },
   optimization: {
     splitChunks: {
       chunks: 'all',
