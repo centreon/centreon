@@ -34,7 +34,10 @@ runs:
             console.log(`Number of working days since January, 1st 2025: ${workingDays}`);
           }
 
-          const branchIndex = workingDays % maintenanceBranches.length;
+          // Maintenance branches pick their OS with workingDays % <OS count>: shift the branch
+          // rotation every cycle so each branch runs on each of its OS in turn.
+          const branchCount = maintenanceBranches.length;
+          const branchIndex = (workingDays + Math.floor(workingDays / branchCount)) % branchCount;
 
           execSync(`gh workflow run "${process.env.WORKFLOW}" --ref "${maintenanceBranches[branchIndex]}" --raw-field nightly_manual_trigger=true`);
           console.log(`🌃 Nightly workflow triggered for component ${maintenanceBranches[branchIndex]}`);
