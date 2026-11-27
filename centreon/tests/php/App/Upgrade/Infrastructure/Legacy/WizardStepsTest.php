@@ -23,7 +23,9 @@ declare(strict_types=1);
 
 namespace Tests\App\Upgrade\Infrastructure\Legacy;
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\Model\ConnectionConfig;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\PhpExecutableFinder;
@@ -34,6 +36,9 @@ use Symfony\Component\Process\Process;
  */
 final class WizardStepsTest extends TestCase
 {
+    private const MODULE = 'centreon-wizard-fixture';
+    private const MODULE_PATH = 'www/modules/' . self::MODULE;
+
     public function testTheInstallWizardAppliesTheMigrations(): void
     {
         self::assertSame(['id' => 'migrations', 'result' => 0, 'msg' => 'OK'], $this->runStep('www/install/steps/process/migrateDatabases.php'));
@@ -46,15 +51,52 @@ final class WizardStepsTest extends TestCase
 
     public function testTheUpgradeWizardListsTheOutdatedModules(): void
     {
-        self::assertSame(['result' => 0, 'modules' => []], $this->runStep('www/install/step_upgrade/process/process_modules.php', ['action' => 'list']));
+        $this->withModule(self::MODULE_PATH, "<?php\n", function (\CentreonDB $db): void {
+            self::assertContains(self::MODULE, $this->listModules());
+
+            $db->query("UPDATE `modules_informations` SET `mod_release` = '1.0.1' WHERE `name` = '" . self::MODULE . "'");
+            self::assertNotContains(self::MODULE, $this->listModules(), 'An up-to-date module is not listed');
+        });
     }
 
-    public function testTheUpgradeWizardOnlyUpgradesAnOutdatedModule(): void
+    public function testTheUpgradeWizardUpgradesAnOutdatedModule(): void
     {
-        // Never a path built from the request: an unknown or traversing id is ignored.
+        $this->withModule(self::MODULE_PATH, "<?php\necho 'noise';\n", function (): void {
+            self::assertSame(
+                ['result' => 0, 'msg' => 'OK'],
+                $this->runStep('www/install/step_upgrade/process/process_modules.php', ['action' => 'update', 'id' => self::MODULE]),
+                'The output of the upgrade scripts is not part of the response',
+            );
+            self::assertSame('1.0.1', $this->moduleRelease(self::MODULE));
+            self::assertNotContains(self::MODULE, $this->listModules());
+        });
+    }
+
+    public function testTheUpgradeWizardReportsAnUnknownModule(): void
+    {
         self::assertSame(
-            ['result' => 0, 'msg' => 'OK'],
-            $this->runStep('www/install/step_upgrade/process/process_modules.php', ['action' => 'update', 'id' => '../../../tmp/evil']),
+            ['result' => 0, 'warning' => true, 'msg' => 'Module not found'],
+            $this->runStep('www/install/step_upgrade/process/process_modules.php', ['action' => 'update', 'id' => 'centreon-wizard-unknown']),
+        );
+    }
+
+    public function testTheUpgradeWizardNeverUpgradesAModuleOutsideTheModulesDirectory(): void
+    {
+        $marker = 'var/wizard-traversal/upgraded';
+        $this->withModule(
+            'var/wizard-traversal/' . self::MODULE,
+            \sprintf("<?php\nfile_put_contents(%s, '');\n", var_export(\dirname(__DIR__, 6) . '/' . $marker, true)),
+            function () use ($marker): void {
+                self::assertSame(
+                    ['result' => 0, 'warning' => true, 'msg' => 'Module not found'],
+                    $this->runStep(
+                        'www/install/step_upgrade/process/process_modules.php',
+                        ['action' => 'update', 'id' => '../../var/wizard-traversal/' . self::MODULE],
+                    ),
+                );
+                self::assertFileDoesNotExist(\dirname(__DIR__, 6) . '/' . $marker);
+                self::assertSame('1.0.0', $this->moduleRelease(self::MODULE));
+            },
         );
     }
 
@@ -109,33 +151,15 @@ final class WizardStepsTest extends TestCase
 
     public function testAFailingModuleUpgradeIsAWarningAnsweredWithCleanJson(): void
     {
-        $modulePath = 'www/modules/centreon-wizard-fixture';
-        $filesystem = new Filesystem();
-        $filesystem->dumpFile(
-            $modulePath . '/conf.php',
-            "<?php\n\$module_conf['centreon-wizard-fixture'] = ['name' => 'centreon-wizard-fixture', 'rname' => 'Wizard fixture', "
-            . "'mod_release' => '1.0.1', 'infos' => '', 'is_removeable' => '1', 'author' => 'Centreon', 'svc_tools' => '0', 'host_tools' => '0'];\n",
-        );
         // Legacy upgrade scripts may print before failing.
-        $filesystem->dumpFile($modulePath . '/upgrade/1.0.1/php/upgrade.php', "<?php\necho 'noise';\nthrow new Exception('the fixture upgrade failed');\n");
-
-        $db = $this->db();
-        $db->query(
-            'INSERT INTO `modules_informations` (`name`, `rname`, `mod_release`, `is_removeable`, `infos`, `author`, `svc_tools`, `host_tools`)'
-            . " VALUES ('centreon-wizard-fixture', 'Wizard fixture', '1.0.0', '1', '', 'Centreon', '0', '0')",
-        );
-
-        try {
-            $response = $this->runStep('www/install/step_upgrade/process/process_modules.php', ['action' => 'update', 'id' => 'centreon-wizard-fixture']);
+        $this->withModule(self::MODULE_PATH, "<?php\necho 'noise';\nthrow new Exception('the fixture upgrade failed');\n", function (): void {
+            $response = $this->runStep('www/install/step_upgrade/process/process_modules.php', ['action' => 'update', 'id' => self::MODULE]);
 
             self::assertSame(0, $response['result'], 'A module failure must not block the wizard');
             self::assertTrue($response['warning'] ?? false);
             self::assertIsString($response['msg']);
             self::assertStringContainsString('the fixture upgrade failed', $response['msg']);
-        } finally {
-            $db->query("DELETE FROM `modules_informations` WHERE `name` = 'centreon-wizard-fixture'");
-            $filesystem->remove($modulePath);
-        }
+        });
     }
 
     public function testTheUpgradeWizardAnnouncesTheTargetOfTheNewKernel(): void
@@ -167,6 +191,56 @@ final class WizardStepsTest extends TestCase
         self::assertIsArray($response);
 
         return $response;
+    }
+
+    /**
+     * A module installed at 1.0.0 whose code is at 1.0.1.
+     *
+     * @param callable(\CentreonDB): void $test
+     */
+    private function withModule(string $modulePath, string $upgradeScript, callable $test): void
+    {
+        $root = \dirname(__DIR__, 6) . '/';
+        $filesystem = new Filesystem();
+        $filesystem->dumpFile(
+            $root . $modulePath . '/conf.php',
+            "<?php\n\$module_conf['" . self::MODULE . "'] = ['name' => '" . self::MODULE . "', 'rname' => 'Wizard fixture', "
+            . "'mod_release' => '1.0.1', 'infos' => '', 'is_removeable' => '1', 'author' => 'Centreon', 'svc_tools' => '0', 'host_tools' => '0'];\n",
+        );
+        $filesystem->dumpFile($root . $modulePath . '/upgrade/1.0.1/php/upgrade.php', $upgradeScript);
+
+        $db = $this->db();
+        $db->query(
+            'INSERT INTO `modules_informations` (`name`, `rname`, `mod_release`, `is_removeable`, `infos`, `author`, `svc_tools`, `host_tools`)'
+            . " VALUES ('" . self::MODULE . "', 'Wizard fixture', '1.0.0', '1', '', 'Centreon', '0', '0')",
+        );
+
+        try {
+            $test($db);
+        } finally {
+            $db->query("DELETE FROM `modules_informations` WHERE `name` = '" . self::MODULE . "'");
+            $filesystem->remove([$root . self::MODULE_PATH, $root . 'var/wizard-traversal']);
+        }
+    }
+
+    /**
+     * @return list<mixed>
+     */
+    private function listModules(): array
+    {
+        $response = $this->runStep('www/install/step_upgrade/process/process_modules.php', ['action' => 'list']);
+        self::assertSame(0, $response['result']);
+        self::assertIsList($response['modules']);
+
+        return $response['modules'];
+    }
+
+    private function moduleRelease(string $module): mixed
+    {
+        return $this->db()->fetchOne(
+            'SELECT `mod_release` FROM `modules_informations` WHERE `name` = :name',
+            QueryParameters::create([QueryParameter::string('name', $module)]),
+        );
     }
 
     private function db(): \CentreonDB
