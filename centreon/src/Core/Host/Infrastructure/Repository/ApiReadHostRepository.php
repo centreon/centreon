@@ -236,4 +236,20 @@ class ApiReadHostRepository implements ReadHostRepositoryInterface
     {
         throw RepositoryException::notYetImplemented();
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function findHostGroupIdsByHostIds(array $hostIds): array
+    {
+        throw RepositoryException::notYetImplemented();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findParentHostIdsByHostIds(array $hostIds): array
+    {
+        throw RepositoryException::notYetImplemented();
+    }
 }

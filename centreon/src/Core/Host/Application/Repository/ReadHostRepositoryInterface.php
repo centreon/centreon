@@ -199,4 +199,27 @@ interface ReadHostRepositoryInterface
      * @return array<int, array<array{parent_id:int,child_id:int,order:int}>> Map of hostId => array of parent relations
      */
     public function findParentsByHostIds(array $hostIds): array;
+
+    /**
+     * Retrieve the active hostgroup IDs of multiple hosts (batch version).
+     *
+     * @param int[] $hostIds
+     *
+     * @throws \Throwable
+     *
+     * @return array<int, int[]> Map of hostId => array of hostgroup IDs
+     */
+    public function findHostGroupIdsByHostIds(array $hostIds): array;
+
+    /**
+     * Retrieve the monitoring parent host IDs of multiple hosts (batch version,
+     * host_hostparent_relation — not to be confused with template inheritance).
+     *
+     * @param int[] $hostIds
+     *
+     * @throws \Throwable
+     *
+     * @return array<int, int[]> Map of hostId => array of parent host IDs
+     */
+    public function findParentHostIdsByHostIds(array $hostIds): array;
 }
