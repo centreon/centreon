@@ -409,6 +409,52 @@ mysql -h"${MYSQL_HOST}" -uroot "${MYSQL_DB_CONFIGURATION}" -e "
   WHERE @master IS NOT NULL AND @has_rrd = 0;
 "
 
+# rrdcached (MON-213837): write-cache TCP sidecar for Central's merged RRD
+# output, its own independent service/hostname (not sharing centreon-broker's
+# network namespace — DESIGN CHANGE, see trixie/README.md: G9/MON-213839 adds
+# a 'host' key to the rrd output, find_param(cfg, "host", false, "localhost")
+# in broker.class.php, letting cbd dial out to a separate container instead
+# of requiring netns sharing). Disabled by default stack-wide (RRDCACHED_PORT
+# unset) until a BROKER_TAG carrying that fix is in use (C12). Idempotent
+# BOTH ways, on every start (UPDATE/DELETE+INSERT, not INSERT-if-missing): an
+# unset/empty RRDCACHED_PORT forces 'disable' and drops the 'host' row
+# explicitly rather than leaving whatever was there — otherwise toggling
+# rrdcached off on an already-running release would leave cbd configured for
+# tcp with nothing listening on the other end.
+if [ -n "${RRDCACHED_PORT:-}" ]; then
+  echo "Enabling rrdcached for Central's RRD output (${RRDCACHED_HOST:-rrdcached}:${RRDCACHED_PORT})..."
+  RRD_CACHED_OPTION_VALUE=tcp
+  RRD_CACHED_VALUE="${RRDCACHED_PORT}"
+  RRD_HOST_VALUE="${RRDCACHED_HOST:-rrdcached}"
+else
+  echo "Disabling rrdcached for Central's RRD output (RRDCACHED_PORT unset)..."
+  RRD_CACHED_OPTION_VALUE=disable
+  RRD_CACHED_VALUE=""
+  RRD_HOST_VALUE=""
+fi
+mysql -h"${MYSQL_HOST}" -uroot "${MYSQL_DB_CONFIGURATION}" -e "
+  SET @master = (
+    SELECT b.config_id FROM cfg_centreonbroker b
+      JOIN cfg_centreonbroker_info i ON i.config_id = b.config_id
+     WHERE b.ns_nagios_server = ${CENTRAL_ID} AND b.daemon = '1'
+       AND i.config_group = 'output' AND i.config_key = 'type' AND i.config_value = 'unified_sql'
+     LIMIT 1);
+  SET @rrd_gid = (
+    SELECT config_group_id FROM cfg_centreonbroker_info
+     WHERE config_id = @master AND config_group = 'output'
+       AND config_key = 'type' AND config_value = 'rrd'
+     LIMIT 1);
+  UPDATE cfg_centreonbroker_info SET config_value = '${RRD_CACHED_OPTION_VALUE}'
+   WHERE config_id = @master AND config_group_id = @rrd_gid AND config_key = 'rrd_cached_option';
+  UPDATE cfg_centreonbroker_info SET config_value = '${RRD_CACHED_VALUE}'
+   WHERE config_id = @master AND config_group_id = @rrd_gid AND config_key = 'rrd_cached';
+  DELETE FROM cfg_centreonbroker_info
+   WHERE config_id = @master AND config_group_id = @rrd_gid AND config_key = 'host';
+  INSERT INTO cfg_centreonbroker_info (config_id, config_key, config_value, config_group, config_group_id)
+  SELECT @master, 'host', '${RRD_HOST_VALUE}', 'output', @rrd_gid
+   WHERE @master IS NOT NULL AND @rrd_gid IS NOT NULL AND '${RRD_HOST_VALUE}' != '';
+"
+
 # Central's engine logs straight to the container's stdout instead of a file
 # on its volume that the engine image tails (and that grows for the pod's
 # whole life). The image skips its tail for /dev/std*. An empty log_file
