@@ -1,7 +1,7 @@
 meta {
   name: POST /administration/tokens - Create token expiring in a few seconds - HTTP 201
   type: http
-  seq: 2
+  seq: 4
 }
 
 post {
@@ -25,7 +25,7 @@ assert {
 
 script:pre-request {
   // The expiration date is only a few seconds ahead: the token expires by itself during the run.
-  const expirationMs = Date.now() + 4000;
+  const expirationMs = Date.now() + 10000;
   bru.setVar("ExpiringTokenExpirationMs", expirationMs);
   bru.setVar(
     "ExpiringTokenExpirationDate",

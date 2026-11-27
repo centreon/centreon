@@ -1,0 +1,24 @@
+meta {
+  name: DELETE /administration/tokens - Remove leftover expiring token - HTTP 204 or 404
+  type: http
+  seq: 2
+}
+
+delete {
+  url: {{baseUrlWeb}}/administration/tokens/{{ExpiringTokenName}}/users/{{currentUserID}}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: in [204, 404]
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  Keeps the folder replayable: a run interrupted before its final DELETE requests leaves this token behind, and the next creation would then be refused. 404 is the normal answer on a clean platform.
+}
