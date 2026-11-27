@@ -69,6 +69,19 @@ if (isset($ret) && is_array($ret) && $ret['topology_page'] != '' && $p != $ret['
     $p = $ret['topology_page'];
 }
 
+// Metric edit/duplicate/delete requests carry msr_id, not meta_id. Resolve the
+// owning meta service id so the ACL check below cannot be bypassed and the
+// listing links keep the right context.
+if (! $meta_id && $msr_id) {
+    $metaLookup = $pearDB->prepare('SELECT meta_id FROM meta_service_relation WHERE msr_id = :msr_id');
+    $metaLookup->bindValue(':msr_id', $msr_id, PDO::PARAM_INT);
+    $metaLookup->execute();
+    $metaRow = $metaLookup->fetch();
+    if ($metaRow !== false) {
+        $meta_id = (int) $metaRow['meta_id'];
+    }
+}
+
 $acl = new CentreonACL($oreon->user->get_id(), $oreon->user->admin);
 $aclDbName = $acl->getNameDBAcl();
 $metaStr = $acl->getMetaServiceString();
