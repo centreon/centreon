@@ -38,6 +38,29 @@ final class WizardStepsTest extends TestCase
 {
     private const MODULE = 'centreon-wizard-fixture';
     private const MODULE_PATH = 'www/modules/' . self::MODULE;
+    private const MISSING_MIGRATION = 'Centreon\\\\Migrations\\\\Configuration\\\\Version19700101000000';
+
+    private mixed $platformVersion;
+
+    protected function setUp(): void
+    {
+        $db = $this->db();
+        // The migrations record the version of the code base when no legacy script is pending.
+        $this->platformVersion = $db->fetchOne("SELECT `value` FROM `informations` WHERE `key` = 'version'");
+        // Left by an interrupted run, it would make every migration fail.
+        if ($db->fetchOne("SHOW TABLES LIKE 'doctrine_migration_versions'") !== false) {
+            $db->query("DELETE FROM `doctrine_migration_versions` WHERE `version` LIKE '%Version19700101000000'");
+        }
+    }
+
+    protected function tearDown(): void
+    {
+        self::assertIsString($this->platformVersion);
+        $this->db()->executeStatement(
+            "UPDATE `informations` SET `value` = :version WHERE `key` = 'version'",
+            QueryParameters::create([QueryParameter::string('version', $this->platformVersion)]),
+        );
+    }
 
     public function testTheInstallWizardAppliesTheMigrations(): void
     {
@@ -127,8 +150,10 @@ final class WizardStepsTest extends TestCase
     public function testAMigrationFailureStopsTheWizard(): void
     {
         // An executed migration missing from the code base makes the configuration set fail.
+        $migrated = $this->runStep('www/install/steps/process/migrateDatabases.php');
+        self::assertSame(0, $migrated['result'], 'The metadata table exists');
         $db = $this->db();
-        $db->query("INSERT INTO `doctrine_migration_versions` (`version`) VALUES ('Centreon\\\\Migrations\\\\Configuration\\\\Version19700101000000')");
+        $db->query("INSERT INTO `doctrine_migration_versions` (`version`) VALUES ('" . self::MISSING_MIGRATION . "')");
 
         try {
             $install = $this->runStep('www/install/steps/process/migrateDatabases.php');
@@ -164,14 +189,18 @@ final class WizardStepsTest extends TestCase
 
     public function testTheUpgradeWizardAnnouncesTheTargetOfTheNewKernel(): void
     {
-        $target = fn (string $legacy): string => trim($this->runCode(\sprintf(
-            "include 'www/install/steps/functions.php'; echo getUpgradeTargetVersion(%s);",
-            var_export($legacy, true),
-        )));
         $console = (new Process([\PHP_BINARY, 'bin/console.new', 'centreon:upgrade:target-version', '26.09.1'], \dirname(__DIR__, 6)))->mustRun();
 
-        self::assertSame(trim($console->getOutput()), $target('26.09.1'));
-        self::assertSame('99.0.0', $target('99.0.0'), 'A legacy script recorded a later version');
+        self::assertSame([trim($console->getOutput()), 0], $this->targetVersion('26.09.1'), 'Asked to the new kernel, without a fallback logged');
+        self::assertSame('99.0.0', $this->targetVersion('99.0.0')[0], 'A legacy script recorded a later version');
+    }
+
+    public function testTheUpgradeWizardAnnouncesTheLegacyVersionWhenTheNewKernelFails(): void
+    {
+        [$version, $logged] = $this->targetVersion('--not-an-option');
+
+        self::assertSame('--not-an-option', $version);
+        self::assertGreaterThan(0, $logged, 'The fallback is logged');
     }
 
     /**
@@ -191,6 +220,22 @@ final class WizardStepsTest extends TestCase
         self::assertIsArray($response);
 
         return $response;
+    }
+
+    /**
+     * @return array{string, int} the version announced, and the bytes it added to the upgrade log
+     */
+    private function targetVersion(string $legacy): array
+    {
+        $output = $this->runCode(\sprintf(
+            'include \'www/install/steps/functions.php\'; $log = ' . \Adaptation\Log\LoggerUpgrade::class . '::logFile(); clearstatcache();'
+            . ' $size = is_file($log) ? filesize($log) : 0; $version = getUpgradeTargetVersion(%s); clearstatcache();'
+            . ' echo $version, "\\n", (is_file($log) ? filesize($log) : 0) - $size;',
+            var_export($legacy, true),
+        ));
+        [$version, $logged] = explode("\n", trim($output)) + ['', ''];
+
+        return [$version, (int) $logged];
     }
 
     /**
