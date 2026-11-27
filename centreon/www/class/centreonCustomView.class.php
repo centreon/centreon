@@ -458,7 +458,7 @@ class CentreonCustomView
         } elseif ($this->checkOwnerViewStatus($customViewId) == 0) {
             // if owner consumed = 0 -> delete
             // if not other shared view consumed, delete all
-            if (! $this->checkOtherShareViewUnlocked($customViewId, $this->userId)) {
+            if (! $this->checkOtherShareViewUnlocked($this->userId, $customViewId)) {
                 $query = 'DELETE FROM custom_views WHERE custom_view_id = :viewId';
                 $stmt = $this->db->prepare($query);
                 $stmt->bindParam(':viewId', $customViewId, PDO::PARAM_INT);
