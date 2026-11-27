@@ -10,7 +10,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-01-01 00:00+0000\n"
 "PO-Revision-Date: 2026-11-27 09:59+0000\n"
-"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Last-Translator: admin <noreply@centreon.com>\n"
 "Language-Team: English (United States) <https://weblate.prod.centreon.io/projects/centreon-infra-monitoring/26-10/web-messages-26-10/en_US/>\n"
 "Language: en_US\n"
 "MIME-Version: 1.0\n"
@@ -75,7 +75,7 @@ msgstr "* 60 seconds"
 
 #: centreon/www/include/monitoring/external_cmd/popup/massive_downtime.php
 msgid "*The timezone used is configured on your user settings"
-msgstr "*The timezone used is configured on your user settings"
+msgstr "*The timezone used is configured in your user settings"
 
 #: centreon/www/install/front_translate.php
 msgid "0-9"
@@ -675,7 +675,7 @@ msgstr "Add a Data Source Template"
 #: centreon/www/include/configuration/configObject/service_dependency/formServiceDependency.php
 #: centreon/www/include/configuration/configObject/servicegroup_dependency/formServiceGroupDependency.php
 msgid "Add a Dependency"
-msgstr "Add a Dependency"
+msgstr "Add a dependency"
 
 #: centreon/www/include/views/graphTemplates/formGraphTemplate.php
 msgid "Add a Graph Template"
@@ -1960,7 +1960,7 @@ msgstr "Before last year"
 #: centreon/www/include/reporting/dashboard/csvExport/csv_ServiceGroupLogs.php
 #: centreon/www/include/reporting/dashboard/csvExport/csv_ServiceLogs.php
 msgid "Begin date"
-msgstr "Begin date"
+msgstr "Start date"
 
 #: centreon/www/install/front_translate.php
 msgid "Beta"
@@ -11769,7 +11769,7 @@ msgstr "No resource found"
 
 #: centreon/www/install/front_translate.php
 msgid "No result found"
-msgstr "No result found"
+msgstr "No results found"
 
 #: centreon/www/install/front_translate.php
 msgid "No results found"
