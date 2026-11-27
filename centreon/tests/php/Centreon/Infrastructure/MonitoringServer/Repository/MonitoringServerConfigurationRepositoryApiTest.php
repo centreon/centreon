@@ -24,10 +24,16 @@ declare(strict_types=1);
 namespace Tests\Centreon\Infrastructure\MonitoringServer\Repository;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\MonitoringServer\Exception\GorgoneDeliveryException;
+use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Infrastructure\MonitoringServer\Repository\MonitoringServerConfigurationRepositoryApi;
+use Core\Security\Authentication\Domain\Model\AuthenticationTokens;
+use Core\Security\Authentication\Domain\Model\NewProviderToken;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Security\Domain\Authentication\Interfaces\AuthenticationTokenServiceInterface;
+use Symfony\Component\HttpClient\MockHttpClient;
+use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
@@ -77,6 +83,34 @@ class MonitoringServerConfigurationRepositoryApiTest extends TestCase
         );
     }
 
+    public function testGorgoneDeliveryFailureKeepsItsMessageAndReason(): void
+    {
+        $repository = $this->createRepositoryAnswering(
+            '<response><statuscode>1</statuscode>'
+            . '<error>Gorgone node 3 is not connected: nothing has been sent</error>'
+            . '<errorcode>1</errorcode></response>'
+        );
+
+        try {
+            $repository->moveExportFiles(3);
+            $this->fail('A GorgoneDeliveryException was expected');
+        } catch (GorgoneDeliveryException $ex) {
+            $this->assertSame('Gorgone node 3 is not connected: nothing has been sent', $ex->getMessage());
+            $this->assertSame(GorgoneDeliveryException::NODE_NOT_CONNECTED, $ex->getCode());
+        }
+    }
+
+    public function testOtherFailureStaysARepositoryException(): void
+    {
+        $repository = $this->createRepositoryAnswering(
+            '<response><statuscode>1</statuscode><error>Could not read file</error></response>'
+        );
+
+        $this->expectException(RepositoryException::class);
+        $this->expectExceptionMessage('Could not read file');
+        $repository->moveExportFiles(3);
+    }
+
     /**
      * @return iterable<string, array{?string, array<string, string>, string}>
      */
@@ -119,5 +153,21 @@ class MonitoringServerConfigurationRepositoryApiTest extends TestCase
             [],
             'http://httpd:80/centreon',
         ];
+    }
+
+    private function createRepositoryAnswering(string $xml): MonitoringServerConfigurationRepositoryApi
+    {
+        $authenticationTokens = $this->createStub(AuthenticationTokens::class);
+        $authenticationTokens->method('getProviderToken')
+            ->willReturn(new NewProviderToken('token', new \DateTimeImmutable()));
+        $authenticationTokenService = $this->createMock(AuthenticationTokenServiceInterface::class);
+        $authenticationTokenService->method('findByContact')->willReturn($authenticationTokens);
+
+        return new MonitoringServerConfigurationRepositoryApi(
+            $authenticationTokenService,
+            $this->createMock(ContactInterface::class),
+            new MockHttpClient(new MockResponse($xml)),
+            'http://httpd:80',
+        );
     }
 }
