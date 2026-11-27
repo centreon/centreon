@@ -454,6 +454,7 @@ sed -i \
     -e 's/^#LoadModule deflate_module/LoadModule deflate_module/' \
     -e 's/^#LoadModule proxy_module/LoadModule proxy_module/' \
     -e 's/^#LoadModule proxy_fcgi_module/LoadModule proxy_fcgi_module/' \
+    -e 's/^#LoadModule proxy_wstunnel_module/LoadModule proxy_wstunnel_module/' \
     conf/httpd.conf
 echo 'ServerName localhost' >> conf/httpd.conf
 echo 'Include conf/extra/centreon.conf' >> conf/httpd.conf
@@ -472,7 +473,8 @@ COPY --chmod=755 .github/docker/centreon-web-split/trixie/entrypoint/httpd \
 # specific (compose service name, k8s Service name, ...) — never bake a value
 # in the image, substitute it at container start instead (see 10-config.sh).
 ENV HTTPD_SERVER_NAME=centreon-httpd \
-    PHP_FPM_UPSTREAM=php-fpm:9000
+    PHP_FPM_UPSTREAM=php-fpm:9000 \
+    GORGONE_WSS_UPSTREAM=localhost:8087
 
 # Note: `httpd -t` isn't run at build time on purpose — conf/extra/centreon.conf
 # only exists after 10-config.sh resolves the template at container start, so
