@@ -235,3 +235,26 @@ When('the user clicks on the link', () => {
   // Check that the link is added as comments
   cy.waitForElementInIframe('#main-content', `a:contains("${link}")`);
 });
+
+When(
+  'the user visits the services status page in a browser without native XSLT',
+  () => {
+    // Visit the iframe content directly: onBeforeLoad does not reach the legacy iframe.
+    // Open it on the 'All' filter, as the default 'Unhandled Problems' one hides an OK service.
+    cy.visit(`${PAGES.monitoring.statusDetailsServicesLegacyFrame}&o=svc`, {
+      onBeforeLoad: (win) => {
+        // Simulate a browser that removed XSLT, like recent Chrome versions
+        Reflect.deleteProperty(win, 'XSLTProcessor');
+      }
+    });
+  }
+);
+
+Then('the XSLT compatibility module is loaded', () => {
+  // Check the window flag rather than the request: a retry serves the script from cache.
+  cy.window().its('xsltPolyfillInstalled').should('equal', true);
+});
+
+Then('the configured passive service is listed', () => {
+  cy.contains('a', services.serviceOk.name).should('exist');
+});
