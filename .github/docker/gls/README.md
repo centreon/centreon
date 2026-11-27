@@ -107,6 +107,12 @@ The command holds the poller token, the appsecret and the salt: do not paste it 
 - The poller runs only programs from its allow-list (`/etc/centreon-engine-exec/*.json`; by default `/usr/lib/centreon/plugins/*`). The e2e mounts a stub plugin there: `fixtures/gls_disco_stub`.
 - Discovery jobs need a valid autodiscovery license (see above).
 
+## License fingerprint in containers (phase 3, MON-216369)
+
+- fpm and `autodiscovery-worker` set `CENTREON_LICENSE_FINGERPRINT=instance` (override: `GLS_LICENSE_FINGERPRINT`). LM then uses the sha256 of an instance id stored encrypted in the DB, not the MACs. It is the same on every container of the central and survives a recreate (same DB, same `APP_SECRET`). An unset, empty or other value means MAC mode.
+- Read it: `docker compose -p gls-central exec -u www-data fpm php /usr/share/centreon/bin/console.new centreon-license-manager:fingerprint`. For an intentional clone, `--regenerate` prints a new fingerprint (refused in MAC mode).
+- The `license-fingerprint` step checks these points and prints only fingerprints.
+
 ## UI and API
 
 - UI: <http://localhost:18180/centreon/> (keep the trailing slash). Log in as `admin` / `Centreon!2021`, the install default, unless `ADMIN_PW` was changed.

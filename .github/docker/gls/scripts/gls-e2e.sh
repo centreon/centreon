@@ -15,6 +15,7 @@
 #   gls-e2e.sh disco              host discovery through cbd /v1/executions: FINISH, REJECTED, TIMEOUT, cap, exit, secret, NOT_CONNECTED
 #   gls-e2e.sh disco-scheduled    cron discovery job, automatic save + export to the poller, pause
 #   gls-e2e.sh install-script     poller added with the generated install.sh command (broker channel), no secret leaked
+#   gls-e2e.sh license-fingerprint LM instance fingerprint: fpm == worker, kept on recreate, regenerate, MAC mode, license valid
 #   gls-e2e.sh logs | down
 #
 # Env: GLS_REGISTRY, GLS_WEB_TAG, GLS_ENGINE_TAG, GLS_BROKER_TAG override images.env;
@@ -1398,6 +1399,95 @@ cmd_rrd() {
     || record "rrd: no RRD connect error in the central cbd after startup" ko "$n1 -> $n2"
 }
 
+# ---------- license-fingerprint: LM instance fingerprint in containers (phase 3, MON-216369) ----------
+# CENTREON_LICENSE_FINGERPRINT=instance on fpm + worker: fingerprint = sha256 of the
+# encrypted instance id in the DB, not of the MACs. Only fingerprints (sha256) are printed;
+# the command's stderr stays in $PRIV_DIR.
+
+LM_CONSOLE=/usr/share/centreon/bin/console.new   # the LM command is only wired in console.new
+
+lm_fp() { # lm_fp <service> [--regenerate]: sets FP (stdout last line if sha256) and FP_RC
+  FP=""; FP_RC=0
+  cc exec -T -u www-data "$1" php "$LM_CONSOLE" centreon-license-manager:fingerprint -n --no-ansi ${2:-} \
+    >"$PRIV_DIR/fp.out" 2>>"$PRIV_DIR/license-fp.err" || FP_RC=$?
+  FP=$(tail -n 1 "$PRIV_DIR/fp.out" | tr -d '\r')
+  [[ "$FP" =~ ^[0-9a-f]{64}$ ]] || FP=""
+}
+lm_fp_mac() { # lm_fp_mac [--regenerate]: same, in a one-off worker container without the env (MAC mode)
+  FP=""; FP_RC=0
+  cc run --rm --no-deps -T -e CENTREON_LICENSE_FINGERPRINT= autodiscovery-worker \
+    su -s /bin/sh www-data -c 'exec php "$0" centreon-license-manager:fingerprint -n --no-ansi "$@"' "$LM_CONSOLE" ${1:-} \
+    >"$PRIV_DIR/fp.out" 2>>"$PRIV_DIR/license-fp.err" || FP_RC=$?
+  FP=$(tail -n 1 "$PRIV_DIR/fp.out" | tr -d '\r')
+  [[ "$FP" =~ ^[0-9a-f]{64}$ ]] || FP=""
+}
+svc_env() { cc exec -T "$1" printenv CENTREON_LICENSE_FINGERPRINT 2>/dev/null | tr -d '\r'; }
+svc_mac() { cc exec -T "$1" sh -c 'cat /sys/class/net/eth0/address' 2>/dev/null | tr -d '\r'; }
+fp_s() { printf '%s' "${1:0:16}"; }
+
+cmd_license_fp() {
+  local f1 w1 f2 n1 w2 f3 m1 mf mw rc n
+
+  [[ "$(svc_env fpm)" == instance && "$(svc_env autodiscovery-worker)" == instance ]] \
+    && record "license-fp: CENTREON_LICENSE_FINGERPRINT=instance on fpm and worker" ok \
+    || { record "license-fp: CENTREON_LICENSE_FINGERPRINT=instance on fpm and worker" ko "fpm=$(svc_env fpm) worker=$(svc_env autodiscovery-worker)"; return; }
+
+  # Same image, different MACs, same fingerprint.
+  mf=$(svc_mac fpm); mw=$(svc_mac autodiscovery-worker)
+  lm_fp fpm; f1=$FP; rc=$FP_RC
+  [[ -n "$f1" && $rc == 0 ]] && record "license-fp: fpm prints a sha256 fingerprint" ok "$(fp_s "$f1")" \
+    || { record "license-fp: fpm prints a sha256 fingerprint" ko "exit $rc"; return; }
+  lm_fp autodiscovery-worker; w1=$FP
+  [[ -n "$mf" && -n "$mw" && "$mf" != "$mw" && "$w1" == "$f1" ]] \
+    && record "license-fp: worker (other MAC) prints the same fingerprint" ok "$(fp_s "$w1")" \
+    || record "license-fp: worker (other MAC) prints the same fingerprint" ko "worker $(fp_s "$w1") fpm $(fp_s "$f1") macs differ: $([[ "$mf" != "$mw" ]] && echo yes || echo no)"
+
+  # Kept on an fpm recreate (same DB volume, same APP_SECRET).
+  cc up -d --force-recreate --no-deps fpm >>"$LOG_DIR/license-fp.log" 2>&1
+  if wait_until 300 service_ready cc fpm; then
+    lm_fp fpm; f2=$FP
+    [[ "$f2" == "$f1" && "$(svc_mac fpm)" != "$mf" ]] \
+      && record "license-fp: unchanged after an fpm recreate (new MAC)" ok "$(fp_s "$f2")" \
+      || record "license-fp: unchanged after an fpm recreate (new MAC)" ko "$(fp_s "$f1") -> $(fp_s "$f2")"
+  else
+    record "license-fp: unchanged after an fpm recreate (new MAC)" ko "fpm not ready after recreate"; return
+  fi
+
+  # Regenerate (intentional clone): new value, seen by the worker, then stable.
+  lm_fp fpm --regenerate; n1=$FP; rc=$FP_RC
+  [[ $rc == 0 && -n "$n1" && "$n1" != "$f1" ]] \
+    && record "license-fp: --regenerate prints a new fingerprint" ok "$(fp_s "$f1") -> $(fp_s "$n1")" \
+    || record "license-fp: --regenerate prints a new fingerprint" ko "exit $rc $(fp_s "$n1")"
+  lm_fp autodiscovery-worker; w2=$FP
+  lm_fp fpm; f3=$FP
+  [[ -n "$n1" && "$w2" == "$n1" && "$f3" == "$n1" ]] \
+    && record "license-fp: new fingerprint stable on fpm and worker" ok \
+    || record "license-fp: new fingerprint stable on fpm and worker" ko "fpm $(fp_s "$f3") worker $(fp_s "$w2") new $(fp_s "$n1")"
+
+  # MAC mode (env unset) still works; --regenerate refused there, instance id untouched.
+  lm_fp_mac; m1=$FP; rc=$FP_RC
+  [[ $rc == 0 && -n "$m1" && "$m1" != "$n1" ]] \
+    && record "license-fp: MAC mode without the env (one-off container)" ok "$(fp_s "$m1")" \
+    || record "license-fp: MAC mode without the env (one-off container)" ko "exit $rc $(fp_s "$m1")"
+  lm_fp_mac --regenerate; rc=$FP_RC
+  lm_fp fpm
+  [[ $rc == 1 && "$FP" == "$n1" ]] \
+    && record "license-fp: --regenerate refused in MAC mode, instance fingerprint kept" ok \
+    || record "license-fp: --regenerate refused in MAC mode, instance fingerprint kept" ko "exit $rc, fpm $(fp_s "$FP")"
+
+  # The non-locked CI license stays valid (fpm was recreated: new session, maybe a new httpd upstream).
+  if ! { ui_login && wait_until 60 licenses_are true; }; then
+    cc restart httpd >>"$LOG_DIR/license-fp.log" 2>&1; wait_until 120 service_ready cc httpd; ui_login
+  fi
+  wait_until 60 licenses_are true \
+    && record "license-fp: CI license still valid" ok "$(licenses_state)" \
+    || record "license-fp: CI license still valid" ko "$(licenses_state)"
+
+  n=$(gorgone_procs)
+  [[ "$n" == 0 ]] && record "license-fp: no gorgone process in any gls container" ok || record "license-fp: no gorgone process in any gls container" ko "$n"
+  rm -f "$MOD_JAR" "$PRIV_DIR/ui.out" "$PRIV_DIR/fp.out"
+}
+
 cbd_log_files() { # cbd log files (lost on recreate), lines with credentials dropped
   cc exec -T centreon-broker sh -c 'cat /var/log/centreon-broker/*.log 2>/dev/null' | grep -viE 'password|token|secret' >>"$LOG_DIR/cbd-files.log"
 }
@@ -1440,9 +1530,10 @@ case "$cmd" in
   disco) cmd_disco ;;
   disco-scheduled) cmd_disco_scheduled ;;
   install-script) cmd_install_script ;;
+  license-fingerprint) cmd_license_fp ;;
   logs) cmd_logs; exit 0 ;;
   down) cmd_down; exit 0 ;;
-  *) sed -n '2,22p' "$0"; exit 2 ;;
+  *) sed -n '2,23p' "$0"; exit 2 ;;
 esac
 summary "$cmd $*"
 exit $(( failures > 0 ))

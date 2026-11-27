@@ -162,6 +162,12 @@ jobs:
         run: SUMMARY_FILE="$GITHUB_STEP_SUMMARY" "$SCRIPT" install-script
         shell: bash
 
+      - name: "LM instance fingerprint: fpm == worker, kept on recreate, regenerate, MAC mode"
+        if: ${{ !cancelled() && steps.up.outcome == 'success' }}
+        continue-on-error: ${{ env.GLS_GATE_CRITERIA != 'true' }}
+        run: SUMMARY_FILE="$GITHUB_STEP_SUMMARY" "$SCRIPT" license-fingerprint
+        shell: bash
+
       - name: Collect logs
         if: always()
         run: |

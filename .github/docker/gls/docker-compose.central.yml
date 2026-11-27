@@ -18,6 +18,11 @@ x-secrets: &secrets
   APP_SECRET: "${APP_SECRET:-9cd3e2ccf822916ec8fc5379f8abdaf277860415454f9b91c0913392d4b41f92}"
   SALT: "${SALT:-84e9107f78239bdab2751c3321023a32c3716ed0724a4a8b13de8e7aed8d319d}"
 
+# LM fingerprint from the encrypted instance id in the DB, not the MACs (MON-216369):
+# same value on fpm and worker, kept on recreate. Unset/other value = MAC mode.
+x-license-fp: &license_fp
+  CENTREON_LICENSE_FINGERPRINT: "${GLS_LICENSE_FINGERPRINT:-instance}"
+
 services:
   db:
     image: "${MYSQL_IMAGE:-mariadb:11.8}"
@@ -53,7 +58,7 @@ services:
       db: {condition: service_healthy}
       valkey: {condition: service_healthy}
     environment:
-      <<: [*tz, *secrets]
+      <<: [*tz, *secrets, *license_fp]
       RUN_INSTALL: "true"
       # First central export through the cbd API (generate-and-reload on id 1,
       # retried on 409 until the central peer is capable), contracts § 9.
@@ -107,7 +112,7 @@ services:
     restart: unless-stopped
     command: ["su", "-s", "/bin/sh", "www-data", "-c", "exec /usr/share/centreon/bin/console centreon-autodiscovery:worker"]
     environment:
-      <<: [*tz, *secrets]
+      <<: [*tz, *secrets, *license_fp]
       # Per-container steps only: renders centreon.conf.php and .env, no DB install.
       RUN_INSTALL: "true"
       INSTALL_DB_STEPS: "false"
