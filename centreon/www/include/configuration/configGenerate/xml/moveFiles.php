@@ -29,7 +29,9 @@ use Centreon\Domain\MonitoringServer\Exception\IncompleteGenerationException;
 use Centreon\Infrastructure\Gorgone\LegacyCommandException;
 use Centreon\Infrastructure\Gorgone\LegacyCommandSender;
 use Centreon\Infrastructure\MonitoringServer\ConfigurationGenerationStatus;
+use Centreon\Infrastructure\RemoteChannel\LegacyRemoteChannelBridge;
 use Centreon\Infrastructure\Service\VmwareConfigurationService;
+use Core\RemoteChannel\Domain\Model\DeploymentAction;
 
 require_once realpath(__DIR__ . '/../../../../../config/centreon.config.php');
 require_once realpath(__DIR__ . '/../../../../../config/bootstrap.php');
@@ -227,6 +229,12 @@ try {
         }
     }
 
+    // Gorgone-less PoC (MON-215450): pollers reached through the central broker (nagios_server.remote_channel),
+    // the central poller included. Their files are sent through the central broker remote API, never copied
+    // locally nor handed to Gorgone.
+    $remoteChannelBridge = LegacyRemoteChannelBridge::create();
+    $brokerPollers = $remoteChannelBridge->findBrokerPollers(array_keys($tab_server));
+
     // SELECT Remote Servers from selected pollers
     // Then add all simple pollers linked directly to those Remote Servers
     // Then add all pollers which have an additional link to those Remote Servers
@@ -298,6 +306,10 @@ try {
         if (isset($pollers) && ($pollers == 0 || in_array($host['id'], $pollers))) {
             $listBrokerFile = glob($centreonBrokerPath . $host['id'] . '/*.{xml,json,cfg,sql}', GLOB_BRACE);
             $listVmWareFile = glob($vmWareConfigPath . $host['id'] . '/*.json', GLOB_BRACE);
+            if (isset($brokerPollers[(int) $host['id']])) {
+                // Sent below to every broker poller at once
+                continue;
+            }
             if ($legacyCommandSender->isContainerized((int) $host['id'])) {
                 // Configuration files are embedded in the request: Gorgone does not share the cache directory.
                 // Sent below to every containerized poller at once.
@@ -441,6 +453,8 @@ try {
             $vmwareConfigurationService->restartIfConfigurationChanged($pollerId, false);
         }
     }
+    // MON-215450: files only (action none), the reload is the restartPollers step
+    $failures += $remoteChannelBridge->deploy($brokerPollers, DeploymentAction::None, true);
     if ($failures !== []) {
         // MON-214616: the pollers delivered (the others, containerized or not) can still be reloaded
         $deliveredPollers = array_values(array_diff(array_map('intval', array_keys($tab_server)), array_keys($failures)));

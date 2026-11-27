@@ -36,6 +36,25 @@ $errorMessage = '';
 
 // TODO add your functions here
 
+// Gorgone-less PoC (MON-215450): channel used to reach each poller
+$addRemoteChannelColumn = function () use ($pearDB, &$errorMessage): void {
+    $errorMessage = 'Unable to add remote_channel column to nagios_server';
+    if ($pearDB->columnExists(
+        $pearDB->getConnectionConfig()->getDatabaseNameConfiguration(),
+        'nagios_server',
+        'remote_channel'
+    )) {
+        return;
+    }
+
+    $pearDB->executeStatement(
+        <<<'SQL'
+            ALTER TABLE `nagios_server` ADD COLUMN `remote_channel` enum('gorgone','broker') NOT NULL DEFAULT 'gorgone'
+            COMMENT 'gorgone: Gorgone legacycmd, broker: central broker remote API'
+            SQL
+    );
+};
+
 try {
     LoggerUpgrade::create()->info($version, "Starting upgrade script for version {$version}");
 
@@ -44,6 +63,7 @@ try {
 
     // DDL statements for configuration database
     // TODO add your function calls to update the configuration database structure here
+    $addRemoteChannelColumn();
 
     // Transactional queries for configuration database
     $errorMessage = 'Unable to start the configuration database transaction';

@@ -2,6 +2,9 @@ LANG=C
 LC_CTYPE=C
 
 function exitMain() {
+  if [ ${#TMP_FILES[@]} -gt 0 ]; then
+    rm -f "${TMP_FILES[@]}"
+  fi
   logInfo Exit the program
   closeLog
 }

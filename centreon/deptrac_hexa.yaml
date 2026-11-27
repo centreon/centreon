@@ -92,6 +92,8 @@ parameters:
             - Core\Common\Application\VaultEligibilityService
         App\Security\Infrastructure\Security\Legacy\LegacyTokenApiAuthenticatorWrapper:
             - Security\TokenAPIAuthenticator
+        App\MonitoringConfiguration\Infrastructure\Legacy\LegacyBrokerCaProvider:
+            - Core\RemoteChannel\Infrastructure\Broker\BrokerCaReader
         App\MonitoringConfiguration\Infrastructure\Legacy\LegacyGorgoneNodesSynchronizer:
             - Centreon\Domain\Gorgone\Command\NodesSync
             - Centreon\Domain\Gorgone\GorgoneException

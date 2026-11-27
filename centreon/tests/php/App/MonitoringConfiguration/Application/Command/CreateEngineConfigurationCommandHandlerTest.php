@@ -26,6 +26,7 @@ namespace Tests\App\MonitoringConfiguration\Application\Command;
 use App\MonitoringConfiguration\Application\Command\CreateEngineConfigurationCommand;
 use App\MonitoringConfiguration\Application\Command\CreateEngineConfigurationCommandHandler;
 use App\MonitoringConfiguration\Domain\Aggregate\EngineConfiguration\BrokerOptions;
+use App\MonitoringConfiguration\Domain\Aggregate\EngineConfiguration\RetentionOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use PHPUnit\Framework\TestCase;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeEngineConfigurationRepository;
@@ -119,6 +120,37 @@ final class CreateEngineConfigurationCommandHandlerTest extends TestCase
         $cfg = array_values($repository->engineConfigurations)[0];
         self::assertTrue($cfg->freshnessAndFlap->enableFlapDetection);
         self::assertTrue($cfg->checkExecution->hostDownDisableServiceChecks);
+    }
+
+    public function testItKeepsThePackageRetentionFileByDefault(): void
+    {
+        $repository = new FakeEngineConfigurationRepository();
+        $handler = new CreateEngineConfigurationCommandHandler($repository, stateRetentionFile: '');
+
+        $handler(new CreateEngineConfigurationCommand(
+            pollerId: new PollerId(1),
+            pollerName: 'Test',
+        ));
+
+        $cfg = array_values($repository->engineConfigurations)[0];
+        self::assertSame(RetentionOptions::DEFAULT_STATE_RETENTION_FILE, $cfg->retention->stateRetentionFile);
+    }
+
+    public function testItUsesTheConfiguredRetentionFile(): void
+    {
+        $repository = new FakeEngineConfigurationRepository();
+        $handler = new CreateEngineConfigurationCommandHandler(
+            $repository,
+            stateRetentionFile: '/var/lib/centreon-engine/retention.dat',
+        );
+
+        $handler(new CreateEngineConfigurationCommand(
+            pollerId: new PollerId(1),
+            pollerName: 'Test',
+        ));
+
+        $cfg = array_values($repository->engineConfigurations)[0];
+        self::assertSame('/var/lib/centreon-engine/retention.dat', $cfg->retention->stateRetentionFile);
     }
 
     public function testItSetsBrokerModulePath(): void

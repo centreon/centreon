@@ -52,6 +52,16 @@ if ((getenv('GORGONE_API_USERNAME') ?: '') !== '' && (getenv('GORGONE_API_PASSWO
         . base64_encode(getenv('GORGONE_API_USERNAME') . ':' . getenv('GORGONE_API_PASSWORD'))];
 }
 $gorgoneNodeId = $pollerId;
+// Gorgone-less PoC (MON-215450): CONFIG_DELIVERY_CHANNEL=broker (default when CENTREON_BROKER_API_URL is set and
+// GORGONE_API_BASE_URL is not) skips every Gorgone call. With the broker channel, generate-and-reload answers 204
+// only once the poller applied its configuration, and 409 when it is not connected to the central broker, so no
+// connection wait is needed: the calling shell loop retries on 409. With this channel 12-install.sh puts the central
+// poller on remote_channel=broker, so its first configuration goes through the central cbd as well (no local copy).
+$deliveryChannel = getenv('CONFIG_DELIVERY_CHANNEL') ?: (
+    (getenv('CENTREON_BROKER_API_URL') ?: '') !== '' && (getenv('GORGONE_API_BASE_URL') ?: '') === ''
+        ? 'broker'
+        : 'gorgone'
+);
 // generate-and-reload chains the generation (bounded by the web's
 // CENTREON_CONFIGURATION_GENERATION_TIMEOUT, 60s when empty) and the two
 // deliveries that wait for gorgone's final result (moveFiles then
@@ -118,30 +128,42 @@ function isGorgoneNodeConnected(string $gorgoneApiBase, string $nodeId): bool
 // resync whenever the node isn't connected yet is idempotent and fixes it
 // whatever the start order (confirmed on k3d: one manual resync and the
 // poller was accepted on its next pullwss retry).
-if (! isGorgoneNodeConnected($gorgoneApiBase, $gorgoneNodeId)) {
-    [$syncStatus] = apiCall('POST', "{$gorgoneApiBase}/centreon/nodes/sync", '{}', array_merge(['Content-Type: application/json'], $gorgoneAuth));
-    echo "Gorgone node {$gorgoneNodeId} not connected, requested a nodes resync (HTTP {$syncStatus}).\n";
-}
-// Bounded wait, not indefinite: stays under the shell loop's own 60s retry
-// interval so this never doubles up with it, and falls through to
-// attempting delivery anyway on timeout (see the file-level comment above).
-$maxWaitSeconds = 55;
-$pollIntervalSeconds = 2;
-$waited = 0;
-while ($waited < $maxWaitSeconds && ! isGorgoneNodeConnected($gorgoneApiBase, $gorgoneNodeId)) {
-    sleep($pollIntervalSeconds);
-    $waited += $pollIntervalSeconds;
+if ($deliveryChannel === 'broker') {
+    echo "Broker delivery channel: no Gorgone connection check.\n";
+} else {
+    waitForGorgoneNode($gorgoneApiBase, $gorgoneNodeId, $gorgoneAuth);
 }
 
-if ($waited >= $maxWaitSeconds && getenv('CONFIG_DELIVERY_REQUIRE_CONNECTED') === '1') {
-    // A 204 without a connected node delivers nothing, so a one-shot caller
-    // (the helm chart's config-delivery Job) must not count it as done.
-    fwrite(STDERR, "Gorgone node {$gorgoneNodeId} not connected after {$maxWaitSeconds}s, not attempting delivery.\n");
-    exit(1);
-} elseif ($waited >= $maxWaitSeconds) {
-    echo "Gorgone node {$gorgoneNodeId} not confirmed connected after {$maxWaitSeconds}s, attempting delivery anyway.\n";
-} else {
-    echo "Gorgone node {$gorgoneNodeId} connected, proceeding.\n";
+/**
+ * @param array<int,string> $gorgoneAuth
+ */
+function waitForGorgoneNode(string $gorgoneApiBase, string $gorgoneNodeId, array $gorgoneAuth): void
+{
+    if (! isGorgoneNodeConnected($gorgoneApiBase, $gorgoneNodeId)) {
+        [$syncStatus] = apiCall('POST', "{$gorgoneApiBase}/centreon/nodes/sync", '{}', array_merge(['Content-Type: application/json'], $gorgoneAuth));
+        echo "Gorgone node {$gorgoneNodeId} not connected, requested a nodes resync (HTTP {$syncStatus}).\n";
+    }
+    // Bounded wait, not indefinite: stays under the shell loop's own 60s retry
+    // interval so this never doubles up with it, and falls through to
+    // attempting delivery anyway on timeout (see the file-level comment above).
+    $maxWaitSeconds = 55;
+    $pollIntervalSeconds = 2;
+    $waited = 0;
+    while ($waited < $maxWaitSeconds && ! isGorgoneNodeConnected($gorgoneApiBase, $gorgoneNodeId)) {
+        sleep($pollIntervalSeconds);
+        $waited += $pollIntervalSeconds;
+    }
+
+    if ($waited >= $maxWaitSeconds && getenv('CONFIG_DELIVERY_REQUIRE_CONNECTED') === '1') {
+        // A 204 without a connected node delivers nothing, so a one-shot caller
+        // (the helm chart's config-delivery Job) must not count it as done.
+        fwrite(STDERR, "Gorgone node {$gorgoneNodeId} not connected after {$maxWaitSeconds}s, not attempting delivery.\n");
+        exit(1);
+    } elseif ($waited >= $maxWaitSeconds) {
+        echo "Gorgone node {$gorgoneNodeId} not confirmed connected after {$maxWaitSeconds}s, attempting delivery anyway.\n";
+    } else {
+        echo "Gorgone node {$gorgoneNodeId} connected, proceeding.\n";
+    }
 }
 
 [$loginStatus, $loginBody] = apiCall(
@@ -180,7 +202,7 @@ if ($genStatus === 204) {
 $decoded = json_decode($genBody, true);
 $reason = is_array($decoded) && is_string($decoded['message'] ?? null) ? $decoded['message'] : $genBody;
 if ($genStatus === 409) {
-    // Poller not connected to gorgone (nothing sent) or gorgone reported a failure.
+    // Poller not connected (to gorgone or to the central broker, nothing sent) or a failure was reported.
     fwrite(STDERR, "Configuration not delivered to poller {$pollerId} yet, will retry (HTTP 409): {$reason}\n");
 } elseif ($genStatus === 504) {
     // Gorgone did not confirm the delivery in time: it may still land, retrying is harmless.

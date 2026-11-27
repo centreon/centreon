@@ -36,8 +36,10 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUid;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\TrapConfiguration;
+use App\MonitoringConfiguration\Domain\Model\BrokerChannelEndpoint;
 use App\MonitoringConfiguration\Domain\Model\CentralUrl;
 use App\MonitoringConfiguration\Domain\Model\PollerToken;
+use App\MonitoringConfiguration\Infrastructure\BrokerChannelInstallOptions;
 use App\MonitoringConfiguration\Infrastructure\PollerInstallationCommandFactory;
 use App\Shared\Domain\Collection;
 use PHPUnit\Framework\TestCase;
@@ -275,6 +277,70 @@ final class PollerInstallationCommandFactoryTest extends TestCase
 
         self::assertSame($fromPoller->generate(), $fromValueObjects->generate());
         self::assertStringNotContainsString('--cloud', $fromValueObjects->generate());
+    }
+
+    public function testGenerateBrokerChannelCommand(): void
+    {
+        $fingerprint = str_repeat('ab', 32);
+        $factory = PollerInstallationCommandFactory::fromPoller(
+            poller: $this->createPoller(PollerTypeEnum::Docker),
+            pollerToken: new PollerToken(name: 'test-token', value: self::POLLER_TOKEN, creationDate: new \DateTimeImmutable(), expirationDate: null, isRevoked: false),
+            appSecret: self::APP_SECRET,
+            salt: self::SALT,
+            centralUrl: new CentralUrl(self::CENTRAL_URL),
+            brokerChannel: new BrokerChannelInstallOptions(
+                pollerId: new PollerId(42),
+                endpoint: new BrokerChannelEndpoint('host.docker.internal', 5669),
+                tlsHostname: null,
+                caFingerprintSha256: $fingerprint,
+            ),
+        );
+
+        self::assertSame(
+            'curl -fsSL ' . self::CENTRAL_URL . '/poller/install.sh | bash -s -- --channel broker'
+            . " --poller_token 'test-token:" . self::POLLER_TOKEN . "' --uid " . self::POLLER_UID
+            . " --poller_id 42 --name '" . self::POLLER_NAME . "' --type docker --central_url " . self::CENTRAL_URL
+            . ' --broker_host host.docker.internal --broker_port 5669 --broker_ca_sha256 ' . $fingerprint
+            . ' --appsecret ' . self::APP_SECRET . ' --salt ' . self::SALT,
+            $factory->generate(),
+        );
+    }
+
+    public function testBrokerChannelCommandOmitsAnUnavailableCaAndQuotesTheTlsName(): void
+    {
+        $factory = PollerInstallationCommandFactory::fromPoller(
+            poller: $this->createPoller(PollerTypeEnum::Docker),
+            pollerToken: new PollerToken(name: 'test-token', value: self::POLLER_TOKEN, creationDate: new \DateTimeImmutable(), expirationDate: null, isRevoked: false),
+            appSecret: self::APP_SECRET,
+            salt: self::SALT,
+            centralUrl: new CentralUrl(self::CENTRAL_URL),
+            brokerChannel: new BrokerChannelInstallOptions(
+                pollerId: new PollerId(42),
+                endpoint: new BrokerChannelEndpoint('192.0.2.10', 15669),
+                tlsHostname: 'central.example.com',
+                caFingerprintSha256: null,
+            ),
+        );
+
+        $command = $factory->generate();
+
+        self::assertStringContainsString("--broker_host 192.0.2.10 --broker_port 15669 --broker_tls_hostname 'central.example.com' --appsecret", $command);
+        self::assertStringNotContainsString('--broker_ca_sha256', $command);
+        self::assertStringNotContainsString('--cloud', $command);
+    }
+
+    public function testBrokerChannelEndpointRejectsShellMetacharacters(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        new BrokerChannelEndpoint('central; rm -rf /', 5669);
+    }
+
+    public function testBrokerChannelEndpointTellsIpLiterals(): void
+    {
+        self::assertTrue((new BrokerChannelEndpoint('192.0.2.10', 5669))->isIpLiteral());
+        self::assertTrue((new BrokerChannelEndpoint('2001:db8::1', 5669))->isIpLiteral());
+        self::assertFalse((new BrokerChannelEndpoint('host.docker.internal', 5669))->isIpLiteral());
     }
 
     private function createPoller(PollerTypeEnum $type): Poller

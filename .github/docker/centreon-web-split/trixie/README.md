@@ -970,6 +970,44 @@ removed, this stack's own `db` never touched).
 
 ### T0 baked-in modules (Autodiscovery, License Manager, IT Edition, PP Manager)
 
+**Update (MON-215450 phase 3, gorgone-less PoC).** The modules were
+removed from the PoC images (135d342a93) and are now baked in again, at 27.01
+like the web:
+- License Manager, PP Manager and IT Edition extensions: copied from the
+  nightly `centreon-modules-trixie:27.01-unstable` image, pinned by digest
+  (`MODULES_IMAGE`), only the files the three packages own (`dpkg -L`), never
+  the image layers. The nightly apt suite drops old builds, a digest does not;
+- Autodiscovery: copied the same way from the centreon-autodisco image of the
+  disco-modules branch (`AUTODISCO_TAG`/`AUTODISCO_DIGEST` in
+  `dependencies.env`), SourceGuardian-encoded, with the gorgone-less worker;
+  the service discovery scan page waits server-side up to 120 s for the
+  worker, so `PHP_MAX_EXECUTION_TIME` (fpm) and `HTTPD_PROXY_TIMEOUT` (httpd)
+  must stay at 130 s or more (both default to 300);
+- License Manager alone can come from another image (`LM_IMAGE`, CI: the
+  `centreon-lm-trixie` image of `LM_TAG`/`LM_DIGEST` in `dependencies.env`;
+  MON-216369 PoC instance fingerprint, enabled by
+  `CENTREON_LICENSE_FINGERPRINT=instance` on fpm, the autodiscovery worker and
+  cron, all three with the same value);
+- the SourceGuardian loader stays on the public stable suite
+  (`apt-standard trixie-26.10-stable`, `8.4-1+deb13u1`, the same version the
+  27.01 modules image ships);
+- on a kept database, `installBakedModules.php` runs the module upgrade
+  (as "Update" in the UI) when the image ships a newer module version.
+
+Without gorgone:
+- the module install (`installBakedModules.php`) needs no gorgone: SQL install
+  and a cache clear only;
+- the gorgone files of autodiscovery (`41-autodiscovery.yaml`, the
+  `41-service-discovery` cron) are not shipped;
+- every autodiscovery action that calls gorgone (job create, update, pause,
+  delete, run now, manual save, service scan) fails cleanly: the job is set
+  FAILED. Phase 3 P1 to P3 replace them with a worker and the cbd exec channel
+  (contracts.md § 12);
+- local run: drop the license file (`epp.license`) into the
+  `centreon-license` volume (`/etc/centreon/license.d`).
+
+The text below describes the original T0 setup.
+
 **Fetched via `apt-get download` against Centreon's real signed apt repo
 (2026-10-01, SEC-09 fix)**, not plain `curl`: the `modules_fetcher` stage
 imports `apt-key.centreon.com`'s GPG key, adds

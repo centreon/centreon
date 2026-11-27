@@ -52,6 +52,8 @@ use App\Shared\Domain\Logging\Attribute\Sensitive;
             uriTemplate: '/configuration/pollers',
             processor: CreatePollerProcessor::class,
             input: CreatePollerInput::class,
+            // broker_ca and broker_ca_warning stay in the answer when null (contracts.md § 8).
+            normalizationContext: ['skip_null_values' => false],
             openapi: new Model\Operation(
                 responses: [
                     400 => new Model\Response('Invalid input (e.g. unknown poller token name)'),
@@ -110,6 +112,17 @@ final class PollerResource
         )]
         #[Sensitive]
         public string $installationCommand = '',
+
+        // MON-215450 phase 2d (contracts.md § 8): always in the creation answer, null when unavailable.
+        #[ApiProperty(
+            description: 'Central broker CA for the poller BBDO TLS trust, null when no central broker API is configured or it could not be read'
+        )]
+        public ?BrokerCaOutput $brokerCa = null,
+
+        #[ApiProperty(
+            description: 'Set when a central broker API is configured but its CA could not be read; the poller is created anyway'
+        )]
+        public ?string $brokerCaWarning = null,
     ) {
     }
 }

@@ -1668,6 +1668,7 @@ CREATE TABLE `nagios_server` (
   `vmware_updated` BOOLEAN NOT NULL DEFAULT 0,
   `is_encryption_ready` BOOLEAN NOT NULL DEFAULT 1,
   `poller_type` enum('vm','docker') NOT NULL DEFAULT 'vm',
+  `remote_channel` enum('gorgone','broker') NOT NULL DEFAULT 'gorgone' COMMENT 'gorgone: Gorgone legacycmd, broker: central broker remote API',
   `uid` BIGINT UNSIGNED NOT NULL COMMENT 'Snowflake 64-bit unique identifier',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uniq_uid` (`uid`),

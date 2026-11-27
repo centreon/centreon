@@ -160,6 +160,26 @@ if [ "${DATABASE_SSL_ENABLED:-0}" = "1" ]; then
     } > "$f.tls" && mv "$f.tls" "$f"
   done
 fi
+# MON-216369: License Manager fingerprint mode, same value as fpm and the
+# autodiscovery worker (a process in another mode would compute another
+# fingerprint). Same crontab-environment reason as the TLS block above.
+# Restricted charset: the value goes into a crontab line.
+if [ -n "${CENTREON_LICENSE_FINGERPRINT:-}" ]; then
+  case "$CENTREON_LICENSE_FINGERPRINT" in
+    *[!A-Za-z0-9_-]*)
+      echo "Invalid CENTREON_LICENSE_FINGERPRINT (allowed: A-Z a-z 0-9 _ -)" >&2
+      exit 1
+      ;;
+  esac
+  for f in /etc/cron.d/centreon /etc/cron.d/centstorage; do
+    # Container restart (not recreate): the line is already there.
+    grep -q '^CENTREON_LICENSE_FINGERPRINT=' "$f" && continue
+    {
+      printf 'CENTREON_LICENSE_FINGERPRINT=%s\n' "$CENTREON_LICENSE_FINGERPRINT"
+      cat "$f"
+    } > "$f.lm" && mv "$f.lm" "$f"
+  done
+fi
 chmod 644 /etc/cron.d/centreon /etc/cron.d/centstorage
 
 # Real files, not stdout-symlinked, for the same reason fpm's own

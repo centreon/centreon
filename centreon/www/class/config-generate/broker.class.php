@@ -92,7 +92,8 @@ class Broker extends AbstractObjectJSON
         centreonbroker_module_path,
         centreonbroker_cfg_path,
         centreonbroker_logs_path,
-        poller_type
+        poller_type,
+        remote_channel
     ';
 
     /** @var string[] */
@@ -560,6 +561,8 @@ class Broker extends AbstractObjectJSON
                     }
                 }
             }
+            $object = $this->addRemoteChannelParameters($object, $row['daemon'] == '1', $shouldBeEncrypted);
+
             // Generate file
             $this->generateFile($object);
             $this->writeFile($this->backend_instance->getPath());
@@ -574,6 +577,159 @@ class Broker extends AbstractObjectJSON
         $this->generate_filename = 'watchdog.json';
         $this->generateFile($watchdog);
         $this->writeFile($this->backend_instance->getPath());
+    }
+
+    /**
+     * MON-215450 (gorgone-less PoC, contracts.md § 1 and § 2):
+     * - central broker daemon (the cbd with a unified_sql output): its remote API listener, generated whenever
+     *   CENTREON_BROKER_API_TOKEN is set (the web reaches every broker-channel poller through it);
+     * - engine module (cbmod) of a poller on the broker channel (nagios_server.remote_channel = 'broker'):
+     *   accept downstream remote actions; remote_actions_insecure (no TLS) only with
+     *   CENTREON_BROKER_REMOTE_ACTIONS_INSECURE, PoC escape hatch.
+     *
+     * @param array<string,mixed> $object
+     *
+     * @return array<string,mixed>
+     */
+    private function addRemoteChannelParameters(array $object, bool $isDaemon, bool $shouldBeEncrypted): array
+    {
+        $isTls = filter_var(getenv('CENTREON_BROKER_TLS'), FILTER_VALIDATE_BOOLEAN);
+
+        if ($isDaemon) {
+            $hasUnifiedSql = false;
+            foreach ($object['output'] ?? [] as $output) {
+                if (($output['type'] ?? null) === 'unified_sql') {
+                    $hasUnifiedSql = true;
+                    break;
+                }
+            }
+            if (! $hasUnifiedSql) {
+                return $object;
+            }
+            if ($isTls) {
+                $object = $this->addCentralInputTls($object);
+            }
+            $token = trim((string) getenv('CENTREON_BROKER_API_TOKEN'));
+            if ($token === '') {
+                return $object;
+            }
+            $port = parse_url((string) getenv('CENTREON_BROKER_API_URL'), PHP_URL_PORT);
+            $object['remote_api'] = [
+                'listen_address' => trim((string) getenv('CENTREON_BROKER_API_LISTEN_ADDRESS')) ?: '0.0.0.0',
+                'port' => (string) (is_int($port) ? $port : 8099),
+                'token' => $shouldBeEncrypted ? 'encrypt::' . $this->engineContextEncryption->crypt($token) : $token,
+            ];
+
+            return $object;
+        }
+
+        // Every engine module attached to the TLS central input must be TLS, whatever its channel (a poller still on
+        // the gorgone channel, e.g. the central poller at bootstrap, would otherwise never connect).
+        if ($isTls) {
+            $object = $this->addPollerOutputTls($object);
+        }
+        if (($this->engine['remote_channel'] ?? 'gorgone') === 'broker') {
+            $object['remote_actions'] = 'yes';
+            if (filter_var(getenv('CENTREON_BROKER_REMOTE_ACTIONS_INSECURE'), FILTER_VALIDATE_BOOLEAN)) {
+                $object['remote_actions_insecure'] = 'yes';
+            }
+        }
+
+        return $object;
+    }
+
+    /**
+     * MON-215450 (contracts.md § 6.1): the central broker daemon listens on gRPC with TLS (central identity).
+     * A listening ipv4 (TCP) input becomes a bbdo_server: TCP TLS needs a client certificate per poller, gRPC only the
+     * CA on the poller side.
+     *
+     * @param array<string,mixed> $object
+     *
+     * @return array<string,mixed>
+     */
+    private function addCentralInputTls(array $object): array
+    {
+        $certificate = self::getEnvOrDefault('CENTREON_BROKER_TLS_CERT_PATH', '/etc/centreon-broker/certs/central.crt');
+        $privateKey = self::getEnvOrDefault('CENTREON_BROKER_TLS_KEY_PATH', '/etc/centreon-broker/certs/central.key');
+        foreach ($object['input'] ?? [] as $index => $input) {
+            $type = $input['type'] ?? null;
+            $host = trim((string) ($input['host'] ?? ''));
+            if ($type === 'ipv4' && $host === '') {
+                $input = self::withoutTcpKeys($input);
+                $input['type'] = self::STREAM_BBDO_SERVER;
+                $input['host'] = '0.0.0.0';
+            } elseif ($type !== self::STREAM_BBDO_SERVER) {
+                continue;
+            }
+            $input['transport_protocol'] = 'grpc';
+            $input['encryption'] = 'yes';
+            $input['certificate'] = $certificate;
+            $input['private_key'] = $privateKey;
+            $object['input'][$index] = $input;
+        }
+
+        return $object;
+    }
+
+    /**
+     * MON-215450 (contracts.md § 6.1): the engine module verifies the central identity (gRPC, TLS, CA + name).
+     * An ipv4 (TCP) output with a host becomes a bbdo_client.
+     *
+     * @param array<string,mixed> $object
+     *
+     * @return array<string,mixed>
+     */
+    private function addPollerOutputTls(array $object): array
+    {
+        $caCertificate = self::getEnvOrDefault('CENTREON_BROKER_TLS_CA_PATH', '/etc/centreon-broker/certs/ca.crt');
+        $hostname = trim((string) getenv('CENTREON_BROKER_TLS_HOSTNAME'));
+        foreach ($object['output'] ?? [] as $index => $output) {
+            $type = $output['type'] ?? null;
+            $host = trim((string) ($output['host'] ?? ''));
+            if ($type === 'ipv4' && $host !== '') {
+                $output = self::withoutTcpKeys($output);
+                $output['type'] = self::STREAM_BBDO_CLIENT;
+            } elseif ($type !== self::STREAM_BBDO_CLIENT) {
+                continue;
+            }
+            $output['transport_protocol'] = 'grpc';
+            $output['encryption'] = 'yes';
+            $output['ca_certificate'] = $caCertificate;
+            // MON-215450 phase 2g (contracts.md § 11.W3): the TLS name is what the poller dials, so that a poller
+            // dialing the central's public name checks that name. CENTREON_BROKER_TLS_HOSTNAME only names an IP
+            // literal (no SAN check by name possible on an IP the certificate does not carry).
+            $isNamedHost = $host !== '' && filter_var($host, FILTER_VALIDATE_IP) === false;
+            $output['ca_name'] = $isNamedHost || $hostname === '' ? $host : $hostname;
+            $object['output'][$index] = $output;
+        }
+
+        return $object;
+    }
+
+    /**
+     * Keys of the TCP (ipv4) stream that a bbdo_client/bbdo_server does not take.
+     *
+     * @param array<string,mixed> $stream
+     *
+     * @return array<string,mixed>
+     */
+    private static function withoutTcpKeys(array $stream): array
+    {
+        foreach (
+            ['protocol', 'tls', 'public_cert', 'tls_hostname', 'negotiation', 'compression', 'compression_level',
+                'compression_buffer', 'one_peer_retention_mode', 'retention'] as $key
+        ) {
+            unset($stream[$key]);
+        }
+
+        return $stream;
+    }
+
+    private static function getEnvOrDefault(string $name, string $default): string
+    {
+        $value = trim((string) getenv($name));
+
+        return $value !== '' ? $value : $default;
     }
 
     /**
@@ -646,6 +802,7 @@ class Broker extends AbstractObjectJSON
             $this->engine['broker_cfg_path'] = $row['centreonbroker_cfg_path'];
             $this->engine['broker_logs_path'] = $row['centreonbroker_logs_path'];
             $this->engine['poller_type'] = $row['poller_type'] ?: 'vm';
+            $this->engine['remote_channel'] = $row['remote_channel'] ?? 'gorgone';
         } catch (Exception $e) {
             throw new Exception('Exception received : ' . $e->getMessage() . "\n");
         }

@@ -93,6 +93,7 @@ append_without_header ./lib/command.sh
 append_without_header ./src/cmdparse.sh
 append_without_header ./src/help.sh
 append_without_header ./src/commands/docker.sh
+append_without_header ./src/commands/docker-broker.sh
 ## VM submodules (loaded before the orchestrator)
 append_without_header ./src/vm/prerequisites.sh
 append_without_header ./src/vm/packages.sh

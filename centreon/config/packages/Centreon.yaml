@@ -286,8 +286,32 @@ services:
         class: Centreon\Domain\Downtime\DowntimeService
 
     # Engine
+    # Real-time commands routed per poller (nagios_server.remote_channel): Gorgone or central broker remote API
     Centreon\Domain\Engine\Interfaces\EngineRepositoryInterface:
-        class: Centreon\Infrastructure\Engine\EngineRepositoryGorgone
+        class: Centreon\Infrastructure\Engine\EngineRepositoryRemoteChannel
+
+    Core\RemoteChannel\Application\PollerCommandSenderInterface:
+        alias: Core\RemoteChannel\Infrastructure\RoutingPollerCommandSender
+
+    Core\RemoteChannel\Application\ConfigurationDeployerInterface:
+        alias: Core\RemoteChannel\Infrastructure\RoutingConfigurationDeployer
+        public: true
+
+    Core\RemoteChannel\Application\Repository\ReadPollerTargetRepositoryInterface:
+        alias: Core\RemoteChannel\Infrastructure\Repository\DbReadPollerTargetRepository
+        public: true
+
+    Core\RemoteChannel\Infrastructure\Broker\BrokerApiClient:
+        arguments: [null]
+
+    # Read from the App kernel through LegacyBrokerCaProvider (poller creation, MON-215450 phase 2d).
+    Core\RemoteChannel\Infrastructure\Broker\BrokerCaReader:
+        public: true
+
+    Core\RemoteChannel\Infrastructure\Broker\BrokerConfigurationDeployer:
+        arguments:
+            $cacheDir: null
+            $sleep: null
 
     Centreon\Infrastructure\Gorgone\LegacyCommandSender:
         public: true

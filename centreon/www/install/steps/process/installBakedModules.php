@@ -24,10 +24,11 @@
  * from the "Manage Modules" page — same mechanism, same
  * CentreonModuleService, no UI needed. These 4 modules are baked into the
  * image at build time (T0 decision), their files already present under
- * www/modules/<name>/ by the time this runs; this step only handles the
+ * www/modules/<name>/ by the time this runs; this step handles the
  * one-time DB registration (module_informations row, module-specific
  * tables, menu entries) each module's own sql/install.sql + php/install.php
- * does.
+ * does, and the module upgrade (same as "Update") when the image ships a
+ * newer module than the version registered in a kept database.
  */
 
 session_start();
@@ -74,7 +75,17 @@ foreach ($toInstall as $moduleId) {
     try {
         $module = $moduleService->getDetail($moduleId, 'module');
         if ($module !== null && $module->isInstalled()) {
-            echo "{$moduleId} already installed, skipping.\n";
+            if ($module->isUpdated()) {
+                echo "{$moduleId} already installed and up to date, skipping.\n";
+
+                continue;
+            }
+            // Newer module files baked into the image than the version
+            // registered in the database (image upgrade on a kept database):
+            // run the module's own upgrade scripts, as "Update" in the UI.
+            echo "Upgrading {$moduleId}...\n";
+            $moduleService->update($moduleId, 'module');
+
             continue;
         }
         echo "Installing {$moduleId}...\n";

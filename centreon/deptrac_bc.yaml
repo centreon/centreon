@@ -85,6 +85,8 @@ parameters:
             - Centreon\Domain\Contact\Interfaces\ContactInterface
             - Centreon\Domain\Contact\Interfaces\ContactServiceInterface
             - Core\Service\Application\UseCase\DeployServices\DeployServices
+        App\MonitoringConfiguration\Infrastructure\Legacy\LegacyBrokerCaProvider:
+            - Core\RemoteChannel\Infrastructure\Broker\BrokerCaReader
         App\MonitoringConfiguration\Infrastructure\Legacy\LegacyServiceCloner:
             - Centreon
             - CentreonDBInstance
