@@ -1146,6 +1146,7 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
+#: centreon/www/install/front_translate.php
 msgid "Advanced"
 msgstr ""
 
@@ -5610,6 +5611,7 @@ msgstr ""
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
+#: centreon/www/install/front_translate.php
 msgid "Down"
 msgstr ""
 
@@ -8152,6 +8154,7 @@ msgstr ""
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
+#: centreon/www/install/front_translate.php
 msgid "Flapping"
 msgstr ""
 
@@ -8403,6 +8406,7 @@ msgstr ""
 #: centreon/www/include/Administration/parameters/ldap/form.php
 #: centreon/www/include/configuration/configObject/connector/formConnector.php
 #: centreon/www/include/configuration/configObject/service/formService.php
+#: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
@@ -9104,10 +9108,12 @@ msgid "Host and service id can not be null at the same time"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+#: centreon/www/install/front_translate.php
 #: centreon/www/install/smarty_translate.php
 msgid "Host basic information"
 msgstr ""
 
+#: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
 msgid "Host categories"
 msgstr ""
@@ -9132,6 +9138,7 @@ msgid "Host check latency"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+#: centreon/www/install/front_translate.php
 #: centreon/www/install/smarty_translate.php
 #: centreon/www/install/smarty_translate.php
 msgid "Host check options"
@@ -9146,6 +9153,7 @@ msgstr ""
 msgid "Host dependency"
 msgstr ""
 
+#: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
 msgid "Host details"
 msgstr ""
@@ -9215,6 +9223,7 @@ msgstr ""
 msgid "Host meta for meta service %d not found"
 msgstr ""
 
+#: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
 msgid "Host monitoring properties"
 msgstr ""
@@ -9301,6 +9310,7 @@ msgstr ""
 #: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
+#: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
 msgid "Host severity"
@@ -12119,6 +12129,7 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
+#: centreon/www/install/front_translate.php
 msgid "Monitoring engine / Scheduling options"
 msgstr ""
 
@@ -13156,6 +13167,7 @@ msgstr ""
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
+#: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/menu_translation.php
 #: centreon/www/install/smarty_translate.php
@@ -14723,6 +14735,7 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
+#: centreon/www/install/front_translate.php
 msgid "Recovery"
 msgstr ""
 
@@ -14818,6 +14831,7 @@ msgstr ""
 #: centreon/www/include/monitoring/recurrentDowntime/formDowntime.php
 #: centreon/www/include/options/accessLists/actionsACL/formActionsAccess.php
 #: centreon/www/include/options/accessLists/groupsACL/formGroupConfig.php
+#: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/smarty_translate.php
@@ -15929,6 +15943,7 @@ msgstr ""
 
 #: centreon/www/include/reporting/dashboard/initReport.php
 #: centreon/www/install/front_translate.php
+#: centreon/www/install/front_translate.php
 msgid "Scheduled downtime"
 msgstr ""
 
@@ -15943,6 +15958,7 @@ msgstr ""
 msgid "Scheduling"
 msgstr ""
 
+#: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/smarty_translate.php
@@ -19556,6 +19572,7 @@ msgstr ""
 #: centreon/www/include/reporting/dashboard/csvExport/csv_HostLogs.php
 #: centreon/www/include/reporting/dashboard/csvExport/csv_HostLogs.php
 #: centreon/www/include/reporting/dashboard/csvExport/csv_HostLogs.php
+#: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php

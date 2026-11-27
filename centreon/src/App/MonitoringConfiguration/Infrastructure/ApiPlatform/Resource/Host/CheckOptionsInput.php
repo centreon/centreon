@@ -25,6 +25,7 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host;
 
 use App\MonitoringConfiguration\Infrastructure\Validator\CheckCommandType;
 use App\MonitoringConfiguration\Infrastructure\Validator\ValidCommandArguments;
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
@@ -44,6 +45,7 @@ final readonly class CheckOptionsInput
 
         #[Assert\All([new Assert\Type('string')])]
         #[ValidCommandArguments('check command')]
+        #[Sensitive]
         public array $args = [],
 
         #[Assert\Valid]

@@ -4,6 +4,7 @@ import Delete from './HostTemplates.Delete';
 import Duplicate from './HostTemplates.Duplicate';
 import Filters from './HostTemplates.Filters';
 import Listing from './HostTemplates.Listing';
+import MassChange from './HostTemplates.MassChange';
 
 describe('Host templates: ', () => {
   beforeEach(() => {
@@ -16,4 +17,5 @@ describe('Host templates: ', () => {
   Actions();
   Delete();
   Duplicate();
+  MassChange();
 });
