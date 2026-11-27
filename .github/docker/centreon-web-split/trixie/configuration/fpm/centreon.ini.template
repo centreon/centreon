@@ -12,5 +12,18 @@ upload_max_filesize = 5M
 post_max_size = 8M
 session.use_strict_mode = 1
 session.gc_maxlifetime = 7200
+; MON-214095: files (default, unchanged) or redis (Valkey) — resolved by
+; 01-config.sh from PHP_SESSION_HANDLER/PHP_SESSION_SAVE_PATH/
+; PHP_SESSION_REDIS_PASSWORD, never baked in. Valkey expires session keys
+; itself from session.gc_maxlifetime above — no file GC needed.
+session.save_handler = ${PHP_SESSION_SAVE_HANDLER}
+session.save_path = "${PHP_SESSION_SAVE_PATH_RESOLVED}"
+; phpredis does NOT lock sessions by default (unlike the files handler) —
+; without this, two concurrent AJAX requests on the same session silently
+; overwrite each other's $_SESSION. Harmless to always set: only read when
+; session.save_handler=redis.
+redis.session.locking_enabled = ${PHP_SESSION_REDIS_LOCKING_ENABLED}
+redis.session.lock_retries = 50
+redis.session.lock_wait_time = 20000
 expose_php = Off
 allow_url_fopen = Off
