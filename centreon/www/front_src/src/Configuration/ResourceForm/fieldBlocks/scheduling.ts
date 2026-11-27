@@ -8,6 +8,7 @@ import { getBlock } from '../grid';
 import type { FieldBlock, NamedEntity, ResourceOptions } from '../models';
 import {
   getIntegerSchema,
+  getNumberInput,
   type OptionalNumber,
   optionalNumberDecoder,
   toApiNumber
@@ -21,7 +22,8 @@ import {
   labelMustBeIntegerOfAtLeastOne,
   labelNormalCheckInterval,
   labelPassiveChecksEnabled,
-  labelRetryCheckInterval
+  labelRetryCheckInterval,
+  labelTimesSixtySeconds
 } from '../translatedLabels';
 import {
   defaultTriState,
@@ -99,15 +101,17 @@ export const getCheckPeriodAndIntervalsBlock = ({
   },
   detailKeyMap: { schedulingOptions: apiGroup },
   getInputs: ({ t }) => {
-    const getNumberInput = (
+    const getCountInput = (
       fieldName: keyof CheckPeriodAndIntervalsValues,
-      label: string
-    ) => ({
-      ...getInputIds(idPrefix, fieldName),
-      label: t(label),
-      text: { min: 1, type: 'number' },
-      type: InputType.Text
-    });
+      label: string,
+      unit?: string
+    ) =>
+      getNumberInput({
+        ...getInputIds(idPrefix, fieldName),
+        label: t(label),
+        min: 1,
+        unit: unit && t(unit)
+      });
 
     return {
       checkPeriodAndIntervals: getBlock({
@@ -123,9 +127,18 @@ export const getCheckPeriodAndIntervalsBlock = ({
             label: t(labelCheckPeriod),
             type: InputType.SingleConnectedAutocomplete
           },
-          getNumberInput('maxCheckAttempts', labelMaxCheckAttempts),
-          getNumberInput('normalCheckInterval', labelNormalCheckInterval),
-          getNumberInput('retryCheckInterval', labelRetryCheckInterval)
+          getCountInput('maxCheckAttempts', labelMaxCheckAttempts),
+          // Counted in intervals of one minute, as legacy words it.
+          getCountInput(
+            'normalCheckInterval',
+            labelNormalCheckInterval,
+            labelTimesSixtySeconds
+          ),
+          getCountInput(
+            'retryCheckInterval',
+            labelRetryCheckInterval,
+            labelTimesSixtySeconds
+          )
         ],
         idPrefix,
         name: 'scheduling-check-numbers'
