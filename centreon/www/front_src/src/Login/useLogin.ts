@@ -27,6 +27,7 @@ import { passwordResetInformationsAtom } from '../ResetPassword/passwordResetInf
 import routeMap from '../reactRoutes/routeMap';
 import { providersConfigurationDecoder } from './api/decoder';
 import { providersConfigurationEndpoint } from './api/endpoint';
+import { providersConfigurationQueryKey } from './api/providersConfiguration';
 import {
   LoginFormValues,
   ProviderConfiguration,
@@ -42,6 +43,7 @@ import usePostLogin from './usePostLogin';
 interface UseLoginState {
   authenticationError: string | null;
   hasForcedProvider: boolean;
+  isLoadingProviders: boolean;
   platformInstallationStatus: PlatformInstallationStatus | null;
   providersConfiguration: Array<ProviderConfiguration> | null;
   submitLoginForm: (
@@ -50,11 +52,15 @@ interface UseLoginState {
   ) => void;
 }
 
+const hasAuthenticationUri = (provider: ProviderConfiguration): boolean =>
+  not(isEmpty(provider.authenticationUri));
+
 const getForcedProviders = filter<ProviderConfiguration>(
   (provider): boolean =>
     not(isNil(provider.isForced)) &&
     (provider.isForced as boolean) &&
-    not(equals(provider.name, 'local'))
+    not(equals(provider.name, 'local')) &&
+    hasAuthenticationUri(provider)
 );
 
 const getExternalProviders = reject<ProviderConfiguration>(
@@ -62,12 +68,17 @@ const getExternalProviders = reject<ProviderConfiguration>(
 );
 
 const getActiveProviders = filter<ProviderConfiguration>(
-  propEq(true, 'isActive')
+  (provider): boolean =>
+    propEq(true, 'isActive', provider) && hasAuthenticationUri(provider)
 );
 
 export const router = {
   useNavigate,
   useSearchParams
+};
+
+export const browserLocation = {
+  replace: (uri: string): void => window.location.replace(uri)
 };
 
 const useLogin = (): UseLoginState => {
@@ -77,10 +88,12 @@ const useLogin = (): UseLoginState => {
 
   const [cookies] = useCookies(['REDIRECT_URI']);
 
-  const { data: providers } = useFetchQuery<Array<ProviderConfiguration>>({
+  const { data: providers, isPending: isLoadingProviders } = useFetchQuery<
+    Array<ProviderConfiguration>
+  >({
     decoder: providersConfigurationDecoder,
     getEndpoint: () => providersConfigurationEndpoint,
-    getQueryKey: () => ['providerConfiguration'],
+    getQueryKey: () => providersConfigurationQueryKey,
     queryOptions: {
       refetchOnMount: false,
       suspense: false
@@ -193,12 +206,13 @@ const useLogin = (): UseLoginState => {
       return;
     }
 
-    window.location.replace(forcedProviders[0].authenticationUri);
+    browserLocation.replace(forcedProviders[0].authenticationUri);
   }, [forcedProviders, authenticationError]);
 
   return {
     authenticationError,
-    hasForcedProvider: !!forcedProviders,
+    hasForcedProvider: not(isEmpty(forcedProviders)),
+    isLoadingProviders,
     platformInstallationStatus,
     providersConfiguration: activeProviders,
     submitLoginForm
