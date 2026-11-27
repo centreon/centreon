@@ -14,8 +14,10 @@ import {
   userPermissionsAtom
 } from '@centreon/ui-context';
 
+import i18next from 'i18next';
 import { createStore, Provider } from 'jotai';
 import { mergeDeepRight } from 'ramda';
+import { initReactI18next } from 'react-i18next';
 import { BrowserRouter as Router } from 'react-router';
 
 import { retrievedNavigation } from '../../Navigation/mocks';
@@ -232,6 +234,11 @@ export const initialize = (
   stubs: DeepPartial<Stubs> = {},
   { installedModules = [] }: InitializeOptions = {}
 ): unknown => {
+  i18next.use(initReactI18next).init({
+    lng: 'en',
+    resources: {}
+  });
+
   const navigate = cy.stub();
   cy.stub(testUtils, 'useNavigate').returns(navigate);
   cy.stub(testUtils, 'useNavigation').returns({

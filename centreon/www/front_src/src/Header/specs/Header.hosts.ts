@@ -75,6 +75,32 @@ export default (): void =>
         cy.makeSnapshot();
       });
 
+      it('names the status and the counts in each counter tooltip', () => {
+        initialize();
+        getElements();
+
+        cy.get('@downCounter').children().first().trigger('mouseover');
+        cy.contains('[role="tooltip"]', 'Down — 34 unhandled out of 43').should(
+          'be.visible'
+        );
+
+        cy.get('@unreachableCounter').children().first().trigger('mouseover');
+        cy.contains(
+          '[role="tooltip"]',
+          'Unreachable — 0 unhandled out of 0'
+        ).should('be.visible');
+
+        cy.get('@upCounter').children().first().trigger('mouseover');
+        cy.contains('[role="tooltip"]', 'Up — 12134 in total').should(
+          'be.visible'
+        );
+
+        cy.get('@pendingCounter').children().first().trigger('mouseover');
+        cy.contains('[role="tooltip"]', 'Pending — 10 in total').should(
+          'be.visible'
+        );
+      });
+
       it('redirect to Resources Status with the correct filter when a counter is clicked', () => {
         const hoststubs = {
           down: { unhandled: '12' },

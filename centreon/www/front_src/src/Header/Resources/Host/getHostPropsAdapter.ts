@@ -15,11 +15,7 @@ import {
   upCriterias
 } from '../getResourcesUrl';
 import type { Adapter } from '../useResourceCounters';
-import {
-  formatCount,
-  formatUnhandledOverTotal,
-  getNavigationFunction
-} from '../utils';
+import { getNavigationFunction } from '../utils';
 import {
   labelAll,
   labelDown,
@@ -27,6 +23,8 @@ import {
   labelHosts,
   labelPending,
   labelPendingStatusHosts,
+  labelStatusCount,
+  labelUnhandledOutOfTotal,
   labelUnreachable,
   labelUnreachableStatusHosts,
   labelUp,
@@ -109,7 +107,6 @@ const getHostPropsAdapter: GetHostPropsAdapter = ({
 
   const config = {
     all: {
-      count: formatCount(data.total),
       label: t(labelAll),
       onClick: changeFilterAndNavigate({
         criterias: hostsCriterias,
@@ -120,7 +117,6 @@ const getHostPropsAdapter: GetHostPropsAdapter = ({
       to: hostsLink
     },
     down: {
-      count: formatUnhandledOverTotal(data.down.unhandled, data.down.total),
       label: t(labelDown),
       onClick: changeFilterAndNavigate({
         criterias: unhandledDownHostsCriterias,
@@ -129,10 +125,14 @@ const getHostPropsAdapter: GetHostPropsAdapter = ({
       severityCode: SeverityCode.High,
       shortCount: data.down.unhandled,
       to: unhandledDownHostsLink,
+      tooltip: t(labelUnhandledOutOfTotal, {
+        status: t(labelDown),
+        total: data.down.total,
+        unhandled: data.down.unhandled
+      }),
       topCounterAriaLabel: t(labelDownStatusHosts)
     },
     pending: {
-      count: formatCount(data.pending),
       label: t(labelPending),
       onClick: changeFilterAndNavigate({
         criterias: pendingHostsCriterias,
@@ -141,13 +141,13 @@ const getHostPropsAdapter: GetHostPropsAdapter = ({
       severityCode: SeverityCode.Pending,
       shortCount: data.pending,
       to: pendingHostsLink,
+      tooltip: t(labelStatusCount, {
+        status: t(labelPending),
+        total: data.pending
+      }),
       topCounterAriaLabel: t(labelPendingStatusHosts)
     },
     unreachable: {
-      count: formatUnhandledOverTotal(
-        data.unreachable.unhandled,
-        data.unreachable.total
-      ),
       label: t(labelUnreachable),
       onClick: changeFilterAndNavigate({
         criterias: unhandledUnreachableHostsCriterias,
@@ -156,10 +156,14 @@ const getHostPropsAdapter: GetHostPropsAdapter = ({
       severityCode: SeverityCode.Medium,
       shortCount: data.unreachable.unhandled,
       to: unhandledUnreachableHostsLink,
+      tooltip: t(labelUnhandledOutOfTotal, {
+        status: t(labelUnreachable),
+        total: data.unreachable.total,
+        unhandled: data.unreachable.unhandled
+      }),
       topCounterAriaLabel: t(labelUnreachableStatusHosts)
     },
     up: {
-      count: formatCount(data.ok),
       label: t(labelUp),
       onClick: changeFilterAndNavigate({
         criterias: upHostsCriterias,
@@ -168,6 +172,10 @@ const getHostPropsAdapter: GetHostPropsAdapter = ({
       severityCode: SeverityCode.OK,
       shortCount: data.ok,
       to: upHostsLink,
+      tooltip: t(labelStatusCount, {
+        status: t(labelUp),
+        total: data.ok
+      }),
       topCounterAriaLabel: t(labelUpStatusHosts)
     }
   };
@@ -180,16 +188,16 @@ const getHostPropsAdapter: GetHostPropsAdapter = ({
       const {
         to,
         shortCount,
-        count,
         topCounterAriaLabel,
         onClick,
-        severityCode
+        severityCode,
+        tooltip
       } = config[statusName as keyof typeof config];
 
       return {
         ariaLabel: topCounterAriaLabel,
         count: shortCount,
-        detail: count,
+        detail: tooltip,
         onClick,
         severityCode,
         to

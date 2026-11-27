@@ -14,3 +14,7 @@ export const labelWarning = 'Warning';
 export const labelPending = 'Pending';
 export const labelUnknown = 'Unknown';
 export const labelOk = 'OK';
+
+export const labelUnhandledOutOfTotal =
+  '{{status}} — {{unhandled}} unhandled out of {{total}}';
+export const labelStatusCount = '{{status}} — {{total}} in total';
