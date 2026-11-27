@@ -362,6 +362,9 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
         array $accessGroupIds = [],
         string $aclBindQuery = '',
     ): string {
+        $requestParameters = $sqlTranslator->getRequestParameters();
+        $requestParameters->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
+        $requestParameters->setConcordanceErrorMode(RequestParameters::CONCORDANCE_ERRMODE_EXCEPTION);
         $search = $sqlTranslator->translateSearchParameterToSql();
         $typeSearch = $search !== null ? ' AND services.type = 0 ' : ' WHERE services.type = 0 ';
         $sort = $sqlTranslator->translateSortParameterToSql() ?? ' ORDER BY services.name ASC';
