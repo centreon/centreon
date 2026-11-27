@@ -235,17 +235,102 @@ const actions = {
 
 let customFilterId = null;
 
+// Last result of a service as stored in the real-time tables read by the page
+const buildServiceLastResultQuery = (host: string, service: string): string =>
+  `SELECT r.output, r.last_check, r.status, i.name AS poller
+    FROM resources r
+    INNER JOIN instances i ON i.instance_id = r.poller_id
+    WHERE r.type = 0 AND r.enabled = 1
+      AND r.name = '${service}' AND r.parent_name = '${host}'`;
+
+const buildHostLastCheckQuery = (host: string): string =>
+  `SELECT last_check FROM hosts WHERE name = '${host}' AND enabled = 1`;
+
+const buildServiceAcknowledgementQuery = (
+  host: string,
+  service: string,
+  comment: string
+): string =>
+  `SELECT COUNT(*) AS count
+    FROM acknowledgements a
+    INNER JOIN services s ON s.host_id = a.host_id AND s.service_id = a.service_id
+    INNER JOIN hosts h ON h.host_id = s.host_id
+    WHERE h.name = '${host}' AND s.description = '${service}'
+      AND a.comment_data = '${comment}' AND a.deletion_time IS NULL`;
+
+// entry_type 1 is a user comment, source 1 an external command
+const buildServiceCommentQuery = (
+  host: string,
+  service: string,
+  comment: string
+): string =>
+  `SELECT COUNT(*) AS count
+    FROM comments c
+    INNER JOIN services s ON s.host_id = c.host_id AND s.service_id = c.service_id
+    INNER JOIN hosts h ON h.host_id = s.host_id
+    WHERE h.name = '${host}' AND s.description = '${service}'
+      AND c.data = '${comment}' AND c.entry_type = 1 AND c.source = 1
+      AND c.deletion_time IS NULL`;
+
+const buildServiceDowntimeQuery = (host: string, service: string): string =>
+  `SELECT d.started, d.fixed, d.start_time, d.end_time, d.actual_end_time
+    FROM downtimes d
+    INNER JOIN services s ON s.host_id = d.host_id AND s.service_id = d.service_id
+    INNER JOIN hosts h ON h.host_id = s.host_id
+    WHERE h.name = '${host}' AND s.description = '${service}'
+    ORDER BY d.downtime_id DESC
+    LIMIT 1`;
+
+// Default duration proposed by the downtime form of Resources Status
+const buildSetDefaultDowntimeDurationQuery = (seconds: number): string =>
+  `UPDATE options SET \`value\` = CASE \`key\`
+      WHEN 'monitoring_dwt_duration' THEN '${seconds}'
+      WHEN 'monitoring_dwt_duration_scale' THEN 's'
+      WHEN 'monitoring_dwt_fixed' THEN '1'
+    END
+    WHERE \`key\` IN ('monitoring_dwt_duration', 'monitoring_dwt_duration_scale', 'monitoring_dwt_fixed')`;
+
+// Same rendering as toDateTime of @centreon/ui ("L LT" in English):
+// MM/DD/YYYY h:mm AM|PM in the timezone of the user
+const formatEnglishDateTime = (timestamp: number, timeZone: string): string => {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    day: '2-digit',
+    hour: 'numeric',
+    hour12: true,
+    minute: '2-digit',
+    month: '2-digit',
+    timeZone,
+    year: 'numeric'
+  }).formatToParts(new Date(timestamp * 1000));
+  const part = (type: string): string =>
+    parts.find((item) => item.type === type)?.value ?? '';
+
+  return `${part('month')}/${part('day')}/${part('year')} ${part('hour')}:${part('minute')} ${part('dayPeriod').toUpperCase()}`;
+};
+
+// Collapses every kind of space, as Intl and the DOM may use narrow ones
+const normalizeSpaces = (text: string): string =>
+  text.replace(/\s+/g, ' ').trim();
+
 export {
   actionBackgroundColors,
   actions,
+  buildHostLastCheckQuery,
+  buildServiceAcknowledgementQuery,
+  buildServiceCommentQuery,
+  buildServiceDowntimeQuery,
+  buildServiceLastResultQuery,
+  buildSetDefaultDowntimeDurationQuery,
   checkIfNotificationsAreNotBeingSent,
   checkIfUserNotificationsAreEnabled,
   clearCentengineLogs,
   deleteUserFilter,
+  formatEnglishDateTime,
   hostChildInAcknowledgementName,
   hostInAcknowledgementName,
   initializeResourceData,
   insertAckResourceFixtures,
+  normalizeSpaces,
   refreshButton,
   resourceMonitoringApi,
   searchInput,
