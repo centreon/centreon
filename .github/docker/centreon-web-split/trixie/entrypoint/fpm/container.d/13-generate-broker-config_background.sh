@@ -57,7 +57,16 @@ fi
 
 echo "Generating and delivering centreon-broker/centengine configuration..."
 
+# TRAP_POLLER_IDS (pollers running centreontrapd): once a delivery succeeded,
+# send them their first trap database, until it worked once. centreontrapd
+# exits on a missing one (read-only definitions directory). Same script as
+# the helm chart's config-delivery Job.
+traps_delivered=false
 while true; do
-  su www-data -s /bin/bash -c "php -d allow_url_fopen=On /usr/local/lib/centreon-fpm/generate-broker-configuration.php" || true
+  if su www-data -s /bin/bash -c "php -d allow_url_fopen=On /usr/local/lib/centreon-fpm/generate-broker-configuration.php" \
+    && [ -n "${TRAP_POLLER_IDS:-}" ] && [ "$traps_delivered" = false ]; then
+    su www-data -s /bin/bash -c "php -d allow_url_fopen=On /usr/local/lib/centreon-fpm/deliver-traps.php" \
+      && traps_delivered=true || true
+  fi
   sleep 60
 done

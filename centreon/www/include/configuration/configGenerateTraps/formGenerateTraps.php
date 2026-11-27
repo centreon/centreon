@@ -29,8 +29,8 @@ if (! $centreon->user->admin && $centreon->user->access->checkAction('generate_t
     return null;
 }
 
-// Init Centcore Pipe
-$centcore_pipe = defined('_CENTREON_VARLIB_') ? _CENTREON_VARLIB_ . '/centcore.cmd' : '/var/lib/centreon/centcore.cmd';
+// Commands are sent to Gorgone through its API
+$legacyCommandSender = Centreon\Infrastructure\Gorgone\LegacyCommandSender::create();
 
 // Get Poller List
 $acl = $centreon->user->access;
@@ -141,31 +141,29 @@ if ($form->validate()) {
             $msg_generate .= str_replace("\n", '<br/>', $stdout) . '<br/>';
         }
         if (isset($ret['apply']) && $ret['apply'] && $returnVal == 0) {
-            $msg_generate .= sprintf('<strong>%s</strong><br/>', _('Centcore commands'));
+            $msg_generate .= sprintf('<strong>%s</strong><br/>', _('Gorgone commands'));
             foreach ($tab_server as $host) {
-                $return = file_put_contents(
-                    $centcore_pipe,
-                    'SYNCTRAP:' . (int) $host['id'] . "\n",
-                    FILE_APPEND | LOCK_EX
-                );
-                if ($return === false) {
-                    $msg_generate .= "Error while writing into {$centcore_pipe}<br/>";
-                } else {
-                    $msg_generate .= "Poller (id:{$host['id']}): SYNCTRAP sent to centcore.cmd<br/>";
+                try {
+                    // The database is embedded in the request: Gorgone does not share the trap directory
+                    $legacyCommandSender->sendTrapDatabase(
+                        (int) $host['id'],
+                        "{$trapdPath}/{$host['id']}/centreontrapd.sdb"
+                    );
+                    $msg_generate .= "Poller (id:{$host['id']}): SYNCTRAP sent to Gorgone<br/>";
+                } catch (Centreon\Infrastructure\Gorgone\LegacyCommandException $e) {
+                    $msg_generate .= 'Error while sending SYNCTRAP to Gorgone: '
+                        . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8') . '<br/>';
                 }
             }
         }
         if (isset($ret['signal']) && in_array($ret['signal'], ['RELOADCENTREONTRAPD', 'RESTARTCENTREONTRAPD'])) {
             foreach ($tab_server as $host) {
-                $return = file_put_contents(
-                    $centcore_pipe,
-                    $ret['signal'] . ':' . (int) $host['id'] . "\n",
-                    FILE_APPEND | LOCK_EX
-                );
-                if ($return === false) {
-                    $msg_generate .= "Error while writing into {$centcore_pipe}<br/>";
-                } else {
-                    $msg_generate .= "Poller (id:{$host['id']}): {$ret['signal']} sent to centcore.cmd<br/>";
+                try {
+                    $legacyCommandSender->sendCommand($ret['signal'], (int) $host['id']);
+                    $msg_generate .= "Poller (id:{$host['id']}): {$ret['signal']} sent to Gorgone<br/>";
+                } catch (Centreon\Infrastructure\Gorgone\LegacyCommandException $e) {
+                    $msg_generate .= "Error while sending {$ret['signal']} to Gorgone: "
+                        . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8') . '<br/>';
                 }
             }
         }
