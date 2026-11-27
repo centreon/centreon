@@ -143,6 +143,18 @@ class CentreonXML
     }
 
     /**
+     * Sends the XML written so far and empties the buffer, to keep a long document out of memory.
+     * The HTTP headers must be sent before the first call.
+     *
+     * @return void
+     */
+    public function flush(): void
+    {
+        echo $this->buffer->outputMemory(true);
+        flush();
+    }
+
+    /**
      * @param string|null $filename
      *
      * @throws RuntimeException
