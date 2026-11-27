@@ -394,6 +394,68 @@ describe('File', () => {
   });
 });
 
+const versions = [
+  { id: '1', name: '1' },
+  { id: '2c', name: '2c' }
+];
+
+const initializeAutocompletes = (): void => {
+  render(
+    <Form
+      initialValues={{ clearable: versions[1], fixed: versions[1] }}
+      inputs={[
+        {
+          autocomplete: { clearable: true, options: versions },
+          fieldName: 'clearable',
+          group: '',
+          label: 'Clearable',
+          type: InputType.SingleAutocomplete
+        },
+        {
+          autocomplete: { options: versions },
+          fieldName: 'fixed',
+          group: '',
+          label: 'Fixed',
+          type: InputType.SingleAutocomplete
+        }
+      ]}
+      submit={rs.fn()}
+      validationSchema={object()}
+    />
+  );
+};
+
+const getClearButton = (label: string): HTMLElement | null =>
+  (
+    screen.getByLabelText(label).closest('.MuiAutocomplete-root') as HTMLElement
+  ).querySelector('.MuiAutocomplete-clearIndicator');
+
+describe('Single autocomplete', () => {
+  beforeEach(() => {
+    expect.hasAssertions();
+  });
+
+  it('empties a clearable select with its clear button', async () => {
+    initializeAutocompletes();
+
+    expect(await screen.findByLabelText('Clearable')).toHaveValue('2c');
+
+    await userEvent.hover(screen.getByLabelText('Clearable'));
+    await userEvent.click(getClearButton('Clearable') as HTMLElement);
+
+    await waitFor(() =>
+      expect(screen.getByLabelText('Clearable')).toHaveValue('')
+    );
+  });
+
+  it('offers no clear button on a select not made clearable', async () => {
+    initializeAutocompletes();
+
+    expect(await screen.findByLabelText('Fixed')).toHaveValue('2c');
+    expect(getClearButton('Fixed')).toBeNull();
+  });
+});
+
 describe('Form with sections', () => {
   beforeEach(() => {
     expect.hasAssertions();

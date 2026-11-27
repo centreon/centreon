@@ -183,6 +183,9 @@ const Autocomplete = ({
     Component: (
       <div>
         <AutocompleteField
+          // Only when asked: an explicit `undefined` would also override the
+          // field's own default and make every select clearable.
+          {...(autocomplete?.clearable && { disableClearable: false })}
           disabled={disabled}
           freeSolo={isCreatable}
           inputValue={inputText}
@@ -221,6 +224,7 @@ const Autocomplete = ({
       additionalMemoProps,
       isMultiple,
       autocomplete?.options,
+      autocomplete?.clearable,
       isCreatable
     ]
   });
