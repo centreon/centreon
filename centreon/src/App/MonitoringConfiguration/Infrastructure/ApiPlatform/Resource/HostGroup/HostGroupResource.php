@@ -30,6 +30,7 @@ use ApiPlatform\Metadata\NotExposed;
 use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Security\HostGroupPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\HostPermissionEnum;
+use App\MonitoringConfiguration\Domain\Security\ServicePermissionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostGroup\ListHostGroupsChoicesProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostGroup\ListHostGroupsProvider;
 
@@ -40,6 +41,15 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostGroup\ListH
             uriTemplate: '/configuration/hosts/host_groups',
             openapi: false,
             security: 'is_granted("' . HostPermissionEnum::CanReadAndWrite->value . '")',
+            securityMessage: 'You are not allowed to access host groups',
+            itemUriTemplate: '/configuration/host_groups/{id}',
+            output: HostGroupChoicesOutput::class,
+            provider: ListHostGroupsChoicesProvider::class,
+        ),
+        new GetCollection(
+            uriTemplate: '/configuration/services/host_groups',
+            openapi: false,
+            security: 'is_granted("' . ServicePermissionEnum::CanReadAndWrite->value . '")',
             securityMessage: 'You are not allowed to access host groups',
             itemUriTemplate: '/configuration/host_groups/{id}',
             output: HostGroupChoicesOutput::class,

@@ -31,6 +31,11 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceGroup\ServiceGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityId;
+use App\Security\Domain\Aggregate\AccessGroupId;
 use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\ResourceAccessRepository;
@@ -50,6 +55,15 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
     /** @var AccessScope<HostGroupId> */
     public AccessScope $hostGroupScope;
 
+    /** @var AccessScope<ServiceGroupId> */
+    public AccessScope $serviceGroupScope;
+
+    /** @var AccessScope<ServiceCategoryId> */
+    public AccessScope $serviceCategoryScope;
+
+    /** @var AccessScope<ServiceSeverityId> */
+    public AccessScope $serviceSeverityScope;
+
     /** @var AccessScope<MediaDirectoryId> */
     public AccessScope $imageFolderScope;
 
@@ -68,8 +82,17 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
     /** @var Collection<HostId> always restricted, as hosts follow the real-time ACL cache */
     public Collection $accessibleHostIds;
 
+    /** @var Collection<AccessGroupId> the actor's active Access Groups, which scope services */
+    public Collection $activeAccessGroupIds;
+
     /** @var list<array{resource: AggregateRoot<AggregateRootId>&AclScopedInterface, accessGroupIds: list<int>}> */
     public array $grantedAccess = [];
+
+    /** @var list<array{hostId: int, serviceId: int, accessGroupIds: list<int>}> */
+    public array $grantedServiceAccess = [];
+
+    /** @var array<int, array<int, list<int>>> service id => host id => the groups the real-time ACL cache grants the pair to */
+    public array $grantedPairs = [];
 
     public bool $allResourcesFlaggedAsChanged = false;
 
@@ -81,16 +104,22 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
 
     public bool $duplicateHostAccessThrows = false;
 
+    public bool $duplicateHostServiceAccessThrows = false;
+
     public function __construct()
     {
         $this->pollerScope = AccessScope::unrestricted(PollerId::class);
         $this->hostGroupScope = AccessScope::unrestricted(HostGroupId::class);
+        $this->serviceGroupScope = AccessScope::unrestricted(ServiceGroupId::class);
+        $this->serviceCategoryScope = AccessScope::unrestricted(ServiceCategoryId::class);
+        $this->serviceSeverityScope = AccessScope::unrestricted(ServiceSeverityId::class);
         $this->imageFolderScope = AccessScope::unrestricted(MediaDirectoryId::class);
         $this->hostCategoryScope = AccessScope::unrestricted(HostCategoryId::class);
         $this->hostSeverityScope = AccessScope::unrestricted(HostSeverityId::class);
         $this->accessibleContactIds = new Collection([], NotificationContactId::class);
         $this->accessibleContactGroupIds = new Collection([], ContactGroupId::class);
         $this->accessibleHostIds = new Collection([], HostId::class);
+        $this->activeAccessGroupIds = new Collection([], AccessGroupId::class);
     }
 
     public function hasAccessToAllPollers(UserId $userId): bool
@@ -131,6 +160,27 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
         return $this->hostGroupScope;
     }
 
+    public function findServiceGroupAccessScope(UserId $userId): AccessScope
+    {
+        $this->lookups[__FUNCTION__] = ($this->lookups[__FUNCTION__] ?? 0) + 1;
+
+        return $this->serviceGroupScope;
+    }
+
+    public function findServiceCategoryAccessScope(UserId $userId): AccessScope
+    {
+        $this->lookups[__FUNCTION__] = ($this->lookups[__FUNCTION__] ?? 0) + 1;
+
+        return $this->serviceCategoryScope;
+    }
+
+    public function findServiceSeverityAccessScope(UserId $userId): AccessScope
+    {
+        $this->lookups[__FUNCTION__] = ($this->lookups[__FUNCTION__] ?? 0) + 1;
+
+        return $this->serviceSeverityScope;
+    }
+
     public function findContactAccessScope(UserId $userId): AccessScope
     {
         $this->lookups[__FUNCTION__] = ($this->lookups[__FUNCTION__] ?? 0) + 1;
@@ -161,6 +211,13 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
         ));
     }
 
+    public function findServiceAccessGroupScope(UserId $userId): AccessScope
+    {
+        $this->lookups[__FUNCTION__] = ($this->lookups[__FUNCTION__] ?? 0) + 1;
+
+        return AccessScope::restrictedTo(AccessGroupId::class, $this->activeAccessGroupIds);
+    }
+
     public function findImageFolderAccessScope(UserId $userId): AccessScope
     {
         $this->lookups[__FUNCTION__] = ($this->lookups[__FUNCTION__] ?? 0) + 1;
@@ -174,6 +231,27 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
             'resource' => $resource,
             'accessGroupIds' => array_values(array_map(static fn ($id): int => $id->value, $accessGroupIds->toArray())),
         ];
+    }
+
+    public function grantServiceAccess(HostId $hostId, ServiceId $serviceId, Collection $accessGroupIds): void
+    {
+        $this->grantedServiceAccess[] = [
+            'hostId' => $hostId->value,
+            'serviceId' => $serviceId->value,
+            'accessGroupIds' => array_values(array_map(static fn (AccessGroupId $id): int => $id->value, $accessGroupIds->toArray())),
+        ];
+    }
+
+    public function findAccessGroupIdsGrantingService(ServiceId $serviceId, Collection $hostIds): Collection
+    {
+        $groupIds = [];
+        foreach ($hostIds as $hostId) {
+            $groupIds = [...$groupIds, ...$this->grantedPairs[$serviceId->value][$hostId->value] ?? []];
+        }
+        $groupIds = array_values(array_unique($groupIds));
+        sort($groupIds);
+
+        return new Collection(array_map(static fn (int $id): AccessGroupId => new AccessGroupId($id), $groupIds), AccessGroupId::class);
     }
 
     public function flagAllResourcesAsChanged(): void
@@ -195,6 +273,10 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
 
     public function duplicateHostServiceAccess(HostId $sourceHostId, HostId $newHostId): void
     {
+        if ($this->duplicateHostServiceAccessThrows) {
+            throw new \RuntimeException('duplicateHostServiceAccess failed');
+        }
+
         $this->duplicatedHostServiceAccess[] = [
             'sourceHostId' => $sourceHostId->value,
             'newHostId' => $newHostId->value,

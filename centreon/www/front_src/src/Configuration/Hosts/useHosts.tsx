@@ -1,10 +1,10 @@
 import { Method } from '@centreon/ui';
 
-import { mergeAll } from 'ramda';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { type APIType, FieldType, type FilterConfiguration } from '../models';
+import { getPayload } from '../ResourceForm/blocks';
 import {
   getDuplicateHostEndpoint,
   getHostDecoder,
@@ -17,11 +17,7 @@ import {
   hostsListEndpoint,
   namedEntitiesListDecoder
 } from './api';
-import {
-  type FormValues,
-  getAvailableSections,
-  type PlatformContext
-} from './Form/sections';
+import { blocks, type FormValues, type PlatformContext } from './Form/sections';
 import {
   labelHostGroup,
   labelHostTemplate,
@@ -36,11 +32,7 @@ interface UseHostsState {
 }
 
 const getAdapter = (context: PlatformContext) => (data: unknown) =>
-  mergeAll(
-    getAvailableSections(context).map(({ section }) =>
-      section.toPayload(data as FormValues, context)
-    )
-  );
+  getPayload(blocks, data as FormValues, context);
 
 const getApi = (context: PlatformContext): APIType => ({
   // `PatchHostInput` takes `activated`, not the `is_activated` of the older

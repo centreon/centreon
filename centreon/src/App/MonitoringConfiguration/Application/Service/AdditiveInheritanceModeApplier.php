@@ -23,10 +23,11 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Application\Service;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
-use App\MonitoringConfiguration\Domain\Aggregate\Option\OptionName;
-use App\MonitoringConfiguration\Domain\Exception\OptionDoesNotExistException;
-use App\MonitoringConfiguration\Domain\Repository\OptionRepository;
+use App\MonitoringConfiguration\Domain\Aggregate\Notifications;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceNotifications;
+use App\Shared\Domain\Aggregate\Option\OptionName;
+use App\Shared\Domain\Exception\OptionDoesNotExistException;
+use App\Shared\Domain\Repository\OptionRepository;
 
 /**
  * The additive-inheritance flags only mean something when the platform's `inheritance_mode`
@@ -45,6 +46,23 @@ final readonly class AdditiveInheritanceModeApplier
     public function apply(?Notifications $notifications): ?Notifications
     {
         if (! $notifications instanceof Notifications) {
+            return null;
+        }
+
+        if (! $notifications->contactAdditiveInheritance && ! $notifications->contactGroupAdditiveInheritance) {
+            return $notifications;
+        }
+
+        if ($this->isAdditiveInheritanceEnabled()) {
+            return $notifications;
+        }
+
+        return $notifications->withoutAdditiveInheritance();
+    }
+
+    public function applyToService(?ServiceNotifications $notifications): ?ServiceNotifications
+    {
+        if (! $notifications instanceof ServiceNotifications) {
             return null;
         }
 

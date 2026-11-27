@@ -18,7 +18,8 @@ export enum ResourceType {
   HostGroup = 'host group',
   ServiceGroup = 'service group',
   AdditionalConfiguration = 'additional configuration',
-  Command = 'command'
+  Command = 'command',
+  HostTemplate = 'host template'
 }
 
 export interface Form {
@@ -77,6 +78,10 @@ export interface Actions {
         disable?: boolean;
       };
   edit?: boolean;
+  // Whether an opened resource can be changed; every one by default.
+  editable?: (resource: ResourceRow) => boolean;
+  // Whether a row can be checked, select-all included; every row by default.
+  selectable?: (row: ResourceRow) => boolean;
   viewDetails?: boolean;
   rowActions?: Array<RowAction>;
   massiveActions?: Array<MassiveAction>;
@@ -84,6 +89,9 @@ export interface Actions {
   // what it shows. Modules gating on write access alone leave this off.
   rowActionsWithoutWriteAccess?: boolean;
 }
+
+// Theme spacing units, or `full` to match the search field's width.
+export type FiltersPanelWidth = number | 'full';
 
 export interface ConfigurationBase<TFilters> {
   resourceType: ResourceType;
@@ -114,11 +122,15 @@ export interface ConfigurationBase<TFilters> {
     label: string;
     link: string;
   }>;
-  filtersPanelWidth?: number;
+  filtersPanelWidth?: FiltersPanelWidth;
   // Where the create/edit form opens. Modal by default.
   formVariant?: 'modal' | 'panel';
   // Width the panel opens at; the user can resize it from there.
   formPanelWidth?: number;
+  // The column the listing opens sorted on, when it is not `name`.
+  defaultSortField?: string;
+  // What tells two listing rows apart, when `id` alone does not.
+  getRowId?: (row: ResourceRow) => number | string;
 }
 
 export enum FieldType {
@@ -153,6 +165,9 @@ export interface APIType {
   // The field a PATCH-based enable/disable sets, when an endpoint does not
   // spell it the way the older migrated listings do.
   activationField?: string;
+  // The status column sorts on `activationField` unless the endpoint cannot
+  // sort on it.
+  isActivationSortable?: boolean;
   decoders?: {
     getOne?: JsonDecoder.Decoder<unknown>;
     getAll?: JsonDecoder.Decoder<unknown>;
@@ -161,10 +176,15 @@ export interface APIType {
   apiFormat?: 'Standard' | 'JSON-LD';
   methods?: {
     update?: Method;
+    // The mass change's own write, when the edit replaces the record: a
+    // selection only sends what changed. Falls back to `update`.
+    massUpdate?: Method;
     enable?: Method;
     disable?: Method;
   };
   isSingleDuplicate?: boolean;
+  // Row duplicate asks the copy's name and POSTs `{ name }`; needs a per-id `duplicate` endpoint.
+  isDuplicateWithName?: boolean;
 }
 
 export interface FilterConfiguration {
@@ -179,6 +199,10 @@ export interface FilterConfiguration {
   // The autocomplete reads `{ result, meta }`; a Hydra selector needs a decoder
   // built with `apiFormat: 'JSON-LD'` to get there.
   decoder?: JsonDecoder.Decoder<unknown>;
+  // A checkbox sends `fieldName=true` when checked. A filter whose parameter
+  // reads the other way round names it here instead: it is then sent as `true`
+  // when the box is unchecked, and left out when checked.
+  uncheckedQueryParameter?: string;
 }
 
 export interface Configuration {
@@ -188,5 +212,5 @@ export interface Configuration {
   filtersInitialValues: Filters;
   defaultSelectedColumnIds: Array<string>;
   actions?: Actions;
-  filtersPanelWidth?: number;
+  filtersPanelWidth?: FiltersPanelWidth;
 }

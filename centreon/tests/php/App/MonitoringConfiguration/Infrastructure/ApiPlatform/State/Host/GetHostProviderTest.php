@@ -170,7 +170,6 @@ final class GetHostProviderTest extends ApiTestCase
                 'severity_id' => $severityId,
                 'timezone_id' => $timezoneId,
                 'template_ids' => [$templateId],
-                // Leaving it on would boot the legacy deployer; nothing here asserts deployment.
                 'create_services_linked_to_templates' => false,
                 'parent_host_ids' => [$parentId],
                 'child_host_ids' => [$childId],
@@ -258,6 +257,10 @@ final class GetHostProviderTest extends ApiTestCase
             // A redacted value is null, which the serializer omits, so the key is absent entirely.
             self::assertNull($macro['value'] ?? null, "password macro '{$macro['name']}' value must not be exposed");
         }
+
+        $severity = $getBody['severity'];
+        Assert::isArray($severity);
+        self::assertSame(1, $severity['level'] ?? null);
 
         // The whole contract, field for field, matches what CreateHost returned.
         self::assertEqualsCanonicalizing($createBody, $getBody);

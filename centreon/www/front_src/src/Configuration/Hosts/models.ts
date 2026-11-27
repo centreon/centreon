@@ -1,14 +1,9 @@
-export type NamedEntity = {
-  id: number;
-  name: string;
-};
+import type { Icon, NamedEntity } from '../ResourceForm/models';
+
+export type { Icon, NamedEntity } from '../ResourceForm/models';
 
 export type FormPoller = NamedEntity & {
   isDefault: boolean;
-};
-
-export type Icon = NamedEntity & {
-  url: string;
 };
 
 export interface HostListItem extends NamedEntity {

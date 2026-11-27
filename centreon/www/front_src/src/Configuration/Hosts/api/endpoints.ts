@@ -1,6 +1,7 @@
 import {
   type BuildListingEndpointParameters,
   buildListingEndpoint,
+  type QueryParameter,
   type SearchParameter
 } from '@centreon/ui';
 
@@ -34,7 +35,7 @@ export const hostFormHostTemplatesEndpoint =
 
 // One template's macros, its own and those it inherits.
 export const getHostTemplateMacrosEndpoint = ({ id }: { id: number }): string =>
-  `${hostFormHostTemplatesEndpoint}/${id}`;
+  `${hostFormHostTemplatesEndpoint}/${id}/macros`;
 
 export const timezonesEndpoint = '/configuration/timezones';
 
@@ -67,7 +68,7 @@ export const getDuplicateHostEndpoint = ({
 
 // Selectors take `name[lk]`, not the `search` payload the autocomplete builds.
 const getSelectorEndpoint =
-  (baseEndpoint: string) =>
+  (baseEndpoint: string, fixedQueryParameters: Array<QueryParameter> = []) =>
   ({ search, page }: { search?: SearchParameter; page?: number }): string => {
     // Once a value is selected the autocomplete prepends a `$ni` condition
     // excluding it, so the typed text is not necessarily the first one.
@@ -75,7 +76,7 @@ const getSelectorEndpoint =
       ?.map((condition) => condition?.values?.$lk)
       .find((value): value is string => typeof value === 'string');
 
-    const customQueryParameters = search
+    const searchQueryParameters: Array<QueryParameter> = search
       ? [
           {
             name: 'name[lk]',
@@ -84,6 +85,10 @@ const getSelectorEndpoint =
           }
         ]
       : [];
+    const customQueryParameters = [
+      ...searchQueryParameters,
+      ...fixedQueryParameters
+    ];
 
     return buildListingEndpoint({
       apiFormat: 'JSON-LD',
@@ -96,8 +101,10 @@ const getSelectorEndpoint =
     });
   };
 
+// Include locked templates: hosts commonly use Monitoring Connector ones.
 export const getHostTemplatesEndpoint = getSelectorEndpoint(
-  hostTemplatesEndpoint
+  hostTemplatesEndpoint,
+  [{ name: 'include_locked', value: 'true' }]
 );
 export const getHostGroupsEndpoint = getSelectorEndpoint(hostGroupsEndpoint);
 export const getPollersEndpoint = getSelectorEndpoint(pollersEndpoint);

@@ -95,6 +95,7 @@ jobs:
         "centreon/libinstall/**"
         "centreon/logrotate/**"
         "centreon/lua/**"
+        "centreon/migrations/**"
         "centreon/packaging/**"
         "centreon/selinux/**"
         "centreon/snmptrapd/**"
@@ -149,6 +150,10 @@ jobs:
         "centreon/tests/performance/**"
       upgrade_test_paths: |
         "centreon/www/install/**"
+        "centreon/migrations/**"
+        "centreon/src/App/Upgrade/**"
+        "centreon/config.new/packages/centreon.yaml"
+        "centreon/config.new/services/upgrade.php"
         "centreon/packaging/**"
         "centreon/tests/e2e/features/Platform-upgrade-update/**"
       translation_paths: |
@@ -179,6 +184,7 @@ jobs:
       version: ${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }}
       version_file: .version.centreon-web
       installation_file: centreon/www/install/insertBaseConf.sql
+      migrations_version_file: centreon/config.new/packages/centreon.yaml
       update_file: centreon/www/install/php/Update-${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }}.php
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -193,6 +199,12 @@ jobs:
         uses: ./.github/actions/check-version-consistency
         with:
           file: ${{ env.installation_file }}
+          version: ${{ env.version }}
+
+      - name: Check ${{ env.migrations_version_file }}
+        uses: ./.github/actions/check-version-consistency
+        with:
+          file: ${{ env.migrations_version_file }}
           version: ${{ env.version }}
 
       - name: Check ${{ env.update_file }}
@@ -1870,7 +1882,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Deliver sources
-        uses: ./.github/actions/release-sources
+        uses: centreon/github-actions/download-site/sources-delivery@download-site/v1
         with:
           bucket_directory: centreon
           module_directory: centreon
@@ -2016,7 +2028,7 @@ jobs:
 
       - name: Deliver packages on Pulp
         id: deliver_pulp
-        uses: ./.github/actions/package-delivery-pulp
+        uses: centreon/github-actions/pulp/package-delivery@pulp/v1
         with:
           module_name: web
           distrib: ${{ matrix.distrib }}
@@ -2055,7 +2067,7 @@ jobs:
 
       - name: Promote ${{ matrix.distrib }} to stable on Pulp
         id: promote_pulp
-        uses: ./.github/actions/promote-to-stable-pulp
+        uses: centreon/github-actions/pulp/promote-to-stable@pulp/v1
         with:
           module_name: web
           distrib: ${{ matrix.distrib }}

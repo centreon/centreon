@@ -98,7 +98,7 @@ jobs:
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: Setup pulp-cli
-        uses: ./.github/actions/setup-pulp-cli
+        uses: centreon/github-actions/pulp/setup-cli@pulp/v1
         with:
           pulp_url: ${{ vars.PULP_API_URL }}
           audience: ${{ vars.PULP_OIDC_AUDIENCE }}

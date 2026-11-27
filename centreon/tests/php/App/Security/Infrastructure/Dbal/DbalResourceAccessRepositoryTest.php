@@ -27,13 +27,20 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostState;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
 use App\Security\Domain\Aggregate\AccessGroupId;
+use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Infrastructure\Dbal\DbalAccessGroupRepository;
 use App\Security\Infrastructure\Dbal\DbalResourceAccessRepository;
+use App\Shared\Domain\Aggregate\AclScopedInterface;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Collection;
 use Doctrine\DBAL\ArrayParameterType;
@@ -124,6 +131,148 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         $this->repository->duplicateHostServiceAccess(new HostId(9101), new HostId($copyId));
 
         self::assertSame([30], $this->aclFingerprintGroupIds([10, 20, 30]));
+    }
+
+    /**
+     * A service is granted on its host: one (group, host, service) row per given group.
+     */
+    public function testGrantResourceAccessForAService(): void
+    {
+        $service = new Service(
+            id: new ServiceId(9002),
+            name: new ServiceName('ping'),
+            hostId: new HostId(9001),
+            hostActivated: true,
+            hostPollerId: new PollerId(1),
+        );
+
+        $this->repository->grantResourceAccess($service, new Collection([new AccessGroupId(10), new AccessGroupId(20)], AccessGroupId::class));
+
+        /** @var list<array{group_id: int|string, host_id: int|string, service_id: int|string|null}> $rows */
+        $rows = $this->realTimeConnection->fetchAllAssociative(
+            'SELECT group_id, host_id, service_id FROM centreon_acl WHERE service_id = ? ORDER BY group_id',
+            [9002],
+        );
+
+        self::assertSame(
+            [[10, 9001, 9002], [20, 9001, 9002]],
+            array_map(static fn (array $row): array => [(int) $row['group_id'], (int) $row['host_id'], (int) $row['service_id']], $rows),
+        );
+    }
+
+    /**
+     * A service moved to another host is granted on its new host: the rows name the new pair.
+     */
+    public function testGrantResourceAccessForAMovedService(): void
+    {
+        $service = new Service(
+            id: new ServiceId(9003),
+            name: new ServiceName('ping'),
+            hostId: new HostId(9001),
+            hostActivated: true,
+            hostPollerId: new PollerId(1),
+        );
+        $service->moveToHost(new HostId(9004), new HostState(true, new PollerId(2)));
+
+        $this->repository->grantResourceAccess($service, new Collection([new AccessGroupId(10)], AccessGroupId::class));
+
+        /** @var list<array{group_id: int|string, host_id: int|string, service_id: int|string|null}> $rows */
+        $rows = $this->realTimeConnection->fetchAllAssociative(
+            'SELECT group_id, host_id, service_id FROM centreon_acl WHERE service_id = ? ORDER BY group_id',
+            [9003],
+        );
+
+        self::assertSame(
+            [[10, 9004, 9003]],
+            array_map(static fn (array $row): array => [(int) $row['group_id'], (int) $row['host_id'], (int) $row['service_id']], $rows),
+        );
+    }
+
+    public function testGrantServiceAccessByIds(): void
+    {
+        $this->repository->grantServiceAccess(new HostId(9004), new ServiceId(9005), new Collection([new AccessGroupId(10), new AccessGroupId(20)], AccessGroupId::class));
+
+        /** @var list<array{group_id: int|string, host_id: int|string, service_id: int|string|null}> $rows */
+        $rows = $this->realTimeConnection->fetchAllAssociative(
+            'SELECT group_id, host_id, service_id FROM centreon_acl WHERE service_id = ? ORDER BY group_id',
+            [9005],
+        );
+
+        self::assertSame(
+            [[10, 9004, 9005], [20, 9004, 9005]],
+            array_map(static fn (array $row): array => [(int) $row['group_id'], (int) $row['host_id'], (int) $row['service_id']], $rows),
+        );
+    }
+
+    /**
+     * The groups granted the service on one of the hosts given, each once, lowest first: a grant of the service on
+     * another host, of another service on those hosts, or of the host alone is left out.
+     */
+    public function testFindAccessGroupIdsGrantingServiceReadsThePairsOnTheHostsGiven(): void
+    {
+        $this->realTimeConnection->executeStatement(
+            'INSERT INTO centreon_acl (group_id, host_id, service_id)
+                VALUES (30, 9101, 9100), (10, 9102, 9100), (30, 9102, 9100), (40, 9103, 9100), (50, 9101, 9104), (60, 9101, NULL)',
+        );
+
+        $groupIds = $this->repository->findAccessGroupIdsGrantingService(
+            new ServiceId(9100),
+            new Collection([new HostId(9101), new HostId(9102)], HostId::class),
+        );
+
+        self::assertSame([10, 30], array_map(static fn (AccessGroupId $id): int => $id->value, $groupIds->toArray()));
+    }
+
+    public function testFindAccessGroupIdsGrantingServiceOnNoHostFindsNone(): void
+    {
+        $this->realTimeConnection->executeStatement('INSERT INTO centreon_acl (group_id, host_id, service_id) VALUES (10, 9101, 9100)');
+
+        self::assertCount(0, $this->repository->findAccessGroupIdsGrantingService(new ServiceId(9100), new Collection([], HostId::class)));
+    }
+
+    /**
+     * A service moved back to a host before the real-time ACL cache is recomputed: its pair is still there for one
+     * of the groups. The grant keeps it and adds the others.
+     */
+    public function testGrantResourceAccessKeepsAPairAlreadyGranted(): void
+    {
+        $this->realTimeConnection->executeStatement(
+            'INSERT INTO centreon_acl (group_id, host_id, service_id) VALUES (10, 9005, 9006)',
+        );
+        $service = new Service(
+            id: new ServiceId(9006),
+            name: new ServiceName('ping'),
+            hostId: new HostId(9005),
+            hostActivated: true,
+            hostPollerId: new PollerId(1),
+        );
+
+        $this->repository->grantResourceAccess($service, new Collection([new AccessGroupId(10), new AccessGroupId(20)], AccessGroupId::class));
+
+        /** @var list<array{group_id: int|string, host_id: int|string, service_id: int|string|null}> $rows */
+        $rows = $this->realTimeConnection->fetchAllAssociative(
+            'SELECT group_id, host_id, service_id FROM centreon_acl WHERE service_id = ? ORDER BY group_id',
+            [9006],
+        );
+
+        self::assertSame(
+            [[10, 9005, 9006], [20, 9005, 9006]],
+            array_map(static fn (array $row): array => [(int) $row['group_id'], (int) $row['host_id'], (int) $row['service_id']], $rows),
+        );
+    }
+
+    /**
+     * An ACL-scoped aggregate with no mapping is refused rather than granted with rows of the wrong shape.
+     */
+    public function testGrantResourceAccessRefusesAnAggregateWithoutMapping(): void
+    {
+        $resource = new class (new HostId(9001)) extends AggregateRoot implements AclScopedInterface {
+        };
+
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('No ACL grant mapping for aggregate');
+
+        $this->repository->grantResourceAccess($resource, new Collection([new AccessGroupId(10)], AccessGroupId::class));
     }
 
     public function testFlagAllResourcesAsChangedFlagsEveryAclResource(): void
@@ -420,20 +569,389 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         self::assertTrue($this->repository->findHostGroupAccessScope($userId)->isUnrestricted());
     }
 
-    public function testUserWithNoAclGroupHasAccessToNoImageFolders(): void
+    public function testUserWithNoAclGroupHasAccessToNoServiceGroups(): void
     {
-        // Legacy `if ($accessGroups === []) return new \EmptyIterator()`: a user with no accessible
-        // ACL resource is fully restricted (fails closed): their scope allows nothing, it is
-        // not unrestricted.
+        $userId = new UserId($this->createContact('user-no-acl'));
+
+        $serviceGroupScope = $this->repository->findServiceGroupAccessScope($userId);
+
+        self::assertFalse($serviceGroupScope->isUnrestricted(), 'No accessible ACL resource is a restriction, not "see all".');
+        self::assertTrue($serviceGroupScope->allowsNothing());
+    }
+
+    public function testUserWithAclResourceFlaggedAllServiceGroupsHasAccessToAllServiceGroups(): void
+    {
+        $contactId = $this->createContact('user-all-flag');
+        // a restricted resource next to the flagged one: the flag on any accessible resource wins
+        $this->linkContactToAclResourceForServiceGroups($contactId, restrictToServiceGroupIds: [$this->insertServiceGroup()], allServiceGroups: false);
+        $this->linkContactToAclResourceForServiceGroups($contactId, restrictToServiceGroupIds: [], allServiceGroups: true);
+
+        self::assertTrue($this->repository->findServiceGroupAccessScope(new UserId($contactId))->isUnrestricted());
+    }
+
+    public function testUserWithAclResourceRestrictedToAServiceGroupSeesOnlyIt(): void
+    {
+        $grantedId = $this->insertServiceGroup();
+        $this->insertServiceGroup();
+        $contactId = $this->createContact('user-restricted');
+        $aclResId = $this->linkContactToAclResourceForServiceGroups($contactId, restrictToServiceGroupIds: [$grantedId], allServiceGroups: false);
+        // the relation column is nullable: such a row grants nothing and must not become an invalid id
+        $this->connection->insert('acl_resources_sg_relations', ['acl_res_id' => $aclResId, 'sg_id' => null]);
+
+        $serviceGroupScope = $this->repository->findServiceGroupAccessScope(new UserId($contactId));
+
+        self::assertFalse($serviceGroupScope->isUnrestricted());
+        self::assertSame([$grantedId], $serviceGroupScope->allowedIdValues());
+    }
+
+    public function testUserWithAclResourceCarryingNoRelationAndNoAllFlagHasAccessToNoServiceGroups(): void
+    {
+        // A resource that never had its service-group tab configured (no relation rows, flag unset)
+        // grants zero service groups: it must not be mistaken for the "all service groups" flag.
+        $contactId = $this->createContact('user-empty-resource');
+        $this->linkContactToAclResourceForServiceGroups($contactId, restrictToServiceGroupIds: [], allServiceGroups: false);
+
+        $serviceGroupScope = $this->repository->findServiceGroupAccessScope(new UserId($contactId));
+
+        self::assertFalse($serviceGroupScope->isUnrestricted(), 'A resource without relation nor flag is a restriction, not "see all".');
+        self::assertTrue($serviceGroupScope->allowsNothing());
+    }
+
+    public function testAnotherUsersGrantsGiveNoServiceGroupToTheAskingUser(): void
+    {
+        $grantedId = $this->insertServiceGroup();
+        $otherUsersGroupId = $this->insertServiceGroup();
+        $contactId = $this->createContact('user-restricted');
+        $this->linkContactToAclResourceForServiceGroups($contactId, restrictToServiceGroupIds: [$grantedId], allServiceGroups: false);
+        // another user's active resources: one flagged for every service group, one with a relation
+        $otherContactId = $this->createContact('user-other');
+        $this->linkContactToAclResourceForServiceGroups($otherContactId, restrictToServiceGroupIds: [], allServiceGroups: true);
+        $this->linkContactToAclResourceForServiceGroups($otherContactId, restrictToServiceGroupIds: [$otherUsersGroupId], allServiceGroups: false);
+
+        $serviceGroupScope = $this->repository->findServiceGroupAccessScope(new UserId($contactId));
+
+        self::assertFalse($serviceGroupScope->isUnrestricted(), "Another user's \"all service groups\" flag must not apply.");
+        self::assertSame([$grantedId], $serviceGroupScope->allowedIdValues(), "Another user's relations must not apply.");
+    }
+
+    public function testAnInactiveAclResourceGrantsNoServiceGroup(): void
+    {
+        $contactId = $this->createContact('user-inactive-resource');
+        // both the flag and a relation: an inactive ACL resource grants neither
+        $this->linkContactToAclResourceForServiceGroups(
+            $contactId,
+            restrictToServiceGroupIds: [$this->insertServiceGroup()],
+            allServiceGroups: true,
+            active: false,
+        );
+
+        $serviceGroupScope = $this->repository->findServiceGroupAccessScope(new UserId($contactId));
+
+        self::assertFalse($serviceGroupScope->isUnrestricted(), 'An inactive resource must not grant "all service groups".');
+        self::assertTrue($serviceGroupScope->allowsNothing());
+    }
+
+    public function testUserWithNoAclGroupSeesNoServiceCategory(): void
+    {
+        $userId = new UserId($this->createContact('user-no-acl-sc'));
+
+        $serviceCategoryScope = $this->repository->findServiceCategoryAccessScope($userId);
+
+        self::assertFalse($serviceCategoryScope->isUnrestricted(), 'No accessible ACL resource is a restriction, not "see all".');
+        self::assertTrue($serviceCategoryScope->allowsNothing());
+    }
+
+    public function testUserWithAclResourceHavingNoServiceCategoryRestrictionIsUnrestricted(): void
+    {
+        $contactId = $this->createContact('user-unrestricted-sc');
+        $this->linkContactToAclResourceForServiceCategories($contactId, restrictToServiceCategoryIds: []);
+
+        self::assertTrue($this->repository->findServiceCategoryAccessScope(new UserId($contactId))->isUnrestricted());
+    }
+
+    public function testUserRestrictedToServiceCategoriesGetsOnlyCategoryIds(): void
+    {
+        $categoryA = $this->insertServiceCategory();
+        $categoryB = $this->insertServiceCategory();
+        $this->insertServiceCategory(); // not granted
+        // a severity granted through the same resource is not a category
+        $severity = $this->insertServiceCategory(level: 1);
+
+        $contactId = $this->createContact('user-restricted-sc');
+        $aclResId = $this->linkContactToAclResourceForServiceCategories(
+            $contactId,
+            restrictToServiceCategoryIds: [$categoryA, $categoryB, $severity],
+        );
+        // the relation column is nullable: such a row grants nothing and must not become an invalid id
+        $this->connection->insert('acl_resources_sc_relations', ['acl_res_id' => $aclResId, 'sc_id' => null]);
+
+        $serviceCategoryScope = $this->repository->findServiceCategoryAccessScope(new UserId($contactId));
+
+        self::assertFalse($serviceCategoryScope->isUnrestricted());
+        self::assertEqualsCanonicalizing([$categoryA, $categoryB], $serviceCategoryScope->allowedIdValues());
+    }
+
+    public function testUserGrantedOnlyServiceSeveritiesIsRestrictedToNoServiceCategory(): void
+    {
+        $contactId = $this->createContact('user-severity-only-sc');
+        $this->linkContactToAclResourceForServiceCategories(
+            $contactId,
+            restrictToServiceCategoryIds: [$this->insertServiceCategory(level: 1)],
+        );
+
+        $serviceCategoryScope = $this->repository->findServiceCategoryAccessScope(new UserId($contactId));
+
+        self::assertFalse($serviceCategoryScope->isUnrestricted(), 'A severity-only grant is a restriction, not "see all".');
+        self::assertTrue($serviceCategoryScope->allowsNothing());
+    }
+
+    public function testAnInactiveAclResourceGrantsNoServiceCategory(): void
+    {
+        $contactId = $this->createContact('user-inactive-resource-sc');
+        $this->linkContactToAclResourceForServiceCategories(
+            $contactId,
+            restrictToServiceCategoryIds: [$this->insertServiceCategory()],
+            active: false,
+        );
+
+        $serviceCategoryScope = $this->repository->findServiceCategoryAccessScope(new UserId($contactId));
+
+        self::assertFalse($serviceCategoryScope->isUnrestricted(), 'An inactive resource is not an accessible one: nothing is granted.');
+        self::assertTrue($serviceCategoryScope->allowsNothing());
+    }
+
+    public function testAnotherUsersGrantsGiveNoServiceCategoryToTheAskingUser(): void
+    {
+        $grantedId = $this->insertServiceCategory();
+        $contactId = $this->createContact('user-restricted-sc');
+        $this->linkContactToAclResourceForServiceCategories($contactId, restrictToServiceCategoryIds: [$grantedId]);
+        $otherContactId = $this->createContact('user-other-sc');
+        $this->linkContactToAclResourceForServiceCategories($otherContactId, restrictToServiceCategoryIds: [$this->insertServiceCategory()]);
+
+        $serviceCategoryScope = $this->repository->findServiceCategoryAccessScope(new UserId($contactId));
+
+        self::assertFalse($serviceCategoryScope->isUnrestricted());
+        self::assertSame([$grantedId], $serviceCategoryScope->allowedIdValues(), "Another user's relations must not apply.");
+    }
+
+    public function testAnotherUsersRestrictionDoesNotRestrictTheAskingUserToServiceCategories(): void
+    {
+        $contactId = $this->createContact('user-unrestricted-sc');
+        $this->linkContactToAclResourceForServiceCategories($contactId, restrictToServiceCategoryIds: []);
+        $otherContactId = $this->createContact('user-other-sc');
+        $this->linkContactToAclResourceForServiceCategories($otherContactId, restrictToServiceCategoryIds: [$this->insertServiceCategory()]);
+
+        self::assertTrue(
+            $this->repository->findServiceCategoryAccessScope(new UserId($contactId))->isUnrestricted(),
+            "Another user's category relations must not put the asking user under a restriction.",
+        );
+    }
+
+    public function testUserWithOneRestrictedAndOneUnrelatedResourceStaysRestrictedToServiceCategories(): void
+    {
+        $grantedId = $this->insertServiceCategory();
+        $this->insertServiceCategory(); // not granted
+        $contactId = $this->createContact('user-mixed-sc');
+        $this->linkContactToAclResourceForServiceCategories($contactId, restrictToServiceCategoryIds: [$grantedId]);
+        // a second active resource without any relation must not lift the restriction set by the first
+        $this->linkContactToAclResourceForServiceCategories($contactId, restrictToServiceCategoryIds: []);
+
+        $serviceCategoryScope = $this->repository->findServiceCategoryAccessScope(new UserId($contactId));
+
+        self::assertFalse($serviceCategoryScope->isUnrestricted(), 'One resource carrying a relation keeps the user restricted.');
+        self::assertSame([$grantedId], $serviceCategoryScope->allowedIdValues());
+    }
+
+    public function testAnInactiveResourceAddsNoServiceCategoryToAnActiveOnesGrants(): void
+    {
+        $grantedId = $this->insertServiceCategory();
+        $contactId = $this->createContact('user-active-and-inactive-sc');
+        $this->linkContactToAclResourceForServiceCategories($contactId, restrictToServiceCategoryIds: [$grantedId]);
+        $this->linkContactToAclResourceForServiceCategories(
+            $contactId,
+            restrictToServiceCategoryIds: [$this->insertServiceCategory()],
+            active: false,
+        );
+
+        $serviceCategoryScope = $this->repository->findServiceCategoryAccessScope(new UserId($contactId));
+
+        self::assertFalse($serviceCategoryScope->isUnrestricted());
+        self::assertSame([$grantedId], $serviceCategoryScope->allowedIdValues(), "An inactive resource's relations grant nothing.");
+    }
+
+    public function testAnInactiveResourceDoesNotRestrictToServiceCategories(): void
+    {
+        $contactId = $this->createContact('user-inactive-relation-sc');
+        $this->linkContactToAclResourceForServiceCategories($contactId, restrictToServiceCategoryIds: []);
+        $this->linkContactToAclResourceForServiceCategories(
+            $contactId,
+            restrictToServiceCategoryIds: [$this->insertServiceCategory()],
+            active: false,
+        );
+
+        self::assertTrue(
+            $this->repository->findServiceCategoryAccessScope(new UserId($contactId))->isUnrestricted(),
+            "Only active resources count: an inactive resource's relations put the user under no restriction.",
+        );
+    }
+
+    public function testUserWithNoAclGroupSeesNoServiceSeverity(): void
+    {
+        $userId = new UserId($this->createContact('user-no-acl-sv'));
+
+        $serviceSeverityScope = $this->repository->findServiceSeverityAccessScope($userId);
+
+        self::assertFalse($serviceSeverityScope->isUnrestricted(), 'No accessible ACL resource is a restriction, not "see all".');
+        self::assertTrue($serviceSeverityScope->allowsNothing());
+    }
+
+    public function testUserWithAclResourceHavingNoServiceSeverityRestrictionIsUnrestricted(): void
+    {
+        $contactId = $this->createContact('user-unrestricted-sv');
+        $this->linkContactToAclResourceForServiceCategories($contactId, restrictToServiceCategoryIds: []);
+
+        self::assertTrue($this->repository->findServiceSeverityAccessScope(new UserId($contactId))->isUnrestricted());
+    }
+
+    public function testUserRestrictedToServiceSeveritiesGetsOnlySeverityIds(): void
+    {
+        $severityA = $this->insertServiceCategory(level: 1);
+        $severityB = $this->insertServiceCategory(level: 2);
+        $this->insertServiceCategory(level: 3); // not granted
+        // a regular category granted through the same resource is not a severity
+        $category = $this->insertServiceCategory();
+
+        $contactId = $this->createContact('user-restricted-sv');
+        $aclResId = $this->linkContactToAclResourceForServiceCategories(
+            $contactId,
+            restrictToServiceCategoryIds: [$severityA, $severityB, $category],
+        );
+        // the relation column is nullable: such a row grants nothing and must not become an invalid id
+        $this->connection->insert('acl_resources_sc_relations', ['acl_res_id' => $aclResId, 'sc_id' => null]);
+
+        $serviceSeverityScope = $this->repository->findServiceSeverityAccessScope(new UserId($contactId));
+
+        self::assertFalse($serviceSeverityScope->isUnrestricted());
+        self::assertEqualsCanonicalizing([$severityA, $severityB], $serviceSeverityScope->allowedIdValues());
+    }
+
+    public function testUserGrantedOnlyServiceCategoriesSeesNoServiceSeverity(): void
+    {
+        $contactId = $this->createContact('user-category-only-sv');
+        $this->linkContactToAclResourceForServiceCategories(
+            $contactId,
+            restrictToServiceCategoryIds: [$this->insertServiceCategory()],
+        );
+
+        $serviceSeverityScope = $this->repository->findServiceSeverityAccessScope(new UserId($contactId));
+
+        self::assertFalse($serviceSeverityScope->isUnrestricted(), 'A category-only grant is a restriction, not "see all".');
+        self::assertTrue($serviceSeverityScope->allowsNothing());
+    }
+
+    public function testAnInactiveAclResourceGrantsNoServiceSeverity(): void
+    {
+        $contactId = $this->createContact('user-inactive-resource-sv');
+        $this->linkContactToAclResourceForServiceCategories(
+            $contactId,
+            restrictToServiceCategoryIds: [$this->insertServiceCategory(level: 1)],
+            active: false,
+        );
+
+        $serviceSeverityScope = $this->repository->findServiceSeverityAccessScope(new UserId($contactId));
+
+        self::assertFalse($serviceSeverityScope->isUnrestricted(), 'An inactive resource is not an accessible one: nothing is granted.');
+        self::assertTrue($serviceSeverityScope->allowsNothing());
+    }
+
+    public function testAnotherUsersGrantsGiveNoServiceSeverityToTheAskingUser(): void
+    {
+        $grantedId = $this->insertServiceCategory(level: 1);
+        $contactId = $this->createContact('user-restricted-sv');
+        $this->linkContactToAclResourceForServiceCategories($contactId, restrictToServiceCategoryIds: [$grantedId]);
+        $otherContactId = $this->createContact('user-other-sv');
+        $this->linkContactToAclResourceForServiceCategories($otherContactId, restrictToServiceCategoryIds: [$this->insertServiceCategory(level: 1)]);
+
+        $serviceSeverityScope = $this->repository->findServiceSeverityAccessScope(new UserId($contactId));
+
+        self::assertFalse($serviceSeverityScope->isUnrestricted());
+        self::assertSame([$grantedId], $serviceSeverityScope->allowedIdValues(), "Another user's relations must not apply.");
+    }
+
+    public function testAnotherUsersRestrictionDoesNotRestrictTheAskingUserToServiceSeverities(): void
+    {
+        $contactId = $this->createContact('user-unrestricted-sv');
+        $this->linkContactToAclResourceForServiceCategories($contactId, restrictToServiceCategoryIds: []);
+        $otherContactId = $this->createContact('user-other-sv');
+        $this->linkContactToAclResourceForServiceCategories($otherContactId, restrictToServiceCategoryIds: [$this->insertServiceCategory(level: 1)]);
+
+        self::assertTrue(
+            $this->repository->findServiceSeverityAccessScope(new UserId($contactId))->isUnrestricted(),
+            "Another user's category relations must not put the asking user under a restriction.",
+        );
+    }
+
+    public function testUserWithOneRestrictedAndOneUnrelatedResourceStaysRestrictedToServiceSeverities(): void
+    {
+        $grantedId = $this->insertServiceCategory(level: 1);
+        $this->insertServiceCategory(level: 1); // not granted
+        $contactId = $this->createContact('user-mixed-sv');
+        $this->linkContactToAclResourceForServiceCategories($contactId, restrictToServiceCategoryIds: [$grantedId]);
+        // a second active resource without any relation must not lift the restriction set by the first
+        $this->linkContactToAclResourceForServiceCategories($contactId, restrictToServiceCategoryIds: []);
+
+        $serviceSeverityScope = $this->repository->findServiceSeverityAccessScope(new UserId($contactId));
+
+        self::assertFalse($serviceSeverityScope->isUnrestricted(), 'One resource carrying a relation keeps the user restricted.');
+        self::assertSame([$grantedId], $serviceSeverityScope->allowedIdValues());
+    }
+
+    public function testAnInactiveResourceAddsNoServiceSeverityToAnActiveOnesGrants(): void
+    {
+        $grantedId = $this->insertServiceCategory(level: 1);
+        $contactId = $this->createContact('user-active-and-inactive-sv');
+        $this->linkContactToAclResourceForServiceCategories($contactId, restrictToServiceCategoryIds: [$grantedId]);
+        $this->linkContactToAclResourceForServiceCategories(
+            $contactId,
+            restrictToServiceCategoryIds: [$this->insertServiceCategory(level: 1)],
+            active: false,
+        );
+
+        $serviceSeverityScope = $this->repository->findServiceSeverityAccessScope(new UserId($contactId));
+
+        self::assertFalse($serviceSeverityScope->isUnrestricted());
+        self::assertSame([$grantedId], $serviceSeverityScope->allowedIdValues(), "An inactive resource's relations grant nothing.");
+    }
+
+    public function testAnInactiveResourceDoesNotRestrictToServiceSeverities(): void
+    {
+        $contactId = $this->createContact('user-inactive-relation-sv');
+        $this->linkContactToAclResourceForServiceCategories($contactId, restrictToServiceCategoryIds: []);
+        $this->linkContactToAclResourceForServiceCategories(
+            $contactId,
+            restrictToServiceCategoryIds: [$this->insertServiceCategory(level: 1)],
+            active: false,
+        );
+
+        self::assertTrue(
+            $this->repository->findServiceSeverityAccessScope(new UserId($contactId))->isUnrestricted(),
+            "Only active resources count: an inactive resource's relations put the user under no restriction.",
+        );
+    }
+
+    public function testUserWithNoAclGroupHasAccessToNoGrantedImageFolders(): void
+    {
+        // A user with no accessible ACL resource is fully restricted (fails closed): their scope
+        // is not unrestricted, and holds nothing but the system folders.
         $userId = new UserId($this->createContact('user-no-acl-media'));
 
         $folderScope = $this->repository->findImageFolderAccessScope($userId);
 
         self::assertFalse($folderScope->isUnrestricted());
-        self::assertSame([], $folderScope->allowedIdValues());
+        self::assertSame([], $this->fixtureImageFolderIds($folderScope));
     }
 
-    public function testUserWithAclResourceCarryingNoRelationAndNoAllFlagHasAccessToNoImageFolders(): void
+    public function testUserWithAclResourceCarryingNoRelationAndNoAllFlagHasAccessToNoGrantedImageFolders(): void
     {
         $contactId = $this->createContact('user-empty-resource-media');
         $this->linkContactToAclResourceForImageFolders($contactId, restrictToImageFolderIds: [], allImageFolders: false);
@@ -443,7 +961,7 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         $folderScope = $this->repository->findImageFolderAccessScope($userId);
 
         self::assertFalse($folderScope->isUnrestricted());
-        self::assertSame([], $folderScope->allowedIdValues());
+        self::assertSame([], $this->fixtureImageFolderIds($folderScope));
     }
 
     public function testUserWithAclResourceFlaggedAllImageFoldersHasAccessToAllImageFolders(): void
@@ -465,7 +983,7 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
 
         $folderScope = $this->repository->findImageFolderAccessScope($userId);
         self::assertFalse($folderScope->isUnrestricted());
-        self::assertEquals([301], $folderScope->allowedIdValues());
+        self::assertSame([301], $this->fixtureImageFolderIds($folderScope));
     }
 
     public function testAnImageFolderRelationWithoutFolderIsIgnored(): void
@@ -474,7 +992,44 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         $contactId = $this->createContact('user-null-folder-media');
         $this->linkContactToAclResourceForImageFolders($contactId, restrictToImageFolderIds: [301, null], allImageFolders: false);
 
-        self::assertSame([301], $this->repository->findImageFolderAccessScope(new UserId($contactId))->allowedIdValues());
+        self::assertSame([301], $this->fixtureImageFolderIds($this->repository->findImageFolderAccessScope(new UserId($contactId))));
+    }
+
+    public function testUserWithNoAclGroupStillHasAccessToTheSystemImageFolders(): void
+    {
+        $this->connection->insert('view_img_dir', ['dir_id' => 303, 'dir_name' => 'centreon-map']);
+        $userId = new UserId($this->createContact('user-no-acl-system-media'));
+
+        $folderScope = $this->repository->findImageFolderAccessScope($userId);
+
+        self::assertFalse($folderScope->isUnrestricted());
+        self::assertSame([303], $this->fixtureImageFolderIds($folderScope));
+    }
+
+    public function testOnlyTheExactSystemFolderNamesAreGranted(): void
+    {
+        // the column collation ignores case: "PPM" must not be taken for the "ppm" system folder
+        $this->connection->insert('view_img_dir', ['dir_id' => 303, 'dir_name' => 'PPM']);
+        $this->connection->insert('view_img_dir', ['dir_id' => 304, 'dir_name' => 'Dashboards']);
+
+        $userId = new UserId($this->createContact('user-no-acl-system-case-media'));
+
+        self::assertSame([], $this->fixtureImageFolderIds($this->repository->findImageFolderAccessScope($userId)));
+    }
+
+    public function testSystemImageFoldersAreAddedToTheGrantedImageFoldersOnce(): void
+    {
+        $this->connection->insert('view_img_dir', ['dir_id' => 303, 'dir_name' => 'centreon-map']);
+        $this->connection->insert('view_img_dir', ['dir_id' => 304, 'dir_name' => 'ppm']);
+
+        $contactId = $this->createContact('user-granted-and-system-media');
+        // granting a system folder explicitly must not duplicate it in the scope
+        $this->linkContactToAclResourceForImageFolders($contactId, restrictToImageFolderIds: [301, 303], allImageFolders: false);
+
+        self::assertSame(
+            [301, 303, 304],
+            $this->fixtureImageFolderIds($this->repository->findImageFolderAccessScope(new UserId($contactId))),
+        );
     }
 
     /**
@@ -766,6 +1321,21 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         );
     }
 
+    public function testTheServiceScopeIsRestrictedToTheUsersActiveAccessGroups(): void
+    {
+        // Which groups are active, directly or through a contact group, is pinned by DbalAccessGroupRepositoryTest:
+        // this only proves the scope is built from them.
+        $actorId = $this->createContact('actor-services-' . uniqid());
+        $groupId = $this->createAccessGroupForContact($actorId);
+        $this->createAccessGroupForContact($actorId, activated: '0');
+        $this->createAccessGroupForContact($this->createContact('other-services-' . uniqid()));
+
+        $scope = $this->repository->findServiceAccessGroupScope(new UserId($actorId));
+
+        self::assertFalse($scope->isUnrestricted());
+        self::assertSame([$groupId], $scope->allowedIdValues());
+    }
+
     /**
      * @param list<int|string> $params
      */
@@ -777,13 +1347,13 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         return (int) $count;
     }
 
-    private function createAccessGroupForContact(int $contactId): int
+    private function createAccessGroupForContact(int $contactId, string $activated = '1'): int
     {
         $name = 'contact-acl-group-' . $contactId . '-' . random_int(1, PHP_INT_MAX);
         $this->connection->insert('acl_groups', [
             'acl_group_name' => $name,
             'acl_group_alias' => $name,
-            'acl_group_activate' => '1',
+            'acl_group_activate' => $activated,
         ]);
         $aclGroupId = (int) $this->connection->lastInsertId();
 
@@ -1001,6 +1571,26 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
     }
 
     /**
+     * The image folders of the scope that this test created (301 to 305), sorted. Other folders,
+     * such as system folders already present in the database, are left out so that the
+     * assertions do not depend on the database content. Duplicates are kept.
+     *
+     * @param AccessScope<MediaDirectoryId> $scope
+     *
+     * @return list<int>
+     */
+    private function fixtureImageFolderIds(AccessScope $scope): array
+    {
+        $ids = array_values(array_filter(
+            $scope->allowedIdValues(),
+            static fn (int $id): bool => $id >= 301 && $id <= 305,
+        ));
+        sort($ids);
+
+        return $ids;
+    }
+
+    /**
      * @param list<int|null> $restrictToImageFolderIds image folders explicitly granted through this
      *                                                 resource's relations; irrelevant once $allImageFolders is true
      */
@@ -1037,5 +1627,97 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
                 'dir_id' => $imageFolderId,
             ]);
         }
+    }
+
+    private function insertServiceGroup(): int
+    {
+        $this->connection->insert('servicegroup', ['sg_name' => 'ServiceGroup-' . random_int(1, PHP_INT_MAX)]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    /**
+     * @param list<int> $restrictToServiceGroupIds service groups explicitly granted through this
+     *                                             resource's relations; irrelevant once $allServiceGroups is true
+     */
+    private function linkContactToAclResourceForServiceGroups(
+        int $contactId,
+        array $restrictToServiceGroupIds,
+        bool $allServiceGroups,
+        bool $active = true,
+    ): int {
+        $aclGroupId = $this->createAccessGroupForContact($contactId);
+
+        $this->connection->insert('acl_resources', [
+            'acl_res_name' => 'resource-' . $aclGroupId,
+            'acl_res_alias' => 'resource-' . $aclGroupId,
+            'acl_res_activate' => $active ? '1' : '0',
+            'all_servicegroups' => $allServiceGroups ? '1' : '0',
+        ]);
+        $aclResId = (int) $this->connection->lastInsertId();
+
+        $this->connection->insert('acl_res_group_relations', [
+            'acl_res_id' => $aclResId,
+            'acl_group_id' => $aclGroupId,
+        ]);
+
+        foreach ($restrictToServiceGroupIds as $serviceGroupId) {
+            $this->connection->insert('acl_resources_sg_relations', [
+                'acl_res_id' => $aclResId,
+                'sg_id' => $serviceGroupId,
+            ]);
+        }
+
+        return $aclResId;
+    }
+
+    /**
+     * A service category carrying a level is a service severity.
+     */
+    private function insertServiceCategory(?int $level = null): int
+    {
+        $name = 'ServiceCategory-' . random_int(1, PHP_INT_MAX);
+        $this->connection->insert('service_categories', [
+            'sc_name' => $name,
+            'sc_description' => $name,
+            'level' => $level,
+            'sc_activate' => '1',
+        ]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    /**
+     * @param list<int> $restrictToServiceCategoryIds service categories (severities included) granted
+     *                                                through this resource's relations; empty means the
+     *                                                resource carries no service-category restriction
+     */
+    private function linkContactToAclResourceForServiceCategories(
+        int $contactId,
+        array $restrictToServiceCategoryIds,
+        bool $active = true,
+    ): int {
+        $aclGroupId = $this->createAccessGroupForContact($contactId);
+
+        $this->connection->insert('acl_resources', [
+            'acl_res_name' => 'sc-resource-' . $aclGroupId,
+            'acl_res_alias' => 'sc-resource-' . $aclGroupId,
+            'acl_res_activate' => $active ? '1' : '0',
+        ]);
+        $aclResId = (int) $this->connection->lastInsertId();
+
+        $this->connection->insert('acl_res_group_relations', [
+            'acl_res_id' => $aclResId,
+            'acl_group_id' => $aclGroupId,
+        ]);
+
+        foreach ($restrictToServiceCategoryIds as $serviceCategoryId) {
+            $this->connection->insert('acl_resources_sc_relations', [
+                'acl_res_id' => $aclResId,
+                'sc_id' => $serviceCategoryId,
+            ]);
+        }
+
+        return $aclResId;
     }
 }

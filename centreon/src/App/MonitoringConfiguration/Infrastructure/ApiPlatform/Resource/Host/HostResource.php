@@ -32,12 +32,14 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\OpenApi\Model;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpVersionEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\SnmpVersionEnum;
 use App\MonitoringConfiguration\Domain\Security\HostPermissionEnum;
+use App\MonitoringConfiguration\Domain\Security\ServicePermissionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\CreateHostProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\DeleteHostProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\DuplicateHostProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\GetHostProvider;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\ListHostsChoicesProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\ListHostsProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PatchHostProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PutHostProcessor;
@@ -142,6 +144,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PutHostPro
                     404 => new Model\Response('Host not found'),
                     409 => new Model\Response('Host name already used by another host or template'),
                     422 => new Model\Response('Invalid input, or a referenced resource that does not exist or is not accessible'),
+                    502 => new Model\Response('The vault could not be reached'),
                 ],
             ),
             security: "is_granted('" . HostPermissionEnum::CanReadAndWrite->value . "')",
@@ -212,6 +215,16 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PutHostPro
             securityMessage: 'You are not allowed to list hosts',
             output: HostCollectionOutput::class,
             provider: ListHostsProvider::class,
+        ),
+        // the service form's host selector: gated on the service right, not on the host one
+        new GetCollection(
+            uriTemplate: '/configuration/services/hosts',
+            openapi: false,
+            security: 'is_granted("' . ServicePermissionEnum::CanReadAndWrite->value . '")',
+            securityMessage: 'You are not allowed to access hosts',
+            itemUriTemplate: '/configuration/hosts/{id}',
+            output: HostChoicesOutput::class,
+            provider: ListHostsChoicesProvider::class,
         ),
         new Delete(
             uriTemplate: '/configuration/hosts/{id}',

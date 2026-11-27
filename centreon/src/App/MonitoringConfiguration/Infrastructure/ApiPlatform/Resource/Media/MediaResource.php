@@ -29,6 +29,8 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\NotExposed;
 use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Security\HostPermissionEnum;
+use App\MonitoringConfiguration\Domain\Security\HostTemplatePermissionEnum;
+use App\MonitoringConfiguration\Domain\Security\ServicePermissionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\ListMediasChoicesProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\ListMediasProvider;
 
@@ -39,6 +41,24 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\ListMedia
             uriTemplate: '/configuration/hosts/medias',
             openapi: false,
             security: 'is_granted("' . HostPermissionEnum::CanReadAndWrite->value . '")',
+            securityMessage: 'You are not allowed to access medias',
+            itemUriTemplate: '/configuration/medias/{id}',
+            output: MediaChoicesOutput::class,
+            provider: ListMediasChoicesProvider::class,
+        ),
+        new GetCollection(
+            uriTemplate: '/configuration/services/medias',
+            openapi: false,
+            security: 'is_granted("' . ServicePermissionEnum::CanReadAndWrite->value . '")',
+            securityMessage: 'You are not allowed to access medias',
+            itemUriTemplate: '/configuration/medias/{id}',
+            output: MediaChoicesOutput::class,
+            provider: ListMediasChoicesProvider::class,
+        ),
+        new GetCollection(
+            uriTemplate: '/configuration/host_templates/medias',
+            openapi: false,
+            security: 'is_granted("' . HostTemplatePermissionEnum::CanReadAndWrite->value . '")',
             securityMessage: 'You are not allowed to access medias',
             itemUriTemplate: '/configuration/medias/{id}',
             output: MediaChoicesOutput::class,

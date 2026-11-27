@@ -23,10 +23,10 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller;
 
-use ApiPlatform\State\Pagination\Pagination;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller\ListPollersChoicesProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller\PollerChoicesTransformer;
+use App\Shared\Infrastructure\ApiPlatform\State\PaginationResolver;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Uid\Uuid;
@@ -365,14 +365,14 @@ final class ListPollersChoicesProviderTest extends ApiTestCase
         $transformer = $container->get(PollerChoicesTransformer::class);
         /** @var PollerRepository $repository */
         $repository = $container->get(PollerRepository::class);
-        /** @var Pagination $pagination */
-        $pagination = $container->get(Pagination::class);
+        /** @var PaginationResolver $paginationResolver */
+        $paginationResolver = $container->get(PaginationResolver::class);
         /** @var Security $security */
         $security = $container->get(Security::class);
 
         $container->set(
             ListPollersChoicesProvider::class,
-            new ListPollersChoicesProvider($transformer, $repository, $pagination, $security, true),
+            new ListPollersChoicesProvider($transformer, $repository, $paginationResolver, $security, true),
         );
     }
 }

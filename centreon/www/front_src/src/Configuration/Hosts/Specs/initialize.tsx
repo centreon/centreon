@@ -1,5 +1,6 @@
 import { Form, SnackbarProvider } from '@centreon/ui';
 import {
+  defaultLimitPerPageAtom,
   isAdditiveInheritanceEnabledAtom,
   type PlatformFeatures,
   platformFeaturesAtom,
@@ -18,6 +19,14 @@ import { initReactI18next } from 'react-i18next';
 import { BrowserRouter as Router } from 'react-router';
 import { object } from 'yup';
 
+import navigationAtom from '../../../Navigation/navigationAtoms';
+import {
+  limitAtom,
+  sortFieldAtom,
+  sortOrderAtom,
+  sortsByListingAtom
+} from '../../ConfigurationBase/Listing/atoms';
+import { ResourceType } from '../../models';
 import Hosts from '..';
 import {
   getDeployServicesEndpoint,
@@ -69,10 +78,13 @@ import {
 } from './utils';
 
 interface Props {
+  // The React pages the menu grants, by URL; none when left out.
+  allowedPages?: Array<string>;
   isEmpty?: boolean;
   hasWriteAccess?: boolean;
   isCloudPlatform?: boolean;
-  deployFails?: boolean;
+  // The status a failed deployment answers; it succeeds when left out.
+  deployFailsWith?: 404 | 422;
   isAdditiveInheritanceEnabled?: boolean;
   addressResolution?: keyof typeof addressResolutions;
   hasDefaultPoller?: boolean;
@@ -80,6 +92,19 @@ interface Props {
   resolveDelay?: number;
   // The hosts whose partial update is refused.
   patchFails?: Array<number>;
+  // The sort another listing left in the shared atoms.
+  previousSort?: { field: string; order: 'asc' | 'desc' };
+  // The sort the hosts listing was left on earlier in the session.
+  savedSort?: { field: string; order: 'asc' | 'desc' };
+  // The platform's default page size; `null` while the platform parameters
+  // are not known yet.
+  defaultLimitPerPage?: number | null;
+  // A page size the user already picked in a listing this session.
+  userLimit?: number;
+}
+
+interface InitializeResult extends RenderResult {
+  store: ReturnType<typeof createStore>;
 }
 
 // What the selector answers a user it does not grant.
@@ -90,6 +115,23 @@ export const patchRefusedMessage = 'The host cannot be updated';
 // The hosts every PATCH was sent to, in order.
 export const patchedHostIds: Array<number> = [];
 
+// What the endpoint answers for each failure the listing handles.
+export const deployFailures = {
+  404: 'Host not found',
+  422: `The alias of service template #1 contains a forbidden character (~ ! $ % ^ & * " | ' < > ? , ( ) =), no service was deployed.`
+};
+
+// The created services, each as a Get answers it.
+const deployedServicesResponse = [
+  {
+    '@id': '/api/configuration/services/1',
+    '@type': 'Service',
+    activated: true,
+    id: 1,
+    name: 'Ping'
+  }
+];
+
 const addressResolutions = {
   refused: { response: refusedAddressResponse, statusCode: 422 },
   resolved: { response: resolvedAddressResponse, statusCode: 200 },
@@ -97,17 +139,22 @@ const addressResolutions = {
 };
 
 const initialize = ({
+  allowedPages = [],
   isEmpty = false,
   hasWriteAccess = true,
   isCloudPlatform = false,
-  deployFails = false,
+  deployFailsWith,
   isAdditiveInheritanceEnabled = false,
   addressResolution = 'resolved',
   hasDefaultPoller = true,
   pollersDelay,
   resolveDelay,
-  patchFails = []
-}: Props = {}): RenderResult => {
+  patchFails = [],
+  defaultLimitPerPage = 10,
+  userLimit,
+  previousSort,
+  savedSort
+}: Props = {}): InitializeResult => {
   i18next.use(initReactI18next).init({
     lng: 'en',
     resources: {}
@@ -125,6 +172,21 @@ const initialize = ({
 
   store.set(platformFeaturesAtom, { isCloudPlatform } as PlatformFeatures);
   store.set(isAdditiveInheritanceEnabledAtom, isAdditiveInheritanceEnabled);
+  store.set(defaultLimitPerPageAtom, defaultLimitPerPage);
+  store.set(navigationAtom, {
+    result: allowedPages.map((url) => ({ is_react: true, label: url, url })),
+    status: true
+  });
+  store.set(limitAtom, userLimit);
+
+  if (previousSort) {
+    store.set(sortFieldAtom, previousSort.field);
+    store.set(sortOrderAtom, previousSort.order);
+  }
+
+  if (savedSort) {
+    store.set(sortsByListingAtom, { [ResourceType.Host]: savedSort });
+  }
 
   interceptAPIRequest({
     alias: 'getHost',
@@ -365,8 +427,10 @@ const initialize = ({
     alias: 'deployServices',
     method: Method.POST,
     path: `**${getDeployServicesEndpoint({ id: 0 })}`,
-    response: deployFails ? { message: 'Host not found' } : {},
-    statusCode: deployFails ? 404 : 200
+    response: deployFailsWith
+      ? { code: 0, message: deployFailures[deployFailsWith] }
+      : deployedServicesResponse,
+    statusCode: deployFailsWith ?? 201
   });
 
   // A client of its own, so no cache leaks from one test to the next.
@@ -374,7 +438,7 @@ const initialize = ({
     defaultOptions: { queries: { gcTime: 0, retry: false } }
   });
 
-  return render(
+  const renderResult = render(
     <Router>
       <SnackbarProvider>
         <QueryClientProvider client={queryClient}>
@@ -387,6 +451,8 @@ const initialize = ({
       </SnackbarProvider>
     </Router>
   );
+
+  return { ...renderResult, store };
 };
 
 interface FormLayoutProps {

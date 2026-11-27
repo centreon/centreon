@@ -31,6 +31,10 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceGroup\ServiceGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityId;
 use App\Security\Domain\Aggregate\AccessGroupId;
 use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Aggregate\UserId;
@@ -58,6 +62,22 @@ interface ResourceAccessRepository
      * @param Collection<AccessGroupId> $accessGroupIds
      */
     public function grantResourceAccess(AggregateRoot&AclScopedInterface $resource, Collection $accessGroupIds): void;
+
+    /**
+     * {@see grantResourceAccess()} for a service known by its ids, on the host given.
+     *
+     * @param Collection<AccessGroupId> $accessGroupIds
+     */
+    public function grantServiceAccess(HostId $hostId, ServiceId $serviceId, Collection $accessGroupIds): void;
+
+    /**
+     * The Access Groups the `centreon_acl` real-time cache grants that service on one of those hosts, lowest id first.
+     *
+     * @param Collection<HostId> $hostIds
+     *
+     * @return Collection<AccessGroupId>
+     */
+    public function findAccessGroupIdsGrantingService(ServiceId $serviceId, Collection $hostIds): Collection;
 
     /**
      * Flags every Access Group's resource scoping as changed, so the `centAcl` cron fully
@@ -123,6 +143,17 @@ interface ResourceAccessRepository
     public function findHostGroupAccessScope(UserId $userId): AccessScope;
 
     /**
+     * Service groups granted by the user's active ACL resources (disabled service groups included):
+     * unrestricted when one of them grants all service groups.
+     *
+     * @return AccessScope<ServiceGroupId>
+     */
+    public function findServiceGroupAccessScope(UserId $userId): AccessScope;
+
+    /**
+     * The image folders the user may read: those granted by their ACL resources, plus the system
+     * folders (MediaDirectory::SYSTEM_NAMES), which are readable even without any ACL resource.
+     *
      * @return AccessScope<MediaDirectoryId>
      */
     public function findImageFolderAccessScope(UserId $userId): AccessScope;
@@ -135,6 +166,30 @@ interface ResourceAccessRepository
      * @return AccessScope<NotificationContactId>
      */
     public function findContactAccessScope(UserId $userId): AccessScope;
+
+    /**
+     * Levelless service categories granted by the user's active ACL resources (disabled categories
+     * included):
+     *  - no accessible ACL resource → restricted to nothing
+     *  - accessible resources, none carrying a service-category relation of any level → unrestricted
+     *  - otherwise → restricted to the granted levelless categories (none when only severities are
+     *    granted)
+     *
+     * @return AccessScope<ServiceCategoryId>
+     */
+    public function findServiceCategoryAccessScope(UserId $userId): AccessScope;
+
+    /**
+     * Service severities (service categories carrying a level) granted by the user's active ACL
+     * resources (disabled severities included):
+     *  - no accessible ACL resource → restricted to nothing
+     *  - accessible resources, none carrying a service-category relation of any level → unrestricted
+     *  - otherwise → restricted to the granted severities (none when only levelless categories are
+     *    granted)
+     *
+     * @return AccessScope<ServiceSeverityId>
+     */
+    public function findServiceSeverityAccessScope(UserId $userId): AccessScope;
 
     /**
      * Same Access-Group-membership model as {@see self::findContactAccessScope()}, plus the contact
@@ -154,4 +209,13 @@ interface ResourceAccessRepository
      * @return AccessScope<HostId>
      */
     public function findHostAccessScope(UserId $userId, ?Collection $among = null): AccessScope;
+
+    /**
+     * Services follow the real-time ACL cache (`centreon_acl`) too, but are far too many to load as a list of
+     * ids: the scope is the user's active Access Groups, for a query to join the cache on. It is always
+     * restricted, and allows nothing for a user belonging to no active group.
+     *
+     * @return AccessScope<AccessGroupId>
+     */
+    public function findServiceAccessGroupScope(UserId $userId): AccessScope;
 }

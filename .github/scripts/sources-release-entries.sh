@@ -6,7 +6,7 @@ set -euo pipefail
 # is what keeps the url and its checksum from ever disagreeing -- the same reason
 # cma-release-entries.sh re-downloads its assets.
 #
-# Emits on stdout the TSV publish-download-release.sh consumes:
+# Emits on stdout the TSV the shared download-site publication action consumes:
 #   product  train  state  os  version  file  date  md5  size
 #
 # Everything is derived from the bundle tag and the component tags pointing at its commit. Nothing
@@ -30,6 +30,8 @@ STATE="stable"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=/dev/null
 source "$SCRIPT_DIR/release/release-source-products.sh"
+# shellcheck source-path=SCRIPTDIR source=release/sources-run-selection.sh
+source "$SCRIPT_DIR/release/sources-run-selection.sh"
 
 die()  { echo "::error::sources-release-entries: $*" >&2; exit 1; }
 warn() { echo "::warning::sources-release-entries: $*" >&2; }
@@ -107,37 +109,21 @@ while true; do
     tag="${component}-${VERSIONS[$i]}"
     [[ -n "${JOB_CONCLUSION[$component]:-}" ]] && { resolved=$((resolved + 1)); continue; }
 
-    # head_branch alone is not trustworthy: a fork pull request is listed under this repository's
-    # head_sha and carries a branch name its author chose, so it could impersonate a component tag
-    # and either stall the poll or mask the real run.
-    # -s: --paginate emits one JSON document per page, so without slurping the filter would run
-    # once per page and could emit several rows where the parser below expects exactly one.
-    run_line="$(jq -s -r --arg tag "$tag" --arg repo "$REPOSITORY" \
-      '[.[].workflow_runs[]? | select(.head_branch == $tag and .event == "push"
-                                      and .head_repository.full_name == $repo)]
-       | sort_by(.created_at) | last | select(.) | [(.id|tostring), .status] | @tsv' \
-      "$runs_json" 2>/dev/null || true)"
-    # no run yet means the tag push has not been picked up, which is waiting, not stalling
-    if [[ -z "$run_line" ]]; then
-      # a run that never appears is not in flight; after the grace period stop counting it, or the
-      # stall guard could never fire and the wait would always run to POLL_TIMEOUT
-      if (( SECONDS < poll_started + RUN_APPEAR_GRACE )); then active=$((active + 1)); fi
-      continue
-    fi
-    mapfile -t -d $'\t' rcols < <(printf '%s' "$run_line")
-    run_id="${rcols[0]-}"; run_status="${rcols[1]-}"
+    state="$(tag_deliver_sources_state "$runs_json" "$tag" "$REPOSITORY")"
+    case "$state" in
+      # no run yet means the tag push has not been picked up, which is waiting, not stalling
+      none)
+        # a run that never appears is not in flight; after the grace period stop counting it, or the
+        # stall guard could never fire and the wait would always run to POLL_TIMEOUT
+        if (( SECONDS < poll_started + RUN_APPEAR_GRACE )); then active=$((active + 1)); fi
+        continue ;;
+      # a run still going can still grow the job; finished runs without it never will
+      pending) active=$((active + 1)); continue ;;
+      absent) continue ;;
+    esac
 
-    job="$(gh api --paginate "repos/$REPOSITORY/actions/runs/$run_id/jobs?per_page=100" 2>/dev/null \
-      | jq -s -r '[.[].jobs[]? | select(.name == "deliver-sources")] | last
-               | select(.) | [.status, (.conclusion // ""), .html_url] | @tsv' || true)"
-    # a run still going can still grow the job; a finished run without it never will
-    if [[ -z "$job" ]]; then
-      [[ "$run_status" == "completed" ]] || active=$((active + 1))
-      continue
-    fi
-
-    mapfile -t -d $'\t' jcols < <(printf '%s' "$job")
-    j_status="${jcols[0]-}"; j_conclusion="${jcols[1]-}"; j_url="${jcols[2]-}"
+    mapfile -t -d $'\t' jcols < <(printf '%s' "$state")
+    j_status="${jcols[1]-}"; j_conclusion="${jcols[2]-}"; j_url="${jcols[3]-}"
     if [[ "$j_status" == "completed" ]]; then
       JOB_CONCLUSION[$component]="$j_conclusion"
       JOB_URL[$component]="$j_url"

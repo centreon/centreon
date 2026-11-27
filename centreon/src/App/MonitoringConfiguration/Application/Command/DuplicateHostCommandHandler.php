@@ -24,17 +24,22 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Application\Service\HostTemplateLicenseGuard;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\CheckOptions;
+use App\MonitoringConfiguration\Application\Service\UnlicensedServiceTemplates;
+use App\MonitoringConfiguration\Domain\Aggregate\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceTemplate\ServiceTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Event\HostDuplicated;
 use App\MonitoringConfiguration\Domain\Event\HostServicesDuplicationRequested;
 use App\MonitoringConfiguration\Domain\Exception\DuplicatedHostNameTooLongException;
 use App\MonitoringConfiguration\Domain\Exception\HostAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\UnlicensedServiceTemplatesException;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
+use App\MonitoringConfiguration\Domain\Repository\ServiceRepository;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Application\Command\AsCommandHandler;
 use App\Shared\Application\Vault\VaultCredentialReader;
@@ -64,6 +69,8 @@ final readonly class DuplicateHostCommandHandler
         private EventBus $eventBus,
         private LoggerInterface $logger,
         private HostTemplateLicenseGuard $templateLicenseGuard,
+        private UnlicensedServiceTemplates $unlicensedServiceTemplates,
+        private ServiceRepository $serviceRepository,
     ) {
     }
 
@@ -79,6 +86,8 @@ final readonly class DuplicateHostCommandHandler
         // The copy is a new host: it can only be given the source's templates while the license allows
         // them. Checked before the vault is touched, like the name below.
         $this->templateLicenseGuard->assertLicensed($source->templateIds);
+        // The exclusive services are cloned after the commit, where a refusal can no longer reach the caller.
+        $this->assertServiceTemplatesLicensed($command->hostId);
 
         // Resolve the free name before touching the vault: a 409 (every suffix taken, or too long) must
         // not leave a freshly-minted vault entry behind.
@@ -135,13 +144,35 @@ final readonly class DuplicateHostCommandHandler
             throw $exception;
         }
 
-        // The aggregate does not model services; they are duplicated by a legacy step delivered after
-        // the commit (the copy must be visible to the legacy connection), like host creation deploys them.
+        // The aggregate does not model services; they are copied after the commit, in their own
+        // transaction, so a failure to copy them never rolls the host copy back.
         $this->eventBus->fire(new HostServicesDuplicationRequested(
             sourceHostId: $command->hostId,
             newHostId: $copy->id(),
             duplicatedBy: $command->actor->userId,
         ));
+    }
+
+    /**
+     * The clones of the source's exclusive services are new services: their templates must still be licensed.
+     *
+     * @throws UnlicensedServiceTemplatesException
+     */
+    private function assertServiceTemplatesLicensed(HostId $sourceHostId): void
+    {
+        $unlicensedIds = array_map(
+            static fn (ServiceTemplateId $id): int => $id->value,
+            $this->unlicensedServiceTemplates->findIds()->toArray(),
+        );
+        if ($unlicensedIds === []) {
+            return;
+        }
+
+        foreach ($this->serviceRepository->findExclusivelyLinkedToHostId($sourceHostId)->toArray() as $service) {
+            if ($service->templateId instanceof ServiceTemplateId && in_array($service->templateId->value, $unlicensedIds, true)) {
+                throw new UnlicensedServiceTemplatesException($service->templateId->value);
+            }
+        }
     }
 
     /**

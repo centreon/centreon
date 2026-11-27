@@ -31,6 +31,10 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceGroup\ServiceGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\ServiceSeverity\ServiceSeverityId;
+use App\Security\Domain\Aggregate\AccessGroupId;
 use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\ResourceAccessRepository;
@@ -63,6 +67,15 @@ final class AccessScopeResolverTest extends TestCase
         yield 'contact groups' => ['contactGroups', 'findContactGroupAccessScope', ContactGroupId::class];
 
         yield 'hosts' => ['hosts', 'findHostAccessScope', HostId::class];
+
+        yield 'service groups' => ['serviceGroups', 'findServiceGroupAccessScope', ServiceGroupId::class];
+
+        yield 'service categories' => ['serviceCategories', 'findServiceCategoryAccessScope', ServiceCategoryId::class];
+
+        yield 'service severities' => ['serviceSeverities', 'findServiceSeverityAccessScope', ServiceSeverityId::class];
+
+        // Services are scoped in SQL by the real-time ACL cache of the actor's active Access Groups.
+        yield 'service access groups' => ['serviceAccessGroups', 'findServiceAccessGroupScope', AccessGroupId::class];
     }
 
     /**

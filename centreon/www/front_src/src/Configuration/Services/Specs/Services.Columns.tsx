@@ -1,0 +1,180 @@
+import { waitForRequest } from '@test-setup/api';
+import { screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+
+import { labelEnableDisable } from '../../ConfigurationBase/translatedLabels';
+import {
+  labelHost,
+  labelName,
+  labelScheduling,
+  labelTemplate
+} from '../translatedLabels';
+import initialize from './initialize';
+import { iconUrl } from './utils';
+
+const getRow = (serviceName: string): HTMLElement =>
+  screen.getByText(serviceName).closest('[role="row"]') as HTMLElement;
+
+const initializeListing = async (
+  props: Parameters<typeof initialize>[0] = {}
+): Promise<void> => {
+  initialize(props);
+
+  await waitForRequest('@getAllServices');
+  await screen.findByText('cpu');
+};
+
+export default () => {
+  describe('Columns: ', () => {
+    it('displays every column of the listing', async () => {
+      await initializeListing();
+
+      [labelHost, labelName, labelScheduling, labelTemplate].forEach(
+        (label) => {
+          expect(screen.getAllByText(label)[0]).toBeVisible();
+        }
+      );
+    });
+
+    it('does not sort on the enable/disable column', async () => {
+      await initializeListing();
+
+      expect(screen.getAllByText(labelEnableDisable)[0]).toBeVisible();
+
+      // A sortable header is a sort button labelled after its column.
+      expect(
+        screen.getByRole('button', { name: `Column ${labelHost}` })
+      ).toBeVisible();
+      expect(
+        screen.queryByRole('button', { name: `Column ${labelEnableDisable}` })
+      ).toBeNull();
+    });
+
+    it('shows the host on every row, even when consecutive rows share it', async () => {
+      await initializeListing();
+
+      expect(within(getRow('cpu')).getByText('host A')).toBeVisible();
+      expect(within(getRow('disk')).getByText('host A')).toBeVisible();
+      expect(within(getRow('memory')).getByText('host B')).toBeVisible();
+    });
+
+    it('links the host to its legacy form while the Hosts page is not granted', async () => {
+      await initializeListing();
+
+      expect(screen.getByTestId('service-host-link_0')).toHaveAttribute(
+        'href',
+        '/main.php?p=60101&o=c&host_id=10'
+      );
+    });
+
+    it('links the host to its form in the Hosts page when the menu grants it', async () => {
+      await initializeListing({ allowedPages: ['/configuration/hosts'] });
+
+      expect(screen.getByTestId('service-host-link_0')).toHaveAttribute(
+        'href',
+        '/configuration/hosts?mode=edit&id=10'
+      );
+    });
+
+    it('keeps the legacy host form when only another page under the hosts is granted', async () => {
+      await initializeListing({
+        allowedPages: ['/configuration/hosts/groups']
+      });
+
+      expect(screen.getByTestId('service-host-link_0')).toHaveAttribute(
+        'href',
+        '/main.php?p=60101&o=c&host_id=10'
+      );
+    });
+
+    it('opens the host form in the Hosts page, not the service, when the host link is clicked', async () => {
+      const { pathname } = window.location;
+
+      await initializeListing({ allowedPages: ['/configuration/hosts'] });
+
+      await userEvent.click(screen.getByTestId('service-host-link_0'));
+
+      try {
+        await waitFor(() =>
+          expect(window.location.pathname).toBe('/configuration/hosts')
+        );
+        expect(window.location.search).toBe('?mode=edit&id=10');
+      } finally {
+        // The page is not reloaded between tests.
+        window.history.pushState({}, '', pathname);
+      }
+    });
+
+    it('opens the service when its host cell is clicked outside the link', async () => {
+      await initializeListing();
+
+      const cell = screen.getByTestId('service-host-link_0')
+        .parentElement as HTMLElement;
+
+      await userEvent.click(cell, { skipHover: true });
+
+      await waitFor(() =>
+        expect(window.location.search).toBe('?id=0&mode=edit')
+      );
+    });
+
+    it('renders the icons returned by the API', async () => {
+      await initializeListing();
+
+      await waitFor(() => {
+        expect(screen.getByTestId('server.png')).toHaveAttribute(
+          'src',
+          iconUrl
+        );
+        expect(screen.getByTestId('cpu.png')).toHaveAttribute('src', iconUrl);
+      });
+    });
+
+    it('falls back to the default icons when neither has one', async () => {
+      await initializeListing();
+
+      const row = getRow('memory');
+
+      expect(within(row).getByTestId('HostIcon')).toBeInTheDocument();
+      expect(within(row).getByTestId('ServiceIcon')).toBeInTheDocument();
+    });
+
+    it('shows the intervals in minutes when they fall on whole minutes', async () => {
+      await initializeListing();
+
+      expect(within(getRow('cpu')).getByText('5 min / 1 min')).toBeVisible();
+    });
+
+    it('shows the intervals in seconds otherwise', async () => {
+      await initializeListing({ intervalLength: 45 });
+
+      expect(
+        within(getRow('disk')).getByText('135 sec / 90 sec')
+      ).toBeVisible();
+    });
+
+    it('shows a dash for an interval no template sets', async () => {
+      await initializeListing();
+
+      expect(within(getRow('memory')).getByText('- / -')).toBeVisible();
+    });
+
+    it('links the direct template to its configuration page', async () => {
+      await initializeListing();
+
+      const template = screen.getByTestId('service-template-link_0');
+
+      expect(template).toHaveTextContent(/^generic-active-service$/);
+      expect(template).toHaveAttribute(
+        'href',
+        '/main.php?p=60206&o=c&service_id=30'
+      );
+
+      expect(
+        getRow('memory').querySelector(
+          '[data-testid^="service-template-link_"]'
+        )
+      ).toBeNull();
+    });
+  });
+};

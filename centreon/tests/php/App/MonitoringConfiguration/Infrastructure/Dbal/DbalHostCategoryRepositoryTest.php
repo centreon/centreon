@@ -33,6 +33,7 @@ use App\Security\Domain\Service\AccessScopeResolver;
 use App\Security\Infrastructure\Dbal\DbalAccessGroupRepository;
 use App\Security\Infrastructure\Dbal\DbalResourceAccessRepository;
 use App\Shared\Domain\Collection;
+use App\Shared\Domain\Repository\Pagination;
 use App\Shared\Domain\Repository\Paginator;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -127,7 +128,7 @@ final class DbalHostCategoryRepositoryTest extends KernelTestCase
         // scope to our own rows via the name filter so pre-seeded categories cannot skew the total.
         // page 2 @ 1 item/page proves the OFFSET arithmetic (a page-1 request cannot).
         $result = $this->repository->findAll(
-            HostCategoryCriteria::unscoped()->withName("pg-{$this->tag}-")->withPagination(2, 1)
+            HostCategoryCriteria::unscoped()->withName("pg-{$this->tag}-")->withPagination(new Pagination(2, 1))
         );
 
         self::assertInstanceOf(Paginator::class, $result);
@@ -182,7 +183,7 @@ final class DbalHostCategoryRepositoryTest extends KernelTestCase
 
         self::assertSame([], $this->names($this->repository->findAll($criteria)), 'An actor granted only severities is restricted and sees no category.');
 
-        $paginated = $this->repository->findAll($criteria->withPagination(1, 10));
+        $paginated = $this->repository->findAll($criteria->withPagination(new Pagination(1, 10)));
         self::assertInstanceOf(Paginator::class, $paginated, 'Pagination metadata must survive an empty ACL result.');
         self::assertSame(0, $paginated->getTotalItems());
         self::assertSame([], $this->names($paginated));

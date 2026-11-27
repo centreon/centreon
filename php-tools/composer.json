@@ -24,6 +24,11 @@
       "Tools\\Rector\\": "rector/src/"
     }
   },
+  "autoload-dev": {
+    "psr-4": {
+      "Tools\\Rector\\Tests\\": "rector/tests/"
+    }
+  },
   "config": {
     "sort-packages": true,
     "platform": {
@@ -43,7 +48,12 @@
     "ci": [
       "@rector",
       "@cs",
-      "@stan"
-    ]
+      "@stan",
+      "@test"
+    ],
+    "test": "php -d auto_prepend_file=vendor/rector/rector/preload.php vendor/bin/phpunit"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "11.*"
   }
 }

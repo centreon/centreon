@@ -24,19 +24,21 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate;
 
 use ApiPlatform\Metadata\Operation;
-use ApiPlatform\State\Pagination\Pagination;
 use ApiPlatform\State\Pagination\TraversablePaginator;
 use ApiPlatform\State\ProviderInterface;
 use App\MonitoringConfiguration\Application\Service\UnlicensedHostTemplates;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostTemplateCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\HostTemplateChoicesOutput;
+use App\Shared\Domain\Collection;
+use App\Shared\Domain\Repository\Pagination;
 use App\Shared\Domain\Repository\Paginator;
 use App\Shared\Infrastructure\ApiPlatform\State\FilterAwareProviderTrait;
+use App\Shared\Infrastructure\ApiPlatform\State\PaginationResolver;
 use App\Shared\Infrastructure\TransformerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * @implements ProviderInterface<HostTemplateChoicesOutput>
@@ -52,7 +54,7 @@ final readonly class ListHostTemplatesChoicesProvider implements ProviderInterfa
         #[Autowire(service: HostTemplateChoicesTransformer::class)]
         private TransformerInterface $transformer,
         private HostTemplateRepository $repository,
-        private Pagination $pagination,
+        private PaginationResolver $paginationResolver,
         private UnlicensedHostTemplates $unlicensedHostTemplates,
     ) {
     }
@@ -62,17 +64,11 @@ final readonly class ListHostTemplatesChoicesProvider implements ProviderInterfa
      */
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): iterable
     {
-        // No actor scoping: the legacy host form's "extend template" select (CentreonHost::getList())
-        // is not host-category severity-scoped, unlike the generic /configuration/host_templates
-        // endpoint. Once the license host limit is reached, the templates coming from Monitoring
-        // Connectors are excluded instead, matching CentreonHost::getLimitedList().
+        // Unscoped, locked included, id order, like CentreonHost::getList(); Monitoring Connector
+        // templates excluded once the license host limit is reached (CentreonHost::getLimitedList()).
         $criteria = HostTemplateCriteria::unscoped();
-        if ($this->pagination->isEnabled($operation, $context)) {
-            $itemsPerPage = $this->pagination->getLimit($operation, $context);
-            if ($itemsPerPage <= 0) {
-                throw new BadRequestHttpException('itemsPerPage must be a positive integer.');
-            }
-            $criteria = $criteria->withPagination($this->pagination->getPage($context), $itemsPerPage);
+        if (($pagination = $this->paginationResolver->resolve($operation, $context)) instanceof Pagination) {
+            $criteria = $criteria->withPagination($pagination);
         }
 
         /** @var array{name?: mixed} $filters */
@@ -80,7 +76,15 @@ final readonly class ListHostTemplatesChoicesProvider implements ProviderInterfa
         if (($name = $this->handleLikeFilter($filters['name'] ?? null, 'name')) !== null) {
             $criteria = $criteria->withName($name);
         }
-        $criteria = $criteria->withExcludedIds($this->unlicensedHostTemplates->findIds());
+
+        $excludedIds = $this->unlicensedHostTemplates->findIds()->toArray();
+        $templateId = $operation->getParameters()?->get('exclude_template_id')?->getValue(null);
+        if (is_int($templateId)) {
+            // the template itself and its descendants: picking any of them as its parent makes a loop
+            $templateId = new HostTemplateId($templateId);
+            array_push($excludedIds, $templateId, ...$this->repository->findDescendantIds($templateId)->toArray());
+        }
+        $criteria = $criteria->withExcludedIds(new Collection($excludedIds, HostTemplateId::class));
 
         $hostTemplates = $this->repository->findAll($criteria);
         $resources = [];

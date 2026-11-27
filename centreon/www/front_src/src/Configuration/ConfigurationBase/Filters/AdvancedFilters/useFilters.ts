@@ -3,7 +3,11 @@ import { useAtomValue } from 'jotai';
 import { equals } from 'ramda';
 import { useEffect, useState } from 'react';
 
-import { FilterConfiguration, Filters } from '../../../models';
+import {
+  FilterConfiguration,
+  Filters,
+  FiltersPanelWidth
+} from '../../../models';
 import { configurationAtom } from '../../atoms';
 
 interface UseFilters {
@@ -11,7 +15,7 @@ interface UseFilters {
   isClearDisabled: boolean;
   reload: () => void;
   filtersConfiguration: Array<FilterConfiguration>;
-  filtersPanelWidth?: number;
+  filtersPanelWidth?: FiltersPanelWidth;
 }
 
 interface UseFiltersProps {

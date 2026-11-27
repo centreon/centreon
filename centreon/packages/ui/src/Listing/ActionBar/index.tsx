@@ -82,6 +82,26 @@ const useStyles = makeStyles<StyleProps>()(
   })
 );
 
+const defaultRowsPerPageOptions = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
+
+// The page size can be any number (the platform setting is free), so it is
+// added to the options when missing, for the selector to show it. `Number`
+// because `onLimitChange` is typed `string | number`, so a consumer may store a
+// string limit.
+const getRowsPerPageOptions = (limit: number | string): Array<number> => {
+  const rowsPerPage = Number(limit);
+
+  if (
+    !Number.isInteger(rowsPerPage) ||
+    rowsPerPage <= 0 ||
+    defaultRowsPerPageOptions.includes(rowsPerPage)
+  ) {
+    return defaultRowsPerPageOptions;
+  }
+
+  return [...defaultRowsPerPageOptions, rowsPerPage].sort((a, b) => a - b);
+};
+
 type Props = Pick<
   ListingProps<unknown>,
   | 'actions'
@@ -287,7 +307,7 @@ const MemoListingActionBar = ({
               onRowsPerPageChange={changeRowPerPage}
               page={currentPage ?? 0}
               rowsPerPage={limit ?? 10}
-              rowsPerPageOptions={[10, 20, 30, 40, 50, 60, 70, 80, 90, 100]}
+              rowsPerPageOptions={getRowsPerPageOptions(limit ?? 10)}
               SelectProps={{
                 id: labelRowsPerPage,
                 MenuProps: {

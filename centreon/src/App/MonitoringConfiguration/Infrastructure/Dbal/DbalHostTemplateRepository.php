@@ -23,24 +23,30 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
+use App\MonitoringConfiguration\Domain\Aggregate\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroId;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroName;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
+use App\MonitoringConfiguration\Domain\Aggregate\Notifications;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Exception\HostTemplateNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostTemplateCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
 use App\MonitoringConfiguration\Domain\Repository\ModuleRepository;
+use App\MonitoringConfiguration\Infrastructure\Service\CommandArgumentsFormatter;
 use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
+use App\Shared\Infrastructure\Dbal\TriStateColumnTrait;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use App\Shared\Infrastructure\TransformerInterface;
 use Doctrine\DBAL\ArrayParameterType;
@@ -50,14 +56,77 @@ use Doctrine\DBAL\Query\QueryBuilder;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
+ * @phpstan-import-type NotificationColumnsTypeAlias from NotificationsTransformer
+ *
+ * @phpstan-type DbRowTypeAlias = array{
+ *   host_id: int,
+ *   host_name: string,
+ *   host_alias: ?string,
+ *   host_locked: int|string|null,
+ *   icon_id: int|string|null,
+ * }
  * @phpstan-type RowTypeAlias = array{
  *   host_id: int,
  *   host_name: string,
+ *   host_alias: ?string,
+ *   host_locked: int|string|null,
+ *   icon_id: int|string|null,
+ *   parent_template_ids: list<int>,
+ * }
+ * @phpstan-type FindOneRowTypeAlias = array{
+ *   host_id: int,
+ *   host_name: string,
+ *   host_alias: ?string,
+ *   host_locked: int|string|null,
+ *   icon_id: int|string|null,
+ *   parent_template_ids: list<int>,
+ *   snmp_community: ?string,
+ *   snmp_version: ?string,
+ *   timezone_id: int|string|null,
+ *   comment: ?string,
+ *   note_url: ?string,
+ *   note: ?string,
+ *   action_url: ?string,
+ *   alt_icon: ?string,
+ *   check_timeperiod_id: int|string|null,
+ *   max_check_attempts: int|string|null,
+ *   normal_check_interval: int|string|null,
+ *   retry_check_interval: int|string|null,
+ *   active_check_enabled: ?string,
+ *   passive_check_enabled: ?string,
+ *   acknowledgement_timeout: int|string|null,
+ *   check_freshness: ?string,
+ *   freshness_threshold: int|string|null,
+ *   flap_detection_enabled: ?string,
+ *   low_flap_threshold: int|string|null,
+ *   high_flap_threshold: int|string|null,
+ *   event_handler_enabled: ?string,
+ *   event_handler_command_id: int|string|null,
+ *   event_handler_args: ?string,
+ *   check_command_id: int|string|null,
+ *   check_command_args: ?string,
+ *   notifications_enabled: ?string,
+ *   notification_options: ?string,
+ *   notification_interval: int|string|null,
+ *   notification_period_id: int|string|null,
+ *   first_notification_delay: int|string|null,
+ *   recovery_notification_delay: int|string|null,
+ *   contact_additive_inheritance: int|string|null,
+ *   cg_additive_inheritance: int|string|null,
+ *   macros: list<HostMacro>,
+ *   category_ids: list<int>,
+ *   severity_id: ?int,
+ *   contact_ids: list<int>,
+ *   contact_group_ids: list<int>,
+ *   linked_service_template_ids: list<int>,
+ *   service_template_check_command_ids: list<int>,
  * }
  */
 final readonly class DbalHostTemplateRepository extends DbalRepository implements HostTemplateRepository
 {
     use DbalCriteriaApplierTrait;
+    use RemovesEmptiedDependenciesTrait;
+    use TriStateColumnTrait;
     public const TABLE_NAME = 'host';
 
     // host templates are host rows discriminated by host_register = '0'
@@ -67,7 +136,9 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
     private const PLUGIN_PACK_MANAGER_MODULE = 'centreon-pp-manager';
 
     /**
-     * @param TransformerInterface<RowTypeAlias, HostTemplate> $transformer
+     * @param TransformerInterface<FindOneRowTypeAlias, HostTemplate> $transformer
+     * @param TransformerInterface<RowTypeAlias, HostTemplate> $listingTransformer
+     * @param TransformerInterface<?Notifications, NotificationColumnsTypeAlias> $notificationsTransformer
      */
     public function __construct(
         #[Autowire(service: 'doctrine.dbal.default_connection')]
@@ -76,9 +147,15 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
         #[Autowire(service: HostTemplateTransformer::class)]
         private TransformerInterface $transformer,
 
+        #[Autowire(service: HostTemplateListingTransformer::class)]
+        private TransformerInterface $listingTransformer,
+
         private AccessScopeResolver $accessScopes,
 
         private ModuleRepository $moduleRepository,
+
+        #[Autowire(service: NotificationsTransformer::class)]
+        private TransformerInterface $notificationsTransformer,
     ) {
     }
 
@@ -92,17 +169,21 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
             return $this->emptyResult($criteria, HostTemplate::class);
         }
 
+        // extended_host_information is unique per host, so the join cannot duplicate a template
         $qb = $this->connection->createQueryBuilder();
-        $qb->select('h.host_id', 'h.host_name')
+        $qb->select('h.host_id', 'h.host_name', 'h.host_alias', 'h.host_locked', 'ehi.ehi_icon_image AS icon_id')
             ->from(self::TABLE_NAME, 'h')
-            ->where('h.host_register = ' . $qb->createNamedParameter(self::HOST_TEMPLATE_REGISTER))
-            ->orderBy('h.host_id'); // required for deterministic pagination
+            ->leftJoin('h', 'extended_host_information', 'ehi', 'ehi.host_host_id = h.host_id')
+            ->where('h.host_register = ' . $qb->createNamedParameter(self::HOST_TEMPLATE_REGISTER));
 
         $this->filterByCriteria($qb, $criteria, $scope);
+        $this->applySort($qb, 'h', $criteria);
+        // id order when unsorted (choices list), else tie-breaker for deterministic pagination
+        $qb->addOrderBy('h.host_id');
 
         $pagination = $criteria->getPagination();
         if (! $pagination instanceof \App\Shared\Domain\Repository\Pagination) {
-            /** @var array<RowTypeAlias> $rows */
+            /** @var array<DbRowTypeAlias> $rows */
             $rows = $qb->executeQuery()->fetchAllAssociative();
 
             return $this->createHostTemplates($rows);
@@ -114,7 +195,7 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
         // so the count is unaffected by the pagination applied above.
         $count = $this->countMatching($qb, 'COUNT(DISTINCT h.host_id)');
 
-        /** @var array<RowTypeAlias> $rows */
+        /** @var array<DbRowTypeAlias> $rows */
         $rows = $qb->executeQuery()->fetchAllAssociative();
 
         return new InMemoryPaginator(
@@ -151,66 +232,40 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
 
     public function findInheritedIconIds(Collection $hostIds): Collection
     {
-        $idValues = array_map(static fn (HostId $id): int => $id->value, $hostIds->toArray());
+        return $this->findInheritedIconIdsOf(array_values(array_map(static fn (HostId $id): int => $id->value, $hostIds->toArray())));
+    }
+
+    public function findTemplatesInheritedIconIds(Collection $templateIds): Collection
+    {
+        return $this->findInheritedIconIdsOf(
+            array_values(array_map(static fn (HostTemplateId $id): int => $id->value, $templateIds->toArray()))
+        );
+    }
+
+    public function countLinkedServiceTemplates(Collection $templateIds): array
+    {
+        $idValues = array_values(array_map(static fn (HostTemplateId $id): int => $id->value, $templateIds->toArray()));
         if ($idValues === []) {
-            return new Collection([], MediaId::class);
+            return [];
         }
 
-        // One query fetches every template relation reachable from the requested hosts, in legacy's
-        // `order`; the depth-first walk itself is done in PHP. UNION dedupes reached ids, so a
-        // template loop already in the data cannot make the recursion run forever. Like legacy, an
-        // icon whose image sits in no folder cannot be displayed and is read as no icon (same joins
-        // as DbalMediaRepository::findByIds).
-        $sql = <<<'SQL'
-            WITH RECURSIVE chain (id) AS (
-                SELECT host_host_id
-                FROM host_template_relation
-                WHERE host_host_id IN (:ids)
-                UNION
-                SELECT htr.host_tpl_id
-                FROM host_template_relation htr
-                INNER JOIN chain c ON c.id = htr.host_host_id
-            )
-            SELECT htr.host_host_id, htr.host_tpl_id, ehi.ehi_icon_image AS icon_id
-            FROM host_template_relation htr
-            INNER JOIN chain c ON c.id = htr.host_host_id
-            LEFT JOIN extended_host_information ehi
-                ON ehi.host_host_id = htr.host_tpl_id
-                AND EXISTS (
-                    SELECT 1
-                    FROM view_img_dir_relation vidr
-                    INNER JOIN view_img_dir vid ON vid.dir_id = vidr.dir_dir_parent_id
-                    WHERE vidr.img_img_id = ehi.ehi_icon_image
-                )
-            ORDER BY htr.host_host_id, htr.`order`, htr.host_tpl_id
-            SQL;
+        // Direct links only (no host-group links); the service FK cascades, so no join on service.
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('hsr.host_host_id', 'COUNT(DISTINCT hsr.service_service_id) AS linked_count')
+            ->from('host_service_relation', 'hsr')
+            ->where($qb->expr()->in('hsr.host_host_id', $qb->createNamedParameter($idValues, ArrayParameterType::INTEGER)))
+            ->andWhere('hsr.service_service_id IS NOT NULL')
+            ->groupBy('hsr.host_host_id');
 
-        /** @var list<array{host_host_id: int|string, host_tpl_id: int|string, icon_id: int|string|null}> $rows */
-        $rows = $this->connection->executeQuery(
-            $sql,
-            ['ids' => $idValues],
-            ['ids' => ArrayParameterType::INTEGER],
-        )->fetchAllAssociative();
+        /** @var list<array{host_host_id: int|string, linked_count: int|string}> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
 
-        /** @var array<int, list<array{int, ?int}>> $templatesById ordered [template id, icon id] pairs per host or template */
-        $templatesById = [];
+        $counts = array_fill_keys($idValues, 0);
         foreach ($rows as $row) {
-            $templatesById[(int) $row['host_host_id']][] = [
-                (int) $row['host_tpl_id'],
-                $row['icon_id'] !== null ? (int) $row['icon_id'] : null,
-            ];
+            $counts[(int) $row['host_host_id']] = (int) $row['linked_count'];
         }
 
-        $iconIds = [];
-        foreach ($idValues as $hostId) {
-            $visited = [$hostId => true];
-            $iconId = $this->findFirstIconId($hostId, $templatesById, $visited);
-            if ($iconId !== null) {
-                $iconIds[$hostId] = new MediaId($iconId);
-            }
-        }
-
-        return new Collection($iconIds, MediaId::class);
+        return $counts;
     }
 
     public function findServiceTemplateIds(Collection $templateIds): array
@@ -287,6 +342,421 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
         );
     }
 
+    public function findDescendantIds(HostTemplateId $id): Collection
+    {
+        // UNION (not UNION ALL) stops the recursion on a template loop already in the data.
+        $sql = <<<'SQL'
+            WITH RECURSIVE descendants (id) AS (
+                SELECT htr.host_host_id
+                FROM host_template_relation htr
+                INNER JOIN host h ON h.host_id = htr.host_host_id AND h.host_register = '0'
+                WHERE htr.host_tpl_id = :id
+                UNION
+                SELECT htr.host_host_id
+                FROM host_template_relation htr
+                INNER JOIN descendants d ON d.id = htr.host_tpl_id
+                INNER JOIN host h ON h.host_id = htr.host_host_id AND h.host_register = '0'
+            )
+            SELECT id FROM descendants ORDER BY id
+            SQL;
+
+        /** @var list<int|string> $ids */
+        $ids = $this->connection->executeQuery($sql, ['id' => $id->value], ['id' => ParameterType::INTEGER])->fetchFirstColumn();
+
+        return new Collection(
+            array_map(static fn (int|string $descendantId): HostTemplateId => new HostTemplateId((int) $descendantId), $ids),
+            HostTemplateId::class,
+        );
+    }
+
+    public function findOne(HostTemplateId $id): ?HostTemplate
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select(
+            'h.host_id',
+            'h.host_name',
+            'h.host_alias',
+            'h.host_locked',
+            'h.host_snmp_community AS snmp_community',
+            'h.host_snmp_version AS snmp_version',
+            'h.host_location AS timezone_id',
+            'h.host_comment AS comment',
+            'ehi.ehi_notes_url AS note_url',
+            'ehi.ehi_notes AS note',
+            'ehi.ehi_action_url AS action_url',
+            'ehi.ehi_icon_image AS icon_id',
+            'ehi.ehi_icon_image_alt AS alt_icon',
+            'h.timeperiod_tp_id AS check_timeperiod_id',
+            'h.host_max_check_attempts AS max_check_attempts',
+            'h.host_check_interval AS normal_check_interval',
+            'h.host_retry_check_interval AS retry_check_interval',
+            'h.host_active_checks_enabled AS active_check_enabled',
+            'h.host_passive_checks_enabled AS passive_check_enabled',
+            'h.host_acknowledgement_timeout AS acknowledgement_timeout',
+            'h.host_check_freshness AS check_freshness',
+            'h.host_freshness_threshold AS freshness_threshold',
+            'h.host_flap_detection_enabled AS flap_detection_enabled',
+            'h.host_low_flap_threshold AS low_flap_threshold',
+            'h.host_high_flap_threshold AS high_flap_threshold',
+            'h.host_event_handler_enabled AS event_handler_enabled',
+            'h.command_command_id2 AS event_handler_command_id',
+            'h.command_command_id_arg2 AS event_handler_args',
+            'h.command_command_id AS check_command_id',
+            'h.command_command_id_arg1 AS check_command_args',
+            'h.host_notifications_enabled AS notifications_enabled',
+            'h.host_notification_options AS notification_options',
+            'h.host_notification_interval AS notification_interval',
+            'h.timeperiod_tp_id2 AS notification_period_id',
+            'h.host_first_notification_delay AS first_notification_delay',
+            'h.host_recovery_notification_delay AS recovery_notification_delay',
+            'h.contact_additive_inheritance',
+            'h.cg_additive_inheritance',
+        )
+            ->from(self::TABLE_NAME, 'h')
+            ->leftJoin('h', 'extended_host_information', 'ehi', 'ehi.host_host_id = h.host_id')
+            ->where($qb->expr()->eq('h.host_id', $qb->createNamedParameter($id->value, ParameterType::INTEGER)))
+            ->andWhere('h.host_register = ' . $qb->createNamedParameter(self::HOST_TEMPLATE_REGISTER));
+
+        $row = $qb->executeQuery()->fetchAssociative();
+        if ($row === false) {
+            return null;
+        }
+
+        [$categoryIds, $severityId] = $this->findCategoryAndSeverityIds($id->value);
+
+        /** @var FindOneRowTypeAlias $fullRow */
+        $fullRow = $row + [
+            'parent_template_ids' => $this->findParentTemplateIdValues([$id->value])[$id->value] ?? [],
+            'macros' => $this->findMacrosByOwner([$id->value])[$id->value] ?? [],
+            'category_ids' => $categoryIds,
+            'severity_id' => $severityId,
+            'contact_ids' => $this->findRelatedIds('contact_host_relation', 'contact_id', $id->value),
+            'contact_group_ids' => $this->findRelatedIds('contactgroup_host_relation', 'contactgroup_cg_id', $id->value),
+            'linked_service_template_ids' => $this->findLinkedServiceTemplateIds($id->value),
+            'service_template_check_command_ids' => $this->findServiceTemplateCheckCommandIds([$id->value])[$id->value] ?? [],
+        ];
+
+        return $this->transformer->transform($fullRow);
+    }
+
+    public function isNameUsedByHostOrTemplate(HostTemplateName $name, ?HostTemplateId $excluding = null): bool
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('1')
+            ->from(self::TABLE_NAME)
+            ->where($qb->expr()->eq('host_name', $qb->createNamedParameter($name->value)))
+            ->setMaxResults(1);
+        if ($excluding instanceof HostTemplateId) {
+            $qb->andWhere($qb->expr()->neq('host_id', $qb->createNamedParameter($excluding->value, ParameterType::INTEGER)));
+        }
+
+        return (bool) $qb->executeQuery()->fetchOne();
+    }
+
+    public function add(HostTemplate $hostTemplate): void
+    {
+        $informations = $hostTemplate->extendedInformations;
+
+        $this->connection->insert(self::TABLE_NAME, [
+            ...$this->configurationColumns($hostTemplate),
+            'host_name' => $hostTemplate->name->value,
+            'host_register' => self::HOST_TEMPLATE_REGISTER,
+            'host_activate' => '1',
+            'host_locked' => 0,
+        ]);
+
+        $id = (int) $this->connection->lastInsertId();
+        if ($id === 0) {
+            throw new \RuntimeException(sprintf('Unable to retrieve last insert ID for "%s".', self::TABLE_NAME));
+        }
+        $this->setId($hostTemplate, new HostTemplateId($id));
+
+        // Every host row has its extended information row, empty or not.
+        $this->connection->insert('extended_host_information', [
+            'host_host_id' => $id,
+            'ehi_notes_url' => $informations?->noteUrl,
+            'ehi_notes' => $informations?->note,
+            'ehi_action_url' => $informations?->actionUrl,
+            'ehi_icon_image' => $informations?->iconId?->value,
+            'ehi_icon_image_alt' => $informations?->altIcon,
+        ]);
+
+        $this->insertRelations($id, $hostTemplate);
+        if ($hostTemplate->severityId instanceof HostSeverityId) {
+            $this->connection->insert('hostcategories_relation', ['host_host_id' => $id, 'hostcategories_hc_id' => $hostTemplate->severityId->value]);
+        }
+
+        foreach ($hostTemplate->checkOptions->macros as $macro) {
+            $this->insertMacro($id, $macro);
+        }
+    }
+
+    public function update(HostTemplate $hostTemplate): void
+    {
+        $id = $hostTemplate->id()->value;
+        $informations = $hostTemplate->extendedInformations;
+
+        $this->connection->update(
+            self::TABLE_NAME,
+            [
+                ...$this->configurationColumns($hostTemplate),
+                'host_name' => $hostTemplate->name->value,
+            ],
+            ['host_id' => $id, 'host_register' => self::HOST_TEMPLATE_REGISTER],
+        );
+
+        $this->connection->executeStatement(
+            <<<'SQL'
+                INSERT INTO extended_host_information
+                    (host_host_id, ehi_notes_url, ehi_notes, ehi_action_url, ehi_icon_image, ehi_icon_image_alt)
+                VALUES (:id, :noteUrl, :note, :actionUrl, :iconId, :altIcon)
+                ON DUPLICATE KEY UPDATE
+                    ehi_notes_url = VALUES(ehi_notes_url),
+                    ehi_notes = VALUES(ehi_notes),
+                    ehi_action_url = VALUES(ehi_action_url),
+                    ehi_icon_image = VALUES(ehi_icon_image),
+                    ehi_icon_image_alt = VALUES(ehi_icon_image_alt)
+                SQL,
+            [
+                'id' => $id,
+                'noteUrl' => $informations?->noteUrl,
+                'note' => $informations?->note,
+                'actionUrl' => $informations?->actionUrl,
+                'iconId' => $informations?->iconId?->value,
+                'altIcon' => $informations?->altIcon,
+            ],
+            ['id' => ParameterType::INTEGER, 'iconId' => ParameterType::INTEGER],
+        );
+
+        // The severity shares the table with the categories, told apart by the category level.
+        $this->connection->executeStatement(
+            <<<'SQL'
+                DELETE hcr FROM hostcategories_relation hcr
+                INNER JOIN hostcategories hc ON hc.hc_id = hcr.hostcategories_hc_id
+                WHERE hcr.host_host_id = :id AND hc.level IS NOT NULL
+                SQL,
+            ['id' => $id],
+            ['id' => ParameterType::INTEGER],
+        );
+        if ($hostTemplate->severityId instanceof HostSeverityId) {
+            $this->connection->insert('hostcategories_relation', ['host_host_id' => $id, 'hostcategories_hc_id' => $hostTemplate->severityId->value]);
+        }
+    }
+
+    public function replaceRelations(HostTemplate $hostTemplate): void
+    {
+        $id = $hostTemplate->id()->value;
+        if (! $this->isTemplate($id)) {
+            return;
+        }
+
+        foreach (['contact_host_relation', 'contactgroup_host_relation'] as $table) {
+            $this->connection->delete($table, ['host_host_id' => $id], ['host_host_id' => ParameterType::INTEGER]);
+        }
+        // Only the parent templates and the service templates: legacy rows to a host or a service stay.
+        $this->connection->executeStatement(
+            <<<'SQL'
+                DELETE htr FROM host_template_relation htr
+                INNER JOIN host parent ON parent.host_id = htr.host_tpl_id AND parent.host_register = '0'
+                WHERE htr.host_host_id = :id
+                SQL,
+            ['id' => $id],
+            ['id' => ParameterType::INTEGER],
+        );
+        $this->connection->executeStatement(
+            <<<'SQL'
+                DELETE hsr FROM host_service_relation hsr
+                INNER JOIN service s ON s.service_id = hsr.service_service_id AND s.service_register = '0'
+                WHERE hsr.host_host_id = :id
+                SQL,
+            ['id' => $id],
+            ['id' => ParameterType::INTEGER],
+        );
+        // The severity shares the table with the categories, told apart by the category level.
+        $this->connection->executeStatement(
+            <<<'SQL'
+                DELETE hcr FROM hostcategories_relation hcr
+                INNER JOIN hostcategories hc ON hc.hc_id = hcr.hostcategories_hc_id
+                WHERE hcr.host_host_id = :id AND hc.level IS NULL
+                SQL,
+            ['id' => $id],
+            ['id' => ParameterType::INTEGER],
+        );
+
+        $this->insertRelations($id, $hostTemplate);
+    }
+
+    public function replaceMacros(HostTemplate $hostTemplate): void
+    {
+        $id = $hostTemplate->id()->value;
+        if (! $this->isTemplate($id)) {
+            return;
+        }
+
+        $storedIds = array_map(
+            static fn (mixed $macroId): int => is_numeric($macroId) ? (int) $macroId : 0,
+            $this->connection->fetchFirstColumn(
+                'SELECT host_macro_id FROM on_demand_macro_host WHERE host_host_id = :id',
+                ['id' => $id],
+                ['id' => ParameterType::INTEGER],
+            ),
+        );
+
+        $keptIds = [];
+        foreach ($hostTemplate->checkOptions->macros as $macro) {
+            // An id this template does not store (an inherited macro's) never reaches another row.
+            if ($macro->id instanceof HostMacroId && in_array($macro->id->value, $storedIds, true)) {
+                $this->connection->update(
+                    'on_demand_macro_host',
+                    [
+                        'host_macro_name' => $macro->name->toStorageName(),
+                        'host_macro_value' => $macro->value,
+                        'is_password' => $macro->isPassword ? 1 : null,
+                    ],
+                    ['host_macro_id' => $macro->id->value, 'host_host_id' => $id],
+                );
+                $keptIds[] = $macro->id->value;
+
+                continue;
+            }
+
+            $this->insertMacro($id, $macro);
+        }
+
+        $removedIds = array_values(array_diff($storedIds, $keptIds));
+        if ($removedIds === []) {
+            return;
+        }
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb->delete('on_demand_macro_host')
+            ->where($qb->expr()->eq('host_host_id', $qb->createNamedParameter($id, ParameterType::INTEGER)))
+            ->andWhere($qb->expr()->in('host_macro_id', $qb->createNamedParameter($removedIds, ArrayParameterType::INTEGER)))
+            ->executeStatement();
+    }
+
+    public function findTemplateParentIds(): array
+    {
+        $rows = $this->connection->fetchAllNumeric(
+            <<<'SQL'
+                SELECT htr.host_host_id, htr.host_tpl_id
+                FROM host_template_relation htr
+                INNER JOIN host c ON c.host_id = htr.host_host_id AND c.host_register = '0'
+                INNER JOIN host p ON p.host_id = htr.host_tpl_id AND p.host_register = '0'
+                SQL,
+        );
+
+        $parentIdsByTemplate = [];
+        foreach ($rows as [$childId, $parentId]) {
+            if (is_numeric($childId) && is_numeric($parentId)) {
+                $parentIdsByTemplate[(int) $childId][] = (int) $parentId;
+            }
+        }
+
+        return $parentIdsByTemplate;
+    }
+
+    public function addCopyOf(HostTemplate $copy, HostTemplateId $sourceId): void
+    {
+        $source = $sourceId->value;
+
+        $inserted = $this->copyRow(
+            self::TABLE_NAME,
+            'host_id',
+            $source,
+            ['host_name' => $copy->name->value, 'host_snmp_community' => $copy->snmpCommunity?->value],
+            ['host_register' => self::HOST_TEMPLATE_REGISTER],
+        );
+        // A source that is no longer a template copies no row.
+        if ($inserted !== 1) {
+            throw new HostTemplateNotFoundException([$source], 'id');
+        }
+
+        $copyId = (int) $this->connection->lastInsertId();
+        if ($copyId === 0) {
+            throw new \RuntimeException(sprintf('Unable to retrieve last insert ID for "%s".', self::TABLE_NAME));
+        }
+
+        $this->setId($copy, new HostTemplateId($copyId));
+
+        $this->copyRow('extended_host_information', 'host_host_id', $source, ['host_host_id' => $copyId]);
+        $this->copyRow('on_demand_macro_host', 'host_host_id', $source, ['host_host_id' => $copyId]);
+        foreach (['host_template_relation', 'hostcategories_relation', 'contact_host_relation', 'contactgroup_host_relation', 'ns_host_relation'] as $table) {
+            $this->copyRow($table, 'host_host_id', $source, ['host_host_id' => $copyId]);
+        }
+
+        // Links to the same service templates, never copies of them.
+        $this->connection->executeStatement(
+            <<<'SQL'
+                INSERT INTO host_service_relation (host_host_id, service_service_id)
+                SELECT DISTINCT :copyId, service_service_id
+                FROM host_service_relation
+                WHERE host_host_id = :sourceId AND service_service_id IS NOT NULL
+                SQL,
+            ['copyId' => $copyId, 'sourceId' => $source],
+            ['copyId' => ParameterType::INTEGER, 'sourceId' => ParameterType::INTEGER],
+        );
+
+        // Re-minted secrets replace the copied vault references.
+        foreach ($copy->checkOptions->macros as $macro) {
+            if (! $macro->isPassword) {
+                continue;
+            }
+
+            $this->connection->update(
+                'on_demand_macro_host',
+                ['host_macro_value' => $macro->value],
+                ['host_host_id' => $copyId, 'host_macro_name' => $macro->name->toStorageName()],
+            );
+        }
+    }
+
+    public function findPollerIdsOfInheritingHosts(HostTemplateId $id): Collection
+    {
+        // UNION dedupes, so a template loop cannot recurse forever.
+        $sql = <<<'SQL'
+            WITH RECURSIVE inheritors (id) AS (
+                SELECT host_host_id
+                FROM host_template_relation
+                WHERE host_tpl_id = :id
+                UNION
+                SELECT htr.host_host_id
+                FROM host_template_relation htr
+                INNER JOIN inheritors i ON i.id = htr.host_tpl_id
+            )
+            SELECT DISTINCT nhr.nagios_server_id
+            FROM inheritors i
+            INNER JOIN host h ON h.host_id = i.id AND h.host_register = '1' AND h.host_activate = '1'
+            INNER JOIN ns_host_relation nhr ON nhr.host_host_id = h.host_id
+            ORDER BY nhr.nagios_server_id
+            SQL;
+
+        /** @var list<int|string> $pollerIds */
+        $pollerIds = $this->connection->executeQuery($sql, ['id' => $id->value], ['id' => ParameterType::INTEGER])
+            ->fetchFirstColumn();
+
+        return new Collection(
+            array_map(static fn (int|string $pollerId): PollerId => new PollerId((int) $pollerId), $pollerIds),
+            PollerId::class,
+        );
+    }
+
+    public function remove(HostTemplate $hostTemplate): void
+    {
+        $id = $hostTemplate->id()->value;
+        $parentDependencyIds = $this->findDependencyIds('dependency_hostParent_relation', 'host_host_id', $id);
+        $childDependencyIds = $this->findDependencyIds('dependency_hostChild_relation', 'host_host_id', $id);
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb->delete(self::TABLE_NAME)
+            ->where($qb->expr()->eq('host_id', $qb->createNamedParameter($id, ParameterType::INTEGER)))
+            ->andWhere('host_register = ' . $qb->createNamedParameter(self::HOST_TEMPLATE_REGISTER))
+            ->executeStatement();
+
+        $this->deleteDependenciesWithoutMember('dependency_hostParent_relation', $parentDependencyIds);
+        $this->deleteDependenciesWithoutMember('dependency_hostChild_relation', $childDependencyIds);
+    }
+
     public function findInheritanceLine(Collection $directTemplateIds): Collection
     {
         $directIds = array_values(array_map(static fn (HostTemplateId $id): int => $id->value, $directTemplateIds->toArray()));
@@ -345,23 +815,145 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
 
         $macrosByOwner = $this->findMacrosByOwner($line);
         $serviceTemplateCommandIds = $this->findServiceTemplateCheckCommandIds($line);
+        // every stored direct parent, active or not, as in findAll(): $parentIdsById has active ones only
+        $storedParentIdsById = $this->findParentTemplateIdValues($line);
 
         return new Collection(
             array_map(
                 static fn (int $id): HostTemplate => new HostTemplate(
                     new HostTemplateId($id),
                     new HostTemplateName($templates[$id]['name']),
-                    new Collection($macrosByOwner[$id] ?? [], HostMacro::class),
-                    $templates[$id]['command_id'] !== null ? new CommandId($templates[$id]['command_id']) : null,
+                    new CheckOptions(
+                        $templates[$id]['command_id'] !== null ? new CommandId($templates[$id]['command_id']) : null,
+                        macros: $macrosByOwner[$id] ?? [],
+                        commandMayBeInherited: true,
+                    ),
                     new Collection(
                         array_map(static fn (int $commandId): CommandId => new CommandId($commandId), $serviceTemplateCommandIds[$id] ?? []),
                         CommandId::class,
+                    ),
+                    parentTemplateIds: new Collection(
+                        array_map(static fn (int $parentId): HostTemplateId => new HostTemplateId($parentId), $storedParentIdsById[$id] ?? []),
+                        HostTemplateId::class,
                     ),
                 ),
                 $line,
             ),
             HostTemplate::class,
         );
+    }
+
+    private function isTemplate(int $id): bool
+    {
+        return (bool) $this->connection->fetchOne(
+            'SELECT 1 FROM host WHERE host_id = :id AND host_register = :register',
+            ['id' => $id, 'register' => self::HOST_TEMPLATE_REGISTER],
+            ['id' => ParameterType::INTEGER],
+        );
+    }
+
+    /**
+     * Every relation but the severity: the parents in order, the categories, the contacts, the contact
+     * groups and the linked service templates in order.
+     */
+    private function insertRelations(int $id, HostTemplate $hostTemplate): void
+    {
+        $order = 1;
+        foreach ($hostTemplate->parentTemplateIds as $parentId) {
+            $this->connection->insert('host_template_relation', ['host_host_id' => $id, 'host_tpl_id' => $parentId->value, '`order`' => $order++]);
+        }
+
+        foreach ($hostTemplate->categoryIds as $categoryId) {
+            $this->connection->insert('hostcategories_relation', ['host_host_id' => $id, 'hostcategories_hc_id' => $categoryId->value]);
+        }
+
+        $notifications = $hostTemplate->notifications;
+        foreach ($notifications->contactIds ?? [] as $contactId) {
+            $this->connection->insert('contact_host_relation', ['host_host_id' => $id, 'contact_id' => $contactId->value]);
+        }
+        foreach ($notifications->contactGroupIds ?? [] as $contactGroupId) {
+            $this->connection->insert('contactgroup_host_relation', ['host_host_id' => $id, 'contactgroup_cg_id' => $contactGroupId->value]);
+        }
+
+        foreach ($hostTemplate->linkedServiceTemplateIds as $serviceTemplateId) {
+            $this->connection->insert('host_service_relation', ['host_host_id' => $id, 'service_service_id' => $serviceTemplateId->value]);
+        }
+    }
+
+    private function insertMacro(int $id, HostMacro $macro): void
+    {
+        $this->connection->insert('on_demand_macro_host', [
+            'host_host_id' => $id,
+            'host_macro_name' => $macro->name->toStorageName(),
+            'host_macro_value' => $macro->value,
+            // stored as 1 or NULL, never 0
+            'is_password' => $macro->isPassword ? 1 : null,
+        ]);
+    }
+
+    /**
+     * @param list<int> $idValues host or host template ids
+     *
+     * @return Collection<MediaId> indexed by the requested id
+     */
+    private function findInheritedIconIdsOf(array $idValues): Collection
+    {
+        if ($idValues === []) {
+            return new Collection([], MediaId::class);
+        }
+
+        // Relations reachable from the requested ids, walked depth-first in PHP; UNION stops loops.
+        // An icon whose image sits in no folder is read as no icon, like legacy.
+        $sql = <<<'SQL'
+            WITH RECURSIVE chain (id) AS (
+                SELECT host_host_id
+                FROM host_template_relation
+                WHERE host_host_id IN (:ids)
+                UNION
+                SELECT htr.host_tpl_id
+                FROM host_template_relation htr
+                INNER JOIN chain c ON c.id = htr.host_host_id
+            )
+            SELECT htr.host_host_id, htr.host_tpl_id, ehi.ehi_icon_image AS icon_id
+            FROM host_template_relation htr
+            INNER JOIN chain c ON c.id = htr.host_host_id
+            LEFT JOIN extended_host_information ehi
+                ON ehi.host_host_id = htr.host_tpl_id
+                AND EXISTS (
+                    SELECT 1
+                    FROM view_img_dir_relation vidr
+                    INNER JOIN view_img_dir vid ON vid.dir_id = vidr.dir_dir_parent_id
+                    WHERE vidr.img_img_id = ehi.ehi_icon_image
+                )
+            ORDER BY htr.host_host_id, htr.`order`, htr.host_tpl_id
+            SQL;
+
+        /** @var list<array{host_host_id: int|string, host_tpl_id: int|string, icon_id: int|string|null}> $rows */
+        $rows = $this->connection->executeQuery(
+            $sql,
+            ['ids' => $idValues],
+            ['ids' => ArrayParameterType::INTEGER],
+        )->fetchAllAssociative();
+
+        /** @var array<int, list<array{int, ?int}>> $templatesById ordered [template id, icon id] pairs per host or template */
+        $templatesById = [];
+        foreach ($rows as $row) {
+            $templatesById[(int) $row['host_host_id']][] = [
+                (int) $row['host_tpl_id'],
+                $row['icon_id'] !== null ? (int) $row['icon_id'] : null,
+            ];
+        }
+
+        $iconIds = [];
+        foreach ($idValues as $hostId) {
+            $visited = [$hostId => true];
+            $iconId = $this->findFirstIconId($hostId, $templatesById, $visited);
+            if ($iconId !== null) {
+                $iconIds[$hostId] = new MediaId($iconId);
+            }
+        }
+
+        return new Collection($iconIds, MediaId::class);
     }
 
     /**
@@ -573,6 +1165,19 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
             $qb->andWhere($qb->expr()->like('h.host_name', $qb->createNamedParameter('%' . $name . '%')));
         }
 
+        if (($nameOrAlias = $criteria->getNameOrAlias()) !== null) {
+            $pattern = $qb->createNamedParameter('%' . $nameOrAlias . '%');
+            $qb->andWhere($qb->expr()->or(
+                $qb->expr()->like('h.host_name', $pattern),
+                $qb->expr()->like('h.host_alias', $pattern),
+            ));
+        }
+
+        if ($criteria->isLockedExcluded()) {
+            // like legacy's "AND host_locked = 0", which also leaves out a NULL host_locked
+            $qb->andWhere('h.host_locked = 0');
+        }
+
         if (($excludedIds = $criteria->getExcludedIds()) !== []) {
             $qb->andWhere($qb->expr()->notIn('h.host_id', $qb->createNamedParameter($excludedIds, ArrayParameterType::INTEGER)));
         }
@@ -609,18 +1214,249 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
     }
 
     /**
-     * @param array<RowTypeAlias> $rows
+     * @param array<DbRowTypeAlias> $rows
      *
      * @return Collection<HostTemplate>
      */
     private function createHostTemplates(array $rows): Collection
     {
+        $parentIdsById = $this->findParentTemplateIdValues(
+            array_values(array_map(static fn (array $row): int => $row['host_id'], $rows))
+        );
+
         return new Collection(
             array_map(
-                fn (array $row): HostTemplate => $this->transformer->transform($row),
+                fn (array $row): HostTemplate => $this->listingTransformer->transform(
+                    $row + ['parent_template_ids' => $parentIdsById[$row['host_id']] ?? []]
+                ),
                 $rows
             ),
             HostTemplate::class
+        );
+    }
+
+    /**
+     * The `host` columns a template write sets, its name, activation and lock aside.
+     *
+     * @return array<string, int|string|null>
+     */
+    private function configurationColumns(HostTemplate $hostTemplate): array
+    {
+        $informations = $hostTemplate->extendedInformations;
+        $scheduling = $hostTemplate->schedulingOptions;
+        $dataProcessing = $hostTemplate->dataProcessing;
+
+        return [
+            'host_alias' => $hostTemplate->alias?->value,
+            'host_snmp_version' => $hostTemplate->snmpVersion?->value,
+            'host_snmp_community' => $hostTemplate->snmpCommunity?->value,
+            'host_location' => $hostTemplate->timezoneId?->value,
+            'host_comment' => $informations?->comment,
+            'command_command_id' => $hostTemplate->checkOptions->checkCommandId?->value,
+            'command_command_id_arg1' => CommandArgumentsFormatter::format($hostTemplate->checkOptions->args),
+            'timeperiod_tp_id' => $scheduling->checkTimeperiodId?->value,
+            'host_max_check_attempts' => $scheduling->maxCheckAttempts,
+            'host_check_interval' => $scheduling->normalCheckInterval,
+            'host_retry_check_interval' => $scheduling->retryCheckInterval,
+            'host_active_checks_enabled' => $this->triStateToColumn($scheduling->activeCheckEnabled),
+            'host_passive_checks_enabled' => $this->triStateToColumn($scheduling->passiveCheckEnabled),
+            'host_check_freshness' => $this->triStateToColumn($dataProcessing->checkFreshness),
+            'host_freshness_threshold' => $dataProcessing->freshnessThreshold,
+            'host_flap_detection_enabled' => $this->triStateToColumn($dataProcessing->flapDetectionEnabled),
+            'host_low_flap_threshold' => $dataProcessing->lowFlapThreshold,
+            'host_high_flap_threshold' => $dataProcessing->highFlapThreshold,
+            'host_event_handler_enabled' => $this->triStateToColumn($dataProcessing->eventHandlerEnabled),
+            'command_command_id2' => $dataProcessing->eventHandlerCommandId?->value,
+            'command_command_id_arg2' => CommandArgumentsFormatter::format($dataProcessing->eventHandlerArgs),
+            'host_acknowledgement_timeout' => $dataProcessing->acknowledgmentTimeout,
+            ...$this->notificationColumns($hostTemplate->notifications),
+        ];
+    }
+
+    /**
+     * @return array<string, int|string|null>
+     */
+    private function notificationColumns(?Notifications $notifications): array
+    {
+        $columns = $this->notificationsTransformer->transform($notifications);
+
+        return [
+            'host_notifications_enabled' => $columns['notificationsEnabled'],
+            'host_notification_options' => $columns['notificationOptions'],
+            'host_notification_interval' => $columns['notificationInterval'],
+            'timeperiod_tp_id2' => $columns['notificationPeriodId'],
+            'host_first_notification_delay' => $columns['firstNotificationDelay'],
+            'host_recovery_notification_delay' => $columns['recoveryNotificationDelay'],
+            'contact_additive_inheritance' => (int) $columns['contactAdditiveInheritance'],
+            'cg_additive_inheritance' => (int) $columns['contactGroupAdditiveInheritance'],
+        ];
+    }
+
+    /**
+     * The levelless categories, in id order, and the severity: the lowest level, then the lowest id.
+     *
+     * @return array{list<int>, ?int}
+     */
+    private function findCategoryAndSeverityIds(int $templateId): array
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('hcr.hostcategories_hc_id AS id', 'hc.level')
+            ->from('hostcategories_relation', 'hcr')
+            ->innerJoin('hcr', 'hostcategories', 'hc', 'hc.hc_id = hcr.hostcategories_hc_id')
+            ->where($qb->expr()->eq('hcr.host_host_id', $qb->createNamedParameter($templateId, ParameterType::INTEGER)))
+            ->orderBy('hc.level')
+            ->addOrderBy('hcr.hostcategories_hc_id');
+
+        /** @var list<array{id: int|string, level: int|string|null}> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        $categoryIds = [];
+        $severityId = null;
+        foreach ($rows as $row) {
+            if ($row['level'] === null) {
+                $categoryIds[(int) $row['id']] = (int) $row['id'];
+            } else {
+                $severityId ??= (int) $row['id'];
+            }
+        }
+
+        return [array_values($categoryIds), $severityId];
+    }
+
+    /**
+     * @param non-empty-string $table a relation table keyed by `host_host_id`
+     * @param non-empty-string $column the related id column
+     *
+     * @return list<int> in id order, each once
+     */
+    private function findRelatedIds(string $table, string $column, int $templateId): array
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('DISTINCT ' . $column)
+            ->from($table)
+            ->where($qb->expr()->eq('host_host_id', $qb->createNamedParameter($templateId, ParameterType::INTEGER)))
+            ->orderBy($column);
+
+        /** @var list<int|string> $ids */
+        $ids = $qb->executeQuery()->fetchFirstColumn();
+
+        return array_map(intval(...), $ids);
+    }
+
+    /**
+     * The service templates linked to the template, in relation order, each once at its first position.
+     *
+     * @return list<int>
+     */
+    private function findLinkedServiceTemplateIds(int $templateId): array
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('hsr.service_service_id')
+            ->from('host_service_relation', 'hsr')
+            ->innerJoin('hsr', 'service', 's', "s.service_id = hsr.service_service_id AND s.service_register = '0'")
+            ->where($qb->expr()->eq('hsr.host_host_id', $qb->createNamedParameter($templateId, ParameterType::INTEGER)))
+            ->orderBy('hsr.hsr_id');
+
+        /** @var list<int|string> $ids */
+        $ids = $qb->executeQuery()->fetchFirstColumn();
+
+        return array_values(array_unique(array_map(intval(...), $ids)));
+    }
+
+    /**
+     * The direct parent templates of the given templates, in relation `order`, in one query.
+     *
+     * @param list<int> $templateIds
+     *
+     * @return array<int, list<int>> parent template ids indexed by template id
+     */
+    private function findParentTemplateIdValues(array $templateIds): array
+    {
+        if ($templateIds === []) {
+            return [];
+        }
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('htr.host_host_id', 'htr.host_tpl_id')
+            ->from('host_template_relation', 'htr')
+            ->innerJoin('htr', self::TABLE_NAME, 'p', 'p.host_id = htr.host_tpl_id AND p.host_register = ' . $qb->createNamedParameter(self::HOST_TEMPLATE_REGISTER))
+            ->where($qb->expr()->in('htr.host_host_id', $qb->createNamedParameter($templateIds, ArrayParameterType::INTEGER)))
+            ->orderBy('htr.host_host_id')
+            ->addOrderBy('htr.`order`')
+            ->addOrderBy('htr.host_tpl_id');
+
+        /** @var list<array{host_host_id: int|string, host_tpl_id: int|string}> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        $parentIdsById = [];
+        foreach ($rows as $row) {
+            $parentIdsById[(int) $row['host_host_id']][] = (int) $row['host_tpl_id'];
+        }
+
+        return $parentIdsById;
+    }
+
+    /**
+     * Copies the $table rows of $sourceId, all columns but auto-increment, generated and $overrides ones.
+     *
+     * @param non-empty-string $table
+     * @param non-empty-string $ownerColumn
+     * @param array<string, int|string|null> $overrides
+     * @param array<string, string> $conditions extra column = value filters on the source rows
+     *
+     * @return int the number of rows copied
+     */
+    private function copyRow(
+        string $table,
+        string $ownerColumn,
+        int $sourceId,
+        array $overrides,
+        array $conditions = [],
+    ): int {
+        /** @var list<string> $columns */
+        $columns = $this->connection->fetchFirstColumn(
+            <<<'SQL'
+                SELECT COLUMN_NAME
+                FROM information_schema.COLUMNS
+                WHERE TABLE_SCHEMA = DATABASE()
+                  AND TABLE_NAME = :table
+                  AND EXTRA NOT LIKE '%auto_increment%'
+                  AND EXTRA NOT LIKE '% GENERATED'
+                ORDER BY ORDINAL_POSITION
+                SQL,
+            ['table' => $table],
+        );
+
+        $selected = [];
+        $parameters = ['sourceId' => $sourceId];
+        $types = ['sourceId' => ParameterType::INTEGER];
+        foreach ($columns as $index => $column) {
+            if (array_key_exists($column, $overrides)) {
+                $selected[] = ':override' . $index;
+                $parameters['override' . $index] = $overrides[$column];
+                $types['override' . $index] = is_int($overrides[$column]) ? ParameterType::INTEGER : ParameterType::STRING;
+            } else {
+                $selected[] = $this->connection->quoteSingleIdentifier($column);
+            }
+        }
+
+        $where = [$this->connection->quoteSingleIdentifier($ownerColumn) . ' = :sourceId'];
+        foreach (array_keys($conditions) as $index => $column) {
+            $where[] = $this->connection->quoteSingleIdentifier($column) . ' = :condition' . $index;
+            $parameters['condition' . $index] = $conditions[$column];
+            $types['condition' . $index] = ParameterType::STRING;
+        }
+
+        return (int) $this->connection->executeStatement(
+            sprintf(
+                'INSERT INTO %1$s (%2$s) SELECT %3$s FROM %1$s WHERE %4$s',
+                $this->connection->quoteSingleIdentifier($table),
+                implode(', ', array_map($this->connection->quoteSingleIdentifier(...), $columns)),
+                implode(', ', $selected),
+                implode(' AND ', $where),
+            ),
+            $parameters,
+            $types,
         );
     }
 

@@ -28,6 +28,8 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Exception\HostTemplateNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostTemplateCriteria;
 use App\Shared\Domain\Collection;
 
@@ -61,12 +63,35 @@ interface HostTemplateRepository
     public function findInheritedIconIds(Collection $hostIds): Collection;
 
     /**
+     * Every requested host template's icon inherited from its own template chain, resolved like
+     * {@see findInheritedIconIds()}: the template's own icon is ignored. A template with no inherited
+     * icon is absent from the result.
+     *
+     * @param Collection<HostTemplateId> $templateIds
+     *
+     * @return Collection<MediaId> indexed by host template id
+     */
+    public function findTemplatesInheritedIconIds(Collection $templateIds): Collection;
+
+    /**
+     * How many service templates each requested host template is directly linked to
+     * (host_service_relation), its parents' links left out.
+     *
+     * @param Collection<HostTemplateId> $templateIds
+     *
+     * @return array<int, int> the count indexed by host template id, every requested id included
+     */
+    public function countLinkedServiceTemplates(Collection $templateIds): array;
+
+    /**
      * The full multi-level inheritance line of the given direct templates, with what a host inherits
      * from each (its own macros, its check command, the check commands of its linked service
      * templates): each direct template (in the given order) followed by its own ancestors,
      * depth-first by relation `order`, nearest to the host first, each template appearing once (its
      * nearest position). Only active templates are kept, at every level, like legacy
      * getTemplateChain(); an id that is not an active host template is skipped.
+     *
+     * Partially hydrated: alias, lock state and icon are left at their defaults.
      *
      * @param Collection<HostTemplateId> $directTemplateIds the host's (or template's) direct templates, in order
      *
@@ -94,4 +119,70 @@ interface HostTemplateRepository
      * @return Collection<HostTemplateId>
      */
     public function findMonitoringConnectorTemplateIds(array $excludedConnectorSlugs): Collection;
+
+    /**
+     * The host templates inheriting from the given one, directly or through other templates, active
+     * or not. The given id is part of the result only when an inheritance loop runs through it.
+     *
+     * @return Collection<HostTemplateId>
+     */
+    public function findDescendantIds(HostTemplateId $id): Collection;
+
+    /**
+     * Null when the id is unknown or is a host; never ACL-filtered.
+     */
+    public function findOne(HostTemplateId $id): ?HostTemplate;
+
+    /**
+     * @param ?HostTemplateId $excluding the template being renamed, whose own name does not count
+     */
+    public function isNameUsedByHostOrTemplate(HostTemplateName $name, ?HostTemplateId $excluding = null): bool;
+
+    /**
+     * Persists a new template, active and unlocked, with its relations and macros, and gives it its id.
+     */
+    public function add(HostTemplate $hostTemplate): void;
+
+    /**
+     * Saves its own columns, extended information and severity; never activation, lock, relations or macros.
+     */
+    public function update(HostTemplate $hostTemplate): void;
+
+    /**
+     * Replaces the parents (in order), the categories (the severity is left alone), the contacts, the
+     * contact groups and every linked service template row of the template.
+     */
+    public function replaceRelations(HostTemplate $hostTemplate): void;
+
+    /**
+     * Writes the template's own macros in place: a stored macro keeps its id, a new one is inserted, a
+     * stored one no longer listed is deleted. Only the template's own rows are touched.
+     */
+    public function replaceMacros(HostTemplate $hostTemplate): void;
+
+    /**
+     * Every inheritance edge between two templates, active or not, in one query.
+     *
+     * @return array<int, list<int>> template id => its parent template ids
+     */
+    public function findTemplateParentIds(): array;
+
+    /**
+     * Persists $copy (name, SNMP community, re-minted password macros) and copies everything else from $sourceId.
+     *
+     * @throws HostTemplateNotFoundException when $sourceId is no longer a host template
+     */
+    public function addCopyOf(HostTemplate $copy, HostTemplateId $sourceId): void;
+
+    /**
+     * The pollers of every enabled host inheriting the template, directly or not.
+     *
+     * @return Collection<PollerId>
+     */
+    public function findPollerIdsOfInheritingHosts(HostTemplateId $id): Collection;
+
+    /**
+     * Deletes the template and any host dependency it leaves empty.
+     */
+    public function remove(HostTemplate $hostTemplate): void;
 }

@@ -47,11 +47,16 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUid;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\TrapConfiguration;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\PollerCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalPollerRepository;
 use App\Security\Domain\Aggregate\UserId;
 use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\Shared\Domain\Aggregate\PollerScopedInterface;
 use App\Shared\Domain\Collection;
+use App\Shared\Domain\Repository\Pagination;
 use App\Shared\Domain\Repository\Paginator;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -190,7 +195,7 @@ final class DbalPollerRepositoryTest extends KernelTestCase
         $this->insertPoller(2, 'Poller-A');
         $this->insertPoller(3, 'Poller-B');
 
-        $pollers = $this->repository->findAll(PollerCriteria::unscoped()->withPagination(1, 2));
+        $pollers = $this->repository->findAll(PollerCriteria::unscoped()->withPagination(new Pagination(1, 2)));
 
         self::assertInstanceOf(Paginator::class, $pollers);
         self::assertCount(2, $pollers);
@@ -231,7 +236,7 @@ final class DbalPollerRepositoryTest extends KernelTestCase
         $this->connection->insert('platform_topology', ['address' => '10.0.0.2', 'name' => 'Poller-A', 'type' => 'poller', 'server_id' => 2, 'pending' => '0']);
         $this->connection->insert('platform_topology', ['address' => '10.0.0.2', 'name' => 'Poller-A-dup', 'type' => 'poller', 'server_id' => 2, 'pending' => '0']);
 
-        $pollers = $this->repository->findAll(PollerCriteria::unscoped()->withPagination(1, 10));
+        $pollers = $this->repository->findAll(PollerCriteria::unscoped()->withPagination(new Pagination(1, 10)));
 
         self::assertInstanceOf(Paginator::class, $pollers);
         self::assertCount(3, $pollers); // setUp()'s Central + Poller-A + Poller-B, each counted once
@@ -246,7 +251,7 @@ final class DbalPollerRepositoryTest extends KernelTestCase
         $this->connection->insert('remote_servers', ['ip' => '127.0.0.1', 'version' => '24.10', 'created_at' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'), 'server_id' => 2]);
         $this->connection->insert('remote_servers', ['ip' => '127.0.0.1', 'version' => '24.10', 'created_at' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'), 'server_id' => 2]);
 
-        $pollers = $this->repository->findAll(PollerCriteria::unscoped()->withExcludeUnknownCentral(true)->withPagination(1, 10));
+        $pollers = $this->repository->findAll(PollerCriteria::unscoped()->withExcludeUnknownCentral(true)->withPagination(new Pagination(1, 10)));
 
         self::assertInstanceOf(Paginator::class, $pollers);
         self::assertCount(2, $pollers); // Central (kept: its address matches a remote server) + Poller-A
@@ -301,7 +306,7 @@ final class DbalPollerRepositoryTest extends KernelTestCase
 
         self::assertCount(0, $this->repository->findAll($criteria));
 
-        $paginated = $this->repository->findAll($criteria->withPagination(1, 10));
+        $paginated = $this->repository->findAll($criteria->withPagination(new Pagination(1, 10)));
         self::assertInstanceOf(Paginator::class, $paginated, 'Pagination metadata must survive an empty ACL result.');
         self::assertSame(0, $paginated->getTotalItems());
         self::assertCount(0, $paginated);
@@ -314,6 +319,34 @@ final class DbalPollerRepositoryTest extends KernelTestCase
         $this->repository->flagAsChanged($this->buildHost(pollerId: 1));
 
         self::assertSame('1', $this->connection->fetchOne('SELECT updated FROM nagios_server WHERE id = :id', ['id' => 1]));
+    }
+
+    public function testFlagAsChangedForAServiceRaisesTheFlagOfThePollerOfItsEnabledHost(): void
+    {
+        $this->connection->update('nagios_server', ['updated' => '0'], ['id' => 1]);
+
+        $this->repository->flagAsChanged($this->buildService(hostActivated: true, hostPollerId: 1));
+
+        self::assertSame('1', $this->connection->fetchOne('SELECT updated FROM nagios_server WHERE id = :id', ['id' => 1]));
+    }
+
+    public function testFlagAsChangedForAServiceOfADisabledHostFlagsNoPoller(): void
+    {
+        $this->connection->update('nagios_server', ['updated' => '0'], ['id' => 1]);
+
+        $this->repository->flagAsChanged($this->buildService(hostActivated: false, hostPollerId: 1));
+
+        self::assertSame('0', $this->connection->fetchOne('SELECT updated FROM nagios_server WHERE id = :id', ['id' => 1]));
+    }
+
+    public function testFlagAsChangedStillRejectsAPollerScopedAggregateWithoutPollerMapping(): void
+    {
+        $unmapped = new class (new HostId(1)) extends AggregateRoot implements PollerScopedInterface {
+        };
+
+        $this->expectException(\LogicException::class);
+
+        $this->repository->flagAsChanged($unmapped);
     }
 
     public function testFlagIdAsChangedRaisesTheUpdatedFlagOfThatPoller(): void
@@ -343,6 +376,17 @@ final class DbalPollerRepositoryTest extends KernelTestCase
         $reflection->setValue($host, new HostId(1));
 
         return $host;
+    }
+
+    private function buildService(bool $hostActivated, int $hostPollerId): Service
+    {
+        return new Service(
+            id: new ServiceId(1),
+            name: new ServiceName('ping'),
+            hostId: new HostId(1),
+            hostActivated: $hostActivated,
+            hostPollerId: new PollerId($hostPollerId),
+        );
     }
 
     private function insertPoller(int $id, string $name, bool $isCentral = false): void

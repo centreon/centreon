@@ -16,6 +16,8 @@ import { useStyles } from './ActionsList.styles';
 import type { ActionVariants } from './models';
 
 interface ActionsType {
+  // A stable id for analytics and tests; the label stays the fallback.
+  dataTestId?: string;
   Icon?: OverridableComponent<SvgIconTypeMap<object, 'svg'>> & {
     muiName: string;
   };
@@ -52,16 +54,16 @@ const ActionsList = ({
           return <Divider key={`divider_${idx}`} />;
         }
 
-        const { label, Icon, onClick, variant, secondaryLabel } =
+        const { dataTestId, label, Icon, onClick, variant, secondaryLabel } =
           action as ActionsType;
 
         return (
           <MenuItem
             aria-label={label}
             className={classes.item}
-            data-testid={label}
+            data-testid={dataTestId ?? label}
             data-variant={variant}
-            id={label}
+            id={dataTestId ?? label}
             key={label}
             onClick={onClick}
           >

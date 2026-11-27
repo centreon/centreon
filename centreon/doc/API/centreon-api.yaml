@@ -1,4 +1,4 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
   title: 'Centreon Web RestAPI'
   description: |
@@ -37,82 +37,127 @@ servers:
         default: '80'
         description: 'Port used by HTTP server'
 tags:
-  - name: Acknowledgement
+  -
+    name: Acknowledgement
     description: 'Endpoints to manage acknowledgements'
-  - name: Administration
+  -
+    name: Administration
     description: 'Endpoints to manage administration tasks'
-  - name: Authentication
+  -
+    name: Authentication
     description: 'Login and logout endpoints to retrieve authentication token'
-  - name: Command
+  -
+    name: Command
     description: "Resource 'Command' operations."
-  - name: 'Contact group'
+  -
+    name: 'Contact group'
     description: 'Endpoints to manage contact groups'
-  - name: Downtime
+  -
+    name: Downtime
     description: 'Endpoints to manage downtimes'
-  - name: Gorgone
+  -
+    name: Gorgone
     description: 'Endpoints to manage Gorgone'
-  - name: Host
+  -
+    name: Host
     description: "Resource 'Host' operations."
-  - name: 'Host category'
+  -
+    name: 'Host category'
     description: 'Endpoints to manage host categories'
-  - name: 'Host group'
+  -
+    name: 'Host group'
     description: 'Endpoints to manage host groups'
-  - name: 'Meta service'
+  -
+    name: 'Meta service'
     description: 'Endpoints to manage meta services'
-  - name: 'Host severity'
-  - name: 'Host template'
-  - name: Media
+  -
+    name: 'Host severity'
+  -
+    name: 'Host template'
+  -
+    name: Media
     description: "Resource 'Media' operations."
-  - name: 'Monitoring server'
-  - name: Proxy
-  - name: Service
-  - name: 'Service group'
-  - name: 'Service category'
+  -
+    name: 'Monitoring server'
+  -
+    name: Proxy
+  -
+    name: Service
+    description: "Resource 'Service' operations."
+  -
+    name: 'Service group'
+  -
+    name: 'Service category'
     description: 'Endpoints to manage service categories'
-  - name: Severity
+  -
+    name: Severity
     description: 'Endpoints to manage severities'
-  - name: Topology
+  -
+    name: Topology
     description: 'Endpoints to manage topologies'
-  - name: GlobalMacroResource
-  - name: ListPlugins
-  - name: ServiceCategory
-  - name: StandardMacroResource
-  - name: ConnectorResource
-  - name: Connector
+  -
+    name: GlobalMacroResource
+  -
+    name: ListPlugins
+  -
+    name: ServiceCategory
+  -
+    name: StandardMacroResource
+  -
+    name: ConnectorResource
+  -
+    name: Connector
     description: "Resource 'Connector' operations."
-  - name: Plugin
+  -
+    name: Plugin
     description: "Resource 'Plugin' operations."
-  - name: 'Agent Configuration'
+  -
+    name: 'Agent Configuration'
     description: "Resource 'Agent Configuration' operations."
-  - name: 'Global Macro'
+  -
+    name: 'Global Macro'
     description: "Resource 'Global Macro' operations."
-  - name: Plugins
+  -
+    name: Plugins
     description: "Resource 'Plugins' operations."
-  - name: 'Service Category'
+  -
+    name: 'Service Category'
     description: "Resource 'Service Category' operations."
-  - name: 'Standard Macro'
+  -
+    name: 'Standard Macro'
     description: "Resource 'Standard Macro' operations."
-  - name: Poller
+  -
+    name: Poller
     description: "Resource 'Poller' operations."
-  - name: Upgrade
+  -
+    name: Upgrade
     description: "Resource 'Upgrade' operations."
-  - name: HostGroup
+  -
+    name: HostGroup
     description: "Resource 'HostGroup' operations."
-  - name: HostTemplate
+  -
+    name: HostTemplate
     description: "Resource 'HostTemplate' operations."
-  - name: HostCategory
+  -
+    name: HostCategory
     description: "Resource 'HostCategory' operations."
-  - name: Timezone
+  -
+    name: Timezone
     description: "Resource 'Timezone' operations."
-  - name: NotificationContact
+  -
+    name: NotificationContact
     description: "Resource 'NotificationContact' operations."
-  - name: TimePeriod
+  -
+    name: TimePeriod
     description: "Resource 'TimePeriod' operations."
-  - name: HostSeverity
+  -
+    name: HostSeverity
     description: "Resource 'HostSeverity' operations."
-  - name: HostAddressResolution
+  -
+    name: HostAddressResolution
     description: "Resource 'HostAddressResolution' operations."
-  - name: ContactGroup
+  -
+    name: ContactGroup
     description: "Resource 'ContactGroup' operations."
 security:
   -
@@ -225,7 +270,8 @@ paths:
       tags:
         - Authentication
       parameters:
-        - $ref: '#/components/parameters/providerConfigurationName'
+        -
+          $ref: '#/components/parameters/providerConfigurationName'
       summary: 'Authentication to provider'
       requestBody:
         required: true
@@ -358,7 +404,8 @@ paths:
       description: |
         Get a host category configuration
       parameters:
-        - $ref: '#/components/parameters/HostCategoryId'
+        -
+          $ref: '#/components/parameters/HostCategoryId'
       responses:
         '200':
           description: OK
@@ -380,7 +427,8 @@ paths:
       description: |
         Update a host category
       parameters:
-        - $ref: '#/components/parameters/HostCategoryId'
+        -
+          $ref: '#/components/parameters/HostCategoryId'
       requestBody:
         required: true
         content:
@@ -408,7 +456,8 @@ paths:
       description: |
         Delete a host category configuration
       parameters:
-        - $ref: '#/components/parameters/HostCategoryId'
+        -
+          $ref: '#/components/parameters/HostCategoryId'
       responses:
         '204':
           description: OK
@@ -452,10 +501,14 @@ paths:
         * service_group.id
         * service_group.name
       parameters:
-        - $ref: '#/components/parameters/Search'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/SortBy'
+        -
+          $ref: '#/components/parameters/Search'
+        -
+          $ref: '#/components/parameters/Limit'
+        -
+          $ref: '#/components/parameters/Page'
+        -
+          $ref: '#/components/parameters/SortBy'
       responses:
         '200':
           description: OK
@@ -551,7 +604,8 @@ paths:
       description: |
         Delete a host severity configuration
       parameters:
-        - $ref: '#/components/parameters/HostSeverityId'
+        -
+          $ref: '#/components/parameters/HostSeverityId'
       responses:
         '204':
           description: OK
@@ -569,7 +623,8 @@ paths:
       description: |
         Get a host severity configuration
       parameters:
-        - $ref: '#/components/parameters/HostSeverityId'
+        -
+          $ref: '#/components/parameters/HostSeverityId'
       responses:
         '200':
           description: OK
@@ -591,7 +646,8 @@ paths:
       description: |
         Update a host severity
       parameters:
-        - $ref: '#/components/parameters/HostSeverityId'
+        -
+          $ref: '#/components/parameters/HostSeverityId'
       requestBody:
         required: true
         content:
@@ -647,10 +703,14 @@ paths:
         * servicecategory.id
         * servicecategory.name
       parameters:
-        - $ref: '#/components/parameters/Search'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/SortBy'
+        -
+          $ref: '#/components/parameters/Search'
+        -
+          $ref: '#/components/parameters/Limit'
+        -
+          $ref: '#/components/parameters/Page'
+        -
+          $ref: '#/components/parameters/SortBy'
       responses:
         '200':
           description: OK
@@ -713,7 +773,8 @@ paths:
 
         Delete service group.
       parameters:
-        - $ref: '#/components/parameters/ServiceGroupId'
+        -
+          $ref: '#/components/parameters/ServiceGroupId'
       responses:
         '204':
           description: OK
@@ -814,10 +875,14 @@ paths:
           * address
           * is_activate
       parameters:
-        - $ref: '#/components/parameters/Search'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/SortBy'
+        -
+          $ref: '#/components/parameters/Search'
+        -
+          $ref: '#/components/parameters/Limit'
+        -
+          $ref: '#/components/parameters/Page'
+        -
+          $ref: '#/components/parameters/SortBy'
       responses:
         '200':
           description: OK
@@ -841,7 +906,8 @@ paths:
       description: |
         Generate and move the configuration files of the monitoring server
       parameters:
-        - $ref: '#/components/parameters/MonitoringServerId'
+        -
+          $ref: '#/components/parameters/MonitoringServerId'
       responses:
         '204':
           description: 'Generation OK'
@@ -860,7 +926,8 @@ paths:
       description: |
         Reload the configuration files of the monitoring server
       parameters:
-        - $ref: '#/components/parameters/MonitoringServerId'
+        -
+          $ref: '#/components/parameters/MonitoringServerId'
       responses:
         '204':
           description: 'Reload OK'
@@ -879,7 +946,8 @@ paths:
       description: |
         Generate, move and reload the configuration files of the monitoring server
       parameters:
-        - $ref: '#/components/parameters/MonitoringServerId'
+        -
+          $ref: '#/components/parameters/MonitoringServerId'
       responses:
         '204':
           description: 'Generation and reload OK'
@@ -959,10 +1027,14 @@ paths:
           * name
           * is_activate
       parameters:
-        - $ref: '#/components/parameters/Search'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/SortBy'
+        -
+          $ref: '#/components/parameters/Search'
+        -
+          $ref: '#/components/parameters/Limit'
+        -
+          $ref: '#/components/parameters/Page'
+        -
+          $ref: '#/components/parameters/SortBy'
       responses:
         '200':
           description: OK
@@ -985,7 +1057,8 @@ paths:
       summary: 'Get a meta service'
       description: 'Get a meta service configuration by its id'
       parameters:
-        - $ref: '#/components/parameters/MetaId'
+        -
+          $ref: '#/components/parameters/MetaId'
       responses:
         '200':
           description: OK
@@ -1015,11 +1088,16 @@ paths:
           * service_description
           * host_name
       parameters:
-        - $ref: '#/components/parameters/Search'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/SortBy'
-        - $ref: '#/components/parameters/MetaId'
+        -
+          $ref: '#/components/parameters/Search'
+        -
+          $ref: '#/components/parameters/Limit'
+        -
+          $ref: '#/components/parameters/Page'
+        -
+          $ref: '#/components/parameters/SortBy'
+        -
+          $ref: '#/components/parameters/MetaId'
       responses:
         '200':
           description: OK
@@ -1042,7 +1120,8 @@ paths:
       summary: 'Get notification policy of a host'
       description: 'Return the notified contacts and contact groups of a host.'
       parameters:
-        - $ref: '#/components/parameters/HostId'
+        -
+          $ref: '#/components/parameters/HostId'
       responses:
         '200':
           description: 'Successful request'
@@ -1064,8 +1143,10 @@ paths:
       summary: 'Get notification policy of a service'
       description: 'Return the notified contacts and contact groups of a service.'
       parameters:
-        - $ref: '#/components/parameters/HostId'
-        - $ref: '#/components/parameters/ServiceId'
+        -
+          $ref: '#/components/parameters/HostId'
+        -
+          $ref: '#/components/parameters/ServiceId'
       responses:
         '200':
           description: 'Successful request'
@@ -1087,7 +1168,8 @@ paths:
       summary: 'Get notification policy of a meta service'
       description: 'Return the notified contacts and contact groups of a meta service.'
       parameters:
-        - $ref: '#/components/parameters/MetaId'
+        -
+          $ref: '#/components/parameters/MetaId'
       responses:
         '200':
           description: 'Successful request'
@@ -1116,10 +1198,14 @@ paths:
           * name
           * running
       parameters:
-        - $ref: '#/components/parameters/Search'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/SortBy'
+        -
+          $ref: '#/components/parameters/Search'
+        -
+          $ref: '#/components/parameters/Limit'
+        -
+          $ref: '#/components/parameters/Page'
+        -
+          $ref: '#/components/parameters/SortBy'
       responses:
         '200':
           description: OK
@@ -1331,7 +1417,8 @@ paths:
 
         List user filters saved for a given page.
       parameters:
-        - $ref: '#/components/parameters/FilterPageName'
+        -
+          $ref: '#/components/parameters/FilterPageName'
       responses:
         '200':
           description: OK
@@ -1357,7 +1444,8 @@ paths:
 
         Add user filter for a given page.
       parameters:
-        - $ref: '#/components/parameters/FilterPageName'
+        -
+          $ref: '#/components/parameters/FilterPageName'
       requestBody:
         required: true
         content:
@@ -1398,8 +1486,10 @@ paths:
 
         Get detailed information of a user filter for a given page.
       parameters:
-        - $ref: '#/components/parameters/FilterPageName'
-        - $ref: '#/components/parameters/FilterId'
+        -
+          $ref: '#/components/parameters/FilterPageName'
+        -
+          $ref: '#/components/parameters/FilterId'
       responses:
         '200':
           description: OK
@@ -1422,8 +1512,10 @@ paths:
 
         Update user filter for a given page.
       parameters:
-        - $ref: '#/components/parameters/FilterPageName'
-        - $ref: '#/components/parameters/FilterId'
+        -
+          $ref: '#/components/parameters/FilterPageName'
+        -
+          $ref: '#/components/parameters/FilterId'
       requestBody:
         required: true
         content:
@@ -1452,8 +1544,10 @@ paths:
 
         Patch user filter order for a given page.
       parameters:
-        - $ref: '#/components/parameters/FilterPageName'
-        - $ref: '#/components/parameters/FilterId'
+        -
+          $ref: '#/components/parameters/FilterPageName'
+        -
+          $ref: '#/components/parameters/FilterId'
       requestBody:
         required: true
         content:
@@ -1489,8 +1583,10 @@ paths:
 
         Delete user filter for a given page.
       parameters:
-        - $ref: '#/components/parameters/FilterPageName'
-        - $ref: '#/components/parameters/FilterId'
+        -
+          $ref: '#/components/parameters/FilterPageName'
+        -
+          $ref: '#/components/parameters/FilterId'
       responses:
         '204':
           description: OK
@@ -1546,23 +1642,40 @@ paths:
         * h.fqdn
         * s.description
       parameters:
-        - $ref: '#/components/parameters/Search'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/SortBy'
-        - $ref: '#/components/parameters/ResourceFilterType'
-        - $ref: '#/components/parameters/ResourceFilterState'
-        - $ref: '#/components/parameters/ResourceFilterStatus'
-        - $ref: '#/components/parameters/ResourceFilterHostgroupName'
-        - $ref: '#/components/parameters/ResourceFilterServicegroupName'
-        - $ref: '#/components/parameters/ResourceFilterServiceCategoryName'
-        - $ref: '#/components/parameters/ResourceFilterHostCategoryName'
-        - $ref: '#/components/parameters/ResourceFilterHostSeverityName'
-        - $ref: '#/components/parameters/ResourceFilterServiceSeverityName'
-        - $ref: '#/components/parameters/ResourceFilterHostSeverityLevel'
-        - $ref: '#/components/parameters/ResourceFilterServiceSeverityLevel'
-        - $ref: '#/components/parameters/ResourceFilterMonitoringServerName'
-        - $ref: '#/components/parameters/ResourceFilterStatusTypes'
+        -
+          $ref: '#/components/parameters/Search'
+        -
+          $ref: '#/components/parameters/Limit'
+        -
+          $ref: '#/components/parameters/Page'
+        -
+          $ref: '#/components/parameters/SortBy'
+        -
+          $ref: '#/components/parameters/ResourceFilterType'
+        -
+          $ref: '#/components/parameters/ResourceFilterState'
+        -
+          $ref: '#/components/parameters/ResourceFilterStatus'
+        -
+          $ref: '#/components/parameters/ResourceFilterHostgroupName'
+        -
+          $ref: '#/components/parameters/ResourceFilterServicegroupName'
+        -
+          $ref: '#/components/parameters/ResourceFilterServiceCategoryName'
+        -
+          $ref: '#/components/parameters/ResourceFilterHostCategoryName'
+        -
+          $ref: '#/components/parameters/ResourceFilterHostSeverityName'
+        -
+          $ref: '#/components/parameters/ResourceFilterServiceSeverityName'
+        -
+          $ref: '#/components/parameters/ResourceFilterHostSeverityLevel'
+        -
+          $ref: '#/components/parameters/ResourceFilterServiceSeverityLevel'
+        -
+          $ref: '#/components/parameters/ResourceFilterMonitoringServerName'
+        -
+          $ref: '#/components/parameters/ResourceFilterStatusTypes'
       responses:
         '200':
           description: OK
@@ -1589,7 +1702,8 @@ paths:
       summary: 'Get a Host resource type detail'
       description: 'Return the full detail of a resource typed Host.'
       parameters:
-        - $ref: '#/components/parameters/HostId'
+        -
+          $ref: '#/components/parameters/HostId'
       responses:
         '200':
           description: 'Successful request'
@@ -1611,8 +1725,10 @@ paths:
       summary: 'Get a Service resource type detail'
       description: 'Return the full detail of a resource typed Service.'
       parameters:
-        - $ref: '#/components/parameters/HostId'
-        - $ref: '#/components/parameters/ServiceId'
+        -
+          $ref: '#/components/parameters/HostId'
+        -
+          $ref: '#/components/parameters/ServiceId'
       responses:
         '200':
           description: 'Successful request'
@@ -1649,11 +1765,16 @@ paths:
         * host.downtime
         * host.criticality
       parameters:
-        - $ref: '#/components/parameters/ShowService'
-        - $ref: '#/components/parameters/Search'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/SortBy'
+        -
+          $ref: '#/components/parameters/ShowService'
+        -
+          $ref: '#/components/parameters/Search'
+        -
+          $ref: '#/components/parameters/Limit'
+        -
+          $ref: '#/components/parameters/Page'
+        -
+          $ref: '#/components/parameters/SortBy'
       responses:
         '200':
           description: OK
@@ -1676,7 +1797,8 @@ paths:
       summary: 'Get a host'
       description: 'Return a single host with full details and some details about its services.'
       parameters:
-        - $ref: '#/components/parameters/HostId'
+        -
+          $ref: '#/components/parameters/HostId'
       responses:
         '200':
           description: OK
@@ -1721,10 +1843,14 @@ paths:
         * service.downtime
         * service.criticality
       parameters:
-        - $ref: '#/components/parameters/Search'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/SortBy'
+        -
+          $ref: '#/components/parameters/Search'
+        -
+          $ref: '#/components/parameters/Limit'
+        -
+          $ref: '#/components/parameters/Page'
+        -
+          $ref: '#/components/parameters/SortBy'
       responses:
         '200':
           description: OK
@@ -1762,10 +1888,14 @@ paths:
         * service_category.id
         * service_category.name
       parameters:
-        - $ref: '#/components/parameters/Search'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/SortBy'
+        -
+          $ref: '#/components/parameters/Search'
+        -
+          $ref: '#/components/parameters/Limit'
+        -
+          $ref: '#/components/parameters/Page'
+        -
+          $ref: '#/components/parameters/SortBy'
       responses:
         '200':
           description: OK
@@ -1798,11 +1928,16 @@ paths:
         * service.is_acknowledged
         * service.state
       parameters:
-        - $ref: '#/components/parameters/HostId'
-        - $ref: '#/components/parameters/Search'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/SortBy'
+        -
+          $ref: '#/components/parameters/HostId'
+        -
+          $ref: '#/components/parameters/Search'
+        -
+          $ref: '#/components/parameters/Limit'
+        -
+          $ref: '#/components/parameters/Page'
+        -
+          $ref: '#/components/parameters/SortBy'
       responses:
         '200':
           description: OK
@@ -1827,8 +1962,10 @@ paths:
       summary: 'Get a service'
       description: 'Return a single service with full details.'
       parameters:
-        - $ref: '#/components/parameters/HostId'
-        - $ref: '#/components/parameters/ServiceId'
+        -
+          $ref: '#/components/parameters/HostId'
+        -
+          $ref: '#/components/parameters/ServiceId'
       responses:
         '200':
           description: OK
@@ -1850,8 +1987,10 @@ paths:
       summary: 'Get service groups by host id and service id'
       description: 'Return a list of service groups for host-service pair.'
       parameters:
-        - $ref: '#/components/parameters/HostId'
-        - $ref: '#/components/parameters/ServiceId'
+        -
+          $ref: '#/components/parameters/HostId'
+        -
+          $ref: '#/components/parameters/ServiceId'
       responses:
         '200':
           description: OK
@@ -1889,11 +2028,16 @@ paths:
         * host_category.id
         * host_category.name
       parameters:
-        - $ref: '#/components/parameters/HostId'
-        - $ref: '#/components/parameters/Search'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/SortBy'
+        -
+          $ref: '#/components/parameters/HostId'
+        -
+          $ref: '#/components/parameters/Search'
+        -
+          $ref: '#/components/parameters/Limit'
+        -
+          $ref: '#/components/parameters/Page'
+        -
+          $ref: '#/components/parameters/SortBy'
       responses:
         '200':
           description: OK
@@ -1923,10 +2067,14 @@ paths:
         * host_group.id
         * host_group.name
       parameters:
-        - $ref: '#/components/parameters/Search'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/SortBy'
+        -
+          $ref: '#/components/parameters/Search'
+        -
+          $ref: '#/components/parameters/Limit'
+        -
+          $ref: '#/components/parameters/Page'
+        -
+          $ref: '#/components/parameters/SortBy'
       responses:
         '200':
           description: OK
@@ -1964,12 +2112,18 @@ paths:
         * host_category.id
         * host_category.name
       parameters:
-        - $ref: '#/components/parameters/ShowHost'
-        - $ref: '#/components/parameters/ShowService'
-        - $ref: '#/components/parameters/Search'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/SortBy'
+        -
+          $ref: '#/components/parameters/ShowHost'
+        -
+          $ref: '#/components/parameters/ShowService'
+        -
+          $ref: '#/components/parameters/Search'
+        -
+          $ref: '#/components/parameters/Limit'
+        -
+          $ref: '#/components/parameters/Page'
+        -
+          $ref: '#/components/parameters/SortBy'
       responses:
         '200':
           description: OK
@@ -2011,12 +2165,18 @@ paths:
         * host_category.id
         * host_category.name
       parameters:
-        - $ref: '#/components/parameters/ShowService'
-        - $ref: '#/components/parameters/ShowHost'
-        - $ref: '#/components/parameters/Search'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/SortBy'
+        -
+          $ref: '#/components/parameters/ShowService'
+        -
+          $ref: '#/components/parameters/ShowHost'
+        -
+          $ref: '#/components/parameters/Search'
+        -
+          $ref: '#/components/parameters/Limit'
+        -
+          $ref: '#/components/parameters/Page'
+        -
+          $ref: '#/components/parameters/SortBy'
       responses:
         '200':
           description: OK
@@ -2044,10 +2204,14 @@ paths:
         * name
         * level
       parameters:
-        - $ref: '#/components/parameters/Search'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/SortBy'
+        -
+          $ref: '#/components/parameters/Search'
+        -
+          $ref: '#/components/parameters/Limit'
+        -
+          $ref: '#/components/parameters/Page'
+        -
+          $ref: '#/components/parameters/SortBy'
       responses:
         '200':
           description: OK
@@ -2075,10 +2239,14 @@ paths:
         * name
         * level
       parameters:
-        - $ref: '#/components/parameters/Search'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/SortBy'
+        -
+          $ref: '#/components/parameters/Search'
+        -
+          $ref: '#/components/parameters/Limit'
+        -
+          $ref: '#/components/parameters/Page'
+        -
+          $ref: '#/components/parameters/SortBy'
       responses:
         '200':
           description: OK
@@ -2119,10 +2287,14 @@ paths:
         * state
         * type
       parameters:
-        - $ref: '#/components/parameters/Search'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/SortBy'
+        -
+          $ref: '#/components/parameters/Search'
+        -
+          $ref: '#/components/parameters/Limit'
+        -
+          $ref: '#/components/parameters/Page'
+        -
+          $ref: '#/components/parameters/SortBy'
       responses:
         '200':
           description: OK
@@ -2173,7 +2345,8 @@ paths:
 
         Returns either a host or service acknowledgement depending on the resource type.
       parameters:
-        - $ref: '#/components/parameters/AcknowledgementId'
+        -
+          $ref: '#/components/parameters/AcknowledgementId'
       responses:
         '200':
           description: OK
@@ -2211,10 +2384,14 @@ paths:
         * state
         * type
       parameters:
-        - $ref: '#/components/parameters/Search'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/SortBy'
+        -
+          $ref: '#/components/parameters/Search'
+        -
+          $ref: '#/components/parameters/Limit'
+        -
+          $ref: '#/components/parameters/Page'
+        -
+          $ref: '#/components/parameters/SortBy'
       responses:
         '200':
           description: OK
@@ -2278,10 +2455,14 @@ paths:
         * state
         * type
       parameters:
-        - $ref: '#/components/parameters/Search'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/SortBy'
+        -
+          $ref: '#/components/parameters/Search'
+        -
+          $ref: '#/components/parameters/Limit'
+        -
+          $ref: '#/components/parameters/Page'
+        -
+          $ref: '#/components/parameters/SortBy'
       responses:
         '200':
           description: OK
@@ -2343,11 +2524,16 @@ paths:
         * state
         * type
       parameters:
-        - $ref: '#/components/parameters/Search'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/SortBy'
-        - $ref: '#/components/parameters/HostId'
+        -
+          $ref: '#/components/parameters/Search'
+        -
+          $ref: '#/components/parameters/Limit'
+        -
+          $ref: '#/components/parameters/Page'
+        -
+          $ref: '#/components/parameters/SortBy'
+        -
+          $ref: '#/components/parameters/HostId'
       responses:
         '200':
           description: OK
@@ -2371,7 +2557,8 @@ paths:
 
         **Minimum API version:** 21.10
       parameters:
-        - $ref: '#/components/parameters/HostId'
+        -
+          $ref: '#/components/parameters/HostId'
       requestBody:
         required: true
         content:
@@ -2396,7 +2583,8 @@ paths:
 
         **Minimum API version:** 21.10
       parameters:
-        - $ref: '#/components/parameters/HostId'
+        -
+          $ref: '#/components/parameters/HostId'
       responses:
         '204':
           description: 'Command Sent'
@@ -2432,12 +2620,18 @@ paths:
         * state
         * type
       parameters:
-        - $ref: '#/components/parameters/Search'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/SortBy'
-        - $ref: '#/components/parameters/HostId'
-        - $ref: '#/components/parameters/ServiceId'
+        -
+          $ref: '#/components/parameters/Search'
+        -
+          $ref: '#/components/parameters/Limit'
+        -
+          $ref: '#/components/parameters/Page'
+        -
+          $ref: '#/components/parameters/SortBy'
+        -
+          $ref: '#/components/parameters/HostId'
+        -
+          $ref: '#/components/parameters/ServiceId'
       responses:
         '200':
           description: OK
@@ -2461,8 +2655,10 @@ paths:
 
         **Minimum API version:** 21.10
       parameters:
-        - $ref: '#/components/parameters/HostId'
-        - $ref: '#/components/parameters/ServiceId'
+        -
+          $ref: '#/components/parameters/HostId'
+        -
+          $ref: '#/components/parameters/ServiceId'
       requestBody:
         required: true
         content:
@@ -2487,8 +2683,10 @@ paths:
 
         **Minimum API version:** 21.10
       parameters:
-        - $ref: '#/components/parameters/HostId'
-        - $ref: '#/components/parameters/ServiceId'
+        -
+          $ref: '#/components/parameters/HostId'
+        -
+          $ref: '#/components/parameters/ServiceId'
       responses:
         '204':
           description: 'Command Sent'
@@ -2525,11 +2723,16 @@ paths:
         * state
         * type
       parameters:
-        - $ref: '#/components/parameters/Search'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/SortBy'
-        - $ref: '#/components/parameters/MetaId'
+        -
+          $ref: '#/components/parameters/Search'
+        -
+          $ref: '#/components/parameters/Limit'
+        -
+          $ref: '#/components/parameters/Page'
+        -
+          $ref: '#/components/parameters/SortBy'
+        -
+          $ref: '#/components/parameters/MetaId'
       responses:
         '200':
           description: OK
@@ -2554,7 +2757,8 @@ paths:
 
         **Minimum API version:** 21.10
       parameters:
-        - $ref: '#/components/parameters/MetaId'
+        -
+          $ref: '#/components/parameters/MetaId'
       requestBody:
         required: true
         content:
@@ -2580,7 +2784,8 @@ paths:
 
         **Minimum API version:** 21.10
       parameters:
-        - $ref: '#/components/parameters/MetaId'
+        -
+          $ref: '#/components/parameters/MetaId'
       responses:
         '204':
           description: 'Command Sent'
@@ -2596,10 +2801,14 @@ paths:
         - Downtime
       summary: 'List all downtimes'
       parameters:
-        - $ref: '#/components/parameters/Search'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/SortBy'
+        -
+          $ref: '#/components/parameters/Search'
+        -
+          $ref: '#/components/parameters/Limit'
+        -
+          $ref: '#/components/parameters/Page'
+        -
+          $ref: '#/components/parameters/SortBy'
       description: |
         List all downtimes
 
@@ -2646,7 +2855,8 @@ paths:
       summary: 'Display one downtime'
       description: 'Display one downtime.'
       parameters:
-        - $ref: '#/components/parameters/DowntimeId'
+        -
+          $ref: '#/components/parameters/DowntimeId'
       responses:
         '200':
           description: OK
@@ -2666,7 +2876,8 @@ paths:
       summary: 'Cancel a downtime'
       description: 'Cancel a downtime.'
       parameters:
-        - $ref: '#/components/parameters/DowntimeId'
+        -
+          $ref: '#/components/parameters/DowntimeId'
       responses:
         '204':
           description: 'Command Sent'
@@ -2700,10 +2911,14 @@ paths:
         * contact.id
         * contact.name
       parameters:
-        - $ref: '#/components/parameters/Search'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/SortBy'
+        -
+          $ref: '#/components/parameters/Search'
+        -
+          $ref: '#/components/parameters/Limit'
+        -
+          $ref: '#/components/parameters/Page'
+        -
+          $ref: '#/components/parameters/SortBy'
       responses:
         '200':
           description: OK
@@ -2766,10 +2981,14 @@ paths:
         * contact.id
         * contact.name
       parameters:
-        - $ref: '#/components/parameters/Search'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/SortBy'
+        -
+          $ref: '#/components/parameters/Search'
+        -
+          $ref: '#/components/parameters/Limit'
+        -
+          $ref: '#/components/parameters/Page'
+        -
+          $ref: '#/components/parameters/SortBy'
       responses:
         '200':
           description: OK
@@ -2809,12 +3028,18 @@ paths:
         - Downtime
       summary: 'List all downtimes of a host'
       parameters:
-        - $ref: '#/components/parameters/HostId'
-        - $ref: '#/components/parameters/ShowService'
-        - $ref: '#/components/parameters/Search'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/SortBy'
+        -
+          $ref: '#/components/parameters/HostId'
+        -
+          $ref: '#/components/parameters/ShowService'
+        -
+          $ref: '#/components/parameters/Search'
+        -
+          $ref: '#/components/parameters/Limit'
+        -
+          $ref: '#/components/parameters/Page'
+        -
+          $ref: '#/components/parameters/SortBy'
       description: |
         List all downtimes of a host.
 
@@ -2851,7 +3076,8 @@ paths:
       summary: 'Add a downtime on a host'
       description: 'Add a downtime on a host.'
       parameters:
-        - $ref: '#/components/parameters/HostId'
+        -
+          $ref: '#/components/parameters/HostId'
       requestBody:
         required: true
         content:
@@ -2873,12 +3099,18 @@ paths:
         - Downtime
       summary: 'List all downtimes of a service'
       parameters:
-        - $ref: '#/components/parameters/Search'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/SortBy'
-        - $ref: '#/components/parameters/HostId'
-        - $ref: '#/components/parameters/ServiceId'
+        -
+          $ref: '#/components/parameters/Search'
+        -
+          $ref: '#/components/parameters/Limit'
+        -
+          $ref: '#/components/parameters/Page'
+        -
+          $ref: '#/components/parameters/SortBy'
+        -
+          $ref: '#/components/parameters/HostId'
+        -
+          $ref: '#/components/parameters/ServiceId'
       description: |
         List all downtimes of a service.
 
@@ -2913,8 +3145,10 @@ paths:
       summary: 'Add a downtime on a service'
       description: 'Add a downtime on a service.'
       parameters:
-        - $ref: '#/components/parameters/HostId'
-        - $ref: '#/components/parameters/ServiceId'
+        -
+          $ref: '#/components/parameters/HostId'
+        -
+          $ref: '#/components/parameters/ServiceId'
       requestBody:
         required: true
         content:
@@ -2937,11 +3171,16 @@ paths:
         - 'Meta service'
       summary: 'List all downtimes of a metaservice'
       parameters:
-        - $ref: '#/components/parameters/Search'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/SortBy'
-        - $ref: '#/components/parameters/MetaId'
+        -
+          $ref: '#/components/parameters/Search'
+        -
+          $ref: '#/components/parameters/Limit'
+        -
+          $ref: '#/components/parameters/Page'
+        -
+          $ref: '#/components/parameters/SortBy'
+        -
+          $ref: '#/components/parameters/MetaId'
       description: |
         List all downtimes of a metaservice.
 
@@ -2977,7 +3216,8 @@ paths:
       summary: 'Add a downtime on a metaservice'
       description: 'Add a downtime on a metaservice.'
       parameters:
-        - $ref: '#/components/parameters/MetaId'
+        -
+          $ref: '#/components/parameters/MetaId'
       requestBody:
         required: true
         content:
@@ -3040,7 +3280,8 @@ paths:
       summary: 'Check host'
       description: 'Schedule immediate check on chosen host'
       parameters:
-        - $ref: '#/components/parameters/HostId'
+        -
+          $ref: '#/components/parameters/HostId'
       requestBody:
         required: true
         content:
@@ -3065,8 +3306,10 @@ paths:
       summary: 'Check service'
       description: 'Schedule immediate check on chosen service'
       parameters:
-        - $ref: '#/components/parameters/HostId'
-        - $ref: '#/components/parameters/ServiceId'
+        -
+          $ref: '#/components/parameters/HostId'
+        -
+          $ref: '#/components/parameters/ServiceId'
       requestBody:
         required: true
         content:
@@ -3092,7 +3335,8 @@ paths:
       summary: 'Check metaservice'
       description: 'Schedule immediate check on chosen metaservice'
       parameters:
-        - $ref: '#/components/parameters/MetaId'
+        -
+          $ref: '#/components/parameters/MetaId'
       requestBody:
         required: true
         content:
@@ -3140,7 +3384,8 @@ paths:
       summary: 'Submit a result to a single host'
       description: 'Submit a result (check status, output and perfdata) to a single host'
       parameters:
-        - $ref: '#/components/parameters/HostId'
+        -
+          $ref: '#/components/parameters/HostId'
       requestBody:
         required: true
         content:
@@ -3167,8 +3412,10 @@ paths:
       summary: 'Submit a result to a single service'
       description: 'Submit a result (check status, output and perfdata) to a single service'
       parameters:
-        - $ref: '#/components/parameters/HostId'
-        - $ref: '#/components/parameters/ServiceId'
+        -
+          $ref: '#/components/parameters/HostId'
+        -
+          $ref: '#/components/parameters/ServiceId'
       requestBody:
         required: true
         content:
@@ -3196,7 +3443,8 @@ paths:
       summary: 'Submit a result to a single metaservice'
       description: 'Submit a result (check status, output and perfdata) to a single metaservice'
       parameters:
-        - $ref: '#/components/parameters/MetaId'
+        -
+          $ref: '#/components/parameters/MetaId'
       requestBody:
         required: true
         content:
@@ -3268,10 +3516,14 @@ paths:
         - Metrics
       summary: 'Get service metrics'
       parameters:
-        - $ref: '#/components/parameters/HostId'
-        - $ref: '#/components/parameters/ServiceId'
-        - $ref: '#/components/parameters/MetricStartDate'
-        - $ref: '#/components/parameters/MetricEndDate'
+        -
+          $ref: '#/components/parameters/HostId'
+        -
+          $ref: '#/components/parameters/ServiceId'
+        -
+          $ref: '#/components/parameters/MetricStartDate'
+        -
+          $ref: '#/components/parameters/MetricEndDate'
       responses:
         '200':
           description: OK
@@ -3295,10 +3547,14 @@ paths:
         - Metrics
       summary: 'Get service status data'
       parameters:
-        - $ref: '#/components/parameters/HostId'
-        - $ref: '#/components/parameters/ServiceId'
-        - $ref: '#/components/parameters/MetricStartDate'
-        - $ref: '#/components/parameters/MetricEndDate'
+        -
+          $ref: '#/components/parameters/HostId'
+        -
+          $ref: '#/components/parameters/ServiceId'
+        -
+          $ref: '#/components/parameters/MetricStartDate'
+        -
+          $ref: '#/components/parameters/MetricEndDate'
       description: 'Get status data from a service between given interval'
       responses:
         '200':
@@ -3324,8 +3580,10 @@ paths:
         - Metrics
       summary: 'Get service performance data'
       parameters:
-        - $ref: '#/components/parameters/HostId'
-        - $ref: '#/components/parameters/ServiceId'
+        -
+          $ref: '#/components/parameters/HostId'
+        -
+          $ref: '#/components/parameters/ServiceId'
         -
           in: query
           name: start
@@ -3367,8 +3625,10 @@ paths:
         - Metrics
       summary: 'Download performance data as csv file'
       parameters:
-        - $ref: '#/components/parameters/HostId'
-        - $ref: '#/components/parameters/ServiceId'
+        -
+          $ref: '#/components/parameters/HostId'
+        -
+          $ref: '#/components/parameters/ServiceId'
         -
           in: query
           name: start_date
@@ -3403,8 +3663,10 @@ paths:
         - Metrics
       summary: 'Get service status data'
       parameters:
-        - $ref: '#/components/parameters/HostId'
-        - $ref: '#/components/parameters/ServiceId'
+        -
+          $ref: '#/components/parameters/HostId'
+        -
+          $ref: '#/components/parameters/ServiceId'
         -
           in: query
           name: start
@@ -3456,11 +3718,16 @@ paths:
         * content
         * date
       parameters:
-        - $ref: '#/components/parameters/HostId'
-        - $ref: '#/components/parameters/Search'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/SortBy'
+        -
+          $ref: '#/components/parameters/HostId'
+        -
+          $ref: '#/components/parameters/Search'
+        -
+          $ref: '#/components/parameters/Limit'
+        -
+          $ref: '#/components/parameters/Page'
+        -
+          $ref: '#/components/parameters/SortBy'
       responses:
         '200':
           description: OK
@@ -3491,12 +3758,18 @@ paths:
         * content
         * date
       parameters:
-        - $ref: '#/components/parameters/HostId'
-        - $ref: '#/components/parameters/ServiceId'
-        - $ref: '#/components/parameters/Search'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/SortBy'
+        -
+          $ref: '#/components/parameters/HostId'
+        -
+          $ref: '#/components/parameters/ServiceId'
+        -
+          $ref: '#/components/parameters/Search'
+        -
+          $ref: '#/components/parameters/Limit'
+        -
+          $ref: '#/components/parameters/Page'
+        -
+          $ref: '#/components/parameters/SortBy'
       responses:
         '200':
           description: OK
@@ -3656,7 +3929,8 @@ paths:
       tags:
         - Topology
       parameters:
-        - $ref: '#/components/parameters/PollerId'
+        -
+          $ref: '#/components/parameters/PollerId'
       summary: 'Delete a Platform'
       description: 'Delete a platform from the topology'
       responses:
@@ -3673,8 +3947,10 @@ paths:
       tags:
         - Gorgone
       parameters:
-        - $ref: '#/components/parameters/PollerId'
-        - $ref: '#/components/parameters/GorgoneToken'
+        -
+          $ref: '#/components/parameters/PollerId'
+        -
+          $ref: '#/components/parameters/GorgoneToken'
       summary: 'Gorgone poller responses token'
       responses:
         '200':
@@ -3692,8 +3968,10 @@ paths:
       tags:
         - Gorgone
       parameters:
-        - $ref: '#/components/parameters/PollerId'
-        - $ref: '#/components/parameters/CommandName'
+        -
+          $ref: '#/components/parameters/PollerId'
+        -
+          $ref: '#/components/parameters/CommandName'
       summary: 'Gorgone command on specific poller'
       responses:
         '200':
@@ -3849,6 +4127,7 @@ paths:
                   is_resource_status_full_search_enabled: { type: boolean, description: 'Whether the Resource Status free text search also covers the information field (full search mode)', example: true }
                   is_additive_inheritance_enabled: { type: boolean, description: 'Whether the contact and contact group additive inheritance is enabled (inheritance mode set to vertical)', example: false }
                   monitoring_interval_length: { type: integer, description: 'Interval length in seconds used by the monitoring engine to compute check intervals', example: 60 }
+                  default_limit_per_page: { type: integer, description: 'Default number of items per page in listings ("Limit per page (default)" platform setting, falls back to 30 when unset or invalid)', example: 30 }
         '400':
           $ref: '#/components/responses/BadRequest'
         '403':
@@ -3967,19 +4246,19 @@ paths:
           schema:
             type: integer
             default: 1
+            minimum: 1
           style: form
           explode: true
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
             type: integer
-            default: 30
-            minimum: 0
-            maximum: 30
+            minimum: 1
+            maximum: 100
           style: form
           explode: true
     post:
@@ -4319,19 +4598,19 @@ paths:
           schema:
             type: integer
             default: 1
+            minimum: 1
           style: form
           explode: true
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
             type: integer
-            default: 30
-            minimum: 0
-            maximum: 30
+            minimum: 1
+            maximum: 100
           style: form
           explode: true
   '/api/configuration/connectors/{id}':
@@ -4458,19 +4737,19 @@ paths:
           schema:
             type: integer
             default: 1
+            minimum: 1
           style: form
           explode: true
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
             type: integer
-            default: 30
-            minimum: 0
-            maximum: 30
+            minimum: 1
+            maximum: 100
           style: form
           explode: true
   '/api/configuration/plugins/{plugin_name}':
@@ -4528,7 +4807,7 @@ paths:
                 type: object
                 description: 'Plugins.jsonld collection.'
                 allOf:
-                  - { $ref: '#/components/schemas/HydraCollectionBaseSchema' }
+                  - { $ref: '#/components/schemas/HydraCollectionBaseSchemaNoPagination' }
                   - { type: object, required: [member], properties: { member: { type: array, items: { $ref: '#/components/schemas/Plugins.jsonld' } } } }
             application/json:
               schema:
@@ -4537,31 +4816,7 @@ paths:
                   $ref: '#/components/schemas/Plugins'
       summary: 'Retrieves the collection of Plugins resources.'
       description: 'Retrieves the collection of Plugins resources.'
-      parameters:
-        -
-          name: page
-          in: query
-          description: 'The collection page number'
-          required: false
-          deprecated: false
-          schema:
-            type: integer
-            default: 1
-          style: form
-          explode: true
-        -
-          name: itemsPerPage
-          in: query
-          description: 'The number of items per page'
-          required: false
-          deprecated: false
-          schema:
-            type: integer
-            default: 30
-            minimum: 0
-            maximum: 30
-          style: form
-          explode: true
+      parameters: []
   /api/configuration/pollers:
     post:
       operationId: api_configurationpollers_post
@@ -4689,19 +4944,19 @@ paths:
           schema:
             type: integer
             default: 1
+            minimum: 1
           style: form
           explode: true
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
             type: integer
-            default: 30
-            minimum: 0
-            maximum: 30
+            minimum: 1
+            maximum: 100
           style: form
           explode: true
   '/api/configuration/pollers/installation-command/{id}':
@@ -4875,19 +5130,19 @@ paths:
           schema:
             type: integer
             default: 1
+            minimum: 1
           style: form
           explode: true
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
             type: integer
-            default: 30
-            minimum: 0
-            maximum: 30
+            minimum: 1
+            maximum: 100
           style: form
           explode: true
   /api/platform/updates:
@@ -5046,19 +5301,19 @@ paths:
           schema:
             type: integer
             default: 1
+            minimum: 1
           style: form
           explode: true
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
             type: integer
-            default: 30
-            minimum: 0
-            maximum: 30
+            minimum: 1
+            maximum: 100
           style: form
           explode: true
   /api/configuration/host_templates:
@@ -5101,11 +5356,47 @@ paths:
         -
           name: 'name[lk]'
           in: query
-          description: 'Filter by host template name using "like" operator'
+          description: 'Filter by host template name or alias using "like" operator'
           required: false
           deprecated: false
           schema:
             type: string
+          style: form
+          explode: true
+        -
+          name: include_locked
+          in: query
+          description: 'Include the locked host templates as well (unlocked ones only when absent or false)'
+          required: false
+          deprecated: false
+          schema:
+            type: boolean
+          style: form
+          explode: true
+        -
+          name: 'sort[name]'
+          in: query
+          description: 'Sort by name (default: name ascending)'
+          required: false
+          deprecated: false
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+          style: form
+          explode: true
+        -
+          name: 'sort[alias]'
+          in: query
+          description: 'Sort by alias'
+          required: false
+          deprecated: false
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
           style: form
           explode: true
         -
@@ -5117,21 +5408,83 @@ paths:
           schema:
             type: integer
             default: 1
+            minimum: 1
           style: form
           explode: true
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
             type: integer
-            default: 30
-            minimum: 0
-            maximum: 30
+            minimum: 1
+            maximum: 100
           style: form
           explode: true
+    post:
+      operationId: api_configurationhost_templates_post
+      tags:
+        - HostTemplate
+      responses:
+        '401':
+          description: 'Authentication required'
+        '403':
+          description: 'You are not allowed to create host templates'
+        '409':
+          description: 'A host or host template already uses this name'
+        '422':
+          description: 'Invalid value, or a reference that does not exist or cannot be used'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+          links: {}
+        '502':
+          description: 'The vault could not be reached'
+        '201':
+          description: 'HostTemplate resource created'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/HostTemplate.jsonld'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostTemplate'
+          links: {}
+        '400':
+          description: 'Invalid input'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+      summary: 'Create a host template'
+      description: 'Create a host template'
+      parameters: []
+      requestBody:
+        description: 'The new HostTemplate resource'
+        content:
+          application/ld+json:
+            schema:
+              $ref: '#/components/schemas/HostTemplate.CreateHostTemplateInput'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HostTemplate.CreateHostTemplateInput'
+        required: true
   /api/configuration/host_categories:
     get:
       operationId: api_configurationhost_categories_get_collection
@@ -5188,19 +5541,19 @@ paths:
           schema:
             type: integer
             default: 1
+            minimum: 1
           style: form
           explode: true
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
             type: integer
-            default: 30
-            minimum: 0
-            maximum: 30
+            minimum: 1
+            maximum: 100
           style: form
           explode: true
   /api/configuration/hosts:
@@ -5330,19 +5683,19 @@ paths:
           schema:
             type: integer
             default: 1
+            minimum: 1
           style: form
           explode: true
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
             type: integer
-            default: 30
-            minimum: 0
-            maximum: 30
+            minimum: 1
+            maximum: 100
           style: form
           explode: true
     post:
@@ -5472,19 +5825,19 @@ paths:
           schema:
             type: integer
             default: 1
+            minimum: 1
           style: form
           explode: true
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
             type: integer
-            default: 30
-            minimum: 0
-            maximum: 30
+            minimum: 1
+            maximum: 100
           style: form
           explode: true
   /api/configuration/contacts:
@@ -5543,19 +5896,19 @@ paths:
           schema:
             type: integer
             default: 1
+            minimum: 1
           style: form
           explode: true
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
             type: integer
-            default: 30
-            minimum: 0
-            maximum: 30
+            minimum: 1
+            maximum: 100
           style: form
           explode: true
   /api/configuration/medias:
@@ -5614,19 +5967,19 @@ paths:
           schema:
             type: integer
             default: 1
+            minimum: 1
           style: form
           explode: true
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
             type: integer
-            default: 30
-            minimum: 0
-            maximum: 30
+            minimum: 1
+            maximum: 100
           style: form
           explode: true
   /api/configuration/timeperiods:
@@ -5685,19 +6038,19 @@ paths:
           schema:
             type: integer
             default: 1
+            minimum: 1
           style: form
           explode: true
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
             type: integer
-            default: 30
-            minimum: 0
-            maximum: 30
+            minimum: 1
+            maximum: 100
           style: form
           explode: true
   /api/configuration/host_severities:
@@ -5756,19 +6109,19 @@ paths:
           schema:
             type: integer
             default: 1
+            minimum: 1
           style: form
           explode: true
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
             type: integer
-            default: 30
-            minimum: 0
-            maximum: 30
+            minimum: 1
+            maximum: 100
           style: form
           explode: true
   /api/configuration/hosts/_resolve:
@@ -5876,19 +6229,19 @@ paths:
           schema:
             type: integer
             default: 1
+            minimum: 1
           style: form
           explode: true
         -
           name: itemsPerPage
           in: query
-          description: 'The number of items per page'
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
           required: false
           deprecated: false
           schema:
             type: integer
-            default: 30
-            minimum: 0
-            maximum: 30
+            minimum: 1
+            maximum: 100
           style: form
           explode: true
   '/api/configuration/hosts/{id}':
@@ -5945,6 +6298,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/ConstraintViolation'
           links: {}
+        '502':
+          description: 'The vault could not be reached'
         '200':
           description: 'Host resource updated'
           content:
@@ -6213,6 +6568,668 @@ paths:
           name: id
           in: path
           description: 'HostTemplate identifier'
+          required: true
+          deprecated: false
+          schema:
+            type: string
+          style: simple
+          explode: false
+  '/api/configuration/host_templates/{id}':
+    delete:
+      operationId: api_configurationhost_templates_id_delete
+      tags:
+        - HostTemplate
+      responses:
+        '400':
+          description: 'The host template is locked'
+        '403':
+          description: 'You are not allowed to delete host templates'
+        '404':
+          description: 'Host template not found'
+        '502':
+          description: 'The host template was deleted but its vault entry could not be purged'
+        '204':
+          description: 'HostTemplate resource deleted'
+      summary: 'Delete a host template'
+      description: 'Delete a host template'
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'HostTemplate identifier'
+          required: true
+          deprecated: false
+          schema:
+            type: string
+          style: simple
+          explode: false
+    get:
+      operationId: api_configurationhost_templates_id_get
+      tags:
+        - HostTemplate
+      responses:
+        '401':
+          description: 'Authentication required'
+        '403':
+          description: 'You are not allowed to view host templates'
+        '404':
+          description: 'Host template not found'
+        '200':
+          description: 'HostTemplate resource'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/HostTemplate.jsonld'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostTemplate'
+      summary: 'Get a host template'
+      description: 'Get a host template'
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'HostTemplate identifier'
+          required: true
+          deprecated: false
+          schema:
+            type: string
+          style: simple
+          explode: false
+    patch:
+      operationId: api_configurationhost_templates_id_patch
+      tags:
+        - HostTemplate
+      responses:
+        '204':
+          description: 'Host template updated'
+          links: {}
+        '400':
+          description: 'The host template is locked, or the body is not a JSON object'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+        '401':
+          description: 'Authentication required'
+        '403':
+          description: 'You are not allowed to update host templates'
+        '404':
+          description: 'Host template not found'
+        '409':
+          description: 'A host or host template already uses this name'
+        '415':
+          description: 'The body is not sent as application/merge-patch+json'
+        '422':
+          description: 'Invalid value, or a reference that does not exist or cannot be used'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+          links: {}
+        '502':
+          description: 'The vault could not be reached'
+      summary: 'Update a host template'
+      description: 'A key left out leaves its value untouched; a key sent as null clears its value where it can be cleared.'
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'HostTemplate identifier'
+          required: true
+          deprecated: false
+          schema:
+            type: string
+          style: simple
+          explode: false
+      requestBody:
+        description: 'The updated HostTemplate resource'
+        content:
+          application/merge-patch+json:
+            schema:
+              $ref: '#/components/schemas/HostTemplate.PatchHostTemplateInput.jsonMergePatch'
+        required: true
+  '/api/configuration/host_templates/{id}/_duplicate':
+    post:
+      operationId: api_configurationhost_templates_id_duplicate_post
+      tags:
+        - HostTemplate
+      responses:
+        '204':
+          description: 'Host template duplicated'
+          links: {}
+        '400':
+          description: 'The host template is locked, or the body is not a JSON object'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+        '403':
+          description: 'You are not allowed to duplicate host templates'
+        '404':
+          description: 'Host template not found'
+        '409':
+          description: 'A host or host template already uses this name'
+        '422':
+          description: 'Invalid name, or the generated name would exceed the maximum length'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+          links: {}
+        '502':
+          description: 'The vault could not be reached'
+      summary: 'Duplicate a host template'
+      description: 'Duplicates a single host template. The copy takes the given name, or, when none is given, the source name with the first free "_<n>" suffix.'
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'HostTemplate identifier'
+          required: true
+          deprecated: false
+          schema:
+            type: string
+          style: simple
+          explode: false
+      requestBody:
+        description: 'Optional: without a body, or without a name, the copy is named "<source name>_<n>".'
+        content:
+          application/ld+json:
+            schema:
+              $ref: '#/components/schemas/HostTemplate.DuplicateHostTemplateInput'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HostTemplate.DuplicateHostTemplateInput'
+        required: false
+  /api/configuration/services:
+    get:
+      operationId: api_configurationservices_get_collection
+      tags:
+        - Service
+      responses:
+        '200':
+          description: 'Service collection'
+          content:
+            application/ld+json:
+              schema:
+                type: object
+                description: 'Service.ServiceCollectionOutput.jsonld collection.'
+                allOf:
+                  - { $ref: '#/components/schemas/HydraCollectionBaseSchema' }
+                  - { type: object, required: [member], properties: { member: { type: array, items: { $ref: '#/components/schemas/Service.ServiceCollectionOutput.jsonld' } } } }
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Service.ServiceCollectionOutput'
+        '403':
+          description: Forbidden
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+      summary: 'List the services'
+      description: 'Services linked to host groups are not listed. The check intervals and the icon are the effective ones, inherited from the service templates when the service has none of its own; intervals are in engine units.'
+      parameters:
+        -
+          name: 'host_name[lk]'
+          in: query
+          description: 'Filter by host name using "like" operator'
+          required: false
+          deprecated: false
+          schema:
+            type: string
+          style: form
+          explode: true
+        -
+          name: 'name[lk]'
+          in: query
+          description: 'Filter by service name using "like" operator'
+          required: false
+          deprecated: false
+          schema:
+            type: string
+          style: form
+          explode: true
+        -
+          name: template_id
+          in: query
+          description: 'Filter by direct service template id'
+          required: false
+          deprecated: false
+          schema:
+            type: integer
+          style: form
+          explode: true
+        -
+          name: activated
+          in: query
+          description: 'Filter by service activation status'
+          required: false
+          deprecated: false
+          schema:
+            type: boolean
+          style: form
+          explode: true
+        -
+          name: host_activated
+          in: query
+          description: 'Filter by host activation status; all hosts when absent'
+          required: false
+          deprecated: false
+          schema:
+            type: boolean
+          style: form
+          explode: true
+        -
+          name: sort
+          in: query
+          description: 'Sort by one or several fields, in order of precedence (e.g. `sort[host_name]=asc`). Default: host name, then service name.'
+          required: false
+          deprecated: false
+          schema:
+            type: object
+            properties:
+              host_name:
+                type: string
+                enum:
+                  - asc
+                  - desc
+              name:
+                type: string
+                enum:
+                  - asc
+                  - desc
+          style: deepObject
+          explode: true
+        -
+          name: page
+          in: query
+          description: 'The collection page number'
+          required: false
+          deprecated: false
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+          style: form
+          explode: true
+        -
+          name: itemsPerPage
+          in: query
+          description: 'The number of items per page. Values above 100 are capped to 100. Defaults to the "Limit per page" platform setting, or to 30 when it is not set or invalid.'
+          required: false
+          deprecated: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+          style: form
+          explode: true
+    post:
+      operationId: api_configurationservices_post
+      tags:
+        - Service
+      responses:
+        '403':
+          description: 'You are not allowed to create services'
+        '404':
+          description: 'A nested reference (command, time period, icon, contact, contact group) no longer exists'
+        '409':
+          description: 'The name was taken on the host in the meantime'
+        '422':
+          description: 'Invalid input'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+          links: {}
+        '502':
+          description: 'The vault could not be reached'
+        '201':
+          description: 'Service resource created'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Service.jsonld'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+          links: {}
+        '400':
+          description: 'Invalid input'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+      summary: 'Create a service'
+      description: 'Creates a service linked directly to one host, enabled, and answers its form as a Get does. Its own macros are taken from `check_options.macros`; an inherited macro is resent, with its id and parent, only to override it. Password macros are written to the vault, when one is configured, before the service is saved.'
+      parameters: []
+      requestBody:
+        description: 'The new Service resource'
+        content:
+          application/ld+json:
+            schema:
+              $ref: '#/components/schemas/Service.CreateServiceInput'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Service.CreateServiceInput'
+        required: true
+  '/api/configuration/services/{id}':
+    delete:
+      operationId: api_configurationservices_id_delete
+      tags:
+        - Service
+      responses:
+        '204':
+          description: 'Service resource deleted'
+        '403':
+          description: Forbidden
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+        '404':
+          description: 'Not found'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+      summary: 'Removes the Service resource.'
+      description: 'Removes the Service resource.'
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Service identifier'
+          required: true
+          deprecated: false
+          schema:
+            type: string
+          style: simple
+          explode: false
+    patch:
+      operationId: api_configurationservices_id_patch
+      tags:
+        - Service
+      responses:
+        '204':
+          description: 'Service updated (or left as it was when nothing changed)'
+          links: {}
+        '403':
+          description: 'You are not allowed to update services'
+        '404':
+          description: 'Service not found, or a nested reference (command, time period, icon, contact, contact group) that no longer exists'
+        '409':
+          description: 'The name is already used by another service on the host'
+        '422':
+          description: 'Invalid input'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+          links: {}
+        '502':
+          description: 'The vault could not be reached'
+        '400':
+          description: 'Invalid input'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+      summary: 'Partially update a service'
+      description: 'Partially updates a service linked directly to one host: a key left out is left untouched, a key sent as null clears the value when it can be cleared. The service groups, categories, traps, contacts, contact groups, notification options and stalking options each have three keys, of which only one can be sent: the list is replaced, added to ("_to_add") or removed from ("_to_remove"); service groups, categories, contacts and contact groups the user cannot see stay linked. The custom macros (in "check_options") also have three keys, of which only one can be sent: "macros" replaces them, "macros_to_upsert" writes the macros given and keeps the other ones, and "macros_to_remove" removes macros by id. Password macros are written to the vault, when one is configured, before the service is saved. A saved update of a service linked to several hosts keeps only the host it is read with (the lowest id).'
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Service identifier'
+          required: true
+          deprecated: false
+          schema:
+            type: string
+          style: simple
+          explode: false
+      requestBody:
+        description: 'The updated Service resource'
+        content:
+          application/merge-patch+json:
+            schema:
+              $ref: '#/components/schemas/Service.PatchServiceInput.jsonMergePatch'
+        required: true
+    get:
+      operationId: api_configurationservices_id_get
+      tags:
+        - Service
+      responses:
+        '403':
+          description: 'You are not allowed to view services'
+        '404':
+          description: 'Service not found'
+        '200':
+          description: 'Service resource'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Service.jsonld'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+      summary: 'Get a service'
+      description: "Every field of the service form, as stored on the service itself: nothing inherited from its templates is resolved, except the macros, which are the effective ones (its own, then those it inherits, each with the id and parent to send back to override it). A password macro's value is never returned. Services linked to host groups are not found."
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Service identifier'
+          required: true
+          deprecated: false
+          schema:
+            type: string
+          style: simple
+          explode: false
+    put:
+      operationId: api_configurationservices_id_put
+      tags:
+        - Service
+      responses:
+        '403':
+          description: 'You are not allowed to update services'
+        '404':
+          description: 'Service not found, or a nested reference (command, time period, icon, contact, contact group) that no longer exists'
+        '409':
+          description: 'The name is already used by another service on the host'
+        '422':
+          description: 'Invalid input'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+          links: {}
+        '502':
+          description: 'The vault could not be reached'
+        '200':
+          description: 'Service resource updated'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Service.jsonld'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+          links: {}
+        '400':
+          description: 'Invalid input'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+      summary: 'Update a service'
+      description: 'Replaces the whole form of a service linked directly to one host, and answers it as a Get does. A field left out takes its default; `activated` is required. Service groups, categories, contacts and contact groups the user cannot see stay linked, and so does a severity they cannot see when none is given. Own macros are sent back with their id to keep them, inherited ones with their id and parent only to override them; a password macro sent without value keeps its stored one. Password macros are written to the vault, when one is configured, before the service is saved. On a Cloud platform, the stored notification settings are kept.'
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Service identifier'
+          required: true
+          deprecated: false
+          schema:
+            type: string
+          style: simple
+          explode: false
+      requestBody:
+        description: 'The updated Service resource'
+        content:
+          application/ld+json:
+            schema:
+              $ref: '#/components/schemas/Service.UpdateServiceInput'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Service.UpdateServiceInput'
+        required: true
+  '/api/configuration/hosts/{hostId}/services/deploy':
+    post:
+      operationId: api_configurationhosts_hostIdservicesdeploy_post
+      tags:
+        - Service
+      responses:
+        '201':
+          description: 'The created services, each as a Get answers it'
+          content:
+            application/ld+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Service.jsonld'
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Service'
+          links: {}
+        '204':
+          description: 'Nothing to deploy: no service template, or every name already on the host'
+        '403':
+          description: 'You are not allowed to deploy services'
+        '404':
+          description: 'Host not found'
+        '422':
+          description: 'A service template alias cannot name a service; nothing was deployed'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code: { type: integer }
+                  message: { type: string }
+          links: {}
+        '400':
+          description: 'Invalid input'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+      summary: 'Deploy the services of a host from its templates'
+      description: 'Creates on the host one enabled service per service template of its host templates and their ancestors, named after the template alias, with the service groups of the template, unless a service of the host already has that name (case ignored). All or nothing: an invalid alias fails the whole deployment. Answers the created services, each as a Get does.'
+      parameters:
+        -
+          name: hostId
+          in: path
+          description: 'Host identifier'
           required: true
           deprecated: false
           schema:
@@ -7050,7 +8067,8 @@ components:
                   priority: { type: number, description: 'priority of the role', example: 1 }
     ReadAuthenticationSAMLProvider:
       allOf:
-        - $ref: '#/components/schemas/AuthenticationSAMLProvider'
+        -
+          $ref: '#/components/schemas/AuthenticationSAMLProvider'
         -
           properties:
             groups_mapping:
@@ -7067,7 +8085,8 @@ components:
                   items: { type: object, properties: { claim_value: { type: string, description: 'Authorization claim value', example: scope }, access_group: { type: object, description: 'Access group', properties: { id: { type: integer, description: 'Access group ID', example: 1 }, name: { type: string, description: 'Access group name', example: Default } } } } }
     WriteAuthenticationSAMLProvider:
       allOf:
-        - $ref: '#/components/schemas/AuthenticationSAMLProvider'
+        -
+          $ref: '#/components/schemas/AuthenticationSAMLProvider'
         -
           properties:
             groups_mapping:
@@ -7261,7 +8280,8 @@ components:
                 type: object
                 properties:
                   id: { type: integer, description: 'ID of the extra period', example: 1 }
-              - $ref: '#/components/schemas/Configuration.TimePeriod.ExtraTimePeriod'
+              -
+                $ref: '#/components/schemas/Configuration.TimePeriod.ExtraTimePeriod'
     Configuration.TimePeriod.days:
       type: object
       properties:
@@ -7432,7 +8452,8 @@ components:
           description: 'Indicates whether this host severity is enabled or not'
     Configuration.Host.Template:
       allOf:
-        - $ref: '#/components/schemas/Configuration.Host.Template.Add'
+        -
+          $ref: '#/components/schemas/Configuration.Host.Template.Add'
         -
           properties:
             id:
@@ -7705,7 +8726,8 @@ components:
           description: 'Indicates whether the host template is activated or not'
     Configuration.Service.Group:
       allOf:
-        - $ref: '#/components/schemas/Configuration.Service.Group.Add'
+        -
+          $ref: '#/components/schemas/Configuration.Service.Group.Add'
         -
           properties:
             id:
@@ -8183,7 +9205,8 @@ components:
         - object
         - 'null'
       allOf:
-        - $ref: '#/components/schemas/Acknowledgement.Host'
+        -
+          $ref: '#/components/schemas/Acknowledgement.Host'
         -
           type:
             - object
@@ -8196,7 +9219,8 @@ components:
               example: 5
     Acknowledgement.Host.Add:
       allOf:
-        - $ref: '#/components/schemas/Acknowledgement.Service.Add'
+        -
+          $ref: '#/components/schemas/Acknowledgement.Service.Add'
         -
           type: object
           properties:
@@ -8208,8 +9232,10 @@ components:
       type: array
       items:
         allOf:
-          - $ref: '#/components/schemas/Acknowledgement.Host.Add'
-          - $ref: '#/components/schemas/Bulk.Resource.Id'
+          -
+            $ref: '#/components/schemas/Acknowledgement.Host.Add'
+          -
+            $ref: '#/components/schemas/Bulk.Resource.Id'
     Acknowledgement.Service.Add:
       type: object
       properties:
@@ -8233,11 +9259,14 @@ components:
       type: array
       items:
         allOf:
-          - $ref: '#/components/schemas/Acknowledgement.Service.Add'
-          - $ref: '#/components/schemas/Bulk.Resource.Id'
+          -
+            $ref: '#/components/schemas/Acknowledgement.Service.Add'
+          -
+            $ref: '#/components/schemas/Bulk.Resource.Id'
     Downtime.Host.Add:
       allOf:
-        - $ref: '#/components/schemas/Downtime.Service.Add'
+        -
+          $ref: '#/components/schemas/Downtime.Service.Add'
         -
           type: object
           properties:
@@ -8249,8 +9278,10 @@ components:
       type: array
       items:
         allOf:
-          - $ref: '#/components/schemas/Downtime.Host.Add'
-          - $ref: '#/components/schemas/Bulk.Resource.Id'
+          -
+            $ref: '#/components/schemas/Downtime.Host.Add'
+          -
+            $ref: '#/components/schemas/Bulk.Resource.Id'
     Downtime.Service.Add:
       type: object
       properties:
@@ -8278,8 +9309,10 @@ components:
       type: array
       items:
         allOf:
-          - $ref: '#/components/schemas/Downtime.Service.Add'
-          - $ref: '#/components/schemas/Bulk.Resource.Id'
+          -
+            $ref: '#/components/schemas/Downtime.Service.Add'
+          -
+            $ref: '#/components/schemas/Bulk.Resource.Id'
     Downtime.Host:
       type: object
       properties:
@@ -8349,7 +9382,8 @@ components:
           example: true
     Downtime.Service:
       allOf:
-        - $ref: '#/components/schemas/Downtime.Host'
+        -
+          $ref: '#/components/schemas/Downtime.Host'
         -
           type: object
           properties:
@@ -8404,17 +9438,22 @@ components:
       type: array
       items:
         allOf:
-          - $ref: '#/components/schemas/Check.Host'
-          - $ref: '#/components/schemas/Bulk.Resource.Id'
+          -
+            $ref: '#/components/schemas/Check.Host'
+          -
+            $ref: '#/components/schemas/Bulk.Resource.Id'
     Check.Service:
       allOf:
-        - $ref: '#/components/schemas/Check.Host'
+        -
+          $ref: '#/components/schemas/Check.Host'
     Check.Services:
       type: array
       items:
         allOf:
-          - $ref: '#/components/schemas/Check.Service'
-          - $ref: '#/components/schemas/Bulk.Resource.Id'
+          -
+            $ref: '#/components/schemas/Check.Service'
+          -
+            $ref: '#/components/schemas/Bulk.Resource.Id'
     Check.Resources:
       type: object
       properties:
@@ -8964,8 +10003,10 @@ components:
           example: All
         host:
           allOf:
-            - $ref: '#/components/schemas/Monitoring.HostMin'
-            - $ref: '#/components/schemas/Monitoring.HostWithService'
+            -
+              $ref: '#/components/schemas/Monitoring.HostMin'
+            -
+              $ref: '#/components/schemas/Monitoring.HostWithService'
     Monitoring.HostMin:
       type: object
       properties:
@@ -8997,7 +10038,8 @@ components:
           example: 0
     Monitoring.HostFull:
       allOf:
-        - $ref: '#/components/schemas/Monitoring.HostMain'
+        -
+          $ref: '#/components/schemas/Monitoring.HostMain'
         -
           type: object
           properties:
@@ -9050,7 +10092,7 @@ components:
               description: 'Scheduled date for the next check (ISO8601)'
             next_host_notification:
               type: integer
-              description: ...
+              description: '...'
             notification_interval:
               type: number
               format: float
@@ -9104,8 +10146,10 @@ components:
                   allOf: [{ $ref: '#/components/schemas/Acknowledgement.Host' }]
     Monitoring.HostMain:
       allOf:
-        - $ref: '#/components/schemas/Monitoring.HostMin'
-        - $ref: '#/components/schemas/Monitoring.HostWithService'
+        -
+          $ref: '#/components/schemas/Monitoring.HostMin'
+        -
+          $ref: '#/components/schemas/Monitoring.HostWithService'
         -
           type: object
           properties:
@@ -9305,7 +10349,8 @@ components:
           example: 0
     Monitoring.ServiceMain:
       allOf:
-        - $ref: '#/components/schemas/Monitoring.ServiceMin'
+        -
+          $ref: '#/components/schemas/Monitoring.ServiceMin'
         -
           type: object
           properties:
@@ -9365,7 +10410,8 @@ components:
               example: '2h 3m'
     Monitoring.ServiceFull:
       allOf:
-        - $ref: '#/components/schemas/Monitoring.ServiceMain'
+        -
+          $ref: '#/components/schemas/Monitoring.ServiceMain'
         -
           type: object
           properties:
@@ -9479,7 +10525,8 @@ components:
                 $ref: '#/components/schemas/Downtime.Service'
             acknowledgement:
               allOf:
-                - $ref: '#/components/schemas/Acknowledgement.Service'
+                -
+                  $ref: '#/components/schemas/Acknowledgement.Service'
               type:
                 - object
                 - 'null'
@@ -9794,7 +10841,8 @@ components:
         '@context':
           readOnly: true
           oneOf:
-            - type: string
+            -
+              type: string
             -
               type: object
               properties:
@@ -9882,7 +10930,8 @@ components:
           type: string
     Error.jsonld:
       allOf:
-        - $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -10060,7 +11109,8 @@ components:
           type: boolean
     ServiceCategory.jsonld:
       allOf:
-        - $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -10132,10 +11182,12 @@ components:
                   - host
                   - service
           example:
-            - id: 1
+            -
+              id: 1
               name: USERNAME
               type: host
-            - id: null
+            -
+              id: null
               name: PORT
               type: service
         id:
@@ -10218,7 +11270,8 @@ components:
             type: integer
     Command.jsonld:
       allOf:
-        - $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -10233,10 +11286,12 @@ components:
                   name: { type: string }
                   type: { type: string, enum: [host, service] }
               example:
-                - id: 1
+                -
+                  id: 1
                   name: USERNAME
                   type: host
-                - id: null
+                -
+                  id: null
                   name: PORT
                   type: service
             id:
@@ -10320,7 +11375,8 @@ components:
           example: true
     Connector.jsonld:
       allOf:
-        - $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -10419,7 +11475,8 @@ components:
           example: 'This is the help description of the plugin.'
     Plugin.jsonld:
       allOf:
-        - $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -10459,10 +11516,12 @@ components:
                   - host
                   - service
           example:
-            - id: 1
+            -
+              id: 1
               name: USERNAME
               type: host
-            - id: null
+            -
+              id: null
               name: PORT
               type: service
         id:
@@ -10570,7 +11629,8 @@ components:
             - 'null'
     ConstraintViolation.jsonld:
       allOf:
-        - $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -10652,7 +11712,8 @@ components:
           example: 'This command is used to check the HTTP service'
     CreateCommandResource.jsonld:
       allOf:
-        - $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -10721,7 +11782,8 @@ components:
             type: integer
     DuplicateCommandResource.jsonld:
       allOf:
-        - $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -10779,7 +11841,8 @@ components:
         - expression
     Global.Macro.jsonld:
       allOf:
-        - $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -10820,7 +11883,8 @@ components:
             - expression
     HydraCollectionBaseSchema:
       allOf:
-        - $ref: '#/components/schemas/HydraCollectionBaseSchemaNoPagination'
+        -
+          $ref: '#/components/schemas/HydraCollectionBaseSchemaNoPagination'
         -
           type: object
           properties:
@@ -10880,7 +11944,8 @@ components:
       properties:
         '@context':
           oneOf:
-            - type: string
+            -
+              type: string
             -
               type: object
               properties:
@@ -10913,7 +11978,8 @@ components:
           example: 'curl -fsSL https://raw.githubusercontent.com/centreon/centreon-collect/refs/tags/[PF_VERSION]-latest/agent/installer/scripts_linux/install_cma.sh -o install_cma.sh && sudo chmod +x install_cma.sh && sudo ./install_cma.sh -e "[poller IP/DNS]:[PORT]" -f "[centreon_storage.instances.cma_certificate_sha]" -N "[centreon_storage.cma_certificate_cn]"'
     InstallationCommandResource.jsonld:
       allOf:
-        - $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -10971,7 +12037,8 @@ components:
           type: boolean
     ListCommandResource.jsonld:
       allOf:
-        - $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -11030,7 +12097,8 @@ components:
           example: negate
     Plugins.jsonld:
       allOf:
-        - $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           required:
@@ -11062,7 +12130,8 @@ components:
           type: boolean
     Service.Category.jsonld:
       allOf:
-        - $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -11093,7 +12162,8 @@ components:
             - 'null'
     Standard.Macro.jsonld:
       allOf:
-        - $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -11145,7 +12215,8 @@ components:
         - expression
     GlobalMacro.jsonld:
       allOf:
-        - $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -11234,7 +12305,8 @@ components:
           type: string
     Poller.jsonld-poller.read:
       allOf:
-        - $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -11276,7 +12348,8 @@ components:
             - 'null'
     StandardMacro.jsonld:
       allOf:
-        - $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -11292,8 +12365,10 @@ components:
       type: object
     Upgrade.jsonld:
       allOf:
-        - $ref: '#/components/schemas/HydraItemBaseSchema'
-        - type: object
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
     Poller:
       type: object
       properties:
@@ -11355,7 +12430,8 @@ components:
           example: 'curl -fsSL <central_url>/poller/install.sh | bash -s -- --poller_token <token_name>:<token_value> --uid <uid> --name <name> --type <vm|docker> --central_url <central_url> --appsecret <app_secret> --salt <salt>'
     Poller.InstallationCommandResource.jsonld:
       allOf:
-        - $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -11365,7 +12441,8 @@ components:
               example: 'curl -fsSL <central_url>/poller/install.sh | bash -s -- --poller_token <token_name>:<token_value> --uid <uid> --name <name> --type <vm|docker> --central_url <central_url> --appsecret <app_secret> --salt <salt>'
     Poller.jsonld:
       allOf:
-        - $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -11397,7 +12474,8 @@ components:
           type: string
     HostGroup.HostGroupCollectionOutput.jsonld:
       allOf:
-        - $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -11414,7 +12492,8 @@ components:
           type: string
     Poller.PollerCollectionOutput.jsonld:
       allOf:
-        - $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -11425,20 +12504,63 @@ components:
     HostTemplate.HostTemplateCollectionOutput:
       type: object
       properties:
+        linked_service_templates_count:
+          default: 0
+          type: integer
+        parent_templates:
+          description: 'the direct parent templates, in inheritance order'
+          type: array
+          items:
+            $ref: '#/components/schemas/HostTemplateOutput'
+        icon:
+          description: "the template's own icon, otherwise the first one inherited, otherwise null"
+          anyOf:
+            -
+              $ref: '#/components/schemas/HostIconOutput'
+            -
+              type: 'null'
         id:
           type: integer
         name:
           type: string
+        alias:
+          type:
+            - string
+            - 'null'
+        is_locked:
+          type: boolean
     HostTemplate.HostTemplateCollectionOutput.jsonld:
       allOf:
-        - $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
+            linked_service_templates_count:
+              default: 0
+              type: integer
+            parent_templates:
+              description: 'the direct parent templates, in inheritance order'
+              type: array
+              items:
+                $ref: '#/components/schemas/HostTemplateOutput.jsonld'
+            icon:
+              description: "the template's own icon, otherwise the first one inherited, otherwise null"
+              anyOf:
+                -
+                  $ref: '#/components/schemas/HostIconOutput.jsonld'
+                -
+                  type: 'null'
             id:
               type: integer
             name:
               type: string
+            alias:
+              type:
+                - string
+                - 'null'
+            is_locked:
+              type: boolean
     HostCategory.HostCategoryCollectionOutput:
       type: object
       properties:
@@ -11448,7 +12570,8 @@ components:
           type: string
     HostCategory.HostCategoryCollectionOutput.jsonld:
       allOf:
-        - $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -11467,8 +12590,10 @@ components:
             $ref: '#/components/schemas/HostTemplateOutput'
         icon:
           anyOf:
-            - $ref: '#/components/schemas/HostIconOutput'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/HostIconOutput'
+            -
+              type: 'null'
         id:
           type: integer
         name:
@@ -11483,7 +12608,8 @@ components:
           type: boolean
     Host.HostCollectionOutput.jsonld:
       allOf:
-        - $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -11495,8 +12621,10 @@ components:
                 $ref: '#/components/schemas/HostTemplateOutput.jsonld'
             icon:
               anyOf:
-                - $ref: '#/components/schemas/HostIconOutput.jsonld'
-                - type: 'null'
+                -
+                  $ref: '#/components/schemas/HostIconOutput.jsonld'
+                -
+                  type: 'null'
             id:
               type: integer
             name:
@@ -11566,24 +12694,32 @@ components:
             $ref: '#/components/schemas/RelatedHostOutput'
         timezone:
           anyOf:
-            - $ref: '#/components/schemas/HostTimezoneOutput'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/HostTimezoneOutput'
+            -
+              type: 'null'
         severity:
           anyOf:
-            - $ref: '#/components/schemas/HostSeverityOutput'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/HostSeverityOutput'
+            -
+              type: 'null'
         extended_informations:
           anyOf:
-            - $ref: '#/components/schemas/HostExtendedInformationsOutput'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/HostExtendedInformationsOutput'
+            -
+              type: 'null'
         scheduling_options:
           $ref: '#/components/schemas/HostSchedulingOptionsOutput'
         check_options:
           $ref: '#/components/schemas/HostCheckOptionsOutput'
         notifications:
           anyOf:
-            - $ref: '#/components/schemas/HostNotificationsOutput'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/HostNotificationsOutput'
+            -
+              type: 'null'
         id:
           type: integer
         name:
@@ -11685,8 +12821,10 @@ components:
             type: integer
         data_processing:
           anyOf:
-            - $ref: '#/components/schemas/DataProcessingInput'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/DataProcessingInput'
+            -
+              type: 'null'
         create_services_linked_to_templates:
           description: 'Not available on a Cloud platform, where linked services are always created. Defaults to true.'
           type:
@@ -11694,23 +12832,33 @@ components:
             - 'null'
         extended_informations:
           anyOf:
-            - $ref: '#/components/schemas/CreateHostExtendedInformationsInput'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/CreateHostExtendedInformationsInput'
+            -
+              type: 'null'
         scheduling_options:
           anyOf:
-            - $ref: '#/components/schemas/CreateHostSchedulingOptionsInput'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/CreateHostSchedulingOptionsInput'
+            -
+              type: 'null'
         check_options:
           anyOf:
-            - $ref: '#/components/schemas/CheckOptionsInput'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/CheckOptionsInput'
+            -
+              type: 'null'
         notifications:
+          description: 'Not available on a Cloud platform, where notifications follow a different model.'
           anyOf:
-            - $ref: '#/components/schemas/CreateHostNotificationsInput'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/CreateHostNotificationsInput'
+            -
+              type: 'null'
     Host.jsonld:
       allOf:
-        - $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -11740,24 +12888,32 @@ components:
                 $ref: '#/components/schemas/RelatedHostOutput.jsonld'
             timezone:
               anyOf:
-                - $ref: '#/components/schemas/HostTimezoneOutput.jsonld'
-                - type: 'null'
+                -
+                  $ref: '#/components/schemas/HostTimezoneOutput.jsonld'
+                -
+                  type: 'null'
             severity:
               anyOf:
-                - $ref: '#/components/schemas/HostSeverityOutput.jsonld'
-                - type: 'null'
+                -
+                  $ref: '#/components/schemas/HostSeverityOutput.jsonld'
+                -
+                  type: 'null'
             extended_informations:
               anyOf:
-                - $ref: '#/components/schemas/HostExtendedInformationsOutput.jsonld'
-                - type: 'null'
+                -
+                  $ref: '#/components/schemas/HostExtendedInformationsOutput.jsonld'
+                -
+                  type: 'null'
             scheduling_options:
               $ref: '#/components/schemas/HostSchedulingOptionsOutput.jsonld'
             check_options:
               $ref: '#/components/schemas/HostCheckOptionsOutput.jsonld'
             notifications:
               anyOf:
-                - $ref: '#/components/schemas/HostNotificationsOutput.jsonld'
-                - type: 'null'
+                -
+                  $ref: '#/components/schemas/HostNotificationsOutput.jsonld'
+                -
+                  type: 'null'
             id:
               type: integer
             name:
@@ -11805,7 +12961,8 @@ components:
           type: string
     Timezone.jsonld:
       allOf:
-        - $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -11822,7 +12979,8 @@ components:
           type: string
     NotificationContact.jsonld:
       allOf:
-        - $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -11859,7 +13017,8 @@ components:
           type: string
     Media.jsonld:
       allOf:
-        - $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -11878,7 +13037,8 @@ components:
           type: string
     TimePeriod.TimePeriodCollectionOutput.jsonld:
       allOf:
-        - $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -11895,7 +13055,8 @@ components:
           type: string
     HostSeverity.HostSeverityCollectionOutput.jsonld:
       allOf:
-        - $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -11919,6 +13080,7 @@ components:
           items:
             type: string
         macros:
+          description: "the host's own custom macros"
           type: array
           items:
             $ref: '#/components/schemas/HostMacroInput'
@@ -12148,8 +13310,10 @@ components:
             - use_default
         event_handler:
           anyOf:
-            - $ref: '#/components/schemas/HostEventHandlerCommandOutput'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/HostEventHandlerCommandOutput'
+            -
+              type: 'null'
         acknowledgment_timeout:
           type:
             - integer
@@ -12196,8 +13360,10 @@ components:
             - use_default
         event_handler:
           anyOf:
-            - $ref: '#/components/schemas/HostEventHandlerCommandOutput.jsonld'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/HostEventHandlerCommandOutput.jsonld'
+            -
+              type: 'null'
         acknowledgment_timeout:
           type:
             - integer
@@ -12255,15 +13421,19 @@ components:
       type: object
       properties:
         command:
+          description: 'the check command, null when none is set'
           anyOf:
-            - $ref: '#/components/schemas/HostCheckCommandOutput'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/HostCheckCommandOutput'
+            -
+              type: 'null'
         args:
           description: 'ordered check-command arguments (empty when no command is set)'
           type: array
           items:
             type: string
         macros:
+          description: "the host's own custom macros (post inheritance strip)"
           type: array
           items:
             $ref: '#/components/schemas/HostMacroOutput'
@@ -12271,15 +13441,19 @@ components:
       type: object
       properties:
         command:
+          description: 'the check command, null when none is set'
           anyOf:
-            - $ref: '#/components/schemas/HostCheckCommandOutput.jsonld'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/HostCheckCommandOutput.jsonld'
+            -
+              type: 'null'
         args:
           description: 'ordered check-command arguments (empty when no command is set)'
           type: array
           items:
             type: string
         macros:
+          description: "the host's own custom macros (post inheritance strip)"
           type: array
           items:
             $ref: '#/components/schemas/HostMacroOutput.jsonld'
@@ -12314,8 +13488,10 @@ components:
             - 'null'
         icon:
           anyOf:
-            - $ref: '#/components/schemas/HostIconOutput'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/HostIconOutput'
+            -
+              type: 'null'
         alt_icon:
           type:
             - string
@@ -12345,8 +13521,10 @@ components:
             - 'null'
         icon:
           anyOf:
-            - $ref: '#/components/schemas/HostIconOutput.jsonld'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/HostIconOutput.jsonld'
+            -
+              type: 'null'
         alt_icon:
           type:
             - string
@@ -12476,8 +13654,10 @@ components:
             - 'null'
         timeperiod:
           anyOf:
-            - $ref: '#/components/schemas/TimePeriod'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/TimePeriod'
+            -
+              type: 'null'
         first_delay:
           type:
             - integer
@@ -12524,8 +13704,10 @@ components:
             - 'null'
         timeperiod:
           anyOf:
-            - $ref: '#/components/schemas/TimePeriod.jsonld'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/TimePeriod.jsonld'
+            -
+              type: 'null'
         first_delay:
           type:
             - integer
@@ -12543,8 +13725,10 @@ components:
       properties:
         check_period:
           anyOf:
-            - $ref: '#/components/schemas/TimePeriod'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/TimePeriod'
+            -
+              type: 'null'
         max_check_attempts:
           type:
             - integer
@@ -12580,8 +13764,10 @@ components:
       properties:
         check_period:
           anyOf:
-            - $ref: '#/components/schemas/TimePeriod.jsonld'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/TimePeriod.jsonld'
+            -
+              type: 'null'
         max_check_attempts:
           type:
             - integer
@@ -12619,6 +13805,8 @@ components:
           type: integer
         name:
           type: string
+        level:
+          type: integer
     HostSeverityOutput.jsonld:
       type: object
       properties:
@@ -12626,6 +13814,8 @@ components:
           type: integer
         name:
           type: string
+        level:
+          type: integer
     HostTimezoneOutput:
       type: object
       properties:
@@ -12677,7 +13867,8 @@ components:
           type: string
     TimePeriod.jsonld:
       allOf:
-        - $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -12700,7 +13891,8 @@ components:
           type: boolean
     HostAddressResolution.jsonld:
       allOf:
-        - $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           required:
@@ -12725,7 +13917,8 @@ components:
           example: Supervisors
     ContactGroup.jsonld:
       allOf:
-        - $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -12868,24 +14061,35 @@ components:
             - 'null'
         data_processing:
           anyOf:
-            - $ref: '#/components/schemas/DataProcessingInput'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/DataProcessingInput'
+            -
+              type: 'null'
         extended_informations:
           anyOf:
-            - $ref: '#/components/schemas/CreateHostExtendedInformationsInput'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/CreateHostExtendedInformationsInput'
+            -
+              type: 'null'
         scheduling_options:
           anyOf:
-            - $ref: '#/components/schemas/CreateHostSchedulingOptionsInput'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/CreateHostSchedulingOptionsInput'
+            -
+              type: 'null'
         check_options:
           anyOf:
-            - $ref: '#/components/schemas/PatchHostCheckOptionsInput'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/PatchHostCheckOptionsInput'
+            -
+              type: 'null'
         notifications:
+          description: 'Not available on a Cloud platform, where notifications follow a different model.'
           anyOf:
-            - $ref: '#/components/schemas/PatchHostNotificationsInput'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/PatchHostNotificationsInput'
+            -
+              type: 'null'
     Host.UpdateHostInput:
       type: object
       required:
@@ -12965,8 +14169,10 @@ components:
             type: integer
         data_processing:
           anyOf:
-            - $ref: '#/components/schemas/DataProcessingInput'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/DataProcessingInput'
+            -
+              type: 'null'
         create_services_linked_to_templates:
           description: 'Not available on a Cloud platform, where linked services are always created. Defaults to true.'
           type:
@@ -12974,20 +14180,29 @@ components:
             - 'null'
         extended_informations:
           anyOf:
-            - $ref: '#/components/schemas/CreateHostExtendedInformationsInput'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/CreateHostExtendedInformationsInput'
+            -
+              type: 'null'
         scheduling_options:
           anyOf:
-            - $ref: '#/components/schemas/CreateHostSchedulingOptionsInput'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/CreateHostSchedulingOptionsInput'
+            -
+              type: 'null'
         check_options:
           anyOf:
-            - $ref: '#/components/schemas/CheckOptionsInput'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/CheckOptionsInput'
+            -
+              type: 'null'
         notifications:
+          description: 'Not available on a Cloud platform, where notifications follow a different model.'
           anyOf:
-            - $ref: '#/components/schemas/CreateHostNotificationsInput'
-            - type: 'null'
+            -
+              $ref: '#/components/schemas/CreateHostNotificationsInput'
+            -
+              type: 'null'
     HostTemplate.HostTemplateMacrosOutput:
       type: object
       properties:
@@ -13001,7 +14216,8 @@ components:
             $ref: '#/components/schemas/HostMacroOutput'
     HostTemplate.HostTemplateMacrosOutput.jsonld:
       allOf:
-        - $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -13029,10 +14245,12 @@ components:
           items:
             type: string
         macros:
+          description: 'Replaces the custom macros: the host''s own macros left out are removed. Each macro points to the macro it changes by id (and parent, for an inherited one), or is new without an id. A password macro without value keeps its stored value. Only one of this, "macros_to_upsert" and "macros_to_remove" can be sent.'
           type: array
           items:
             $ref: '#/components/schemas/HostMacroInput'
         macros_to_upsert:
+          description: 'Writes these macros and keeps the other ones. Same macros as above.'
           type: array
           items:
             $ref: '#/components/schemas/HostMacroInput'
@@ -13142,3 +14360,2528 @@ components:
         contact_group_additive_inheritance:
           description: "Ignored unless the platform's inheritance mode enables additive inheritance."
           type: boolean
+    HostTemplate.DuplicateHostTemplateInput:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+          description: 'The name of the copy, its spaces turned into underscores. Left out, the copy is named "<source name>_<n>".'
+    Service.ServiceCollectionOutput:
+      type: object
+      properties:
+        host:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+            icon:
+              type: object
+              properties:
+                id:
+                  type: integer
+                name:
+                  type: string
+                url:
+                  type: string
+        icon:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+            url:
+              type: string
+        normal_check_interval:
+          description: 'Effective normal check interval, in engine interval units'
+          type:
+            - integer
+            - 'null'
+        retry_check_interval:
+          description: 'Effective retry check interval, in engine interval units'
+          type:
+            - integer
+            - 'null'
+        template:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+        id:
+          type: integer
+        name:
+          type: string
+        activated:
+          type: boolean
+    Service.ServiceCollectionOutput.jsonld:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            host:
+              type: object
+              properties:
+                id:
+                  type: integer
+                name:
+                  type: string
+                icon:
+                  type: object
+                  properties: { id: { type: integer }, name: { type: string }, url: { type: string } }
+            icon:
+              type: object
+              properties:
+                id:
+                  type: integer
+                name:
+                  type: string
+                url:
+                  type: string
+            normal_check_interval:
+              description: 'Effective normal check interval, in engine interval units'
+              type:
+                - integer
+                - 'null'
+            retry_check_interval:
+              description: 'Effective retry check interval, in engine interval units'
+              type:
+                - integer
+                - 'null'
+            template:
+              type: object
+              properties:
+                id:
+                  type: integer
+                name:
+                  type: string
+            id:
+              type: integer
+            name:
+              type: string
+            activated:
+              type: boolean
+    Service:
+      type: object
+      properties:
+        host:
+          $ref: '#/components/schemas/ServiceHostOutput'
+        template:
+          anyOf:
+            -
+              $ref: '#/components/schemas/ServiceTemplateOutput'
+            -
+              type: 'null'
+        check_options:
+          $ref: '#/components/schemas/ServiceCheckOptionsOutput'
+        monitoring_engine:
+          $ref: '#/components/schemas/ServiceMonitoringEngineOutput'
+        notifications:
+          anyOf:
+            -
+              $ref: '#/components/schemas/ServiceNotificationsOutput'
+            -
+              type: 'null'
+        advanced:
+          $ref: '#/components/schemas/ServiceAdvancedOutput'
+        service_groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/ServiceGroupOutput'
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/ServiceCategoryOutput'
+        severity:
+          anyOf:
+            -
+              $ref: '#/components/schemas/ServiceSeverityOutput'
+            -
+              type: 'null'
+        graph_template:
+          anyOf:
+            -
+              $ref: '#/components/schemas/ServiceGraphTemplateOutput'
+            -
+              type: 'null'
+        traps:
+          description: 'null, and so left out, on a Cloud platform'
+          type: array
+          items:
+            $ref: '#/components/schemas/ServiceTrapOutput'
+        id:
+          type: integer
+        name:
+          type: string
+        activated:
+          type: boolean
+    Service.jsonld:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            host:
+              $ref: '#/components/schemas/ServiceHostOutput.jsonld'
+            template:
+              anyOf:
+                -
+                  $ref: '#/components/schemas/ServiceTemplateOutput.jsonld'
+                -
+                  type: 'null'
+            check_options:
+              $ref: '#/components/schemas/ServiceCheckOptionsOutput.jsonld'
+            monitoring_engine:
+              $ref: '#/components/schemas/ServiceMonitoringEngineOutput.jsonld'
+            notifications:
+              anyOf:
+                -
+                  $ref: '#/components/schemas/ServiceNotificationsOutput.jsonld'
+                -
+                  type: 'null'
+            advanced:
+              $ref: '#/components/schemas/ServiceAdvancedOutput.jsonld'
+            service_groups:
+              type: array
+              items:
+                $ref: '#/components/schemas/ServiceGroupOutput.jsonld'
+            categories:
+              type: array
+              items:
+                $ref: '#/components/schemas/ServiceCategoryOutput.jsonld'
+            severity:
+              anyOf:
+                -
+                  $ref: '#/components/schemas/ServiceSeverityOutput.jsonld'
+                -
+                  type: 'null'
+            graph_template:
+              anyOf:
+                -
+                  $ref: '#/components/schemas/ServiceGraphTemplateOutput.jsonld'
+                -
+                  type: 'null'
+            traps:
+              description: 'null, and so left out, on a Cloud platform'
+              type: array
+              items:
+                $ref: '#/components/schemas/ServiceTrapOutput.jsonld'
+            id:
+              type: integer
+            name:
+              type: string
+            activated:
+              type: boolean
+    Service.PatchServiceInput.jsonMergePatch:
+      type: object
+      properties:
+        activated:
+          description: 'Whether the service is enabled.'
+          type:
+            - boolean
+            - 'null'
+        name:
+          pattern: '^(((?![\x00-\x1F\x7F]).)*)$'
+          maxLength: 200
+          description: 'Trimmed, and its inner runs of spaces collapsed into one, before it is stored. Unique on the host the service ends up on.'
+          type:
+            - string
+            - 'null'
+        host_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          description: 'Moves the service to this host: its other host links, if any, are dropped.'
+          type:
+            - integer
+            - 'null'
+        service_template_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          description: 'Null removes the template, except on a Cloud platform.'
+          type:
+            - integer
+            - 'null'
+        severity_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        service_group_ids:
+          description: 'Replaces the service groups; an empty list removes them all. Only one of this, the "_to_add" and the "_to_remove" keys can be sent.'
+          type: array
+          items:
+            type: integer
+        service_group_ids_to_add:
+          type: array
+          items:
+            type: integer
+        service_group_ids_to_remove:
+          type: array
+          items:
+            type: integer
+        category_ids:
+          description: 'Replaces the categories; an empty list removes them all. Only one of this, the "_to_add" and the "_to_remove" keys can be sent.'
+          type: array
+          items:
+            type: integer
+        category_ids_to_add:
+          type: array
+          items:
+            type: integer
+        category_ids_to_remove:
+          type: array
+          items:
+            type: integer
+        trap_ids:
+          description: 'Replaces the traps; an empty list removes them all. Only one of this, the "_to_add" and the "_to_remove" keys can be sent. Not available on a Cloud platform.'
+          type: array
+          items:
+            type: integer
+        trap_ids_to_add:
+          type: array
+          items:
+            type: integer
+        trap_ids_to_remove:
+          type: array
+          items:
+            type: integer
+        graph_template_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          description: 'Not available on a Cloud platform.'
+          type:
+            - integer
+            - 'null'
+        check_options:
+          anyOf:
+            -
+              $ref: '#/components/schemas/PatchServiceCheckOptionsInput'
+            -
+              type: 'null'
+        monitoring_engine:
+          anyOf:
+            -
+              $ref: '#/components/schemas/ServiceMonitoringEngineInput'
+            -
+              type: 'null'
+        notifications:
+          description: 'Not available on a Cloud platform, where notifications follow a different model.'
+          anyOf:
+            -
+              $ref: '#/components/schemas/PatchServiceNotificationsInput'
+            -
+              type: 'null'
+        advanced:
+          anyOf:
+            -
+              $ref: '#/components/schemas/PatchServiceAdvancedInput'
+            -
+              type: 'null'
+    ServiceAdvancedOutput:
+      type: object
+      properties:
+        obsess_over_service:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        acknowledgment_timeout:
+          type:
+            - integer
+            - 'null'
+        check_freshness:
+          type: string
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+        freshness_threshold:
+          type:
+            - integer
+            - 'null'
+        flap_detection_enabled:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        low_flap_threshold:
+          type:
+            - integer
+            - 'null'
+        high_flap_threshold:
+          type:
+            - integer
+            - 'null'
+        retain_status_information:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        retain_non_status_information:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        stalking_options:
+          type: array
+          items:
+            type: string
+            enum:
+              - ok
+              - warning
+              - unknown
+              - critical
+        event_handler_enabled:
+          type: string
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+        event_handler:
+          anyOf:
+            -
+              $ref: '#/components/schemas/ServiceEventHandlerCommandOutput'
+            -
+              type: 'null'
+        event_handler_args:
+          type: array
+          items:
+            type: string
+        comment:
+          type:
+            - string
+            - 'null'
+    ServiceAdvancedOutput.jsonld:
+      type: object
+      properties:
+        obsess_over_service:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        acknowledgment_timeout:
+          type:
+            - integer
+            - 'null'
+        check_freshness:
+          type: string
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+        freshness_threshold:
+          type:
+            - integer
+            - 'null'
+        flap_detection_enabled:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        low_flap_threshold:
+          type:
+            - integer
+            - 'null'
+        high_flap_threshold:
+          type:
+            - integer
+            - 'null'
+        retain_status_information:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        retain_non_status_information:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        stalking_options:
+          type: array
+          items:
+            type: string
+            enum:
+              - ok
+              - warning
+              - unknown
+              - critical
+        event_handler_enabled:
+          type: string
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+        event_handler:
+          anyOf:
+            -
+              $ref: '#/components/schemas/ServiceEventHandlerCommandOutput.jsonld'
+            -
+              type: 'null'
+        event_handler_args:
+          type: array
+          items:
+            type: string
+        comment:
+          type:
+            - string
+            - 'null'
+    ServiceCategoryOutput:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    ServiceCategoryOutput.jsonld:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    ServiceCheckCommandOutput:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    ServiceCheckCommandOutput.jsonld:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    ServiceCheckOptionsOutput:
+      type: object
+      properties:
+        command:
+          anyOf:
+            -
+              $ref: '#/components/schemas/ServiceCheckCommandOutput'
+            -
+              type: 'null'
+        args:
+          description: 'ordered check-command arguments'
+          type: array
+          items:
+            type: string
+        macros:
+          description: |-
+            every macro the service effectively has: its own, then the ones it
+            inherits
+          type: array
+          items:
+            $ref: '#/components/schemas/ServiceMacroOutput'
+    ServiceCheckOptionsOutput.jsonld:
+      type: object
+      properties:
+        command:
+          anyOf:
+            -
+              $ref: '#/components/schemas/ServiceCheckCommandOutput.jsonld'
+            -
+              type: 'null'
+        args:
+          description: 'ordered check-command arguments'
+          type: array
+          items:
+            type: string
+        macros:
+          description: |-
+            every macro the service effectively has: its own, then the ones it
+            inherits
+          type: array
+          items:
+            $ref: '#/components/schemas/ServiceMacroOutput.jsonld'
+    ServiceEventHandlerCommandOutput:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    ServiceEventHandlerCommandOutput.jsonld:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    ServiceGraphTemplateOutput:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    ServiceGraphTemplateOutput.jsonld:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    ServiceGroupOutput:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    ServiceGroupOutput.jsonld:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    ServiceHostOutput:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    ServiceHostOutput.jsonld:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    ServiceIconOutput:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        url:
+          type: string
+    ServiceIconOutput.jsonld:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        url:
+          type: string
+    ServiceMacroOutput:
+      type: object
+      properties:
+        id:
+          description: 'null for a command macro with no `on_demand_macro_command` row'
+          type:
+            - integer
+            - 'null'
+        name:
+          description: 'the short macro name (upper-cased), without the $_SERVICE…$ wrapper'
+          type: string
+        value:
+          description: 'null (omitted) for a password macro'
+          type:
+            - string
+            - 'null'
+        is_password:
+          type: boolean
+        parent:
+          description: '"template" or "command" for an inherited macro, null for the service''s own one'
+          type:
+            - string
+            - 'null'
+    ServiceMacroOutput.jsonld:
+      type: object
+      properties:
+        id:
+          description: 'null for a command macro with no `on_demand_macro_command` row'
+          type:
+            - integer
+            - 'null'
+        name:
+          description: 'the short macro name (upper-cased), without the $_SERVICE…$ wrapper'
+          type: string
+        value:
+          description: 'null (omitted) for a password macro'
+          type:
+            - string
+            - 'null'
+        is_password:
+          type: boolean
+        parent:
+          description: '"template" or "command" for an inherited macro, null for the service''s own one'
+          type:
+            - string
+            - 'null'
+    ServiceMonitoringEngineOutput:
+      type: object
+      properties:
+        check_period:
+          anyOf:
+            -
+              $ref: '#/components/schemas/TimePeriod'
+            -
+              type: 'null'
+        max_check_attempts:
+          type:
+            - integer
+            - 'null'
+        normal_check_interval:
+          type:
+            - integer
+            - 'null'
+        retry_check_interval:
+          type:
+            - integer
+            - 'null'
+        active_check_enabled:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        passive_check_enabled:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        is_volatile:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        note_url:
+          type:
+            - string
+            - 'null'
+        note:
+          type:
+            - string
+            - 'null'
+        action_url:
+          type:
+            - string
+            - 'null'
+        icon:
+          anyOf:
+            -
+              $ref: '#/components/schemas/ServiceIconOutput'
+            -
+              type: 'null'
+        alt_icon:
+          type:
+            - string
+            - 'null'
+        geo_coordinates:
+          type:
+            - string
+            - 'null'
+    ServiceMonitoringEngineOutput.jsonld:
+      type: object
+      properties:
+        check_period:
+          anyOf:
+            -
+              $ref: '#/components/schemas/TimePeriod.jsonld'
+            -
+              type: 'null'
+        max_check_attempts:
+          type:
+            - integer
+            - 'null'
+        normal_check_interval:
+          type:
+            - integer
+            - 'null'
+        retry_check_interval:
+          type:
+            - integer
+            - 'null'
+        active_check_enabled:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        passive_check_enabled:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        is_volatile:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        note_url:
+          type:
+            - string
+            - 'null'
+        note:
+          type:
+            - string
+            - 'null'
+        action_url:
+          type:
+            - string
+            - 'null'
+        icon:
+          anyOf:
+            -
+              $ref: '#/components/schemas/ServiceIconOutput.jsonld'
+            -
+              type: 'null'
+        alt_icon:
+          type:
+            - string
+            - 'null'
+        geo_coordinates:
+          type:
+            - string
+            - 'null'
+    ServiceNotificationsOutput:
+      type: object
+      properties:
+        enabled:
+          type: string
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+        use_only_contacts_from_host:
+          type: boolean
+        contact_additive_inheritance:
+          type: boolean
+        contact_group_additive_inheritance:
+          type: boolean
+        contacts:
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificationContact'
+        contact_groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContactGroup'
+        interval:
+          type:
+            - integer
+            - 'null'
+        timeperiod:
+          anyOf:
+            -
+              $ref: '#/components/schemas/TimePeriod'
+            -
+              type: 'null'
+        options:
+          type: array
+          items:
+            type: string
+            enum:
+              - warning
+              - unknown
+              - critical
+              - recovery
+              - flapping
+              - downtime_scheduled
+              - none
+        first_delay:
+          type:
+            - integer
+            - 'null'
+        recovery_delay:
+          type:
+            - integer
+            - 'null'
+    ServiceNotificationsOutput.jsonld:
+      type: object
+      properties:
+        enabled:
+          type: string
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+        use_only_contacts_from_host:
+          type: boolean
+        contact_additive_inheritance:
+          type: boolean
+        contact_group_additive_inheritance:
+          type: boolean
+        contacts:
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificationContact.jsonld'
+        contact_groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContactGroup.jsonld'
+        interval:
+          type:
+            - integer
+            - 'null'
+        timeperiod:
+          anyOf:
+            -
+              $ref: '#/components/schemas/TimePeriod.jsonld'
+            -
+              type: 'null'
+        options:
+          type: array
+          items:
+            type: string
+            enum:
+              - warning
+              - unknown
+              - critical
+              - recovery
+              - flapping
+              - downtime_scheduled
+              - none
+        first_delay:
+          type:
+            - integer
+            - 'null'
+        recovery_delay:
+          type:
+            - integer
+            - 'null'
+    ServiceSeverityOutput:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        level:
+          type: integer
+    ServiceSeverityOutput.jsonld:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        level:
+          type: integer
+    ServiceTemplateOutput:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    ServiceTemplateOutput.jsonld:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    ServiceTrapOutput:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        vendor:
+          description: 'a plain array, so the vendor is `{id, name}` in every format'
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+    ServiceTrapOutput.jsonld:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        vendor:
+          description: 'a plain array, so the vendor is `{id, name}` in every format'
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+    Service.CreateServiceInput:
+      type: object
+      required:
+        - name
+        - host_id
+      properties:
+        name:
+          pattern: '^(((?![\x00-\x1F\x7F]).)*)$'
+          maxLength: 200
+          description: 'Trimmed, and its inner runs of spaces collapsed into one, before it is stored.'
+          type: string
+        host_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type: integer
+        service_template_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          description: 'Mandatory on a Cloud platform, optional otherwise.'
+          type:
+            - integer
+            - 'null'
+        service_group_ids:
+          type: array
+          items:
+            type: integer
+        category_ids:
+          type: array
+          items:
+            type: integer
+        severity_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        trap_ids:
+          description: 'Not available on a Cloud platform.'
+          type: array
+          items:
+            type: integer
+        graph_template_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          description: 'Not available on a Cloud platform.'
+          type:
+            - integer
+            - 'null'
+        check_options:
+          anyOf:
+            -
+              $ref: '#/components/schemas/ServiceCheckOptionsInput'
+            -
+              type: 'null'
+        monitoring_engine:
+          anyOf:
+            -
+              $ref: '#/components/schemas/ServiceMonitoringEngineInput'
+            -
+              type: 'null'
+        notifications:
+          description: 'Not available on a Cloud platform, where notifications follow a different model.'
+          anyOf:
+            -
+              $ref: '#/components/schemas/ServiceNotificationsInput'
+            -
+              type: 'null'
+        advanced:
+          anyOf:
+            -
+              $ref: '#/components/schemas/ServiceAdvancedInput'
+            -
+              type: 'null'
+    ServiceAdvancedInput:
+      type: object
+      properties:
+        obsess_over_service:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        acknowledgment_timeout:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        check_freshness:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        freshness_threshold:
+          minimum: 0
+          type:
+            - integer
+            - 'null'
+        flap_detection_enabled:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        low_flap_threshold:
+          minimum: 0
+          maximum: 100
+          type:
+            - integer
+            - 'null'
+        high_flap_threshold:
+          minimum: 0
+          maximum: 100
+          type:
+            - integer
+            - 'null'
+        retain_status_information:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        retain_non_status_information:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        stalking_options:
+          type: array
+          items:
+            type: string
+            enum:
+              - ok
+              - warning
+              - unknown
+              - critical
+        event_handler_enabled:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        event_handler_command_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        event_handler_args:
+          type: array
+          items:
+            type: string
+        comment:
+          maxLength: 65535
+          type:
+            - string
+            - 'null'
+    ServiceCheckOptionsInput:
+      type: object
+      properties:
+        command_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          description: 'the check command, null to use the one of the template chain'
+          type:
+            - integer
+            - 'null'
+        args:
+          description: 'ordered check-command arguments'
+          type: array
+          items:
+            type: string
+        macros:
+          description: "the service's own custom macros, and the inherited ones it overrides"
+          type: array
+          items:
+            $ref: '#/components/schemas/ServiceMacroInput'
+    ServiceMonitoringEngineInput:
+      type: object
+      properties:
+        check_timeperiod_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        max_check_attempts:
+          minimum: 1
+          type:
+            - integer
+            - 'null'
+        normal_check_interval:
+          minimum: 1
+          type:
+            - integer
+            - 'null'
+        retry_check_interval:
+          minimum: 1
+          type:
+            - integer
+            - 'null'
+        active_check_enabled:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        passive_check_enabled:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        is_volatile:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        note_url:
+          maxLength: 2048
+          type:
+            - string
+            - 'null'
+        note:
+          maxLength: 512
+          type:
+            - string
+            - 'null'
+        action_url:
+          maxLength: 2048
+          type:
+            - string
+            - 'null'
+        icon_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        alt_icon:
+          maxLength: 200
+          type:
+            - string
+            - 'null'
+        geo_coordinates:
+          type:
+            - string
+            - 'null'
+    ServiceNotificationsInput:
+      type: object
+      properties:
+        enabled:
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+          description: 'Whether notifications are enabled; "use_default" leaves the directive to the template chain.'
+          type: string
+        use_only_contacts_from_host:
+          description: 'When true, the service notifies the contacts of its host only: its own contacts and contact groups are cleared, and both additive-inheritance flags switched off.'
+          type: boolean
+        contact_additive_inheritance:
+          description: "Ignored unless the platform's inheritance mode enables additive inheritance."
+          type: boolean
+        contact_group_additive_inheritance:
+          description: "Ignored unless the platform's inheritance mode enables additive inheritance."
+          type: boolean
+        contacts:
+          type: array
+          items:
+            type: integer
+        contact_groups:
+          description: 'imported LDAP groups included'
+          type: array
+          items:
+            type: integer
+        interval:
+          minimum: 0
+          type:
+            - integer
+            - 'null'
+        timeperiod_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        options:
+          description: 'State transitions triggering a notification. "none" is exclusive.'
+          type: array
+          items:
+            type: string
+            enum:
+              - warning
+              - unknown
+              - critical
+              - recovery
+              - flapping
+              - downtime_scheduled
+              - none
+        first_delay:
+          minimum: 0
+          type:
+            - integer
+            - 'null'
+        recovery_delay:
+          minimum: 0
+          type:
+            - integer
+            - 'null'
+    HostTemplate:
+      type: object
+      properties:
+        timezone:
+          anyOf:
+            -
+              $ref: '#/components/schemas/HostTimezoneOutput'
+            -
+              type: 'null'
+        severity:
+          anyOf:
+            -
+              $ref: '#/components/schemas/HostSeverityOutput'
+            -
+              type: 'null'
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/HostCategoryOutput'
+        templates:
+          description: 'in relation order'
+          type: array
+          items:
+            $ref: '#/components/schemas/HostTemplateOutput'
+        linked_service_templates:
+          type: array
+          items:
+            $ref: '#/components/schemas/HostTemplateLinkedServiceTemplateOutput'
+        check_options:
+          $ref: '#/components/schemas/HostCheckOptionsOutput'
+        extended_informations:
+          anyOf:
+            -
+              $ref: '#/components/schemas/HostTemplateExtendedInformationsOutput'
+            -
+              type: 'null'
+        scheduling_options:
+          $ref: '#/components/schemas/HostSchedulingOptionsOutput'
+        data_processing:
+          $ref: '#/components/schemas/DataProcessingOutput'
+        notifications:
+          anyOf:
+            -
+              $ref: '#/components/schemas/HostNotificationsOutput'
+            -
+              type: 'null'
+        id:
+          type: integer
+        name:
+          type: string
+        alias:
+          type:
+            - string
+            - 'null'
+        is_locked:
+          type: boolean
+        snmp_version:
+          type:
+            - string
+            - 'null'
+          enum:
+            - '1'
+            - 2c
+            - '3'
+            - null
+        is_snmp_community_defined:
+          description: 'Whether an SNMP community is set. The community itself is never returned.'
+          type: boolean
+    HostTemplate.jsonld:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            timezone:
+              anyOf:
+                -
+                  $ref: '#/components/schemas/HostTimezoneOutput.jsonld'
+                -
+                  type: 'null'
+            severity:
+              anyOf:
+                -
+                  $ref: '#/components/schemas/HostSeverityOutput.jsonld'
+                -
+                  type: 'null'
+            categories:
+              type: array
+              items:
+                $ref: '#/components/schemas/HostCategoryOutput.jsonld'
+            templates:
+              description: 'in relation order'
+              type: array
+              items:
+                $ref: '#/components/schemas/HostTemplateOutput.jsonld'
+            linked_service_templates:
+              type: array
+              items:
+                $ref: '#/components/schemas/HostTemplateLinkedServiceTemplateOutput.jsonld'
+            check_options:
+              $ref: '#/components/schemas/HostCheckOptionsOutput.jsonld'
+            extended_informations:
+              anyOf:
+                -
+                  $ref: '#/components/schemas/HostTemplateExtendedInformationsOutput.jsonld'
+                -
+                  type: 'null'
+            scheduling_options:
+              $ref: '#/components/schemas/HostSchedulingOptionsOutput.jsonld'
+            data_processing:
+              $ref: '#/components/schemas/DataProcessingOutput.jsonld'
+            notifications:
+              anyOf:
+                -
+                  $ref: '#/components/schemas/HostNotificationsOutput.jsonld'
+                -
+                  type: 'null'
+            id:
+              type: integer
+            name:
+              type: string
+            alias:
+              type:
+                - string
+                - 'null'
+            is_locked:
+              type: boolean
+            snmp_version:
+              type:
+                - string
+                - 'null'
+              enum:
+                - '1'
+                - 2c
+                - '3'
+                - null
+            is_snmp_community_defined:
+              description: 'Whether an SNMP community is set. The community itself is never returned.'
+              type: boolean
+    HostTemplateExtendedInformationsOutput:
+      type: object
+      properties:
+        note_url:
+          type:
+            - string
+            - 'null'
+        note:
+          type:
+            - string
+            - 'null'
+        action_url:
+          type:
+            - string
+            - 'null'
+        icon:
+          anyOf:
+            -
+              $ref: '#/components/schemas/HostIconOutput'
+            -
+              type: 'null'
+        alt_icon:
+          type:
+            - string
+            - 'null'
+        comment:
+          type:
+            - string
+            - 'null'
+    HostTemplateExtendedInformationsOutput.jsonld:
+      type: object
+      properties:
+        note_url:
+          type:
+            - string
+            - 'null'
+        note:
+          type:
+            - string
+            - 'null'
+        action_url:
+          type:
+            - string
+            - 'null'
+        icon:
+          anyOf:
+            -
+              $ref: '#/components/schemas/HostIconOutput.jsonld'
+            -
+              type: 'null'
+        alt_icon:
+          type:
+            - string
+            - 'null'
+        comment:
+          type:
+            - string
+            - 'null'
+    HostTemplateLinkedServiceTemplateOutput:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    HostTemplateLinkedServiceTemplateOutput.jsonld:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    ServiceMacroInput:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          maxLength: 245
+          type: string
+        value:
+          maxLength: 4096
+          pattern: '^(((?!^secret::).)*)$'
+          type:
+            - string
+            - 'null'
+        is_password:
+          type: boolean
+        id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        parent:
+          enum:
+            - template
+            - command
+          type:
+            - string
+            - 'null'
+    Service.UpdateServiceInput:
+      type: object
+      required:
+        - name
+        - host_id
+        - activated
+      properties:
+        name:
+          pattern: '^(((?![\x00-\x1F\x7F]).)*)$'
+          maxLength: 200
+          description: 'Trimmed, and its inner runs of spaces collapsed into one, before it is stored.'
+          type: string
+        host_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type: integer
+        activated:
+          description: 'Required: send back the value read on Get to keep it.'
+          type: boolean
+        service_template_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          description: 'Mandatory on a Cloud platform, optional otherwise.'
+          type:
+            - integer
+            - 'null'
+        service_group_ids:
+          type: array
+          items:
+            type: integer
+        category_ids:
+          type: array
+          items:
+            type: integer
+        severity_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        trap_ids:
+          description: 'Not available on a Cloud platform.'
+          type: array
+          items:
+            type: integer
+        graph_template_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          description: 'Not available on a Cloud platform.'
+          type:
+            - integer
+            - 'null'
+        check_options:
+          anyOf:
+            -
+              $ref: '#/components/schemas/ServiceCheckOptionsInput'
+            -
+              type: 'null'
+        monitoring_engine:
+          anyOf:
+            -
+              $ref: '#/components/schemas/ServiceMonitoringEngineInput'
+            -
+              type: 'null'
+        notifications:
+          description: 'Not available on a Cloud platform, where notifications follow a different model.'
+          anyOf:
+            -
+              $ref: '#/components/schemas/ServiceNotificationsInput'
+            -
+              type: 'null'
+        advanced:
+          anyOf:
+            -
+              $ref: '#/components/schemas/ServiceAdvancedInput'
+            -
+              type: 'null'
+    PatchServiceAdvancedInput:
+      type: object
+      properties:
+        obsess_over_service:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        acknowledgment_timeout:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        check_freshness:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        freshness_threshold:
+          minimum: 0
+          type:
+            - integer
+            - 'null'
+        flap_detection_enabled:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        low_flap_threshold:
+          minimum: 0
+          maximum: 100
+          type:
+            - integer
+            - 'null'
+        high_flap_threshold:
+          minimum: 0
+          maximum: 100
+          type:
+            - integer
+            - 'null'
+        retain_status_information:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        retain_non_status_information:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        stalking_options:
+          description: 'Replaces the stalking options; an empty list removes them all. Only one of this, the "_to_add" and the "_to_remove" keys can be sent.'
+          type: array
+          items:
+            type: string
+            enum:
+              - ok
+              - warning
+              - unknown
+              - critical
+        stalking_options_to_add:
+          description: 'Added to the current stalking options.'
+          type: array
+          items:
+            type: string
+            enum:
+              - ok
+              - warning
+              - unknown
+              - critical
+        stalking_options_to_remove:
+          description: 'Removed from the current stalking options.'
+          type: array
+          items:
+            type: string
+            enum:
+              - ok
+              - warning
+              - unknown
+              - critical
+        event_handler_enabled:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        event_handler_command_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          description: 'Null removes the event handler of the service; its arguments are kept, and need one from the template chain.'
+          type:
+            - integer
+            - 'null'
+        event_handler_args:
+          type: array
+          items:
+            type: string
+        comment:
+          maxLength: 65535
+          type:
+            - string
+            - 'null'
+    PatchServiceCheckOptionsInput:
+      type: object
+      properties:
+        command_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          description: 'Null removes the check command of the service, and its arguments unless "args" is sent too.'
+          type:
+            - integer
+            - 'null'
+        args:
+          description: 'ordered check-command arguments, an empty list clears them'
+          type: array
+          items:
+            type: string
+        macros:
+          description: 'Replaces the custom macros: the service''s own macros left out are removed. Each macro points to the macro it changes by id (and parent, for an inherited one), or is new without an id. A password macro without value keeps its stored value. Only one of this, "macros_to_upsert" and "macros_to_remove" can be sent.'
+          type: array
+          items:
+            $ref: '#/components/schemas/ServiceMacroInput'
+        macros_to_upsert:
+          description: 'Writes these macros and keeps the other ones. Same macros as above.'
+          type: array
+          items:
+            $ref: '#/components/schemas/ServiceMacroInput'
+        macros_to_remove:
+          description: "The ids of the service's own macros to remove."
+          type: array
+          items:
+            type: integer
+    PatchServiceNotificationsInput:
+      type: object
+      properties:
+        enabled:
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+          description: 'Whether notifications are enabled; "use_default" or null leaves the directive to the template chain.'
+          type:
+            - string
+            - 'null'
+        use_only_contacts_from_host:
+          description: 'When the service ends up with it on, it notifies the contacts of its host only: its own contacts and contact groups are cleared, contacts sent in the same request included, and both additive-inheritance flags switched off.'
+          type: boolean
+        contact_additive_inheritance:
+          description: "Ignored unless the platform's inheritance mode enables additive inheritance."
+          type: boolean
+        contact_group_additive_inheritance:
+          description: "Ignored unless the platform's inheritance mode enables additive inheritance."
+          type: boolean
+        contacts:
+          description: 'Replaces the contacts; an empty list removes them all. Only one of this, the "_to_add" and the "_to_remove" keys can be sent.'
+          type: array
+          items:
+            type: integer
+        contacts_to_add:
+          type: array
+          items:
+            type: integer
+        contacts_to_remove:
+          type: array
+          items:
+            type: integer
+        contact_groups:
+          description: 'Replaces the contact groups; an empty list removes them all. Only one of this, the "_to_add" and the "_to_remove" keys can be sent.'
+          type: array
+          items:
+            type: integer
+        contact_groups_to_add:
+          type: array
+          items:
+            type: integer
+        contact_groups_to_remove:
+          type: array
+          items:
+            type: integer
+        interval:
+          minimum: 0
+          type:
+            - integer
+            - 'null'
+        timeperiod_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        options:
+          description: 'State transitions triggering a notification, an empty list clears them. "none" is exclusive.'
+          type: array
+          items:
+            type: string
+            enum:
+              - warning
+              - unknown
+              - critical
+              - recovery
+              - flapping
+              - downtime_scheduled
+              - none
+        options_to_add:
+          description: 'Added to the current options. "none" is exclusive.'
+          type: array
+          items:
+            type: string
+            enum:
+              - warning
+              - unknown
+              - critical
+              - recovery
+              - flapping
+              - downtime_scheduled
+              - none
+        options_to_remove:
+          description: 'Removed from the current options.'
+          type: array
+          items:
+            type: string
+            enum:
+              - warning
+              - unknown
+              - critical
+              - recovery
+              - flapping
+              - downtime_scheduled
+              - none
+        first_delay:
+          minimum: 0
+          type:
+            - integer
+            - 'null'
+        recovery_delay:
+          minimum: 0
+          type:
+            - integer
+            - 'null'
+    CreateHostTemplateCheckOptionsInput:
+      type: object
+      properties:
+        command_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        args:
+          description: 'kept without a check command: they apply to the command the parents set'
+          type: array
+          items:
+            type: string
+        macros:
+          type: array
+          items:
+            $ref: '#/components/schemas/HostTemplateMacroInput'
+    CreateHostTemplateDataProcessingInput:
+      type: object
+      properties:
+        check_freshness:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        freshness_threshold:
+          minimum: 0
+          maximum: 2147483647
+          type:
+            - integer
+            - 'null'
+        event_handler_enabled:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        event_handler_command_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        acknowledgment_timeout:
+          minimum: 1
+          maximum: 2147483647
+          type:
+            - integer
+            - 'null'
+        flap_detection_enabled:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        low_flap_threshold:
+          minimum: 0
+          maximum: 100
+          type:
+            - integer
+            - 'null'
+        high_flap_threshold:
+          minimum: 0
+          maximum: 100
+          type:
+            - integer
+            - 'null'
+        event_handler_args:
+          type: array
+          items:
+            type: string
+    CreateHostTemplateExtendedInformationsInput:
+      type: object
+      properties:
+        note_url:
+          maxLength: 2048
+          type:
+            - string
+            - 'null'
+        note:
+          maxLength: 512
+          type:
+            - string
+            - 'null'
+        action_url:
+          maxLength: 2048
+          type:
+            - string
+            - 'null'
+        icon_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        alt_icon:
+          maxLength: 200
+          type:
+            - string
+            - 'null'
+        comment:
+          maxLength: 65535
+          type:
+            - string
+            - 'null'
+    CreateHostTemplateNotificationsInput:
+      type: object
+      properties:
+        enabled:
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+          type: string
+        contacts:
+          type: array
+          items:
+            type: integer
+        contact_groups:
+          type: array
+          items:
+            type: integer
+        options:
+          description: 'State transitions triggering a notification. "none" is exclusive.'
+          type: array
+          items:
+            type: string
+            enum:
+              - down
+              - unreachable
+              - recovery
+              - flapping
+              - downtime_scheduled
+              - none
+        interval:
+          minimum: 0
+          maximum: 2147483647
+          type:
+            - integer
+            - 'null'
+        timeperiod_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        first_delay:
+          minimum: 0
+          maximum: 2147483647
+          type:
+            - integer
+            - 'null'
+        recovery_delay:
+          minimum: 0
+          maximum: 2147483647
+          type:
+            - integer
+            - 'null'
+        contact_additive_inheritance:
+          description: "Ignored unless the platform's inheritance mode enables additive inheritance."
+          type: boolean
+        contact_group_additive_inheritance:
+          description: "Ignored unless the platform's inheritance mode enables additive inheritance."
+          type: boolean
+    CreateHostTemplateSchedulingOptionsInput:
+      type: object
+      properties:
+        check_timeperiod_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        max_check_attempts:
+          minimum: 1
+          maximum: 2147483647
+          type:
+            - integer
+            - 'null'
+        normal_check_interval:
+          minimum: 1
+          maximum: 2147483647
+          type:
+            - integer
+            - 'null'
+        retry_check_interval:
+          minimum: 1
+          maximum: 2147483647
+          type:
+            - integer
+            - 'null'
+        active_check_enabled:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        passive_check_enabled:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+    HostTemplate.CreateHostTemplateInput:
+      type: object
+      required:
+        - name
+        - alias
+      properties:
+        name:
+          maxLength: 200
+          description: 'Trimmed; inner spaces become underscores. Unique among hosts and host templates.'
+          type:
+            - string
+            - 'null'
+        alias:
+          maxLength: 200
+          type:
+            - string
+            - 'null'
+        snmp_version:
+          type:
+            - string
+            - 'null'
+          enum:
+            - '1'
+            - 2c
+            - '3'
+            - null
+        snmp_community:
+          pattern: '^(((?![\x00-\x1F\x7F]).)*)$'
+          description: 'Write-only. Stored in the vault when one is configured, and never returned.'
+          type:
+            - string
+            - 'null'
+        timezone_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        severity_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        template_ids:
+          description: 'Ordered: the position of a parent template sets the inheritance order.'
+          type: array
+          items:
+            type: integer
+        category_ids:
+          type: array
+          items:
+            type: integer
+        linked_service_template_ids:
+          description: 'Ordered: the position of a service template sets the priority of its check command macros.'
+          type: array
+          items:
+            type: integer
+        check_options:
+          anyOf:
+            -
+              $ref: '#/components/schemas/CreateHostTemplateCheckOptionsInput'
+            -
+              type: 'null'
+        extended_informations:
+          anyOf:
+            -
+              $ref: '#/components/schemas/CreateHostTemplateExtendedInformationsInput'
+            -
+              type: 'null'
+        scheduling_options:
+          anyOf:
+            -
+              $ref: '#/components/schemas/CreateHostTemplateSchedulingOptionsInput'
+            -
+              type: 'null'
+        data_processing:
+          anyOf:
+            -
+              $ref: '#/components/schemas/CreateHostTemplateDataProcessingInput'
+            -
+              type: 'null'
+        notifications:
+          description: 'Not available on a Cloud platform, where notifications follow a different model.'
+          anyOf:
+            -
+              $ref: '#/components/schemas/CreateHostTemplateNotificationsInput'
+            -
+              type: 'null'
+    HostTemplate.PatchHostTemplateInput.jsonMergePatch:
+      type: object
+      properties:
+        name:
+          maxLength: 200
+          description: 'Trimmed; inner spaces become underscores.'
+          type:
+            - string
+            - 'null'
+        alias:
+          maxLength: 200
+          type:
+            - string
+            - 'null'
+        snmp_version:
+          type:
+            - string
+            - 'null'
+          enum:
+            - '1'
+            - 2c
+            - '3'
+            - null
+        snmp_community:
+          pattern: '^(((?![\x00-\x1F\x7F]).)*)$'
+          description: 'Write-only, never returned. Left out keeps the community, null removes it.'
+          type:
+            - string
+            - 'null'
+        timezone_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        severity_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          description: 'null removes the severity, unless it is one the user cannot see.'
+          type:
+            - integer
+            - 'null'
+        template_ids:
+          description: 'Replaces the parents, in the order given: it sets the inheritance order. Only one of this, the "_to_add" and the "_to_remove" keys can be sent.'
+          type: array
+          items:
+            type: integer
+        template_ids_to_add:
+          description: 'Added after the current parents.'
+          type: array
+          items:
+            type: integer
+        template_ids_to_remove:
+          type: array
+          items:
+            type: integer
+        category_ids:
+          description: 'Replaces the categories; an empty list removes them all. Only one of this, the "_to_add" and the "_to_remove" keys can be sent.'
+          type: array
+          items:
+            type: integer
+        category_ids_to_add:
+          type: array
+          items:
+            type: integer
+        category_ids_to_remove:
+          type: array
+          items:
+            type: integer
+        linked_service_template_ids:
+          description: 'Replaces the linked service templates, in the order given. Only one of this, the "_to_add" and the "_to_remove" keys can be sent.'
+          type: array
+          items:
+            type: integer
+        linked_service_template_ids_to_add:
+          description: 'Added after the current linked service templates.'
+          type: array
+          items:
+            type: integer
+        linked_service_template_ids_to_remove:
+          type: array
+          items:
+            type: integer
+        check_options:
+          anyOf:
+            -
+              $ref: '#/components/schemas/PatchHostTemplateCheckOptionsInput'
+            -
+              type: 'null'
+        extended_informations:
+          anyOf:
+            -
+              $ref: '#/components/schemas/CreateHostTemplateExtendedInformationsInput'
+            -
+              type: 'null'
+        scheduling_options:
+          anyOf:
+            -
+              $ref: '#/components/schemas/CreateHostTemplateSchedulingOptionsInput'
+            -
+              type: 'null'
+        data_processing:
+          anyOf:
+            -
+              $ref: '#/components/schemas/CreateHostTemplateDataProcessingInput'
+            -
+              type: 'null'
+        notifications:
+          description: 'Not available on a Cloud platform, where notifications follow a different model.'
+          anyOf:
+            -
+              $ref: '#/components/schemas/PatchHostTemplateNotificationsInput'
+            -
+              type: 'null'
+    HostTemplateMacroInput:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          maxLength: 248
+          type: string
+        value:
+          maxLength: 4096
+          pattern: '^(((?!^secret::).)*)$'
+          type:
+            - string
+            - 'null'
+        is_password:
+          type: boolean
+        id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        parent:
+          enum:
+            - template
+            - command
+          type:
+            - string
+            - 'null'
+    PatchHostTemplateCheckOptionsInput:
+      type: object
+      properties:
+        command_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          description: 'null removes the command; the arguments are kept unless sent'
+          type:
+            - integer
+            - 'null'
+        args:
+          description: 'an empty list clears the arguments; accepted without a command'
+          type: array
+          items:
+            type: string
+        macros:
+          description: 'Replaces the macros: the template''s own macros left out are removed. Each macro points to the macro it changes by id (and parent, for an inherited one), or is new without an id. A password macro without value keeps its stored value. Only one of this, "macros_to_upsert" and "macros_to_remove" can be sent.'
+          type: array
+          items:
+            $ref: '#/components/schemas/HostTemplateMacroInput'
+        macros_to_upsert:
+          description: 'Writes these macros and keeps the other ones. Same macros as above.'
+          type: array
+          items:
+            $ref: '#/components/schemas/HostTemplateMacroInput'
+        macros_to_remove:
+          description: "The ids of the template's own macros to remove."
+          type: array
+          items:
+            type: integer
+    PatchHostTemplateNotificationsInput:
+      type: object
+      properties:
+        enabled:
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+          description: 'null means "use_default".'
+          type:
+            - string
+            - 'null'
+        options:
+          description: 'State transitions triggering a notification, an empty list clears them. "none" is exclusive. Only one of this, the "_to_add" and the "_to_remove" keys can be sent.'
+          type: array
+          items:
+            type: string
+            enum:
+              - down
+              - unreachable
+              - recovery
+              - flapping
+              - downtime_scheduled
+              - none
+        options_to_add:
+          description: 'Added to the current options. "none" is exclusive.'
+          type: array
+          items:
+            type: string
+            enum:
+              - down
+              - unreachable
+              - recovery
+              - flapping
+              - downtime_scheduled
+              - none
+        options_to_remove:
+          description: 'Removed from the current options.'
+          type: array
+          items:
+            type: string
+            enum:
+              - down
+              - unreachable
+              - recovery
+              - flapping
+              - downtime_scheduled
+              - none
+        contacts:
+          description: 'Replaces the contacts; an empty list removes them all, those the user cannot see stay. Only one of this, the "_to_add" and the "_to_remove" keys can be sent.'
+          type: array
+          items:
+            type: integer
+        contacts_to_add:
+          type: array
+          items:
+            type: integer
+        contacts_to_remove:
+          type: array
+          items:
+            type: integer
+        contact_groups:
+          description: 'Replaces the contact groups; an empty list removes them all, those the user cannot see stay. Only one of this, the "_to_add" and the "_to_remove" keys can be sent.'
+          type: array
+          items:
+            type: integer
+        contact_groups_to_add:
+          type: array
+          items:
+            type: integer
+        contact_groups_to_remove:
+          type: array
+          items:
+            type: integer
+        interval:
+          minimum: 0
+          maximum: 2147483647
+          type:
+            - integer
+            - 'null'
+        timeperiod_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        first_delay:
+          minimum: 0
+          maximum: 2147483647
+          type:
+            - integer
+            - 'null'
+        recovery_delay:
+          minimum: 0
+          maximum: 2147483647
+          type:
+            - integer
+            - 'null'
+        contact_additive_inheritance:
+          description: "Forced to false unless the platform's inheritance mode enables additive inheritance."
+          type:
+            - boolean
+            - 'null'
+        contact_group_additive_inheritance:
+          description: "Forced to false unless the platform's inheritance mode enables additive inheritance."
+          type:
+            - boolean
+            - 'null'

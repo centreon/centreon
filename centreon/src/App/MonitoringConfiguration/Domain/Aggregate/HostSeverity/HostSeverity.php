@@ -33,6 +33,7 @@ final class HostSeverity extends AggregateRoot
     public function __construct(
         ?HostSeverityId $id,
         public readonly HostSeverityName $name,
+        public readonly HostSeverityLevel $level,
     ) {
         parent::__construct($id);
     }

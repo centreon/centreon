@@ -21,6 +21,7 @@ interface Props<TFilters> {
   filtersAtom: PrimitiveAtom<TFilters>;
   data;
   selectedColumnIdsAtom: PrimitiveAtom<Array<string>>;
+  getRowId?: (row) => number | string;
 }
 
 const Listing = <TFilters,>({
@@ -31,7 +32,8 @@ const Listing = <TFilters,>({
   data,
   selectedColumnIdsAtom,
   filtersAtom,
-  filtersAtomKey
+  filtersAtomKey,
+  getRowId
 }: Props<TFilters>): JSX.Element => {
   const [selectedRows, setSelectedRows] = useAtom(selectedRowsAtom);
 
@@ -73,7 +75,9 @@ const Listing = <TFilters,>({
           : columns
       }
       currentPage={(page || 1) - 1}
+      disableRowCheckCondition={(row) => !(actions?.selectable?.(row) ?? true)}
       disableRowCondition={disableRowCondition}
+      getId={getRowId}
       limit={limit}
       loading={isLoading}
       memoProps={[columns, staticColumns, page, sorto, sortf, selectedRows]}

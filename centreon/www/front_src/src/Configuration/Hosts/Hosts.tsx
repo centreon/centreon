@@ -1,6 +1,5 @@
 import {
   RocketLaunchOutlined as DeployIcon,
-  EditNoteOutlined as MassChangeIcon,
   Grain as ServiceIcon
 } from '@mui/icons-material';
 
@@ -10,14 +9,14 @@ import {
   userPermissionsAtom
 } from '@centreon/ui-context';
 
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import ConfigurationBase from '../ConfigurationBase';
-import { formStateAtom } from '../ConfigurationBase/atoms';
-import { labelMassChange } from '../ConfigurationBase/translatedLabels';
+import useMassChangeAction from '../ConfigurationBase/useMassChangeAction';
 import { type Actions, ResourceType } from '../models';
+import type { FormValues } from '../ResourceForm/models';
 import { useDefaultPoller, useDeployServices } from './api';
 import {
   filtersAtom,
@@ -42,13 +41,13 @@ import {
   labelHostsDescription,
   labelWelcomeToHosts
 } from './translatedLabels';
+import { useGoToServices } from './useGoToServices';
 import useHosts from './useHosts';
 import {
   columnsAtomKey,
   defaultSelectedColumnIds,
   filtersAtomKey,
-  filtersInitialValues,
-  getHostServicesUrl
+  filtersInitialValues
 } from './utils';
 
 const Hosts = () => {
@@ -90,7 +89,8 @@ const Hosts = () => {
     return {
       adapter: getMassChangeAdapter(context),
       defaultValues: getMassChangeDefaultValues(context),
-      getConfirmationWarning: getMassChangeWarning(t),
+      getConfirmationWarning: (values: FormValues) =>
+        getMassChangeWarning({ t, values }),
       groups: massChangeGroups,
       inputs: massChangeInputs,
       validationSchema: massChangeValidationSchema
@@ -103,7 +103,7 @@ const Hosts = () => {
     massChangeValidationSchema,
     t
   ]);
-  const setFormState = useSetAtom(formStateAtom);
+  const massChangeAction = useMassChangeAction();
 
   const { api, filtersConfiguration } = useHosts({
     isAdditiveInheritanceEnabled,
@@ -120,6 +120,7 @@ const Hosts = () => {
     [isCloudPlatform, defaultPoller]
   );
   const { deployServices } = useDeployServices();
+  const goToServices = useGoToServices();
 
   const actions: Actions = useMemo(
     () => ({
@@ -129,22 +130,7 @@ const Hosts = () => {
       enableDisable: () => canEdit,
       massive: canEdit,
       massiveActions: [
-        {
-          dataTestId: 'mass-change',
-          Icon: MassChangeIcon,
-          label: labelMassChange,
-          onClick: (rows) =>
-            setFormState({
-              id: null,
-              isOpen: true,
-              mode: 'massChange',
-              resource: null,
-              selection: rows.map(({ id, name }) => ({
-                id: id as number,
-                name: name as string
-              }))
-            })
-        },
+        massChangeAction,
         {
           dataTestId: 'deploy-services',
           Icon: DeployIcon,
@@ -158,15 +144,13 @@ const Hosts = () => {
           dataTestId: ({ id }) => `go-to-services_${id}`,
           Icon: ServiceIcon,
           label: labelGoToServices,
-          onClick: ({ name }) => {
-            window.open(getHostServicesUrl(name as string), '_self');
-          }
+          onClick: ({ name }) => goToServices(name as string)
         }
       ],
       rowActionsWithoutWriteAccess: true,
       viewDetails: true
     }),
-    [canEdit, deployServices, setFormState]
+    [canEdit, deployServices, goToServices, massChangeAction]
   );
 
   return (

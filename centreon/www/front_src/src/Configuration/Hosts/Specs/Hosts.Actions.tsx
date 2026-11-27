@@ -1,23 +1,25 @@
+import { unsavedChangesTranslatedLabels } from '@centreon/ui';
+
 import { rs } from '@rstest/core';
 import { waitForRequest } from '@test-setup/api';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { formStateAtom } from '../../ConfigurationBase/atoms';
+import { listingDataTestIds } from '../../ConfigurationBase/Listing/dataTestIds';
 import {
   labelDelete,
   labelDisable,
   labelDuplicate,
   labelEnable,
-  labelEnableDisable,
-  labelMassChange,
-  labelMoreActions
+  labelMassChange
 } from '../../ConfigurationBase/translatedLabels';
 import {
   labelDeployServices,
   labelServiceDeploymentFailed,
   labelServicesDeployed
 } from '../translatedLabels';
-import initialize from './initialize';
+import initialize, { deployFailures } from './initialize';
 
 // By their own labels: the Enable/Disable switches are checkboxes too, so a
 // position among the checkboxes does not say which one is a row's.
@@ -30,7 +32,7 @@ const selectAll = async (): Promise<void> => {
 };
 
 const openMoreActions = async (): Promise<HTMLElement> => {
-  await userEvent.click(screen.getByTestId(labelMoreActions));
+  await userEvent.click(screen.getByTestId(listingDataTestIds.moreActions));
 
   // The last one opened: a closing menu may still be in the page.
   return (await screen.findAllByRole('menu')).at(-1) as HTMLElement;
@@ -47,7 +49,7 @@ const initializeListing = async (
 
 export default () => {
   describe('Actions: ', () => {
-    it('links the services icon to the legacy services listing for that host', async () => {
+    it('links the services icon to the legacy services listing while the Services page is not granted', async () => {
       await initializeListing();
 
       const open = rs.spyOn(window, 'open').mockImplementation(() => null);
@@ -60,10 +62,87 @@ export default () => {
       );
     });
 
+    it('opens the services of that host in the Services page when the menu grants it', async () => {
+      const { pathname } = window.location;
+
+      await initializeListing({ allowedPages: ['/configuration/services'] });
+
+      const open = rs.spyOn(window, 'open').mockImplementation(() => null);
+
+      await userEvent.click(screen.getByTestId('go-to-services_0'));
+
+      try {
+        await waitFor(() =>
+          expect(window.location.pathname).toBe('/configuration/services')
+        );
+        expect(window.location.search).toBe('?host=host%200');
+        expect(open).not.toHaveBeenCalled();
+      } finally {
+        // The page is not reloaded between tests.
+        window.history.pushState({}, '', pathname);
+      }
+    });
+
+    it('closes the open host form before opening the Services page', async () => {
+      const { pathname } = window.location;
+
+      const { store } = initialize({
+        allowedPages: ['/configuration/services']
+      });
+      await waitForRequest('@getAllHosts');
+
+      await userEvent.click(await screen.findByText('host 0'));
+      await waitForRequest('@getHost');
+
+      await userEvent.click(screen.getByTestId('go-to-services_1'));
+
+      try {
+        await waitFor(() =>
+          expect(window.location.pathname).toBe('/configuration/services')
+        );
+        expect(window.location.search).toBe('?host=host%201');
+        expect(store.get(formStateAtom).isOpen).toBe(false);
+      } finally {
+        window.history.pushState({}, '', pathname);
+      }
+    });
+
+    it('asks to keep or drop the unsaved changes of the open form before leaving', async () => {
+      const { pathname } = window.location;
+
+      initialize({ allowedPages: ['/configuration/services'] });
+      await waitForRequest('@getAllHosts');
+
+      await userEvent.click(await screen.findByText('host 0'));
+      await waitForRequest('@getHost');
+      await userEvent.type(
+        (await screen.findAllByTestId('host-form-alias'))[1] as HTMLElement,
+        ' edited'
+      );
+
+      const open = rs.spyOn(window, 'open').mockImplementation(() => null);
+
+      await userEvent.click(screen.getByTestId('go-to-services_1'));
+
+      try {
+        expect(
+          await screen.findByText(
+            unsavedChangesTranslatedLabels.labelDoYouWantToSaveChanges
+          )
+        ).toBeVisible();
+        expect(window.location.pathname).not.toBe('/configuration/services');
+        expect(open).not.toHaveBeenCalled();
+      } finally {
+        window.history.pushState({}, '', pathname);
+      }
+    });
+
     it('deletes a host through the confirmation modal', async () => {
       await initializeListing();
 
-      await userEvent.click(screen.getByTestId(`${labelDelete}_0`));
+      await userEvent.click(
+        screen.getByTestId(listingDataTestIds.row.delete(0))
+      );
 
       await userEvent.click(await screen.findByTestId('confirm'));
 
@@ -83,9 +162,18 @@ export default () => {
     it('duplicates a host through the confirmation modal', async () => {
       await initializeListing();
 
-      await userEvent.click(screen.getByTestId(`${labelDuplicate}_0`));
+      await userEvent.click(
+        screen.getByTestId(listingDataTestIds.row.duplicate(0))
+      );
 
-      await userEvent.click(await screen.findByTestId('confirm'));
+      const confirm = await screen.findByTestId('confirm');
+
+      // A plain confirmation: the copy is not named.
+      expect(
+        document.querySelector('input[data-testid="duplicate-name"]')
+      ).toBeNull();
+
+      await userEvent.click(confirm);
 
       // The route names the host and takes no body.
       const { request } = await waitForRequest('@duplicateHost');
@@ -94,6 +182,7 @@ export default () => {
         '/api/configuration/hosts/0/_duplicate'
       );
       expect(request.url.pathname).not.toContain('/api/latest');
+      expect(request.body).toBeUndefined();
     });
 
     it('deletes every selected host, one request each', async () => {
@@ -116,7 +205,9 @@ export default () => {
     it('disables an activated host from the row toggle', async () => {
       await initializeListing();
 
-      await userEvent.click(screen.getByTestId(`${labelEnableDisable}_0`));
+      await userEvent.click(
+        screen.getByTestId(listingDataTestIds.row.enableDisable(0))
+      );
 
       const { request } = await waitForRequest('@patchHost');
 
@@ -127,7 +218,9 @@ export default () => {
     it('enables a deactivated host from the row toggle', async () => {
       await initializeListing();
 
-      await userEvent.click(screen.getByTestId(`${labelEnableDisable}_1`));
+      await userEvent.click(
+        screen.getByTestId(listingDataTestIds.row.enableDisable(1))
+      );
 
       // `activated`, the key the endpoint reads: any other is ignored.
       const { request } = await waitForRequest('@patchHost1');
@@ -146,31 +239,43 @@ export default () => {
       await waitFor(() => expect(deployServices).toBeVisible());
       await userEvent.click(deployServices);
 
-      await waitForRequest('@deployServices');
+      // Served by API Platform at `./api`, not by the legacy `./api/latest`.
+      const { request } = await waitForRequest('@deployServices');
+
+      expect(request.url.pathname).toContain(
+        '/api/configuration/hosts/0/services/deploy'
+      );
+      expect(request.url.pathname).not.toContain('/api/latest');
 
       expect(
         await screen.findByText(labelServicesDeployed)
       ).toBeInTheDocument();
     });
 
-    it('reports a failed deployment with the agreed message, once', async () => {
-      await initializeListing({ deployFails: true });
+    ([404, 422] as const).forEach((status) => {
+      it(`reports a failed deployment (${status}) with the agreed message, once`, async () => {
+        await initializeListing({ deployFailsWith: status });
 
-      await selectFirstRow();
+        await selectFirstRow();
 
-      const menu = await openMoreActions();
+        const menu = await openMoreActions();
 
-      await userEvent.click(within(menu).getByText(labelDeployServices));
+        await userEvent.click(within(menu).getByText(labelDeployServices));
 
-      await waitForRequest('@deployServices');
+        await waitForRequest('@deployServices');
 
-      expect(
-        await screen.findByText(labelServiceDeploymentFailed)
-      ).toBeInTheDocument();
+        expect(
+          await screen.findByText(labelServiceDeploymentFailed)
+        ).toBeInTheDocument();
 
-      // The API's own message is suppressed so the two do not stack.
-      expect(screen.queryByText('Host not found')).not.toBeInTheDocument();
-      expect(screen.queryByText(labelServicesDeployed)).not.toBeInTheDocument();
+        // The API's own message is suppressed so the two do not stack.
+        expect(
+          screen.queryByText(deployFailures[status])
+        ).not.toBeInTheDocument();
+        expect(
+          screen.queryByText(labelServicesDeployed)
+        ).not.toBeInTheDocument();
+      });
     });
 
     it('offers every massive action the ticket lists', async () => {
@@ -193,6 +298,29 @@ export default () => {
         labelDelete,
         labelMassChange,
         labelDeployServices
+      ]);
+    });
+
+    it('tags every massive action with a fixed, non-translated test id', async () => {
+      await initializeListing();
+
+      await selectFirstRow();
+
+      const menu = await openMoreActions();
+
+      // Pendo tags these by id alone (`excludeAllText`): a wording change
+      // must not move them.
+      expect(
+        within(menu)
+          .getAllByRole('menuitem')
+          .map((entry) => entry.getAttribute('data-testid'))
+      ).toEqual([
+        listingDataTestIds.massive.duplicate,
+        listingDataTestIds.massive.enable,
+        listingDataTestIds.massive.disable,
+        listingDataTestIds.massive.delete,
+        'mass-change',
+        'deploy-services'
       ]);
     });
 
@@ -224,20 +352,22 @@ export default () => {
         expect(screen.getByTestId('go-to-services_0')).toBeVisible();
 
         expect(
-          within(screen.getByTestId(`${labelEnableDisable}_0`)).getByRole(
-            'checkbox'
-          )
+          within(
+            screen.getByTestId(listingDataTestIds.row.enableDisable(0))
+          ).getByRole('checkbox')
         ).toBeDisabled();
       });
 
       it('hides the add button, more actions and the row write actions', () => {
-        expect(screen.queryByTestId(labelMoreActions)).not.toBeInTheDocument();
+        expect(
+          screen.queryByTestId(listingDataTestIds.moreActions)
+        ).not.toBeInTheDocument();
         expect(screen.queryByTestId('add-resource')).not.toBeInTheDocument();
         expect(
-          screen.queryByTestId(`${labelDelete}_0`)
+          screen.queryByTestId(listingDataTestIds.row.delete(0))
         ).not.toBeInTheDocument();
         expect(
-          screen.queryByTestId(`${labelDuplicate}_0`)
+          screen.queryByTestId(listingDataTestIds.row.duplicate(0))
         ).not.toBeInTheDocument();
       });
     });

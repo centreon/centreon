@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Exception;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
 
 /**
@@ -35,6 +36,14 @@ final class VaultPurgeFailedException extends \RuntimeException
     {
         return new self(
             sprintf('Host %d was deleted but its vault entry could not be purged.', $hostId->value),
+            previous: $previous,
+        );
+    }
+
+    public static function forHostTemplate(HostTemplateId $hostTemplateId, \Throwable $previous): self
+    {
+        return new self(
+            sprintf('Host template %d was deleted but its vault entry could not be purged.', $hostTemplateId->value),
             previous: $previous,
         );
     }

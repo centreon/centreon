@@ -1,11 +1,13 @@
-// @ts-nocheck
-// TODO: re-enable type-check after fixing this file
 import { useAtomValue, useSetAtom } from 'jotai';
 import { pick } from 'ramda';
 
-import { ResourceRow, RowAction } from '../../../../models';
+import { NamedEntity, ResourceRow, RowAction } from '../../../../models';
 import { configurationAtom } from '../../../atoms';
-import { resourcesToDeleteAtom, resourcesToDuplicateAtom } from '../../atoms';
+import {
+  resourcesToDeleteAtom,
+  resourcesToDuplicateAtom,
+  resourceToDuplicateWithNameAtom
+} from '../../atoms';
 
 interface UseActionsState {
   openDeleteModal: () => void;
@@ -21,12 +23,17 @@ const useActions = (row: ResourceRow): UseActionsState => {
 
   const setResourcesToDelete = useSetAtom(resourcesToDeleteAtom);
   const setResourcesToDuplicate = useSetAtom(resourcesToDuplicateAtom);
+  const setResourceToDuplicateWithName = useSetAtom(
+    resourceToDuplicateWithNameAtom
+  );
 
-  const hostGroupEntity = pick(['id', 'name'], row);
+  const hostGroupEntity = pick(['id', 'name'], row) as NamedEntity;
 
   const openDeleteModal = (): void => setResourcesToDelete([hostGroupEntity]);
   const openDuplicateModal = (): void =>
-    setResourcesToDuplicate([hostGroupEntity]);
+    configuration?.api?.isDuplicateWithName
+      ? setResourceToDuplicateWithName(hostGroupEntity)
+      : setResourcesToDuplicate([hostGroupEntity]);
 
   const canDelete = !!actions?.delete?.(row);
   const canDuplicate = !!actions?.duplicate?.(row);

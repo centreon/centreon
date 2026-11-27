@@ -24,17 +24,17 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\DataProcessing;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\ExtendedInformations;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\GeoCoordinates;
+use App\MonitoringConfiguration\Domain\Aggregate\DataProcessing;
+use App\MonitoringConfiguration\Domain\Aggregate\ExtendedInformations;
+use App\MonitoringConfiguration\Domain\Aggregate\GeoCoordinates;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
+use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverity;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
-use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityName;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\Media;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
+use App\MonitoringConfiguration\Domain\Aggregate\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodName;
@@ -187,9 +187,9 @@ final readonly class HostResourceBuilder
         // Severity is ACL-scoped too: an out-of-scope severity is hidden (left null) from a
         // restricted actor rather than surfaced.
         if ($host->severityId instanceof HostSeverityId && $this->accessScopes->hostSeverities($actor)->allows($host->severityId)) {
-            $severityName = $this->hostSeverityRepository->findNameById($host->severityId);
-            $resource->severity = $severityName instanceof HostSeverityName
-                ? new HostSeverityOutput($host->severityId->value, $severityName->value)
+            $severity = $this->hostSeverityRepository->findById($host->severityId);
+            $resource->severity = $severity instanceof HostSeverity
+                ? new HostSeverityOutput($host->severityId->value, $severity->name->value, $severity->level->value)
                 : null;
         }
 

@@ -23,12 +23,15 @@ declare(strict_types=1);
 
 namespace App\Upgrade\Application\Command;
 
-use Adaptation\Log\LoggerUpgrade;
 use App\Shared\Application\Command\AsCommandHandler;
-use App\Upgrade\Application\CacheClearer;
-use App\Upgrade\Application\DbmsVersionValidator;
-use App\Upgrade\Application\EngineContextWriter;
-use App\Upgrade\Application\UpdateLocker;
+use App\Upgrade\Application\CacheClearerInterface;
+use App\Upgrade\Application\DbmsVersionValidatorInterface;
+use App\Upgrade\Application\EngineContextWriterInterface;
+use App\Upgrade\Application\Service\MigrationApplier;
+use App\Upgrade\Application\Service\TargetVersionRecorder;
+use App\Upgrade\Application\UpdateLockerInterface;
+use App\Upgrade\Application\UpgradeLoggerInterface;
+use App\Upgrade\Domain\Exception\ClosingStepsFailedException;
 use App\Upgrade\Domain\Repository\ModuleRepository;
 use App\Upgrade\Domain\Repository\UpdateRepository;
 use App\Upgrade\Domain\Repository\UpdateScriptFinder;
@@ -40,18 +43,22 @@ final readonly class UpdateCommandHandler
     public function __construct(
         private UpdateRepository $updateRepository,
         private UpdateScriptFinder $updateScriptFinder,
-        private UpdateLocker $updateLocker,
-        private DbmsVersionValidator $dbmsVersionValidator,
+        private UpdateLockerInterface $updateLocker,
+        private DbmsVersionValidatorInterface $dbmsVersionValidator,
         private ModuleRepository $moduleRepository,
         private WidgetRepository $widgetRepository,
-        private EngineContextWriter $engineContextWriter,
-        private CacheClearer $cacheClearer,
+        private EngineContextWriterInterface $engineContextWriter,
+        private CacheClearerInterface $cacheClearer,
+        private UpgradeLoggerInterface $logger,
+        private MigrationApplier $migrationApplier,
+        private TargetVersionRecorder $targetVersionRecorder,
     ) {
     }
 
     /**
      * @throws \RuntimeException when another update is already in progress or the current version cannot be read
-     * @throws \Throwable any failure thrown by validation, the repositories or the cache clearer (re-thrown after the lock is released and the failure is logged)
+     * @throws ClosingStepsFailedException when closing steps failed, after all of them ran
+     * @throws \Throwable any failure thrown by validation, the repositories or the migrations (re-thrown after the lock is released and the failure is logged)
      */
     public function __invoke(UpdateCommand $command): void
     {
@@ -74,9 +81,10 @@ final readonly class UpdateCommandHandler
                 }
 
                 $availableUpdates = $this->updateScriptFinder->findOrderedAvailableUpdates($currentVersion);
-                $targetVersion = $availableUpdates === [] ? $currentVersion : end($availableUpdates);
+                $legacyVersion = $availableUpdates === [] ? $currentVersion : end($availableUpdates);
+                $targetVersion = $this->targetVersionRecorder->resolve($legacyVersion);
 
-                LoggerUpgrade::create()->start($currentVersion, $targetVersion);
+                $this->logger->start($currentVersion, $targetVersion);
                 $startEmitted = true;
 
                 // The handler owns step sequencing and logging; the repository only runs each operation.
@@ -88,30 +96,45 @@ final readonly class UpdateCommandHandler
                     $this->runStep($version, 'update_version_information', fn () => $this->updateRepository->updateVersionInformation($version));
                 }
 
+                $this->migrationApplier->applyWebSets();
+
                 if ($this->updateRepository->installDirectoryExists()) {
                     $this->runStep($currentVersion, 'backup_install_directory', fn () => $this->updateRepository->backupInstallDirectory($currentVersion));
                     $this->runStep($currentVersion, 'remove_install_directory', fn () => $this->updateRepository->removeInstallDirectory());
                 }
 
-                $this->runStep($currentVersion, 'modules_update', fn () => $this->moduleRepository->updateAll());
-                $this->runStep($currentVersion, 'widgets_update', fn () => $this->widgetRepository->updateAll());
-                $this->runStep($currentVersion, 'engine_context', fn () => $this->engineContextWriter->writeIfMissing());
-                $this->runStep($currentVersion, 'cache_clear', fn () => $this->cacheClearer->clear());
+                // Every closing step runs: the modules upgraded before a failure still need the cache clear.
+                $failures = [];
+                foreach ([
+                    'modules_update' => fn () => $this->moduleRepository->updateAll(),
+                    'widgets_update' => fn () => $this->widgetRepository->updateAll(),
+                    'engine_context' => fn () => $this->engineContextWriter->writeIfMissing(),
+                    'cache_clear' => fn () => $this->cacheClearer->clear(),
+                ] as $step => $action) {
+                    try {
+                        $this->runStep($currentVersion, $step, $action);
+                    } catch (\Throwable $exception) {
+                        $failures[$step] = $exception;
+                    }
+                }
+                if ($failures !== []) {
+                    throw new ClosingStepsFailedException($failures);
+                }
 
                 $durationMs = (int) ((microtime(true) - $startedAt) * 1000);
-                LoggerUpgrade::create()->success($currentVersion, $targetVersion, $durationMs);
+                $this->logger->success($currentVersion, $targetVersion, $durationMs);
             } finally {
                 $this->updateLocker->unlock();
             }
         } catch (\Throwable $exception) {
             if ($startEmitted) {
                 // The lifecycle is open: close it with a balanced upgrade.failure.
-                LoggerUpgrade::create()->failure($currentVersion, $targetVersion, $exception->getMessage(), $exception);
+                $this->logger->failure($currentVersion, $targetVersion, $exception->getMessage(), $exception);
             } else {
                 // The failure happened before start() (validation / lock / version read), so there is no
                 // start to balance: emit a standalone upgrade.error instead of a dangling failure, keeping
                 // the attempt visible in the upgrade channel.
-                LoggerUpgrade::create()->error($currentVersion ?? 'unknown', $exception->getMessage(), $exception);
+                $this->logger->error($currentVersion ?? 'unknown', $exception->getMessage(), $exception);
             }
 
             throw $exception;
@@ -120,16 +143,16 @@ final readonly class UpdateCommandHandler
 
     private function runStep(string $version, string $step, callable $action): void
     {
-        LoggerUpgrade::create()->step($version, $step, "Starting step '{$step}'");
+        $this->logger->step($version, $step, "Starting step '{$step}'");
         $startedAt = microtime(true);
         try {
             $action();
         } catch (\Throwable $exception) {
-            LoggerUpgrade::create()->stepFailure($version, $step, $exception->getMessage(), $exception);
+            $this->logger->stepFailure($version, $step, $exception->getMessage(), $exception);
 
             throw $exception;
         }
         $durationMs = (int) ((microtime(true) - $startedAt) * 1000);
-        LoggerUpgrade::create()->stepCompleted($version, $step, $durationMs, "Step '{$step}' completed in {$durationMs}ms");
+        $this->logger->stepCompleted($version, $step, $durationMs, "Step '{$step}' completed in {$durationMs}ms");
     }
 }
