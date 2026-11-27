@@ -40,6 +40,9 @@ export const PAGES = {
     servicesGridLegacy: '/centreon/main.php?p=20204&o=svcOV_pb',
     escalationsLegacy: '/centreon/main.php?p=60401',
     pollersLegacy: '/centreon/main.php?p=60901',
+    exportConfigurationLegacy: '/centreon/main.php?p=60902',
+    engineConfigurationLegacy: '/centreon/main.php?p=60903',
+    brokerConfigurationLegacy: '/centreon/main.php?p=60909',
     centreonUiLegacy: '/centreon/main.php?p=50110&o=general',
     snmpTrapsLegacy: '/centreon/main.php?p=61701',
     hostsKnowledgeBaseLegacy: '/centreon/main.php?p=61001',
@@ -62,6 +65,7 @@ export const PAGES = {
     performancesGraphsLegacy: '/centreon/main.php?p=20401',
     virtualMetricsLegacy: '/centreon/main.php?p=20408',
     statusDetailsServicesLegacy: '/centreon/main.php?p=20201',
+    statusDetailsHostsLegacy: '/centreon/main.php?p=20202',
     statusDetailsServicesLegacyFrame: '/centreon/main.get.php?p=20201'
   }
 };
