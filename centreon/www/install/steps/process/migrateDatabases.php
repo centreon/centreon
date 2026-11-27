@@ -25,4 +25,8 @@ set_time_limit(0);
 
 $error = runDatabaseMigrations();
 
-echo json_encode(['id' => 'migrations', 'result' => $error === null ? 0 : 1, 'msg' => $error ?? 'OK']);
+echo json_encode([
+    'id' => 'migrations',
+    'result' => $error === null ? 0 : 1,
+    'msg' => $error === null ? 'OK' : HtmlSanitizer::createFromString($error)->sanitize()->getString(),
+], JSON_THROW_ON_ERROR);

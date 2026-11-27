@@ -43,7 +43,9 @@ $cacheClearer = $dependencyInjector[LegacyServiceProvider::CENTREON_LEGACY_CACHE
 $logFailure = static function (string $message, Throwable $exception): void {
     LoggerUpgrade::create()->error(InstalledVersions::getRootPackage()['pretty_version'], $message, $exception);
 };
-$format = static fn (string $message): string => htmlspecialchars((string) preg_replace('/\s+/', ' ', $message));
+$format = static fn (string $message): string => HtmlSanitizer::createFromString((string) preg_replace('/\s+/', ' ', $message))
+    ->sanitize()
+    ->getString();
 
 switch ($_POST['action'] ?? '') {
     case 'list':
@@ -51,11 +53,11 @@ switch ($_POST['action'] ?? '') {
             echo json_encode(['result' => 0, 'modules' => array_map(
                 static fn (Module $module): string => $module->getId(),
                 $moduleService->getOutdated(ModuleSource::TYPE),
-            )]);
+            )], JSON_THROW_ON_ERROR);
         } catch (Throwable $exception) {
             $logFailure('Listing the outdated modules failed', $exception);
             // Not blocking: the modules can be upgraded later from the Extension Manager.
-            echo json_encode(['result' => 0, 'modules' => [], 'warning' => true, 'msg' => $format($exception->getMessage())]);
+            echo json_encode(['result' => 0, 'modules' => [], 'warning' => true, 'msg' => $format($exception->getMessage())], JSON_THROW_ON_ERROR);
         }
 
         break;
@@ -65,19 +67,17 @@ switch ($_POST['action'] ?? '') {
         ob_start();
 
         try {
-            // Never a path from the request: a module directory name only. Possibly already upgraded as a dependency.
+            // Never a path from the request: a module directory name only.
             $module = preg_match('/^[\w-]+$/D', $id) === 1 ? $moduleService->getDetail($id, ModuleSource::TYPE) : null;
             if (! $module instanceof Module) {
                 ob_end_clean();
-                echo json_encode(['result' => 0, 'warning' => true, 'msg' => 'Module not found']);
+                echo json_encode(['result' => 0, 'warning' => true, 'msg' => 'Module not found'], JSON_THROW_ON_ERROR);
 
                 break;
             }
-            if (CentreonModuleService::isOutdated($module)) {
-                $cacheClearer->suspended(static fn () => $moduleService->update($id, ModuleSource::TYPE));
-            }
+            $cacheClearer->suspended(static fn () => $moduleService->updateIfOutdated($id, ModuleSource::TYPE));
             ob_end_clean();
-            echo json_encode(['result' => 0, 'msg' => 'OK']);
+            echo json_encode(['result' => 0, 'msg' => 'OK'], JSON_THROW_ON_ERROR);
         } catch (Throwable $exception) {
             ob_end_clean();
             $logFailure(sprintf('The update of the "%s" module failed', $id), $exception);
@@ -85,21 +85,21 @@ switch ($_POST['action'] ?? '') {
                 'result' => 0,
                 'warning' => true,
                 'msg' => $format('Failed, retry it from the Extension Manager: ' . $exception->getMessage()),
-            ]);
+            ], JSON_THROW_ON_ERROR);
         }
 
         break;
     case 'clearCache':
         try {
             $cacheClearer->clear();
-            echo json_encode(['result' => 0, 'msg' => 'OK']);
+            echo json_encode(['result' => 0, 'msg' => 'OK'], JSON_THROW_ON_ERROR);
         } catch (Throwable $exception) {
             $logFailure('Clearing the cache after updating the modules failed', $exception);
             // Blocking, as the application cache generation always was.
-            echo json_encode(['result' => 1, 'msg' => $format($exception->getMessage())]);
+            echo json_encode(['result' => 1, 'msg' => $format($exception->getMessage())], JSON_THROW_ON_ERROR);
         }
 
         break;
     default:
-        echo json_encode(['result' => 1, 'msg' => 'Unknown action']);
+        echo json_encode(['result' => 1, 'msg' => 'Unknown action'], JSON_THROW_ON_ERROR);
 }

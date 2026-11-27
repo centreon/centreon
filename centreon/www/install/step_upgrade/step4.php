@@ -159,6 +159,9 @@ $template->display('content.tpl');
      *
      * @return void
      */
+    // Refresh replays the modules step: it is offered once the step is over.
+    let engineContextFailed = false;
+
     function finishUpgrade() {
         migrateDatabases(function () {
             generateEngineContextConfiguration(updateModules);
@@ -218,14 +221,14 @@ $template->display('content.tpl');
             onSuccess();
           } else {
             jQuery('td[name="engine.context"]').html("<span style='color:red;'>" + data['msg'] + '</span>');
-            jQuery('#refresh').show();
+            engineContextFailed = true;
             // As before the modules step: the modules and the cache do not depend on it.
             onSuccess();
           }
         },
         function () {
           jQuery('td[name="engine.context"]').html("<span style='color:red;'>Request failed</span>");
-          jQuery('#refresh').show();
+          engineContextFailed = true;
           onSuccess();
         }
       )
@@ -349,6 +352,7 @@ $template->display('content.tpl');
             jQuery('td[name="api.cache"]').html("<span style='color:#88b917;'>" + data['msg'] + '</span>');
             jQuery('#troubleshoot').hide();
             jQuery('#next').show();
+            jQuery('#refresh').toggle(engineContextFailed);
             result = true;
           } else {
             jQuery('td[name="api.cache"]').html("<span style='color:red;'>" + data['msg'] + '</span>');

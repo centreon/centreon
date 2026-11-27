@@ -216,7 +216,7 @@ function runDatabaseMigrations(): ?string
     try {
         (new MigrationLauncher())->migrate();
     } catch (RuntimeException $exception) {
-        return htmlspecialchars($exception->getMessage());
+        return $exception->getMessage();
     }
 
     return null;

@@ -19,6 +19,8 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Adaptation\Log\LoggerUpgrade;
 use Composer\InstalledVersions;
 
@@ -33,7 +35,10 @@ $error = runDatabaseMigrations();
 if ($error === null) {
     // Shown by the last step: the migrations may record a later version than the legacy scripts.
     try {
-        $version = (new CentreonDB())->query("SELECT `value` FROM `informations` WHERE `key` = 'version'")->fetchColumn();
+        $version = (new CentreonDB())->fetchOne(
+            'SELECT `value` FROM `informations` WHERE `key` = :key',
+            QueryParameters::create([QueryParameter::string('key', 'version')])
+        );
         if (is_string($version) && $version !== '') {
             $_SESSION['CURRENT_VERSION'] = $version;
         }
@@ -48,4 +53,4 @@ if ($error === null) {
 
 echo json_encode($error === null
     ? ['result' => 0, 'msg' => "<span style='color:#88b917;'>OK</span>"]
-    : ['result' => 1, 'msg' => "<span style='color:red;'>{$error}</span>"]);
+    : ['result' => 1, 'msg' => "<span style='color:red;'>" . HtmlSanitizer::createFromString($error)->sanitize()->getString() . '</span>'], JSON_THROW_ON_ERROR);
