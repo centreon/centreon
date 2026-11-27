@@ -9,11 +9,28 @@ else
 	SU=su
 fi
 
+# MariaDB when a mariadbd binary exists, MySQL otherwise. The EL distribution
+# packages install the server in /usr/libexec. Keep in sync with
+# sql_fetch_db_binary in mysql-functions.sh.
+_is_mariadb=0
+_DB_NAME="MySQL"
+if command -v mariadbd >/dev/null 2>&1 || [ -x /usr/sbin/mariadbd ] || [ -x /usr/libexec/mariadbd ]; then
+	_is_mariadb=1
+	_DB_NAME="MariaDB"
+fi
+
 # Attempt to detect a default binary
 OCF_RESKEY_binary_default=$(which mysqld_safe 2> /dev/null)
 if [ "$OCF_RESKEY_binary_default" = "" ]; then
 	OCF_RESKEY_binary_default=$(which safe_mysqld 2> /dev/null)
 fi
+# The MySQL packages for systemd ship no mysqld_safe. The server is started
+# with systemctl, so the binary is only checked to exist.
+for _binary in /usr/sbin/mariadbd /usr/libexec/mariadbd /usr/sbin/mysqld /usr/libexec/mysqld; do
+	if [ "$OCF_RESKEY_binary_default" = "" ] && [ -x "$_binary" ]; then
+		OCF_RESKEY_binary_default="$_binary"
+	fi
+done
 
 # Fill in some defaults if no values are specified
 HOSTOS=`uname`
@@ -40,7 +57,13 @@ else
 	OCF_RESKEY_pid_default="/var/run/mysql/mysqld.pid"
 	OCF_RESKEY_socket_default="/var/lib/mysql/mysql.sock"
 fi
-OCF_RESKEY_client_binary_default="mysql"
+# MariaDB 11.0+ warns when its client is called mysql, the only name MySQL
+# ships. The engine decides, as the client options differ.
+if [ "$_is_mariadb" -eq 1 ] && command -v mariadb >/dev/null 2>&1; then
+	OCF_RESKEY_client_binary_default="mariadb"
+else
+	OCF_RESKEY_client_binary_default="mysql"
+fi
 OCF_RESKEY_test_user_default="root"
 OCF_RESKEY_test_table_default="mysql.user"
 OCF_RESKEY_test_passwd_default=""
@@ -97,7 +120,12 @@ MYSQL_BINDIR=`dirname ${OCF_RESKEY_binary}`
 
 MYSQL=$OCF_RESKEY_client_binary
 if ocf_is_true "$OCF_RESKEY_replication_require_ssl"; then
-  MYSQL_OPTIONS_LOCAL_SSL_OPTIONS="--ssl"
+  # the MySQL 8 client has no --ssl option
+  if [ "$_is_mariadb" -eq 1 ]; then
+    MYSQL_OPTIONS_LOCAL_SSL_OPTIONS="--ssl"
+  else
+    MYSQL_OPTIONS_LOCAL_SSL_OPTIONS="--ssl-mode=REQUIRED"
+  fi
 else
   MYSQL_OPTIONS_LOCAL_SSL_OPTIONS=""
 fi
@@ -237,8 +265,37 @@ mysql_common_start()
 {
     local mysql_extra_params="$1"
     local pid
+    local service_name
 
-    systemctl start mariadb
+    # mariadb installs mysql and mysqld aliases, and MySQL is mysqld on EL
+    # and mysql on Debian. Keep in sync with sql_fetch_systemd_service in
+    # mysql-functions.sh: the resource agent only sources files from
+    # OCF_FUNCTIONS_DIR.
+    for service_name in mariadb mysqld mysql; do
+        if systemctl list-unit-files --no-legend "$service_name.service" 2>/dev/null | awk -v unit="$service_name.service" '$1 == unit && $2 !~ /^masked/ { found = 1 } END { exit !found }'; then
+            break
+        fi
+        service_name=""
+    done
+    if [ -z "$service_name" ]; then
+        ocf_exit_reason "Cannot find MariaDB/MySQL systemd service"
+        return $OCF_ERR_INSTALLED
+    fi
+
+    if ! systemctl start "$service_name"; then
+        ocf_exit_reason "Failed to start the $service_name service"
+        return $OCF_ERR_GENERIC
+    fi
+    # Without the pid file, the start would wait for the timeout and leave
+    # an unmanaged server behind. The cause is in the configuration of this
+    # node: OCF_ERR_INSTALLED bans this node only.
+    if [ ! -s "$OCF_RESKEY_pid" ]; then
+        if ! systemctl stop "$service_name"; then
+            ocf_log err "Failed to stop the $service_name service: the server runs unmanaged"
+        fi
+        ocf_exit_reason "The $service_name service did not write $OCF_RESKEY_pid: set the pid parameter to the pid-file of the server"
+        return $OCF_ERR_INSTALLED
+    fi
     pid=$(cat $OCF_RESKEY_pid)
 
     # Spin waiting for the server to come up.
@@ -317,4 +374,89 @@ mysql_common_stop()
     rm -f $OCF_RESKEY_socket
     return $OCF_SUCCESS
 
+}
+
+greater_than_equal_long()
+{
+    # GTID sequence numbers can exceed what the shell's -gt handles
+    local true=$(echo "$1 > $2" | bc)
+    if [ "$true" -eq "1" ]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+gtid_set_valid()
+{
+    # Whether $1 looks like a GTID set: domain-server-sequence for MariaDB;
+    # uuid:interval, or uuid:tag:interval with GTID tags, for MySQL
+    if [ "$_is_mariadb" -eq 1 ] ; then
+        echo "$1" | grep -qE '[0-9]+-[0-9]+-[0-9]+'
+    else
+        echo "$1" | grep -qE '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}:([a-z_][a-z0-9_]*:)?[0-9]+'
+    fi
+}
+
+mysql_gtid_set_count()
+{
+    # Print the number of transactions in a MySQL GTID set, like
+    # "uuid1:1-1000:1005-1010,uuid2[:tag]:1-20" (newlines, raw or printed as
+    # "\n", are ignored). Writes on each new source add its UUID to the set,
+    # so a single UUID cannot tell which node is the most up to date. Without
+    # errant transactions both nodes share one history, so the node that
+    # executed the most transactions is the most up to date.
+    echo "$1" | sed 's/\\n//g' | tr -d ' \n' | awk -F, '
+    {
+        for (i = 1; i <= NF; i++) {
+            n = split($i, parts, ":")
+            for (j = 2; j <= n; j++) {
+                if (parts[j] ~ /^[0-9]+-[0-9]+$/) {
+                    split(parts[j], range, "-")
+                    total += range[2] - range[1] + 1
+                } else if (parts[j] ~ /^[0-9]+$/) {
+                    total += 1
+                }
+            }
+        }
+    }
+    END { printf "%.0f\n", total }'
+}
+
+greater_than_gtid()
+{
+    local gtid1_transaction_id
+    local gtid2_transaction_id
+
+    if [ "$_is_mariadb" -eq 1 ] ; then
+        # MariaDB GTID format: domain-server-sequence
+        gtid1_transaction_id=$(echo $1 | cut -d - -f 3)
+        gtid2_transaction_id=$(echo $2 | cut -d - -f 3)
+    else
+        gtid1_transaction_id=$(mysql_gtid_set_count "$1")
+        gtid2_transaction_id=$(mysql_gtid_set_count "$2")
+    fi
+
+    greater_than_equal_long $gtid1_transaction_id $gtid2_transaction_id
+    return $?
+}
+
+mysql_missing_settings()
+{
+    # $1: gtid_mode/enforce_gtid_consistency/skip_replica_start/log_bin/log_replica_updates
+    # as the server reports them. Prints the required settings that do not
+    # hold, so that the exit reason fits the 128 characters Pacemaker keeps.
+    echo "$1" | awk -F/ '
+    BEGIN {
+        split("gtid_mode=ON enforce_gtid_consistency=ON skip_replica_start=ON log_bin=ON log_replica_updates=ON", name, " ")
+        split("ON ON 1 1 1", want, " ")
+    }
+    {
+        for (i = 1; i <= 5; i++) {
+            if ($i != want[i]) {
+                list = list (list == "" ? "" : ", ") name[i]
+            }
+        }
+        print list
+    }'
 }

@@ -9,5 +9,11 @@ Defaults:MYSQL !requiretty
 MYSQL   ALL = NOPASSWD: /usr/bin/systemctl start mariadb
 MYSQL   ALL = NOPASSWD: /usr/bin/systemctl restart mariadb
 MYSQL   ALL = NOPASSWD: /usr/bin/systemctl stop mariadb
+MYSQL   ALL = NOPASSWD: /usr/bin/systemctl start mysqld
+MYSQL   ALL = NOPASSWD: /usr/bin/systemctl restart mysqld
+MYSQL   ALL = NOPASSWD: /usr/bin/systemctl stop mysqld
+MYSQL   ALL = NOPASSWD: /usr/bin/systemctl start mysql
+MYSQL   ALL = NOPASSWD: /usr/bin/systemctl restart mysql
+MYSQL   ALL = NOPASSWD: /usr/bin/systemctl stop mysql
 
 ## END: CENTREON SUDO

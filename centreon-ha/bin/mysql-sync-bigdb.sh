@@ -35,12 +35,12 @@ cmd_line $*
 # minimum Go
 VG_FREESIZE_NEEDED=1
 STOP_TIMEOUT=60
+# Longer than the default connect retry (60s) of the replica threads
+REPLICATION_TIMEOUT=120
 SNAPSHOT_MOUNT_PATH="/mnt/"
 USER="mysql"
 USER_SUDO="sudo -u $USER"
-MYSQLBINARY="mariadbd"
-MYSQLADMIN="mysqladmin"
-MYSQL_START="systemctl start mariadb"
+MYSQLADMIN="$SQL_ADMIN"
 SUDO_MYSQL_START_SLAVE="sudo"
 SSH_PORT="22"
 RSYNC_EXTRA_OPTIONS="--checksum"
@@ -61,91 +61,42 @@ if [ "$?" -ne "0" ] ; then
 fi
 
 ###
-# Check MySQL launch
+# Get DB parameters
 ###
-process=$(ps -o args --no-headers -C ${MYSQLBINARY})
-started=0
+if ! sql_fetch_db_config ; then
+    echo "ERROR: Cannot find the MariaDB/MySQL configuration." >&2
+    exit 1
+fi
+sql_fetch_systemd_service
 
-###
-# Find datadir
-###
-if [ -n "$process" ] ; then
-    datadir=$(echo "$process" | awk '{ for (i = 1; i < NF; i++) { if (match($i, "--datadir")) { print $i } } }' | awk -F\= '{ print $2 }')
-    etc_file=$(echo "$process" | awk '{ for (i = 1; i < NF; i++) { if (match($i, "--defaults-file")) { print $i } } }' | awk -F\= '{ print $2 }')
-    logbin=$(echo "$process" | awk '{ for (i = 1; i < NF; i++) { if (match($i, "--log-bin")) { print $i } } }' | awk -F\= '{ print $1 }')
-    logbin_path=$(echo "$process" | awk '{ for (i = 1; i < NF; i++) { if (match($i, "--log-bin")) { print $i } } }' | awk -F\= '{ print $2 }')
-    pidname=$(echo "$process" | awk '{ for (i = 1; i < NF; i++) { if (match($i, "--pid-file")) { print $i } } }' | awk -F\= '{ print $2 }')
-    relaylog=$(echo "$process" | awk '{ for (i = 1; i < NF; i++) { if (match($i, "--relay-log")) { print $i } } }' | awk -F\= '{ print $1 }')
-    relaylog_path=$(echo "$process" | awk '{ for (i = 1; i < NF; i++) { if (match($i, "--relay-log")) { print $i } } }' | awk -F\= '{ print $2 }')
-    started=1
+if [ -z "$SQL_SYSTEMD_SERVICE" ] ; then
+    echo "Cannot find MariaDB/MySQL systemd service." >&2
+    exit 1
 fi
 
-if [ -n "$etc_file" ] ; then
-    mariadbd_options=$($MYSQLBINARY --print-defaults --defaults-file="$etc_file")
-else
-    mariadbd_options=$($MYSQLBINARY --print-defaults)
-fi
-mariadbd_options=$(echo $mariadbd_options | awk '{ for (i = 1; i < NF; i++) { print $i } }')
-
-if [ -z "$datadir" ] ; then
-    datadir=$(echo "$mariadbd_options" | grep -E '^--datadir=' | awk -F\= '{ print $2; exit 0 }')
-fi
-
-if [ -z "$datadir" ] ; then
+if [ -z "$SQL_CONF_DATADIR" ] ; then
     echo "ERROR: Can't find MySQL datadir." >&2
     exit 1
 fi
-### Avoid datadir is a symlink (get the absolute path)
-datadir=$(cd "$datadir"; pwd -P)
 
-if [ -z "$pidname" ] ; then
-    pidname=$(echo "$mariadbd_options" | grep -E '^--pid-file=' | awk -F\= '{ print $2; exit 0 }')
-fi
-if [ -z "$pidname" ] ; then
-    pidname=$(hostname | cut -d '.' -f 1)
-else
-    pidname=$(basename "$pidname" | cut -d '.' -f 1)
-fi
-
-if [ -z "$logbin" ] ; then
-    logbin=$(echo "$mariadbd_options" | grep -E '^--log-bin=' | awk -F\= '{ print $1 }')
-    logbin_path=$(echo "$mariadbd_options" | grep -E '^--log-bin=' | awk -F\= '{ print $2 }')
-fi
-if [ -z "$logbin" ] ; then
-    echo "'log-bin' option not found. Can't sync."
+if [ -z "$SQL_CONF_LOG_BIN_ARG" ] ; then
+    echo "'log-bin' option not found. Can't sync." >&2
     exit 1
-else
-    if [ -n "$logbin_path" ] ; then
-        logbin_files=$(basename "$logbin_path")
-        logbin_loc=$(dirname "$logbin_path")
-    else
-        logbin_files="$pidname-bin"
-    fi
-    if [ -z "$logbin_loc" ] || [ "$logbin_loc" = "." ] ; then
-        logbin_loc="$datadir"
-    fi
 fi
 
-if [ -z "$relaylog" ] ; then
-    relaylog=$(echo "$mariadbd_options" | grep -E '^--relay-log=' | awk -F\= '{ print $1 }')
-    relaylog_path=$(echo "$mariadbd_options" | grep -E '^--relay-log=' | awk -F\= '{ print $2 }')
-fi
-if [ -z "$relaylog" ] ; then
-    relaylog_loc="$datadir"
-    relaylog_files="$pidname-relay-bin"
-else
-    if [ -n "$relaylog_path" ] ; then
-        relaylog_files=$(basename "$relaylog_path")
-        relaylog_loc=$(dirname "$relaylog_path")
-    else
-        relaylog_files="$pidname-relay-bin" 
-    fi
-    if [ -z "$relaylog_loc" ] ; then
-        relaylog_loc="$datadir"
-    fi
+logbin_files=$(basename "$SQL_CONF_LOG_BIN")
+logbin_loc=$(dirname "$SQL_CONF_LOG_BIN")
+if [ -z "$logbin_loc" ] || [ "$logbin_loc" = "." ] ; then
+    logbin_loc="$SQL_CONF_DATADIR"
 fi
 
-echo "MySQL datadir found: $datadir"
+relaylog_files=$(basename "$SQL_CONF_RELAY_LOG")
+relaylog_loc=$(dirname "$SQL_CONF_RELAY_LOG")
+if [ -z "$relaylog_loc" ] || [ "$relaylog_loc" = "." ] ; then
+    relaylog_loc="$SQL_CONF_DATADIR"
+fi
+
+echo "MySQL datadir found: $SQL_CONF_DATADIR"
 echo "MySQL logbin files: $logbin_files"
 echo "MySQL logbin localisation: $logbin_loc"
 echo "MySQL relaylog files: $relaylog_files"
@@ -154,8 +105,8 @@ echo "MySQL relaylog localisation: $relaylog_loc"
 ###
 # Get mount datadir
 ###
-mount_device=$(df -P "$datadir" | tail -1 | awk '{ print $1 }')
-mount_point=$(df -P "$datadir" | tail -1 | awk '{ print $6 }')
+mount_device=$(df -P "$SQL_CONF_DATADIR" | tail -1 | awk '{ print $1 }')
+mount_point=$(df -P "$SQL_CONF_DATADIR" | tail -1 | awk '{ print $6 }')
 if [ -z "$mount_device" ] ; then
     echo "ERROR: Can't get mount device for datadir." >&2
     exit 1
@@ -207,6 +158,12 @@ if [ "$?" -eq 1 ] ; then
     echo "ERROR: Not enough free space in the VolumeGroup." >&2
     exit 1
 fi
+# Fail before stopping the master: the exit handler would remove a snapshot
+# that this run did not create
+if lvs "$vg_name/dbbackupdatadir" > /dev/null 2>&1 ; then
+    echo "ERROR: The snapshot '$vg_name/dbbackupdatadir' of an earlier run exists: check that no sync runs, then remove it with 'lvremove $vg_name/dbbackupdatadir'." >&2
+    exit 1
+fi
 
 ###
 # Check slave server stopped
@@ -215,12 +172,12 @@ fi
 slave_hostname=$(get_other_db_hostname)
 master_hostname=$(get_other_db_hostname $slave_hostname)
 echo "Connection to slave Server (verify mysql stopped): $slave_hostname"
-result=$($USER_SUDO ssh -p $SSH_PORT $slave_hostname 'if ps --no-headers -C '"$MYSQLBINARY"' >/dev/null; then echo "yes" ; else echo "no"; fi')
+result=$($USER_SUDO ssh -p $SSH_PORT $slave_hostname 'if ps --no-headers -C mariadbd,mysqld >/dev/null; then echo "yes" ; else echo "no"; fi')
 if [ "$result" != "no" ] ; then
     echo "ERROR: MySQL is launched or problem to connect to the server." >&2
     exit 1
 fi
-if [ "$started" -eq 0 ] ; then
+if [ "$SQL_IS_RUNNING" -eq 0 ] ; then
     echo "ERROR: MySQL master is not started." >&2
     exit 1
 fi
@@ -229,19 +186,80 @@ fi
 ############# END SANITY CHECK
 #############
 
-gtid_current_pos=$(mysql -B -N -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" -e 'SET GLOBAL read_only = ON; SELECT @@gtid_current_pos')
-if ! echo "$gtid_current_pos" | grep -qE '[0-9]+-[0-9]+-[0-9]+' ; then
-    mysql -B -N -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" -e 'SET GLOBAL read_only = OFF;'
-    echo "ERROR: cannot get gtid current pos"
+restore_master_writable() {
+    if "$SQL_CLIENT" -B -N --connect-timeout=10 -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" -e 'SET GLOBAL read_only = OFF' ; then
+        echo "The master '$master_hostname' is writable again." >&2
+    elif "$MYSQLADMIN" --connect-timeout=10 -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" ping > /dev/null 2>&1 ; then
+        echo "ERROR: Can't make the master '$master_hostname' writable again: run 'SET GLOBAL read_only = OFF' on it." >&2
+    else
+        echo "ERROR: The master '$master_hostname' is stopped or stopping: start it with 'systemctl start $SQL_SYSTEMD_SERVICE'." >&2
+    fi
+}
+SNAPSHOT_DATADIR_MOUNT="$SNAPSHOT_MOUNT_PATH/snap-dbbackupdatadir"
+
+remove_snapshot() {
+    if mountpoint -q "$SNAPSHOT_DATADIR_MOUNT" && ! umount "$SNAPSHOT_DATADIR_MOUNT" ; then
+        echo "ERROR: Can't unmount the snapshot: run 'umount $SNAPSHOT_DATADIR_MOUNT; lvremove /dev/$vg_name/dbbackupdatadir'" >&2
+        return 1
+    fi
+    if ! lvremove -f /dev/$vg_name/dbbackupdatadir ; then
+        echo "ERROR: Can't remove the snapshot: run 'lvremove /dev/$vg_name/dbbackupdatadir'" >&2
+        return 1
+    fi
+}
+
+# On any exit before the end of the copy, make the master writable again and
+# remove the snapshot. A second interrupt must not stop this cleanup, nor a
+# closed output (SIGPIPE) when the ssh session running the script drops.
+master_readonly=0
+snapshot_created=0
+cleanup_on_exit() {
+    trap '' INT TERM HUP PIPE
+    if [ "$master_readonly" -eq 1 ] ; then
+        restore_master_writable
+    fi
+    if [ "$snapshot_created" -eq 1 ] ; then
+        remove_snapshot
+    fi
+}
+trap cleanup_on_exit EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+trap 'exit 129' HUP
+trap 'exit 141' PIPE
+
+master_readonly=1
+
+if [ "$SQL_IS_MARIADB" -eq 1 ] ; then
+    gtid_current_pos=$("$SQL_CLIENT" -B -N -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" -e 'SET GLOBAL read_only = ON; SELECT @@gtid_current_pos')
+else
+    # mysql -B prints the newlines of gtid_executed as a literal \n: strip them.
+    # super_read_only also blocks the CONNECTION_ADMIN sessions that read_only
+    # lets write, so that the copy matches the GTID set. Setting read_only=OFF
+    # clears it.
+    gtid_current_pos=$("$SQL_CLIENT" -B -N -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" -e "SET GLOBAL super_read_only = ON; SELECT REPLACE(@@gtid_executed, '\n', '')")
+fi
+if [ "$SQL_IS_MARIADB" -eq 1 ] ; then
+    _gtid_pattern='[0-9]+-[0-9]+-[0-9]+'
+else
+    # uuid:interval, or uuid:tag:interval with GTID tags
+    _gtid_pattern='[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}:([a-z_][a-z0-9_]*:)?[0-9]+'
+fi
+if ! echo "$gtid_current_pos" | grep -qE "$_gtid_pattern" ; then
+    echo "ERROR: Can't make the master read-only or read its GTID set." >&2
     exit 1
 fi
 
 echo "gtid_current_pos = " $gtid_current_pos
 
 i=0
-echo -n "Stopping $MYSQLBINARY:"
-$MYSQLADMIN -f -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" shutdown
-while ps -o args --no-headers -C $MYSQLBINARY >/dev/null; do
+echo -n "Stopping $SQL_DB_BINARY:"
+if ! "$MYSQLADMIN" -f -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" shutdown ; then
+    echo ""
+    echo "ERROR: Can't stop MySQL Server" >&2
+    exit 1
+fi
+while ps -o args --no-headers -C "$SQL_DB_BINARY" >/dev/null; do
     if [ "$i" -gt "$STOP_TIMEOUT" ] ; then
         echo ""
         echo "ERROR: Can't stop MySQL Server" >&2
@@ -257,20 +275,25 @@ echo "OK"
 # Do snapshot
 ###
 echo "Create LVM snapshot"
-if [ "$lv_name_logbin" != "$lv_name" ] ; then
-    lvcreate -l $(($free_pe / 2)) -s -n dbbackupdatadir $lv_name
-    lvcreate -l $(($free_pe / 2)) -s -n dbbackuplogbin $lv_name_logbin
-else
-    lvcreate -l $free_pe -s -n dbbackupdatadir $lv_name
+# Set before lvcreate, so that an interrupt cannot leave the snapshot behind:
+# no snapshot of that name existed before
+snapshot_created=1
+snapshot_failed=0
+if ! lvcreate -l $free_pe -s -n dbbackupdatadir $lv_name ; then
+    echo "ERROR: Can't create the LVM snapshot" >&2
+    snapshot_failed=1
+    if ! lvs "$vg_name/dbbackupdatadir" > /dev/null 2>&1 ; then
+        snapshot_created=0
+    fi
 fi
 
 ###
 # Start server
 ###
-echo "Start $MYSQLBINARY: ($MYSQL_START)"
-$MYSQL_START &
+echo "Start $SQL_DB_BINARY: (systemctl start $SQL_SYSTEMD_SERVICE)"
+systemctl start "$SQL_SYSTEMD_SERVICE" &
 i=0
-until mysqlshow -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" > /dev/null 2>&1; do
+until "$SQL_SHOW" -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" > /dev/null 2>&1; do
     if [ "$i" -gt "$STOP_TIMEOUT" ] ; then
         echo ""
         echo "ERROR: Can't start MySQL server" >&2
@@ -287,20 +310,30 @@ echo "OK"
 ###
 
 echo "Remove read_only on master"
-mysql -f -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" -e "SET GLOBAL read_only=off"
+if ! "$SQL_CLIENT" -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" -e "SET GLOBAL read_only=off" ; then
+    echo "ERROR: Can't remove read_only on master" >&2
+    exit 1
+fi
+master_readonly=0
+if [ "$snapshot_failed" -eq 1 ] ; then
+    exit 1
+fi
 
 ###
 # Mount snapshot
 ###
 
 echo "Mount LVM snapshot"
-SNAPSHOT_DATADIR_MOUNT="$SNAPSHOT_MOUNT_PATH/snap-dbbackupdatadir"
 mkdir -p "$SNAPSHOT_DATADIR_MOUNT"
-TYPEFS_BACKUP=$(df -T "$datadir" | tail -1 | awk -F' ' '{print $(NF-5)}')
+TYPEFS_BACKUP=$(df -T "$SQL_CONF_DATADIR" | tail -1 | awk -F' ' '{print $(NF-5)}')
 [ "$TYPEFS_BACKUP"  = "xfs" ] && MNTOPTIONS="-o nouuid"
-mount $MNTOPTIONS /dev/$vg_name/dbbackupdatadir "$SNAPSHOT_DATADIR_MOUNT"
+# rsync --delete from an empty mount point would empty the replica
+if ! mount $MNTOPTIONS /dev/$vg_name/dbbackupdatadir "$SNAPSHOT_DATADIR_MOUNT" ; then
+    echo "ERROR: Can't mount the LVM snapshot" >&2
+    exit 1
+fi
 
-concat_datadir=$(echo "$datadir" | sed "s#^${mount_point}##")
+concat_datadir=$(echo "$SQL_CONF_DATADIR" | sed "s#^${mount_point}##")
 
 ###
 # Delete from other side
@@ -313,38 +346,61 @@ $USER_SUDO ssh -p $SSH_PORT $slave_hostname "rm -f \"${logbin_loc}/${logbin_file
 # Rsync
 ###
 
-echo "Rsync in progress (exclude MySQL, ${logbin_files}, ${relaylog_files})"
-rsync -av $RSYNC_EXTRA_OPTIONS --delete --progress --exclude="mysql" --exclude="${pidname}.pid" --exclude="${logbin_files}*" --exclude="${relaylog_files}*" --exclude="auto.cnf" --exclude=".ssh/*" "$SNAPSHOT_DATADIR_MOUNT/$concat_datadir/" -e "$USER_SUDO ssh -p $SSH_PORT" $slave_hostname:$datadir/
+abort_copy() {
+    # Leave the slave stopped: setting up the replication on a partial copy
+    # would mark the master's transactions as executed without their data.
+    # The exit handler removes the snapshot.
+    echo "ERROR: The copy to '$slave_hostname' is incomplete. Its database is left stopped: do not start it, nor let Pacemaker manage it, before mysql-sync-bigdb.sh succeeds." >&2
+    exit 1
+}
 
-mysql_ibd_system=''
-for file in $(ls "$SNAPSHOT_DATADIR_MOUNT/$concat_datadir/mysql/"*.ibd); do
-    filename=$(basename $file | sed 's/\.ibd//')
-    mysql_ibd_system="$mysql_ibd_system \"$SNAPSHOT_DATADIR_MOUNT/$concat_datadir/mysql/$filename.ibd\" \"$SNAPSHOT_DATADIR_MOUNT/$concat_datadir/mysql/$filename.frm\""
+echo "Rsync in progress (exclude MySQL, ${logbin_files}, ${relaylog_files})"
+# The packages leave root-owned markers of their version in the datadir
+# (debian-*.flag, *_upgrade_info): each node keeps its own, and rsync,
+# running as mysql, cannot update them
+rsync -av $RSYNC_EXTRA_OPTIONS --delete --progress --exclude="mysql" --exclude="debian-*.flag" --exclude="mariadb_upgrade_info" --exclude="mysql_upgrade_info" --exclude="${SQL_CONF_PID_FILE}.pid" --exclude="${logbin_files}*" --exclude="${relaylog_files}*" --exclude="auto.cnf" --exclude="mysqld-auto.cnf" --exclude=".ssh/*" "$SNAPSHOT_DATADIR_MOUNT/$concat_datadir/" -e "$USER_SUDO ssh -p $SSH_PORT" $slave_hostname:$SQL_CONF_DATADIR/ || abort_copy
+
+mysql_ibd_system=()
+# MySQL keeps its system tables in mysql.ibd, copied above: mysql/ has no .ibd
+for file in "$SNAPSHOT_DATADIR_MOUNT/$concat_datadir/mysql/"*.ibd; do
+    [ -e "$file" ] || continue
+    mysql_ibd_system+=("$file")
+    # rsync fails on a missing source file
+    if [ -f "${file%.ibd}.frm" ] ; then
+        mysql_ibd_system+=("${file%.ibd}.frm")
+    fi
 done
-if [ -n "$mysql_ibd_system" ] ; then
-    eval rsync -av $RSYNC_EXTRA_OPTIONS --progress $mysql_ibd_system -e \"\$USER_SUDO ssh -p $SSH_PORT\" \$slave_hostname:\"\$datadir/mysql/\"
+if [ "${#mysql_ibd_system[@]}" -gt 0 ] ; then
+    rsync -av $RSYNC_EXTRA_OPTIONS --progress "${mysql_ibd_system[@]}" -e "$USER_SUDO ssh -p $SSH_PORT" "$slave_hostname:$SQL_CONF_DATADIR/mysql/" || abort_copy
 fi
 
 # Mode Fastest. Uncomment this and comment line above
-#rsync -av --delete --progress --exclude="*.MYI" --exclude="*.MYD" --exclude="mysql" --exclude="${pidname}.pid" --exclude="${logbin_files}*" --exclude="${relaylog_files}*" --exclude=".ssh/*" "$SNAPSHOT_DATADIR_MOUNT/$concat_datadir/" -e "$USER_SUDO ssh -p $SSH_PORT" $slave_hostname:$datadir/
-#rsync -av --size-only --delete --progress --include='*/' --exclude="mysql" --include='*.MYI' --include='*.MYD' --exclude='*' --exclude=".ssh/*" "$SNAPSHOT_DATADIR_MOUNT/$concat_datadir/" -e "ssh -i /var/lib/mysql/.ssh/id_rsa -p $SSH_PORT" $USER@$slave_hostname:$datadir/
+#rsync -av --delete --progress --exclude="*.MYI" --exclude="*.MYD" --exclude="mysql" --exclude="${SQL_CONF_PID_FILE}.pid" --exclude="${logbin_files}*" --exclude="${relaylog_files}*" --exclude=".ssh/*" "$SNAPSHOT_DATADIR_MOUNT/$concat_datadir/" -e "$USER_SUDO ssh -p $SSH_PORT" $slave_hostname:$SQL_CONF_DATADIR/
+#rsync -av --size-only --delete --progress --include='*/' --exclude="mysql" --include='*.MYI' --include='*.MYD' --exclude='*' --exclude=".ssh/*" "$SNAPSHOT_DATADIR_MOUNT/$concat_datadir/" -e "ssh -i /var/lib/mysql/.ssh/id_rsa -p $SSH_PORT" $USER@$slave_hostname:$SQL_CONF_DATADIR/
 
 ###
 # Suppression du snapshot
 ###
 
 echo "Umount and Delete LVM snapshot"
-umount "$SNAPSHOT_DATADIR_MOUNT"
-lvremove -f /dev/$vg_name/dbbackupdatadir
+# On a failure, the snapshot stays for the exit handler to retry
+snapshot_status=0
+if remove_snapshot ; then
+    snapshot_created=0
+else
+    snapshot_status=1
+fi
 
 ###
 # Demarrer le serveur slave
 ###
 
 echo "Start MySQL Slave"
-$USER_SUDO ssh -p $SSH_PORT $slave_hostname -- "$SUDO_MYSQL_START_SLAVE $MYSQL_START &"
+# SQL_SYSTEMD_SERVICE and SQL_IS_MARIADB come from this node: both nodes must
+# run the same engine on the same distribution
+$USER_SUDO ssh -p $SSH_PORT $slave_hostname -- "$SUDO_MYSQL_START_SLAVE systemctl start '$SQL_SYSTEMD_SERVICE' &"
 i=0
-until mysqlshow -u "$DBROOTUSER" -h "$slave_hostname" -p"$DBROOTPASSWORD" > /dev/null 2>&1; do
+until "$SQL_SHOW" -u "$DBROOTUSER" -h "$slave_hostname" -p"$DBROOTPASSWORD" > /dev/null 2>&1; do
         if [ "$i" -gt "$STOP_TIMEOUT" ] ; then
                 echo ""
                 echo "ERROR: Can't start MySQL server" >&2
@@ -360,15 +416,81 @@ echo "OK"
 # Demarrer la replication
 ###
 echo "Start Replication"
-mysql -f -u "$DBROOTUSER" -h "$slave_hostname" -p"$DBROOTPASSWORD" << EOF
-RESET MASTER;
+if [ "$SQL_IS_MARIADB" -eq 1 ] ; then
+    reset_sql="RESET MASTER;
 STOP SLAVE;
-RESET SLAVE;
-SET GLOBAL gtid_slave_pos = '$gtid_current_pos';
+RESET SLAVE;"
+    replication_sql="SET GLOBAL gtid_slave_pos = '$gtid_current_pos';
 CHANGE MASTER TO MASTER_HOST='$master_hostname', MASTER_USER='$DBREPLUSER', MASTER_PASSWORD='$DBREPLPASSWORD', master_use_gtid=slave_pos;
 START SLAVE;
-show processlist;
-quit
-EOF
+SHOW PROCESSLIST;"
+    status_sql="SHOW SLAVE STATUS\G"
+    io_running_field="Slave_IO_Running"
+    sql_running_field="Slave_SQL_Running"
+else
+    reset_sql="STOP REPLICA;
+RESET REPLICA ALL;
+RESET BINARY LOGS AND GTIDS;"
+    # SOURCE_SSL=1: caching_sha2_password (the default plugin) needs a
+    # secure connection whenever the source has not cached the password
+    # yet, e.g. after a restart
+    replication_sql="SET GLOBAL gtid_purged = '$gtid_current_pos';
+CHANGE REPLICATION SOURCE TO SOURCE_HOST='$master_hostname', SOURCE_USER='$DBREPLUSER', SOURCE_PASSWORD='$DBREPLPASSWORD', SOURCE_AUTO_POSITION=1, SOURCE_SSL=1;
+START REPLICA;
+SHOW PROCESSLIST;"
+    status_sql="SHOW REPLICA STATUS\G"
+    io_running_field="Replica_IO_Running"
+    sql_running_field="Replica_SQL_Running"
+fi
+# The datadir copied from the master can hold a stale replication
+# configuration that makes the reset statements fail: keep going (-f), the
+# next step fails if the reset was incomplete
+if ! reset_output=$("$SQL_CLIENT" -f -u "$DBROOTUSER" -h "$slave_hostname" -p"$DBROOTPASSWORD" <<< "$reset_sql" 2>&1) ; then
+    echo "WARNING: The reset of the replication reported errors, ignored as the setup below fails if it is incomplete:" >&2
+    echo "$reset_output" >&2
+fi
+# No -f: never start the replication on a partial setup
+if ! "$SQL_CLIENT" -u "$DBROOTUSER" -h "$slave_hostname" -p"$DBROOTPASSWORD" <<< "$replication_sql" ; then
+    echo "ERROR: Can't start the replication on '$slave_hostname'." >&2
+    exit 1
+fi
 
-exit 0
+# START SLAVE/REPLICA returns before the threads connect: wait until they run
+# without error for a few seconds, so that the first events are applied
+echo -n "Wait for the replication threads:"
+i=0
+running=0
+while : ; do
+    if replica_status=$("$SQL_CLIENT" -u "$DBROOTUSER" -h "$slave_hostname" -p"$DBROOTPASSWORD" -e "$status_sql") ; then
+        if echo "$replica_status" | grep -qE "^ *${io_running_field}: Yes$" \
+            && echo "$replica_status" | grep -qE "^ *${sql_running_field}: Yes$" \
+            && echo "$replica_status" | grep -qE "^ *Last_IO_Errno: 0$" \
+            && echo "$replica_status" | grep -qE "^ *Last_SQL_Errno: 0$" ; then
+            running=$(($running + 1))
+            if [ "$running" -ge 3 ] ; then
+                break
+            fi
+        else
+            running=0
+        fi
+    else
+        replica_status=""
+        running=0
+    fi
+    if [ "$i" -gt "$REPLICATION_TIMEOUT" ] ; then
+        echo ""
+        if [ -z "$replica_status" ] ; then
+            echo "ERROR: Can't read the replication status on '$slave_hostname'." >&2
+        else
+            echo "ERROR: The replication does not run on '$slave_hostname':" >&2
+            echo "$replica_status" | grep -E "^ *(${io_running_field}|${sql_running_field}|Last_IO_Error|Last_SQL_Error):" >&2
+        fi
+        exit 1
+    fi
+    echo -n "."
+    sleep 1
+    i=$(($i + 1))
+done
+echo "OK"
+
+exit $snapshot_status

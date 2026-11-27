@@ -64,18 +64,25 @@ contents:
       mode: 0755
 
   # ocf-scripts (0755 root:root)
-  - src: "../ocf-scripts/mariadb-centreon"
+  - src: "../ocf-scripts/db-centreon"
+    dst: "/usr/lib/ocf/resource.d/heartbeat/db-centreon"
+    file_info:
+      owner: "root"
+      group: "root"
+      mode: 0755
+  # The previous name of the agent, used by existing clusters
+  - src: "db-centreon"
     dst: "/usr/lib/ocf/resource.d/heartbeat/mariadb-centreon"
+    type: symlink
+  - src: "../ocf-scripts/db-centreon-common.sh"
+    dst: "/usr/lib/ocf/lib/heartbeat/db-centreon-common.sh"
     file_info:
       owner: "root"
       group: "root"
       mode: 0755
-  - src: "../ocf-scripts/mariadb-centreon-common.sh"
+  - src: "db-centreon-common.sh"
     dst: "/usr/lib/ocf/lib/heartbeat/mariadb-centreon-common.sh"
-    file_info:
-      owner: "root"
-      group: "root"
-      mode: 0755
+    type: symlink
 
 scripts:
   postinstall: ./scripts/centreon-ha-common-postinst.sh
