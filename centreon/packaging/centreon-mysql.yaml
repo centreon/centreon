@@ -54,7 +54,7 @@ overrides:
       - centreon-mariadb
 
 rpm:
-  summary: Centreon Databases
+  summary: MySQL server configured for Centreon
   compression: zstd
   signature:
     key_file: ${RPM_SIGNING_KEY_FILE}
