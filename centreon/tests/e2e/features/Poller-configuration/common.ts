@@ -181,23 +181,77 @@ const assertPollerIsRunning = (name: string): void => {
     .should('exist');
 };
 
+// Engine of the Central started with its log file given as an argument: the
+// extended configuration (-c) overrides log_file only
+const engineConfigurationFile = '/etc/centreon-engine/centengine.cfg';
+const engineDefaultLogFile = '/var/log/centreon-engine/centengine.log';
+const engineArgumentLogFile =
+  '/var/log/centreon-engine/rbt-log-argument/centengine.log';
+const engineExtendedConfigurationFile =
+  '/var/lib/centreon-engine/rbt-log-argument.json';
+
+const buildEngineLogOptionsCommand = (): string =>
+  `grep -E '^(log_v2_enabled|log_v2_logger|log_file|log_pid|log_file_line)=' ${engineConfigurationFile} || true`;
+
+const parseEngineOptions = (output: string): Record<string, string> =>
+  Object.fromEntries(
+    output
+      .split('\n')
+      .map((line) => line.trim().match(/^([a-z_0-9]+)=(.*)$/))
+      .filter((match): match is RegExpMatchArray => match !== null)
+      .map(([, key, value]) => [key, value.trim()])
+  );
+
+const buildStartEngineWithLogFileCommand = (): string =>
+  [
+    `mkdir -p $(dirname ${engineArgumentLogFile})`,
+    `chown centreon-engine: $(dirname ${engineArgumentLogFile})`,
+    `printf '{"log_file": "%s"}\\n' '${engineArgumentLogFile}' > ${engineExtendedConfigurationFile}`,
+    `chown centreon-engine: ${engineExtendedConfigurationFile}`,
+    'systemctl stop centengine > /dev/null',
+    'for i in $(seq 1 60); do pgrep -x centengine > /dev/null || break; sleep 1; done',
+    '! pgrep -x centengine > /dev/null',
+    `su centreon-engine -s /bin/bash -c 'setsid nohup /usr/sbin/centengine -c ${engineExtendedConfigurationFile} ${engineConfigurationFile} > /dev/null 2>&1 < /dev/null &'`
+  ].join(' && ');
+
+// "[time] [logger] [level] [file:line] [pid] message", the source position
+// and the pid being written only when log_file_line and log_pid are set
+const buildEngineLogLineRegExp = ({
+  filePosition,
+  pid
+}: {
+  filePosition: boolean;
+  pid: number | null;
+}): RegExp =>
+  new RegExp(
+    `^\\[[^\\]]+\\] \\[[a-z_]+\\] \\[[a-z]+\\]${
+      filePosition ? ' \\[[^\\]\\s]+:\\d+\\]' : ''
+    }${pid === null ? '' : ` \\[${pid}\\]`} \\S`
+  );
+
 export {
   assertPollerIsRunning,
   breakSomePollers,
   buildDeleteInstanceByNameQuery,
   buildDeletePollerByNameQuery,
+  buildEngineLogLineRegExp,
+  buildEngineLogOptionsCommand,
   buildInsertPollerQuery,
   buildInsertRunningInstanceQuery,
+  buildStartEngineWithLogFileCommand,
   checkIfConfigurationIsNotExported,
   checkIfMethodIsAppliedToPollers,
   clearCentengineLogs,
   duplicatedPollerInstanceId,
   duplicatedPollerName,
+  engineArgumentLogFile,
+  engineDefaultLogFile,
   getPoller,
   insertHost,
   insertPollerConfigUserAcl,
   legacyPollerName,
   legacyPollerUid,
+  parseEngineOptions,
   pollerName,
   pollerUid,
   registerRunningInstance,

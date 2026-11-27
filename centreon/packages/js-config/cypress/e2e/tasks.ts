@@ -277,6 +277,23 @@ export default (on: Cypress.PluginEvents): void => {
 
       return null;
     },
+    // Stop then start one service of the compose stack (e.g. the database)
+    // without removing it. Docker may map its ports to new host ports when it
+    // starts again: reach it from another container of the stack afterwards.
+    stopComposeService: async ({ name }: StopContainerProps) => {
+      const { dockerode } = (await getContainerRuntimeClient()).container;
+
+      await dockerode.getContainer(getContainer(name).getId()).stop();
+
+      return null;
+    },
+    startComposeService: async ({ name }: StopContainerProps) => {
+      const { dockerode } = (await getContainerRuntimeClient()).container;
+
+      await dockerode.getContainer(getContainer(name).getId()).start();
+
+      return null;
+    },
     stopContainers: async () => {
       if (dockerEnvironment !== null) {
         await dockerEnvironment.down({ timeout: 0 });

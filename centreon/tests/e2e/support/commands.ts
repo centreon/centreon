@@ -5,6 +5,7 @@ import '../../../packages/js-config/cypress/e2e/commands';
 import { refreshButton } from '../features/Resources-status/common';
 import '../features/ACLs/commands';
 import '../features/Api-Token/commands';
+import '../features/Broker/commands';
 import '../features/Dashboards/commands';
 import '../features/Resources-Access-Management/commands';
 import '../features/Backup-configuration/commands';
