@@ -7,6 +7,7 @@ import { checkIfConfigurationIsExported, insertFixture } from '../../commons';
 const dateBeforeLogin = new Date();
 
 const localPackageDirectory = 'fixtures/packages';
+const outdatedModule = 'centreon-e2e-outdated';
 const containerPackageDirectory = '/tmp/packages-update-centreon';
 
 const getCentreonPreviousMajorVersion = (majorVersionFrom: string): string => {
@@ -579,6 +580,18 @@ When('administrator updates packages to current version', () => {
   updatePlatformPackages();
 });
 
+When('a module is outdated', () => {
+  cy.copyToContainer({
+    destination: `/usr/share/centreon/www/modules/${outdatedModule}`,
+    source: `./fixtures/modules/${outdatedModule}`,
+    type: CopyToContainerContentType.Directory
+  });
+  cy.requestOnDatabase({
+    database: 'centreon',
+    query: `INSERT INTO modules_informations (name, rname, mod_release, is_removeable, infos, author, svc_tools, host_tools) VALUES ('${outdatedModule}', 'E2E outdated module', '1.0.0', '1', '', 'Centreon', '0', '0')`
+  });
+});
+
 When('administrator runs the update procedure', () => {
   prepareUpdateFileForUpgrade().then(() => {
     cy.visit('/');
@@ -708,7 +721,9 @@ Then('every database migration should be executed', () => {
     const pending = [...output.matchAll(/Pending\s+(\S+)/g)].map(
       ([, value]) => value
     );
-    expect(pending).to.deep.equal(['-', '-']);
+    // The core sets, and those of the modules shipping migrations.
+    expect(pending).not.to.be.empty;
+    pending.forEach((value) => expect(value).to.equal('-'));
   });
 
   [
@@ -727,6 +742,18 @@ Then('every database migration should be executed', () => {
         expect(Number(rows[0].executed)).to.equal(Number(output.trim()));
       });
     });
+  });
+});
+
+Then('the outdated module should be upgraded', () => {
+  cy.contains('td', `Module ${outdatedModule} upgrade`)
+    .next()
+    .should('have.text', 'OK');
+  cy.requestOnDatabase({
+    database: 'centreon',
+    query: `SELECT mod_release FROM modules_informations WHERE name = '${outdatedModule}'`
+  }).then(([rows]) => {
+    expect(rows[0].mod_release).to.equal('1.0.1');
   });
 });
 
