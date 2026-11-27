@@ -1,0 +1,139 @@
+# Opt-in TLS overlay for the split central stack (MON-214157) — the default
+# stack (docker-compose.yml alone) is unchanged. Usage:
+#
+#   docker compose \
+#     -f .github/docker/centreon-web-split/docker-compose.yml \
+#     -f .github/docker/centreon-web-split/docker-compose.db-tls.yml \
+#     up --build
+#
+# What this adds:
+#   - db-tls-init: a one-shot service generating a throwaway CA and a server
+#     certificate (SAN=db) into two named volumes at `up` time. Nothing is
+#     committed to git — no key, no cert, only the generation script
+#     (trixie/configuration/db-tls/generate-certs.sh).
+#   - db: starts with --ssl-cert/--ssl-key/--ssl-ca and
+#     --require-secure-transport=ON instead of --skip-ssl, like AWS RDS
+#     MariaDB 11.8 in "TLS required" mode (same posture the Helm chart's
+#     bundledTls already covers on k3d — this is the compose-side
+#     equivalent, now also covered by the CI smoke test).
+#   - Every DB client gets the same three env vars the chart already uses
+#     (DatabaseTLSResolver, see trixie/README.md): DATABASE_SSL_ENABLED=1,
+#     DATABASE_VERIFY_SERVER_CERT=1, DATABASE_CA_PATH=/certs/ca/ca.pem. This
+#     already covers fpm, the autodisco-save-worker (same application code,
+#     same resolver), the cron image's PHP *and* Perl jobs (container.sh
+#     writes db_ssl/db_ssl_verify/db_ssl_ca into conf.pm and exports the
+#     same three vars into the crontabs themselves — collect G2 added TLS to
+#     centreon::common::db, so there is no known gap here), and
+#     centreon-broker's own db_ssl_enabled/db_ssl_verify_cert/db_ssl_ca
+#     output fields (written into central-broker.json by fpm's
+#     "Generate Configuration Files", broker.class.php, from these same
+#     three env vars — centreon-broker itself only needs DATABASE_CA_PATH's
+#     *file* present at the same path, not the env vars themselves).
+#   - gorgone-central/gorgone-central-poller: no DatabaseTLSResolver on the
+#     Perl side, and 10-create-config.sh's own DSN has no TLS support — but
+#     GORGONE__CENTREON__DATABASE__DB_CONFIGURATION__DSN/DB_REALTIME__DSN
+#     (already a supported override, see docker-compose.yml's own comment on
+#     gorgone-central) can carry a full DBD::mysql DSN, so this overlay
+#     supplies one with mysql_ssl/mysql_ssl_optional/mysql_ssl_ca_file/
+#     mysql_ssl_verify_server_cert appended — no gorgone image change
+#     needed. mysql_ssl_optional=1 is NOT optional despite the name: without
+#     it DBD::mysql enforces SSL at its own driver level in a way libmariadb
+#     (the connector this image actually links) rejects outright — see that
+#     service's own environment comment below for the full story.
+#
+services:
+  # db-tls-ca (ca.pem only) is the one volume every DB client mounts
+  # read-only; db-tls-ca-key (the CA's own private key) and db-tls-server
+  # (the server's cert+key) are mounted on no service besides this one and
+  # `db` respectively — a client never gets read access to a private key it
+  # has no business holding.
+  db-tls-init:
+    image: "${MYSQL_IMAGE:-mariadb:11.8}"
+    entrypoint: ["sh", "/generate-certs.sh"]
+    volumes:
+      - ./trixie/configuration/db-tls/generate-certs.sh:/generate-certs.sh:ro
+      - db-tls-ca:/certs/ca
+      - db-tls-ca-key:/certs/ca-private
+      - db-tls-server:/certs/server
+
+  db:
+    depends_on:
+      db-tls-init:
+        condition: service_completed_successfully
+    # --require-secure-transport=ON refuses any client that doesn't
+    # negotiate TLS at all (the (a) smoke assertion below) — stricter than
+    # just offering TLS, same posture as AWS RDS MariaDB 11.8 and the Helm
+    # chart's bundledTls. --skip-name-resolve kept from the base command.
+    command:
+      - "--skip-name-resolve"
+      - "--ssl-cert=/certs/server/server-cert.pem"
+      - "--ssl-key=/certs/server/server-key.pem"
+      - "--ssl-ca=/certs/ca/ca.pem"
+      - "--require-secure-transport=ON"
+    volumes:
+      - db-tls-ca:/certs/ca:ro
+      - db-tls-server:/certs/server:ro
+    healthcheck:
+      # No --skip-ssl here (the base healthcheck's own reason for it — the
+      # 11.x client defaulting to requiring TLS against a --skip-ssl server
+      # — no longer applies: the server now genuinely speaks TLS).
+      test: ["CMD-SHELL", "MYSQL_PWD=\"$$MARIADB_ROOT_PASSWORD\" mariadb-admin --ssl --ssl-ca=/certs/ca/ca.pem -h 127.0.0.1 -uroot ping --silent"]
+      interval: 5s
+      timeout: 15s
+      retries: 20
+
+  fpm:
+    environment:
+      DATABASE_SSL_ENABLED: "1"
+      DATABASE_VERIFY_SERVER_CERT: "1"
+      DATABASE_CA_PATH: "/certs/ca/ca.pem"
+    volumes:
+      - db-tls-ca:/certs/ca:ro
+
+  autodisco-save-worker:
+    environment:
+      DATABASE_SSL_ENABLED: "1"
+      DATABASE_VERIFY_SERVER_CERT: "1"
+      DATABASE_CA_PATH: "/certs/ca/ca.pem"
+    volumes:
+      - db-tls-ca:/certs/ca:ro
+
+  centreon-cron:
+    environment:
+      DATABASE_SSL_ENABLED: "1"
+      DATABASE_VERIFY_SERVER_CERT: "1"
+      DATABASE_CA_PATH: "/certs/ca/ca.pem"
+    volumes:
+      - db-tls-ca:/certs/ca:ro
+
+  # Only needs the CA *file* present at the path fpm baked into
+  # central-broker.json's db_ssl_ca (DATABASE_CA_PATH above) — cbd reads it
+  # straight from the delivered config, no env var of its own.
+  centreon-broker:
+    volumes:
+      - db-tls-ca:/certs/ca:ro
+
+  gorgone-central:
+    volumes:
+      - db-tls-ca:/certs/ca:ro
+    environment:
+      # mysql_ssl_optional=1 is required ALONGSIDE mysql_ssl=1, not instead
+      # of it: without it, DBD::mysql sets MYSQL_OPT_SSL_ENFORCE, which
+      # libmariadb (the connector this image actually links, not the
+      # original MySQL client DBD::mysql's XS code was written against)
+      # rejects outright with "Enforcing SSL encryption is not supported" —
+      # a known DBD::mysql/libmariadb interop gap, already solved in
+      # collect G2 (centreon::common::db). TLS still stays mandatory
+      # end-to-end regardless: `db` runs require_secure_transport=ON, so a
+      # non-TLS fallback is refused server-side, not silently accepted.
+      GORGONE__CENTREON__DATABASE__DB_CONFIGURATION__DSN: "mysql:host=db;dbname=centreon;mysql_ssl=1;mysql_ssl_optional=1;mysql_ssl_ca_file=/certs/ca/ca.pem;mysql_ssl_verify_server_cert=1"
+      GORGONE__CENTREON__DATABASE__DB_REALTIME__DSN: "mysql:host=db;dbname=centreon_storage;mysql_ssl=1;mysql_ssl_optional=1;mysql_ssl_ca_file=/certs/ca/ca.pem;mysql_ssl_verify_server_cert=1"
+
+  # gorgone-central-poller (TYPE=poller) has no database connection of its
+  # own in this topology (confirmed: no MYSQL_HOST/GORGONE__...DATABASE__
+  # env on it in the base compose file) — nothing to add here.
+
+volumes:
+  db-tls-ca:
+  db-tls-ca-key:
+  db-tls-server:

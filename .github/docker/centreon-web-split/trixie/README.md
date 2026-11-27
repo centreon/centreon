@@ -1645,6 +1645,103 @@ happened on a first pass here. Rebuilt and brought up under one consistent
 project name: `autodisco-save-worker` reaches `healthy`, its own log shows
 `Autodiscovery save worker <host>:<pid> started (poll every 5s)`.
 
+## Database TLS variant (`docker-compose.db-tls.yml`), MON-214157
+
+Opt-in overlay — the default stack (`docker-compose.yml` alone) is
+unchanged. Covers the compose side of what the Helm chart already validates
+on k3d with its bundled MariaDB in `database.bundledTls` mode, so the CI
+smoke test gets the same coverage:
+
+```sh
+docker compose \
+  -f .github/docker/centreon-web-split/docker-compose.yml \
+  -f .github/docker/centreon-web-split/docker-compose.db-tls.yml \
+  up --build
+```
+
+A one-shot `db-tls-init` service generates a throwaway CA and a server
+certificate (SAN=`db`) into named volumes at `up` time —
+`trixie/configuration/db-tls/generate-certs.sh` is the only thing committed
+to git, never a key or a cert. `db` then starts with `--ssl-cert`/
+`--ssl-key`/`--ssl-ca` and `--require-secure-transport=ON` instead of
+`--skip-ssl` — the same posture as AWS RDS MariaDB 11.8 in "TLS required"
+mode, or the chart's `bundledTls`.
+
+**Client env, same three vars the chart already uses**
+(`App\Shared\Infrastructure\Database\DatabaseTLSResolver`):
+`DATABASE_SSL_ENABLED=1`, `DATABASE_VERIFY_SERVER_CERT=1`,
+`DATABASE_CA_PATH=/certs/ca/ca.pem`. No code change was needed anywhere —
+every consumer of these three names was already wired by C6
+(MON-213823)/collect G2:
+
+- `fpm` and `autodisco-save-worker`: same application code, same
+  `DatabaseTLSResolver` — covers the main web app and the Symfony console.
+- `centreon-cron`: `container.sh` already writes `db_ssl`/`db_ssl_verify`/
+  `db_ssl_ca` into `conf.pm` for the Perl jobs
+  (`centreon::common::db`, TLS added by collect G2) and exports the same
+  three env vars into the crontabs themselves (cron strips the container's
+  own environment from each job). **No known gap** — confirmed by actually
+  running both PHP and Perl cron jobs once under TLS (see the smoke
+  commands below), not assumed from reading the code.
+- `centreon-broker`: `broker.class.php` reads these same three vars from
+  `$_ENV` while generating `central-broker.json`
+  (`db_ssl_enabled`/`db_ssl_verify_cert`/`db_ssl_ca` output fields) — this
+  runs in `fpm`, not in the `centreon-broker` container, which only needs
+  the CA *file* present at that same path (hence the `db-tls-ca` mount on
+  `centreon-broker` too, with no env var of its own).
+- `gorgone-central`: no `DatabaseTLSResolver` on the Perl side, and
+  `10-create-config.sh`'s own DSN construction has no TLS support at all —
+  but `GORGONE__CENTREON__DATABASE__DB_CONFIGURATION__DSN`/
+  `DB_REALTIME__DSN` (an override this image already supports, see that
+  service's own comment in `docker-compose.yml`) can carry a full
+  `DBD::mysql` DSN, so the overlay supplies one with `mysql_ssl=1`,
+  `mysql_ssl_optional=1`, `mysql_ssl_ca_file=...`,
+  `mysql_ssl_verify_server_cert=1` appended — no gorgone image change
+  needed. **`mysql_ssl_optional=1` is required, not actually optional**:
+  found the hard way — without it, `DBD::mysql` sets `MYSQL_OPT_SSL_ENFORCE`
+  at its own driver level, which `libmariadb` (the connector this image
+  actually links, not the original MySQL client `DBD::mysql`'s XS code was
+  written against) rejects outright with "Enforcing SSL encryption is not
+  supported", so `gorgone-central` could never reach the database at all —
+  already known and solved in collect G2 (`centreon::common::db`). TLS
+  stays mandatory end to end regardless: `db` runs
+  `require_secure_transport=ON`, so a non-TLS fallback is refused
+  server-side, never silently accepted. `gorgone-central-poller`
+  (`TYPE=poller`) has no database connection of its own in this topology,
+  nothing to add there.
+
+**Volume separation**: `db-tls-ca` (`ca.pem` only) is the one volume every
+DB client mounts read-only. The CA's own private key
+(`db-tls-ca-key`) and the server's cert+key (`db-tls-server`) are mounted
+on no service besides `db-tls-init` and `db` respectively — no client ever
+gets read access to a private key it has no business holding.
+
+**Smoke assertions** (both run against the stack brought up with this
+overlay):
+
+```sh
+# (a) require_secure_transport=ON must refuse a non-TLS client outright.
+# $MARIADB_ROOT_PASSWORD must expand inside the container (its own env),
+# not the calling shell's — quoted and deferred to `sh -c` for that reason.
+docker compose -f .../docker-compose.yml -f .../docker-compose.db-tls.yml \
+  exec -T db sh -c 'MYSQL_PWD="$MARIADB_ROOT_PASSWORD" mariadb --skip-ssl -h 127.0.0.1 -uroot -e "SELECT 1"'
+# must exit non-zero / "Connections using insecure transport are prohibited"
+
+# (b) an application connection (fpm) is genuinely using TLS, not just
+# configured to.
+docker compose -f .../docker-compose.yml -f .../docker-compose.db-tls.yml \
+  exec -T fpm sh -c 'mysql --defaults-extra-file=/etc/mysql/conf.d/client-tls.cnf -h db -ucentreon -pcentreon centreon -e "SHOW SESSION STATUS LIKE \"Ssl_cipher\""'
+# the Ssl_cipher value must be non-empty
+
+# cron Perl/PHP jobs over TLS, same invocation the real crontab uses
+# (tmpl/install/centreon.cron), run once by hand as the `centreon` user:
+docker compose -f .../docker-compose.yml -f .../docker-compose.db-tls.yml \
+  exec -T --user centreon centreon-cron /usr/share/centreon/cron/eventReportBuilder --config=/etc/centreon/conf.pm
+docker compose -f .../docker-compose.yml -f .../docker-compose.db-tls.yml \
+  exec -T --user centreon centreon-cron /usr/share/centreon/cron/dashboardBuilder --config=/etc/centreon/conf.pm
+# both must exit 0 with no "SSL connection error"/plaintext-rejected message
+```
+
 ## Explicitly out of scope for this first pass
 
 - Not wired into `.github/workflows/web.yml` yet (no CI job builds/publishes these).
