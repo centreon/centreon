@@ -65,8 +65,8 @@ if [ ! -f /etc/centreon/centreon.conf.php ] && [ -d /usr/share/centreon/www/inst
     fi
 
     echo "Applying database migrations..."
-    migrations_result=$(su apache -s /bin/bash -c "php migrateDatabases.php")
-    if ! grep -q '"result":0' <<< "${migrations_result}"; then
+    if ! migrations_result=$(su apache -s /bin/bash -c "php migrateDatabases.php") \
+      || ! grep -q '"result":0' <<< "${migrations_result}"; then
       echo "Database migrations failed: ${migrations_result}" >&2
       exit 1
     fi

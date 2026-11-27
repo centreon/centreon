@@ -1599,7 +1599,7 @@ function play_install_wizard() {
 	local migrations_response
 	migrations_response=$(mktemp)
 	API_EXTRA_OK="404" install_wizard_post ${sessionID} "migrateDatabases.php" "" "$migrations_response"
-	if grep -q '"result":1' "$migrations_response"; then
+	if [[ "${API_HTTP_CODE}" != "404" ]] && ! grep -q '"result":0' "$migrations_response"; then
 		local failure
 		failure=$(head -c 400 "$migrations_response" | tr -d '\n')
 		rm -f "$migrations_response"
@@ -1698,20 +1698,20 @@ function play_update_api () {
 			--header "centreon-auth-token: ${tokenv1}"
 		status=$(jq '.status' "$api_body") || true
 		status_message=$(jq '.result.message' "$api_body") || true
-		if [ "${API_HTTP_CODE}" != "200" ]; then
+		if [[ "${API_HTTP_CODE}" != "200" ]]; then
 			log "WARN" "Error during update of ${module} module: HTTP ${API_HTTP_CODE}"
-		elif [ "${status}" = "false" ]; then
-			log "WARN" "Error during update of ${module} module: ${status_message}"
+		elif [[ "${status}" != "true" ]]; then
+			log "WARN" "Error during update of ${module} module: ${status_message:-$(head -c 400 "$api_body" | tr -d '\n')}"
 		fi
 	done
-	if [ "${#outdated_modules[@]}" -gt 0 ]; then
+	if [[ "${#outdated_modules[@]}" -gt 0 ]]; then
 		# 404: older releases lack this action, but ignore clearCache=0, so each of their updates cleared the cache.
 		API_EXTRA_OK="404 500 502 504" api_curl "cache clear" "$api_body" \
 			"${central_ip}/centreon/api/index.php?object=centreon_module&action=clearCache" \
 			--request POST \
 			--header "centreon-auth-token: ${tokenv1}"
 		status=$(jq '.status' "$api_body") || true
-		if [ "${API_HTTP_CODE}" != "404" ] && { [ "${API_HTTP_CODE}" != "200" ] || [ "${status}" = "false" ]; }; then
+		if [[ "${API_HTTP_CODE}" != "404" ]] && [[ "${API_HTTP_CODE}" != "200" || "${status}" != "true" ]]; then
 			log "WARN" "The cache could not be cleared (HTTP ${API_HTTP_CODE}): run 'php /usr/share/centreon/bin/console cache:clear' and 'php /usr/share/centreon/bin/console.new cache:clear'"
 		fi
 	fi
