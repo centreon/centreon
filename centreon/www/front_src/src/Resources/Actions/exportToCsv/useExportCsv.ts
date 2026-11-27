@@ -193,22 +193,14 @@ const useExportCsv = ({
     });
   };
 
-  const { data, isLoading } = useFetchQuery<Count>({
-    getEndpoint: () =>
-      getEndpoint({
-        baseEndpoint: countResourcesEndpoint,
-        includePagination: !isAllPagesChecked
-      }),
+  const { data, isLoading: isCounting } = useFetchQuery<Count>({
+    getEndpoint: () => getEndpoint({ baseEndpoint: countResourcesEndpoint }),
     getQueryKey: () => [
       'exportedLines',
-      getEndpoint({
-        baseEndpoint: countResourcesEndpoint,
-        includePagination: !isAllPagesChecked
-      }),
-      isAllPagesChecked
+      getEndpoint({ baseEndpoint: countResourcesEndpoint })
     ],
     queryOptions: {
-      enabled: isOpen,
+      enabled: isOpen && isAllPagesChecked,
       gcTime: 0,
       refetchInterval: refreshInterval * 1000,
       staleTime: 0,
@@ -216,7 +208,10 @@ const useExportCsv = ({
     }
   });
 
-  const numberExportedLines = data?.count || 0;
+  const isLoading = isAllPagesChecked && isCounting;
+  const numberExportedLines = isAllPagesChecked
+    ? data?.count || 0
+    : listing?.result?.length || 0;
 
   const hasReachedMaximumLinesToExport = numberExportedLines > maxResources;
 
