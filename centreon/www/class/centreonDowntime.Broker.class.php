@@ -258,8 +258,7 @@ class CentreonDowntimeBroker extends CentreonDowntime
             );
             $downtime['dtp_end_time'] = substr($downtime['dtp_end_time'], 0, strrpos($downtime['dtp_end_time'], ':'));
 
-            $currentHostDate = $gmtObj->getHostCurrentDatetime($downtime['host_id']);
-            $timezone = $currentHostDate->getTimezone();
+            $timezone = $this->getDowntimeTimezone($downtime, $gmtObj);
             $startDelay = new DateTime('now', $timezone);
             $endDelay = new DateTime('now +' . $delay . 'seconds', $timezone);
 
@@ -454,6 +453,25 @@ class CentreonDowntimeBroker extends CentreonDowntime
         if ($remoteCommands) {
             file_put_contents($this->remoteCmdDir . '/' . time() . '-downtimes', $remoteCommands, FILE_APPEND);
         }
+    }
+
+    /**
+     * Get the timezone the period hours of a downtime are expressed in:
+     * the one of its creator, or the host one for downtimes created without timezone.
+     *
+     * @param array<string, mixed> $downtime
+     * @param CentreonGMT $gmtObj
+     *
+     * @throws Exception
+     * @return DateTimeZone
+     */
+    private function getDowntimeTimezone(array $downtime, CentreonGMT $gmtObj): DateTimeZone
+    {
+        if (! empty($downtime['dt_timezone_id'])) {
+            return new DateTimeZone($gmtObj->getActiveTimezone($downtime['dt_timezone_id']));
+        }
+
+        return $gmtObj->getHostCurrentDatetime($downtime['host_id'])->getTimezone();
     }
 
     /**
