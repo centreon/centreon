@@ -19,6 +19,9 @@
  *
  */
 
+use Adaptation\Log\LoggerUpgrade;
+use Composer\InstalledVersions;
+
 session_start();
 require_once __DIR__ . '/../../steps/functions.php';
 require_once __DIR__ . '/../../../class/centreonDB.class.php';
@@ -29,7 +32,18 @@ $error = runDatabaseMigrations();
 
 if ($error === null) {
     // Shown by the last step: the migrations may record a later version than the legacy scripts.
-    $_SESSION['CURRENT_VERSION'] = (new CentreonDB())->query("SELECT `value` FROM `informations` WHERE `key` = 'version'")->fetchColumn();
+    try {
+        $version = (new CentreonDB())->query("SELECT `value` FROM `informations` WHERE `key` = 'version'")->fetchColumn();
+        if (is_string($version) && $version !== '') {
+            $_SESSION['CURRENT_VERSION'] = $version;
+        }
+    } catch (Throwable $exception) {
+        LoggerUpgrade::create()->warning(
+            InstalledVersions::getRootPackage()['pretty_version'],
+            'Reading the version recorded by the migrations failed',
+            $exception
+        );
+    }
 }
 
 echo json_encode($error === null

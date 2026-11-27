@@ -21,12 +21,14 @@
 
 require_once __DIR__ . '/../../steps/functions.php';
 
+use Adaptation\Log\LoggerUpgrade;
 use CentreonLegacy\Core\Cache\CacheClearer;
 use CentreonLegacy\ServiceProvider as LegacyServiceProvider;
 use CentreonModule\Infrastructure\Entity\Module;
 use CentreonModule\Infrastructure\Service\CentreonModuleService;
 use CentreonModule\Infrastructure\Source\ModuleSource;
 use CentreonModule\ServiceProvider;
+use Composer\InstalledVersions;
 
 // One request per module, each with its own time budget, then a single cache clear.
 
@@ -38,6 +40,9 @@ $moduleService = $dependencyInjector[ServiceProvider::CENTREON_MODULE];
 /** @var CacheClearer $cacheClearer */
 $cacheClearer = $dependencyInjector[LegacyServiceProvider::CENTREON_LEGACY_CACHE_CLEARER];
 
+$logFailure = static function (string $message, Throwable $exception): void {
+    LoggerUpgrade::create()->error(InstalledVersions::getRootPackage()['pretty_version'], $message, $exception);
+};
 $format = static fn (string $message): string => htmlspecialchars((string) preg_replace('/\s+/', ' ', $message));
 
 switch ($_POST['action'] ?? '') {
@@ -48,6 +53,7 @@ switch ($_POST['action'] ?? '') {
                 $moduleService->getOutdated(ModuleSource::TYPE),
             )]);
         } catch (Throwable $exception) {
+            $logFailure('Listing the outdated modules failed', $exception);
             // Not blocking: the modules can be upgraded later from the Extension Manager.
             echo json_encode(['result' => 0, 'modules' => [], 'warning' => true, 'msg' => $format($exception->getMessage())]);
         }
@@ -61,13 +67,20 @@ switch ($_POST['action'] ?? '') {
         try {
             // Never a path from the request: a module directory name only. Possibly already upgraded as a dependency.
             $module = preg_match('/^[\w-]+$/D', $id) === 1 ? $moduleService->getDetail($id, ModuleSource::TYPE) : null;
-            if ($module instanceof Module && CentreonModuleService::isOutdated($module)) {
+            if (! $module instanceof Module) {
+                ob_end_clean();
+                echo json_encode(['result' => 0, 'warning' => true, 'msg' => 'Module not found']);
+
+                break;
+            }
+            if (CentreonModuleService::isOutdated($module)) {
                 $cacheClearer->suspended(static fn () => $moduleService->update($id, ModuleSource::TYPE));
             }
             ob_end_clean();
             echo json_encode(['result' => 0, 'msg' => 'OK']);
         } catch (Throwable $exception) {
             ob_end_clean();
+            $logFailure(sprintf('The update of the "%s" module failed', $id), $exception);
             echo json_encode([
                 'result' => 0,
                 'warning' => true,
@@ -81,6 +94,7 @@ switch ($_POST['action'] ?? '') {
             $cacheClearer->clear();
             echo json_encode(['result' => 0, 'msg' => 'OK']);
         } catch (Throwable $exception) {
+            $logFailure('Clearing the cache after updating the modules failed', $exception);
             // Blocking, as the application cache generation always was.
             echo json_encode(['result' => 1, 'msg' => $format($exception->getMessage())]);
         }

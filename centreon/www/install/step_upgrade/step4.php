@@ -244,15 +244,26 @@ $template->display('content.tpl');
         function (response) {
           const data = parseModuleResponse(response);
           if (data['warning']) {
-            stepContent.append('<tr>');
-            stepContent.append('<td>Modules upgrade</td>');
-            stepContent.append("<td style='font-weight: bold; color: orange;'>" + data['msg'] + '</td>');
-            stepContent.append('</tr>');
+            reportModulesFailure(data['msg']);
           }
           updateNextModule(data['modules'] || [], 0);
         },
-        clearCache
+        function () {
+          reportModulesFailure('Failed, retry it from the Extension Manager');
+          clearCache();
+        }
       );
+    }
+
+    /**
+     * @param string message
+     * @return void
+     */
+    function reportModulesFailure(message) {
+      stepContent.append('<tr>');
+      stepContent.append('<td>Modules upgrade</td>');
+      stepContent.append("<td style='font-weight: bold; color: orange;'>" + message + '</td>');
+      stepContent.append('</tr>');
     }
 
     /**

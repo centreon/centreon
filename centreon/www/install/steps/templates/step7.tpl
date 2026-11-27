@@ -63,7 +63,12 @@
             type: 'POST',
             url: dbSteps[key].file,
             success: (response) => {
-                var data = jQuery.parseJSON(response);
+                var data;
+                try {
+                    data = jQuery.parseJSON(response);
+                } catch (e) {
+                    data = {'id': key, 'result': 1, 'msg': 'Unexpected response'};
+                }
                 if (data['result'] == 0) {
                     jQuery('#' + data['id']).html('<span style="color:#88b917;">OK</span>');
                     if (key == 'configfile') {
@@ -88,6 +93,11 @@
                     jQuery("#refresh").show();
                     jQuery('#'+data['id']).html('<span style="color:#8B0000;">' + data['msg'] + '</span>');
                 }
+            },
+            error: () => {
+                jQuery("#previous").show();
+                jQuery("#refresh").show();
+                jQuery('#' + key).html('<span style="color:#8B0000;">Request failed</span>');
             }
         });
     }

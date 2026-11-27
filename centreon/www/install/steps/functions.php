@@ -22,10 +22,12 @@
 require_once __DIR__ . '/../../../bootstrap.php';
 require_once __DIR__ . '/../../class/centreonAuth.class.php';
 
+use Adaptation\Log\LoggerUpgrade;
 use App\Shared\Infrastructure\Database\DatabaseTLSResolver;
 use Centreon\Domain\VersionHelper;
 use CentreonLegacy\Core\Migration\MigrationLauncher;
 use CentreonLegacy\Core\Process\PhpConsole;
+use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -228,11 +230,24 @@ function runDatabaseMigrations(): ?string
  */
 function getUpgradeTargetVersion(string $lastLegacyVersion): string
 {
-    $process = PhpConsole::process(['bin/console.new', 'centreon:upgrade:target-version', $lastLegacyVersion]);
-    $process->run();
-    $version = trim($process->getOutput());
+    try {
+        $process = PhpConsole::process(['bin/console.new', 'centreon:upgrade:target-version', $lastLegacyVersion]);
+        $process->run();
+        $version = trim($process->getOutput());
+        if ($process->isSuccessful() && preg_match('/^\d+\.\d+\.\d+$/D', $version) === 1) {
+            return $version;
+        }
+        $failure = new ProcessFailedException($process);
+    } catch (Throwable $exception) {
+        $failure = $exception;
+    }
+    LoggerUpgrade::create()->warning(
+        $lastLegacyVersion,
+        'The target version could not be read from the new kernel: the version of the legacy scripts is announced',
+        $failure
+    );
 
-    return $process->isSuccessful() && preg_match('/^\d+\.\d+\.\d+$/D', $version) === 1 ? $version : $lastLegacyVersion;
+    return $lastLegacyVersion;
 }
 
 /**
