@@ -23,7 +23,7 @@ For what Tailwind cannot express, and only then, fall back **first to the props 
 
 ## Consequences
 
-- A fallback is the exception and says why in the pull request.
+- A fallback is the exception and says why in the pull request. It is the only new `makeStyles` rule that [ADR-0004](0004-ui-migrate-make-styles-to-tailwind-when-touched.md) allows.
 - A style set through a fallback is not overridable by a consumer's utilities the way a utility is: the pull request states what the consumer can still change.
 - The rule is enforced in review.
 

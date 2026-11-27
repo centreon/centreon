@@ -23,7 +23,7 @@ For what Tailwind cannot express, and only then, fall back **first to the props 
 
 ## Consequences
 
-- A fallback is the exception and says why in the pull request.
+- A fallback is the exception and says why in the pull request. It is the only new `makeStyles` rule that [ADR-0003](0003-web-migrate-make-styles-to-tailwind-when-touched.md) allows.
 - The 3 files importing `@mui/styles` are migrated when touched.
 - The rule is enforced in review.
 
