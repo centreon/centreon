@@ -1,0 +1,16 @@
+; php:8.4-fpm ships no active php.ini by default (without one, a stray PHP
+; warning leaks into the HTTP response body). Values merged from
+; centreon/packaging/src/php.ini plus the extra ones validated on the
+; pillar-1 smoke test page that the packaged php.ini doesn't set.
+output_buffering = 4096
+display_errors = Off
+log_errors = On
+date.timezone = ${PHP_TIMEZONE}
+memory_limit = 256M
+max_execution_time = 300
+upload_max_filesize = 5M
+post_max_size = 8M
+session.use_strict_mode = 1
+session.gc_maxlifetime = 7200
+expose_php = Off
+allow_url_fopen = Off
