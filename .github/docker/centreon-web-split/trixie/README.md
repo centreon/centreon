@@ -980,6 +980,9 @@ like the web:
 - Autodiscovery: copied the same way from the centreon-autodisco image of the
   disco-modules branch (`AUTODISCO_TAG`/`AUTODISCO_DIGEST` in
   `dependencies.env`), SourceGuardian-encoded, with the gorgone-less worker;
+  the service discovery scan page waits server-side up to 120 s for the
+  worker, so `PHP_MAX_EXECUTION_TIME` (fpm) and `HTTPD_PROXY_TIMEOUT` (httpd)
+  must stay at 130 s or more (both default to 300);
 - License Manager alone can come from another image (`LM_IMAGE`, CI: the
   `centreon-lm-trixie` image of `LM_TAG`/`LM_DIGEST` in `dependencies.env`;
   MON-216369 PoC instance fingerprint, enabled by
