@@ -424,9 +424,14 @@ $selected = $rule->loadSelection(
     (string) $get_information['form']['selection']
 );
 
-$sticky = ! empty($centreon->optGen['monitoring_ack_sticky']) ? 2 : 1;
-
-$notify = ! empty($centreon->optGen['monitoring_ack_notify']) ? 1 : 0;
+// Rules whose popup includes ack.ihtml send the user's choices; older rules keep the global defaults
+if (isset($get_information['form']['ack_options_displayed'])) {
+    $sticky = ! empty($get_information['form']['ack_sticky']) ? 2 : 1;
+    $notify = ! empty($get_information['form']['ack_notify']) ? 1 : 0;
+} else {
+    $sticky = ! empty($centreon->optGen['monitoring_ack_sticky']) ? 2 : 1;
+    $notify = ! empty($centreon->optGen['monitoring_ack_notify']) ? 1 : 0;
+}
 
 $persistent = ! empty($centreon->optGen['monitoring_ack_persistent']) ? 1 : 0;
 $ownTransaction = false;

@@ -1,0 +1,18 @@
+{if $ack_enabled}
+<tr>
+    <td class="FormHeader" colspan="2"><h3 style="color: #00bfb3;">{$ack_labels.title}</h3></td>
+</tr>
+<tr>
+    <td class="FormRowField" style="padding-left:15px;">{$ack_labels.sticky}</td>
+    <td class="FormRowValue" style="padding-left:15px;">
+        <input type="hidden" name="ack_options_displayed" value="1" />
+        <input type="checkbox" id="ack_sticky" name="ack_sticky" value="1" {if $ack_options.sticky}checked{/if} />
+    </td>
+</tr>
+<tr>
+    <td class="FormRowField" style="padding-left:15px;">{$ack_labels.notify}</td>
+    <td class="FormRowValue" style="padding-left:15px;">
+        <input type="checkbox" id="ack_notify" name="ack_notify" value="1" {if $ack_options.notify}checked{/if} />
+    </td>
+</tr>
+{/if}
