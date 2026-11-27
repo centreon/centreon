@@ -70,6 +70,8 @@ Rules:
   than the maintenance one: a platform upgrading to a version without it refuses to upgrade.
 - A fix shipped both as a legacy script (maintained branch) and as a migration runs twice on a platform upgraded
   through that branch: the migration must be idempotent.
+- Never report a migration in the base SQL (`www/install/createTables.sql`, `insertBaseConf.sql`...): a fresh install
+  runs every migration over it.
 - Never write a secret in a migration: a failing statement can quote its values in the upgrade log. Secrets go through
   the vault.
 
