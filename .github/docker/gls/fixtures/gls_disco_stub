@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+# Host discovery stub of the gorgone-less PoC e2e (phase 3 P2, contracts § 12.M).
+# One JSON line on stdout: {"results":[{"name","ip","os"}...],"duration":N}.
+#   --size N   N hosts gls-disco-<i> / 192.0.2.<i> (default 2)
+#   --sleep S  wait S seconds first (timeout case)
+#   --exit E   exit code E, with a line on stderr when E != 0
+#   --bytes B  pad host 1 with B characters, JSON kept valid (output cap case)
+#   --disco-show [--items a,b,c] [--bad-xml]  service discovery mode (contracts § 15.S):
+#              <data><label name="a" total="1000"/>...</data>, or non-XML with --bad-xml
+# --opt=value and --opt value both work; unknown options are ignored.
+size=2 sleep_s=0 code=0 bytes=0 show=0 items="" badxml=0
+num() { [[ "$1" =~ ^[0-9]+$ ]] && printf '%s' "$1" || printf '%s' "$2"; }
+while (($#)); do
+  case "$1" in
+    --size=*) size=$(num "${1#*=}" 2) ;;
+    --size) size=$(num "${2:-}" 2); shift ;;
+    --sleep=*) sleep_s=$(num "${1#*=}" 0) ;;
+    --sleep) sleep_s=$(num "${2:-}" 0); shift ;;
+    --exit=*) code=$(num "${1#*=}" 0) ;;
+    --exit) code=$(num "${2:-}" 0); shift ;;
+    --bytes=*) bytes=$(num "${1#*=}" 0) ;;
+    --bytes) bytes=$(num "${2:-}" 0); shift ;;
+    --disco-show) show=1 ;;
+    --bad-xml) badxml=1 ;;
+    --items=*) items=${1#*=} ;;
+    --items) items=${2:-}; shift ;;
+    *) ;;
+  esac
+  (($#)) && shift
+done
+if (( show )); then
+  if (( badxml )); then echo "gls_disco_stub: this is not xml <data"; exit 0; fi
+  printf '<?xml version="1.0" encoding="utf-8"?>
+<data>
+'
+  IFS=, read -ra list <<<"$items"
+  for it in "${list[@]}"; do
+    [[ "$it" =~ ^[A-Za-z0-9._-]+$ ]] && printf '  <label name="%s" total="1000"/>
+' "$it"
+  done
+  printf '</data>
+'
+  exit 0
+fi
+(( size > 254 )) && size=254
+start=$(date +%s)
+(( sleep_s > 0 )) && sleep "$sleep_s"
+printf '{"results":['
+for ((i = 1; i <= size; i++)); do
+  (( i > 1 )) && printf ','
+  printf '{"name":"gls-disco-%d","ip":"192.0.2.%d","os":"linux"' "$i" "$i"
+  if (( i == 1 && bytes > 0 )); then
+    printf ',"pad":"'; head -c "$bytes" /dev/zero | tr '\0' x; printf '"'
+  fi
+  printf '}'
+done
+printf '],"duration":%d}\n' "$(( $(date +%s) - start ))"
+(( code != 0 )) && echo "gls_disco_stub: exit $code" >&2
+exit "$code"

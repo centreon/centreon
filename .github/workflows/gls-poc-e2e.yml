@@ -1,0 +1,197 @@
+name: gls-poc-e2e
+
+# Gorgone-less light Central PoC (epic MON-215448, MON-215451). Exploratory,
+# not meant to be merged. Runs the two-project compose stack of
+# .github/docker/gls/ from images already published on the internal registry
+# (no build here) and the e2e criteria.
+#
+# New images (collect-protocol engine/broker, web-sender fpm) are taken by
+# changing .github/docker/gls/images.env on this PR: that push is the trigger.
+# Criteria are report-only until GATE_CRITERIA=true in images.env; `up` and
+# `step0` always gate.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled]
+    paths:
+      - ".github/docker/gls/**"
+      - ".github/workflows/gls-poc-e2e.yml"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    if: github.event.pull_request.head.repo.fork != true
+    runs-on: ubuntu-24.04
+    timeout-minutes: 75
+    env:
+      LOG_DIR: /tmp/gls-e2e
+      GLS_REGISTRY: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+      SCRIPT: .github/docker/gls/scripts/gls-e2e.sh
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Read image pins
+        run: |
+          # Parsed, never sourced: KEY=value lines with a safe value only.
+          while IFS='=' read -r key value; do
+            [[ "$key" =~ ^(WEB_TAG|ENGINE_TAG|BROKER_TAG|GATE_CRITERIA)$ ]] || continue
+            [[ "$value" =~ ^[A-Za-z0-9._-]+$ ]] || { echo "::error::invalid $key"; exit 1; }
+            echo "GLS_${key}=${value}" >> "$GITHUB_ENV"
+            echo "${key}=${value}"
+          done < .github/docker/gls/images.env
+        shell: bash
+
+      - name: Login to registry
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
+          password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
+
+      - name: Stack up (gls-central + gls-poller, bootstrap)
+        id: up
+        run: SUMMARY_FILE="$GITHUB_STEP_SUMMARY" "$SCRIPT" up
+        shell: bash
+
+      - name: Step 0 (no gorgone, upstream data, outbound-only poller)
+        run: SUMMARY_FILE="$GITHUB_STEP_SUMMARY" "$SCRIPT" step0
+        shell: bash
+
+      - name: "Criterion 1: realtime actions (central)"
+        if: ${{ !cancelled() && steps.up.outcome == 'success' }}
+        continue-on-error: ${{ env.GLS_GATE_CRITERIA != 'true' }}
+        run: SUMMARY_FILE="$GITHUB_STEP_SUMMARY" "$SCRIPT" c1 central
+        shell: bash
+
+      - name: "Criterion 1: realtime actions (poller)"
+        if: ${{ !cancelled() && steps.up.outcome == 'success' }}
+        continue-on-error: ${{ env.GLS_GATE_CRITERIA != 'true' }}
+        run: SUMMARY_FILE="$GITHUB_STEP_SUMMARY" "$SCRIPT" c1 poller
+        shell: bash
+
+      - name: "Criterion 2: export + reload (central)"
+        if: ${{ !cancelled() && steps.up.outcome == 'success' }}
+        continue-on-error: ${{ env.GLS_GATE_CRITERIA != 'true' }}
+        run: SUMMARY_FILE="$GITHUB_STEP_SUMMARY" "$SCRIPT" c2 central
+        shell: bash
+
+      - name: "Criterion 2: export + reload (poller)"
+        if: ${{ !cancelled() && steps.up.outcome == 'success' }}
+        continue-on-error: ${{ env.GLS_GATE_CRITERIA != 'true' }}
+        run: SUMMARY_FILE="$GITHUB_STEP_SUMMARY" "$SCRIPT" c2 poller
+        shell: bash
+
+      - name: "plugins.json installed by cbmod (no watcher), result reported by cbd"
+        if: ${{ !cancelled() && steps.up.outcome == 'success' }}
+        continue-on-error: ${{ env.GLS_GATE_CRITERIA != 'true' }}
+        run: SUMMARY_FILE="$GITHUB_STEP_SUMMARY" "$SCRIPT" plugins
+        shell: bash
+
+      - name: "RRD: perfdata reaches rrdcached, no RRD connect error"
+        if: ${{ !cancelled() && steps.up.outcome == 'success' }}
+        continue-on-error: ${{ env.GLS_GATE_CRITERIA != 'true' }}
+        run: SUMMARY_FILE="$GITHUB_STEP_SUMMARY" "$SCRIPT" rrd
+        shell: bash
+
+      - name: "Modules: LM, PPM, autodiscovery, ITEE with the CI license, no gorgone"
+        if: ${{ !cancelled() && steps.up.outcome == 'success' }}
+        continue-on-error: ${{ env.GLS_GATE_CRITERIA != 'true' }}
+        run: SUMMARY_FILE="$GITHUB_STEP_SUMMARY" "$SCRIPT" modules
+        shell: bash
+
+      - name: "Discovery: run-now jobs through cbd RemoteExec (FINISH, REJECTED, TIMEOUT, cap, exit, secret, NOT_CONNECTED)"
+        if: ${{ !cancelled() && steps.up.outcome == 'success' }}
+        continue-on-error: ${{ env.GLS_GATE_CRITERIA != 'true' }}
+        run: SUMMARY_FILE="$GITHUB_STEP_SUMMARY" "$SCRIPT" disco
+        shell: bash
+
+      - name: "Discovery: scheduled job, automatic save and export"
+        if: ${{ !cancelled() && steps.up.outcome == 'success' }}
+        continue-on-error: ${{ env.GLS_GATE_CRITERIA != 'true' }}
+        run: SUMMARY_FILE="$GITHUB_STEP_SUMMARY" "$SCRIPT" disco-scheduled
+        shell: bash
+
+      - name: "Discovery: provider plugin installed on the poller before the run"
+        if: ${{ !cancelled() && steps.up.outcome == 'success' }}
+        continue-on-error: ${{ env.GLS_GATE_CRITERIA != 'true' }}
+        run: SUMMARY_FILE="$GITHUB_STEP_SUMMARY" "$SCRIPT" disco-plugin-install
+        shell: bash
+
+      - name: "Service discovery: dry-run scan without gorgone (P5a)"
+        if: ${{ !cancelled() && steps.up.outcome == 'success' }}
+        continue-on-error: ${{ env.GLS_GATE_CRITERIA != 'true' }}
+        run: SUMMARY_FILE="$GITHUB_STEP_SUMMARY" "$SCRIPT" svc-disco
+        shell: bash
+
+      - name: "Criterion 3: disconnected poller (stop)"
+        if: ${{ !cancelled() && steps.up.outcome == 'success' }}
+        continue-on-error: ${{ env.GLS_GATE_CRITERIA != 'true' }}
+        run: SUMMARY_FILE="$GITHUB_STEP_SUMMARY" "$SCRIPT" c3 stop
+        shell: bash
+
+      - name: "Criterion 3: disconnected poller (network partition)"
+        if: ${{ !cancelled() && steps.up.outcome == 'success' }}
+        continue-on-error: ${{ env.GLS_GATE_CRITERIA != 'true' }}
+        run: SUMMARY_FILE="$GITHUB_STEP_SUMMARY" "$SCRIPT" c3 partition
+        shell: bash
+
+      - name: "Criterion 3: disconnected poller (pause)"
+        if: ${{ !cancelled() && steps.up.outcome == 'success' }}
+        continue-on-error: ${{ env.GLS_GATE_CRITERIA != 'true' }}
+        run: SUMMARY_FILE="$GITHUB_STEP_SUMMARY" "$SCRIPT" c3 pause
+        shell: bash
+
+      - name: "TLS: central cert not signed by the pollers' CA"
+        if: ${{ !cancelled() && steps.up.outcome == 'success' }}
+        continue-on-error: ${{ env.GLS_GATE_CRITERIA != 'true' }}
+        run: SUMMARY_FILE="$GITHUB_STEP_SUMMARY" "$SCRIPT" tls-negative
+        shell: bash
+
+      - name: "Self-generated CA: kept on recreate, fail closed on a wrong fingerprint"
+        if: ${{ !cancelled() && steps.up.outcome == 'success' }}
+        continue-on-error: ${{ env.GLS_GATE_CRITERIA != 'true' }}
+        run: SUMMARY_FILE="$GITHUB_STEP_SUMMARY" "$SCRIPT" ca
+        shell: bash
+
+      - name: "State volumes: retention after recreate, cbmod queue"
+        if: ${{ !cancelled() && steps.up.outcome == 'success' }}
+        continue-on-error: ${{ env.GLS_GATE_CRITERIA != 'true' }}
+        run: SUMMARY_FILE="$GITHUB_STEP_SUMMARY" "$SCRIPT" state
+        shell: bash
+
+      - name: "install.sh: poller added with the generated command over the published 5669"
+        if: ${{ !cancelled() && steps.up.outcome == 'success' }}
+        continue-on-error: ${{ env.GLS_GATE_CRITERIA != 'true' }}
+        run: SUMMARY_FILE="$GITHUB_STEP_SUMMARY" "$SCRIPT" install-script
+        shell: bash
+
+      - name: "LM instance fingerprint: fpm == worker, kept on recreate, regenerate, MAC mode"
+        if: ${{ !cancelled() && steps.up.outcome == 'success' }}
+        continue-on-error: ${{ env.GLS_GATE_CRITERIA != 'true' }}
+        run: SUMMARY_FILE="$GITHUB_STEP_SUMMARY" "$SCRIPT" license-fingerprint
+        shell: bash
+
+      - name: Collect logs
+        if: always()
+        run: |
+          "$SCRIPT" logs
+          "$SCRIPT" down
+        shell: bash
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: gls-e2e-logs
+          path: /tmp/gls-e2e
+          retention-days: 7
+          if-no-files-found: ignore

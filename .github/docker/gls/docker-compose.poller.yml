@@ -1,0 +1,66 @@
+# Gorgone-less light Central PoC (MON-215448 / MON-215451): remote poller.
+# Separate compose project, like a poller behind NAT: no published port, only
+# the external gls-wan network, outbound BBDO to centreon-broker:5669.
+#
+#   docker compose -p gls-poller -f docker-compose.poller.yml --env-file images.env up -d
+name: gls-poller
+
+# No helper container: the named volumes are seeded from the image directories
+# (owner, mode, package defaults) and the bootstrap writes the rest from env
+# (contracts § 8.A).
+services:
+  poller-engine:
+    image: "${REGISTRY}/centreon-engine-trixie:${ENGINE_TAG}"
+    hostname: poller-engine
+    restart: unless-stopped
+    environment:
+      TZ: "${TZ:-Europe/Paris}"
+      NAME: "${POLLER_NAME:-gls-poller}"
+      ENGINE_RPC_LISTEN_ADDRESS: "127.0.0.1"
+      # Bootstrap from env only (contracts § 6.3): rendered when no config exists,
+      # never over a delivered one. POLLER_ID / POLLER_UID come from the poller
+      # creation API answer (gls-e2e.sh up).
+      CENTRAL_BROKER_HOST: centreon-broker
+      CENTRAL_BROKER_PORT: "5669"
+      POLLER_NAME: "${POLLER_NAME:-gls-poller}"
+      POLLER_ID: "${POLLER_ID:-}"
+      POLLER_UID: "${POLLER_UID:-}"
+      # Central CA from the poller creation answer (contracts § 8.3): written to
+      # BROKER_CA_CERT at bootstrap, fingerprint checked, fail closed.
+      BROKER_CA_PEM: "${BROKER_CA_PEM:-}"
+      BROKER_CA_FINGERPRINT: "${BROKER_CA_FINGERPRINT:-}"
+      BROKER_CA_CERT: /etc/centreon-broker/certs/ca.crt
+      BROKER_TLS_HOSTNAME: centreon-broker
+      # engine-context.json is written from these by the bootstrap (contracts § 8.A).
+      APP_SECRET: "${APP_SECRET:-9cd3e2ccf822916ec8fc5379f8abdaf277860415454f9b91c0913392d4b41f92}"
+      SALT: "${SALT:-84e9107f78239bdab2751c3321023a32c3716ed0724a4a8b13de8e7aed8d319d}"
+    volumes:
+      - poller-engine-etc:/etc/centreon-engine
+      # Holds certs/ca.crt written by the bootstrap (contracts § 8.3).
+      - poller-broker-etc:/etc/centreon-broker
+      # State (contracts § 7): cbmod cache_directory (queue while the central is
+      # unreachable) + retention.dat. Logs stay in the container layer.
+      - poller-engine-state:/var/lib/centreon-engine
+      # Host discovery stub (phase 3 P2, contracts § 12.M), allowed by the image's
+      # default exec allow-list (/usr/lib/centreon/plugins/*, § 12.C4).
+      - ./fixtures/gls_disco_stub:/usr/lib/centreon/plugins/gls_disco_stub:ro
+    tmpfs:
+      - /var/lib/centreon-engine/rw:uid=901,gid=901,mode=0770
+    # Connected = an established outbound socket to port 5669 (0x1625).
+    healthcheck:
+      test: ["CMD-SHELL", "grep -q ':1625 01' /proc/net/tcp /proc/net/tcp6 2>/dev/null"]
+      interval: 10s
+      timeout: 5s
+      start_period: 10m
+      retries: 3
+    networks: [wan]
+
+networks:
+  wan:
+    name: gls-wan
+    external: true
+
+volumes:
+  poller-engine-etc:
+  poller-broker-etc:
+  poller-engine-state:
