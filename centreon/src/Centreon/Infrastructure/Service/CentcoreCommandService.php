@@ -22,22 +22,39 @@
 namespace Centreon\Infrastructure\Service;
 
 use Centreon\Domain\Entity\Command;
+use Centreon\Infrastructure\Gorgone\LegacyCommandException;
+use Centreon\Infrastructure\Gorgone\LegacyCommandSender;
 
+/**
+ * Sends the remote server commands (STARTWORKER, SENDEXPORTFILE) to Gorgone through its API.
+ */
 class CentcoreCommandService
 {
+    public function __construct(private ?LegacyCommandSender $legacyCommandSender = null)
+    {
+    }
+
     /**
      * @param Command $command
-     * @return mixed
+     * @return bool true if the command has been accepted by Gorgone
      */
     public function sendCommand(Command $command)
     {
-        // generate a hashed name to avoid conflict with other external commands
-        $commandFile = hash('sha256', $command->getCommandLine()) . '.cmd';
+        $sender = $this->legacyCommandSender ??= LegacyCommandSender::create();
+        $commandLine = $command->getCommandLine();
 
-        return file_put_contents(
-            _CENTREON_VARLIB_ . '/centcore/' . $commandFile,
-            $command->getCommandLine() . "\n",
-            FILE_APPEND
-        );
+        try {
+            if (str_starts_with($commandLine, Command::COMMAND_TRANSFER_EXPORT_FILES)) {
+                // SENDEXPORTFILE:<remote server id>:<task id>
+                [, $remoteServerId, $taskId] = array_pad(explode(':', $commandLine, 3), 3, '0');
+                $sender->sendExportFiles((int) $remoteServerId, (int) $taskId);
+            } else {
+                $sender->sendLines($commandLine);
+            }
+        } catch (LegacyCommandException) {
+            return false;
+        }
+
+        return true;
     }
 }

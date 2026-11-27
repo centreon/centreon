@@ -3499,6 +3499,14 @@ msgstr "Le contenu n'est pas une chaîne de caractères JSON valide"
 msgid "Contribute on GitHub"
 msgstr "Contribution sur GitHub"
 
+#: centreon/src/Centreon/Infrastructure/Gorgone/LegacyCommandSender.php
+msgid "Could not read file \"%s\""
+msgstr "Impossible de lire le fichier \"%s\""
+
+#: centreon/src/Centreon/Infrastructure/Gorgone/LegacyCommandSender.php
+msgid "Could not send command to Gorgone (%s): %s"
+msgstr "Impossible d'envoyer la commande à Gorgone (%s) : %s"
+
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 msgid "Convert Trap information"
 msgstr "Convertir les informations des traps"
@@ -7843,6 +7851,10 @@ msgstr "Coordonnées géographiques pour MAP"
 msgid "Get more from Centreon"
 msgstr "Profiter davantage de Centreon"
 
+#: centreon/src/Centreon/Infrastructure/Gorgone/LegacyCommandSender.php
+msgid "Gorgone rejected the command (HTTP %d): %s"
+msgstr "Gorgone a rejeté la commande (HTTP %d) : %s"
+
 #: centreon/www/include/options/accessLists/actionsACL/formActionsAccess.php
 msgid "Global Functionalities Access"
 msgstr "Accès aux fonctionnalités globales"
@@ -8517,6 +8529,10 @@ msgstr "Problème lors de la récupération du métaservice %d"
 #: centreon/www/install/front_translate.php
 msgid "Host monitoring properties"
 msgstr "Propriétés de supervision de l'hôte"
+
+#: centreon/src/Centreon/Infrastructure/Gorgone/LegacyCommandSender.php
+msgid "Invalid Gorgone command \"%s\""
+msgstr "Commande Gorgone invalide \"%s\""
 
 #: centreon/www/include/reporting/dashboard/initReport.php
 #: centreon/www/install/front_translate.php
