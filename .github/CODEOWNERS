@@ -20,7 +20,6 @@
 *.md                                    @centreon/owners-php
 *.mdx                                   @centreon/owners-php
 **/doc/                                 @centreon/owners-php
-/centreon/doc/front/                    @centreon/owners-react
 
 **/www/front_src/                       @centreon/owners-react
 **/cypress/**                           @centreon/owners-react
