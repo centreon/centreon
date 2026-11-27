@@ -8,7 +8,7 @@ section: "default"
 priority: "optional"
 maintainer: "Centreon <contact@centreon.com>"
 description: |
-  UI to export/import centreon configuration.
+  Centreon network and system monitoring platform (central server).
   Centreon is a network, system, applicative supervision and monitoring tool,
   it is based upon the most effective Open Source monitoring engine : Nagios.
   Centreon provides a new frontend and new functionnalities to Nagios.
