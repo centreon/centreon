@@ -24,8 +24,10 @@ ini_set('display_errors', 'Off');
 use App\Kernel;
 use Centreon\Domain\Contact\Interfaces\ContactServiceInterface;
 use Centreon\Domain\MonitoringServer\Exception\GorgoneDeliveryException;
+use Centreon\Domain\MonitoringServer\Exception\IncompleteGenerationException;
 use Centreon\Infrastructure\Gorgone\LegacyCommandException;
 use Centreon\Infrastructure\Gorgone\LegacyCommandSender;
+use Centreon\Infrastructure\MonitoringServer\ConfigurationGenerationStatus;
 use Core\Domain\Engine\Model\EngineCommandGenerator;
 
 require_once realpath(__DIR__ . '/../../../../../config/centreon.config.php');
@@ -203,6 +205,13 @@ try {
         }
     }
 
+    // MON-214474: no poller is reloaded nor restarted when the last configuration generation of one of them
+    // did not complete (the files moved before it would be those of an older generation, or a mix).
+    $generationStatus = ConfigurationGenerationStatus::create();
+    foreach ($poller ?? [] as $host) {
+        $generationStatus->assertCompleted((int) $host['id'], $host['name']);
+    }
+
     // Restart broker
     $brk = new CentreonBroker($pearDB);
     $brk->reload();
@@ -259,6 +268,8 @@ try {
     if ($e instanceof LegacyCommandException && GorgoneDeliveryException::isKnownReason($e->getCode())) {
         // Lets the REST export answer with a status matching the reason (see MonitoringServerController)
         $xml->writeElement('errorcode', (string) $e->getCode());
+    } elseif ($e instanceof IncompleteGenerationException) {
+        $xml->writeElement('errorcode', (string) IncompleteGenerationException::REASON);
     }
 }
 
