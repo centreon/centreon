@@ -96,7 +96,7 @@ A handler that answers a request sent by the component under test, registered wi
 
 ### Semantic query
 
-A Testing Library query that finds an element the way a user does: by role (`getByRole`), by label (`getByLabelText`) or by text (`getByText`). A query by `data-testid` is not semantic.
+A Testing Library query that finds an element the way a user does: by role (`getByRole`), by label (`getByLabelText`), by alternative text (`getByAltText`) or by text (`getByText`). A query by `data-testid` is not semantic.
 
 ---
 

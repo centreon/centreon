@@ -8,7 +8,7 @@
 
 An [endpoint builder](../glossary.md#endpoint-builder) composes the query string of a listing from the user's filters: a search, a selection, a sort. When a filter is not set, the builder can still append it with an empty value (`name[lk]=`, an empty list in `search`). The API then receives a filter the user did not set, and the page shows a result the user did not ask for, or an error.
 
-The trap is to test the filter's container rather than its value: after a selection, an autocomplete's `search` object exists and holds only a `$ni` condition, so a check on the object is true while the user typed nothing. `buildListingEndpoint` from `@centreon/ui` omits `search` only when it is `undefined`: a defined search whose `lists` or `conditions` are empty still sends an empty `{"$and":[]}`. The caller passes `undefined` when the user set no filter, and a feature's own parameters are its own responsibility.
+The trap is to test the filter's container rather than its value: after a selection, an autocomplete's `search` object exists and holds only a `$ni` condition, so a check on the object is true while the user typed nothing. `buildListingEndpoint` from `@centreon/ui` omits `search` only when it is `undefined`: a defined search whose `lists` or `conditions` are empty still sends an empty `{"$and":[]}`. In the `JSON-LD` format, the builder sends no `search` at all; a filter there goes through `customQueryParameters`. The caller passes `undefined` when the user set no filter, and a feature's own parameters are its own responsibility.
 
 One alternative was weighed: **let the API ignore empty filters.** It lost: the frontend cannot assume it, and a request that differs from the user's intent is wrong even when the API tolerates it.
 

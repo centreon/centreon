@@ -19,7 +19,7 @@ Settled in [#12827](https://github.com/centreon/centreon/pull/12827).
 
 ## Decision
 
-Find a **control** (a button, a field, a link, a tab) **by its role and accessible name** (`getByRole('button', { name: labelSave })`) or **by its label** (`getByLabelText`), and **other content by its text**, using the [label constants](../glossary.md#label-constant). A **`data-testid` is the last resort**, when no semantic query can reach the element, and the pull request says why.
+Find a **control** (a button, a field, a link, a tab) **by its role and accessible name** (`getByRole('button', { name: labelSave })`) or **by its label** (`getByLabelText`), **an image by its alternative text** (`getByAltText`) or its role, and **other content by its text**: a translated text through its [label constant](../glossary.md#label-constant), a value from the API through the mock data that returned it. A **`data-testid` is the last resort**, when no query by role and name, label, alternative text or text can reach the element, and the pull request says why.
 
 ## Consequences
 
