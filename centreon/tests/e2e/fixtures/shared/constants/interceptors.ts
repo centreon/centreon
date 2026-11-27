@@ -39,7 +39,9 @@ export const INTERCEPTORS = {
     users_parameters: '/centreon/api/latest/configuration/users/current/parameters',
     centreon_metric: '/centreon/api/internal.php?object=centreon_metric',
     monitor_navigation_list: '/monitor/api/internal.php?object=centreon_topology&action=navigationList',
-    monitor_resources_details: '/monitor/api/latest/monitoring/resources/hosts/*/services/*'
+    monitor_resources_details: '/monitor/api/latest/monitoring/resources/hosts/*/services/*',
+    administration_parameters: '/centreon/api/latest/administration/parameters',
+    service_timeline: '/centreon/api/latest/monitoring/hosts/*/services/*/timeline'
   },
   pages: {
     event_logs_export: '/centreon/include/eventLogs/export/data.php',

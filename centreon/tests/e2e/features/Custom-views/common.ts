@@ -65,9 +65,17 @@ const deleteCustomView = () => {
   cy.getIframeBody().find('#deleteViewConfirm .bt_danger').click();
 };
 
+// Rotation interval saved for a user, in seconds
+const buildRotationTimerQuery = (login: string): string =>
+  `SELECT cp.cp_value
+    FROM contact_param cp
+    INNER JOIN contact c ON c.contact_id = cp.cp_contact_id
+    WHERE c.contact_alias = '${login}' AND cp.cp_key = 'widget_view_rotation'`;
+
 export {
   addCustomView,
   addSharedView,
+  buildRotationTimerQuery,
   deleteCustomView,
   shareCustomView,
   visitCustomViewPage
