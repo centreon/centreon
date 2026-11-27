@@ -6,7 +6,7 @@ set -euo pipefail
 # is what keeps the url and its checksum from ever disagreeing -- the same reason
 # cma-release-entries.sh re-downloads its assets.
 #
-# Emits on stdout the TSV publish-download-release.sh consumes:
+# Emits on stdout the TSV the shared download-site publication action consumes:
 #   product  train  state  os  version  file  date  md5  size
 #
 # Everything is derived from the bundle tag and the component tags pointing at its commit. Nothing
