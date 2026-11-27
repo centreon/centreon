@@ -181,23 +181,94 @@ const assertPollerIsRunning = (name: string): void => {
     .should('exist');
 };
 
+// Real poller of the "poller" compose profile
+
+// The poller registers itself under its container hostname
+const pollerHostnameCommand = 'hostname';
+
+// Columns of the legacy pollers listing (listServers.ihtml)
+const pollerListColumns = {
+  isRunning: 4,
+  lastUpdate: 8,
+  pid: 6,
+  version: 9
+};
+
+const buildRemotePollerQuery = (name: string): string =>
+  `SELECT id FROM nagios_server WHERE name = '${name}' AND localhost = '0' AND ns_activate = '1'`;
+
+const buildPollerInstanceQuery = (name: string): string =>
+  `SELECT running, pid, version, last_alive, UNIX_TIMESTAMP() AS now FROM instances WHERE name = '${name}' AND deleted = 0`;
+
+const enabledPollersCountQuery =
+  "SELECT COUNT(*) AS count FROM nagios_server WHERE ns_activate = '1'";
+
+// Fails (grep exit code 1) when no process command line matches the pattern;
+// write the pattern as "[c]entengine" so that it does not match itself
+const buildRunningProcessCommand = (pattern: string): string =>
+  `for process in /proc/[0-9]*; do tr '\\0' ' ' < "$process/cmdline" 2>/dev/null; echo; done | grep -E '${pattern}'`;
+
+const buildHostCheckQuery = (hostName: string): string =>
+  `SELECT h.has_been_checked, h.last_check, UNIX_TIMESTAMP() AS now FROM hosts h WHERE h.name = '${hostName}' AND h.enabled = 1`;
+
+const buildServiceCheckQuery = (
+  hostName: string,
+  serviceName: string
+): string =>
+  `SELECT s.has_been_checked, s.last_check, UNIX_TIMESTAMP() AS now FROM services s INNER JOIN hosts h ON h.host_id = s.host_id WHERE h.name = '${hostName}' AND s.description = '${serviceName}' AND s.enabled = 1`;
+
+interface PollerIssueLevel {
+  poller?: Array<{ name: string }>;
+}
+
+interface PollersIssues {
+  issues: Record<string, Record<string, PollerIssueLevel | number>> | [];
+  total: number;
+}
+
+// Names of the pollers the top counter lists under an issue (latency, stability, database)
+const listPollersWithIssue = (
+  { issues }: PollersIssues,
+  issue: string
+): Array<string> => {
+  if (Array.isArray(issues) || !issues[issue]) {
+    return [];
+  }
+
+  return Object.values(issues[issue]).flatMap((level) =>
+    typeof level === 'number'
+      ? []
+      : (level.poller ?? []).map(({ name }) => name)
+  );
+};
+
 export {
   assertPollerIsRunning,
   breakSomePollers,
   buildDeleteInstanceByNameQuery,
   buildDeletePollerByNameQuery,
+  buildHostCheckQuery,
   buildInsertPollerQuery,
   buildInsertRunningInstanceQuery,
+  buildPollerInstanceQuery,
+  buildRemotePollerQuery,
+  buildRunningProcessCommand,
+  buildServiceCheckQuery,
   checkIfConfigurationIsNotExported,
   checkIfMethodIsAppliedToPollers,
   clearCentengineLogs,
   duplicatedPollerInstanceId,
   duplicatedPollerName,
+  enabledPollersCountQuery,
   getPoller,
   insertHost,
   insertPollerConfigUserAcl,
   legacyPollerName,
   legacyPollerUid,
+  listPollersWithIssue,
+  type PollersIssues,
+  pollerHostnameCommand,
+  pollerListColumns,
   pollerName,
   pollerUid,
   registerRunningInstance,

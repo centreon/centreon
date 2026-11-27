@@ -40,6 +40,8 @@ export const PAGES = {
     servicesGridLegacy: '/centreon/main.php?p=20204&o=svcOV_pb',
     escalationsLegacy: '/centreon/main.php?p=60401',
     pollersLegacy: '/centreon/main.php?p=60901',
+    pollersExportLegacy: '/centreon/main.php?p=60902',
+    extensionsManager: '/centreon/administration/extensions/manager',
     centreonUiLegacy: '/centreon/main.php?p=50110&o=general',
     snmpTrapsLegacy: '/centreon/main.php?p=61701',
     hostsKnowledgeBaseLegacy: '/centreon/main.php?p=61001',
