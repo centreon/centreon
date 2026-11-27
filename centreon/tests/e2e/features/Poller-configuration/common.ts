@@ -181,13 +181,55 @@ const assertPollerIsRunning = (name: string): void => {
     .should('exist');
 };
 
+// Engine configuration of a poller: its id and the file it is exported to
+const buildEngineConfigurationQuery = (pollerId: number): string =>
+  `SELECT nagios_id, cfg_dir, cfg_file, service_check_timeout FROM cfg_nagios WHERE nagios_server_id = ${pollerId} ORDER BY nagios_id LIMIT 1`;
+
+// Broker module (not the cbd daemon) of a poller and the file it is exported to
+const buildBrokerModuleQuery = (pollerId: number): string =>
+  `SELECT b.config_id, b.config_filename, s.centreonbroker_cfg_path AS cfg_path
+    FROM cfg_centreonbroker b
+    INNER JOIN nagios_server s ON s.id = b.ns_nagios_server
+    WHERE b.ns_nagios_server = ${pollerId} AND b.daemon = 0
+    ORDER BY b.config_id LIMIT 1`;
+
+const buildBrokerLogLevelQuery = (configId: number, logName: string): string =>
+  `SELECT lvl.name AS level
+    FROM cfg_centreonbroker_log r
+    INNER JOIN cb_log l ON l.id = r.id_log
+    INNER JOIN cb_log_level lvl ON lvl.id = r.id_level
+    WHERE r.id_centreonbroker = ${configId} AND l.name = '${logName}'`;
+
+const buildInstanceProcessQuery = (pollerName: string): string =>
+  `SELECT pid, running FROM instances WHERE name = '${pollerName}' AND deleted = 0`;
+
+// Columns of the pollers list
+const pidColumnIndex = 6;
+
+// Logger level of a Broker JSON configuration file
+const brokerLoggerLevel = (
+  brokerFile: string,
+  logger: string
+): string | undefined => {
+  const configuration = JSON.parse(brokerFile) as {
+    centreonBroker: { log: { loggers: Record<string, string> } };
+  };
+
+  return configuration.centreonBroker.log.loggers[logger];
+};
+
 export {
   assertPollerIsRunning,
   breakSomePollers,
+  brokerLoggerLevel,
+  buildBrokerLogLevelQuery,
+  buildBrokerModuleQuery,
   buildDeleteInstanceByNameQuery,
   buildDeletePollerByNameQuery,
+  buildEngineConfigurationQuery,
   buildInsertPollerQuery,
   buildInsertRunningInstanceQuery,
+  buildInstanceProcessQuery,
   checkIfConfigurationIsNotExported,
   checkIfMethodIsAppliedToPollers,
   clearCentengineLogs,
@@ -198,6 +240,7 @@ export {
   insertPollerConfigUserAcl,
   legacyPollerName,
   legacyPollerUid,
+  pidColumnIndex,
   pollerName,
   pollerUid,
   registerRunningInstance,
