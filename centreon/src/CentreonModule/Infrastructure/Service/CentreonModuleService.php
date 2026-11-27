@@ -144,6 +144,21 @@ class CentreonModuleService
     }
 
     /**
+     * For a module possibly upgraded meanwhile, e.g. as a dependency of another.
+     *
+     * @return Module|null the updated module, null when it is no longer outdated or no longer found
+     */
+    public function updateIfOutdated(string $id, string $type): ?Module
+    {
+        $current = $this->getDetail($id, $type);
+        if ($current === null || ! self::isOutdated($current)) {
+            return null;
+        }
+
+        return $this->update($id, $type);
+    }
+
+    /**
      * A failure does not stop the others: failures are reported once all were attempted.
      *
      * @throws \RuntimeException when some could not be updated
@@ -158,15 +173,10 @@ class CentreonModuleService
         foreach ($this->getOutdated($type) as $outdated) {
             try {
                 // Possibly upgraded as a dependency of one attempted before.
-                if ($attempted) {
-                    $current = $this->getDetail($outdated->getId(), $type);
-                    if ($current === null || ! self::isOutdated($current)) {
-                        continue;
-                    }
-                }
+                $entity = $attempted
+                    ? $this->updateIfOutdated($outdated->getId(), $type)
+                    : $this->update($outdated->getId(), $type);
                 $attempted = true;
-
-                $entity = $this->update($outdated->getId(), $type);
             } catch (\Throwable $exception) {
                 LoggerUpgrade::create()->error(
                     InstalledVersions::getRootPackage()['pretty_version'],
