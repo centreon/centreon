@@ -38,7 +38,8 @@ interface PerformanceMetric {
 }
 
 const apiLatest = '/centreon/api/latest';
-const notAllowedLabel = 'You are not allowed to see this page';
+// Rendered in the iframe of a legacy page the user may not reach
+const legacyNotAllowedMessage = 'You are not allowed to reach this page';
 const perfdata = 'rbt_value=95;80;90';
 // APPLYCFG reloads Broker a few seconds after Engine: a result sent while
 // its SQL output restarts never reaches the real-time tables
@@ -72,6 +73,10 @@ beforeEach(() => {
     method: 'GET',
     url: /\/api\/latest\/monitoring\/dashboard\/metrics\/performances\/data\?.*$/
   }).as('getPerformanceData');
+  cy.intercept({
+    method: 'GET',
+    url: INTERCEPTORS.pages.time_zone
+  }).as('getTimeZone');
 });
 
 afterEach(() => {
@@ -394,8 +399,12 @@ Then(
 );
 
 Then('the hosts configuration page is refused to {word}', () => {
+  cy.request(PAGES.configuration.hostsLegacyFrame)
+    .its('body')
+    .should('contain', legacyNotAllowedMessage);
+
   cy.visit(PAGES.configuration.hostsLegacy);
-  cy.getByTestId({ testId: notAllowedLabel }).should('be.visible');
+  cy.getIframeBody().should('contain', legacyNotAllowedMessage);
 });
 
 Then(
@@ -546,6 +555,8 @@ Then(
 );
 
 Then('the administrator sees every rbt-acl resource', () => {
+  // Drop the session of the restricted user first
+  cy.clearCookies();
   cy.loginAsAdminViaApiV2();
 
   visibleResourceNames().then((visible) => {
@@ -594,6 +605,7 @@ When(
     metricName: string,
     graphHost: string
   ) => {
+    cy.clearCookies();
     cy.loginAsAdminViaApiV2();
     dashboardTableHosts = [firstHost, secondHost];
 
@@ -809,7 +821,24 @@ Given(
 When(
   'the administrator adds {word} to the resources access {word} without reloading the ACL',
   (host: string, resourcesAccess: string) => {
-    clapi('GRANT_HOST', 'ACLRESOURCE', `${resourcesAccess};${host}`);
+    // Through the form: a CLAPI GRANT_HOST does not flag the access as changed
+    cy.clearCookies();
+    cy.loginByTypeOfUser({ jsonName: 'admin', loginViaApi: false });
+    cy.visit(PAGES.configuration.aclResourcesAccessLegacy);
+    cy.wait('@getTimeZone');
+
+    cy.getIframeBody().contains('td.ListColLeft > a', resourcesAccess).click();
+    cy.wait('@getTimeZone');
+
+    cy.getIframeBody().find('#c2 a').click();
+    cy.getIframeBody()
+      .find('select[name="acl_hosts-f[]"]')
+      .select(host)
+      .closest('table')
+      .find('input[name="add"]')
+      .click();
+    cy.getIframeBody().find('input[name="submitC"]').eq(0).click();
+    cy.wait('@getTimeZone');
   }
 );
 

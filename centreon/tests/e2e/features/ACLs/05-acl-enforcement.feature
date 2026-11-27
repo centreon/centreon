@@ -34,7 +34,7 @@ Feature: ACL enforcement
   Scenario: A user without the acknowledge action cannot acknowledge a host until the action is granted
     Given rbt-acl-user sees the Down host rbt-acl-host-in in Resources Status
     And no actions access is linked to rbt-acl-group
-    Then the Acknowledge action is disabled for rbt-acl-user and the acknowledge API answers 403
+    Then the Acknowledge action is disabled for rbt-acl-user and the acknowledge API answers 401
     When the administrator creates the actions access rbt-acl-actions granting only Acknowledge a host to rbt-acl-group
     And the administrator reloads the ACL of rbt-acl-user
     Then the acknowledge API answers 204 for rbt-acl-user and rbt-acl-host-in is acknowledged
