@@ -12,8 +12,8 @@ const useStyles = makeStyles()((theme) => ({
         width: 'auto'
       },
       display: 'grid',
-      gridGap: theme.spacing(2.5),
-      gridTemplateColumns: `repeat(auto-fill, ${theme.spacing(53)})`
+      gridGap: theme.spacing(2),
+      gridTemplateColumns: 'repeat(5, 1fr)'
     },
     '&[data-variant="listing"]': {
       height: '100%'

@@ -6,7 +6,7 @@ import { ViewMode } from './models';
 
 type SortOrder = 'asc' | 'desc';
 
-export const limitAtom = atom<number | undefined>(10);
+export const limitAtom = atom<number | undefined>(30);
 export const pageAtom = atom<number | undefined>(undefined);
 export const totalAtom = atom<number>(0);
 export const sortOrderAtom = atom<SortOrder>('asc');

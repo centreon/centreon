@@ -1,4 +1,6 @@
-import { PageHeader, PageLayout } from '@centreon/ui/components';
+import { Divider, Typography } from '@mui/material';
+
+import { PageLayout } from '@centreon/ui/components';
 
 import type { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -9,22 +11,43 @@ import DeleteDashboardModal from './components/DashboardLibrary/DeleteDashboardM
 import DuplicateDashboardModal from './components/DashboardLibrary/DuplicateDashboardModal';
 import DashboardNavbar from './components/DashboardNavbar/DashboardNavbar';
 import DashboardPageLayout from './components/DashboardPageLayout';
-import { labelDashboards } from './translatedLabels';
+import { useDashboardsPageStyles } from './DashboardsPage.styles';
+import {
+  labelDashboards,
+  labelDashboardsDescription
+} from './translatedLabels';
 
 const DashboardsPage = (): ReactElement => {
   const { t } = useTranslation();
+  const { classes } = useDashboardsPageStyles();
 
   return (
     <PageLayout>
       <PageLayout.Header>
-        <PageHeader>
-          <PageHeader.Main>
-            <PageHeader.Title title={t(labelDashboards)} />
-          </PageHeader.Main>
-          <PageHeader.Actions>
-            <DashboardNavbar />
-          </PageHeader.Actions>
-        </PageHeader>
+        <div className={classes.headerRow}>
+          <div className={classes.titleGroup}>
+            <Typography
+              aria-label="page header title"
+              className={classes.titleText}
+              variant="h1"
+            >
+              {t(labelDashboards)}
+            </Typography>
+            <Divider
+              className={classes.titleSeparator}
+              flexItem
+              orientation="vertical"
+            />
+            <Typography
+              aria-label="page header description"
+              className={classes.titleDescription}
+              variant="body2"
+            >
+              {t(labelDashboardsDescription)}
+            </Typography>
+          </div>
+          <DashboardNavbar />
+        </div>
       </PageLayout.Header>
       <PageLayout.Body>
         <DashboardPageLayout />
