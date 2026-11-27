@@ -8,8 +8,11 @@ Feature: Update platform from version A to version B of the same MAJOR
   Scenario Outline: Administrator performs a platform update procedure
     Given a running platform in '<version_from>' version
     When administrator updates packages to current version
+    And a module is outdated
     And administrator runs the update procedure
-    Then monitoring should be up and running after update procedure is complete to current version
+    Then the outdated module should be upgraded
+    And monitoring should be up and running after update procedure is complete to current version
+    And every database migration should be executed
     And legacy services grid page should still work
 
     When administrator exports Poller configuration

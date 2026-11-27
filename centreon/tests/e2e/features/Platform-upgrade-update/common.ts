@@ -7,6 +7,7 @@ import { checkIfConfigurationIsExported, insertFixture } from '../../commons';
 const dateBeforeLogin = new Date();
 
 const localPackageDirectory = 'fixtures/packages';
+const outdatedModule = 'centreon-e2e-outdated';
 const containerPackageDirectory = '/tmp/packages-update-centreon';
 
 const getCentreonPreviousMajorVersion = (majorVersionFrom: string): string => {
@@ -579,6 +580,18 @@ When('administrator updates packages to current version', () => {
   updatePlatformPackages();
 });
 
+When('a module is outdated', () => {
+  cy.copyToContainer({
+    destination: `/usr/share/centreon/www/modules/${outdatedModule}`,
+    source: `./fixtures/modules/${outdatedModule}`,
+    type: CopyToContainerContentType.Directory
+  });
+  cy.requestOnDatabase({
+    database: 'centreon',
+    query: `INSERT INTO modules_informations (name, rname, mod_release, is_removeable, infos, author, svc_tools, host_tools) VALUES ('${outdatedModule}', 'E2E outdated module', '1.0.0', '1', '', 'Centreon', '0', '0')`
+  });
+});
+
 When('administrator runs the update procedure', () => {
   prepareUpdateFileForUpgrade().then(() => {
     cy.visit('/');
@@ -694,6 +707,55 @@ Then(
     );
   }
 );
+
+Then('every database migration should be executed', () => {
+  const webUser = Cypress.env('WEB_IMAGE_OS').includes('alma')
+    ? 'apache'
+    : 'www-data';
+
+  // Exits with an error when a set is refused or a legacy update script is still pending.
+  cy.execInContainer({
+    command: `su ${webUser} -s /bin/bash -c "/usr/share/centreon/bin/console.new centreon:migrations:status"`,
+    name: 'web'
+  }).then(({ output }) => {
+    const pending = [...output.matchAll(/Pending\s+(\S+)/g)].map(
+      ([, value]) => value
+    );
+    // The core sets, and those of the modules shipping migrations.
+    expect(pending).not.to.be.empty;
+    pending.forEach((value) => expect(value).to.equal('-'));
+  });
+
+  [
+    { database: 'centreon_storage', set: 'realtime' },
+    { database: 'centreon', set: 'configuration' }
+  ].forEach(({ database, set }) => {
+    cy.execInContainer({
+      command: `find /usr/share/centreon/migrations/${set} -name 'Version*.php' | wc -l`,
+      name: 'web'
+    }).then(({ output }) => {
+      // The table is created by the wizard: a missing one means the migrations never ran.
+      cy.requestOnDatabase({
+        database,
+        query: 'SELECT COUNT(*) AS executed FROM doctrine_migration_versions'
+      }).then(([rows]) => {
+        expect(Number(rows[0].executed)).to.equal(Number(output.trim()));
+      });
+    });
+  });
+});
+
+Then('the outdated module should be upgraded', () => {
+  cy.contains('td', `Module ${outdatedModule} upgrade`)
+    .next()
+    .should('have.text', 'OK');
+  cy.requestOnDatabase({
+    database: 'centreon',
+    query: `SELECT mod_release FROM modules_informations WHERE name = '${outdatedModule}'`
+  }).then(([rows]) => {
+    expect(rows[0].mod_release).to.equal('1.0.1');
+  });
+});
 
 Then('legacy services grid page should still work', () => {
   cy.visit(PAGES.configuration.servicesGridLegacy).wait('@getTimeZone');

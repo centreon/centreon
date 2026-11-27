@@ -49,6 +49,22 @@ class CentreonModuleServiceTest extends TestCase
         $this->assertSame([], $this->service($source)->getOutdated('unknown'));
     }
 
+    public function testUpdatesAModuleOnlyWhileItIsOutdated(): void
+    {
+        $source = $this->createMock(ModuleSource::class);
+        $source->method('getDetail')->willReturnMap([
+            ['bam', $this->module('bam', updated: false)],
+            ['license-manager', $this->module('license-manager', updated: true)],
+            ['removed', null],
+        ]);
+        $source->expects($this->once())->method('update')->with('bam')->willReturn($this->module('bam', updated: true));
+        $service = $this->service($source);
+
+        $this->assertSame('bam', $service->updateIfOutdated('bam', ModuleSource::TYPE)?->getId());
+        $this->assertNull($service->updateIfOutdated('license-manager', ModuleSource::TYPE));
+        $this->assertNull($service->updateIfOutdated('removed', ModuleSource::TYPE));
+    }
+
     public function testUpdateAllSkipsTheModulesAlreadyUpdatedAsADependency(): void
     {
         $source = $this->createMock(ModuleSource::class);

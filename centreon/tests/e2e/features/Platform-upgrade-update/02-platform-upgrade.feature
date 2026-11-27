@@ -7,8 +7,11 @@ Feature: Upgrade platform from major version A to major version B
     Given a running platform in major '<major_from>' with '<version_from>' version
     And the central broker is '<broker_link>' to the cbd daemon
     When administrator updates packages to current version
+    And a module is outdated
     And administrator runs the update procedure
-    Then monitoring should be up and running after update procedure is complete to current version
+    Then the outdated module should be upgraded
+    And monitoring should be up and running after update procedure is complete to current version
+    And every database migration should be executed
     And legacy services grid page should still work
 
     When administrator exports Poller configuration

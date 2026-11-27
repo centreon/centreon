@@ -39,6 +39,10 @@
             'file': './steps/process/partitionTables.php',
             'label': '{/literal}{t}Partitioning database tables{/t}{literal}'
         },
+        'migrations': {
+            'file': './steps/process/migrateDatabases.php',
+            'label': '{/literal}{t}Applying database migrations{/t}{literal}'
+        },
         'generationCache': {
             'file': './steps/process/generationCache.php',
             'label': '{/literal}{t}Generating application cache{/t}{literal}'
@@ -59,7 +63,12 @@
             type: 'POST',
             url: dbSteps[key].file,
             success: (response) => {
-                var data = jQuery.parseJSON(response);
+                var data;
+                try {
+                    data = jQuery.parseJSON(response);
+                } catch (e) {
+                    data = {'id': key, 'result': 1, 'msg': 'Unexpected response'};
+                }
                 if (data['result'] == 0) {
                     jQuery('#' + data['id']).html('<span style="color:#88b917;">OK</span>');
                     if (key == 'configfile') {
@@ -73,6 +82,8 @@
                     } else if (key == 'baseconf') {
                         nextInstallStep('dbpartitioning');
                     } else if (key == 'dbpartitioning') {
+                        nextInstallStep('migrations');
+                    } else if (key == 'migrations') {
                         nextInstallStep('generationCache');
                     } else if (key == 'generationCache') {
                         jQuery("#next").show();
@@ -82,6 +93,11 @@
                     jQuery("#refresh").show();
                     jQuery('#'+data['id']).html('<span style="color:#8B0000;">' + data['msg'] + '</span>');
                 }
+            },
+            error: () => {
+                jQuery("#previous").show();
+                jQuery("#refresh").show();
+                jQuery('#' + key).html('<span style="color:#8B0000;">Request failed</span>');
             }
         });
     }
