@@ -128,43 +128,39 @@ class CentreonSession
         $sessionId = session_id();
 
         if (self::checkSession($sessionId, $pearDB)) {
-            try {
-                $sessionStatement = $pearDB->prepare(
-                    'UPDATE `session`
+            $sessionStatement = $pearDB->prepare(
+                'UPDATE `session`
                     SET `last_reload` = :lastReload, `ip_address` = :ipAddress
                     WHERE `session_id` = :sessionId'
-                );
-                $sessionStatement->bindValue(':lastReload', time(), PDO::PARAM_INT);
-                $sessionStatement->bindValue(':ipAddress', $_SERVER['REMOTE_ADDR'], PDO::PARAM_STR);
-                $sessionStatement->bindValue(':sessionId', $sessionId, PDO::PARAM_STR);
-                $sessionStatement->execute();
+            );
+            $sessionStatement->bindValue(':lastReload', time(), PDO::PARAM_INT);
+            $sessionStatement->bindValue(':ipAddress', $_SERVER['REMOTE_ADDR'], PDO::PARAM_STR);
+            $sessionStatement->bindValue(':sessionId', $sessionId, PDO::PARAM_STR);
+            $sessionStatement->execute();
 
-                $sessionExpire = 120;
-                $optionResult = $pearDB->query(
-                    "SELECT `value`
+            $sessionExpire = 120;
+            $optionResult = $pearDB->query(
+                "SELECT `value`
                     FROM `options`
                     WHERE `key` = 'session_expire'"
-                );
-                if (($option = $optionResult->fetch()) && ! empty($option['value'])) {
-                    $sessionExpire = (int) $option['value'];
-                }
+            );
+            if (($option = $optionResult->fetch()) && ! empty($option['value'])) {
+                $sessionExpire = (int) $option['value'];
+            }
 
-                $expirationDate = (new Datetime())
-                    ->add(new DateInterval('PT' . $sessionExpire . 'M'))
-                    ->getTimestamp();
-                $tokenStatement = $pearDB->prepare(
-                    'UPDATE `security_token`
+            $expirationDate = (new Datetime())
+                ->add(new DateInterval('PT' . $sessionExpire . 'M'))
+                ->getTimestamp();
+            $tokenStatement = $pearDB->prepare(
+                'UPDATE `security_token`
                     SET `expiration_date` = :expirationDate
                     WHERE `token` = :sessionId'
-                );
-                $tokenStatement->bindValue(':expirationDate', $expirationDate, PDO::PARAM_INT);
-                $tokenStatement->bindValue(':sessionId', $sessionId, PDO::PARAM_STR);
-                $tokenStatement->execute();
+            );
+            $tokenStatement->bindValue(':expirationDate', $expirationDate, PDO::PARAM_INT);
+            $tokenStatement->bindValue(':sessionId', $sessionId, PDO::PARAM_STR);
+            $tokenStatement->execute();
 
-                $sessionUpdated = true; // return true if session is properly updated
-            } catch (PDOException $e) {
-                $sessionUpdated = false; // return false if session is not properly updated in database
-            }
+            $sessionUpdated = true; // return true if session is properly updated
         } else {
             $sessionUpdated = false; // return false if session does not exist
         }
