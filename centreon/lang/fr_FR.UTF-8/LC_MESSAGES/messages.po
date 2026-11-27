@@ -15805,6 +15805,14 @@ msgstr "Certains collecteurs ne sont pas à jour en base de données ; vérifiez
 msgid "Some examples:"
 msgstr "Quelques exemples :"
 
+#: centreon/www/include/monitoring/recurrentDowntime/downtime.php
+msgid ""
+"Some recurring downtimes were not processed because you don't have access "
+"to all of their resources"
+msgstr ""
+"Certaines plages de maintenance récurrentes n'ont pas été traitées car vous "
+"n'avez pas la permission d'accéder à toutes les ressources liées"
+
 #: centreon/www/install/dashboard_widgets.php
 msgid "Sort by"
 msgstr "Trier par"
@@ -19303,6 +19311,24 @@ msgstr "Vous ne pouvez pas changer votre mot de passe car le délai avant change
 #: centreon/www/install/smarty_translate.php
 msgid "You can't edit this downtime because you don't have access to all of its resources"
 msgstr "Vous ne pouvez pas éditer cette plage de maintenance car vous n'avez pas la permission d'accéder à toutes les ressources liées"
+
+#: centreon/www/include/monitoring/recurrentDowntime/formDowntime.php
+msgid "You can't link this downtime to disabled resources"
+msgstr ""
+"Vous ne pouvez pas lier cette plage de maintenance à des ressources "
+"désactivées"
+
+#: centreon/www/include/monitoring/recurrentDowntime/formDowntime.php
+msgid "You can't link this downtime to resources you don't have access to"
+msgstr ""
+"Vous ne pouvez pas lier cette plage de maintenance à des ressources "
+"auxquelles vous n'avez pas accès"
+
+#: centreon/www/include/monitoring/recurrentDowntime/formDowntime.php
+msgid "You can't link this downtime to services that do not belong to their host"
+msgstr ""
+"Vous ne pouvez pas lier cette plage de maintenance à des services qui "
+"n'appartiennent pas à leur hôte"
 
 #: centreon/www/install/smarty_translate.php
 msgid "You cannot add more charts. The maximum charts is "

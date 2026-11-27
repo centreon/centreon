@@ -19,6 +19,10 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+
 /**
  * Class
  *
@@ -60,6 +64,9 @@ class CentreonDowntime
 
     /** @var array|null */
     protected ?array $downtimes = null;
+
+    /** @var array<string, array<int|string, mixed>> ACL resources cache, keyed by ACL object, type and host */
+    private array $allowedResources = [];
 
     /**
      * CentreonDowntime constructor
@@ -312,7 +319,7 @@ class CentreonDowntime
      * @param int $downtimeId
      *
      * @throws PDOException
-     * @return array<string, array<int, array{id: string, activated: '0'|'1'}>>
+     * @return array<string, array<int, array{id: string, activated: '0'|'1', meta_id?: string}>>
      */
     public function getRelations(int $downtimeId): array
     {
@@ -350,12 +357,16 @@ class CentreonDowntime
                         SQL;
                     break;
                 case 'services':
+                    // Meta services hang on the _Module_Meta host and are named meta_<meta_id>.
                     $query = <<<'SQL'
                         SELECT CONCAT(dsr.host_host_id, CONCAT('-', dsr.service_service_id)) AS resource_id,
-                            s.service_activate AS activated
+                            IF(s.service_activate = '1' AND h.host_activate = '1', '1', '0') AS activated,
+                            IF(h.host_register = '2' AND h.host_name = '_Module_Meta', SUBSTRING(s.service_description, 6), NULL) AS meta_id
                         FROM downtime_service_relation dsr
                         INNER JOIN service s
                             ON dsr.service_service_id = s.service_id
+                        INNER JOIN host h
+                            ON dsr.host_host_id = h.host_id
                         WHERE
                             dt_id = :downtimeId;
                         SQL;
@@ -380,16 +391,165 @@ class CentreonDowntime
             $statement->execute();
 
             foreach ($statement as $record) {
-                $relations[$resourceType][] = [
+                $relation = [
                     'id' => $record['resource_id'],
                     'activated' => $record['activated'],
                 ];
+                if (isset($record['meta_id'])) {
+                    $relation['meta_id'] = $record['meta_id'];
+                }
+                $relations[$resourceType][] = $relation;
             }
 
             $statement->closeCursor();
         }
 
         return $relations;
+    }
+
+    /**
+     * Returns the downtime ids the user is allowed to manage.
+     *
+     * A downtime is allowed when every enabled host, host group, service and service group it targets
+     * is part of the user's ACL. Disabled resources outside the ACL do not block it.
+     *
+     * @param list<int|string> $downtimeIds
+     * @param CentreonACL $userAcl
+     *
+     * @throws PDOException
+     * @return list<int>
+     */
+    public function filterIdsAllowedForUser(array $downtimeIds, CentreonACL $userAcl): array
+    {
+        return array_values(
+            array_filter(
+                array_map('intval', $downtimeIds),
+                fn (int $downtimeId): bool => $this->isAllowedForUser($downtimeId, $userAcl)
+            )
+        );
+    }
+
+    /**
+     * Same rule as filterIdsAllowedForUser(), for a single downtime.
+     *
+     * @param int $downtimeId
+     * @param CentreonACL $userAcl
+     *
+     * @throws PDOException
+     * @return bool
+     */
+    public function isAllowedForUser(int $downtimeId, CentreonACL $userAcl): bool
+    {
+        foreach ($this->getRelations($downtimeId) as $resourceType => $resources) {
+            foreach ($resources as $resource) {
+                if ($resource['activated'] !== '1') {
+                    continue;
+                }
+                if (! $this->isResourceAllowed($userAcl, $resourceType, $resource)) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Tells whether the user may link the submitted resources to a downtime.
+     *
+     * Every submitted resource must be part of the user's ACL, except the ones already linked to the downtime:
+     * isAllowedForUser() covers those, and a disabled resource outside the ACL must survive an edit.
+     *
+     * @param array<string, list<int|string>> $submittedRelations submitted ids indexed by getRelations() key,
+     *                                                            services being identified by '<hostId>-<serviceId>'
+     * @param int|null $downtimeId the edited downtime, null on creation
+     * @param CentreonACL $userAcl
+     *
+     * @throws PDOException
+     * @throws ConnectionException
+     * @return bool
+     */
+    public function areSubmittedRelationsAllowedForUser(
+        array $submittedRelations,
+        ?int $downtimeId,
+        CentreonACL $userAcl,
+    ): bool {
+        $newRelations = $this->findNewlySubmittedRelations($submittedRelations, $downtimeId);
+        $metaIds = $this->findMetaIdsByServiceKey($newRelations['services'] ?? []);
+
+        foreach ($newRelations as $resourceType => $resourceIds) {
+            foreach ($resourceIds as $resourceId) {
+                // A service id that is not '<hostId>-<serviceId>' can only come from a crafted request
+                if ($resourceType === 'services' && preg_match('/^\d+-\d+\z/', $resourceId) !== 1) {
+                    return false;
+                }
+
+                $resource = ['id' => $resourceId, 'activated' => '1'];
+                if (isset($metaIds[$resourceId])) {
+                    $resource['meta_id'] = $metaIds[$resourceId];
+                }
+
+                if (! $this->isResourceAllowed($userAcl, $resourceType, $resource)) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Tells whether every submitted resource is enabled, whoever the user is.
+     *
+     * Resources already linked to the downtime are not checked: a disabled one must survive an edit.
+     *
+     * @param array<string, list<int|string>> $submittedRelations submitted ids indexed by getRelations() key,
+     *                                                            services being identified by '<hostId>-<serviceId>'
+     * @param int|null $downtimeId the edited downtime, null on creation
+     *
+     * @throws PDOException
+     * @throws ConnectionException
+     * @return bool
+     */
+    public function areSubmittedRelationsEnabled(array $submittedRelations, ?int $downtimeId): bool
+    {
+        foreach ($this->findNewlySubmittedRelations($submittedRelations, $downtimeId) as $resourceType => $resourceIds) {
+            if ($resourceIds === []) {
+                continue;
+            }
+
+            $enabledIds = $this->findEnabledResourceIds($resourceType, $resourceIds);
+            if (array_diff($resourceIds, $enabledIds) !== []) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Tells whether every submitted service belongs to the host it is submitted with, enabled or not.
+     *
+     * Services already linked to the downtime are not checked, like in areSubmittedRelationsEnabled().
+     *
+     * @param array<string, list<int|string>> $submittedRelations submitted ids indexed by getRelations() key,
+     *                                                            services being identified by '<hostId>-<serviceId>'
+     * @param int|null $downtimeId the edited downtime, null on creation
+     *
+     * @throws PDOException
+     * @throws ConnectionException
+     * @return bool
+     */
+    public function areSubmittedServicesLinkedToTheirHost(array $submittedRelations, ?int $downtimeId): bool
+    {
+        $newServiceKeys = $this->findNewlySubmittedRelations($submittedRelations, $downtimeId)['services'] ?? [];
+        if ($newServiceKeys === []) {
+            return true;
+        }
+
+        $linkedServiceKeys = array_map('strval', array_keys($this->findLinkedServiceKeys($newServiceKeys)));
+
+        return array_diff($newServiceKeys, $linkedServiceKeys) === [];
     }
 
     /**
@@ -1143,6 +1303,205 @@ class CentreonDowntime
     }
 
     /**
+     * Returns the meta id of the meta services among the given services, indexed by '<hostId>-<serviceId>'.
+     * Meta services hang on the _Module_Meta host and are named meta_<meta_id>.
+     *
+     * @param list<int|string> $serviceKeys '<hostId>-<serviceId>' identifiers
+     *
+     * @throws ConnectionException
+     * @return array<string, string>
+     */
+    protected function findMetaIdsByServiceKey(array $serviceKeys): array
+    {
+        $serviceIds = [];
+        foreach ($serviceKeys as $serviceKey) {
+            if (preg_match('/^\d+-(\d+)\z/', (string) $serviceKey, $matches) === 1) {
+                $serviceIds[] = (int) $matches[1];
+            }
+        }
+
+        if ($serviceIds === []) {
+            return [];
+        }
+
+        [$queryParameters, $placeholders] = $this->createIntQueryParameters($serviceIds, 'service_id_');
+
+        /** @var array<string, string> $metaIds */
+        return $this->db->fetchAllKeyValue(
+            <<<SQL
+                SELECT CONCAT(h.host_id, CONCAT('-', s.service_id)) AS service_key,
+                    SUBSTRING(s.service_description, 6) AS meta_id
+                FROM host_service_relation hsr
+                INNER JOIN host h
+                    ON hsr.host_host_id = h.host_id
+                    AND h.host_register = '2'
+                    AND h.host_name = '_Module_Meta'
+                INNER JOIN service s
+                    ON hsr.service_service_id = s.service_id
+                WHERE s.service_id IN ({$placeholders})
+                SQL,
+            QueryParameters::create($queryParameters)
+        );
+    }
+
+    /**
+     * Returns the given resources that are enabled. A service is enabled when both it and its host are.
+     *
+     * @param string $resourceType a getRelations() key: 'hosts', 'hostgroups', 'services' or 'servicegroups'
+     * @param list<string> $resourceIds services being identified by '<hostId>-<serviceId>'
+     *
+     * @throws ConnectionException
+     * @return list<string>
+     */
+    protected function findEnabledResourceIds(string $resourceType, array $resourceIds): array
+    {
+        if ($resourceType === 'services') {
+            // A service of another host is not linked, so it is never enabled either
+            $enabledServiceKeys = array_keys(array_filter(
+                $this->findLinkedServiceKeys($resourceIds),
+                static fn (int|string $isEnabled): bool => (string) $isEnabled === '1'
+            ));
+
+            return array_map('strval', $enabledServiceKeys);
+        }
+
+        $ids = array_map('intval', array_filter($resourceIds, 'ctype_digit'));
+        if ($ids === []) {
+            return [];
+        }
+
+        [$queryParameters, $placeholders] = $this->createIntQueryParameters($ids, 'id_');
+
+        $query = match ($resourceType) {
+            'hosts' => "SELECT host_id FROM host WHERE host_activate = '1' AND host_id IN ({$placeholders})",
+            'hostgroups' => "SELECT hg_id FROM hostgroup WHERE hg_activate = '1' AND hg_id IN ({$placeholders})",
+            'servicegroups' => "SELECT sg_id FROM servicegroup WHERE sg_activate = '1' AND sg_id IN ({$placeholders})",
+        };
+
+        return array_map('strval', $this->db->fetchFirstColumn($query, QueryParameters::create($queryParameters)));
+    }
+
+    /**
+     * @param list<string> $serviceKeys '<hostId>-<serviceId>' identifiers
+     *
+     * @throws ConnectionException
+     * @return array<string, int|string> the ones whose service belongs to the host, as '<hostId>-<serviceId>',
+     *                                   with 1 when both the host and the service are enabled, 0 otherwise
+     */
+    private function findLinkedServiceKeys(array $serviceKeys): array
+    {
+        $idPairs = [];
+        foreach ($serviceKeys as $serviceKey) {
+            if (preg_match('/^(\d+)-(\d+)\z/', $serviceKey, $matches) === 1) {
+                $idPairs[$serviceKey] = [$matches[1], $matches[2]];
+            }
+        }
+
+        if ($idPairs === []) {
+            return [];
+        }
+
+        $hostIds = array_map('intval', array_column($idPairs, 0));
+        $serviceIds = array_map('intval', array_column($idPairs, 1));
+        // Each branch binds its own copy of the ids: a named parameter cannot be used twice
+        [$directHostParameters, $directHostPlaceholders] = $this->createIntQueryParameters($hostIds, 'direct_host_id_');
+        [$directServiceParameters, $directServicePlaceholders] = $this->createIntQueryParameters(
+            $serviceIds,
+            'direct_service_id_'
+        );
+        [$groupHostParameters, $groupHostPlaceholders] = $this->createIntQueryParameters($hostIds, 'group_host_id_');
+        [$groupServiceParameters, $groupServicePlaceholders] = $this->createIntQueryParameters(
+            $serviceIds,
+            'group_service_id_'
+        );
+
+        // A service key is linked when the service really belongs to that host, enabled or not.
+        // One branch per kind of link, each filtered on the submitted hosts before joining, so a service
+        // linked to a large host group never expands to every host of the group.
+        // Meta services are linked directly to the _Module_Meta host.
+        /** @var array<string, int|string> $linkedServiceKeys */
+        $linkedServiceKeys = $this->db->fetchAllKeyValue(
+            <<<SQL
+                SELECT CONCAT(h.host_id, '-', s.service_id),
+                    IF(h.host_activate = '1' AND s.service_activate = '1', 1, 0)
+                FROM host_service_relation hsr
+                INNER JOIN host h
+                    ON h.host_id = hsr.host_host_id
+                INNER JOIN service s
+                    ON s.service_id = hsr.service_service_id
+                WHERE hsr.host_host_id IN ({$directHostPlaceholders})
+                    AND hsr.service_service_id IN ({$directServicePlaceholders})
+                UNION
+                SELECT CONCAT(h.host_id, '-', s.service_id),
+                    IF(h.host_activate = '1' AND s.service_activate = '1', 1, 0)
+                FROM hostgroup_relation hgr
+                INNER JOIN host_service_relation hsr
+                    ON hsr.hostgroup_hg_id = hgr.hostgroup_hg_id
+                INNER JOIN host h
+                    ON h.host_id = hgr.host_host_id
+                INNER JOIN service s
+                    ON s.service_id = hsr.service_service_id
+                WHERE hgr.host_host_id IN ({$groupHostPlaceholders})
+                    AND hsr.service_service_id IN ({$groupServicePlaceholders})
+                SQL,
+            QueryParameters::create([
+                ...$directHostParameters,
+                ...$directServiceParameters,
+                ...$groupHostParameters,
+                ...$groupServiceParameters,
+            ])
+        );
+
+        // Only the submitted keys: the cross product of the bound ids may return other pairs
+        return array_intersect_key($linkedServiceKeys, $idPairs);
+    }
+
+    /**
+     * Returns the submitted ids that are not already linked to the downtime.
+     *
+     * @param array<string, list<int|string>> $submittedRelations submitted ids indexed by getRelations() key
+     * @param int|null $downtimeId the edited downtime, null on creation
+     *
+     * @throws PDOException
+     * @return array<string, list<string>> indexed by getRelations() key
+     */
+    private function findNewlySubmittedRelations(array $submittedRelations, ?int $downtimeId): array
+    {
+        $savedRelations = $downtimeId !== null ? $this->getRelations($downtimeId) : [];
+
+        $newRelations = [];
+        foreach ($submittedRelations as $resourceType => $resourceIds) {
+            $savedIds = array_map('strval', array_column($savedRelations[$resourceType] ?? [], 'id'));
+            $newRelations[$resourceType] = array_values(
+                array_diff(array_map('strval', $resourceIds), $savedIds)
+            );
+        }
+
+        return $newRelations;
+    }
+
+    /**
+     * @param list<int> $ids
+     * @param string $prefix
+     *
+     * @return array{0: list<QueryParameter>, 1: string} the parameters and their comma-separated placeholders
+     */
+    private function createIntQueryParameters(array $ids, string $prefix): array
+    {
+        $queryParameters = [];
+        foreach (array_values(array_unique($ids)) as $index => $id) {
+            $queryParameters[] = QueryParameter::int($prefix . $index, $id);
+        }
+
+        $placeholders = implode(', ', array_map(
+            static fn (QueryParameter $queryParameter): string => ':' . $queryParameter->getName(),
+            $queryParameters
+        ));
+
+        return [$queryParameters, $placeholders];
+    }
+
+    /**
      * @param int[] $serviceTemplateIds
      *
      * @throws PDOException
@@ -1408,5 +1767,55 @@ class CentreonDowntime
         }
 
         return [$bindValues, implode(', ', array_keys($bindValues))];
+    }
+
+    /**
+     * @param CentreonACL $userAcl
+     * @param string $resourceType a getRelations() key: 'hosts', 'hostgroups', 'services' or 'servicegroups'
+     * @param array{id: int|string, activated: string, meta_id?: string} $resource a getRelations() record,
+     *                                                                             whose id is '<hostId>-<serviceId>' for services
+     *
+     * @return bool
+     */
+    private function isResourceAllowed(CentreonACL $userAcl, string $resourceType, array $resource): bool
+    {
+        $resourceId = (string) $resource['id'];
+
+        if ($resourceType !== 'services') {
+            return array_key_exists($resourceId, $this->getAllowedResources($userAcl, $resourceType));
+        }
+
+        if (isset($resource['meta_id'])) {
+            return array_key_exists($resource['meta_id'], $userAcl->getMetaServices());
+        }
+
+        [$hostId, $serviceId] = explode('-', $resourceId, 2);
+
+        return array_key_exists(
+            $serviceId,
+            $this->getAllowedResources($userAcl, $resourceType, (int) $hostId)
+        );
+    }
+
+    /**
+     * Returns the resources the user has access to, indexed by id (services: those of $hostId).
+     * Cached per ACL, type and host.
+     *
+     * @param CentreonACL $userAcl
+     * @param string $resourceType 'hosts', 'hostgroups', 'services' or 'servicegroups'
+     * @param int|null $hostId the services' host, only for 'services'
+     *
+     * @return array<int|string, mixed>
+     */
+    private function getAllowedResources(CentreonACL $userAcl, string $resourceType, ?int $hostId = null): array
+    {
+        $cacheKey = spl_object_id($userAcl) . '_' . $resourceType . '_' . $hostId;
+
+        return $this->allowedResources[$cacheKey] ??= match ($resourceType) {
+            'hosts' => $userAcl->getHostAclConf(null, 'broker'),
+            'hostgroups' => $userAcl->getHostGroupAclConf(null, 'broker'),
+            'services' => $userAcl->getHostServiceAclConf($hostId, 'broker'),
+            'servicegroups' => $userAcl->getServiceGroupAclConf(null, 'broker'),
+        } ?? [];
     }
 }

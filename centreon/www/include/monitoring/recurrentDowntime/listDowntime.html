@@ -1,5 +1,10 @@
 <script type="text/javascript" src="./include/common/javascript/tool.js"></script>
 
+{if isset($aclRefusedMessage) && $aclRefusedMessage}
+<div style="color: red; text-align: center; font-weight: bold; margin: 4px">
+    {$aclRefusedMessage}
+</div>
+{/if}
 <form name='form' method='POST'>
 <table class="ajaxOption table">
 <tbody>

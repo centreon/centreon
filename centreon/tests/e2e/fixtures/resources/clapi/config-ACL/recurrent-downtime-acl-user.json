@@ -1,0 +1,52 @@
+[
+    {
+        "action": "ADD",
+        "object": "CONTACT",
+        "values": "recurrent-downtime-acl-user;recurrent-downtime-acl-user;recurrent-downtime-acl-user@centreon.test;Centreon!2021User;0;1;en_US;local"
+    },
+    {
+        "action": "ADD",
+        "object": "ACLGROUP",
+        "values": "recurrent-downtime-ACLGROUP;recurrent-downtime-ACLGROUP"
+    },
+    {
+        "action": "ADD",
+        "object": "ACLMENU",
+        "values": "recurrent-downtime-ACLMENU;recurrent-downtime-ACLMENU"
+    },
+    {
+        "action": "GRANTRW",
+        "object": "ACLMENU",
+        "values": "recurrent-downtime-ACLMENU;1;Monitoring;Downtimes;Recurrent downtimes"
+    },
+    {
+        "action": "ADDMENU",
+        "object": "ACLGROUP",
+        "values": "recurrent-downtime-ACLGROUP;recurrent-downtime-ACLMENU"
+    },
+    {
+        "action": "SETCONTACT",
+        "object": "ACLGROUP",
+        "values": "recurrent-downtime-ACLGROUP;recurrent-downtime-acl-user"
+    },
+    {
+        "action": "ADD",
+        "object": "ACLRESOURCE",
+        "values": "name=recurrent-downtime-ACLRESOURCE;acl_group=recurrent-downtime-ACLGROUP"
+    },
+    {
+        "action": "ADDRESOURCE",
+        "object": "ACLGROUP",
+        "values": "recurrent-downtime-ACLGROUP;name=recurrent-downtime-ACLRESOURCE"
+    },
+    {
+        "action": "GRANT_HOST",
+        "object": "ACLRESOURCE",
+        "values": "name=recurrent-downtime-ACLRESOURCE;host-granted"
+    },
+    {
+        "action": "RELOAD",
+        "object": "ACL",
+        "values": ""
+    }
+]

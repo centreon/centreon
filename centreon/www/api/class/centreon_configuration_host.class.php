@@ -86,6 +86,15 @@ class CentreonConfigurationHost extends CentreonConfigurationObjects
         }
         $query .= $additionalTables . 'WHERE h.host_register = "1" ';
 
+        // Check for host enable
+        if (isset($this->arguments['e'])) {
+            $query .= match (mb_strtolower((string) $this->arguments['e'])) {
+                'enable' => "AND h.host_activate = '1' ",
+                'disable' => "AND h.host_activate = '0' ",
+                default => throw new RestBadRequestException('Error, bad enable status'),
+            };
+        }
+
         // Get ACL if user is not admin
         if (! $isAdmin) {
             $acl = new CentreonACL($userId, $isAdmin);

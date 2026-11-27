@@ -23,56 +23,6 @@ if (! isset($centreon)) {
     exit();
 }
 
-/**
- * GetUserAclAllowedResources returns allowed resources for the user regarding resource type
- *
- * @param CentreonACL $userAcl
- * @param string $resourceType
- */
-function getUserAclAllowedResources(CentreonACL $userAcl, string $resourceType)
-{
-    return match ($resourceType) {
-        'hosts' => $userAcl->getHostAclConf(null, 'broker'),
-        'servicegroups' => $userAcl->getServiceGroupAclConf(null, 'broker'),
-        'hostgroups' => $userAcl->getHostGroupAclConf(null, 'broker'),
-    };
-}
-
-/**
- * Check resources access regarding selected resources
- *
- * @param CentreonACL $userAcl
- * @param int[] $selectedResources
- * @param string $resourceType
- * @return bool
- **/
-function checkResourcesRelations(CentreonACL $userAcl, array $selectedResources, string $resourceType): bool
-{
-    $allowedResources = getUserAclAllowedResources($userAcl, $resourceType);
-
-    $selectedResourceIds = array_map(
-        static fn (array $resource) => $resource['id'],
-        $selectedResources
-    );
-
-    $diff = array_diff($selectedResourceIds, array_keys($allowedResources));
-
-    if ($diff === []) {
-        return true;
-    }
-
-    foreach ($selectedResources as $resource) {
-        if (
-            in_array($resource['id'], $diff)
-            && $resource['activated'] === '1'
-        ) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
 // QuickForm Rules
 function testDowntimeNameExistence($downtimeName = null)
 {
@@ -111,14 +61,14 @@ $attrsTextarea = ['rows' => '5', 'cols' => '40'];
 $eTemplate = '<table><tr><td><div class="ams">{label_2}</div>{unselected}</td><td align="center">{add}<br />'
     . '<br /><br />{remove}</td><td><div class="ams">{label_3}</div>{selected}</td></tr></table>';
 
-$hostsRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_host&action=list';
+$hostsRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_host&action=list&e=enable';
 $attrHosts = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $hostsRoute, 'multiple' => true, 'linkedObject' => 'centreonHost', 'showDisabled' => true];
-$hostgroupsRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_hostgroup&action=list';
+$hostgroupsRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_hostgroup&action=list&e=enable';
 $attrHostgroups = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $hostgroupsRoute, 'multiple' => true, 'linkedObject' => 'centreonHostgroups', 'showDisabled' => true];
-$servicesRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_service&action=list';
+$servicesRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_service&action=list&e=enable';
 $attrServices = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $servicesRoute, 'multiple' => true, 'linkedObject' => 'centreonService', 'showDisabled' => true];
 $servicegroupsRoute = './include/common/webServices/rest/internal.php'
-    . '?object=centreon_configuration_servicegroup&action=list';
+    . '?object=centreon_configuration_servicegroup&action=list&e=enable';
 $attrServicegroups = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $servicegroupsRoute, 'multiple' => true, 'linkedObject' => 'centreonServicegroups', 'showDisabled' => true];
 
 // Init QuickFrom
@@ -272,24 +222,10 @@ if ($o == 'w') {
     $form->setDefaults($default_dt);
     $form->freeze();
 } elseif ($o == 'c') {
-    /**
-     * Only search for ACL if the user is not admin
-     */
-    $userId = $centreon->user->user_id;
-    $userIsAdmin = $centreon->user->admin;
-
-    if ($userIsAdmin !== '1') {
-        require_once _CENTREON_PATH_ . '/www/class/centreonACL.class.php';
-        $userAcl = new CentreonACL($userId, $userIsAdmin);
-
-        if (
-            ! checkResourcesRelations($userAcl, $relations['hosts'], 'hosts')
-            || ! checkResourcesRelations($userAcl, $relations['hostgroups'], 'hostgroups')
-            || ! checkResourcesRelations($userAcl, $relations['servicegroups'], 'servicegroups')
-        ) {
-            $form->addElement('text', 'msgacl', _('error'), 'error');
-            $form->freeze();
-        }
+    // $userAcl is only set for non-admin users, see downtime.php
+    if ($userAcl !== null && ! $downtime->isAllowedForUser((int) $id, $userAcl)) {
+        $form->addElement('text', 'msgacl', _('error'), 'error');
+        $form->freeze();
     }
 
     $subC = $form->addElement(
@@ -354,6 +290,31 @@ if ($form->validate()) {
         $valid = false;
         $tpl->assign('msg_err', _('No relation set for this downtime'));
     }
+    // The select lists only offer enabled and allowed resources, a crafted request must be refused too
+    $submittedRelations = [
+        'hosts' => (array) ($values['host_relation'] ?? []),
+        'hostgroups' => (array) ($values['hostgroup_relation'] ?? []),
+        'services' => (array) ($values['svc_relation'] ?? []),
+        'servicegroups' => (array) ($values['svcgroup_relation'] ?? []),
+    ];
+    $editedDowntimeId = $values['o'] == 'c' ? (int) $values['dt_id'] : null;
+
+    if ($valid && ! $downtime->areSubmittedServicesLinkedToTheirHost($submittedRelations, $editedDowntimeId)) {
+        $valid = false;
+        $tpl->assign('relations_err', _("You can't link this downtime to services that do not belong to their host"));
+    }
+    if ($valid && ! $downtime->areSubmittedRelationsEnabled($submittedRelations, $editedDowntimeId)) {
+        $valid = false;
+        $tpl->assign('relations_err', _("You can't link this downtime to disabled resources"));
+    }
+    if (
+        $valid
+        && $userAcl !== null
+        && ! $downtime->areSubmittedRelationsAllowedForUser($submittedRelations, $editedDowntimeId, $userAcl)
+    ) {
+        $valid = false;
+        $tpl->assign('relations_err', _("You can't link this downtime to resources you don't have access to"));
+    }
     if ($valid) {
         if ($values['o'] == 'a') {
             $activate = $values['downtime_activate']['downtime_activate'];
@@ -389,6 +350,14 @@ if ($form->validate()) {
                 $form->freeze();
                 $valid = true;
             }
+        } elseif (
+            $values['o'] == 'c'
+            && $userAcl !== null
+            && ! $downtime->isAllowedForUser((int) $values['dt_id'], $userAcl)
+        ) {
+            $valid = false;
+            $form->addElement('text', 'msgacl', _('error'), 'error');
+            $form->freeze();
         } elseif ($values['o'] == 'c') {
             $id = $values['dt_id'];
             $activate = $values['downtime_activate']['downtime_activate'];
