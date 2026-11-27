@@ -7,14 +7,16 @@ const maskedSecretValue = '**********';
 
 const apiV2Base = '/centreon/api/latest';
 
-// Files holding credentials: generated monitoring configuration and Centreon settings
-const secretFileDirectories = [
-  '/etc/centreon',
+// Monitoring configuration generated and deployed by Centreon
+const generatedConfigurationDirectories = [
   '/etc/centreon-broker',
   '/etc/centreon-engine',
-  '/etc/centreon-gorgone',
   '/var/cache/centreon/config'
 ];
+
+const generatedHostsFile = '/var/cache/centreon/config/engine/1/hosts.cfg';
+
+const encryptedValuePrefix = 'encrypt::';
 
 const buildHostCountQuery = (hostName: string): string =>
   `SELECT COUNT(*) AS count FROM host WHERE host_name = '${hostName}' AND host_register = '1'`;
@@ -25,9 +27,28 @@ const buildHostIdQuery = (hostName: string): string =>
 const buildHostAcknowledgedQuery = (hostName: string): string =>
   `SELECT acknowledged FROM hosts WHERE name = '${hostName}' AND enabled = 1`;
 
-// Regular files of the directories that other users can read
-const buildWorldReadableFilesCommand = (directories: Array<string>): string =>
-  `find ${directories.join(' ')} -type f -perm -o=r 2>/dev/null || true`;
+// Files of the directories holding one of the values as plain text
+const buildFilesContainingCommand = (
+  directories: Array<string>,
+  values: Array<string>
+): string =>
+  `grep -rlF ${values.map((value) => `-e '${value}'`).join(' ')} ${directories.join(' ')} 2>/dev/null || true`;
+
+// Value of a custom macro in the definition of a host of an Engine hosts file
+const hostMacroValue = (
+  hostsFile: string,
+  hostName: string,
+  macroName: string
+): string | null => {
+  const definition = hostsFile
+    .split('define host')
+    .find((block) => new RegExp(`\\bhost_name\\s+${hostName}\\s`).test(block));
+  const line = definition
+    ?.split('\n')
+    .find((row) => row.trim().startsWith(`_${macroName} `));
+
+  return line ? (line.trim().split(/\s+/)[1] ?? null) : null;
+};
 
 // A form-urlencoded body with some fields replaced (or removed when null)
 const withFormFields = (
@@ -51,12 +72,15 @@ const withFormFields = (
 
 export {
   apiV2Base,
+  buildFilesContainingCommand,
   buildHostAcknowledgedQuery,
   buildHostCountQuery,
   buildHostIdQuery,
-  buildWorldReadableFilesCommand,
+  encryptedValuePrefix,
+  generatedConfigurationDirectories,
+  generatedHostsFile,
+  hostMacroValue,
   invalidTokenMessage,
   maskedSecretValue,
-  secretFileDirectories,
   withFormFields
 };

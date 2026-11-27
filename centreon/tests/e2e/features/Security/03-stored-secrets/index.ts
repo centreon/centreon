@@ -5,10 +5,13 @@ import { PAGES } from 'fixtures/shared/constants/pages';
 import { applyConfigurationViaClapi } from '../../../commons';
 import {
   apiV2Base,
+  buildFilesContainingCommand,
   buildHostIdQuery,
-  buildWorldReadableFilesCommand,
-  maskedSecretValue,
-  secretFileDirectories
+  encryptedValuePrefix,
+  generatedConfigurationDirectories,
+  generatedHostsFile,
+  hostMacroValue,
+  maskedSecretValue
 } from '../common';
 
 interface HostMacro {
@@ -138,13 +141,28 @@ When('the configuration is generated', () => {
 });
 
 Then(
-  'the generated files and the Centreon configuration files are not readable by other users',
+  'the generated files hold both secrets encrypted and never in clear text',
   () => {
     cy.execInContainer({
-      command: buildWorldReadableFilesCommand(secretFileDirectories),
+      command: buildFilesContainingCommand(generatedConfigurationDirectories, [
+        snmpCommunity,
+        macroSecret
+      ]),
       name: 'web'
     }).then(({ output }) => {
-      expect(output.trim(), 'files readable by other users').to.eq('');
+      expect(output.trim(), 'files holding a secret in clear text').to.eq('');
+    });
+
+    cy.execInContainer({
+      command: `cat ${generatedHostsFile}`,
+      name: 'web'
+    }).then(({ output }) => {
+      ['SNMPCOMMUNITY', passwordMacroName].forEach((macroName) => {
+        expect(
+          hostMacroValue(output, hostName, macroName),
+          `_${macroName} of ${hostName}`
+        ).to.match(new RegExp(`^${encryptedValuePrefix}.+`));
+      });
     });
   }
 );
