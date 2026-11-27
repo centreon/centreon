@@ -40,7 +40,7 @@ else
 	OCF_RESKEY_pid_default="/var/run/mysql/mysqld.pid"
 	OCF_RESKEY_socket_default="/var/lib/mysql/mysql.sock"
 fi
-OCF_RESKEY_client_binary_default="mysql"
+OCF_RESKEY_client_binary_default="mariadb"
 OCF_RESKEY_test_user_default="root"
 OCF_RESKEY_test_table_default="mysql.user"
 OCF_RESKEY_test_passwd_default=""
