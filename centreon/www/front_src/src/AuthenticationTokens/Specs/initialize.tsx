@@ -1,6 +1,11 @@
-import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
-import { userAtom } from '@centreon/ui-context';
+import { SnackbarProvider } from '@centreon/ui';
+import { type User, userAtom } from '@centreon/ui-context';
 
+import { rs } from '@rstest/core';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { interceptAPIRequest, Method } from '@test-setup/api';
+import { render } from '@test-setup/render';
+import type { RenderResult } from '@testing-library/react';
 import i18next from 'i18next';
 import { createStore, Provider } from 'jotai';
 import { initReactI18next } from 'react-i18next';
@@ -9,68 +14,67 @@ import { BrowserRouter as Router } from 'react-router';
 import { listTokensEndpoint } from '../api';
 import { listUsers } from '../api/endpoints';
 import Page from '../Page';
+import {
+  listTokensResponse,
+  listUsersResponse,
+  tokenDetailsResponse
+} from './utils';
 
-const defaultListTokensFixture = 'authenticationTokens/listTokens';
-
-const interceptRequests = (listTokensFixture: string) => {
-  cy.fixture(listTokensFixture).then((data) => {
-    cy.interceptAPIRequest({
-      alias: 'listToken',
-      method: Method.GET,
-      path: `**${listTokensEndpoint}?**`,
-      response: data
-    });
+const interceptRequests = (listTokens: unknown): void => {
+  interceptAPIRequest({
+    alias: 'listToken',
+    method: Method.GET,
+    path: `**${listTokensEndpoint}?**`,
+    response: listTokens
   });
 
-  cy.interceptAPIRequest({
+  interceptAPIRequest({
     alias: 'deleteToken',
     method: Method.DELETE,
-    path: '**tokens/d-token/users/23',
+    path: `**${listTokensEndpoint}/d-token/users/23`,
     response: { code: 200, status: 'ok' }
   });
 
-  cy.interceptAPIRequest({
+  interceptAPIRequest({
     alias: 'enableDisableToken',
     method: Method.PATCH,
-    path: '**tokens**',
+    path: `**${listTokensEndpoint}/*`,
     response: { code: 200, status: 'ok' }
   });
 
-  cy.fixture('authenticationTokens/tokenDetails').then((data) => {
-    cy.interceptAPIRequest({
-      alias: 'tokenDetails',
-      method: Method.GET,
-      path: '**tokens/e-token/users/23',
-      response: data
-    });
+  interceptAPIRequest({
+    alias: 'tokenDetails',
+    method: Method.GET,
+    path: `**${listTokensEndpoint}/e-token/users/23`,
+    response: tokenDetailsResponse
   });
 
-  cy.fixture('authenticationTokens/listUsers').then((data) => {
-    cy.interceptAPIRequest({
-      alias: 'listUsers',
-      method: Method.GET,
-      path: `**${listUsers}**`,
-      response: data
-    });
+  interceptAPIRequest({
+    alias: 'listUsers',
+    method: Method.GET,
+    path: `**${listUsers}**`,
+    response: listUsersResponse
   });
 
-  cy.fixture('authenticationTokens/tokenDetails').then((data) => {
-    cy.interceptAPIRequest({
-      alias: 'addToken',
-      method: Method.POST,
-      path: `**${listTokensEndpoint}**`,
-      response: data
-    });
+  interceptAPIRequest({
+    alias: 'addToken',
+    method: Method.POST,
+    path: `**${listTokensEndpoint}**`,
+    response: tokenDetailsResponse
   });
 };
 
-export const initilize = (
-  listTokensFixture: string = defaultListTokensFixture
-): void => {
+export const initialize = (
+  listTokens: unknown = listTokensResponse
+): RenderResult => {
   i18next.use(initReactI18next).init({
     lng: 'en',
     resources: {}
   });
+
+  // The creation modal is URL-driven, and the page is not reloaded between
+  // tests.
+  window.history.pushState({}, '', window.location.pathname);
 
   const store = createStore();
 
@@ -79,27 +83,29 @@ export const initilize = (
     isAdmin: true,
     locale: 'en_US',
     timezone: 'Europe/Paris'
+  } as User);
+
+  // Restored after each test by the entry file.
+  rs.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
+
+  interceptRequests(listTokens);
+
+  // A client of its own, so no cache leaks from one test to the next.
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { gcTime: 0, retry: false } }
   });
 
-  cy.window().then((win) => {
-    cy.stub(win.navigator.clipboard, 'writeText').as('writeText');
-  });
-
-  interceptRequests(listTokensFixture);
-
-  cy.mount({
-    Component: (
-      <div style={{ height: '90vh' }}>
-        <Router>
-          <SnackbarProvider>
-            <TestQueryProvider>
-              <Provider store={store}>
-                <Page />
-              </Provider>
-            </TestQueryProvider>
-          </SnackbarProvider>
-        </Router>
-      </div>
-    )
-  });
+  return render(
+    <div style={{ height: '90vh' }}>
+      <Router>
+        <SnackbarProvider>
+          <QueryClientProvider client={queryClient}>
+            <Provider store={store}>
+              <Page />
+            </Provider>
+          </QueryClientProvider>
+        </SnackbarProvider>
+      </Router>
+    </div>
+  );
 };

@@ -77,7 +77,7 @@ const Filters = (): JSX.Element => {
         value={filters.type}
       />
       <MultiConnectedAutocompleteField
-        ChipProps={{
+        chipProps={{
           color: 'primary',
           onDelete: deletePoller as ChipProps['onDelete']
         }}
