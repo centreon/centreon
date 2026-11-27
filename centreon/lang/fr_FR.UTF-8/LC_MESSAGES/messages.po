@@ -10,7 +10,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-01-01 00:00+0000\n"
 "PO-Revision-Date: 2026-11-27 10:00+0000\n"
-"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Last-Translator: Weblate user 4 <user-4@users.noreply.weblate.prod.centreon.io>\n"
 "Language-Team: French <https://weblate.prod.centreon.io/projects/centreon-infra-monitoring/26-10/web-messages-26-10/fr/>\n"
 "Language: fr_FR\n"
 "MIME-Version: 1.0\n"
@@ -95,7 +95,7 @@ msgstr "1 minute"
 
 #: centreon/www/install/front_translate.php
 msgid "1,000+"
-msgstr "1 000+"
+msgstr "1,000+"
 
 #: centreon/www/install/front_translate.php
 msgid "12 hours"
