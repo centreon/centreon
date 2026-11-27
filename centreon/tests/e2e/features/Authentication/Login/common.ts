@@ -116,10 +116,18 @@ const checkDefaultsValueForm: Array<DataToUseForCheckForm> = [
   }
 ];
 
+const buildSetSessionExpirationQuery = (minutes: number): string =>
+  `UPDATE options SET \`value\` = '${minutes}' WHERE \`key\` = 'session_expire'`;
+
+const sessionExpirationQuery =
+  "SELECT `value` FROM options WHERE `key` = 'session_expire'";
+
 export {
+  buildSetSessionExpirationQuery,
   checkDefaultsValueForm,
   type DataToUseForCheckForm,
   initializeConfigAclAndGetLoginPage,
   millisecondsValueForFourHour,
-  millisecondsValueForSixMonth
+  millisecondsValueForSixMonth,
+  sessionExpirationQuery
 };
