@@ -1193,7 +1193,9 @@ dp_fixture() { # dp_fixture <poller id>: packs/providers 9002 (real package) and
 }
 dp_job() { # dp_job <case> <provider id> <poller id>: creates a run-now job, prints its id
   local code
+  local t0=$SECONDS
   code=$(api POST /auto-discovery/jobs "$(disco_body "$1" x x "$3" | jq -c --argjson p "$2" '.provider_id = $p | .job_parameters = []')")
+  echo "HTTP ${code:-none} in $((SECONDS - t0)) s" >"$PRIV_DIR/dp-job.code"   # read by the caller (subshell)
   [[ "$code" == 204 || "$code" == 201 ]] && disco_job_id "$1"
 }
 dp_bad_msg() { [[ "$1" =~ program\ not\ found|REJECTED|plugin\ install|not\ an\ absolute\ path|poller\ not\ connected ]]; }
@@ -1227,7 +1229,7 @@ cmd_disco_plugin_install() {
 
   # S2 first run: install, then the RemoteExec.
   id=$(dp_job dpi-tcp 9002 "$pid")
-  [[ -n "$id" ]] || { record "disco-plugin: job on provider 9002 created" ko "HTTP $(jq -c . "$LOG_DIR/last.json" 2>/dev/null | head -c 200)"; return; }
+  [[ -n "$id" ]] || { record "disco-plugin: job on provider 9002 created" ko "$(cat "$PRIV_DIR/dp-job.code" 2>/dev/null) $(jq -c . "$LOG_DIR/last.json" 2>/dev/null | head -c 200)"; return; }
   wait_until 900 dp_rr_final "$id" 1
   pkg_ok "$DP_DEB" && record "disco-plugin first run: dpkg-query shows $DP_DEB installed" ok \
     || record "disco-plugin first run: dpkg-query shows $DP_DEB installed" ko
