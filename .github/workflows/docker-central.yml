@@ -203,6 +203,7 @@ jobs:
             perl-libs=centreon-collect/perl-libs/lib
           build-args: |
             AUTODISCO_IMAGE=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-autodisco-trixie:${{ needs.prepare.outputs.autodisco_tag }}
+            ENGINE_IMAGE=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-engine-trixie:${{ needs.prepare.outputs.engine_tag }}
             BUILD_DATE=${{ steps.build-date.outputs.date }}
             BUILD_VERSION=${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }}-${{ needs.get-environment.outputs.release }}
             GIT_REVISION=${{ github.event.pull_request.head.sha || github.sha }}
