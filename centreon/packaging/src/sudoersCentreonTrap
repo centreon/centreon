@@ -1,0 +1,4 @@
+# Debian runs snmptrapd as Debian-snmp: its traphandle forwards traps as centreon
+# "" forbids arguments: the trap comes on stdin, and --config-extra would load any perl file
+Defaults!/usr/share/centreon/bin/centreontrapdforward env_reset
+Debian-snmp ALL = (centreon) NOPASSWD: /usr/share/centreon/bin/centreontrapdforward ""
