@@ -146,8 +146,11 @@ class LegacyCommandSender
         }
         $pollerId = (int) $pollerId;
         if (! isset($this->isContainerizedByPollerId[$pollerId])) {
+            // Real-time code (EngineService) sends the poller's uid (nagios_server.uid), not its id: match both.
+            // uid is a 64-bit value and overflows PHP_INT_MAX on a 32-bit build, but not on the 64-bit ones this
+            // application runs on, so it is kept as an int rather than a string.
             $pollerType = $this->connection->fetchOne(
-                'SELECT poller_type FROM nagios_server WHERE id = :pollerId',
+                'SELECT poller_type FROM nagios_server WHERE id = :pollerId OR uid = :pollerId',
                 QueryParameters::create([QueryParameter::int('pollerId', $pollerId)])
             );
             $this->isContainerizedByPollerId[$pollerId] = $pollerType === self::POLLER_TYPE_DOCKER;

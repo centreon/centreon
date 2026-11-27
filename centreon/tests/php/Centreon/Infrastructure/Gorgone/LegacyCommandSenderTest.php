@@ -23,7 +23,9 @@ declare(strict_types=1);
 
 namespace Tests\Centreon\Infrastructure\Gorgone;
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ConnectionInterface;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Centreon\Domain\MonitoringServer\Exception\GorgoneDeliveryException;
 use Centreon\Infrastructure\Gorgone\Interfaces\ConfigurationLoaderApiInterface;
 use Centreon\Infrastructure\Gorgone\LegacyCommandException;
@@ -304,6 +306,53 @@ class LegacyCommandSenderTest extends TestCase
         $sender = $this->createSender([]);
 
         $this->assertSame(self::TOKEN, $sender->sendLines('EXTERNALCMD:2:[1700000000] SCHEDULE_FORCED_HOST_CHECK;h;1'));
+        $this->assertSame(['POST centreon/legacycmd/command'], $this->requests);
+    }
+
+    public function testCommandTargetingAPollerUidGoesThroughTheApi(): void
+    {
+        // Real-time actions (force check, ack, downtime...) target a poller by its uid (nagios_server.uid),
+        // not its id: isContainerized() must still recognize it as containerized and route it through the
+        // Gorgone API, instead of silently falling back to a centcore.cmd nobody reads.
+        $uid = 379573511087198063;
+
+        $configuration = $this->createMock(ConfigurationLoaderApiInterface::class);
+        $configuration->method('isSecureConnectionSelfSigned')->willReturn(false);
+        $configuration->method('isApiConnectionSecure')->willReturn(false);
+        $configuration->method('getApiIpAddress')->willReturn('gorgone');
+        $configuration->method('getApiPort')->willReturn(8085);
+        $configuration->method('getApiUsername')->willReturn(null);
+        $configuration->method('getCommandTimeout')->willReturn(2);
+
+        $connection = $this->createMock(ConnectionInterface::class);
+        $connection->expects($this->once())
+            ->method('fetchOne')
+            ->with(
+                $this->stringContains('OR uid = :pollerId'),
+                $this->callback(static function (QueryParameters $parameters) use ($uid): bool {
+                    $values = array_map(
+                        static fn (QueryParameter $parameter): mixed => $parameter->getValue(),
+                        $parameters->toArray()
+                    );
+
+                    return $values === [$uid];
+                })
+            )
+            ->willReturn('docker');
+
+        $client = new MockHttpClient(function (string $method, string $url): MockResponse {
+            $this->requests[] = $method . ' ' . (string) preg_replace('#^http://gorgone:8085/api/#', '', $url);
+
+            return new MockResponse((string) json_encode(['token' => self::TOKEN]));
+        });
+
+        $sender = new LegacyCommandSender($configuration, $connection);
+        (new \ReflectionProperty(LegacyCommandSender::class, 'client'))->setValue($sender, $client);
+
+        $this->assertSame(
+            self::TOKEN,
+            $sender->sendLines('EXTERNALCMD:' . $uid . ':[1700000000] SCHEDULE_FORCED_HOST_CHECK;h;1')
+        );
         $this->assertSame(['POST centreon/legacycmd/command'], $this->requests);
     }
 

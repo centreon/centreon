@@ -66,6 +66,8 @@ initContainers:
   - name: migrate-volumes
     image: {{ include "centreon-central.image" $.Values.images.engine }}
     imagePullPolicy: {{ $.Values.images.engine.pullPolicy }}
+    env:
+      - { name: TZ, value: {{ $p.timezone | default "UTC" | quote }} }
     securityContext:
       runAsUser: 0
     command: ["/bin/sh", "-c"]
@@ -109,6 +111,8 @@ initContainers:
   - name: seed-engine
     image: {{ include "centreon-central.image" $.Values.images.engine }}
     imagePullPolicy: {{ $.Values.images.engine.pullPolicy }}
+    env:
+      - { name: TZ, value: {{ $p.timezone | default "UTC" | quote }} }
     securityContext:
       runAsUser: 0
     command: ["/bin/sh", "-c"]
@@ -158,6 +162,8 @@ initContainers:
   - name: seed-gorgone
     image: {{ include "centreon-central.image" $.Values.images.gorgone }}
     imagePullPolicy: {{ $.Values.images.gorgone.pullPolicy }}
+    env:
+      - { name: TZ, value: {{ $p.timezone | default "UTC" | quote }} }
     securityContext:
       runAsUser: 0
     command: ["/bin/sh", "-c"]
@@ -189,6 +195,8 @@ initContainers:
   - name: seed-vmware
     image: {{ include "centreon-central.vmwareImage" $ }}
     imagePullPolicy: {{ $.Values.images.vmware.pullPolicy }}
+    env:
+      - { name: TZ, value: {{ $p.timezone | default "UTC" | quote }} }
     securityContext:
       runAsUser: 0
     command: ["/bin/sh", "-c"]

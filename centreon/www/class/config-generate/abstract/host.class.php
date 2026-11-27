@@ -43,6 +43,15 @@ abstract class AbstractHost extends AbstractObject
     /** @var array */
     protected $hosts;
 
+    /**
+     * host_id => host_name for every host of the poller (MON-214629), only
+     * ever populated by Host, but declared here since getString() (below)
+     * reads it.
+     *
+     * @var array<int, string>|null
+     */
+    protected $hostNamesById;
+
     /** @var string */
     protected $attributes_select = '
         host_id,
@@ -161,6 +170,14 @@ abstract class AbstractHost extends AbstractObject
      */
     public function getString($host_id, $attr)
     {
+        // MON-214629: host_name is the only attribute read once a host's own
+        // batch is done (Dependency/Escalation/generateIndexData, all run
+        // after every batch) — resolve it from the poller-wide name index,
+        // which (unlike $this->hosts) is never scoped down to one batch.
+        if ($attr === 'host_name' && isset($this->hostNamesById[$host_id])) {
+            return $this->hostNamesById[$host_id];
+        }
+
         return $this->hosts[$host_id][$attr] ?? null;
     }
 

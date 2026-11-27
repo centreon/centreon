@@ -64,6 +64,9 @@ class ConfigurationGenerationStatus
         $marker = $this->getMarkerPath($monitoringServerId);
         // Replaced, not rewritten: the previous one may belong to another user (CLAPI run as root).
         @unlink($marker);
+        if (! is_dir($this->generatePath)) {
+            @mkdir($this->generatePath, 0775, true);
+        }
         if (@file_put_contents($marker, date('c') . ' ' . $username . "\n") === false) {
             error_log(sprintf('Cannot write the configuration generation marker %s', $marker));
         }

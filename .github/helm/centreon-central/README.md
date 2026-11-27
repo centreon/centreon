@@ -283,8 +283,52 @@ direct writes. When enabled:
 - fpm flushes rrdcached before drawing a graph (`CENTREON_RRDCACHED_HOST`,
   ClusterIP Service `centreon-rrdcached`, reachable from fpm only).
 - Native sidecar: started (answers PING) before cbd, stopped after it, and
-  flushes its pending updates on SIGTERM. Its journal is an emptyDir: updates
-  not written yet are lost only on an abrupt pod death.
+  flushes its pending updates on SIGTERM. Its journal is an emptyDir by
+  default: updates not written yet are lost only on an abrupt pod death
+  (see `rrdcached.journal` below).
+
+### Tuning (`rrdcached.args`, `rrdcached.journal`)
+
+The flags are the image's CMD (`-w 300 -z 60 -f 3600`): with a 5 min check
+interval, `-w 300` batches about one update per write, so every RRD file is
+still written once per check. To write less often without rebuilding the
+image, set `rrdcached.args`. It replaces the whole CMD (the entrypoint stays
+`rrdcached`): copy the CMD from `values.yaml` and change only the timings,
+e.g. `-w 3600 -z 1800 -f 7200` (`-f` at least 2x `-w`, rrdcached warns
+otherwise). Keep `-g`, `-l 0.0.0.0:42217` (cbd, fpm, the probes
+and the NetworkPolicy use 42217), `-b /var/lib/centreon -B`,
+`-j /var/lib/rrdcached/journal`, `-F` and `-p` (UID 902 cannot write the
+default pid file). Empty (default): the image's CMD, unchanged behaviour.
+A change restarts the broker pod.
+
+A longer `-w` holds more updates in memory:
+
+- **Abrupt death** (OOM kill, node loss): up to `-w` seconds of updates are
+  lost with the default emptyDir journal. `rrdcached.journal.persistent: true`
+  puts the journal on its own ReadWriteOnce PVC
+  (`<release>-rrdcached-journal`, `rrdcached.journal.size`/`storageClass`,
+  default 1Gi on `persistence.storageClass`), replayed at the next start.
+  rrdcached writes it in 4 KiB blocks: an abrupt death then loses only the
+  last unwritten block (~60 updates), not `-w` seconds of updates.
+  RWO fits the broker: a one-replica StatefulSet whose pod is deleted
+  before the next one starts (same as `broker-cache`). Being its own volume,
+  it can use block storage (gp3) while the RRD files stay on EFS. The
+  broker's `own-volumes` init gives it to UID 902 and removes the pid file
+  an abrupt death leaves there (rrdcached 1.7.2 also removes a stale one
+  itself).
+- **Clean stop** (rollout, drain): `-F` writes every pending update after
+  cbd has stopped, inside the pod's single grace period
+  (`broker.terminationGracePeriodSeconds`, 60 s, shared with cbd saving its
+  queues). Raise it with a long `-w` on slow storage: past it the flush is
+  killed, and only a persistent journal replays what was not written.
+
+Tested with Docker on the rrdcached image (1.7.2, 20 files x 100 updates,
+`-w 3600 -z 1800 -f 7200`, journal on a volume): after a SIGKILL the
+restart replayed 1963 of the 2000 updates (the journal's last block was
+not written yet) and the clean stop wrote them to the RRD files; the
+leftover pid file did not block the restart. Measure on the target before
+and after (EFS write operations, the broker pod's stop time): neither the
+timings nor the journal were measured on EFS yet.
 
 **Requirement**: a broker image whose TCP RRD output initializes its logger
 (centreon-collect MON-213839). Without it the output's constructor leaves
@@ -458,7 +502,8 @@ ArgoCD, so APP_SECRET/SALT would rotate on each sync). Use
 `secrets.existingSecret` with keys `APP_SECRET`, `SALT`,
 `MYSQL_ROOT_PASSWORD`, `MYSQL_PASSWORD`, `GORGONE_API_PASSWORD` (the
 `centreon-gorgone` service account, set by the install Job), optionally
-`ADMIN_PASSWORD`, plus `VALKEY_PASSWORD` with Valkey and `VAULT_ROLE_ID` /
+`ADMIN_PASSWORD` and `MYSQL_ROOT_USER` (database admin name, default
+`root`: see "External database"), plus `VALKEY_PASSWORD` with Valkey and `VAULT_ROLE_ID` /
 `VAULT_SECRET_ID` with Vault; or set the `secrets.*` values.
 `secrets.appSecret` and `secrets.salt` have no default (the install fails
 without them): give each 64 random hex characters, and never change them
@@ -535,9 +580,33 @@ TLS with a `kubernetes.io/tls` Secret whose names include `db`, to test all
 this without RDS. Validated on k3d: every client works against the
 TLS-required server, and every client refuses it with a wrong CA.
 
-Not covered: RDS privileges. The install connects as `root` and runs
-`GRANT ALL ... WITH GRANT OPTION`, while the RDS master user is usually
-`admin` and may not hold those privileges.
+## External database (AWS RDS)
+
+`database.bundled: false` with `database.externalHost` (and `database.tls`,
+above). The install Job and the admin checks (fpm, autodiscovery worker and
+config-delivery waits) connect as the database admin:
+
+- its name: Secret key `MYSQL_ROOT_USER` (optional in an `existingSecret`,
+  absent = `root`), or `secrets.dbRootUser` when the chart creates the
+  Secret; its password: `MYSQL_ROOT_PASSWORD`. An RDS master user has any
+  name; the bundled MariaDB only has `root` (the chart refuses another name).
+- what it needs: create the two databases, `CREATE USER`, and grant the
+  privileges below `WITH GRANT OPTION`, plus `SELECT` on `mysql.user`
+  (`createDbUser.php`) and `RELOAD` (`FLUSH PRIVILEGES`). An RDS master user
+  has all of it; no `SUPER`, `FILE` or global `ALL`.
+
+The install creates `centreon`@`%` when missing and, with an external
+database, grants it on the two Centreon schemas only
+(`CENTREON_DB_GRANT_SCOPE=schemas`): `SELECT, INSERT, UPDATE, DELETE,
+CREATE, DROP, REFERENCES, INDEX, ALTER, CREATE TEMPORARY TABLES, LOCK TABLES,
+EXECUTE, CREATE VIEW, SHOW VIEW, CREATE ROUTINE, ALTER ROUTINE, EVENT,
+TRIGGER` on `configurationDb` and `storageDb` (the database-level privileges
+of an RDS master user, a superset of what the web installer requires). The
+bundled MariaDB and the compose stack keep `ALL ON *.* WITH GRANT OPTION`.
+
+RDS parameter group: `require_secure_transport=ON` (TLS above) and
+`log_bin_trust_function_creators=1` (binary logging is on with backups; the
+install creates no stored routine today, but upgrades may).
 
 ## Sizing for large configurations
 
@@ -622,9 +691,9 @@ If the kubeconfig entry points at `host.docker.internal` and times out:
 
 ## Known gaps
 
-- Untested: RWX on a real multi-node cluster (only simulated on k3d),
-  managed DB (the install runs `GRANT ALL ... WITH GRANT OPTION` as root,
-  likely refused on RDS), remote pollers (`pollers:`), APP_SECRET/salt carried
+- Untested: RWX on a real multi-node cluster (only simulated on k3d), a
+  real AWS RDS instance (see "External database": validated against a
+  MariaDB 11.8 configured like one), remote pollers (`pollers:`), APP_SECRET/salt carried
   over from a VM, a migrated DB whose broker configs were renamed or have a
   different history than a fresh install.
 - PHP sessions are files on the shared volume by default; `valkey.enabled`

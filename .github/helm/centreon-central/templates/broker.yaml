@@ -36,6 +36,8 @@ spec:
         - name: migrate-volumes
           image: {{ include "centreon-central.image" .Values.images.broker }}
           imagePullPolicy: {{ .Values.images.broker.pullPolicy }}
+          env:
+            {{- include "centreon-central.tzEnv" . | nindent 12 }}
           securityContext:
             runAsUser: 0
           command: ["/bin/sh", "-c"]
@@ -56,6 +58,8 @@ spec:
         - name: own-volumes
           image: {{ include "centreon-central.image" .Values.images.broker }}
           imagePullPolicy: {{ .Values.images.broker.pullPolicy }}
+          env:
+            {{- include "centreon-central.tzEnv" . | nindent 12 }}
           securityContext:
             runAsUser: 0
           command: ["/bin/sh", "-c"]
@@ -68,10 +72,21 @@ spec:
               own 902:902 775 /seed/broker
               own 902:902 775 /seed/cache
               ls -lnd /seed/rrd/* /seed/broker /seed/cache
+              {{- if include "centreon-central.rrdcachedJournalPvc" . }}
+              # A PVC mounts root-owned (rrdcached runs as 902). Its pid file
+              # (-p) survives an abrupt death there: no rrdcached runs at this
+              # point (one-replica StatefulSet, RWO volume), so it is stale.
+              own 902:902 775 /seed/journal
+              rm -fv /seed/journal/*.pid
+              ls -lnd /seed/journal
+              {{- end }}
           volumeMounts:
             - { name: centreon-rrd, mountPath: /seed/rrd }
             - { name: poller-broker, mountPath: /seed/broker }
             - { name: broker-cache, mountPath: /seed/cache }
+            {{- if include "centreon-central.rrdcachedJournalPvc" . }}
+            - { name: rrdcached-journal, mountPath: /seed/journal }
+            {{- end }}
         {{- with include "centreon-central.vaultInit" . }}{{ . | nindent 8 }}{{ end }}
         {{- if .Values.rrdcached.enabled }}
         # rrdcached batches cbd's RRD writes (rrd_cached_option tcp, set by
@@ -84,7 +99,14 @@ spec:
         - name: rrdcached
           image: {{ include "centreon-central.image" .Values.images.rrdcached }}
           imagePullPolicy: {{ .Values.images.rrdcached.pullPolicy }}
+          env:
+            {{- include "centreon-central.tzEnv" . | nindent 12 }}
           restartPolicy: Always
+          {{- with .Values.rrdcached.args }}
+          # Replaces the image's CMD wholesale (values.yaml rrdcached.args).
+          args:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           ports:
             - { name: rrdcached, containerPort: 42217 }
           startupProbe:
@@ -99,8 +121,9 @@ spec:
           volumeMounts:
             - { name: centreon-rrd, mountPath: /var/lib/centreon/status, subPath: status }
             - { name: centreon-rrd, mountPath: /var/lib/centreon/metrics, subPath: metrics }
-            # Updates not yet written to the RRD files: lost with the pod
-            # only on an abrupt death (a clean stop flushes them).
+            # Updates not yet written to the RRD files, replayed at start:
+            # emptyDir, lost on an abrupt pod death (a clean stop flushes
+            # them); rrdcached.journal.persistent keeps them on a PVC.
             - { name: rrdcached-journal, mountPath: /var/lib/rrdcached/journal }
           {{- with .Values.rrdcached.resources }}
           resources:
@@ -123,6 +146,7 @@ spec:
             # /dev/stdout) instead of a file in the container tailed by the
             # image. Ignored by images without it.
             - { name: BROKER_LOG_STDOUT, value: "true" }
+            {{- include "centreon-central.tzEnv" . | nindent 12 }}
           ports:
             - { name: bbdo, containerPort: 5669 }
             # cbd's gRPC API: 51000 + the config_id of central-broker-master
@@ -168,7 +192,12 @@ spec:
         {{- with include "centreon-central.dbTlsVolume" . }}{{ . | nindent 8 }}{{ end }}
         {{- if .Values.rrdcached.enabled }}
         - name: rrdcached-journal
+          {{- if include "centreon-central.rrdcachedJournalPvc" . }}
+          persistentVolumeClaim:
+            claimName: {{ include "centreon-central.pvcName" (dict "ctx" . "name" "rrdcached-journal") }}
+          {{- else }}
           emptyDir: {}
+          {{- end }}
         {{- end }}
 ---
 apiVersion: v1
