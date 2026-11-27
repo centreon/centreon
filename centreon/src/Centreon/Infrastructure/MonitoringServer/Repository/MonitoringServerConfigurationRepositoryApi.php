@@ -31,8 +31,10 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerConfigurationRepositoryInterface;
 use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Infrastructure\MonitoringServer\Repository\Exception\MonitoringServerConfigurationRepositoryException;
+use Core\Common\Infrastructure\Api\InternalApiClient;
 use DateTime;
 use Security\Domain\Authentication\Interfaces\AuthenticationTokenServiceInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpClient\Exception\TransportException;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
@@ -68,6 +70,8 @@ class MonitoringServerConfigurationRepositoryApi implements MonitoringServerConf
         AuthenticationTokenServiceInterface $authenticationTokenService,
         ContactInterface $contact,
         HttpClientInterface $httpClient,
+        #[Autowire('%env(CENTREON_INTERNAL_API_BASE_URL)%')]
+        private readonly ?string $internalApiBaseUrl = null,
     ) {
         $this->contact = $contact;
         $this->authenticationTokenService = $authenticationTokenService;
@@ -117,14 +121,36 @@ class MonitoringServerConfigurationRepositoryApi implements MonitoringServerConf
      */
     private function initUri(): void
     {
-        if ($this->serverUri === null) {
+        if ($this->serverUri !== null) {
+            return;
+        }
+
+        if (empty($this->internalApiBaseUrl)) {
             $serverScheme = $_SERVER['REQUEST_SCHEME'] ?: 'http';
             Assertion::notEmpty($_SERVER['SERVER_NAME']);
             Assertion::notEmpty($_SERVER['REQUEST_URI']);
             $prefixUri = explode('/', $_SERVER['REQUEST_URI'])[1];
             // ex: http://localhost:80/centreon
             $this->serverUri = $serverScheme . '://' . $_SERVER['SERVER_NAME'] . '/' . $prefixUri;
+
+            return;
         }
+
+        // CENTREON_INTERNAL_API_BASE_URL is set when the web server is not reachable
+        // through SERVER_NAME from PHP (e.g. httpd and php-fpm in separate containers),
+        // as for InternalApiClient. It also allows calls outside of an HTTP request
+        // (CLI workers), where $_SERVER has no scheme, host nor URI: the default
+        // installation prefix is used then.
+        $prefixUri = empty($_SERVER['REQUEST_URI'])
+            ? 'centreon'
+            : explode('/', $_SERVER['REQUEST_URI'])[1];
+        $this->serverUri = InternalApiClient::convertToLocalUrl(
+            '/' . $prefixUri,
+            $this->internalApiBaseUrl,
+            empty($_SERVER['REQUEST_SCHEME']) ? 'http' : $_SERVER['REQUEST_SCHEME'],
+            $_SERVER['SERVER_ADDR'] ?? null,
+            empty($_SERVER['SERVER_PORT']) ? null : (int) $_SERVER['SERVER_PORT'],
+        );
     }
 
     /**
