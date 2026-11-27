@@ -126,6 +126,12 @@ jobs:
         run: SUMMARY_FILE="$GITHUB_STEP_SUMMARY" "$SCRIPT" disco-plugin-install
         shell: bash
 
+      - name: "Service discovery: dry-run scan without gorgone (P5a)"
+        if: ${{ !cancelled() && steps.up.outcome == 'success' }}
+        continue-on-error: ${{ env.GLS_GATE_CRITERIA != 'true' }}
+        run: SUMMARY_FILE="$GITHUB_STEP_SUMMARY" "$SCRIPT" svc-disco
+        shell: bash
+
       - name: "Criterion 3: disconnected poller (stop)"
         if: ${{ !cancelled() && steps.up.outcome == 'success' }}
         continue-on-error: ${{ env.GLS_GATE_CRITERIA != 'true' }}

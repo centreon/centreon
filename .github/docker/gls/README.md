@@ -108,6 +108,11 @@ The command holds the poller token, the appsecret and the salt: do not paste it 
 - Discovery jobs need a valid autodiscovery license (see above).
 - Before each run, the worker installs the provider's plugin package on the job's poller (`POST /v1/plugin-installs` on cbd, contracts §14). It finds the package in the PPM table `mod_ppm_plugins_installation`. The poller accepts only `centreon-plugin-*` names and never touches plugins.json. The `disco-plugin-install` step checks this with `centreon-plugin-applications-protocol-tcp`.
 
+## Service discovery without gorgone (phase 3 P5, contracts §15)
+
+- The scan page and `POST /auto-discovery/services/scans` queue a scan in the DB. The worker runs each (rule, host) on the host's poller through cbd RemoteExec, then parses the `--disco-show` XML (a port of gorgone's services discovery). P5a is a dry-run only.
+- The e2e `svc-disco` step uses `fixtures/gls_disco_stub --disco-show --items a,b` (one `<label name=...>` per item). It checks the would-be services, that nothing is written, the bad XML and stopped poller errors, and that the password macro does not leak.
+
 ## License fingerprint in containers (phase 3, MON-216369)
 
 - fpm and `autodiscovery-worker` set `CENTREON_LICENSE_FINGERPRINT=instance` (override: `GLS_LICENSE_FINGERPRINT`). LM then uses the sha256 of an instance id stored encrypted in the DB, not the MACs. It is the same on every container of the central and survives a recreate (same DB, same `APP_SECRET`). An unset, empty or other value means MAC mode.

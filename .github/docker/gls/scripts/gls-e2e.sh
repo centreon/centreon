@@ -15,6 +15,7 @@
 #   gls-e2e.sh disco              host discovery through cbd /v1/executions: FINISH, REJECTED, TIMEOUT, cap, exit, secret, NOT_CONNECTED
 #   gls-e2e.sh disco-scheduled    cron discovery job, automatic save + export to the poller, pause
 #   gls-e2e.sh disco-plugin-install  provider plugin installed by the worker before the RemoteExec (14.S)
+#   gls-e2e.sh svc-disco          service discovery dry-run scan without gorgone (P5a, 15.S)
 #   gls-e2e.sh install-script     poller added with the generated install.sh command (broker channel), no secret leaked
 #   gls-e2e.sh license-fingerprint LM instance fingerprint: fpm == worker, kept on recreate, regenerate, MAC mode, license valid
 #   gls-e2e.sh logs | down
@@ -1333,6 +1334,152 @@ dp_forged() { # dp_forged <poller uid> <packages json> <want message> <label>: 2
   fi
 }
 
+# ---------- svc-disco: service discovery without gorgone, P5a dry-run (contracts § 15.S, 15.S1) ----------
+
+SVC_HOST=gls-svc-1
+SVC_HTPL=gls-svc-tpl
+SVC_RULE=gls-svc-rule
+SVC_RULE_ID=9101
+SVC_MARKER=GLS_SVC_SECRET_MARKER
+
+svc_host_id() { sql centreon "SELECT host_id FROM host WHERE host_name='$SVC_HOST' AND host_register='1'" | head -1; }
+svc_macro() { # svc_macro <name> <value> [is_password]: host macro of gls-svc-1, value never logged
+  local hid; hid=$(svc_host_id)
+  sql centreon "DELETE FROM on_demand_macro_host WHERE host_host_id=$hid AND host_macro_name='\$_HOST$1\$';
+    INSERT INTO on_demand_macro_host (host_macro_name, host_macro_value, is_password, host_host_id)
+      VALUES ('\$_HOST$1\$', '$2', ${3:-0}, $hid);" >>"$LOG_DIR/svc-disco.log" 2>&1
+}
+svc_fixture() { # host template + host on POLLER_NAME, macros, rule 9101 (command 9101) linked to the template and the poller
+  local pid=$1 stpl
+  if [[ -z "$(svc_host_id)" ]]; then
+    clapi_log -o HTPL -a ADD -v "$SVC_HTPL;$SVC_HTPL;;;;"
+    add_host "$SVC_HOST" "$POLLER_NAME"
+    clapi_log -o HOST -a addtemplate -v "$SVC_HOST;$SVC_HTPL"
+  fi
+  svc_macro GLSITEMS "eth0,eth1"; svc_macro GLSMODE ""; svc_macro GLSSECRET "$SVC_MARKER" 1
+  stpl=$(sql centreon "SELECT service_id FROM service WHERE service_description='gls-stpl' AND service_register='0'" | head -1)
+  [[ -n "$stpl" ]] || return 1
+  SVC_STPL=$stpl
+  sql centreon "
+    INSERT IGNORE INTO command (command_id, command_name, command_line, command_type)
+      VALUES ($SVC_RULE_ID, 'gls-svc-disco', '\$CENTREONPLUGINS\$/gls_disco_stub --disco-show \$_HOSTGLSMODE\$ --items \$_HOSTGLSITEMS\$ --password=\$_HOSTGLSSECRET\$', 4);
+    INSERT IGNORE INTO mod_auto_disco_rule (rule_id, rule_alias, service_display_name, rule_activate, rule_disable, rule_update,
+        command_command_id, service_template_model_id)
+      VALUES ($SVC_RULE_ID, '$SVC_RULE', 'GLS-\$name\$', '1', '1', '1', $SVC_RULE_ID, $stpl);
+    DELETE FROM mod_auto_disco_ht_rule_relation WHERE rule_rule_id=$SVC_RULE_ID;
+    INSERT INTO mod_auto_disco_ht_rule_relation (host_host_id, rule_rule_id)
+      SELECT host_id, $SVC_RULE_ID FROM host WHERE host_name='$SVC_HTPL' AND host_register='0';
+    DELETE FROM mod_auto_disco_inst_rule_relation WHERE rule_rule_id=$SVC_RULE_ID;
+    INSERT INTO mod_auto_disco_inst_rule_relation (instance_id, rule_rule_id) VALUES ($pid, $SVC_RULE_ID);
+    INSERT INTO cfg_resource_instance_relations (resource_id, instance_id)
+      SELECT r.resource_id, $pid FROM cfg_resource r WHERE r.resource_name = '\$CENTREONPLUGINS\$'
+        AND NOT EXISTS (SELECT 1 FROM cfg_resource_instance_relations x WHERE x.resource_id = r.resource_id AND x.instance_id = $pid);" \
+    >>"$LOG_DIR/svc-disco.log" 2>&1
+  [[ -n "$(svc_host_id)" ]] \
+    && [[ "$(sql centreon "SELECT COUNT(*) FROM mod_auto_disco_ht_rule_relation WHERE rule_rule_id=$SVC_RULE_ID")" == 1 ]] \
+    && [[ "$(sql centreon "SELECT COUNT(*) FROM host_template_relation r JOIN host t ON t.host_id=r.host_tpl_id WHERE r.host_host_id=$(svc_host_id) AND t.host_name='$SVC_HTPL'")" == 1 ]]
+}
+svc_scan_done() { # svc_scan_done <scan id>: GET answers a final status
+  local s
+  [[ "$(api GET "/auto-discovery/services/scans/$1")" == 200 ]] || return 1
+  s=$(jq -r '.status // empty' "$PRIV_DIR/last.json" 2>/dev/null); [[ "$s" == done || "$s" == failed ]]
+}
+svc_scan() { # svc_scan <json body>: SCAN_ID and SCAN_CODE set, result in $PRIV_DIR/scan.json once final
+  SCAN_ID=""; rm -f "$PRIV_DIR/scan.json"
+  SCAN_CODE=$(api POST /auto-discovery/services/scans "$1")
+  [[ "$SCAN_CODE" == 201 ]] || return 1
+  SCAN_ID=$(jq -r '.id // empty' "$PRIV_DIR/last.json" 2>/dev/null)
+  [[ -n "$SCAN_ID" ]] && wait_until 180 svc_scan_done "$SCAN_ID" && cp "$PRIV_DIR/last.json" "$PRIV_DIR/scan.json"
+}
+svc_body() { # svc_body <dry_run true|false>
+  jq -nc --arg r "$SVC_RULE" --arg h "$SVC_HOST" --argjson d "$1" \
+    '{filter_rules: [$r], filter_hosts: [$h], manual: true, dry_run: $d, force_rule: true}'
+}
+svc_entry() { # manual entry of gls-svc-1 / rule 9101 from the last scan
+  jq -c --arg h "$(svc_host_id)" --arg r "$SVC_RULE_ID" '.result.manual[$h].rules[$r] // empty' "$PRIV_DIR/scan.json" 2>/dev/null
+}
+svc_state() { # services of gls-svc-1 + rule relations, for "unchanged" checks
+  sql centreon "SELECT s.service_id, s.service_description, s.service_activate FROM service s JOIN host_service_relation r ON r.service_service_id=s.service_id WHERE r.host_host_id=$(svc_host_id) ORDER BY s.service_id"
+  sql centreon "SELECT rule_rule_id, service_service_id FROM mod_auto_disco_rule_service_relation WHERE rule_rule_id=$SVC_RULE_ID ORDER BY 2"
+}
+svc_failed_case() { # svc_failed_case <label> <want message>
+  local e
+  if svc_scan "$(svc_body true)"; then
+    e=$(svc_entry)
+    jq -e --arg m "$2" '.failed == 1 and .message == $m and ((.discovery // {}) | length) == 0' <<<"$e" >/dev/null 2>&1 \
+      && record "svc-disco $1: failed with '$2'" ok "scan $SCAN_ID" \
+      || record "svc-disco $1: failed with '$2'" ko "scan $SCAN_ID entry $(jq -c '{failed, message}' <<<"$e" 2>/dev/null | head -c 200)"
+  else
+    record "svc-disco $1: failed with '$2'" ko "HTTP $SCAN_CODE scan '${SCAN_ID}' $(jq -c '{status, message}' "$PRIV_DIR/last.json" 2>/dev/null | head -c 200)"
+  fi
+}
+
+cmd_svc_disco() {
+  login || { record "login" ko; return; }
+  local pid puid st0 st1 e n c code
+  pid=$(poller_id); puid=$(sql centreon "SELECT uid FROM nagios_server WHERE name='${POLLER_NAME}'")
+
+  # A1 fixture.
+  svc_fixture "$pid" && record "svc-disco: fixture (host $SVC_HOST, template, macros, rule $SVC_RULE)" ok "host $(svc_host_id)" \
+    || { record "svc-disco: fixture (host $SVC_HOST, template, macros, rule $SVC_RULE)" ko "see svc-disco.log / clapi.log"; return; }
+  st0=$(svc_state)
+  [[ "$(sql centreon "SELECT COUNT(*) FROM service s JOIN host_service_relation r ON r.service_service_id=s.service_id WHERE r.host_host_id=$(svc_host_id) AND s.service_description LIKE 'GLS-%'")" == 0 ]] \
+    && record "svc-disco: $SVC_HOST has no GLS-* service before the scan" ok \
+    || record "svc-disco: $SVC_HOST has no GLS-* service before the scan" ko
+
+  # A2 manual dry-run scan.
+  if svc_scan "$(svc_body true)"; then
+    e=$(svc_entry)
+    jq -e --argjson t "$SVC_STPL" '.failed == 0 and ((.discovery | keys) == ["GLS-eth0", "GLS-eth1"])
+          and ([.discovery[] | select(.type == 1 and ((.service_template_model_stm_id | tostring) == ($t | tostring)))] | length) == 2
+          and ((.disable // []) == [])' <<<"$e" >/dev/null 2>&1 \
+      && record "svc-disco dry-run: GLS-eth0, GLS-eth1 to add (template, no disable)" ok "scan $SCAN_ID" \
+      || record "svc-disco dry-run: GLS-eth0, GLS-eth1 to add (template, no disable)" ko "scan $SCAN_ID status $(jq -r .status "$PRIV_DIR/scan.json") entry $(jq -c '{failed, message, d: (.discovery // {} | keys), disable}' <<<"$e" 2>/dev/null | head -c 250)"
+    n=$(jq '[.result.journal[]? | select(.type == "created" and .host_name == "'"$SVC_HOST"'")] | length' "$PRIV_DIR/scan.json" 2>/dev/null)
+    [[ "$n" == 2 ]] && record "svc-disco dry-run: journal has 2 'created' entries" ok \
+      || record "svc-disco dry-run: journal has 2 'created' entries" ko "${n:-none}"
+  else
+    record "svc-disco dry-run: GLS-eth0, GLS-eth1 to add (template, no disable)" ko "HTTP $SCAN_CODE scan '${SCAN_ID}' $(jq -c '{status, message}' "$PRIV_DIR/last.json" 2>/dev/null | head -c 200)"
+  fi
+  # A3 nothing written.
+  st1=$(svc_state)
+  [[ "$st1" == "$st0" ]] && record "svc-disco dry-run: services and rule relations unchanged" ok \
+    || record "svc-disco dry-run: services and rule relations unchanged" ko "$(diff <(echo "$st0") <(echo "$st1") | head -c 200)"
+
+  # A8 apply refused in P5a.
+  code=$(api POST /auto-discovery/services/scans "$(svc_body false)")
+  [[ "$code" == 400 ]] && record "svc-disco: dry_run=false refused in P5a (400)" ok || record "svc-disco: dry_run=false refused in P5a (400)" ko "HTTP $code"
+
+  # A4 plugin output that is not XML.
+  svc_macro GLSMODE "--bad-xml"
+  svc_failed_case "bad XML" "load xml issue"
+  svc_macro GLSMODE ""
+
+  # A5 poller stopped.
+  cp_ stop -t 30 poller-engine >>"$LOG_DIR/svc-disco.log" 2>&1
+  wait_until 60 eval '! poller_capable "$puid"'
+  svc_failed_case "poller stopped" "poller not connected"
+  cp_ start poller-engine >>"$LOG_DIR/svc-disco.log" 2>&1
+  wait_until 300 poller_capable "$puid" && record "svc-disco: ${POLLER_NAME} capable again" ok || record "svc-disco: ${POLLER_NAME} capable again" ko
+
+  # A6 the password macro value is nowhere but in the poller argv.
+  n=0
+  for c in centreon-broker fpm autodiscovery-worker httpd; do
+    cc logs --no-color "$c" 2>&1 | grep -cF "$SVC_MARKER" >/dev/null && n=$((n + 1))
+  done
+  cc exec -T centreon-broker sh -c 'cat /var/log/centreon-broker/*.log 2>/dev/null' | grep -cF "$SVC_MARKER" >/dev/null && n=$((n + 1))
+  cc exec -T fpm sh -c 'cat /var/log/centreon/*.log 2>/dev/null' | grep -cF "$SVC_MARKER" >/dev/null && n=$((n + 1))
+  cp_ logs --no-color poller-engine 2>&1 | grep -cF "$SVC_MARKER" >/dev/null && n=$((n + 1))
+  cp_ exec -T poller-engine sh -c 'cat /var/log/centreon-engine/*.log /var/log/centreon-broker/*.log 2>/dev/null' | grep -cF "$SVC_MARKER" >/dev/null && n=$((n + 1))
+  grep -rlF "$SVC_MARKER" "$PRIV_DIR"/scan.json "$LOG_DIR" 2>/dev/null | grep -c . >/dev/null && n=$((n + 1))
+  [[ "$(sql centreon "SELECT COUNT(*) FROM mod_auto_disco_scan_request WHERE result LIKE '%$SVC_MARKER%'")" == 0 ]] || n=$((n + 1))
+  (( n == 0 )) && record "svc-disco: password macro value in no log, scan result or scan row" ok \
+    || record "svc-disco: password macro value in no log, scan result or scan row" ko "$n sources"
+
+  # A7 no gorgone.
+  [[ "$(gorgone_procs)" == 0 ]] && record "svc-disco: no gorgone process" ok || record "svc-disco: no gorgone process" ko
+}
+
 # ---------- install-script: poller added with the generated command (contracts § 11) ----------
 
 IS_NAME="${IS_NAME:-gls-poller-is}"
@@ -1726,11 +1873,12 @@ case "$cmd" in
   disco) cmd_disco ;;
   disco-scheduled) cmd_disco_scheduled ;;
   disco-plugin-install) cmd_disco_plugin_install ;;
+  svc-disco) cmd_svc_disco ;;
   install-script) cmd_install_script ;;
   license-fingerprint) cmd_license_fp ;;
   logs) cmd_logs; exit 0 ;;
   down) cmd_down; exit 0 ;;
-  *) sed -n '2,24p' "$0"; exit 2 ;;
+  *) sed -n '2,25p' "$0"; exit 2 ;;
 esac
 summary "$cmd $*"
 exit $(( failures > 0 ))
