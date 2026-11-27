@@ -3,6 +3,7 @@ import { Typography } from '@mui/material';
 import { ThemeMode, userAtom } from '@centreon/ui-context';
 
 import { faker } from '@faker-js/faker';
+import { page } from '@rstest/browser';
 import { rs } from '@rstest/core';
 import { render } from '@test-setup/render';
 import { screen, waitFor, within } from '@testing-library/react';
@@ -505,6 +506,14 @@ const textPrimaryColor = {
   [ThemeMode.light]: 'rgb(0, 0, 0)'
 };
 
+// `--color-background-listing-header` in `ThemeProvider/tailwindcss.css`
+// (`palette.background.listingHeader` in `ThemeProvider/palettes.ts`):
+// #d9d9d9 in light mode, #666666 in dark mode.
+const listingHeaderBackgroundColor = {
+  [ThemeMode.dark]: 'rgb(102, 102, 102)',
+  [ThemeMode.light]: 'rgb(217, 217, 217)'
+};
+
 [ThemeMode.light, ThemeMode.dark].forEach((themeMode) => {
   describe(`Form titles in ${themeMode} mode`, () => {
     beforeEach(() => {
@@ -530,6 +539,35 @@ const textPrimaryColor = {
       expect(await screen.findByLabelText('Titles section')).toHaveStyle({
         borderRadius: '8px'
       });
+    });
+
+    it('displays the section title in the text colour', async () => {
+      expect(await screen.findByText('Titles section')).toHaveStyle({
+        color: textPrimaryColor[themeMode]
+      });
+    });
+
+    it('gives the collapsible section header the listing header background', async () => {
+      expect(await screen.findByLabelText('Titles section')).toHaveStyle({
+        backgroundColor: listingHeaderBackgroundColor[themeMode]
+      });
+    });
+
+    it('keeps the section header background on hover', async () => {
+      const header = await screen.findByLabelText('Titles section');
+
+      // A real pointer: `userEvent.hover` only dispatches events and never
+      // puts the element in the CSS `:hover` state.
+      await page.getByLabel('Titles section').hover();
+
+      try {
+        expect(header).toHaveStyle({
+          backgroundColor: listingHeaderBackgroundColor[themeMode]
+        });
+      } finally {
+        // The pointer stays put between tests: leave the header.
+        await page.getByText('Grid block title').hover();
+      }
     });
 
     it('displays the grid block title in 16px bold with the text colour', async () => {
