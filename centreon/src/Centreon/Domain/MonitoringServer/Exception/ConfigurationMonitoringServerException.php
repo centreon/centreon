@@ -93,4 +93,20 @@ class ConfigurationMonitoringServerException extends \Exception
     {
         return new TimeoutException(sprintf(_('Error on monitoring server #%d: %s'), $monitoringServerId, $message));
     }
+
+    /**
+     * Error of a call made for several monitoring servers at once (move or reload).
+     */
+    public static function errorOfAll(string $errorMessage): self
+    {
+        return new self(sprintf(_('Error on the monitoring servers: %s'), $errorMessage));
+    }
+
+    /**
+     * Timeout of a call made for several monitoring servers at once (move or reload).
+     */
+    public static function timeoutOfAll(string $message): TimeoutException
+    {
+        return new TimeoutException(sprintf(_('Error on the monitoring servers: %s'), $message));
+    }
 }

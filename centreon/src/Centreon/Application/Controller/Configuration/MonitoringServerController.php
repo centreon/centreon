@@ -32,6 +32,7 @@ use Centreon\Domain\MonitoringServer\Exception\ConfigurationMonitoringServerExce
 use Centreon\Domain\MonitoringServer\Exception\GorgoneDeliveryException;
 use Centreon\Domain\MonitoringServer\Exception\IncompleteGenerationException;
 use Centreon\Domain\MonitoringServer\Exception\MonitoringServerException;
+use Centreon\Domain\MonitoringServer\Exception\PartialDeliveryException;
 use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerServiceInterface;
 use Centreon\Domain\MonitoringServer\MonitoringServer;
 use Centreon\Domain\MonitoringServer\UseCase\GenerateAllConfigurations;
@@ -222,7 +223,12 @@ class MonitoringServerController extends AbstractController
         $this->denyAccessUnlessGrantedForApiConfiguration();
         $this->execute(
             function () use ($generateAllConfigurations, $reloadAllConfigurations): void {
-                $generateAllConfigurations->execute();
+                try {
+                    $generateAllConfigurations->execute();
+                } catch (PartialDeliveryException $ex) {
+                    // MON-214616: the monitoring servers delivered are reloaded, the error names the others
+                    $reloadAllConfigurations->executeAfterPartialDelivery($ex);
+                }
                 $reloadAllConfigurations->execute();
             }
         );

@@ -65,6 +65,29 @@ class MonitoringServerConfigurationRepositoryFile implements MonitoringServerCon
         $this->includeFile('www/include/configuration/configGenerate/xml/restartPollers.php');
     }
 
+    /**
+     * @inheritDoc
+     */
+    public function moveExportFilesOfAll(array $monitoringServerIds): void
+    {
+        if ($monitoringServerIds !== []) {
+            $_POST['poller'] = implode(',', $monitoringServerIds);
+            $this->includeFile('www/include/configuration/configGenerate/xml/moveFiles.php');
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function reloadConfigurationOfAll(array $monitoringServerIds): void
+    {
+        if ($monitoringServerIds !== []) {
+            $_POST['poller'] = implode(',', $monitoringServerIds);
+            $_POST['mode'] = 1;
+            $this->includeFile('www/include/configuration/configGenerate/xml/restartPollers.php');
+        }
+    }
+
     private function includeFile(string $filePath): void
     {
         try {

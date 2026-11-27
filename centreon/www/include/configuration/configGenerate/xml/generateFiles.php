@@ -184,6 +184,13 @@ $log_error = function ($errno, $errstr, $errfile, $errline) {
 set_error_handler($log_error);
 
 $xml->startElement('response');
+/** @var array<int, string> $selectedPollers names of the pollers to generate, by id */
+$selectedPollers = [];
+/** @var array<int, string> $generationFailures reason, by poller id */
+$generationFailures = [];
+/** @var list<int> $debugFailures pollers whose generated configuration has errors */
+$debugFailures = [];
+$firstGenerationError = null;
 try {
     $tabs = [];
     if ($generate) {
@@ -196,7 +203,7 @@ try {
 
     // Restrict generation to the pollers in the user's resource ACL (admins get them all)
     $allowedPollers = $centreon->user->access->getPollerAclConf([
-        'fields' => ['id'],
+        'fields' => ['id', 'name'],
         'keys' => ['id'],
         'conditions' => ['ns_activate' => '1'],
     ]);
@@ -205,20 +212,40 @@ try {
     if ($pollers == '0') {
         $config_generate->configPollers($username);
     } else {
+        // MON-214616: a poller whose generation fails does not stop the others
         foreach ($pollers as $poller) {
             if (! isset($allowedPollers[$poller])) {
                 continue;
             }
-            $config_generate->reset();
-            $config_generate->configPollerFromId($poller, $username);
+            $selectedPollers[(int) $poller] = $allowedPollers[$poller]['name'];
+            try {
+                $config_generate->reset();
+                $config_generate->configPollerFromId($poller, $username);
+            } catch (Exception $e) {
+                $firstGenerationError ??= $e;
+                $generationFailures[(int) $poller] = $e->getMessage();
+            }
         }
+        if ($firstGenerationError !== null && count($selectedPollers) === 1) {
+            throw $firstGenerationError;
+        }
+        // only the generated configurations are checked
+        $ret['host'] = array_values(array_diff($pollers, array_map('strval', array_keys($generationFailures))));
     }
 
     // Debug configuration
     $statusMsg = $okMsg;
     $statusCode = 0;
     if ($debug) {
-        $statusCode = printDebug($xml, $tabs);
+        $statusCode = printDebug($xml, $tabs, $debugFailures);
+        if (count($selectedPollers) > 1) {
+            foreach ($debugFailures as $pollerId) {
+                $generationFailures[$pollerId] ??= _('the monitoring engine reported errors in its configuration');
+            }
+        }
+    }
+    if ($generationFailures !== []) {
+        $statusCode = 1;
     }
     if ($statusCode == 1) {
         $statusMsg = $nokMsg;
@@ -226,6 +253,23 @@ try {
 
     $xml->writeElement('status', $statusMsg);
     $xml->writeElement('statuscode', $statusCode);
+    if ($generationFailures !== []) {
+        $details = [];
+        foreach ($generationFailures as $pollerId => $reason) {
+            $details[] = $selectedPollers[$pollerId] . ': ' . $reason;
+        }
+        $xml->writeElement('error', sprintf(
+            _('%d of %d monitoring servers have not been generated, the others have: %s'),
+            count($generationFailures),
+            count($selectedPollers),
+            implode(' | ', $details)
+        ));
+        // the others can still be moved and restarted
+        $generated = array_diff_key($selectedPollers, $generationFailures);
+        if ($generated !== []) {
+            $xml->writeElement('generated', implode(',', array_keys($generated)));
+        }
+    }
 } catch (Exception $e) {
     $xml->writeElement('status', $nokMsg);
     $xml->writeElement('statuscode', 1);

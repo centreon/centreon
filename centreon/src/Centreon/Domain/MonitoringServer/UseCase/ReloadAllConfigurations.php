@@ -30,6 +30,7 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\MonitoringServer\Exception\ConfigurationMonitoringServerException;
 use Centreon\Domain\MonitoringServer\Exception\GorgoneDeliveryException;
 use Centreon\Domain\MonitoringServer\Exception\IncompleteGenerationException;
+use Centreon\Domain\MonitoringServer\Exception\PartialDeliveryException;
 use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerConfigurationRepositoryInterface;
 use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
@@ -90,27 +91,68 @@ class ReloadAllConfigurations
             throw ConfigurationMonitoringServerException::errorRetrievingMonitoringServers($ex);
         }
 
-        $lastMonitoringServerId = 0;
-
-        try {
-            foreach ($monitoringServers as $monitoringServer) {
-                $lastMonitoringServerId = $monitoringServer->getId();
-                if ($lastMonitoringServerId !== null) {
-                    $this->info('Reload configuration for monitoring server #' . $lastMonitoringServerId);
-                    $this->configurationRepository->reloadConfiguration($lastMonitoringServerId);
-                } else {
-                    $this->error('Monitoring server id from repository is null');
-                }
+        $monitoringServerIds = [];
+        foreach ($monitoringServers as $monitoringServer) {
+            if ($monitoringServer->getId() !== null) {
+                $monitoringServerIds[] = $monitoringServer->getId();
+            } else {
+                $this->error('Monitoring server id from repository is null');
             }
+        }
+
+        $this->reload($monitoringServerIds);
+    }
+
+    /**
+     * MON-214616: after a partial delivery, the monitoring servers which have been delivered are still reloaded.
+     * The delivery error is thrown afterwards, with the reload error when some of them are not reloaded either.
+     *
+     * @throws PartialDeliveryException
+     * @throws GorgoneDeliveryException
+     * @throws ConfigurationMonitoringServerException
+     * @throws TimeoutException
+     */
+    public function executeAfterPartialDelivery(PartialDeliveryException $partialDelivery): never
+    {
+        try {
+            $this->reload($partialDelivery->getDeliveredMonitoringServerIds());
+        } catch (GorgoneDeliveryException $ex) {
+            throw new GorgoneDeliveryException(
+                $partialDelivery->getMessage() . ' ' . $ex->getMessage(),
+                $partialDelivery->getCode() === $ex->getCode()
+                    ? $partialDelivery->getCode()
+                    : GorgoneDeliveryException::DELIVERY_FAILED,
+                $partialDelivery,
+            );
+        }
+
+        throw $partialDelivery;
+    }
+
+    /**
+     * Every monitoring server is reloaded at once (MON-214616): one which is not reached does not stop the others.
+     *
+     * @param list<int> $monitoringServerIds
+     *
+     * @throws ConfigurationMonitoringServerException
+     * @throws GorgoneDeliveryException
+     * @throws IncompleteGenerationException
+     * @throws TimeoutException
+     */
+    private function reload(array $monitoringServerIds): void
+    {
+        if ($monitoringServerIds === []) {
+            return;
+        }
+        try {
+            $this->info('Reload configuration for monitoring servers #' . implode(', #', $monitoringServerIds));
+            $this->configurationRepository->reloadConfigurationOfAll($monitoringServerIds);
         } catch (TimeoutException $ex) {
-            throw ConfigurationMonitoringServerException::timeout($lastMonitoringServerId, $ex->getMessage());
+            throw ConfigurationMonitoringServerException::timeoutOfAll($ex->getMessage());
         } catch (GorgoneDeliveryException|IncompleteGenerationException $ex) {
             throw $ex;
         } catch (\Exception $ex) {
-            throw ConfigurationMonitoringServerException::errorOnReload(
-                $lastMonitoringServerId,
-                $ex->getMessage()
-            );
+            throw ConfigurationMonitoringServerException::errorOfAll($ex->getMessage());
         }
     }
 }
