@@ -534,7 +534,8 @@ INSERT INTO `cb_module` (`cb_module_id`, `name`, `libname`, `loading_pos`, `is_b
 (19, 'InfluxDB', 'influxdb.so', 22, 0, 1),
 (20, 'Correlation', 'correlation.so', 30, 0, 1),
 (21, 'Generic', 'lua.so', 40, 0, 1),
-(23, 'BBDO', NULL, NULL, 0, 1);
+(23, 'BBDO', NULL, NULL, 0, 1),
+(24, 'VictoriaMetrics', 'victoria_metrics.so', 22, 0, 1);
 
 
 --
@@ -562,7 +563,8 @@ INSERT INTO `cb_type` (`cb_type_id`, `type_name`, `type_shortname`, `cb_module_i
 (34, 'Unified SQL', 'unified_sql', 8),
 (35, 'BBDO Server', 'bbdo_server', 23),
 (36, 'BBDO Client', 'bbdo_client', 23),
-(37, 'Run script on event', 'event_script', 21);
+(37, 'Run script on event', 'event_script', 21),
+(38, 'Storage - VictoriaMetrics', 'victoria_metrics', 24);
 
 --
 -- Contenu de la table `cb_field`
@@ -673,7 +675,10 @@ INSERT INTO `cb_field` (`cb_field_id`, `fieldname`, `displayname`, `description`
 (98, 'script_path', 'Script path', 'Path to the script to execute', 'text', 'T=options:C=value:CK=key:K=brokercfg_event_script_script_path', NULL),
 (99, 'timeout', 'Timeout', 'Script response time before timeout (in seconds)', 'int', 'T=options:C=value:CK=key:K=brokercfg_event_script_timeout', NULL),
 (100, 'managed_event_ttl', 'Managed event TTL', 'Delay before the script is called again for the same event (in seconds)', 'int', 'T=options:C=value:CK=key:K=brokercfg_event_script_managed_event_ttl', NULL),
-(101, 'event', 'Event', 'Filtered event type', 'multiselect', 'T=options:C=value:CK=key:K=brokercfg_event_script_event', 1);
+(101, 'event', 'Event', 'Filtered event type', 'multiselect', 'T=options:C=value:CK=key:K=brokercfg_event_script_event', 1),
+(102, 'http_target', 'HTTP target', 'HTTP path of the write endpoint (default: /write). For a VictoriaMetrics cluster, use /insert/<accountID>/influx/write', 'text', NULL, NULL),
+(103, 'certificate_path', 'Trusted CA''s certificate path', 'Full path to the CA certificate (PEM) used to verify the server certificate when TLS encryption is enabled', 'text', NULL, NULL),
+(104, 'account_id', 'Account ID', 'VictoriaMetrics tenant account ID, sent in the account_id HTTP header', 'text', NULL, NULL);
 
 --
 -- Contenu de la table `cb_list`
@@ -827,7 +832,8 @@ INSERT INTO `cb_tag_type_relation` (`cb_tag_id`, `cb_type_id`, `cb_type_uniq`) V
 (2, 35, 1),
 (1, 36, 1),
 (2, 36, 1),
-(1, 37, 0);
+(1, 37, 0),
+(1, 38, 0);
 
 --
 -- Contenu de la table `cb_type_field_relation`
@@ -994,7 +1000,24 @@ INSERT INTO `cb_type_field_relation` (`cb_type_id`, `cb_field_id`, `is_required`
 (37, 98, 1, 1),
 (37, 99, 1, 3),
 (37, 100, 1, 4),
-(37, 101, 0, 2);
+(37, 101, 0, 2),
+(38, 7, 1, 1),
+(38, 18, 0, 2),
+(38, 82, 1, 3),
+(38, 103, 0, 4),
+(38, 102, 0, 5),
+(38, 8, 0, 6),
+(38, 9, 0, 7),
+(38, 104, 0, 8),
+(38, 34, 0, 9),
+(38, 55, 0, 10),
+(38, 56, 0, 11),
+(38, 57, 0, 12),
+(38, 58, 0, 13),
+(38, 59, 0, 14),
+(38, 60, 0, 15),
+(38, 61, 0, 16),
+(38, 62, 0, 17);
 
 --
 -- Contenu de la table `cb_type_field_relation`
