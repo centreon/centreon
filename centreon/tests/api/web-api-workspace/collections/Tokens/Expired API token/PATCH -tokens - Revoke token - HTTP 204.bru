@@ -1,0 +1,32 @@
+meta {
+  name: PATCH /administration/tokens - Revoke token - HTTP 204
+  type: http
+  seq: 8
+}
+
+patch {
+  url: {{baseUrlWeb}}/administration/tokens/{{RevokedTokenName}}/users/{{currentUserID}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "is_revoked": true
+  }
+}
+
+assert {
+  res.status: eq 204
+}
+
+tests {
+  test("Token has been successfully revoked.", function () {
+    expect(res.getBody()).to.be.empty;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

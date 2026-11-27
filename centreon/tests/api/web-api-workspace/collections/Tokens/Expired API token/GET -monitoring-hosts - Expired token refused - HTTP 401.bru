@@ -1,0 +1,38 @@
+meta {
+  name: GET /monitoring/hosts - Expired token refused - HTTP 401
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrlWeb}}/monitoring/hosts
+  body: none
+  auth: none
+}
+
+headers {
+  X-AUTH-TOKEN: {{ExpiringTokenValue}}
+}
+
+assert {
+  res.status: eq 401
+}
+
+script:pre-request {
+  // Wait until the token has passed its expiration date (plus a one second margin).
+  const waitMs = bru.getVar("ExpiringTokenExpirationMs") + 1000 - Date.now();
+  if (waitMs > 0) {
+    await new Promise((resolve) => setTimeout(resolve, waitMs));
+  }
+}
+
+tests {
+  test("The API token is refused once its expiration date has passed.", function () {
+    expect(res.getBody()).to.be.an("object");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

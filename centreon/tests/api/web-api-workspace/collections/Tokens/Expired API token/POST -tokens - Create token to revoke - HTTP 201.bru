@@ -1,0 +1,37 @@
+meta {
+  name: POST /administration/tokens - Create token to revoke - HTTP 201
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{baseUrlWeb}}/administration/tokens
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{RevokedTokenName}}",
+    "type": "api",
+    "user_id": {{currentUserID}}
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("Token has been successfully created.", function () {
+    const body = res.getBody();
+    expect(body).to.include({"name": bru.getEnvVar("RevokedTokenName")});
+    expect(body.token).to.be.a("string");
+    bru.setVar("RevokedTokenValue", body.token);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
