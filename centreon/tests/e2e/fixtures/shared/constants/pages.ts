@@ -18,6 +18,7 @@ export const PAGES = {
     additionalConfigurations: '/centreon/configuration/additional-connector-configurations',
     hostsTemplatesLegacy: '/centreon/main.php?p=60103',
     hostsLegacy: '/centreon/main.php?p=60101',
+    hostsLegacyFrame: '/centreon/main.get.php?p=60101',
     hostCategoriesLegacy: '/centreon/main.php?p=60104',
     hostsDependenciesLegacy: '/centreon/main.php?p=60407',
     hostGroups: '/centreon/configuration/hosts/groups',
