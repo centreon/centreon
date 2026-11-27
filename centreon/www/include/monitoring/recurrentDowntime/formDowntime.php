@@ -299,6 +299,10 @@ if ($form->validate()) {
     ];
     $editedDowntimeId = $values['o'] == 'c' ? (int) $values['dt_id'] : null;
 
+    if ($valid && ! $downtime->areSubmittedServicesLinkedToTheirHost($submittedRelations, $editedDowntimeId)) {
+        $valid = false;
+        $tpl->assign('relations_err', _("You can't link this downtime to services that do not belong to their host"));
+    }
     if ($valid && ! $downtime->areSubmittedRelationsEnabled($submittedRelations, $editedDowntimeId)) {
         $valid = false;
         $tpl->assign('relations_err', _("You can't link this downtime to disabled resources"));

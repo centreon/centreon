@@ -528,6 +528,31 @@ class CentreonDowntime
     }
 
     /**
+     * Tells whether every submitted service belongs to the host it is submitted with, enabled or not.
+     *
+     * Services already linked to the downtime are not checked, like in areSubmittedRelationsEnabled().
+     *
+     * @param array<string, list<int|string>> $submittedRelations submitted ids indexed by getRelations() key,
+     *                                                            services being identified by '<hostId>-<serviceId>'
+     * @param int|null $downtimeId the edited downtime, null on creation
+     *
+     * @throws PDOException
+     * @throws ConnectionException
+     * @return bool
+     */
+    public function areSubmittedServicesLinkedToTheirHost(array $submittedRelations, ?int $downtimeId): bool
+    {
+        $newServiceKeys = $this->findNewlySubmittedRelations($submittedRelations, $downtimeId)['services'] ?? [];
+        if ($newServiceKeys === []) {
+            return true;
+        }
+
+        $linkedServiceKeys = array_map('strval', array_keys($this->findLinkedServiceKeys($newServiceKeys)));
+
+        return array_diff($newServiceKeys, $linkedServiceKeys) === [];
+    }
+
+    /**
      * Returns all downtimes configured for enabled hosts
      *
      * @throws PDOException
@@ -1331,7 +1356,13 @@ class CentreonDowntime
     protected function findEnabledResourceIds(string $resourceType, array $resourceIds): array
     {
         if ($resourceType === 'services') {
-            return $this->findEnabledServiceKeys($resourceIds);
+            // A service of another host is not linked, so it is never enabled either
+            $enabledServiceKeys = array_keys(array_filter(
+                $this->findLinkedServiceKeys($resourceIds),
+                static fn (int|string $isEnabled): bool => (string) $isEnabled === '1'
+            ));
+
+            return array_map('strval', $enabledServiceKeys);
         }
 
         $ids = array_map('intval', array_filter($resourceIds, 'ctype_digit'));
@@ -1354,9 +1385,10 @@ class CentreonDowntime
      * @param list<string> $serviceKeys '<hostId>-<serviceId>' identifiers
      *
      * @throws ConnectionException
-     * @return list<string> the enabled ones whose service belongs to the host, as '<hostId>-<serviceId>'
+     * @return array<string, int|string> the ones whose service belongs to the host, as '<hostId>-<serviceId>',
+     *                                   with 1 when both the host and the service are enabled, 0 otherwise
      */
-    private function findEnabledServiceKeys(array $serviceKeys): array
+    private function findLinkedServiceKeys(array $serviceKeys): array
     {
         $idPairs = [];
         foreach ($serviceKeys as $serviceKey) {
@@ -1383,24 +1415,25 @@ class CentreonDowntime
             'group_service_id_'
         );
 
-        // A service key is valid when the service is really linked to that host and both are enabled.
+        // A service key is linked when the service really belongs to that host, enabled or not.
         // One branch per kind of link, each filtered on the submitted hosts before joining, so a service
         // linked to a large host group never expands to every host of the group.
         // Meta services are linked directly to the _Module_Meta host.
-        $validServiceKeys = $this->db->fetchFirstColumn(
+        /** @var array<string, int|string> $linkedServiceKeys */
+        $linkedServiceKeys = $this->db->fetchAllKeyValue(
             <<<SQL
-                SELECT CONCAT(h.host_id, '-', s.service_id)
+                SELECT CONCAT(h.host_id, '-', s.service_id),
+                    IF(h.host_activate = '1' AND s.service_activate = '1', 1, 0)
                 FROM host_service_relation hsr
                 INNER JOIN host h
                     ON h.host_id = hsr.host_host_id
                 INNER JOIN service s
                     ON s.service_id = hsr.service_service_id
-                WHERE h.host_activate = '1'
-                    AND s.service_activate = '1'
-                    AND hsr.host_host_id IN ({$directHostPlaceholders})
+                WHERE hsr.host_host_id IN ({$directHostPlaceholders})
                     AND hsr.service_service_id IN ({$directServicePlaceholders})
                 UNION
-                SELECT CONCAT(h.host_id, '-', s.service_id)
+                SELECT CONCAT(h.host_id, '-', s.service_id),
+                    IF(h.host_activate = '1' AND s.service_activate = '1', 1, 0)
                 FROM hostgroup_relation hgr
                 INNER JOIN host_service_relation hsr
                     ON hsr.hostgroup_hg_id = hgr.hostgroup_hg_id
@@ -1408,9 +1441,7 @@ class CentreonDowntime
                     ON h.host_id = hgr.host_host_id
                 INNER JOIN service s
                     ON s.service_id = hsr.service_service_id
-                WHERE h.host_activate = '1'
-                    AND s.service_activate = '1'
-                    AND hgr.host_host_id IN ({$groupHostPlaceholders})
+                WHERE hgr.host_host_id IN ({$groupHostPlaceholders})
                     AND hsr.service_service_id IN ({$groupServicePlaceholders})
                 SQL,
             QueryParameters::create([
@@ -1421,9 +1452,8 @@ class CentreonDowntime
             ])
         );
 
-        $enabledServiceKeys = array_intersect(array_keys($idPairs), array_map('strval', $validServiceKeys));
-
-        return array_values(array_map('strval', $enabledServiceKeys));
+        // Only the submitted keys: the cross product of the bound ids may return other pairs
+        return array_intersect_key($linkedServiceKeys, $idPairs);
     }
 
     /**

@@ -131,28 +131,109 @@ class CentreonDowntimeEnabledRelationsTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{list<string>, list<string>, bool}>
+     * @return iterable<string, array{list<string>, array<string, string>, bool}>
      */
-    public static function provideServiceKeys(): iterable
+    public static function provideServiceKeysForTheEnabledCheck(): iterable
     {
-        yield 'every service linked to its host and enabled' => [['1-10', '2-20'], ['1-10', '2-20'], true];
+        yield 'every service linked to its host and enabled' => [
+            ['1-10', '2-20'],
+            ['1-10' => '1', '2-20' => '1'],
+            true,
+        ];
 
-        yield 'one service or its host disabled' => [['1-10', '2-20'], ['1-10'], false];
+        yield 'one service or its host disabled' => [['1-10', '2-20'], ['1-10' => '1', '2-20' => '0'], false];
 
         // 1-10 and 2-20 are valid pairs, but service 20 does not belong to host 1
-        yield 'service of another host' => [['1-10', '1-20'], ['1-10', '2-20'], false];
+        yield 'service of another host' => [['1-10', '1-20'], ['1-10' => '1', '2-20' => '1'], false];
     }
 
     /**
      * @param list<string> $serviceKeys
-     * @param list<string> $validServiceKeys the keys returned by the database
+     * @param array<string, string> $linkedServiceKeys the keys returned by the database, with their enabled flag
      */
-    #[DataProvider('provideServiceKeys')]
+    #[DataProvider('provideServiceKeysForTheEnabledCheck')]
     public function testAServiceIsEnabledWhenLinkedToItsEnabledHost(
         array $serviceKeys,
-        array $validServiceKeys,
+        array $linkedServiceKeys,
         bool $expected,
     ): void {
+        $downtime = new CentreonDowntime($this->mockLinkedServiceKeysLookup($serviceKeys, $linkedServiceKeys));
+
+        $this->assertSame($expected, $downtime->areSubmittedRelationsEnabled(
+            $this->submitted(services: $serviceKeys),
+            null,
+        ));
+    }
+
+    /**
+     * @return iterable<string, array{list<string>, array<string, string>, bool}>
+     */
+    public static function provideServiceKeysForTheLinkCheck(): iterable
+    {
+        yield 'every service linked to its host' => [['1-10', '2-20'], ['1-10' => '1', '2-20' => '1'], true];
+
+        // The enabled check owns this case, so that the user gets the right message
+        yield 'one service or its host disabled' => [['1-10', '2-20'], ['1-10' => '1', '2-20' => '0'], true];
+
+        // 1-10 and 2-20 are valid pairs, but service 20 does not belong to host 1
+        yield 'service of another host' => [['1-10', '1-20'], ['1-10' => '1', '2-20' => '1'], false];
+    }
+
+    /**
+     * @param list<string> $serviceKeys
+     * @param array<string, string> $linkedServiceKeys the keys returned by the database, with their enabled flag
+     */
+    #[DataProvider('provideServiceKeysForTheLinkCheck')]
+    public function testAServiceIsLinkedWhenItBelongsToItsHost(
+        array $serviceKeys,
+        array $linkedServiceKeys,
+        bool $expected,
+    ): void {
+        $downtime = new CentreonDowntime($this->mockLinkedServiceKeysLookup($serviceKeys, $linkedServiceKeys));
+
+        $this->assertSame($expected, $downtime->areSubmittedServicesLinkedToTheirHost(
+            $this->submitted(services: $serviceKeys),
+            null,
+        ));
+    }
+
+    public function testKeepingAServiceAlreadyLinkedOnEditSkipsTheLinkCheck(): void
+    {
+        $this->downtime->method('getRelations')->willReturn([
+            'hosts' => [],
+            'hostgroups' => [],
+            'services' => [['id' => self::DISABLED_SERVICE, 'activated' => '0']],
+            'servicegroups' => [],
+        ]);
+
+        $this->assertTrue($this->downtime->areSubmittedServicesLinkedToTheirHost(
+            $this->submitted(services: [self::DISABLED_SERVICE]),
+            1,
+        ));
+    }
+
+    public function testMalformedIdsAreRefusedWithoutQueryingTheDatabase(): void
+    {
+        $database = $this->createMock(CentreonDB::class);
+        $database->expects($this->never())->method('fetchFirstColumn');
+        $database->expects($this->never())->method('fetchAllKeyValue');
+        $downtime = new CentreonDowntime($database);
+
+        $this->assertFalse($downtime->areSubmittedRelationsEnabled($this->submitted(hosts: ['1 OR 1=1']), null));
+        $this->assertFalse($downtime->areSubmittedRelationsEnabled($this->submitted(services: ['10']), null));
+        $this->assertFalse($downtime->areSubmittedRelationsEnabled($this->submitted(services: ["1-10\n"]), null));
+        $this->assertFalse($downtime->areSubmittedServicesLinkedToTheirHost($this->submitted(services: ['10']), null));
+        $this->assertFalse(
+            $downtime->areSubmittedServicesLinkedToTheirHost($this->submitted(services: ["1-10\n"]), null)
+        );
+    }
+
+    /**
+     * @param list<string> $serviceKeys the submitted '<hostId>-<serviceId>' identifiers
+     * @param array<string, string> $linkedServiceKeys the keys returned by the database, with their enabled flag
+     */
+    private function mockLinkedServiceKeysLookup(array $serviceKeys, array $linkedServiceKeys): CentreonDB&MockObject
+    {
         // Each branch of the lookup binds the distinct host ids then the distinct service ids of the keys
         $distinctIds = static fn (int $side): array => array_values(array_unique(array_map(
             static fn (string $serviceKey): int => (int) explode('-', $serviceKey)[$side],
@@ -162,11 +243,11 @@ class CentreonDowntimeEnabledRelationsTest extends TestCase
 
         $database = $this->createMock(CentreonDB::class);
         $database->expects($this->once())
-            ->method('fetchFirstColumn')
+            ->method('fetchAllKeyValue')
             ->willReturnCallback(
                 function (string $query, QueryParameters $queryParameters) use (
                     $expectedBoundIds,
-                    $validServiceKeys,
+                    $linkedServiceKeys,
                 ): array {
                     $boundIds = array_map(
                         static fn (QueryParameter $queryParameter): mixed => $queryParameter->getValue(),
@@ -174,25 +255,11 @@ class CentreonDowntimeEnabledRelationsTest extends TestCase
                     );
                     $this->assertSame($expectedBoundIds, $boundIds);
 
-                    return $validServiceKeys;
+                    return $linkedServiceKeys;
                 }
             );
 
-        $this->assertSame($expected, (new CentreonDowntime($database))->areSubmittedRelationsEnabled(
-            $this->submitted(services: $serviceKeys),
-            null,
-        ));
-    }
-
-    public function testMalformedIdsAreRefusedWithoutQueryingTheDatabase(): void
-    {
-        $database = $this->createMock(CentreonDB::class);
-        $database->expects($this->never())->method('fetchFirstColumn');
-        $downtime = new CentreonDowntime($database);
-
-        $this->assertFalse($downtime->areSubmittedRelationsEnabled($this->submitted(hosts: ['1 OR 1=1']), null));
-        $this->assertFalse($downtime->areSubmittedRelationsEnabled($this->submitted(services: ['10']), null));
-        $this->assertFalse($downtime->areSubmittedRelationsEnabled($this->submitted(services: ["1-10\n"]), null));
+        return $database;
     }
 
     /**

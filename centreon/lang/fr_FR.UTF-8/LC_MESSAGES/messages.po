@@ -19320,6 +19320,12 @@ msgstr ""
 "Vous ne pouvez pas lier cette plage de maintenance à des ressources "
 "auxquelles vous n'avez pas accès"
 
+#: centreon/www/include/monitoring/recurrentDowntime/formDowntime.php
+msgid "You can't link this downtime to services that do not belong to their host"
+msgstr ""
+"Vous ne pouvez pas lier cette plage de maintenance à des services qui "
+"n'appartiennent pas à leur hôte"
+
 #: centreon/www/install/smarty_translate.php
 msgid "You cannot add more charts. The maximum charts is "
 msgstr "Vous ne pouvez pas ajouter d'autres graphiques. Le nombre maximum de graphiques est de "
