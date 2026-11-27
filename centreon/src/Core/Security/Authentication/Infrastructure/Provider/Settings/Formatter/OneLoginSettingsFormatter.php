@@ -73,7 +73,9 @@ class OneLoginSettingsFormatter implements SettingsFormatterInterface
                 'x509cert' => $customConfiguration->getPublicCertificate(),
             ],
             'security' => [
-                'requestedAuthnContext' => $customConfiguration->hasRequestedAuthnContext(),
+                'requestedAuthnContext' => $customConfiguration->hasRequestedAuthnContext()
+                    ? ['urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport']
+                    : false,
                 'requestedAuthnContextComparison' => $customConfiguration->getRequestedAuthnContextComparison()->value,
             ],
         ];
