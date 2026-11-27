@@ -1140,7 +1140,9 @@ cmd_disco_scheduled() {
 
 # ---------- disco-plugin-install: the worker installs the provider plugin first (contracts § 14.S) ----------
 
-DP_PKG="${GLS_DISCO_PKG:-centreon-plugin-applications-protocol-tcp}"
+# PPM stores package names in RPM case; the poller lowercases them (deb names), as check_plugins.py.
+DP_PKG="${GLS_DISCO_PKG:-centreon-plugin-Applications-Protocol-Tcp}"
+DP_DEB="${DP_PKG,,}"
 DP_CMD="${GLS_DISCO_PKG_CMD:-centreon_protocol_tcp.pl}"
 DP_MISSING=centreon-plugin-gls-does-not-exist
 
@@ -1198,10 +1200,10 @@ dp_bad_msg() { [[ "$1" =~ program\ not\ found|REJECTED|plugin\ install|not\ an\ 
 dp_check_run() { # dp_check_run <label> <job id>: last run installed the package and ran the RemoteExec
   local rr st iid rq res msg
   rr=$(dp_rr "$2"); st=$(cut -f1 <<<"$rr"); iid=$(cut -f2 <<<"$rr"); rq=$(cut -f3 <<<"$rr")
-  res=$(pi_pkg "$iid" "$DP_PKG"); msg=$(disco_job "$2" | cut -f2)
+  res=$(pi_pkg "$iid" "$DP_DEB"); msg=$(disco_job "$2" | cut -f2)
   [[ -n "$iid" && "$res" == INSTALLED\|installed* ]] \
-    && record "disco-plugin $1: install INSTALLED for $DP_PKG" ok "${res#*|}" \
-    || record "disco-plugin $1: install INSTALLED for $DP_PKG" ko "install_id ${iid:0:12} result '${res:0:150}'"
+    && record "disco-plugin $1: install INSTALLED for $DP_DEB" ok "${res#*|}" \
+    || record "disco-plugin $1: install INSTALLED for $DP_DEB" ko "install_id ${iid:0:12} result '${res:0:150}'"
   [[ -n "$rq" ]] && ! dp_bad_msg "$msg" \
     && record "disco-plugin $1: RemoteExec ran after the install" ok "run $st, job '${msg:0:80}'" \
     || record "disco-plugin $1: RemoteExec ran after the install" ko "run $st request_id ${rq:+set} job '${msg:0:150}'"
@@ -1219,28 +1221,28 @@ cmd_disco_plugin_install() {
     || { record "disco-plugin: ${POLLER_NAME} announces plugin_install" ko "$(cbd_pollers | head -c 300)"; return; }
   disco_fixture && dp_fixture "$pid" && record "disco-plugin: fixture (packs/providers 9002 9003, option on, \$CENTREONPLUGINS\$ linked)" ok \
     || { record "disco-plugin: fixture (packs/providers 9002 9003, option on, \$CENTREONPLUGINS\$ linked)" ko "see disco-plugin.log"; return; }
-  pkg_ok "$DP_PKG" && record "disco-plugin: $DP_PKG absent before the first run" ko "already installed" \
-    || record "disco-plugin: $DP_PKG absent before the first run" ok
+  pkg_ok "$DP_DEB" && record "disco-plugin: $DP_DEB absent before the first run" ko "already installed" \
+    || record "disco-plugin: $DP_DEB absent before the first run" ok
   pj0=$(pj_sum); pjr0=$(plugin_result "$puid"); ap0=$(apt_lines)
 
   # S2 first run: install, then the RemoteExec.
   id=$(dp_job dpi-tcp 9002 "$pid")
   [[ -n "$id" ]] || { record "disco-plugin: job on provider 9002 created" ko "HTTP $(jq -c . "$LOG_DIR/last.json" 2>/dev/null | head -c 200)"; return; }
   wait_until 900 dp_rr_final "$id" 1
-  pkg_ok "$DP_PKG" && record "disco-plugin first run: dpkg-query shows $DP_PKG installed" ok \
-    || record "disco-plugin first run: dpkg-query shows $DP_PKG installed" ko
+  pkg_ok "$DP_DEB" && record "disco-plugin first run: dpkg-query shows $DP_DEB installed" ok \
+    || record "disco-plugin first run: dpkg-query shows $DP_DEB installed" ko
   dp_check_run "first run" "$id"
 
   # S3 second run: no reinstall, fast.
-  mt0=$(dp_list_mtime "$DP_PKG"); ap1=$(apt_lines)
+  mt0=$(dp_list_mtime "$DP_DEB"); ap1=$(apt_lines)
   code=$(api GET "/auto-discovery/jobs/$id/schedule")
   [[ "$code" == 204 || "$code" == 200 ]] || record "disco-plugin second run: run now" ko "HTTP $code"
   wait_until 300 dp_rr_final "$id" 2
   dp_check_run "second run" "$id"
-  [[ "$(pi_pkg "$DP_IID" "$DP_PKG")" == *"|already installed" ]] \
+  [[ "$(pi_pkg "$DP_IID" "$DP_DEB")" == *"|already installed" ]] \
     && record "disco-plugin second run: package 'already installed'" ok \
-    || record "disco-plugin second run: package 'already installed'" ko "$(pi_pkg "$DP_IID" "$DP_PKG" | head -c 150)"
-  mt1=$(dp_list_mtime "$DP_PKG"); s3=$(pi_secs "$DP_IID")
+    || record "disco-plugin second run: package 'already installed'" ko "$(pi_pkg "$DP_IID" "$DP_DEB" | head -c 150)"
+  mt1=$(dp_list_mtime "$DP_DEB"); s3=$(pi_secs "$DP_IID")
   [[ -n "$mt0" && "$mt1" == "$mt0" && "$(apt_lines)" == "$ap1" ]] \
     && record "disco-plugin second run: no reinstall (dpkg list mtime, apt history unchanged)" ok \
     || record "disco-plugin second run: no reinstall (dpkg list mtime, apt history unchanged)" ko "mtime $mt0 -> $mt1, apt $ap1 -> $(apt_lines)"
@@ -1260,14 +1262,14 @@ cmd_disco_plugin_install() {
 
   # S5 forged names straight to cbd: 202 then REJECTED, nothing reaches apt.
   ap1=$(apt_lines)
-  for bad in bash 'centreon-plugin-x;rm -rf /' 'centreon-plugin-a b' '../centreon-plugin-x' 'Centreon-Plugin-X' ''; do
+  for bad in bash 'centreon-plugin-x;rm -rf /' 'centreon-plugin-a b' '../centreon-plugin-x' 'centreon-plugin-x/y' ''; do
     dp_forged "$puid" "$(jq -nc --arg n "$bad" '{($n): ""}')" "invalid package name" "name '${bad:0:24}'"
   done
-  dp_forged "$puid" "$(jq -nc --arg n "$DP_PKG" '{($n): "1;id"}')" "invalid package version" "version '1;id'"
+  dp_forged "$puid" "$(jq -nc --arg n "$DP_DEB" '{($n): "1;id"}')" "invalid package version" "version '1;id'"
   body=$(jq -nc --arg u "$puid" '{poller_id: $u, packages: ([range(17)] | map({key: "centreon-plugin-gls-\(.)", value: ""}) | from_entries)}')
   code=$(cbd_post /v1/plugin-installs "$body" | head -1)
   [[ "$code" == 400 ]] && record "disco-plugin forged: 17 packages -> 400" ok || record "disco-plugin forged: 17 packages -> 400" ko "HTTP $code"
-  body=$(jq -nc --arg u "$puid" --arg p "$DP_PKG" '{poller_id: $u, packages: {($p): ""}, timeout_s: 1801}')
+  body=$(jq -nc --arg u "$puid" --arg p "$DP_DEB" '{poller_id: $u, packages: {($p): ""}, timeout_s: 1801}')
   code=$(cbd_post /v1/plugin-installs "$body" | head -1)
   [[ "$code" == 400 ]] && record "disco-plugin forged: timeout_s 1801 -> 400" ok || record "disco-plugin forged: timeout_s 1801 -> 400" ko "HTTP $code"
   [[ "$(apt_lines)" == "$ap1" ]] && record "disco-plugin forged: no apt run on the poller" ok \
@@ -1279,19 +1281,19 @@ cmd_disco_plugin_install() {
     || record "disco-plugin: plugins.json and /v1/pollers plugins result unchanged" ko "sha ${pj0:0:12} -> $(pj_sum | cut -c1-12)"
   code=$(api GET "/configuration/monitoring-servers/$pid/generate-and-reload")
   sleep 30
-  [[ "$code" == 204 ]] && pkg_ok "$DP_PKG" && record "disco-plugin: package kept after a later export + reload" ok \
-    || record "disco-plugin: package kept after a later export + reload" ko "HTTP $code, installed: $(pkg_ok "$DP_PKG" && echo yes || echo no)"
+  [[ "$code" == 204 ]] && pkg_ok "$DP_DEB" && record "disco-plugin: package kept after a later export + reload" ok \
+    || record "disco-plugin: package kept after a later export + reload" ko "HTTP $code, installed: $(pkg_ok "$DP_DEB" && echo yes || echo no)"
 
   # S7 engine recreate: apt state lost, the next run installs again.
   ( set -a; . "$LOG_DIR/poller.env"; set +a; cp_ up -d --force-recreate -t 60 poller-engine ) >>"$LOG_DIR/disco-plugin.log" 2>&1
   wait_until 300 poller_capable "$puid" || { record "disco-plugin recreate: poller capable again" ko; return; }
-  pkg_ok "$DP_PKG" && record "disco-plugin recreate: package gone with the container" ko "still installed" \
+  pkg_ok "$DP_DEB" && record "disco-plugin recreate: package gone with the container" ko "still installed" \
     || record "disco-plugin recreate: package gone with the container" ok
   n=$(dp_rr_count "$id")
   api GET "/auto-discovery/jobs/$id/schedule" >/dev/null
   wait_until 900 dp_rr_final "$id" $((n + 1))
-  pkg_ok "$DP_PKG" && record "disco-plugin recreate: next run installed $DP_PKG again" ok \
-    || record "disco-plugin recreate: next run installed $DP_PKG again" ko
+  pkg_ok "$DP_DEB" && record "disco-plugin recreate: next run installed $DP_DEB again" ok \
+    || record "disco-plugin recreate: next run installed $DP_DEB again" ko
   dp_check_run "after recreate" "$id"
 
   # S8 poller stopped: NOT_CONNECTED, no install.
