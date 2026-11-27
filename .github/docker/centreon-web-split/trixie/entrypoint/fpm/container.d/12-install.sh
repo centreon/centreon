@@ -36,12 +36,27 @@ export MYSQL_DB_CONFIGURATION="${MYSQL_DB_CONFIGURATION:-centreon}"
 export MYSQL_DB_STORAGE="${MYSQL_DB_STORAGE:-centreon_storage}"
 DATABASE_PARTITIONING="${DATABASE_PARTITIONING:-1}"
 
-# Same as the monolithic image's own container.d/10-mysql.sh: the CI/dev
-# MariaDB runs with --skip-ssl, but the mysql client defaults to requiring
-# TLS and fails with "SSL is required, but the server does not support it"
-# otherwise.
+# mysql client: TLS when DATABASE_SSL_ENABLED=1 (a server requiring it, e.g.
+# AWS RDS MariaDB 11.8), checked against DATABASE_CA_PATH when
+# DATABASE_VERIFY_SERVER_CERT=1. Otherwise as the monolithic image's own
+# container.d/10-mysql.sh: the CI/dev MariaDB runs with --skip-ssl, but the
+# mysql client defaults to requiring TLS and fails with "SSL is required, but
+# the server does not support it".
 mkdir -p /etc/mysql/conf.d
-printf '[client]\nskip-ssl\n' > /etc/mysql/conf.d/client-no-ssl.cnf
+rm -f /etc/mysql/conf.d/client-no-ssl.cnf /etc/mysql/conf.d/client-tls.cnf
+if [ "${DATABASE_SSL_ENABLED:-0}" = "1" ]; then
+  {
+    printf '[client]\nssl\n'
+    [ -n "${DATABASE_CA_PATH:-}" ] && printf 'ssl-ca=%s\n' "$DATABASE_CA_PATH"
+    if [ "${DATABASE_VERIFY_SERVER_CERT:-0}" = "1" ]; then
+      printf 'ssl-verify-server-cert\n'
+    else
+      printf 'disable-ssl-verify-server-cert\n'
+    fi
+  } > /etc/mysql/conf.d/client-tls.cnf
+else
+  printf '[client]\nskip-ssl\n' > /etc/mysql/conf.d/client-no-ssl.cnf
+fi
 
 # Same semantics as the former `mysqladmin ping` (not in mariadb-client-core):
 # wait until the server answers; an "Access denied" also means it is up, and
@@ -108,6 +123,26 @@ if grep -lqE "%APP_SECRET%" /usr/share/centreon/.env* 2>/dev/null; then
   echo "Setting APP_SECRET..."
   sed -i "s/%APP_SECRET%/${APP_SECRET_VALUE}/g" /usr/share/centreon/.env*
   chown www-data:www-data /usr/share/centreon/.env*
+fi
+
+# Database TLS for the web's PHP (DatabaseTLSResolver: PDO, DBAL, the legacy
+# CentreonDB; the broker configuration generator): it reads $_ENV only, which
+# Dotenv fills from .env.local.php. Container env does not do it: php-fpm
+# clears the workers' environment. Before any PHP step touching the database.
+if [ "${DATABASE_SSL_ENABLED:-0}" = "1" ]; then
+  echo "Enabling database TLS for the web..."
+  php -r '
+    $file = "/usr/share/centreon/.env.local.php";
+    $env = is_file($file) ? require $file : [];
+    foreach (["DATABASE_SSL_ENABLED", "DATABASE_VERIFY_SERVER_CERT", "DATABASE_CA_PATH"] as $key) {
+      $value = getenv($key);
+      if ($value !== false && $value !== "") {
+        $env[$key] = $value;
+      }
+    }
+    file_put_contents($file, "<?php\n\nreturn " . var_export($env, true) . ";\n");
+  '
+  chown www-data:www-data /usr/share/centreon/.env.local.php
 fi
 
 # Same idempotency check as the monolithic image's 15-installation.sh: the DB

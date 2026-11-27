@@ -525,11 +525,13 @@ class Broker extends AbstractObjectJSON
             $dbSslCa = $_ENV['DATABASE_CA_PATH'] ?? null;
             foreach ($object['output'] as &$output) {
                 if (in_array($output['type'], ['sql', 'storage', 'unified_sql'])) {
+                    // Strings: Broker keeps only string values of an output's
+                    // parameters, a JSON boolean is dropped (TLS silently off).
                     if ($dbSslEnabled !== null) {
-                        $output['db_ssl_enabled'] = $dbSslEnabled;
+                        $output['db_ssl_enabled'] = $dbSslEnabled ? 'yes' : 'no';
                     }
                     if ($dbSslVerifyCert !== null) {
-                        $output['db_ssl_verify_cert'] = $dbSslVerifyCert;
+                        $output['db_ssl_verify_cert'] = $dbSslVerifyCert ? 'yes' : 'no';
                     }
                     if ($dbSslCa !== null) {
                         $output['db_ssl_ca'] = $dbSslCa;

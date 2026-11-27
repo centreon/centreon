@@ -154,6 +154,10 @@ services:
       context: ../../..
       dockerfile: .github/docker/centreon-web-split/trixie/Dockerfile
       target: cron
+      # Perl modules of the Perl jobs: a centreon-collect checkout (see the
+      # perl-libs stage of the Dockerfile).
+      additional_contexts:
+        perl-libs: ${CENTREON_COLLECT_PATH:-../../../../centreon-collect}/perl-libs/lib
     # MYSQL_PASSWORD already reaches this container via env_file (same
     # ../.env as fpm) — no separate wiring needed for that one.
     env_file:
