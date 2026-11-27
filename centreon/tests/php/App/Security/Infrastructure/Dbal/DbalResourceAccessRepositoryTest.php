@@ -96,43 +96,6 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         self::assertSame(20, (int) $rows[1]['group_id']);
     }
 
-    public function testGrantResourceAccessRemovesTheFingerprintOfEachGivenGroup(): void
-    {
-        // centAcl.php skips a group whose fingerprint still matches: the next run must recompute the granted groups.
-        $this->insertAclFingerprints([10, 20, 30]);
-
-        $this->repository->grantResourceAccess($this->buildHost(9001), new Collection([new AccessGroupId(10), new AccessGroupId(20)], AccessGroupId::class));
-
-        self::assertSame([30], $this->aclFingerprintGroupIds([10, 20, 30]));
-    }
-
-    public function testDuplicateHostAccessRemovesTheFingerprintOfTheGroupsThatSeeTheCopy(): void
-    {
-        $this->realTimeConnection->insert('centreon_acl', ['group_id' => 10, 'host_id' => 9101, 'service_id' => null]);
-        $this->realTimeConnection->insert('centreon_acl', ['group_id' => 20, 'host_id' => 9101, 'service_id' => null]);
-        $this->insertAclFingerprints([10, 20, 30]);
-
-        $this->repository->duplicateHostAccess(new HostId(9101), new HostId(9102));
-
-        self::assertSame([30], $this->aclFingerprintGroupIds([10, 20, 30]));
-    }
-
-    public function testDuplicateHostServiceAccessRemovesTheFingerprintOfTheGroupsThatSeeTheCopy(): void
-    {
-        $this->connection->insert('host', ['host_name' => 'copy-01', 'host_address' => '127.0.0.1', 'host_activate' => '1', 'host_register' => '1']);
-        $copyId = (int) $this->connection->lastInsertId();
-        $this->connection->insert('service', ['service_description' => 'copied-service', 'service_register' => '1']);
-        $this->connection->insert('host_service_relation', ['host_host_id' => $copyId, 'service_service_id' => (int) $this->connection->lastInsertId()]);
-
-        $this->realTimeConnection->insert('centreon_acl', ['group_id' => 10, 'host_id' => 9101, 'service_id' => null]);
-        $this->realTimeConnection->insert('centreon_acl', ['group_id' => 20, 'host_id' => 9101, 'service_id' => null]);
-        $this->insertAclFingerprints([10, 20, 30]);
-
-        $this->repository->duplicateHostServiceAccess(new HostId(9101), new HostId($copyId));
-
-        self::assertSame([30], $this->aclFingerprintGroupIds([10, 20, 30]));
-    }
-
     /**
      * A service is granted on its host: one (group, host, service) row per given group.
      */
@@ -273,6 +236,43 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         $this->expectExceptionMessage('No ACL grant mapping for aggregate');
 
         $this->repository->grantResourceAccess($resource, new Collection([new AccessGroupId(10)], AccessGroupId::class));
+    }
+
+    public function testGrantResourceAccessRemovesTheFingerprintOfEachGivenGroup(): void
+    {
+        // centAcl.php skips a group whose fingerprint still matches: the next run must recompute the granted groups.
+        $this->insertAclFingerprints([10, 20, 30]);
+
+        $this->repository->grantResourceAccess($this->buildHost(9001), new Collection([new AccessGroupId(10), new AccessGroupId(20)], AccessGroupId::class));
+
+        self::assertSame([30], $this->aclFingerprintGroupIds([10, 20, 30]));
+    }
+
+    public function testDuplicateHostAccessRemovesTheFingerprintOfTheGroupsThatSeeTheCopy(): void
+    {
+        $this->realTimeConnection->insert('centreon_acl', ['group_id' => 10, 'host_id' => 9101, 'service_id' => null]);
+        $this->realTimeConnection->insert('centreon_acl', ['group_id' => 20, 'host_id' => 9101, 'service_id' => null]);
+        $this->insertAclFingerprints([10, 20, 30]);
+
+        $this->repository->duplicateHostAccess(new HostId(9101), new HostId(9102));
+
+        self::assertSame([30], $this->aclFingerprintGroupIds([10, 20, 30]));
+    }
+
+    public function testDuplicateHostServiceAccessRemovesTheFingerprintOfTheGroupsThatSeeTheCopy(): void
+    {
+        $this->connection->insert('host', ['host_name' => 'copy-01', 'host_address' => '127.0.0.1', 'host_activate' => '1', 'host_register' => '1']);
+        $copyId = (int) $this->connection->lastInsertId();
+        $this->connection->insert('service', ['service_description' => 'copied-service', 'service_register' => '1']);
+        $this->connection->insert('host_service_relation', ['host_host_id' => $copyId, 'service_service_id' => (int) $this->connection->lastInsertId()]);
+
+        $this->realTimeConnection->insert('centreon_acl', ['group_id' => 10, 'host_id' => 9101, 'service_id' => null]);
+        $this->realTimeConnection->insert('centreon_acl', ['group_id' => 20, 'host_id' => 9101, 'service_id' => null]);
+        $this->insertAclFingerprints([10, 20, 30]);
+
+        $this->repository->duplicateHostServiceAccess(new HostId(9101), new HostId($copyId));
+
+        self::assertSame([30], $this->aclFingerprintGroupIds([10, 20, 30]));
     }
 
     public function testFlagAllResourcesAsChangedFlagsEveryAclResource(): void
