@@ -11,9 +11,11 @@ import { containsRoute, hasChildRoutes } from './utils';
 interface Props {
   actions: SubRouteActions;
   entry: RouteHierarchy;
+  isExpanded: boolean;
   isMenuOpen: boolean;
   isPopoverOpen: boolean;
   onNavigate: (route: string) => void;
+  onToggleExpanded: () => void;
   onTogglePopover: (entry: RouteHierarchy, element: HTMLElement) => void;
 }
 
@@ -25,23 +27,29 @@ interface Props {
 const NavigationMenuItem = ({
   actions,
   entry,
+  isExpanded,
   isMenuOpen,
   isPopoverOpen,
   onNavigate,
+  onToggleExpanded,
   onTogglePopover
 }: Props): ReactElement => {
   if (isMenuOpen) {
     return (
       <li>
-        <SubRouteContent actions={actions} entry={entry} variant="root" />
+        <SubRouteContent
+          actions={actions}
+          entry={entry}
+          isExpanded={isExpanded}
+          onToggle={onToggleExpanded}
+          variant="root"
+        />
       </li>
     );
   }
 
   const { Icon, label, route } = entry;
   const hasChildren = hasChildRoutes(entry);
-  const isHighlighted =
-    isPopoverOpen || containsRoute(entry, actions.selectedRoute);
 
   return (
     <li>
@@ -53,7 +61,7 @@ const NavigationMenuItem = ({
         <ListItemButton
           aria-expanded={hasChildren ? isPopoverOpen : undefined}
           aria-label={label}
-          className="justify-center rounded-sm px-0 py-1"
+          className="group size-11 flex-none justify-center rounded-sm p-0 hover:bg-transparent"
           data-selected={containsRoute(entry, actions.selectedRoute)}
           onClick={(event): void =>
             hasChildren
@@ -65,14 +73,12 @@ const NavigationMenuItem = ({
           }
         >
           <span
-            className={`flex rounded-sm p-1 ${isHighlighted ? 'bg-white/40' : ''}`}
+            className={`flex size-7 items-center justify-center rounded-sm text-white transition-colors duration-[120ms] group-hover:bg-white/16 dark:group-hover:bg-white/8 ${isPopoverOpen ? 'bg-white/16 dark:bg-white/8' : ''}`}
           >
             {Icon ? (
-              <Icon className="text-white" />
+              <Icon />
             ) : (
-              <span className="flex size-6 items-center justify-center font-bold">
-                {label.charAt(0)}
-              </span>
+              <span className="text-sm font-bold">{label.charAt(0)}</span>
             )}
           </span>
         </ListItemButton>

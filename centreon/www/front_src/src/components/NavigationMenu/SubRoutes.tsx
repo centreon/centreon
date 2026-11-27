@@ -1,4 +1,3 @@
-import ExpandMoreRounded from '@mui/icons-material/ExpandMoreRounded';
 import {
   Accordion,
   AccordionDetails,
@@ -10,61 +9,82 @@ import {
 import type { ReactElement } from 'react';
 
 import type { RouteHierarchy, SubRouteActions } from './models';
-import { containsRoute, getChildRoutes, hasChildRoutes } from './utils';
+import { useExpandedEntry } from './useExpandedEntry';
+import {
+  containsRoute,
+  getChildRoutes,
+  getEntryKey,
+  hasChildRoutes
+} from './utils';
 
 /**
  * - root: a top-level entry of the expanded menu, with its icon
- * - section: a first-level entry of the popover
- * - nested: any deeper entry
+ * - sub: a child of a root entry
+ * - popover: a first-level entry of the collapsed menu popover
+ * - subsub: any deeper entry
  */
-export type EntryVariant = 'root' | 'section' | 'nested';
-
-interface Props {
-  actions: SubRouteActions;
-  entry: RouteHierarchy;
-  variant?: EntryVariant;
-}
+export type EntryVariant = 'root' | 'sub' | 'popover' | 'subsub';
 
 const rowClassNames: Record<EntryVariant, string> = {
-  nested: 'px-1 py-0.5 text-xs hover:bg-transparent',
-  root: 'px-2 py-2 text-sm font-medium hover:bg-white/20',
-  section: 'px-1 py-1 text-sm hover:bg-transparent'
+  popover:
+    'min-h-8 gap-1 px-2 py-1.5 text-sm hover:bg-white/10 dark:hover:bg-white/6',
+  root: 'min-h-11 gap-2 p-2 text-sm font-medium hover:bg-white/12 dark:hover:bg-white/8',
+  sub: 'min-h-8 gap-1 px-2 py-1.5 text-sm hover:bg-white/10 dark:hover:bg-white/6',
+  subsub:
+    'min-h-7 gap-1 px-2 py-1 text-[13px] hover:bg-white/10 dark:hover:bg-white/6'
 };
 
-// Root entries are highlighted by their icon, the others by a pill
-// around their label.
-const usesLabelPill = (variant: EntryVariant): boolean => variant !== 'root';
+const selectedRowClassName =
+  'bg-white/40 hover:bg-white/40 dark:hover:bg-white/40';
 
-interface LabelProps {
-  entry: RouteHierarchy;
-  isHighlighted: boolean;
+const childVariants: Record<EntryVariant, EntryVariant> = {
+  popover: 'subsub',
+  root: 'sub',
+  sub: 'subsub',
+  subsub: 'subsub'
+};
+
+// A vertical line runs along every submenu. Under a root entry, it is
+// centred on the icons.
+const childListClassNames: Record<EntryVariant, string> = {
+  popover: 'ml-2 border-l border-white/25 pt-0.5 pb-1 pl-4',
+  root: 'ml-[19px] border-l border-white/25 pt-0.5 pb-1 pl-5',
+  sub: 'ml-2 border-l border-white/25 pt-0.5 pb-1 pl-3',
+  subsub: 'ml-2 border-l border-white/25 pt-0.5 pb-1 pl-3'
+};
+
+interface CaretProps {
+  isOpen: boolean;
   variant: EntryVariant;
 }
 
-const Label = ({ entry, isHighlighted, variant }: LabelProps): ReactElement => {
+const Caret = ({ isOpen, variant }: CaretProps): ReactElement => (
+  <svg
+    aria-hidden="true"
+    className={`shrink-0 transition-transform duration-[120ms] ${variant === 'root' ? 'size-4' : 'size-3.5'} ${isOpen ? 'rotate-180' : ''}`}
+    fill="none"
+    stroke="currentColor"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    strokeWidth="2"
+    viewBox="0 0 24 24"
+  >
+    <polyline points="6 9 12 15 18 9" />
+  </svg>
+);
+
+interface LabelProps {
+  entry: RouteHierarchy;
+  variant: EntryVariant;
+}
+
+const Label = ({ entry, variant }: LabelProps): ReactElement => {
   const { Icon, badge, label } = entry;
-  const pillClassName = isHighlighted
-    ? 'bg-white/40'
-    : 'group-hover:bg-white/20';
 
   return (
     <>
-      {variant === 'root' && Icon && (
-        <span
-          className={`flex shrink-0 rounded-sm p-0.5 ${isHighlighted ? 'bg-white/40' : ''}`}
-        >
-          <Icon fontSize="small" />
-        </span>
-      )}
-      <span
-        className={
-          usesLabelPill(variant)
-            ? `rounded-sm px-1 py-0.5 leading-tight ${pillClassName}`
-            : 'flex-1 leading-tight'
-        }
-      >
-        {label}
-      </span>
+      {variant === 'root' && Icon && <Icon className="shrink-0" />}
+      <span className="min-w-0 flex-1">{label}</span>
       {badge && (
         <Chip
           className="h-4 text-[10px] font-bold uppercase"
@@ -77,10 +97,20 @@ const Label = ({ entry, isHighlighted, variant }: LabelProps): ReactElement => {
   );
 };
 
+const rowClassName = (variant: EntryVariant): string =>
+  `rounded-sm leading-5 text-white transition-colors duration-[120ms] ${rowClassNames[variant]}`;
+
+interface Props {
+  actions: SubRouteActions;
+  entry: RouteHierarchy;
+  variant: EntryVariant;
+}
+
+/** A page. Only the selected one is highlighted, on its whole row. */
 export const SubRouteItem = ({
   actions,
   entry,
-  variant = 'nested'
+  variant
 }: Props): ReactElement => {
   const { LinkComponent, onSelect, selectedRoute } = actions;
   const isSelected = containsRoute(entry, selectedRoute);
@@ -92,102 +122,103 @@ export const SubRouteItem = ({
     <ListItemButton
       {...linkProps}
       aria-current={isSelected ? 'page' : undefined}
-      className={`group gap-2 rounded-sm ${rowClassNames[variant]}`}
+      className={`${rowClassName(variant)} ${isSelected ? selectedRowClassName : ''}`}
       data-selected={isSelected}
       onClick={(): void => onSelect(entry.route)}
     >
-      <Label entry={entry} isHighlighted={isSelected} variant={variant} />
+      <Label entry={entry} variant={variant} />
     </ListItemButton>
   );
 };
 
+interface SubRouteContentProps extends Props {
+  isExpanded: boolean;
+  onToggle: () => void;
+}
+
 /**
- * A leaf, or an accordion listing the entry children. The accordion starts
- * expanded when it contains the selected route.
+ * A page, or an accordion listing the entry children. Its parent decides
+ * whether it is expanded, so that one sibling at most is.
  */
 export const SubRouteContent = ({
   actions,
   entry,
-  variant = 'nested'
-}: Props): ReactElement => {
+  isExpanded,
+  onToggle,
+  variant
+}: SubRouteContentProps): ReactElement => {
   if (!hasChildRoutes(entry)) {
     return <SubRouteItem actions={actions} entry={entry} variant={variant} />;
   }
 
-  const isSelected = containsRoute(entry, actions.selectedRoute);
-  // The guide line only runs along lists made of pages.
-  const hasOnlyLeaves = getChildRoutes(entry).every(
-    (child) => !hasChildRoutes(child)
-  );
-  const list = <SubRouteList actions={actions} entry={entry} />;
-
   return (
     <Accordion
       className="border-0 bg-transparent text-inherit shadow-none before:hidden"
-      defaultExpanded={isSelected}
       disableGutters
+      expanded={isExpanded}
+      onChange={onToggle}
       slotProps={{ transition: { unmountOnExit: true } }}
     >
       <AccordionSummary
-        classes={{ content: 'my-0 flex items-center gap-2' }}
-        className={`group min-h-0 rounded-sm ${rowClassNames[variant]}`}
-        expandIcon={
-          <ExpandMoreRounded className="text-white" fontSize="small" />
-        }
+        classes={{ content: 'm-0 flex items-center gap-[inherit]' }}
+        className={rowClassName(variant)}
       >
-        <Label
-          entry={entry}
-          isHighlighted={variant === 'root' && isSelected}
-          variant={variant}
-        />
+        <Label entry={entry} variant={variant} />
+        <Caret isOpen={isExpanded} variant={variant} />
       </AccordionSummary>
-      <AccordionDetails
-        className={`py-1 pr-0 ${variant === 'root' ? 'pl-8' : 'pl-2'}`}
-      >
-        {hasOnlyLeaves ? (
-          <div className="grid grid-cols-[auto_1fr] gap-1">
-            <div
-              aria-hidden="true"
-              className="h-full w-0.5 rounded-full bg-white/40"
-              data-testid="guide-line"
-            />
-            {list}
-          </div>
-        ) : (
-          list
-        )}
+      <AccordionDetails className={`p-0 ${childListClassNames[variant]}`}>
+        <SubRouteList
+          actions={actions}
+          childVariant={childVariants[variant]}
+          entry={entry}
+        />
       </AccordionDetails>
     </Accordion>
   );
 };
 
-interface SubRouteListProps extends Omit<Props, 'variant'> {
-  /** Variant of the listed entries, nested by default. */
-  childVariant?: EntryVariant;
+interface SubRouteListProps {
+  actions: SubRouteActions;
+  /** Variant of the listed entries. */
+  childVariant: EntryVariant;
+  entry: RouteHierarchy;
 }
 
 /**
  * The children of an entry: its sub-routes, then its groups. When there are
- * several groups, each labelled group is under an uppercase header.
+ * several groups, each labelled group is under an uppercase header. One child
+ * at most is expanded.
  */
 export const SubRouteList = ({
   actions,
-  childVariant = 'nested',
+  childVariant,
   entry
 }: SubRouteListProps): ReactElement => {
+  const { expandedKey, toggle } = useExpandedEntry(
+    getChildRoutes(entry),
+    actions.selectedRoute
+  );
   // A single group has nothing to be told apart from.
   const showsGroupLabels = (entry.groups?.length ?? 0) > 1;
 
+  const renderEntry = (subRoute: RouteHierarchy): ReactElement => {
+    const key = getEntryKey(subRoute);
+
+    return (
+      <SubRouteContent
+        actions={actions}
+        entry={subRoute}
+        isExpanded={expandedKey === key}
+        key={key}
+        onToggle={(): void => toggle(key)}
+        variant={childVariant}
+      />
+    );
+  };
+
   return (
     <div className="flex flex-col gap-0.5">
-      {entry.subRoutes?.map((subRoute) => (
-        <SubRouteContent
-          actions={actions}
-          entry={subRoute}
-          key={`${subRoute.label}-${subRoute.route}`}
-          variant={childVariant}
-        />
-      ))}
+      {entry.subRoutes?.map(renderEntry)}
       {entry.groups?.map((group, index) => (
         <div key={group.label ?? index}>
           {showsGroupLabels && group.label && (
@@ -200,13 +231,7 @@ export const SubRouteList = ({
             className="m-0 flex list-none flex-col gap-0.5 p-0"
           >
             {group.subRoutes.map((subRoute) => (
-              <li key={`${subRoute.label}-${subRoute.route}`}>
-                <SubRouteContent
-                  actions={actions}
-                  entry={subRoute}
-                  variant={childVariant}
-                />
-              </li>
+              <li key={getEntryKey(subRoute)}>{renderEntry(subRoute)}</li>
             ))}
           </ul>
         </div>

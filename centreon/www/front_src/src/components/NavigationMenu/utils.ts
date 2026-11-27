@@ -31,3 +31,7 @@ export const getRoutesFromHierarchy = (
 
 export const containsRoute = (entry: RouteHierarchy, route?: string): boolean =>
   !isNil(route) && getRoutesFromHierarchy([entry]).includes(route);
+
+/** Identifies an entry among its siblings. */
+export const getEntryKey = ({ label, route }: RouteHierarchy): string =>
+  `${label}-${route}`;

@@ -60,6 +60,12 @@ const routes: Array<RouteHierarchy> = [
         route: '/ba/views'
       }
     ]
+  },
+  {
+    Icon,
+    label: 'Administration',
+    route: '/users',
+    subRoutes: [{ label: 'Users', route: '/users' }]
   }
 ];
 
@@ -192,7 +198,7 @@ describe('NavigationMenu', () => {
       ).toBe('none');
       expect(
         getComputedStyle(popover, '::-webkit-scrollbar-thumb').backgroundColor
-      ).toMatch(/^oklab\(0\.99\d* .* \/ 0\.25\)$/);
+      ).toMatch(/^oklab\(0\.99\d* .* \/ 0\.22\)$/);
     });
 
     it('closes the popover when the Escape key is pressed', async () => {
@@ -299,24 +305,24 @@ describe('NavigationMenu', () => {
       expect(onToggle).toHaveBeenCalledTimes(1);
     });
 
-    it('highlights the icon of the selected top-level entry and the label of the selected page', () => {
+    it('highlights the selected page only, on its whole row', () => {
       renderMenu({ isOpen: true, selectedRoute: '/ba/views' });
 
       const transparent = 'rgba(0, 0, 0, 0)';
       const configuration = screen.getByRole('button', {
         name: 'Configuration'
       });
-      const icon = configuration.querySelector('svg')?.parentElement;
 
       expect(getComputedStyle(configuration).fontWeight).toBe('500');
-      expect(getComputedStyle(icon as HTMLElement).backgroundColor).not.toBe(
-        transparent
-      );
+      expect(getComputedStyle(configuration).backgroundColor).toBe(transparent);
       expect(
-        getComputedStyle(screen.getByText('Business Activity')).backgroundColor
+        getComputedStyle(
+          screen.getByRole('button', { name: 'Business Activity' })
+        ).backgroundColor
       ).toBe(transparent);
       expect(
-        getComputedStyle(screen.getByText('Business Views')).backgroundColor
+        getComputedStyle(screen.getByRole('button', { name: 'Business Views' }))
+          .backgroundColor
       ).not.toBe(transparent);
     });
 
@@ -332,15 +338,50 @@ describe('NavigationMenu', () => {
       expect(screen.queryByText('Inventory')).not.toBeInTheDocument();
     });
 
-    it('draws the guide line only along lists of pages', () => {
+    it('draws a line along every submenu', () => {
       renderMenu({ isOpen: true, selectedRoute: '/ba/views' });
 
-      const guideLines = screen.getAllByTestId('guide-line');
+      const submenuOf = (name: string): HTMLElement =>
+        screen
+          .getByRole('button', { name })
+          .closest('.MuiAccordion-root')
+          ?.querySelector('.MuiAccordionDetails-root') as HTMLElement;
 
-      expect(guideLines).toHaveLength(1);
-      expect(guideLines[0].parentElement).toContainElement(
-        screen.getByText('Business Views')
+      expect(getComputedStyle(submenuOf('Configuration')).borderLeftWidth).toBe(
+        '1px'
       );
+      expect(
+        getComputedStyle(submenuOf('Business Activity')).borderLeftWidth
+      ).toBe('1px');
+    });
+
+    it('expands one entry at a time on each level', async () => {
+      renderMenu({ isOpen: true, selectedRoute: '/ba/views' });
+
+      const businessActivity = screen.getByRole('button', {
+        name: 'Business Activity'
+      });
+
+      expect(businessActivity).toHaveAttribute('aria-expanded', 'true');
+
+      await userEvent.click(screen.getByRole('button', { name: 'Hosts' }));
+
+      expect(screen.getByRole('button', { name: 'Hosts' })).toHaveAttribute(
+        'aria-expanded',
+        'true'
+      );
+      expect(businessActivity).toHaveAttribute('aria-expanded', 'false');
+
+      await userEvent.click(
+        screen.getByRole('button', { name: 'Administration' })
+      );
+
+      expect(
+        screen.getByRole('button', { name: 'Administration' })
+      ).toHaveAttribute('aria-expanded', 'true');
+      expect(
+        screen.getByRole('button', { name: 'Configuration' })
+      ).toHaveAttribute('aria-expanded', 'false');
     });
   });
 });

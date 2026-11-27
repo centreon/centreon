@@ -3,6 +3,7 @@ export type {
   RouteGroup,
   RouteHierarchy
 } from './models';
+export { default as NavigationIcon } from './NavigationIcon';
 export {
   default as NavigationMenu,
   type NavigationMenuProps,
@@ -11,6 +12,7 @@ export {
 export {
   containsRoute,
   getChildRoutes,
+  getEntryKey,
   getRoutesFromHierarchy,
   hasChildRoutes
 } from './utils';

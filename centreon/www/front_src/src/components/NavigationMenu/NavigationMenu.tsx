@@ -1,4 +1,4 @@
-import { ClickAwayListener, Divider } from '@mui/material';
+import { ClickAwayListener } from '@mui/material';
 
 import { isNil } from 'ramda';
 import {
@@ -18,8 +18,10 @@ import type {
 import NavigationMenuItem from './NavigationMenuItem';
 import PanelIcon from './PanelIcon';
 import { SubRouteList } from './SubRoutes';
+import { useExpandedEntry } from './useExpandedEntry';
+import { getEntryKey } from './utils';
 
-const panelWidth = { closed: 48, open: 216 };
+const panelWidth = { closed: 44, open: 212 };
 // Matches the px-2 of the menu.
 const menuPadding = 8;
 
@@ -29,7 +31,9 @@ export const navigationMenuWidth = {
   open: panelWidth.open + 2 * menuPadding
 };
 
-const popoverGap = 8;
+// The popover opens 4px from the menu and stays 8px from the viewport edges.
+const popoverOffset = 4;
+const viewportMargin = 8;
 const popoverMinHeight = 240;
 
 // The global scrollbar (grey thumb on a light track) is unreadable on the
@@ -40,12 +44,12 @@ const popoverMinHeight = 240;
 // supported they are reset so that the arrow-less webkit styles apply.
 const scrollbarClassName = [
   '[scrollbar-gutter:stable]',
-  '[scrollbar-color:rgb(255_255_255/0.25)_transparent] [scrollbar-width:thin] hover:[scrollbar-color:rgb(255_255_255/0.5)_transparent]',
+  '[scrollbar-color:rgb(255_255_255/0.22)_transparent] [scrollbar-width:thin] hover:[scrollbar-color:rgb(255_255_255/0.5)_transparent]',
   'supports-[selector(::-webkit-scrollbar)]:[scrollbar-color:auto] supports-[selector(::-webkit-scrollbar)]:[scrollbar-width:auto] supports-[selector(::-webkit-scrollbar)]:hover:[scrollbar-color:auto]',
   '[&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar]:bg-transparent',
   '[&::-webkit-scrollbar-button]:hidden',
   '[&::-webkit-scrollbar-track]:bg-transparent',
-  '[&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/25',
+  '[&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/22',
   'hover:[&::-webkit-scrollbar-thumb]:bg-white/50'
 ].join(' ');
 
@@ -77,6 +81,46 @@ interface Popover {
   top: number;
 }
 
+interface ToggleButtonProps {
+  isOpen: boolean;
+  labels: NavigationMenuLabels;
+  onClick: () => void;
+}
+
+/**
+ * Expanded menu: a "Close panel" row, underlined. Collapsed menu: a square
+ * icon button.
+ */
+const ToggleButton = ({
+  isOpen,
+  labels,
+  onClick
+}: ToggleButtonProps): ReactElement =>
+  isOpen ? (
+    <button
+      aria-label={labels.collapse}
+      className="flex min-h-11 shrink-0 cursor-pointer items-center gap-2 rounded-t-sm border-0 border-b border-white/18 bg-transparent p-2 text-white transition-colors duration-[120ms] hover:bg-white/12 dark:hover:bg-white/8"
+      onClick={onClick}
+      type="button"
+    >
+      <PanelIcon className="-scale-x-100" />
+      <span className="whitespace-nowrap text-sm leading-5 font-medium">
+        {labels.collapse}
+      </span>
+    </button>
+  ) : (
+    <button
+      aria-label={labels.expand}
+      className="group flex size-11 shrink-0 cursor-pointer items-center justify-center border-0 bg-transparent p-0 text-white"
+      onClick={onClick}
+      type="button"
+    >
+      <span className="flex size-7 items-center justify-center rounded-sm transition-colors duration-[120ms] group-hover:bg-white/16 dark:group-hover:bg-white/8">
+        <PanelIcon />
+      </span>
+    </button>
+  );
+
 const NavigationMenu = ({
   header,
   isOpen,
@@ -89,6 +133,10 @@ const NavigationMenu = ({
   selectedRoute
 }: NavigationMenuProps): ReactElement => {
   const [popover, setPopover] = useState<Popover | null>(null);
+  const { expandedKey, toggle: toggleExpanded } = useExpandedEntry(
+    routes,
+    selectedRoute
+  );
 
   const changePopover = useCallback(
     (nextPopover: Popover | null): void => {
@@ -114,9 +162,9 @@ const NavigationMenu = ({
 
     changePopover({
       entry,
-      left: right + popoverGap,
+      left: right + popoverOffset,
       top: Math.max(
-        popoverGap,
+        viewportMargin,
         Math.min(top, window.innerHeight - popoverMinHeight)
       )
     });
@@ -178,57 +226,49 @@ const NavigationMenu = ({
       >
         {header}
         <div
-          className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg bg-primary-main text-white dark:bg-black"
+          className={`flex min-h-0 flex-1 flex-col gap-2 overflow-hidden rounded-md bg-background-navigation text-white ${isOpen ? 'pr-2 pb-3 pl-0.5' : 'items-center pb-3'}`}
           data-testid="sidebar"
         >
-          <button
-            aria-label={isOpen ? labels.collapse : labels.expand}
-            className="mx-1 mt-1 flex cursor-pointer items-center gap-2 rounded-sm border-0 bg-transparent px-2 py-2 text-white hover:bg-white/20"
-            onClick={toggleMenu}
-            type="button"
-          >
-            <PanelIcon
-              className={`transition-[rotate] ${isOpen ? 'rotate-180' : ''}`}
-              fontSize="small"
-            />
-            {isOpen && (
-              <span className="whitespace-nowrap text-sm font-medium">
-                {labels.collapse}
-              </span>
-            )}
-          </button>
-          <Divider className="mx-2 mb-2 border-white/40" />
+          <ToggleButton isOpen={isOpen} labels={labels} onClick={toggleMenu} />
           <ul
-            className={`m-0 flex flex-1 list-none flex-col gap-1 overflow-x-hidden overflow-y-auto px-1 py-0 ${isOpen ? scrollbarClassName : hiddenScrollbarClassName}`}
+            className={`m-0 flex flex-1 list-none flex-col gap-2 overflow-x-hidden overflow-y-auto p-0 ${isOpen ? scrollbarClassName : `items-center ${hiddenScrollbarClassName}`}`}
           >
-            {routes.map((entry) => (
-              <NavigationMenuItem
-                actions={actions}
-                entry={entry}
-                isMenuOpen={isOpen}
-                isPopoverOpen={popover?.entry === entry}
-                key={`${entry.label}-${entry.route}`}
-                onNavigate={navigate}
-                onTogglePopover={togglePopover}
-              />
-            ))}
+            {routes.map((entry) => {
+              const key = getEntryKey(entry);
+
+              return (
+                <NavigationMenuItem
+                  actions={actions}
+                  entry={entry}
+                  isExpanded={expandedKey === key}
+                  isMenuOpen={isOpen}
+                  isPopoverOpen={popover?.entry === entry}
+                  key={key}
+                  onNavigate={navigate}
+                  onToggleExpanded={(): void => toggleExpanded(key)}
+                  onTogglePopover={togglePopover}
+                />
+              );
+            })}
           </ul>
         </div>
         {popover && (
           <section
             aria-label={popover.entry.label}
-            className={`fixed z-[1000] flex w-64 flex-col overflow-y-auto rounded-lg bg-primary-main p-2 text-white shadow-lg dark:bg-black ${scrollbarClassName}`}
+            className={`fixed z-[1000] flex w-53 flex-col overflow-y-auto rounded-md bg-background-navigation p-2 text-white shadow-[0_8px_24px_rgba(0,0,0,0.35)] ${scrollbarClassName}`}
             data-testid="navigation-menu-popover"
             style={{
               left: popover.left,
-              maxHeight: `calc(100vh - ${popover.top + popoverGap}px)`,
+              maxHeight: `calc(100vh - ${popover.top + viewportMargin}px)`,
               top: popover.top
             }}
           >
-            <p className="m-0 px-2 pb-2 font-bold">{popover.entry.label}</p>
+            <p className="m-0 p-2 text-sm leading-5 font-medium">
+              {popover.entry.label}
+            </p>
             <SubRouteList
               actions={actions}
-              childVariant="section"
+              childVariant="popover"
               entry={popover.entry}
             />
           </section>

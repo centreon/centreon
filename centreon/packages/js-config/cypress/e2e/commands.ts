@@ -160,10 +160,24 @@ Cypress.Commands.add(
 
 const navigationMenuPopover = '[data-testid="navigation-menu-popover"]';
 
+// The root items open their popover from the collapsed menu, whose state is
+// kept across reloads: an expanded menu is collapsed first.
+const collapseNavigationMenu = (): void => {
+  cy.get('[data-testid="sidebar"]').then(($sidebar) => {
+    const closePanel = $sidebar.find('button[aria-label="Close panel"]');
+
+    if (closePanel.length > 0) {
+      cy.wrap(closePanel).click();
+    }
+  });
+};
+
 // Kept as "hover" for compatibility: the root items now open on click.
 Cypress.Commands.add(
   'hoverRootMenuItem',
   (rootItemNumber: number): Cypress.Chainable => {
+    collapseNavigationMenu();
+
     return cy
       .get('[data-testid="sidebar"] > ul > li')
       .eq(rootItemNumber)

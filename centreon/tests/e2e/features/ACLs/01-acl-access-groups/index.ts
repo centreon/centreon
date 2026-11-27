@@ -19,6 +19,17 @@ const duplicatedAclGroup = {
   name: `${originalAclGroup.name}_1`
 };
 
+// The menu state is kept across logins: it is only opened when collapsed.
+const openNavigationPanel = (): void => {
+  cy.get('[data-testid="sidebar"]').then(($sidebar) => {
+    const openPanel = $sidebar.find('button[aria-label="Open panel"]');
+
+    if (openPanel.length > 0) {
+      cy.wrap(openPanel).click();
+    }
+  });
+};
+
 beforeEach(() => {
   cy.startContainers();
   cy.intercept({
@@ -106,7 +117,7 @@ Then(
     });
 
     cy.wait('@getTopCounter');
-    cy.get('button[aria-label="Open panel"]').click();
+    openNavigationPanel();
     cy.get('[data-testid="sidebar"]').contains('span', 'Home').should('exist');
 
     cy.logout();
@@ -116,7 +127,7 @@ Then(
     });
 
     cy.wait('@getTopCounter');
-    cy.get('button[aria-label="Open panel"]').click();
+    openNavigationPanel();
     cy.get('[data-testid="sidebar"]').contains('span', 'Home').should('exist');
   }
 );
