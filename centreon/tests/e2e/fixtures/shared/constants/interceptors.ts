@@ -39,7 +39,10 @@ export const INTERCEPTORS = {
     users_parameters: '/centreon/api/latest/configuration/users/current/parameters',
     centreon_metric: '/centreon/api/internal.php?object=centreon_metric',
     monitor_navigation_list: '/monitor/api/internal.php?object=centreon_topology&action=navigationList',
-    monitor_resources_details: '/monitor/api/latest/monitoring/resources/hosts/*/services/*'
+    monitor_resources_details: '/monitor/api/latest/monitoring/resources/hosts/*/services/*',
+    internal_clapi: '/centreon/api/internal.php?object=centreon_clapi&action=action',
+    internal_submit_results: '/centreon/api/internal.php?object=centreon_submit_results&action=submit',
+    submit_results_resources: '/centreon/api/latest/monitoring/resources/submit'
   },
   pages: {
     event_logs_export: '/centreon/include/eventLogs/export/data.php',
@@ -66,7 +69,8 @@ export const INTERCEPTORS = {
     centreon_configuration_timezone: '/centreon/include/common/webServices/rest/internal.php?object=centreon_configuration_timezone',
     centreon_performance_service: '/centreon/include/common/webServices/rest/internal.php?object=centreon_performance_service',
     centreon_configuration_meta: '/centreon/include/common/webServices/rest/internal.php?object=centreon_configuration_meta',
-    centreon_configuration_trap: '/centreon/include/common/webServices/rest/internal.php?object=centreon_configuration_trap'
+    centreon_configuration_trap: '/centreon/include/common/webServices/rest/internal.php?object=centreon_configuration_trap',
+    gorgone_configuration_popup: '/centreon/include/configuration/configServers/popup/popup.php'
   },
   static: {
     pendo: 'https://guide.centreon.com/agent/static/b06b875d-4a10-4365-7edf-8efeaf53dfdd/pendo.js'

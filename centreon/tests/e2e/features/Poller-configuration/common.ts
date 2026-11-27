@@ -181,19 +181,84 @@ const assertPollerIsRunning = (name: string): void => {
     .should('exist');
 };
 
+// First remote poller registered by the "poller" profile of the stack
+const buildRegisteredPollerQuery = (): string =>
+  `SELECT id, name FROM nagios_server WHERE localhost = '0' AND ns_activate = '1' ORDER BY id LIMIT 1`;
+
+const buildRunningInstanceQuery = (name: string): string =>
+  `SELECT instance_id, start_time, UNIX_TIMESTAMP() AS now FROM instances WHERE name = '${name}' AND running = 1 AND deleted = 0`;
+
+const buildDatabaseTimeQuery = (): string => 'SELECT UNIX_TIMESTAMP() AS now';
+
+// Hosts linked to the poller in the configuration
+const buildConfiguredPollerHostsQuery = (pollerName: string): string =>
+  `SELECT h.host_name AS name
+    FROM host h
+    INNER JOIN ns_host_relation nhr ON nhr.host_host_id = h.host_id
+    INNER JOIN nagios_server ns ON ns.id = nhr.nagios_server_id
+    WHERE ns.name = '${pollerName}' AND h.host_register = '1' AND h.host_activate = '1'`;
+
+// Hosts of the poller in the real-time database
+const buildRealtimePollerHostsQuery = (instanceId: string): string =>
+  `SELECT name FROM hosts WHERE instance_id = ${instanceId} AND enabled = 1`;
+
+const buildRealtimePollerResourcesQuery = (instanceId: string): string =>
+  `SELECT name FROM resources WHERE poller_id = ${instanceId} AND type = 1 AND enabled = 1`;
+
+const buildRealtimePollerHostGroupsQuery = (instanceId: string): string =>
+  `SELECT h.name AS host, hg.name AS host_group
+    FROM hosts h
+    INNER JOIN hosts_hostgroups hhg ON hhg.host_id = h.host_id
+    INNER JOIN hostgroups hg ON hg.hostgroup_id = hhg.hostgroup_id
+    WHERE h.instance_id = ${instanceId} AND h.enabled = 1`;
+
+// Tags of the hosts of the poller, as used by Resources Status:
+// type 1 for a host group, type 3 for a host category
+const buildRealtimePollerTagsQuery = (
+  instanceId: string,
+  tagType: number
+): string =>
+  `SELECT r.name AS host, t.name AS tag
+    FROM resources r
+    INNER JOIN resources_tags rt ON rt.resource_id = r.resource_id
+    INNER JOIN tags t ON t.tag_id = rt.tag_id
+    WHERE r.poller_id = ${instanceId} AND r.type = 1 AND r.enabled = 1 AND t.type = ${tagType}`;
+
+const hostGroupTagType = 1;
+const hostCategoryTagType = 3;
+
+const sortedPairs = (
+  rows: Array<Record<string, unknown>>,
+  keys: [string, string]
+): Array<string> =>
+  rows.map((row) => `${row[keys[0]]} / ${row[keys[1]]}`).sort();
+
+const sortedNames = (rows: Array<Record<string, unknown>>): Array<string> =>
+  rows.map((row) => String(row.name)).sort();
+
 export {
   assertPollerIsRunning,
   breakSomePollers,
+  buildConfiguredPollerHostsQuery,
+  buildDatabaseTimeQuery,
   buildDeleteInstanceByNameQuery,
   buildDeletePollerByNameQuery,
   buildInsertPollerQuery,
   buildInsertRunningInstanceQuery,
+  buildRealtimePollerHostGroupsQuery,
+  buildRealtimePollerHostsQuery,
+  buildRealtimePollerResourcesQuery,
+  buildRealtimePollerTagsQuery,
+  buildRegisteredPollerQuery,
+  buildRunningInstanceQuery,
   checkIfConfigurationIsNotExported,
   checkIfMethodIsAppliedToPollers,
   clearCentengineLogs,
   duplicatedPollerInstanceId,
   duplicatedPollerName,
   getPoller,
+  hostCategoryTagType,
+  hostGroupTagType,
   insertHost,
   insertPollerConfigUserAcl,
   legacyPollerName,
@@ -204,6 +269,8 @@ export {
   remotePollerInstanceId,
   remotePollerName,
   removeFixtures,
+  sortedNames,
+  sortedPairs,
   testHostName,
   waitPollerListToLoad
 };
