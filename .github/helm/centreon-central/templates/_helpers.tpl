@@ -89,26 +89,37 @@ externalTrafficPolicy: {{ .externalTrafficPolicy }}
 {{- end -}}
 
 {{/* initContainer waiting for the install Job's marker (options.helm_install_id
-     = this release's install id): used by fpm and the config-delivery Job. */}}
+     = this release's install id), as root: used by fpm, the autodiscovery
+     worker and the config-delivery Job. */}}
 {{- define "centreon-central.waitInstall" -}}
+{{ include "centreon-central.waitInstallAs" (dict "ctx" . "user" "root" "passwordKey" "MYSQL_ROOT_PASSWORD") }}
+{{- end -}}
+
+{{/* waitInstall as a given database user: (dict "ctx" $ "user" <user>
+     "passwordKey" <Secret key>). As "centreon" (CronJobs) the query also
+     fails until the install Job has granted that user its database, and no
+     root password reaches the pod. */}}
+{{- define "centreon-central.waitInstallAs" -}}
+{{- $ := .ctx -}}
 - name: wait-install
-  image: {{ include "centreon-central.image" .Values.images.fpm }}
-  imagePullPolicy: {{ .Values.images.fpm.pullPolicy }}
+  image: {{ include "centreon-central.image" $.Values.images.fpm }}
+  imagePullPolicy: {{ $.Values.images.fpm.pullPolicy }}
   command: ["/bin/sh", "-c"]
   args:
     - |
-      until [ "$(mysql {{ include "centreon-central.dbCliTls" . }} -N -s -h"$MYSQL_HOST" -uroot "$MYSQL_DB_CONFIGURATION" \
+      until [ "$(mysql {{ include "centreon-central.dbCliTls" $ }} -N -s -h"$MYSQL_HOST" -u"$MYSQL_USER" "$MYSQL_DB_CONFIGURATION" \
           -e "SELECT value FROM options WHERE \`key\` = 'helm_install_id'" 2>/dev/null)" = "$INSTALL_ID" ]; do
         echo "Waiting for install $INSTALL_ID..."
         sleep 5
       done
       echo "Install $INSTALL_ID done."
   env:
-    - { name: MYSQL_HOST, value: {{ include "centreon-central.dbHost" . | quote }} }
-    - { name: MYSQL_DB_CONFIGURATION, value: {{ .Values.database.configurationDb | quote }} }
-    - { name: INSTALL_ID, value: {{ include "centreon-central.installId" . | quote }} }
-    {{- include "centreon-central.secretEnv" (dict "ctx" . "name" "MYSQL_PWD" "key" "MYSQL_ROOT_PASSWORD") | nindent 4 }}
-  {{- with include "centreon-central.dbTlsMounts" . }}
+    - { name: MYSQL_HOST, value: {{ include "centreon-central.dbHost" $ | quote }} }
+    - { name: MYSQL_DB_CONFIGURATION, value: {{ $.Values.database.configurationDb | quote }} }
+    - { name: MYSQL_USER, value: {{ .user | quote }} }
+    - { name: INSTALL_ID, value: {{ include "centreon-central.installId" $ | quote }} }
+    {{- include "centreon-central.secretEnv" (dict "ctx" $ "name" "MYSQL_PWD" "key" .passwordKey) | nindent 4 }}
+  {{- with include "centreon-central.dbTlsMounts" $ }}
   volumeMounts:
     {{- . | nindent 4 }}
   {{- end }}

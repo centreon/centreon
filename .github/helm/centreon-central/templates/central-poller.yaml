@@ -20,8 +20,7 @@ metadata:
 spec:
   serviceName: {{ .Release.Name }}-central-poller-hl
   replicas: 1
-  # Replaced even when NotReady (centengine crash-loops until the first
-  # config delivery).
+  # Replaced even when NotReady (e.g. after a bad value).
   podManagementPolicy: Parallel
   selector:
     matchLabels:
