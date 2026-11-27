@@ -29,6 +29,10 @@ on:
         options:
           - cloud
           - onprem
+      skip_bundle_check:
+        description: 'Skip the testing bundle check (only when the bundle was checked by hand)'
+        type: boolean
+        default: false
 
 # Tag pushes are not idempotent: a second run on the same train fails mid-loop, having pushed some
 # tags and not others. Never cancel-in-progress, which would strand a release between tags.
@@ -99,8 +103,71 @@ jobs:
           fi
         shell: bash
 
-  release:
+  # Lines built from testing tags only: the packages in testing must come from the head being released.
+  # Rules: delivery-tooling docs/release/testing-bundles.md ("release-new guard"). Legacy lines are skipped.
+  check-testing-bundle:
     needs: [check-inputs]
+    if: ${{ github.repository == 'centreon/centreon' }}
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+    outputs:
+      head_sha: ${{ steps.check.outputs.head_sha }}
+    env:
+      RELEASE_BRANCH: ${{ inputs.release_branch }}
+      RELEASE_NUMBER: ${{ inputs.release_number }}
+      RELEASE_TYPE: ${{ inputs.release_type }}
+      RELEASE_SCOPE: ${{ inputs.release_scope }}
+      SKIP_BUNDLE_CHECK: ${{ inputs.skip_bundle_check }}
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Read the mode of the release branch
+        id: mode
+        run: bash .github/scripts/release/release-new-bundle-guard.sh mode
+        shell: bash
+
+      # the AWS login below fails without saying why: say it first
+      - name: Check what the bundle check needs
+        if: steps.mode.outputs.mode != 'legacy'
+        env:
+          ROLE_SECRET_SET: ${{ secrets.RELEASE_ORCHESTRATOR_TRIGGER_ROLE_ARN != '' }}
+        run: |
+          problem=""
+          [[ "$GITHUB_REF_NAME" == "develop" ]] || problem="release-new was dispatched from $GITHUB_REF_NAME: the testing bundles can only be read from develop"
+          [[ "$ROLE_SECRET_SET" == "true" ]] || problem="the secret RELEASE_ORCHESTRATOR_TRIGGER_ROLE_ARN is not available to this repository"
+          [[ -n "$problem" ]] || exit 0
+          if [[ "$SKIP_BUNDLE_CHECK" == "true" ]]; then
+            echo "::warning::Testing bundle check: $problem (skip_bundle_check is ticked, going on)"
+          else
+            echo "::error::Testing bundle check: $problem"
+            exit 1
+          fi
+        shell: bash
+
+      # same role as release-trigger-builds (read access to the bundles, trusted on develop only);
+      # its ARN is an organisation secret, as for the API documentation publication
+      - name: Configure AWS credentials
+        if: steps.mode.outputs.mode != 'legacy'
+        continue-on-error: ${{ inputs.skip_bundle_check }}
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: ${{ secrets.RELEASE_ORCHESTRATOR_TRIGGER_ROLE_ARN }}
+          role-session-name: release-new-${{ github.run_id }}
+          aws-region: eu-west-1
+
+      - name: Check the testing bundle of this release
+        id: check
+        run: bash .github/scripts/release/release-new-bundle-guard.sh check
+        shell: bash
+
+  release:
+    needs: [check-inputs, check-testing-bundle]
     if: ${{ github.repository == 'centreon/centreon' }}
     runs-on: ubuntu-24.04
     permissions:
@@ -174,6 +241,7 @@ jobs:
           release_branch: ${{ inputs.release_branch }}
           centreon_technique_pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
           major_version: ${{ steps.build_release_bundle_tag.outputs.major_version }}
+          expected_head_sha: ${{ needs.check-testing-bundle.outputs.head_sha }}
 
   # Publishes this release's source tarballs to download.centreon.com.
   #
