@@ -1,5 +1,5 @@
 {{- if .Values.networkPolicy.enabled }}
-# gorgone-central's API (8085) has no auth and its IP allowlist is disabled
+# gorgone-central's API (8085) has only basic auth, its IP allowlist is disabled
 # (pod IPs are ephemeral, see gorgone-central.yaml): only fpm (node sync on
 # poller save, legacy commands), cron (downtimeManager's external commands)
 # and the config-delivery Job may call it. The pullwss endpoint

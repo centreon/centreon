@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2016 # check() commands are expanded inside the container, not by this shell.
-# Boot test of one split central image (httpd / fpm / cron) on one platform.
+# Boot test of one split central image (httpd / fpm / cron / rrdcached) on one platform.
 #
 # Standalone checks only (no database, no other container): the image's own
 # tooling starts and its configuration parses. The end-to-end behaviour is
@@ -8,7 +8,7 @@
 #
 # Env:
 #   IMAGE                 image reference to test (already pulled)
-#   ROLE                  httpd | fpm | cron
+#   ROLE                  httpd | fpm | cron | rrdcached
 #   PLATFORM              linux/amd64 | linux/arm64
 #   SUMMARY_FRAGMENT_FILE optional markdown fragment written for the job summary
 set -euo pipefail

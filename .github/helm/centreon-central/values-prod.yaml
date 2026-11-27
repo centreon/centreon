@@ -12,6 +12,16 @@ images:
   httpd:
     repository: CHANGE_ME/centreon-web-split-httpd
     tag: CHANGE_ME
+  # CronJobs and the rrdcached sidecar are on by default.
+  cron:
+    repository: CHANGE_ME/centreon-web-split-cron
+    tag: CHANGE_ME
+  rrdcached:
+    repository: CHANGE_ME/centreon-web-split-rrdcached
+    tag: CHANGE_ME
+  # gorgone, engine, broker, snmptrapd/centreontrapd: values.yaml uses the
+  # floating `develop` tag with pullPolicy Always. Pin immutable tags here,
+  # with pullPolicy IfNotPresent.
 
 secrets:
   # Create it out of band (sealed-secrets / external-secrets), never commit

@@ -9,7 +9,7 @@
 # Pod host name <release>-central-poller-0 (forced by the controller); the
 # CMA TLS identity for agents dialing an FQDN is centralPoller.otel.tls.
 # The volumes are the chart's PVCs (pvc.yaml), not volumeClaimTemplates, so
-# they survive a change of the pod spec and match the Deployment era.
+# they survive a change of the pod spec.
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:

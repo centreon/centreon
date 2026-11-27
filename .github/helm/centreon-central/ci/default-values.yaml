@@ -1,7 +1,10 @@
-# Values for the chart's CI lint/template only (nothing is pulled): the images
-# the PoC stack's CI publishes. This PR only touches the chart, so no image is
-# built at its own tag: the web-split ones come from its base (C12c). Not for a
+# Values for the chart's CI lint/template only (nothing is pulled). Not for a
 # real deployment.
+# The image tags follow the PoC stack branches that build them (this PR only
+# touches the chart, so nothing is built at its own tag): web-split from the
+# base PR (C12d, MON-214157), collect from the top of the collect stack (G9,
+# MON-213839, with the TCP RRD output fix rrdcached needs). Move them along
+# with the stack; back to develop once it is merged.
 # APP_SECRET and SALT have no default: placeholders, only to render the Secret.
 secrets:
   appSecret: "0000000000000000000000000000000000000000000000000000000000000000"
@@ -10,20 +13,19 @@ secrets:
 images:
   fpm:
     repository: docker.centreon.com/centreon/centreon-web-split-fpm-trixie
-    tag: MON-214095-central-fpm-sessions-valkey
+    tag: MON-214157-central-compose-db-tls
   httpd:
     repository: docker.centreon.com/centreon/centreon-web-split-httpd-trixie
-    tag: MON-214095-central-fpm-sessions-valkey
+    tag: MON-214157-central-compose-db-tls
   cron:
     repository: docker.centreon.com/centreon/centreon-web-split-cron-trixie
-    tag: MON-214095-central-fpm-sessions-valkey
+    tag: MON-214157-central-compose-db-tls
   rrdcached:
     repository: docker.centreon.com/centreon/centreon-web-split-rrdcached-trixie
-    tag: MON-214095-central-fpm-sessions-valkey
+    tag: MON-214157-central-compose-db-tls
   gorgone:
     repository: docker.centreon.com/centreon/centreon-gorgone-trixie
-    tag: MON-213814-gorgone-central-api-auth
-  # With the TCP RRD output fix (centreon-collect MON-213839), for rrdcached.
+    tag: MON-213839-broker-rrd-tcp-logger
   engine:
     repository: docker.centreon.com/centreon/centreon-engine-trixie
     tag: MON-213839-broker-rrd-tcp-logger
@@ -38,9 +40,7 @@ images:
     repository: docker.centreon.com/centreon/centreon-trapd-trixie
     tag: develop
 
-# Render the optional parts too.
-rrdcached:
-  enabled: true
+# Render the optional parts too (rrdcached is on by default).
 centralPoller:
   traps:
     enabled: true

@@ -2,7 +2,7 @@
 # End-to-end smoke test of the split central compose stack with CI-built images.
 #
 # Every compose service built from the split Dockerfile (build.target httpd,
-# fpm or cron) is pointed at the matching CI image through a generated
+# fpm, cron or rrdcached) is pointed at the matching CI image through a generated
 # override, so services added later in the PoC stack (gorgone-central,
 # autodiscovery worker, ...) are covered without changing this script.
 # Assertions only run when the service they need exists on the branch.
@@ -10,7 +10,7 @@
 # Env:
 #   IMAGE_TEMPLATE  CI image of a build target, with "{target}" as placeholder
 #                   (e.g. registry/centreon-web-split-{target}-trixie:<tag>)
-#   GORGONE_IMAGE, BROKER_IMAGE, ENGINE_IMAGE, TRAPD_IMAGE  dependency images
+#   GORGONE_IMAGE, BROKER_IMAGE, ENGINE_IMAGE  dependency images
 #   COMPOSE_OVERLAY optional extra compose file layered on the base stack
 #                   (e.g. the database TLS overlay docker-compose.db-tls.yml)
 #   SMOKE_VARIANT  label of this run in the summary (default "plain")
@@ -19,7 +19,7 @@
 set -euo pipefail
 
 : "${IMAGE_TEMPLATE:?}"
-export GORGONE_IMAGE BROKER_IMAGE ENGINE_IMAGE TRAPD_IMAGE
+export GORGONE_IMAGE BROKER_IMAGE ENGINE_IMAGE
 SUMMARY_FILE="${SUMMARY_FILE:-/dev/null}"
 WAIT_TIMEOUT="${WAIT_TIMEOUT:-1200}"
 LOG_DIR="${LOG_DIR:-/tmp/centreon-central-smoke}"
@@ -77,8 +77,8 @@ services=$(compose config --services)
 has_service() { grep -qx "$1" <<<"$services"; }
 
 compose pull --quiet --ignore-buildable
-# A service can fail to be created while the stack converges (rrdcached joins the
-# broker's network namespace, which disappears while the broker restarts), so
+# A service can fail to start while the stack converges (a dependency that is
+# not healthy yet, a broker restarting until its configuration is delivered), so
 # `up -d` is re-applied on every poll round and a first failure is not fatal.
 compose up -d --no-build || echo "compose up returned non-zero, retrying while polling"
 
