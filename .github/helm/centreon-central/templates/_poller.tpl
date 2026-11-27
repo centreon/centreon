@@ -208,6 +208,7 @@ containers:
     env:
       - { name: TYPE, value: poller }
       - { name: NAME, value: {{ $p.name | quote }} }
+      - { name: TZ, value: {{ $p.timezone | default "UTC" | quote }} }
       {{- include "centreon-central.secretEnv" (dict "ctx" $ "name" "APP_SECRET" "key" "APP_SECRET") | nindent 6 }}
       {{- include "centreon-central.secretEnv" (dict "ctx" $ "name" "SALT" "key" "SALT") | nindent 6 }}
       - { name: GORGONE_UID, value: {{ $p.uid | quote }} }

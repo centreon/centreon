@@ -175,6 +175,9 @@ database:
   # GRANT ALL ... WITH GRANT OPTION as root).
   bundled: true
   externalHost: ""
+  # TCP port of the database (bundled: the port MariaDB listens on), for
+  # every client: web, install, cron, gorgone, broker SQL outputs.
+  port: 3306
   configurationDb: centreon
   storageDb: centreon_storage
   persistence:
@@ -339,8 +342,8 @@ autodiscoveryWorker:
 # Restricts gorgone-central's API (8085, basic auth only) to fpm, cron and the
 # config-delivery Job, and pullwss (8087) to httpd; php-fpm (9000) to httpd;
 # cbd's gRPC API (51001) to the Central poller pod (BBDO 5669 stays open);
-# rrdcached (42217) and Valkey (6379) to fpm; the bundled database (3306) to
-# its clients. Poller pods (Central and pollers[]) only accept the CMA port
+# rrdcached (42217) and Valkey (6379) to fpm; the bundled database
+# (database.port) to its clients. Poller pods (Central and pollers[]) only accept the CMA port
 # 4317 (+ 162/udp with traps): their engine gRPC API (50155, no auth, can
 # stop the engine) stays pod-local. Everything a poller does is
 # outbound (pullwss, cbmod to the broker, checks), egress is not filtered.

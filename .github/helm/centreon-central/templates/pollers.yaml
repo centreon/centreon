@@ -74,6 +74,24 @@ spec:
         resources:
           requests:
             storage: {{ (($poller.persistence | default dict).spoolSize) | default $.Values.persistence.local.pollerSpool.size }}
+---
+# Governing Service of the StatefulSet (pod DNS only, no traffic: the poller
+# dials out, pullwss to httpd and BBDO to centreon-broker). Named after the
+# StatefulSet's serviceName, which is immutable.
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $.Release.Name }}-poller-{{ $poller.name }}
+  labels:
+    {{- include "centreon-central.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: poller-{{ $poller.name }}
+spec:
+  clusterIP: None
+  publishNotReadyAddresses: true
+  selector:
+    {{- include "centreon-central.selectorLabels" (dict "ctx" $ "component" (printf "poller-%s" $poller.name)) | nindent 4 }}
+  ports:
+    - { name: engine-grpc, port: 50155, targetPort: engine-grpc }
 {{- if and $poller.traps $poller.traps.enabled }}
 ---
 {{ include "centreon-central.trapsService" (dict "ctx" $ "name" (printf "%s-poller-%s-snmptrap" $.Release.Name $poller.name) "component" (printf "poller-%s" $poller.name) "svc" (mergeOverwrite (deepCopy $.Values.centralPoller.traps.service) ($poller.traps.service | default dict))) }}

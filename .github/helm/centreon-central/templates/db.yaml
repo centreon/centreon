@@ -22,6 +22,7 @@ spec:
     spec:
       {{- include "centreon-central.podScheduling" . | nindent 6 }}
       {{- $serverTls := .Values.database.bundledTls.secretName }}
+      {{- $port := include "centreon-central.dbPort" . | int }}
       {{- if $serverTls }}
       # mariadbd (mysql, 999) reads the TLS key through its group.
       securityContext:
@@ -42,8 +43,11 @@ spec:
             - --ssl-key=/etc/mysql/tls/tls.key
             - --ssl-ca=/etc/mysql/tls/ca.crt
             - --require-secure-transport=ON
+            {{- if ne $port 3306 }}
+            - --port={{ $port }}
+            {{- end }}
           {{- else }}
-          args: ["--skip-ssl", "--skip-name-resolve"]
+          args: ["--skip-ssl", "--skip-name-resolve"{{ if ne $port 3306 }}, "--port={{ $port }}"{{ end }}]
           {{- end }}
           env:
             {{- include "centreon-central.secretEnv" (dict "ctx" . "name" "MARIADB_ROOT_PASSWORD" "key" "MYSQL_ROOT_PASSWORD") | nindent 12 }}
@@ -57,7 +61,7 @@ spec:
             - { name: MARIADB_AUTO_UPGRADE, value: "1" }
           ports:
             - name: mysql
-              containerPort: 3306
+              containerPort: {{ $port }}
           # A real login: a bare TCP check makes this image log an "Aborted
           # connection ... unauthenticated" warning every period. Over TCP so
           # it also matches the bitnami data's root@'%' (no root@localhost).
@@ -66,7 +70,7 @@ spec:
           # names "db", not 127.0.0.1).
           readinessProbe:
             exec:
-              command: ["sh", "-c", 'MYSQL_PWD="$MARIADB_ROOT_PASSWORD" mariadb-admin {{ ternary "--ssl --disable-ssl-verify-server-cert" "--skip-ssl" (not (empty $serverTls)) }} -h 127.0.0.1 -uroot ping --silent']
+              command: ["sh", "-c", 'MYSQL_PWD="$MARIADB_ROOT_PASSWORD" mariadb-admin {{ ternary "--ssl --disable-ssl-verify-server-cert" "--skip-ssl" (not (empty $serverTls)) }} -h 127.0.0.1{{ if ne $port 3306 }} -P {{ $port }}{{ end }} -uroot ping --silent']
             periodSeconds: 5
           volumeMounts:
             # The volume keeps the bitnami layout (datadir in data/), so a
@@ -114,6 +118,6 @@ spec:
     {{- include "centreon-central.selectorLabels" (dict "ctx" . "component" "db") | nindent 4 }}
   ports:
     - name: mysql
-      port: 3306
+      port: {{ include "centreon-central.dbPort" . }}
       targetPort: mysql
 {{- end }}
