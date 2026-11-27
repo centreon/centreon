@@ -28,6 +28,7 @@ use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Exception\EntityNotFoundException;
 use Centreon\Domain\Exception\TimeoutException;
 use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\MonitoringServer\Exception\ConfigurationMonitoringServerException;
 use Centreon\Domain\MonitoringServer\Exception\GorgoneDeliveryException;
 use Centreon\Domain\MonitoringServer\Exception\MonitoringServerException;
 use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerServiceInterface;
@@ -248,9 +249,8 @@ class MonitoringServerController extends AbstractController
         } catch (TimeoutException $ex) {
             $this->error($ex->getMessage());
 
-            throw new MonitoringServerException(
-                'The operation timed out - please use the legacy export menu to workaround this problem'
-            );
+            // The exception code is the HTTP status of the response (see CentreonEventSubscriber).
+            throw new MonitoringServerException($ex->getMessage(), Response::HTTP_GATEWAY_TIMEOUT, $ex);
         } catch (EntityNotFoundException|AccessDeniedException $ex) {
             $this->error($ex->getMessage());
 
@@ -268,12 +268,18 @@ class MonitoringServerController extends AbstractController
                     : Response::HTTP_CONFLICT,
                 $ex,
             );
+        } catch (ConfigurationMonitoringServerException $ex) {
+            // Generation or reload failure, with the monitoring server and the reason.
+            $this->error($ex->getMessage());
+
+            throw new MonitoringServerException($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR, $ex);
         } catch (\Exception $ex) {
             $this->error($ex->getMessage());
 
             throw new MonitoringServerException(
                 'There was an consistency error in the exported files - please use the legacy export menu to troubleshoot',
-                previous: $ex,
+                Response::HTTP_INTERNAL_SERVER_ERROR,
+                $ex,
             );
         }
     }
