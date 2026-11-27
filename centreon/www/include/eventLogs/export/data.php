@@ -69,6 +69,13 @@ $requestHandler = new Centreon\Legacy\EventLogs\Export\Request();
 $requestHandler->setIsAdmin($is_admin);
 $requestHandler->setLca($lca);
 
+$logsPage = $requestHandler->getEngine() === 'true' ? '20302' : '20301';
+if ($access->page($logsPage) === CentreonACL::ACL_ACCESS_NONE) {
+    http_response_code(403);
+
+    exit();
+}
+
 require_once realpath(__DIR__ . DIRECTORY_SEPARATOR . 'QueryGenerator.php');
 $queryGenerator = new Centreon\Legacy\EventLogs\Export\QueryGenerator($pearDBO);
 $queryGenerator->setIsAdmin($is_admin);
