@@ -106,6 +106,7 @@ The command holds the poller token, the appsecret and the salt: do not paste it 
 - The `autodiscovery-worker` service, on the fpm image, runs the discovery jobs. It sends each plugin to the poller through cbd (`POST /v1/executions`, RemoteExec over the TLS stream) and saves the results. The automatic save exports and reloads through the web API (contracts §12).
 - The poller runs only programs from its allow-list (`/etc/centreon-engine-exec/*.json`; by default `/usr/lib/centreon/plugins/*`). The e2e mounts a stub plugin there: `fixtures/gls_disco_stub`.
 - Discovery jobs need a valid autodiscovery license (see above).
+- Before each run, the worker installs the provider's plugin package on the job's poller (`POST /v1/plugin-installs` on cbd, contracts §14). It finds the package in the PPM table `mod_ppm_plugins_installation`. The poller accepts only `centreon-plugin-*` names and never touches plugins.json. The `disco-plugin-install` step checks this with `centreon-plugin-applications-protocol-tcp`.
 
 ## License fingerprint in containers (phase 3, MON-216369)
 

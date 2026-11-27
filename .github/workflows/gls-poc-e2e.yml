@@ -120,6 +120,12 @@ jobs:
         run: SUMMARY_FILE="$GITHUB_STEP_SUMMARY" "$SCRIPT" disco-scheduled
         shell: bash
 
+      - name: "Discovery: provider plugin installed on the poller before the run"
+        if: ${{ !cancelled() && steps.up.outcome == 'success' }}
+        continue-on-error: ${{ env.GLS_GATE_CRITERIA != 'true' }}
+        run: SUMMARY_FILE="$GITHUB_STEP_SUMMARY" "$SCRIPT" disco-plugin-install
+        shell: bash
+
       - name: "Criterion 3: disconnected poller (stop)"
         if: ${{ !cancelled() && steps.up.outcome == 'success' }}
         continue-on-error: ${{ env.GLS_GATE_CRITERIA != 'true' }}

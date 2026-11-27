@@ -14,6 +14,7 @@
 #   gls-e2e.sh modules            LM, PPM, autodiscovery, ITEE installed and answering; CI license valid; no gorgone
 #   gls-e2e.sh disco              host discovery through cbd /v1/executions: FINISH, REJECTED, TIMEOUT, cap, exit, secret, NOT_CONNECTED
 #   gls-e2e.sh disco-scheduled    cron discovery job, automatic save + export to the poller, pause
+#   gls-e2e.sh disco-plugin-install  provider plugin installed by the worker before the RemoteExec (14.S)
 #   gls-e2e.sh install-script     poller added with the generated install.sh command (broker channel), no secret leaked
 #   gls-e2e.sh license-fingerprint LM instance fingerprint: fpm == worker, kept on recreate, regenerate, MAC mode, license valid
 #   gls-e2e.sh logs | down
@@ -1137,6 +1138,190 @@ cmd_disco_scheduled() {
   [[ "$(gorgone_procs)" == 0 ]] && record "disco-scheduled: no gorgone process" ok || record "disco-scheduled: no gorgone process" ko
 }
 
+# ---------- disco-plugin-install: the worker installs the provider plugin first (contracts § 14.S) ----------
+
+DP_PKG="${GLS_DISCO_PKG:-centreon-plugin-applications-protocol-tcp}"
+DP_CMD="${GLS_DISCO_PKG_CMD:-centreon_protocol_tcp.pl}"
+DP_MISSING=centreon-plugin-gls-does-not-exist
+
+cbd_post() { # cbd_post <path> <json>: POST on the cbd remote API through fpm; line 1 = HTTP code, then the body
+  cc exec -T fpm php -d allow_url_fopen=On -r '
+    $c = stream_context_create(["http" => ["method" => "POST", "content" => $argv[2], "timeout" => 10, "ignore_errors" => true,
+      "header" => "Authorization: Bearer " . getenv("CENTREON_BROKER_API_TOKEN") . "\r\nContent-Type: application/json"]]);
+    $b = @file_get_contents(getenv("CENTREON_BROKER_API_URL") . $argv[1], false, $c);
+    preg_match("/ (\d{3})/", $http_response_header[0] ?? "", $m);
+    echo ($m[1] ?? "000"), "\n", $b;' "$1" "$2"
+}
+pi_get() { cbd_get "/v1/plugin-installs/$1"; }
+pi_final() { local s; s=$(pi_get "$1" | jq -r '.status // empty' 2>/dev/null); [[ -n "$s" && "$s" != ACCEPTED && "$s" != RUNNING ]]; }
+pi_pkg() { pi_get "$1" | jq -r --arg p "$2" '[.status, ((.packages // [])[] | select(.name == $p) | .status, .message)] | join("|")' 2>/dev/null; }
+pi_secs() { # finished_at - accepted_at of an install, numbers or ISO 8601
+  pi_get "$1" | jq -r 'def t: if type == "number" then . else (sub("[.][0-9]+"; "") | sub("(Z|[+-]00:?00)$"; "") + "Z" | fromdateiso8601) end;
+    (.finished_at | t) - (.accepted_at | t)' 2>/dev/null
+}
+dp_list_mtime() { cp_ exec -T poller-engine sh -c 'f=$(ls /var/lib/dpkg/info/"$0".list /var/lib/dpkg/info/"$0":*.list 2>/dev/null | head -1); [ -n "$f" ] && stat -c %Y "$f"' "$1" 2>/dev/null | tr -d '\r'; }
+apt_lines() { local n; n=$(cp_ exec -T poller-engine sh -c 'grep -c "^Commandline:" /var/log/apt/history.log 2>/dev/null' | tr -d '\r'); echo "${n:-0}"; }
+pj_sum() { cp_ exec -T poller-engine sh -c 'sha256sum /etc/centreon-engine/plugins.json 2>/dev/null || echo none' | cut -c1-64; }
+dp_rr() { sql centreon "SELECT status, IFNULL(install_id,''), IFNULL(request_id,'') FROM mod_host_disco_run_request WHERE job_id=$1 ORDER BY id DESC LIMIT 1"; }
+dp_rr_count() { sql centreon "SELECT COUNT(*) FROM mod_host_disco_run_request WHERE job_id=$1"; }
+dp_rr_final() { local s; s=$(dp_rr "$1" | cut -f1); [[ -n "$s" && "$(dp_rr_count "$1")" -ge "$2" ]] && [[ "$s" == done || "$s" == failed ]]; }
+
+dp_fixture() { # dp_fixture <poller id>: packs/providers 9002 (real package) and 9003 (unknown package), option on, macro linked
+  sql centreon "
+    INSERT IGNORE INTO mod_ppm_pluginpack (pluginpack_id, name, slug, version, status, discovery_category_id, icon, complete)
+      VALUES (9002, 'GLS plugin install', 'gls-disco-tcp', '1.0.0', 'installed', 9001, 9001, 1),
+             (9003, 'GLS plugin install missing', 'gls-disco-missing', '1.0.0', 'installed', 9001, 9001, 1);
+    INSERT IGNORE INTO mod_ppm_plugins_installation (pluginpack_id, package_name, command, version)
+      VALUES (9002, '$DP_PKG', '$DP_CMD', 0), (9003, '$DP_MISSING', 'centreon_gls_missing.pl', 0);
+    INSERT IGNORE INTO command (command_id, command_name, command_line, command_type)
+      VALUES (9002, 'gls-disco-tcp', '\$CENTREONPLUGINS\$/$DP_CMD --list-mode', 4),
+             (9003, 'gls-disco-missing', '\$CENTREONPLUGINS\$/centreon_gls_missing.pl --list-mode', 4);
+    INSERT IGNORE INTO mod_host_disco_provider
+      (id, pluginpack_id, version, name, slug, description, type_id, command_id, need_proxy, host_template_id, uuid_attributes)
+      VALUES (9002, 9002, '3.1', 'GLS plugin install', 'gls-disco-tcp', 'PoC 14.S', 9001, 9002, 0, 9001, '[\"name\"]'),
+             (9003, 9003, '3.1', 'GLS plugin install missing', 'gls-disco-missing', 'PoC 14.S', 9001, 9003, 0, 9001, '[\"name\"]');
+    DELETE FROM options WHERE \`key\` = 'ppm_synchro_plugin_install';
+    INSERT INTO options (\`key\`, \`value\`) VALUES ('ppm_synchro_plugin_install', '1');
+    INSERT INTO cfg_resource_instance_relations (resource_id, instance_id)
+      SELECT r.resource_id, $1 FROM cfg_resource r WHERE r.resource_name = '\$CENTREONPLUGINS\$'
+        AND NOT EXISTS (SELECT 1 FROM cfg_resource_instance_relations x WHERE x.resource_id = r.resource_id AND x.instance_id = $1);" \
+    >>"$LOG_DIR/disco-plugin.log" 2>&1
+  [[ "$(sql centreon "SELECT COUNT(*) FROM mod_host_disco_provider WHERE id IN (9002, 9003)")" == 2 ]] \
+    && [[ "$(sql centreon "SELECT r.resource_line FROM cfg_resource r JOIN cfg_resource_instance_relations x ON x.resource_id = r.resource_id WHERE r.resource_name = '\$CENTREONPLUGINS\$' AND x.instance_id = $1" | head -1)" == /usr/lib/centreon/plugins* ]]
+}
+dp_job() { # dp_job <case> <provider id> <poller id>: creates a run-now job, prints its id
+  local code
+  code=$(api POST /auto-discovery/jobs "$(disco_body "$1" x x "$3" | jq -c --argjson p "$2" '.provider_id = $p | .job_parameters = []')")
+  [[ "$code" == 204 || "$code" == 201 ]] && disco_job_id "$1"
+}
+dp_bad_msg() { [[ "$1" =~ program\ not\ found|REJECTED|plugin\ install|not\ an\ absolute\ path|poller\ not\ connected ]]; }
+dp_check_run() { # dp_check_run <label> <job id>: last run installed the package and ran the RemoteExec
+  local rr st iid rq res msg
+  rr=$(dp_rr "$2"); st=$(cut -f1 <<<"$rr"); iid=$(cut -f2 <<<"$rr"); rq=$(cut -f3 <<<"$rr")
+  res=$(pi_pkg "$iid" "$DP_PKG"); msg=$(disco_job "$2" | cut -f2)
+  [[ -n "$iid" && "$res" == INSTALLED\|installed* ]] \
+    && record "disco-plugin $1: install INSTALLED for $DP_PKG" ok "${res#*|}" \
+    || record "disco-plugin $1: install INSTALLED for $DP_PKG" ko "install_id ${iid:0:12} result '${res:0:150}'"
+  [[ -n "$rq" ]] && ! dp_bad_msg "$msg" \
+    && record "disco-plugin $1: RemoteExec ran after the install" ok "run $st, job '${msg:0:80}'" \
+    || record "disco-plugin $1: RemoteExec ran after the install" ko "run $st request_id ${rq:+set} job '${msg:0:150}'"
+  DP_IID=$iid
+}
+
+cmd_disco_plugin_install() {
+  login || { record "login" ko; return; }
+  local pid puid id id3 n pj0 pjr0 ap0 ap1 mt0 mt1 s3 r rr code body bad
+  pid=$(poller_id); puid=$(sql centreon "SELECT uid FROM nagios_server WHERE name='${POLLER_NAME}'")
+
+  # S0 capability, fixture, S1 precondition.
+  cbd_pollers | jq -e --arg u "$puid" '.pollers[] | select(.poller_id == $u and .plugin_install == true)' >/dev/null 2>&1 \
+    && record "disco-plugin: ${POLLER_NAME} announces plugin_install" ok \
+    || { record "disco-plugin: ${POLLER_NAME} announces plugin_install" ko "$(cbd_pollers | head -c 300)"; return; }
+  disco_fixture && dp_fixture "$pid" && record "disco-plugin: fixture (packs/providers 9002 9003, option on, \$CENTREONPLUGINS\$ linked)" ok \
+    || { record "disco-plugin: fixture (packs/providers 9002 9003, option on, \$CENTREONPLUGINS\$ linked)" ko "see disco-plugin.log"; return; }
+  pkg_ok "$DP_PKG" && record "disco-plugin: $DP_PKG absent before the first run" ko "already installed" \
+    || record "disco-plugin: $DP_PKG absent before the first run" ok
+  pj0=$(pj_sum); pjr0=$(plugin_result "$puid"); ap0=$(apt_lines)
+
+  # S2 first run: install, then the RemoteExec.
+  id=$(dp_job dpi-tcp 9002 "$pid")
+  [[ -n "$id" ]] || { record "disco-plugin: job on provider 9002 created" ko "HTTP $(jq -c . "$LOG_DIR/last.json" 2>/dev/null | head -c 200)"; return; }
+  wait_until 900 dp_rr_final "$id" 1
+  pkg_ok "$DP_PKG" && record "disco-plugin first run: dpkg-query shows $DP_PKG installed" ok \
+    || record "disco-plugin first run: dpkg-query shows $DP_PKG installed" ko
+  dp_check_run "first run" "$id"
+
+  # S3 second run: no reinstall, fast.
+  mt0=$(dp_list_mtime "$DP_PKG"); ap1=$(apt_lines)
+  code=$(api GET "/auto-discovery/jobs/$id/schedule")
+  [[ "$code" == 204 || "$code" == 200 ]] || record "disco-plugin second run: run now" ko "HTTP $code"
+  wait_until 300 dp_rr_final "$id" 2
+  dp_check_run "second run" "$id"
+  [[ "$(pi_pkg "$DP_IID" "$DP_PKG")" == *"|already installed" ]] \
+    && record "disco-plugin second run: package 'already installed'" ok \
+    || record "disco-plugin second run: package 'already installed'" ko "$(pi_pkg "$DP_IID" "$DP_PKG" | head -c 150)"
+  mt1=$(dp_list_mtime "$DP_PKG"); s3=$(pi_secs "$DP_IID")
+  [[ -n "$mt0" && "$mt1" == "$mt0" && "$(apt_lines)" == "$ap1" ]] \
+    && record "disco-plugin second run: no reinstall (dpkg list mtime, apt history unchanged)" ok \
+    || record "disco-plugin second run: no reinstall (dpkg list mtime, apt history unchanged)" ko "mtime $mt0 -> $mt1, apt $ap1 -> $(apt_lines)"
+  [[ "$s3" =~ ^[0-9]+$ && "$s3" -le 10 ]] && record "disco-plugin second run: install answered in <= 10 s" ok "${s3} s" \
+    || record "disco-plugin second run: install answered in <= 10 s" ko "'$s3' $(pi_get "$DP_IID" | jq -c '{accepted_at, finished_at}' 2>/dev/null)"
+
+  # S4 unknown package: FAILED, no RemoteExec.
+  id3=$(dp_job dpi-missing 9003 "$pid")
+  if [[ -n "$id3" ]] && wait_until 900 dp_rr_final "$id3" 1; then
+    r=$(disco_job "$id3"); rr=$(dp_rr "$id3")
+    [[ "$(cut -f1 <<<"$r")" == 2 && "$(cut -f2 <<<"$r")" == "plugin install failed: $DP_MISSING"* && -z "$(cut -f3 <<<"$rr")" ]] \
+      && record "disco-plugin unknown package: FAILED 'plugin install failed', no RemoteExec" ok \
+      || record "disco-plugin unknown package: FAILED 'plugin install failed', no RemoteExec" ko "job $(cut -f1,2 <<<"$r" | tr '\t' ' ' | head -c 150), request_id ${rr##*$'\t'}"
+  else
+    record "disco-plugin unknown package: FAILED 'plugin install failed', no RemoteExec" ko "job ${id3:-not created}"
+  fi
+
+  # S5 forged names straight to cbd: 202 then REJECTED, nothing reaches apt.
+  ap1=$(apt_lines)
+  for bad in bash 'centreon-plugin-x;rm -rf /' 'centreon-plugin-a b' '../centreon-plugin-x' 'Centreon-Plugin-X' ''; do
+    dp_forged "$puid" "$(jq -nc --arg n "$bad" '{($n): ""}')" "invalid package name" "name '${bad:0:24}'"
+  done
+  dp_forged "$puid" "$(jq -nc --arg n "$DP_PKG" '{($n): "1;id"}')" "invalid package version" "version '1;id'"
+  body=$(jq -nc --arg u "$puid" '{poller_id: $u, packages: ([range(17)] | map({key: "centreon-plugin-gls-\(.)", value: ""}) | from_entries)}')
+  code=$(cbd_post /v1/plugin-installs "$body" | head -1)
+  [[ "$code" == 400 ]] && record "disco-plugin forged: 17 packages -> 400" ok || record "disco-plugin forged: 17 packages -> 400" ko "HTTP $code"
+  body=$(jq -nc --arg u "$puid" --arg p "$DP_PKG" '{poller_id: $u, packages: {($p): ""}, timeout_s: 1801}')
+  code=$(cbd_post /v1/plugin-installs "$body" | head -1)
+  [[ "$code" == 400 ]] && record "disco-plugin forged: timeout_s 1801 -> 400" ok || record "disco-plugin forged: timeout_s 1801 -> 400" ko "HTTP $code"
+  [[ "$(apt_lines)" == "$ap1" ]] && record "disco-plugin forged: no apt run on the poller" ok \
+    || record "disco-plugin forged: no apt run on the poller" ko "apt history $ap1 -> $(apt_lines)"
+
+  # S6 plugins.json and the 2f result untouched; a later export keeps the package.
+  [[ "$(pj_sum)" == "$pj0" && "$(plugin_result "$puid")" == "$pjr0" ]] \
+    && record "disco-plugin: plugins.json and /v1/pollers plugins result unchanged" ok \
+    || record "disco-plugin: plugins.json and /v1/pollers plugins result unchanged" ko "sha ${pj0:0:12} -> $(pj_sum | cut -c1-12)"
+  code=$(api GET "/configuration/monitoring-servers/$pid/generate-and-reload")
+  sleep 30
+  [[ "$code" == 204 ]] && pkg_ok "$DP_PKG" && record "disco-plugin: package kept after a later export + reload" ok \
+    || record "disco-plugin: package kept after a later export + reload" ko "HTTP $code, installed: $(pkg_ok "$DP_PKG" && echo yes || echo no)"
+
+  # S7 engine recreate: apt state lost, the next run installs again.
+  ( set -a; . "$LOG_DIR/poller.env"; set +a; cp_ up -d --force-recreate -t 60 poller-engine ) >>"$LOG_DIR/disco-plugin.log" 2>&1
+  wait_until 300 poller_capable "$puid" || { record "disco-plugin recreate: poller capable again" ko; return; }
+  pkg_ok "$DP_PKG" && record "disco-plugin recreate: package gone with the container" ko "still installed" \
+    || record "disco-plugin recreate: package gone with the container" ok
+  n=$(dp_rr_count "$id")
+  api GET "/auto-discovery/jobs/$id/schedule" >/dev/null
+  wait_until 900 dp_rr_final "$id" $((n + 1))
+  pkg_ok "$DP_PKG" && record "disco-plugin recreate: next run installed $DP_PKG again" ok \
+    || record "disco-plugin recreate: next run installed $DP_PKG again" ko
+  dp_check_run "after recreate" "$id"
+
+  # S8 poller stopped: NOT_CONNECTED, no install.
+  cp_ stop -t 30 poller-engine >>"$LOG_DIR/disco-plugin.log" 2>&1
+  wait_until 60 eval '! poller_capable "$puid"'
+  n=$(dp_rr_count "$id")
+  api GET "/auto-discovery/jobs/$id/schedule" >/dev/null
+  wait_until 120 dp_rr_final "$id" $((n + 1))
+  r=$(disco_job "$id")
+  [[ "$(cut -f1 <<<"$r")" == 2 && "$(cut -f2 <<<"$r")" == "poller not connected"* && -z "$(dp_rr "$id" | cut -f3)" ]] \
+    && record "disco-plugin: poller stopped -> FAILED 'poller not connected', no RemoteExec" ok \
+    || record "disco-plugin: poller stopped -> FAILED 'poller not connected', no RemoteExec" ko "$(cut -f1,2 <<<"$r" | tr '\t' ' ' | head -c 150)"
+  cp_ start poller-engine >>"$LOG_DIR/disco-plugin.log" 2>&1
+  wait_until 300 poller_capable "$puid" && record "disco-plugin: ${POLLER_NAME} capable again" ok || record "disco-plugin: ${POLLER_NAME} capable again" ko
+
+  [[ "$(gorgone_procs)" == 0 ]] && record "disco-plugin: no gorgone process" ok || record "disco-plugin: no gorgone process" ko
+}
+dp_forged() { # dp_forged <poller uid> <packages json> <want message> <label>: 202 then REJECTED with that message
+  local out code rid st
+  out=$(cbd_post /v1/plugin-installs "$(jq -nc --arg u "$1" --argjson p "$2" '{poller_id: $u, packages: $p}')")
+  code=$(head -1 <<<"$out"); rid=$(tail -n +2 <<<"$out" | jq -r '.request_id // empty' 2>/dev/null)
+  if [[ "$code" == 202 && -n "$rid" ]] && wait_until 60 pi_final "$rid"; then
+    st=$(pi_get "$rid" | jq -r '[.status, .message] | join("|")' 2>/dev/null)
+    [[ "$st" == "REJECTED|$3"* ]] && record "disco-plugin forged: $4 -> REJECTED '$3'" ok \
+      || record "disco-plugin forged: $4 -> REJECTED '$3'" ko "${st:0:150}"
+  else
+    record "disco-plugin forged: $4 -> REJECTED '$3'" ko "HTTP $code $(tail -n +2 <<<"$out" | head -c 150)"
+  fi
+}
+
 # ---------- install-script: poller added with the generated command (contracts § 11) ----------
 
 IS_NAME="${IS_NAME:-gls-poller-is}"
@@ -1529,11 +1714,12 @@ case "$cmd" in
   modules) cmd_modules ;;
   disco) cmd_disco ;;
   disco-scheduled) cmd_disco_scheduled ;;
+  disco-plugin-install) cmd_disco_plugin_install ;;
   install-script) cmd_install_script ;;
   license-fingerprint) cmd_license_fp ;;
   logs) cmd_logs; exit 0 ;;
   down) cmd_down; exit 0 ;;
-  *) sed -n '2,23p' "$0"; exit 2 ;;
+  *) sed -n '2,24p' "$0"; exit 2 ;;
 esac
 summary "$cmd $*"
 exit $(( failures > 0 ))
