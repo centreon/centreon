@@ -6,7 +6,7 @@
 
 ## Context
 
-A component of `www/front_src` fetches through `useFetchQuery` and `useMutationQuery`. In a [browser test](../glossary.md#browser-test), `test-setup/api.ts` registers [API mocks](../glossary.md#api-mock) with MSW: `interceptAPIRequest({ alias, ... })` answers a request, `waitForRequest('@alias')` returns the request the mock received, with its URL, method and parsed body, and `getRequestCalls('@alias')` lists them. An unmocked request fails the test rather than reaching a server.
+A component of `www/front_src` fetches through `useFetchQuery` and `useMutationQuery`. In a [browser test](../glossary.md#browser-test), `test-setup/api.ts` registers [API mocks](../glossary.md#api-mock) with MSW: `interceptAPIRequest({ alias, ... })` answers a request, `waitForRequest('@alias')` returns the request the mock received, with its URL, method and parsed body, and `getRequestCalls('@alias')` lists them. MSW lets an unmocked request through (`onUnhandledRequest: 'bypass'` in `test-setup/browser-setup.ts`): it goes to the network, and nothing in the setup fails the test for it.
 
 What a component sends is half of its contract with the API: a filter missing from a listing URL, a field missing from a form payload, is invisible to a test that only checks what the page shows after the mocked answer.
 

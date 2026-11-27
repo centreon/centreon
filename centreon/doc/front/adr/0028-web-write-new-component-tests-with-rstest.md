@@ -23,7 +23,7 @@ Settled in [#12141](https://github.com/centreon/centreon/pull/12141).
 
 ## Consequences
 
-- Commands: `pnpm rstest:run <path>` (`-t '<name>'` for one test), `pnpm rstest:ui <path>` to debug, `pnpm rstest:install` once for Chromium. `pnpm type-check` covers the browser tests.
+- Commands: `pnpm rstest:run <path>` (`-t '<name>'` for one test), `pnpm rstest:ui <path>` to debug, `pnpm rstest:install` once for the headless Chromium shell, and `pnpm exec playwright install chromium` once more for the headed Chromium that `pnpm rstest:ui` opens. `pnpm type-check` covers the browser tests.
 - An unhandled promise rejection or an uncaught error fails the whole file: the code is fixed, not the error filtered.
 - The remaining Cypress specs run until migrated; `pnpm cypress:run --spec <path>` runs one.
 - The module frontends of `centreon-modules` cannot run browser tests until `test-setup/` is published as a package; they follow their own rules meanwhile.

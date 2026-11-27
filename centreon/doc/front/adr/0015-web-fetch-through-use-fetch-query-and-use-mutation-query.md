@@ -6,7 +6,7 @@
 
 ## Context
 
-`@centreon/ui` wraps TanStack Query in two hooks, `useFetchQuery` for reads and `useMutationQuery` for writes (`packages/ui/src/api`). Both go through `customFetch`, built on the native `fetch` with an `AbortSignal`. They give every call the same caching, deduplication, cancellation on unmount and error handling.
+`@centreon/ui` wraps TanStack Query in two hooks, `useFetchQuery` for reads and `useMutationQuery` for writes (`packages/ui/src/api`). Both go through `customFetch`, built on the native `fetch` with an `AbortSignal`. They give every call the same caching, deduplication and error handling. A read is cancelled when the last component using it unmounts before the answer: `useFetchQuery` passes the TanStack Query signal to `customFetch`. A write is not: `useMutationQuery` passes no signal, so a mutation already sent runs to its end.
 
 Three older ways remain in `www/front_src`: the legacy `useRequest` hook (53 files at the time of writing), direct axios calls (21 files), and `useEffect` + `useState` fetching. An earlier shared rule still allowed axios "with cancel tokens"; it was dropped in [dotfiles#159](https://github.com/centreon/dotfiles/pull/159).
 

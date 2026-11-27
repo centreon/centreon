@@ -20,7 +20,7 @@ Settled in [#12098](https://github.com/centreon/centreon/pull/12098).
 
 - `packages/js-config/biome/` is published with `@centreon/js-config`: a change there changes the style of Centreon Web and of every module frontend.
 - The ESLint leftovers of `packages/js-config` and the README mentions of ESLint are removed when touched.
-- The rule is enforced by Biome in CI and in the editor hook.
+- The rule is enforced by Biome in CI; the Claude Code hook only fixes, as they are written, the files it covers.
 
 ## When to Amend
 

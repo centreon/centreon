@@ -22,6 +22,7 @@ Settled in [#12098](https://github.com/centreon/centreon/pull/12098).
 ## Consequences
 
 - A response that does not match the decoder is an error the hook reports, not a value the component renders.
+- Exception: a `204 No Content` answer skips the decoder (`customFetch` returns `{ isError: false, message: '' }` before parsing), so it is never reported as a mismatch. A call to an endpoint that may answer 204 handles the empty result explicitly.
 - `buildListingDecoder` is the decoder of every listing; a feature decodes only the item.
 - The rule is enforced in review.
 

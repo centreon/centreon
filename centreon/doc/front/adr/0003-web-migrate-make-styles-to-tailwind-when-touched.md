@@ -17,7 +17,7 @@ Settled in [#12098](https://github.com/centreon/centreon/pull/12098).
 
 ## Decision
 
-When a change touches a component that uses `makeStyles`, **migrate the styles the change touches to Tailwind in the same pull request**, and the whole component when feasible. **Delete the `*.styles.ts` file once it is empty.** **Add no new `makeStyles` rule.**
+When a change touches a component that uses `makeStyles`, **migrate the styles the change touches to Tailwind in the same pull request**, and the whole component when feasible. **Delete the `*.styles.ts` file once it is empty.** **Add no new `makeStyles` rule**, except the fallback [ADR-0005](0005-web-fall-back-to-mui-props-then-tss-react-never-mui-styles.md) allows for a style that neither Tailwind nor the MUI props can express.
 
 ## Consequences
 

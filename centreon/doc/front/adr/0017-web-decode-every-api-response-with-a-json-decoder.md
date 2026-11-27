@@ -22,8 +22,9 @@ Settled in [#12098](https://github.com/centreon/centreon/pull/12098).
 ## Consequences
 
 - A response that does not match the decoder is an error the hook reports, not a value the component renders.
+- Exception: a `204 No Content` answer skips the decoder (`customFetch` returns `{ isError: false, message: '' }` before parsing), so it is never reported as a mismatch. A call to an endpoint that may answer 204 handles the empty result explicitly.
 - A decoder is written once per response shape and reused by every call that returns it.
-- A test of a component mocks a response that the decoder accepts; a mock the decoder rejects is a failing test, which is the point.
+- A test of a component mocks a response that the decoder accepts, except a test of the error path, which mocks one the decoder rejects and asserts the error shown. A rejected mock does not fail a test by itself (`customFetch` turns it into an error result), so a test that expects data asserts that data.
 - The rule is enforced in review.
 
 ## When to Amend

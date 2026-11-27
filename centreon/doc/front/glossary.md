@@ -24,7 +24,7 @@ The part of the frontend code a rule applies to:
 - **Web:** the Centreon Web application, `www/front_src`, and the dashboard widgets, `www/widgets`.
 - **UI:** the packages published to npm from `packages/`: `@centreon/ui` (`packages/ui`), `@centreon/ui-context` (`packages/ui-context`) and `@centreon/js-config` (`packages/js-config`).
 
-Every [ADR](adr/index.md) states its scope. The frontends of the `centreon-modules` repository are out of both scopes: they consume the UI packages and follow the Web records for new code through their own rules.
+Every [ADR](adr/index.md) states its scope. The scope says which family a record belongs to, not that it covers every path above: a record that names a directory (`www/front_src`, `packages/ui`) covers that directory only. The frontends of the `centreon-modules` repository are out of both scopes: they consume the UI packages and follow the Web records for new code through their own rules.
 
 ### Touched code
 
