@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 
 import { Form as FormType } from '../../models';
 import { MassChangeDialog, ResetDialog } from '../Dialogs';
+import { enableSwitchClassName } from '../enableSwitch';
 import { Form, useForm } from '../Form';
 import { labelClose } from '../translatedLabels';
 import { panelDataTestIds } from './dataTestIds';
@@ -50,7 +51,7 @@ const FormPanel = ({
 }: Props): ReactElement => {
   const { t } = useTranslation();
   const theme = useTheme();
-  const { classes } = usePanelStyles();
+  const { classes, cx } = usePanelStyles();
 
   const { labelHeader, submit, close, mode, id, initialValues, isLoading } =
     useForm({
@@ -68,7 +69,9 @@ const FormPanel = ({
 
   return (
     <Panel
-      className={classes.panel}
+      // A shadow to stand out from the listing it opens over. The switches of
+      // its header and form look like the listing's.
+      className={cx(classes.panel, 'shadow-lg', enableSwitchClassName)}
       header={
         <Header fallbackTitle={labelHeader} loadedResource={loadedResource} />
       }
