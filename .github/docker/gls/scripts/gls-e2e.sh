@@ -116,14 +116,21 @@ login() {
 
 api() { # api <METHOD> <path> [json] -> prints HTTP code; raw body in $PRIV_DIR/last.json, redacted copy in $LOG_DIR/last.json
   local method=$1 path=$2 body=${3:-}
-  local args=(-s -o "$PRIV_DIR/last.json" -w '%{http_code}' -X "$method" -H "X-AUTH-TOKEN: $TOKEN" --max-time "${API_MAX_TIME:-180}")
-  [[ -n "$body" ]] && args+=(-H 'Content-Type: application/json' -d "$body")
+  # -w: code, then upload size and timings (logged for slow or failed calls).
+  local args=(-s -o "$PRIV_DIR/last.json" -w '%{http_code} up=%{size_upload} pretransfer=%{time_pretransfer} starttransfer=%{time_starttransfer} total=%{time_total}'
+    -X "$method" -H "X-AUTH-TOKEN: $TOKEN" --max-time "${API_MAX_TIME:-180}")
+  # No Expect: 100-continue, whatever the body size.
+  [[ -n "$body" ]] && args+=(-H 'Content-Type: application/json' -H 'Expect:' -d "$body")
   # Exactly one code on stdout: curl's, or 000 when it got none. A curl error
   # after a code (e.g. rc 23, body not written) is logged, not appended.
-  local code rc
-  code=$(curl "${args[@]}" "$API$path"); rc=$?
+  local code rc out total
+  out=$(curl "${args[@]}" "$API$path"); rc=$?
+  code=${out%% *}; total=${out##*total=}; total=${total%%.*}
+  [[ "$total" =~ ^[0-9]+$ ]] || total=0
+  if (( rc != 0 || total >= 30 )); then
+    echo "$(date -u +%FT%TZ) curl rc=$rc $method $path body=${#body}B ${out}" >>"$LOG_DIR/curl-errors.log"
+  fi
   if (( rc != 0 )); then
-    echo "$(date -u +%FT%TZ) curl rc=$rc code=${code:-none} $method $path" >>"$LOG_DIR/curl-errors.log"
     [[ -f "$PRIV_DIR/last.json" ]] || : >"$PRIV_DIR/last.json"
   fi
   # The install command carries the poller token, appsecret and salt.
