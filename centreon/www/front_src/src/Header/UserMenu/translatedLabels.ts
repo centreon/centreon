@@ -5,3 +5,4 @@ export const labelEditProfile = 'Edit profile';
 export const labelCopyAutologinLink = 'Copy autologin link';
 export const labelLogout = 'Logout';
 export const labelFullscreen = 'Fullscreen (F)';
+export const labelAbout = 'About';

@@ -28,6 +28,7 @@ echo _('Unknown services');
 echo _('Ok services');
 echo _('Pending services');
 echo _('Edit profile');
+echo _('About');
 echo _('Copy autologin link');
 echo _('Server Configuration Wizard');
 echo _('Choose a server type');
