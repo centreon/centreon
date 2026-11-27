@@ -1,3 +1,5 @@
+import { PAGES } from 'fixtures/shared/constants/pages';
+
 const trapsSnmpConfiguration = ({
   name,
   oid,
@@ -205,11 +207,191 @@ interface Vendor {
   description: string;
 }
 
+// Trap reception on the Central (web container): snmptrapd receives the trap
+// and hands it to centreontrapdforward, centreontrapd then processes it.
+const trapdLogFile = '/var/log/centreon/centreontrapd.log';
+const engineLogFile = '/var/log/centreon-engine/centengine.log';
+const trapdSysconfigFile = '/etc/sysconfig/centreontrapd';
+
+// Base of the OIDs of the traps created by the reception tests
+const testTrapOidBase = '.1.3.6.1.4.1.99999.2148';
+
+const trapdSignals = {
+  Reload: 'RELOADCENTREONTRAPD',
+  Restart: 'RESTARTCENTREONTRAPD'
+};
+
+// Value quoted for bash: everything is literal between single quotes
+const shellQuote = (value: string): string =>
+  `'${value.replace(/'/g, `'\\''`)}'`;
+
+// snmptrap command sending a v2c trap whose varbinds are strings, numbered
+// <trap OID>.1, <trap OID>.2...
+const buildSendTrapCommand = ({
+  destination = '127.0.0.1',
+  oid,
+  varbinds
+}: SentTrap): string =>
+  [
+    `snmptrap -v 2c -c public ${destination}:162 ''`,
+    oid,
+    ...varbinds.map(
+      (value, index) => `${oid}.${index + 1} s ${shellQuote(value)}`
+    )
+  ].join(' ');
+
+// The default "error" severity hides the info lines centreontrapd writes for
+// the PREEXEC and special commands it runs
+const buildStartTrapDaemonsCommands = (): Array<string> => [
+  `sed -i -E 's/--severity=[a-z]+/--severity=debug/' ${trapdSysconfigFile}`,
+  'systemctl start snmptrapd',
+  'systemctl restart centreontrapd'
+];
+
+const buildServiceOutputQuery = (): string =>
+  'SELECT output, status FROM resources WHERE type = 0 AND enabled = 1 AND name = ? AND parent_name = ?';
+
+// Resources holding an output, apart from one service (<=> also matches the
+// NULL parent of the hosts)
+const buildOtherResourcesWithOutputQuery = (): string =>
+  'SELECT name, parent_name, output FROM resources WHERE enabled = 1 AND output LIKE ? AND NOT (name = ? AND parent_name <=> ?)';
+
+const buildInsertPreexecQuery = (): string =>
+  'INSERT INTO traps_preexec (trap_id, tpe_order, tpe_string) SELECT traps_id, 1, ? FROM traps WHERE traps_name = ?';
+
+const startTrapDaemons = (): Cypress.Chainable => {
+  cy.execInContainer({
+    command: buildStartTrapDaemonsCommands(),
+    name: 'web'
+  });
+
+  return cy.waitUntil(
+    () =>
+      cy
+        .execInContainer({
+          command: 'systemctl is-active snmptrapd centreontrapd || true',
+          name: 'web'
+        })
+        .then(({ output }) =>
+          output
+            .trim()
+            .split('\n')
+            .every((state: string) => state.trim() === 'active')
+        ),
+    {
+      errorMsg: 'snmptrapd and centreontrapd are not both active',
+      interval: 2000,
+      timeout: 60000
+    }
+  );
+};
+
+const sendTrap = (trap: SentTrap): Cypress.Chainable =>
+  cy.execInContainer({ command: buildSendTrapCommand(trap), name: 'web' });
+
+// Configuration > SNMP Traps > Generate, for the only poller of the platform
+const generateTrapDatabase = ({
+  apply,
+  signal
+}: TrapGeneration): Cypress.Chainable => {
+  cy.visit(PAGES.configuration.snmpTrapsGenerateLegacy);
+  cy.wait('@getTimeZone');
+  cy.waitForElementInIframe('#main-content', 'select[name="host"]');
+  cy.getIframeBody().find('input[name="generate"]').check({ force: true });
+  if (apply) {
+    cy.getIframeBody().find('input[name="apply"]').check({ force: true });
+  }
+  if (signal) {
+    cy.getIframeBody().find('select[name="signal"]').select(signal);
+  }
+  cy.getIframeBody().find('input[value="Generate"]').click();
+  cy.wait('@getTimeZone');
+  cy.waitForElementInIframe('#main-content', '#tab1 .ListTable');
+
+  cy.getIframeBody()
+    .find('#tab1 .ListTable')
+    .should('contain', 'Poller (id:1): Sqlite database successfully created');
+  if (apply) {
+    cy.getIframeBody()
+      .find('#tab1 .ListTable')
+      .should('contain', 'Poller (id:1): SYNCTRAP sent to centcore.cmd');
+  }
+  if (signal) {
+    cy.getIframeBody()
+      .find('#tab1 .ListTable')
+      .should(
+        'contain',
+        `Poller (id:1): ${trapdSignals[signal]} sent to centcore.cmd`
+      );
+  }
+
+  return cy.wrap(null);
+};
+
+// Polls the output of a service in the resources table until it is the
+// expected one; the output is returned for the following assertions
+const waitForServiceOutput = ({
+  host,
+  matches,
+  service
+}: ServiceOutputCheck): Cypress.Chainable<string> => {
+  let lastOutput = '';
+
+  return cy
+    .waitUntil(
+      () =>
+        cy
+          .requestOnDatabase({
+            database: 'centreon_storage',
+            params: [service, host],
+            query: buildServiceOutputQuery()
+          })
+          .then(([rows]) => {
+            lastOutput = rows.length === 1 ? String(rows[0].output ?? '') : '';
+
+            return matches(lastOutput.trim());
+          }),
+      {
+        errorMsg: `Output of ${host} / ${service} is not the expected one`,
+        interval: 2000,
+        timeout: 120000
+      }
+    )
+    .then(() => lastOutput.trim());
+};
+
+interface SentTrap {
+  destination?: string;
+  oid: string;
+  varbinds: Array<string>;
+}
+
+interface TrapGeneration {
+  apply: boolean;
+  signal?: 'Reload' | 'Restart';
+}
+
+interface ServiceOutputCheck {
+  host: string;
+  matches: (output: string) => boolean;
+  service: string;
+}
+
 export {
   AddOrUpdateVendor,
+  buildInsertPreexecQuery,
+  buildOtherResourcesWithOutputQuery,
+  buildServiceOutputQuery,
   CheckVendorFieldsValues,
   CreateOrUpdateTrapGroup,
+  engineLogFile,
+  generateTrapDatabase,
+  sendTrap,
+  startTrapDaemons,
   submitForm,
+  testTrapOidBase,
+  trapdLogFile,
   trapsSnmpConfiguration,
-  UpdateTrapsSnmpConfiguration
+  UpdateTrapsSnmpConfiguration,
+  waitForServiceOutput
 };

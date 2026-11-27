@@ -181,23 +181,55 @@ const assertPollerIsRunning = (name: string): void => {
     .should('exist');
 };
 
+const brokerLogDirectory = '/var/log/centreon-broker';
+const engineLogFile = '/var/log/centreon-engine/centengine.log';
+
+// Error levels of the Broker and Engine logs, and the traces of a crash
+const logErrorPattern =
+  '\\[(error|critical)\\]|segmentation fault|core dumped|sigsegv|sigabrt';
+
+// "<file> <line count>" for each log file (an unquoted shell word list)
+const buildLogLineCountsCommand = (files: string): string =>
+  `for file in ${files}; do echo "$file $(wc -l < "$file")"; done`;
+
+const parseLogLineCounts = (output: string): Record<string, number> =>
+  Object.fromEntries(
+    output
+      .split('\n')
+      .map((line) => line.trim().split(/\s+/))
+      .filter(
+        ([file, count]) => file !== undefined && /^\d+$/.test(count ?? '')
+      )
+      .map(([file, count]) => [file, Number(count)])
+  );
+
+// Lines of a log file written after its first <lineCount> lines that hold an
+// error level or a crash trace
+const buildLogErrorCountCommand = (file: string, lineCount: number): string =>
+  `tail -n +${lineCount + 1} '${file}' | grep -Ei '${logErrorPattern}' || true`;
+
 export {
   assertPollerIsRunning,
   breakSomePollers,
+  brokerLogDirectory,
   buildDeleteInstanceByNameQuery,
   buildDeletePollerByNameQuery,
   buildInsertPollerQuery,
   buildInsertRunningInstanceQuery,
+  buildLogErrorCountCommand,
+  buildLogLineCountsCommand,
   checkIfConfigurationIsNotExported,
   checkIfMethodIsAppliedToPollers,
   clearCentengineLogs,
   duplicatedPollerInstanceId,
   duplicatedPollerName,
+  engineLogFile,
   getPoller,
   insertHost,
   insertPollerConfigUserAcl,
   legacyPollerName,
   legacyPollerUid,
+  parseLogLineCounts,
   pollerName,
   pollerUid,
   registerRunningInstance,
