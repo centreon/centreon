@@ -102,6 +102,11 @@ jobs:
         run: npm publish --access=public --tag="$tag"
         working-directory: ${{ env.PACKAGE_DIRECTORY }}
 
+      - name: Remove tag from merged branch
+        if: github.event.action == 'closed'
+        run: npm dist-tag rm ${{ steps.get-package-info.outputs.package_name }} ${{ github.event.pull_request.head.ref }} || echo "::warning::Tag ${{ github.event.pull_request.head.ref }} does not exist, skipping removal"
+        working-directory: ${{ inputs.package_directory }}
+
   set-skip-label:
     permissions:
       contents: read
