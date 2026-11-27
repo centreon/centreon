@@ -142,6 +142,14 @@ final class MonologAdapter implements LoggerInterface
         }
     }
 
+    public static function logFile(LogChannelInterface $channel): string
+    {
+        $appEnv = (isset($_SERVER['APP_ENV']) && is_scalar($_SERVER['APP_ENV']))
+            ? (string) $_SERVER['APP_ENV'] : 'prod';
+
+        return sprintf('%s/%s', _CENTREON_LOG_, $channel->getLogFileName($appEnv));
+    }
+
     /**
      * @throws LoggerException
      */
@@ -149,7 +157,7 @@ final class MonologAdapter implements LoggerInterface
     {
         try {
             $handler = new StreamHandler(
-                $this->getLogFileFromChannel($this->channel),
+                self::logFile($this->channel),
                 LogLevel::INFO,
                 filePermission: $this->getFilePermissionFromChannel($this->channel),
             );
@@ -186,13 +194,5 @@ final class MonologAdapter implements LoggerInterface
             LogChannelEnum::AUTHENTICATION, LogChannelEnum::PASSWORD, LogChannelEnum::TOKEN => null,
             default => 0664,
         };
-    }
-
-    private function getLogFileFromChannel(LogChannelInterface $channel): string
-    {
-        $appEnv = (isset($_SERVER['APP_ENV']) && is_scalar($_SERVER['APP_ENV']))
-            ? (string) $_SERVER['APP_ENV'] : 'prod';
-
-        return sprintf('%s/%s', _CENTREON_LOG_, $channel->getLogFileName($appEnv));
     }
 }

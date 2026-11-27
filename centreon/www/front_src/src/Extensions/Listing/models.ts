@@ -52,6 +52,11 @@ export interface InstallOrUpdateExtensionResult {
   status: boolean;
 }
 
+export interface ActionResult {
+  result: { message: string | null } | null;
+  status: boolean;
+}
+
 export interface ExtensionsStatus {
   [id: string]: boolean;
 }

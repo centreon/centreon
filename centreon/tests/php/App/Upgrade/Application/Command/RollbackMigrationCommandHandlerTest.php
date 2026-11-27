@@ -244,6 +244,6 @@ final class RollbackMigrationCommandHandlerTest extends TestCase
     {
         $recorder = new TargetVersionRecorder(new FakeUpdateRepository(), new FakeUpdateScriptFinder(), '26.11.0', new FakeUpgradeLogger());
 
-        return new RollbackMigrationCommandHandler($guard, new MigrationApplier($migrationRunner, $recorder, $logger, '26.11.0'), $logger, '26.11.0');
+        return new RollbackMigrationCommandHandler($guard, new MigrationApplier($migrationRunner, $recorder, new FakeModuleRepository(), $logger, '26.11.0'), $logger, '26.11.0');
     }
 }

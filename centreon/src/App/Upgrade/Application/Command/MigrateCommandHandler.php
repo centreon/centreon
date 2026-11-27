@@ -34,6 +34,7 @@ use App\Upgrade\Domain\Exception\MigrationInterruptedException;
 use App\Upgrade\Domain\Exception\MigrationSetBusyException;
 use App\Upgrade\Domain\Exception\MigrationSetRefusedException;
 use App\Upgrade\Domain\Exception\ModuleNotInstalledException;
+use App\Upgrade\Domain\Exception\ModuleUpgradePendingException;
 use App\Upgrade\Domain\Exception\PlatformVersionNotRecordedException;
 use App\Upgrade\Domain\Exception\PlatformVersionUnknownException;
 use App\Upgrade\Domain\Model\MigrationOutcome;
@@ -57,6 +58,7 @@ final readonly class MigrateCommandHandler
      * @throws MigrationSetBusyException
      * @throws LockNotReleasedException
      * @throws LegacyUpdatesPendingException
+     * @throws ModuleUpgradePendingException
      * @throws MigrationSetRefusedException
      * @throws MigrationFailedException
      * @throws MigrationInterruptedException
@@ -73,7 +75,7 @@ final readonly class MigrateCommandHandler
                 $set,
                 fn (): MigrationOutcome => $set instanceof MigrationSet ? $this->migrationApplier->applySet($set) : $this->migrationApplier->applyWebSets(),
             );
-        } catch (ModuleNotInstalledException|MigrationSetBusyException|LegacyUpdatesPendingException|PlatformVersionUnknownException $refusal) {
+        } catch (ModuleNotInstalledException|MigrationSetBusyException|LegacyUpdatesPendingException|ModuleUpgradePendingException|PlatformVersionUnknownException $refusal) {
             $this->upgradeLogger->warning($this->platformVersion, sprintf('Migration of the %s refused: %s', $this->label($set), $refusal->getMessage()));
 
             throw $refusal;

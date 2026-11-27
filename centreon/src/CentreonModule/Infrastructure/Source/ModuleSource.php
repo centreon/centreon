@@ -23,9 +23,11 @@ declare(strict_types=1);
 
 namespace CentreonModule\Infrastructure\Source;
 
+use Adaptation\Log\LoggerUpgrade;
 use CentreonLegacy\ServiceProvider as ServiceProviderLegacy;
 use CentreonModule\Domain\Repository\ModulesInformationsRepository;
 use CentreonModule\Infrastructure\Entity\Module;
+use Core\Common\Domain\Exception\RepositoryException;
 use Psr\Container\ContainerInterface;
 
 class ModuleSource extends SourceAbstract
@@ -247,8 +249,10 @@ class ModuleSource extends SourceAbstract
             $entity->setVersionCurrent($this->info[$entity->getId()]);
             $entity->setInstalled(true);
 
-            $isUpdated = $this->isUpdated($this->info[$entity->getId()], $entity->getVersion());
-            $entity->setUpdated($isUpdated);
+            $entity->setUpdated(
+                version_compare((string) $this->info[$entity->getId()], (string) $entity->getVersion(), '>=')
+                && ! $this->hasPendingMigrations($entity->getId(), (string) $entity->getVersion(), $entity->getPath())
+            );
         }
 
         return $entity;
@@ -306,7 +310,42 @@ class ModuleSource extends SourceAbstract
      */
     protected function getPath(): string
     {
-        return $this->path . static::PATH;
+        return rtrim($this->path, '/') . '/' . static::PATH;
+    }
+
+    private function hasPendingMigrations(string $moduleId, string $version, string $modulePath): bool
+    {
+        $files = glob($modulePath . '/migrations/Version*.php', \GLOB_ERR);
+        if ($files === false) {
+            if (! file_exists($modulePath . '/migrations')) {
+                return false;
+            }
+            LoggerUpgrade::create()->warning(
+                $version,
+                \sprintf('Cannot list the migrations of the "%s" module: check the permissions of "%s"', $moduleId, $modulePath . '/migrations')
+            );
+
+            return true;
+        }
+        $available = array_map(static fn (string $file): string => basename($file, '.php'), $files);
+        if ($available === []) {
+            return false;
+        }
+
+        try {
+            $executed = $this->db->getRepository(ModulesInformationsRepository::class)->findExecutedMigrations($moduleId);
+        } catch (RepositoryException $exception) {
+            // Not up to date, rather than breaking the whole list: its update then reports the failure.
+            LoggerUpgrade::create()->warning(
+                $version,
+                \sprintf('Cannot read the executed migrations of the "%s" module', $moduleId),
+                $exception
+            );
+
+            return true;
+        }
+
+        return $executed !== null && array_diff($available, $executed) !== [];
     }
 
     /**

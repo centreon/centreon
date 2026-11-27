@@ -28,6 +28,7 @@ use App\Upgrade\Application\Service\TargetVersionRecorder;
 use App\Upgrade\Application\UpgradeLoggerInterface;
 use App\Upgrade\Domain\Exception\LegacyUpdatesPendingException;
 use App\Upgrade\Domain\Exception\ModuleNotInstalledException;
+use App\Upgrade\Domain\Exception\ModuleUpgradePendingException;
 use App\Upgrade\Domain\Exception\PlatformVersionUnknownException;
 use App\Upgrade\Domain\Model\MigrationSet;
 use App\Upgrade\Domain\Model\MigrationSetStatus\MigrationSetStatus;
@@ -52,6 +53,7 @@ final readonly class GetMigrationStatusQueryHandler
      * A set that cannot be read is reported as such, the requested one included.
      *
      * @throws ModuleNotInstalledException when the requested set is the one of a module not installed
+     * @throws \Throwable when the installed modules cannot be listed while every set could be read
      *
      * @return list<MigrationSetStatus> the requested set, or every set except the uninstalled modules
      */
@@ -71,12 +73,13 @@ final readonly class GetMigrationStatusQueryHandler
                 throw $refusal;
             }
 
-            return [$this->status($query->set, $query->set->isModule() ? null : $this->legacyCheck())];
+            return [$this->status($query->set, $query->set->module === null ? $this->legacyCheck() : $this->moduleUpgradeCheck($query->set->module))];
         }
 
         $legacyCheck = $this->legacyCheck();
         $statuses = [];
-        foreach ($this->migrationRunner->sets() as $set) {
+        $sets = $this->migrationRunner->sets();
+        foreach ($sets as $set) {
             try {
                 // Uninstalled modules are skipped before their migration classes are loaded.
                 if (! $this->isInstalled($set)) {
@@ -88,19 +91,75 @@ final readonly class GetMigrationStatusQueryHandler
                 continue;
             }
 
-            $statuses[] = $this->status($set, $set->isModule() ? null : $legacyCheck);
+            $statuses[] = $this->status($set, $set->module === null ? $legacyCheck : $this->moduleUpgradeCheck($set->module));
+        }
+
+        return [...$statuses, ...$this->vanishedModuleSets($sets, $statuses)];
+    }
+
+    /**
+     * An installed module whose migrations directory is gone, while some of them ran, is reported unreadable.
+     *
+     * @param list<MigrationSet> $scannedSets
+     * @param list<MigrationSetStatus> $scannedStatuses
+     *
+     * @throws \Throwable when the installed modules cannot be listed while no other set reports a read error
+     *
+     * @return list<MigrationSetStatus>
+     */
+    private function vanishedModuleSets(array $scannedSets, array $scannedStatuses): array
+    {
+        try {
+            $installedModules = $this->moduleRepository->findInstalledModules();
+        } catch (\Throwable $exception) {
+            // Never a success without the check: a read error already fails the status.
+            foreach ($scannedStatuses as $status) {
+                if ($status->readError !== null) {
+                    $this->upgradeLogger->error($this->platformVersion, sprintf('Cannot list the installed modules: %s', $exception->getMessage()), $exception);
+
+                    return [];
+                }
+            }
+
+            throw $exception;
+        }
+
+        $scannedModules = array_map(static fn (MigrationSet $set): ?string => $set->module, $scannedSets);
+        $statuses = [];
+        foreach ($installedModules as $module) {
+            if (in_array($module, $scannedModules, true)) {
+                continue;
+            }
+            if (! MigrationSet::isModuleName($module)) {
+                continue;
+            }
+            $set = MigrationSet::module($module);
+            try {
+                $executed = $this->moduleRepository->countExecutedMigrations($module);
+            } catch (\Throwable $exception) {
+                $statuses[] = $this->unreadable($set, $exception);
+
+                continue;
+            }
+
+            if ($executed > 0) {
+                $reason = sprintf('No migration set was found for the "%s" module, while %d migrations of it were executed: check its migrations directory.', $module, $executed);
+                $this->upgradeLogger->error($this->platformVersion, sprintf('Cannot read the status of the %s: %s', $set->label(), $reason));
+                $statuses[] = MigrationSetStatus::unreadable($set, $reason);
+            }
         }
 
         return $statuses;
     }
 
     /**
-     * @param \Throwable|null $legacyCheck the failure of the legacy version check, for a Centreon Web set
+     * @param \Throwable|null $legacyCheck the failure of the legacy check: of the platform version for a Centreon Web set, of the module upgrade for a module set
      */
     private function status(MigrationSet $set, ?\Throwable $legacyCheck): MigrationSetStatus
     {
         // Only pending legacy scripts are a refusal: any other failure is a broken platform.
-        if ($legacyCheck instanceof \Throwable && ! $legacyCheck instanceof LegacyUpdatesPendingException) {
+        $isRefusal = $legacyCheck instanceof LegacyUpdatesPendingException || $legacyCheck instanceof ModuleUpgradePendingException;
+        if ($legacyCheck instanceof \Throwable && ! $isRefusal) {
             return MigrationSetStatus::unreadable($set, $legacyCheck->getMessage());
         }
 
@@ -110,7 +169,7 @@ final readonly class GetMigrationStatusQueryHandler
             return $this->unreadable($set, $exception);
         }
 
-        return $legacyCheck instanceof LegacyUpdatesPendingException ? MigrationSetStatus::read($set, $status->executed, $status->pending, $legacyCheck->getMessage()) : $status;
+        return $isRefusal ? MigrationSetStatus::read($set, $status->executed, $status->pending, $legacyCheck->getMessage()) : $status;
     }
 
     private function unreadable(MigrationSet $set, \Throwable $exception): MigrationSetStatus
@@ -140,6 +199,20 @@ final readonly class GetMigrationStatusQueryHandler
         }
 
         return null;
+    }
+
+    /**
+     * The failure of the module upgrade check, null when it passes.
+     */
+    private function moduleUpgradeCheck(string $module): ?\Throwable
+    {
+        try {
+            return $this->moduleRepository->hasPendingLegacyUpgrade($module) ? new ModuleUpgradePendingException($module) : null;
+        } catch (\Throwable $exception) {
+            $this->upgradeLogger->error($this->platformVersion, sprintf('Cannot read the upgrade state of the "%s" module: %s', $module, $exception->getMessage()), $exception);
+
+            return $exception;
+        }
     }
 
     private function isInstalled(MigrationSet $set): bool

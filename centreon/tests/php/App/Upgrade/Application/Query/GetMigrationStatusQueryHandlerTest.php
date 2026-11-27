@@ -27,6 +27,7 @@ use App\Upgrade\Application\Query\GetMigrationStatusQuery;
 use App\Upgrade\Application\Query\GetMigrationStatusQueryHandler;
 use App\Upgrade\Application\Service\TargetVersionRecorder;
 use App\Upgrade\Domain\Exception\ModuleNotInstalledException;
+use App\Upgrade\Domain\Exception\ModuleUpgradePendingException;
 use App\Upgrade\Domain\Exception\PlatformVersionUnknownException;
 use App\Upgrade\Domain\Model\MigrationSet;
 use App\Upgrade\Domain\Model\MigrationSetStatus\MigrationSetStatus;
@@ -123,8 +124,9 @@ final class GetMigrationStatusQueryHandlerTest extends TestCase
             MigrationSetStatus::unreadable(MigrationSet::web(WebMigrationSetEnum::Realtime), 'informations is locked'),
             MigrationSetStatus::unreadable(MigrationSet::module('centreon-open-tickets'), 'modules_informations is locked'),
         ], $statuses);
-        self::assertSame(['error', 'error'], array_column($logger->calls, 'method'), 'The version read failure is logged once, not once per web set');
+        self::assertSame(['error', 'error', 'error'], array_column($logger->calls, 'method'), 'The version read failure is logged once, not once per web set');
         self::assertSame('Cannot read the platform version: informations is locked', $logger->calls[0]['message'] ?? null);
+        self::assertSame('Cannot list the installed modules: modules_informations is locked', $logger->calls[2]['message'] ?? null);
         self::assertSame($updateRepository->versionReadFailure, $logger->calls[0]['exception'] ?? null);
     }
 
@@ -189,6 +191,112 @@ final class GetMigrationStatusQueryHandlerTest extends TestCase
         $statuses = (new GetMigrationStatusQueryHandler(new FakeMigrationRunner(), new FakeModuleRepository(['centreon-open-tickets']), $this->recorder(['26.12.0']), new FakeUpgradeLogger(), '26.12.0'))(new GetMigrationStatusQuery($module));
 
         self::assertEquals([MigrationSetStatus::read($module, [], ['module:centreon-open-tickets\Version1'])], $statuses);
+    }
+
+    public function testReportsThatMigrateRefusesAModuleSetWhileItsUpgradeScriptsArePending(): void
+    {
+        $runner = new FakeMigrationRunner();
+        $runner->sets = [MigrationSet::web(WebMigrationSetEnum::Configuration), MigrationSet::module('centreon-bam-server'), MigrationSet::module('centreon-open-tickets')];
+
+        $modules = new FakeModuleRepository(['centreon-bam-server', 'centreon-open-tickets'], ['centreon-open-tickets']);
+        $refusal = (new ModuleUpgradePendingException('centreon-open-tickets'))->getMessage();
+
+        $handler = new GetMigrationStatusQueryHandler($runner, $modules, $this->recorder(), new FakeUpgradeLogger(), '26.12.0');
+
+        self::assertEquals([
+            MigrationSetStatus::read(MigrationSet::web(WebMigrationSetEnum::Configuration), [], ['configuration\Version1']),
+            MigrationSetStatus::read(MigrationSet::module('centreon-bam-server'), [], ['module:centreon-bam-server\Version1']),
+            MigrationSetStatus::read(MigrationSet::module('centreon-open-tickets'), [], ['module:centreon-open-tickets\Version1'], $refusal),
+        ], $handler(new GetMigrationStatusQuery()));
+        self::assertEquals(
+            [MigrationSetStatus::read(MigrationSet::module('centreon-open-tickets'), [], ['module:centreon-open-tickets\Version1'], $refusal)],
+            $handler(new GetMigrationStatusQuery(MigrationSet::module('centreon-open-tickets'))),
+        );
+    }
+
+    public function testReportsAModuleSetAsUnreadableWhenItsUpgradeStateCannotBeRead(): void
+    {
+        $runner = new FakeMigrationRunner();
+        $runner->sets = [MigrationSet::web(WebMigrationSetEnum::Configuration), MigrationSet::module('centreon-open-tickets')];
+
+        $modules = new FakeModuleRepository(['centreon-open-tickets']);
+        $modules->pendingUpgradeFailure = new \UnexpectedValueException('conf.php sets no mod_release');
+
+        $logger = new FakeUpgradeLogger();
+
+        $statuses = (new GetMigrationStatusQueryHandler($runner, $modules, $this->recorder(), $logger, '26.12.0'))(new GetMigrationStatusQuery());
+
+        self::assertEquals([
+            MigrationSetStatus::read(MigrationSet::web(WebMigrationSetEnum::Configuration), [], ['configuration\Version1']),
+            MigrationSetStatus::unreadable(MigrationSet::module('centreon-open-tickets'), 'conf.php sets no mod_release'),
+        ], $statuses);
+        self::assertSame(['error'], array_column($logger->calls, 'method'));
+        self::assertSame($modules->pendingUpgradeFailure, $logger->calls[0]['exception'] ?? null);
+    }
+
+    public function testReportsAnInstalledModuleWhoseExecutedMigrationsLostTheirDirectory(): void
+    {
+        $runner = new FakeMigrationRunner();
+        $runner->sets = [MigrationSet::web(WebMigrationSetEnum::Configuration), MigrationSet::module('centreon-open-tickets')];
+
+        $modules = new FakeModuleRepository(
+            ['centreon-bam-server', 'centreon-license-manager', 'centreon-open-tickets', 'centreon-pp-manager'],
+            executedMigrations: ['centreon-bam-server' => 3, 'centreon-open-tickets' => 2, 'centreon-pp-manager' => 0],
+        );
+        $logger = new FakeUpgradeLogger();
+
+        $statuses = (new GetMigrationStatusQueryHandler($runner, $modules, $this->recorder(), $logger, '26.12.0'))(new GetMigrationStatusQuery());
+
+        self::assertEquals([
+            MigrationSetStatus::read(MigrationSet::web(WebMigrationSetEnum::Configuration), [], ['configuration\Version1']),
+            MigrationSetStatus::read(MigrationSet::module('centreon-open-tickets'), [], ['module:centreon-open-tickets\Version1']),
+            MigrationSetStatus::unreadable(MigrationSet::module('centreon-bam-server'), 'No migration set was found for the "centreon-bam-server" module, while 3 migrations of it were executed: check its migrations directory.'),
+        ], $statuses);
+        self::assertSame(['error'], array_column($logger->calls, 'method'));
+    }
+
+    public function testIgnoresAnInstalledModuleWhoseNameCannotHaveMigrations(): void
+    {
+        $runner = new FakeMigrationRunner();
+        $runner->sets = [MigrationSet::web(WebMigrationSetEnum::Configuration)];
+
+        $modules = new FakeModuleRepository(['centreon_foo']);
+
+        $statuses = (new GetMigrationStatusQueryHandler($runner, $modules, $this->recorder(), new FakeUpgradeLogger(), '26.12.0'))(new GetMigrationStatusQuery());
+
+        self::assertEquals(
+            [MigrationSetStatus::read(MigrationSet::web(WebMigrationSetEnum::Configuration), [], ['configuration\Version1'])],
+            $statuses,
+        );
+    }
+
+    public function testReportsAnInstalledModuleWithoutScannedSetAsUnreadableWhenItsMigrationsCannotBeCounted(): void
+    {
+        $runner = new FakeMigrationRunner();
+        $runner->sets = [MigrationSet::web(WebMigrationSetEnum::Configuration)];
+
+        $modules = new FakeModuleRepository(['centreon-bam-server']);
+        $modules->countFailure = new \RuntimeException('Access denied to doctrine_migration_versions_centreon_bam_server');
+
+        $statuses = (new GetMigrationStatusQueryHandler($runner, $modules, $this->recorder(), new FakeUpgradeLogger(), '26.12.0'))(new GetMigrationStatusQuery());
+
+        self::assertEquals(
+            MigrationSetStatus::unreadable(MigrationSet::module('centreon-bam-server'), 'Access denied to doctrine_migration_versions_centreon_bam_server'),
+            $statuses[1] ?? null,
+        );
+    }
+
+    public function testFailsWhenTheInstalledModulesCannotBeListedWhileEverySetWasRead(): void
+    {
+        $runner = new FakeMigrationRunner();
+        $runner->sets = [MigrationSet::web(WebMigrationSetEnum::Configuration)];
+
+        $modules = new FakeModuleRepository();
+        $modules->failure = new \RuntimeException('modules_informations is locked');
+
+        $this->expectExceptionObject($modules->failure);
+
+        (new GetMigrationStatusQueryHandler($runner, $modules, $this->recorder(), new FakeUpgradeLogger(), '26.12.0'))(new GetMigrationStatusQuery());
     }
 
     /**

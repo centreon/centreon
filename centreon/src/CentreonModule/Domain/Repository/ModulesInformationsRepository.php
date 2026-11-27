@@ -21,7 +21,12 @@
 
 namespace CentreonModule\Domain\Repository;
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use App\Upgrade\Domain\Model\MigrationSet;
+use App\Upgrade\Infrastructure\Doctrine\MigrationSetRegistry;
 use Centreon\Infrastructure\CentreonLegacyDB\ServiceEntityRepository;
+use Core\Common\Domain\Exception\RepositoryException;
 
 class ModulesInformationsRepository extends ServiceEntityRepository
 {
@@ -44,6 +49,51 @@ class ModulesInformationsRepository extends ServiceEntityRepository
         }
 
         return $result;
+    }
+
+    /**
+     * @throws RepositoryException
+     *
+     * @return list<string>|null class names without namespace, null when the module name cannot have migrations
+     */
+    public function findExecutedMigrations(string $module): ?array
+    {
+        if (! MigrationSet::isModuleName($module)) {
+            return null;
+        }
+
+        $table = MigrationSetRegistry::table(MigrationSet::module($module));
+
+        try {
+            // Created by the first migration run. Checked first: a failing query is logged as an SQL error.
+            $tableExists = $this->db->fetchOne(
+                $this->db->createQueryBuilder()
+                    ->select('1')
+                    ->from('`information_schema`.`tables`')
+                    ->where('`table_schema` = DATABASE()')
+                    ->andWhere('`table_name` = :table')
+                    ->getQuery(),
+                QueryParameters::create([QueryParameter::string('table', $table)])
+            );
+            if ($tableExists === false) {
+                return [];
+            }
+
+            $versions = $this->db->fetchFirstColumn(
+                $this->db->createQueryBuilder()->select('`version`')->from("`{$table}`")->getQuery()
+            );
+        } catch (\Throwable $exception) {
+            throw new RepositoryException('Cannot read the executed migrations of the module', ['module' => $module], $exception);
+        }
+
+        $migrations = [];
+        foreach ($versions as $version) {
+            if (is_string($version)) {
+                $migrations[] = mb_substr((string) mb_strrchr('\\' . $version, '\\'), 1);
+            }
+        }
+
+        return $migrations;
     }
 
     /**

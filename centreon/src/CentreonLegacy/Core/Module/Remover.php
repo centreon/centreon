@@ -21,6 +21,10 @@
 
 namespace CentreonLegacy\Core\Module;
 
+use App\Upgrade\Domain\Model\MigrationSet;
+use App\Upgrade\Infrastructure\Doctrine\MigrationSetRegistry;
+use CentreonLegacy\ServiceProvider;
+
 class Remover extends Module
 {
     /**
@@ -31,6 +35,8 @@ class Remover extends Module
         $this->removePhpFiles(true);
         $this->removeSqlFiles();
         $this->removePhpFiles(false);
+        // After the scripts, before the row: a failed uninstall keeps its history, a reinstall starts over.
+        $this->forgetUpgradeHistory();
         $this->removeModuleConfiguration();
 
         return true;
@@ -59,6 +65,20 @@ class Remover extends Module
         $sth->execute();
 
         return true;
+    }
+
+    /**
+     * So that a reinstallation starts over: uninstall.sql drops what the migrations created.
+     */
+    private function forgetUpgradeHistory(): void
+    {
+        $this->services->get(ServiceProvider::CENTREON_LEGACY_MODULE_UPGRADE_PROGRESS)->clear($this->moduleName);
+
+        if (! MigrationSet::isModuleName($this->moduleName)) {
+            return;
+        }
+
+        $this->services->get('configuration_db')->executeStatement('DROP TABLE IF EXISTS `' . MigrationSetRegistry::table(MigrationSet::module($this->moduleName)) . '`');
     }
 
     /**

@@ -28,12 +28,14 @@ use App\Upgrade\Application\Service\TargetVersionRecorder;
 use App\Upgrade\Domain\Exception\LegacyUpdatesPendingException;
 use App\Upgrade\Domain\Exception\MigrationFailedException;
 use App\Upgrade\Domain\Exception\MigrationInterruptedException;
+use App\Upgrade\Domain\Exception\ModuleUpgradePendingException;
 use App\Upgrade\Domain\Exception\PlatformVersionNotRecordedException;
 use App\Upgrade\Domain\Model\MigrationOutcome;
 use App\Upgrade\Domain\Model\MigrationSet;
 use App\Upgrade\Domain\Model\WebMigrationSetEnum;
 use PHPUnit\Framework\TestCase;
 use Tests\App\Upgrade\Infrastructure\Double\FakeMigrationRunner;
+use Tests\App\Upgrade\Infrastructure\Double\FakeModuleRepository;
 use Tests\App\Upgrade\Infrastructure\Double\FakeUpdateRepository;
 use Tests\App\Upgrade\Infrastructure\Double\FakeUpdateScriptFinder;
 use Tests\App\Upgrade\Infrastructure\Double\FakeUpgradeLogger;
@@ -48,6 +50,8 @@ final class MigrationApplierTest extends TestCase
 
     private FakeUpgradeLogger $logger;
 
+    private FakeModuleRepository $moduleRepository;
+
     private MigrationApplier $applier;
 
     protected function setUp(): void
@@ -56,9 +60,11 @@ final class MigrationApplierTest extends TestCase
         $this->updateRepository = new FakeUpdateRepository();
         $this->scriptFinder = new FakeUpdateScriptFinder();
         $this->logger = new FakeUpgradeLogger();
+        $this->moduleRepository = new FakeModuleRepository(['centreon-open-tickets']);
         $this->applier = new MigrationApplier(
             $this->migrationRunner,
             new TargetVersionRecorder($this->updateRepository, $this->scriptFinder, '26.11.0', new FakeUpgradeLogger()),
+            $this->moduleRepository,
             $this->logger,
             '26.11.0',
         );
@@ -167,6 +173,44 @@ final class MigrationApplierTest extends TestCase
 
         $this->expectException(LegacyUpdatesPendingException::class);
         $this->applier->applySet(MigrationSet::web(WebMigrationSetEnum::Configuration));
+    }
+
+    public function testAModuleSetWaitsForItsUpgradeScripts(): void
+    {
+        $this->moduleRepository->pendingUpgrades = ['centreon-open-tickets'];
+
+        try {
+            $this->applier->applySet(MigrationSet::module('centreon-open-tickets'));
+            self::fail('Expected the module set to wait for its upgrade scripts');
+        } catch (ModuleUpgradePendingException) {
+        }
+
+        self::assertSame([], $this->migrationRunner->journal->getArrayCopy());
+        self::assertSame([], $this->logger->calls, 'Refused before its step starts');
+    }
+
+    public function testAModuleSetIsNotAppliedWhenItsUpgradeScriptsCannotBeListed(): void
+    {
+        $failure = new \UnexpectedValueException('Cannot list the upgrade scripts');
+        $this->moduleRepository->pendingUpgradeFailure = $failure;
+
+        try {
+            $this->applier->applySet(MigrationSet::module('centreon-open-tickets'));
+            self::fail('Expected the listing failure to propagate');
+        } catch (\Throwable $exception) {
+            self::assertSame($failure, $exception);
+        }
+
+        self::assertSame([], $this->migrationRunner->journal->getArrayCopy());
+    }
+
+    public function testAModuleSetIsRevertedWhileItsUpgradeScriptsArePending(): void
+    {
+        $this->moduleRepository->pendingUpgrades = ['centreon-open-tickets'];
+
+        $this->applier->revertSet(MigrationSet::module('centreon-open-tickets'), 'prev', ['module:centreon-open-tickets\Version1']);
+
+        self::assertSame(['rollback:module:centreon-open-tickets:prev'], $this->migrationRunner->journal->getArrayCopy());
     }
 
     public function testRevertsASetAsARollbackStep(): void

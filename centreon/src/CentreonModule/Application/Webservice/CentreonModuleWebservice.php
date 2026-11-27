@@ -21,14 +21,19 @@
 
 namespace CentreonModule\Application\Webservice;
 
+use Adaptation\Log\LoggerUpgrade;
 use Centreon\Application\DataRepresenter\Bulk;
 use Centreon\Application\DataRepresenter\Response;
 use Centreon\Infrastructure\Webservice;
+use CentreonLegacy\Core\Cache\CacheClearer;
+use CentreonLegacy\ServiceProvider as LegacyServiceProvider;
 use CentreonModule\Application\DataRepresenter\ModuleDetailEntity;
 use CentreonModule\Application\DataRepresenter\ModuleEntity;
 use CentreonModule\Application\DataRepresenter\UpdateAction;
 use CentreonModule\Infrastructure\Service\CentreonModuleService;
+use CentreonModule\Infrastructure\Source\ModuleSource;
 use CentreonModule\ServiceProvider;
+use Composer\InstalledVersions;
 
 class CentreonModuleWebservice extends Webservice\WebServiceAbstract implements Webservice\WebserviceAutorizeRestApiInterface
 {
@@ -173,19 +178,64 @@ class CentreonModuleWebservice extends Webservice\WebServiceAbstract implements 
         $result = null;
         $entity = null;
 
+        /** @var CentreonModuleService $moduleService */
+        $moduleService = $this->getDi()[ServiceProvider::CENTREON_MODULE];
+        /** @var CacheClearer $cacheClearer */
+        $cacheClearer = $this->getDi()[LegacyServiceProvider::CENTREON_LEGACY_CACHE_CLEARER];
+
         try {
-            $entity = $this->getDi()[ServiceProvider::CENTREON_MODULE]
-                ->update($id, $type);
-        } catch (\Exception $e) {
+            // One clear for the module and its dependencies.
+            $entity = $cacheClearer->suspended(static fn () => $moduleService->update($id, $type));
+        } catch (\Throwable $e) {
+            LoggerUpgrade::create()->error(
+                InstalledVersions::getRootPackage()['pretty_version'],
+                sprintf('The update of the "%s" %s failed', $id, $type),
+                $e
+            );
             $result = new UpdateAction(null, $e->getMessage());
         }
 
-        if ($entity !== null) {
+        // Even after a failure: dependencies may be upgraded. A batch defers it to clearCache.
+        if ($type === ModuleSource::TYPE && ($request['clearCache'] ?? '1') !== '0') {
+            try {
+                $cacheClearer->clear();
+            } catch (\Throwable $e) {
+                LoggerUpgrade::create()->error(
+                    InstalledVersions::getRootPackage()['pretty_version'],
+                    sprintf('Clearing the cache after the update of the "%s" module failed', $id),
+                    $e
+                );
+                // The update passed: report the cache failure instead.
+                $result ??= new UpdateAction(null, $entity !== null ? 'The module was updated, but the cache could not be cleared: ' . $e->getMessage() : $e->getMessage());
+            }
+        }
+
+        if ($entity !== null && $result === null) {
             $result = new UpdateAction($entity);
             $status = true;
         }
 
         return new Response($result, $status);
+    }
+
+    /**
+     * @return Response
+     */
+    public function postClearCache()
+    {
+        try {
+            $this->getDi()[LegacyServiceProvider::CENTREON_LEGACY_CACHE_CLEARER]->clear();
+        } catch (\Throwable $e) {
+            LoggerUpgrade::create()->error(
+                InstalledVersions::getRootPackage()['pretty_version'],
+                'Clearing the cache after updating the modules failed',
+                $e
+            );
+
+            return new Response(new UpdateAction(null, $e->getMessage()), false);
+        }
+
+        return new Response(null);
     }
 
     /**
