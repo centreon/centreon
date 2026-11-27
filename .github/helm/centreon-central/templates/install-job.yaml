@@ -1,0 +1,62 @@
+{{- $installId := include "centreon-central.installId" . -}}
+{{- $spec := include "centreon-central.installJobSpec" . -}}
+# One-shot install / upgrade of the Centreon database: schema, pending
+# updates, baked-in modules, topology SQL patches. Runs the fpm image's own
+# 12-install.sh once, then records its id in options.helm_install_id; fpm
+# replicas wait for that marker before starting (see fpm.yaml). Plain Job on
+# purpose (see values.yaml "install").
+# A Job's pod template is immutable: the name ends with a hash of the spec, so
+# any change (a value feeding its env, resources...) creates a new Job instead
+# of an update the API refuses (helm upgrade and ArgoCD sync alike).
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-install-{{ $installId }}-{{ $spec | sha256sum | trunc 6 }}
+  labels:
+    {{- include "centreon-central.labels" . | nindent 4 }}
+    app.kubernetes.io/component: install
+spec:
+  {{- $spec | nindent 2 }}
+{{- define "centreon-central.installJobSpec" -}}
+{{- $installId := include "centreon-central.installId" . -}}
+backoffLimit: 0
+template:
+  metadata:
+    labels:
+      {{- include "centreon-central.selectorLabels" (dict "ctx" . "component" "install") | nindent 6 }}
+  spec:
+    {{- include "centreon-central.podScheduling" . | nindent 4 }}
+    restartPolicy: Never
+    containers:
+      - name: install
+        image: {{ include "centreon-central.image" .Values.images.fpm }}
+        imagePullPolicy: {{ .Values.images.fpm.pullPolicy }}
+        # container.sh runs container.d/ (12-install.sh does the work), then
+        # execs the args instead of php-fpm: record the marker and exit.
+        command: ["/usr/local/lib/centreon-fpm/container.sh"]
+        args:
+          - /bin/sh
+          - -ec
+          - |
+            mysql {{ include "centreon-central.dbCliTls" . }} -h"$MYSQL_HOST" -uroot "$MYSQL_DB_CONFIGURATION" -e \
+              "DELETE FROM options WHERE \`key\` = 'helm_install_id'; INSERT INTO options (\`key\`, \`value\`) VALUES ('helm_install_id', '$INSTALL_ID')"
+            echo "Install {{ $installId }} recorded."
+        env:
+          {{- include "centreon-central.fpmInstallEnv" . | nindent 10 }}
+          - { name: INSTALL_DB_STEPS, value: "true" }
+          - { name: CENTREON_DATASET, value: {{ .Values.install.dataset | quote }} }
+          - { name: INSTALL_ID, value: {{ $installId | quote }} }
+          {{- include "centreon-central.secretEnv" (dict "ctx" . "name" "MYSQL_PWD" "key" "MYSQL_ROOT_PASSWORD") | nindent 10 }}
+        {{- with .Values.install.resources }}
+        resources:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with include "centreon-central.dbTlsMounts" . }}
+        volumeMounts:
+          {{- . | nindent 10 }}
+        {{- end }}
+    {{- with include "centreon-central.dbTlsVolume" . }}
+    volumes:
+      {{- . | nindent 6 }}
+    {{- end }}
+{{- end }}

@@ -1,0 +1,23 @@
+Centreon central deployed in namespace {{ .Release.Namespace }}.
+
+The install Job sets up the database (a few minutes on a fresh install):
+
+  kubectl -n {{ .Release.Namespace }} logs -f job/{{ .Release.Name }}-install-{{ include "centreon-central.installId" . }}-{{ include "centreon-central.installJobSpec" . | sha256sum | trunc 6 }}
+
+{{- if .Values.ingress.enabled }}
+
+Then browse to {{ if .Values.ingress.tls }}https{{ else }}http{{ end }}://{{ .Values.ingress.host }}/centreon/
+{{- else }}
+
+No ingress: reach httpd with a port-forward, and set httpd.serverName to
+the host:port you browse to (UseCanonicalName On), e.g.:
+
+  helm upgrade ... --set httpd.serverName=localhost:28080
+  kubectl -n {{ .Release.Namespace }} port-forward svc/httpd 28080:80
+{{- end }}
+
+Apache ServerName in use: {{ include "centreon-central.serverName" . }}
+Login: admin / the image's install fixture password.
+
+Remote pollers: pullwss through the ingress (/centreon/gorgone/pullwss/websocket),
+BBDO to the "centreon-broker" Service on 5669 (type {{ .Values.broker.service.type }}).

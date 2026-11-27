@@ -1,0 +1,206 @@
+{{- $installId := include "centreon-central.installId" . -}}
+# fpm: Centreon web backend. Each replica only runs the per-container part of
+# 12-install.sh (INSTALL_DB_STEPS=false): config files, APP_SECRET, Symfony
+# cache, engine-context.json, removing www/install. The database belongs to
+# the install Job.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-fpm
+  labels:
+    {{- include "centreon-central.labels" . | nindent 4 }}
+    app.kubernetes.io/component: fpm
+spec:
+  {{- if not .Values.fpm.autoscaling.enabled }}
+  replicas: {{ .Values.fpm.replicas }}
+  {{- end }}
+  {{- if .Values.persistence.migrateLegacyVolumes }}
+  # The migration mounts the old ReadWriteOnce volumes: the old pod must be
+  # gone first, or the new one waits on a multi-attach.
+  strategy:
+    type: Recreate
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "centreon-central.selectorLabels" (dict "ctx" . "component" "fpm") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "centreon-central.selectorLabels" (dict "ctx" . "component" "fpm") | nindent 8 }}
+      annotations:
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+        {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- include "centreon-central.podScheduling" . | nindent 6 }}
+      {{- include "centreon-central.topologySpread" (dict "ctx" . "component" "fpm") | nindent 6 }}
+      # 10 s preStop wait + time to finish in-flight requests (config
+      # generation can take a while).
+      terminationGracePeriodSeconds: {{ .Values.fpm.terminationGracePeriodSeconds }}
+      initContainers:
+        {{- if .Values.persistence.migrateLegacyVolumes }}
+        # Upgrade from chart <= 0.40: old per-directory volumes into
+        # centreon-web (the generated config is not migrated: regenerated).
+        - name: migrate-volumes
+          image: {{ include "centreon-central.image" .Values.images.fpm }}
+          imagePullPolicy: {{ .Values.images.fpm.pullPolicy }}
+          securityContext:
+            runAsUser: 0
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -e
+              {{- include "centreon-central.migrateFn" . | nindent 14 }}
+              migrate /old/media /new/media /new/.migrated/media
+              {{- if not (include "centreon-central.valkeyOn" .) }}
+              migrate /old/sessions /new/sessions /new/.migrated/sessions
+              {{- end }}
+              {{- if include "centreon-central.legacyLicense" . }}
+              migrate /old/license /new/license /new/.migrated/license
+              {{- end }}
+          volumeMounts:
+            - { name: centreon-web, mountPath: /new }
+            - { name: legacy-media, mountPath: /old/media, readOnly: true }
+            {{- if not (include "centreon-central.valkeyOn" .) }}
+            - { name: legacy-sessions, mountPath: /old/sessions, readOnly: true }
+            {{- end }}
+            {{- if include "centreon-central.legacyLicense" . }}
+            - { name: legacy-license, mountPath: /old/license, readOnly: true }
+            {{- end }}
+        {{- end }}
+        # Docker named-volume copy-up made explicit: a PVC mounts empty, a
+        # named volume is seeded with the image's content and ownership. The
+        # directories are created here, before the containers mount them by
+        # subPath (kubelet would create a missing one root-owned).
+        - name: seed-volumes
+          image: {{ include "centreon-central.image" .Values.images.fpm }}
+          imagePullPolicy: {{ .Values.images.fpm.pullPolicy }}
+          securityContext:
+            runAsUser: 0
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              {{- include "centreon-central.seedFn" . | nindent 14 }}
+              mkdir -p /seed/web/media /seed/web/license /seed/cache-config
+              {{- if not (include "centreon-central.valkeyOn" .) }}
+              mkdir -p /seed/web/sessions
+              seed /var/lib/php/sessions /seed/web/sessions
+              {{- end }}
+              seed /usr/share/centreon/www/img/media /seed/web/media
+              # Licences uploaded through the UI: lost with the container's
+              # FS otherwise (a container restart is enough), and seen by
+              # one fpm replica only.
+              seed /etc/centreon/license.d /seed/web/license
+              # Generated config: the UI generates it in one request and sends
+              # it to gorgone (moveFiles.php) in another, so it is shared
+              # between replicas (centreon-web) when fpm can scale.
+              own 900:900 775 /seed/cache-config
+              ls -lnd /seed/web/* /seed/cache-config
+          volumeMounts:
+            - { name: centreon-web, mountPath: /seed/web }
+            {{- if include "centreon-central.fpmScaled" . }}
+            - { name: centreon-web, mountPath: /seed/cache-config, subPath: cache-config }
+            {{- else }}
+            - { name: cache-config, mountPath: /seed/cache-config }
+            {{- end }}
+        # Never serve code against a schema that isn't installed/upgraded for
+        # this image yet: wait for the install Job's marker.
+        {{- include "centreon-central.waitInstall" . | nindent 8 }}
+        {{- with include "centreon-central.vaultInit" . }}{{ . | nindent 8 }}{{ end }}
+      containers:
+        - name: fpm
+          image: {{ include "centreon-central.image" .Values.images.fpm }}
+          imagePullPolicy: {{ .Values.images.fpm.pullPolicy }}
+          env:
+            {{- include "centreon-central.fpmInstallEnv" . | nindent 12 }}
+            - { name: INSTALL_DB_STEPS, value: "false" }
+            {{- with include "centreon-central.fpmSessionEnv" . }}{{ . | nindent 12 }}{{ end }}
+            {{- with include "centreon-central.vaultEnv" . }}{{ . | nindent 12 }}{{ end }}
+            {{- with .Values.fpm.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          ports:
+            - { name: fastcgi, containerPort: 9000 }
+          # Graceful stop (rollouts, HPA scale-down, node drain): a 503 was seen
+          # exactly when an old fpm pod was killed during a live upgrade. Wait
+          # for the pod to leave the Service endpoints, then SIGQUIT (php-fpm's
+          # graceful stop: finish in-flight requests) instead of the default
+          # SIGTERM, which stops php-fpm immediately.
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/bin/sh", "-c", "sleep 10; kill -QUIT 1; while kill -0 1 2>/dev/null; do sleep 1; done"]
+          # Liveness only starts once the per-container init is done.
+          startupProbe:
+            exec:
+              command: [test, -f, /tmp/docker.ready]
+            periodSeconds: 5
+            failureThreshold: 120
+          readinessProbe:
+            exec:
+              command: [test, -f, /tmp/docker.ready]
+            periodSeconds: 5
+          livenessProbe:
+            tcpSocket:
+              port: fastcgi
+            periodSeconds: 20
+            failureThreshold: 3
+          # No volume for /var/lib/centreon (commands and config files go to
+          # gorgone through its API, Vault's file is per pod) nor for the
+          # traps DB (generated in the image's /etc/snmp/centreon_traps and
+          # sent to gorgone by the same request).
+          volumeMounts:
+            {{- if include "centreon-central.fpmScaled" . }}
+            - { name: centreon-web, mountPath: /var/cache/centreon/config, subPath: cache-config }
+            {{- else }}
+            - { name: cache-config, mountPath: /var/cache/centreon/config }
+            {{- end }}
+            # RRD graphs: rrdtool only reads them.
+            - { name: centreon-rrd, mountPath: /var/lib/centreon/status, subPath: status, readOnly: true }
+            - { name: centreon-rrd, mountPath: /var/lib/centreon/metrics, subPath: metrics, readOnly: true }
+            - { name: centreon-web, mountPath: /usr/share/centreon/www/img/media, subPath: media }
+            {{- if not (include "centreon-central.valkeyOn" .) }}
+            - { name: centreon-web, mountPath: /var/lib/php/sessions, subPath: sessions }
+            {{- end }}
+            - { name: centreon-web, mountPath: /etc/centreon/license.d, subPath: license }
+            {{- with include "centreon-central.vaultMounts" (dict "ctx" . "collect" false) }}{{ . | nindent 12 }}{{ end }}
+            {{- with include "centreon-central.dbTlsMounts" . }}{{ . | nindent 12 }}{{ end }}
+          {{- with .Values.fpm.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      volumes:
+        {{- range list "centreon-web" "centreon-rrd" }}
+        - name: {{ . }}
+          persistentVolumeClaim:
+            claimName: {{ include "centreon-central.pvcName" (dict "ctx" $ "name" .) }}
+        {{- end }}
+        {{- if not (include "centreon-central.fpmScaled" .) }}
+        - name: cache-config
+          emptyDir: {}
+        {{- end }}
+        {{- if .Values.persistence.migrateLegacyVolumes }}
+        {{- range concat (list "media") (ternary (list) (list "sessions") (not (empty (include "centreon-central.valkeyOn" $)))) (ternary (list "license") (list) (not (empty (include "centreon-central.legacyLicense" $)))) }}
+        - name: legacy-{{ . }}
+          persistentVolumeClaim:
+            claimName: {{ include "centreon-central.pvcName" (dict "ctx" $ "name" (printf "centreon-%s" .)) }}
+            readOnly: true
+        {{- end }}
+        {{- end }}
+        {{- with include "centreon-central.vaultVolume" . }}{{ . | nindent 8 }}{{ end }}
+        {{- with include "centreon-central.dbTlsVolume" . }}{{ . | nindent 8 }}{{ end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  # Fixed name: httpd's PHP_FPM_UPSTREAM.
+  name: fpm
+  labels:
+    {{- include "centreon-central.labels" . | nindent 4 }}
+    app.kubernetes.io/component: fpm
+spec:
+  selector:
+    {{- include "centreon-central.selectorLabels" (dict "ctx" . "component" "fpm") | nindent 4 }}
+  ports:
+    - { name: fastcgi, port: 9000, targetPort: fastcgi }

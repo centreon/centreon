@@ -1,0 +1,54 @@
+# Values for the chart's CI lint/template only (nothing is pulled): the images
+# the PoC stack's CI publishes. This PR only touches the chart, so no image is
+# built at its own tag: the web-split ones come from its base (C12c). Not for a
+# real deployment.
+# APP_SECRET and SALT have no default: placeholders, only to render the Secret.
+secrets:
+  appSecret: "0000000000000000000000000000000000000000000000000000000000000000"
+  salt: "0000000000000000000000000000000000000000000000000000000000000000"
+  valkeyPassword: "0000000000000000"
+images:
+  fpm:
+    repository: docker.centreon.com/centreon/centreon-web-split-fpm-trixie
+    tag: MON-214095-central-fpm-sessions-valkey
+  httpd:
+    repository: docker.centreon.com/centreon/centreon-web-split-httpd-trixie
+    tag: MON-214095-central-fpm-sessions-valkey
+  cron:
+    repository: docker.centreon.com/centreon/centreon-web-split-cron-trixie
+    tag: MON-214095-central-fpm-sessions-valkey
+  rrdcached:
+    repository: docker.centreon.com/centreon/centreon-web-split-rrdcached-trixie
+    tag: MON-214095-central-fpm-sessions-valkey
+  gorgone:
+    repository: docker.centreon.com/centreon/centreon-gorgone-trixie
+    tag: MON-213814-gorgone-central-api-auth
+  # With the TCP RRD output fix (centreon-collect MON-213839), for rrdcached.
+  engine:
+    repository: docker.centreon.com/centreon/centreon-engine-trixie
+    tag: MON-213839-broker-rrd-tcp-logger
+  broker:
+    repository: docker.centreon.com/centreon/centreon-broker-trixie
+    tag: MON-213839-broker-rrd-tcp-logger
+  # One merged image for both trap containers (centreon/centreon#12403).
+  snmptrapd:
+    repository: docker.centreon.com/centreon/centreon-trapd-trixie
+    tag: develop
+  centreontrapd:
+    repository: docker.centreon.com/centreon/centreon-trapd-trixie
+    tag: develop
+
+# Render the optional parts too.
+rrdcached:
+  enabled: true
+centralPoller:
+  traps:
+    enabled: true
+
+# No cluster to look at.
+persistence:
+  migrateLegacyVolumes: false
+
+# PHP sessions in the in-chart Valkey (renders valkey.yaml and its NetworkPolicy).
+valkey:
+  enabled: true
