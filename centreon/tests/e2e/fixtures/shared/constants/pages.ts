@@ -9,6 +9,7 @@ export const PAGES = {
     resourceAccessRules: '/centreon/administration/resource-access/rules',
     accountParametersLegacy: '/centreon/main.php?p=50104&o=c',
     centreonUiParametersLegacy: '/centreon/main.php?p=50110&o=general',
+    brokerStatisticsLegacy: '/centreon/main.php?p=50501',
     databasesPlatformStatusLegacy: '/centreon/main.php?p=50503',
     authenticationTokens: '/centreon/administration/authentication-token',
     contactsUsersLegacy: '/centreon/main.php?p=60301',
