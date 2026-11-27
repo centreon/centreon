@@ -62,6 +62,7 @@ export const PAGES = {
     performancesGraphsLegacy: '/centreon/main.php?p=20401',
     virtualMetricsLegacy: '/centreon/main.php?p=20408',
     statusDetailsServicesLegacy: '/centreon/main.php?p=20201',
-    statusDetailsServicesLegacyFrame: '/centreon/main.get.php?p=20201'
+    statusDetailsServicesLegacyFrame: '/centreon/main.get.php?p=20201',
+    systemLogsLegacy: '/centreon/main.php?p=20302&engine=true'
   }
 };
