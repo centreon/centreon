@@ -11,6 +11,10 @@ import dashboardCgMember4 from '../../../fixtures/users/user-dashboard-cg-member
 import dashboardCreatorUser from '../../../fixtures/users/user-dashboard-creator.json';
 import dashboardViewerUser from '../../../fixtures/users/user-dashboard-viewer.json';
 
+// The list of the users and contact groups the dashboard is shared with.
+const getSharingList = (): Cypress.Chainable<JQuery<HTMLElement>> =>
+  cy.get('[role="dialog"] [class^="MuiList-root"]', { timeout: 12000 });
+
 before(() => {
   cy.startContainers();
   cy.enableDashboardFeature();
@@ -81,17 +85,12 @@ When('the user selects the share option on a dashboard', () => {
 
 Then('the user is redirected to the sharing list of the dashboard', () => {
   cy.contains('Manage access rights').should('be.visible');
-  cy.get('*[class^="MuiList-root"]', { timeout: 12000 }).eq(1).should('exist');
+  getSharingList().should('exist');
 });
 
 Then('the creator of the dashboard is listed as its sole editor', () => {
-  cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
-    .eq(1)
-    .children()
-    .its('length')
-    .should('eq', 1);
-  cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
-    .eq(1)
+  getSharingList().children().its('length').should('eq', 1);
+  getSharingList()
     .children()
     .eq(0)
     .should('contain', `${dashboardAdministratorUser.login}`);
@@ -120,13 +119,8 @@ When('the editor user sets another user as a viewer on the dashboard', () => {
   cy.get('[role="listbox"]').contains('Viewer').click();
   cy.getByTestId({ testId: 'add' }).click();
 
-  cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
-    .eq(1)
-    .children()
-    .its('length')
-    .should('eq', 2);
-  cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
-    .eq(1)
+  getSharingList().children().its('length').should('eq', 2);
+  getSharingList()
     .children()
     .eq(0)
     .should('contain', `${dashboardViewerUser.login}`);
@@ -144,8 +138,7 @@ Then(
   "the viewer user is listed as a viewer in the dashboard's share list",
   () => {
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
-    cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
-      .eq(1)
+    getSharingList()
       .children()
       .contains(dashboardViewerUser.login)
       .should('exist');
@@ -215,13 +208,8 @@ When(
       .eq(0)
       .realClick();
     cy.get('[role="listbox"]').contains('Editor').click();
-    cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
-      .eq(1)
-      .children()
-      .its('length')
-      .should('eq', 2);
-    cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
-      .eq(1)
+    getSharingList().children().its('length').should('eq', 2);
+    getSharingList()
       .children()
       .eq(0)
       .should('contain', `${dashboardCreatorUser.login}`);
@@ -241,8 +229,7 @@ Then(
   "the second editor user is listed as an editor in the dashboard's share list",
   () => {
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
-    cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
-      .eq(1)
+    getSharingList()
       .children()
       .contains(dashboardCreatorUser.login)
       .should('exist');
@@ -306,13 +293,8 @@ When(
     cy.get('[role="listbox"]').contains('Viewer').click();
     cy.getByTestId({ testId: 'add' }).click();
 
-    cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
-      .eq(1)
-      .children()
-      .its('length')
-      .should('eq', 2);
-    cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
-      .eq(1)
+    getSharingList().children().its('length').should('eq', 2);
+    getSharingList()
       .children()
       .eq(0)
       .should('contain', 'dashboard-contact-group-viewer');
@@ -333,8 +315,7 @@ Then(
   () => {
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.contains('Contact group').click();
-    cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
-      .eq(1)
+    getSharingList()
       .children()
       .contains('dashboard-contact-group-viewer')
       .should('exist');
@@ -394,13 +375,8 @@ When(
     cy.get('[role="listbox"]').contains('Editor').click();
     cy.getByTestId({ testId: 'add' }).click();
 
-    cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
-      .eq(1)
-      .children()
-      .its('length')
-      .should('eq', 2);
-    cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
-      .eq(1)
+    getSharingList().children().its('length').should('eq', 2);
+    getSharingList()
       .children()
       .eq(0)
       .should('contain', 'dashboard-contact-group-creator');
@@ -421,8 +397,7 @@ Then(
   () => {
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.contains('Contact group').click();
-    cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
-      .eq(1)
+    getSharingList()
       .children()
       .contains('dashboard-contact-group-creator')
       .should('exist');
@@ -478,13 +453,8 @@ Given(
       testId: 'role-dashboard-contact-group-creator'
     }).realClick();
     cy.get('[role="listbox"]').contains('Viewer').click();
-    cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
-      .eq(1)
-      .children()
-      .its('length')
-      .should('eq', 2);
-    cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
-      .eq(1)
+    getSharingList().children().its('length').should('eq', 2);
+    getSharingList()
       .children()
       .eq(0)
       .should('contain', 'dashboard-contact-group-creator');
@@ -512,13 +482,8 @@ When(
     cy.get('[role="listbox"]').contains('Editor').click();
     cy.getByTestId({ testId: 'add' }).click();
 
-    cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
-      .eq(1)
-      .children()
-      .its('length')
-      .should('eq', 3);
-    cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
-      .eq(1)
+    getSharingList().children().its('length').should('eq', 3);
+    getSharingList()
       .children()
       .eq(0)
       .should('contain', `${dashboardCgMember3.login}`);
@@ -619,8 +584,7 @@ Then(
     cy.get('.MuiAlert-message').should('not.exist');
     cy.waitUntilForDashboardRoles('share', 4);
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
-    cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
-      .eq(1)
+    getSharingList()
       .children()
       .contains(dashboardCgMember3.login)
       .should('exist');
@@ -650,8 +614,7 @@ Then(
     cy.get('.MuiAlert-message').should('not.exist');
     cy.waitUntilForDashboardRoles('share', 5);
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
-    cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
-      .eq(1)
+    getSharingList()
       .children()
       .contains(dashboardViewerUser.login)
       .should('exist');

@@ -25,18 +25,6 @@ describe('navigation', () => {
     });
   });
 
-  it('gets the menu with the navigation data retrieved from the API', async () => {
-    const { result } = renderHook(() => useNavigation());
-
-    act(() => {
-      result.current.getNavigation();
-    });
-
-    await waitFor(() => {
-      expect(result.current.menu).toEqual(retrievedNavigation.result);
-    });
-  });
-
   it('gets the react routes with the navigation data retrieved from the API', async () => {
     const { result } = renderHook(() => useNavigation());
 

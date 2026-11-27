@@ -47,8 +47,6 @@ const mockedAxios = axios as jest.Mocked<typeof axios>;
 
 const cancelTokenRequestParam = { cancelToken: {} };
 
-jest.mock('../Navigation/Sidebar/Logo/centreon.png');
-
 jest.mock('../Header', () => {
   const Header = (): JSX.Element => {
     return <div />;

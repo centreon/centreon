@@ -158,20 +158,42 @@ Cypress.Commands.add(
   }
 );
 
+const navigationMenuPopover = '[data-testid="navigation-menu-popover"]';
+
+// The root items open their popover from the collapsed menu, whose state is
+// kept across reloads: an expanded menu is collapsed first.
+const collapseNavigationMenu = (): void => {
+  cy.get('[data-testid="sidebar"]').then(($sidebar) => {
+    const closePanel = $sidebar.find('button[aria-label="Close panel"]');
+
+    if (closePanel.length > 0) {
+      cy.wrap(closePanel).click();
+    }
+  });
+};
+
+// Kept as "hover" for compatibility: the root items now open on click.
 Cypress.Commands.add(
   'hoverRootMenuItem',
   (rootItemNumber: number): Cypress.Chainable => {
+    collapseNavigationMenu();
+
     return cy
-      .get('div[data-testid="sidebar"] li')
+      .get('[data-testid="sidebar"] > ul > li')
       .eq(rootItemNumber)
-      .trigger('mouseover');
+      .find('[role="button"]')
+      .first()
+      .click();
   }
 );
 
 Cypress.Commands.add(
   'clickSubRootMenuItem',
   (page: string): Cypress.Chainable => {
-    return cy.get('div[data-cy="collapse"]').eq(1).contains(page).click();
+    return cy
+      .get(navigationMenuPopover)
+      .contains('a, [role="button"]', page)
+      .click();
   }
 );
 
@@ -184,20 +206,20 @@ interface NavigateToProps {
 Cypress.Commands.add(
   'navigateTo',
   ({ rootItemNumber, subMenu, page }: NavigateToProps): void => {
+    cy.hoverRootMenuItem(rootItemNumber);
+    cy.get(navigationMenuPopover).should('be.visible');
+
     if (subMenu) {
-      cy.hoverRootMenuItem(rootItemNumber)
-        .contains(subMenu)
-        .trigger('mouseover')
-        .get('.MuiCollapse-wrapper')
-        .find('div[data-cy="collapse"]')
-        .should('be.visible')
-        .and('contain', page);
-
-      cy.clickSubRootMenuItem(page);
-
-      return;
+      cy.get(navigationMenuPopover)
+        .contains('[role="button"]', subMenu)
+        .then(($subMenu) => {
+          if ($subMenu.attr('aria-expanded') !== 'true') {
+            cy.wrap($subMenu).click();
+          }
+        });
     }
-    cy.hoverRootMenuItem(rootItemNumber).contains(page).click({ force: true });
+
+    cy.clickSubRootMenuItem(page);
   }
 );
 

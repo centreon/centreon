@@ -5,12 +5,10 @@ import { getData, useRequest } from '@centreon/ui';
 import { useAtom } from 'jotai';
 import {
   always,
-  any,
   append,
   cond,
   equals,
   filter,
-  find,
   flatten,
   includes,
   isNil,
@@ -33,7 +31,6 @@ export const navigationEndpoint =
 interface UseNavigationState {
   allowedPages?: Array<string | Array<string>>;
   getNavigation: () => void;
-  menu?: Array<Page>;
   reactRoutes?: Record<string, string>;
 }
 
@@ -87,65 +84,6 @@ const useNavigation = (): UseNavigationState => {
     []
   );
 
-  const filterShowableElements = (acc, page): Array<Page> => {
-    if (equals(page.show, false)) {
-      return acc;
-    }
-
-    const pages = map(
-      (property) => {
-        if (!page[property]) {
-          return null;
-        }
-
-        return {
-          ...page,
-          [property]: page[property].reduce(filterShowableElements, [])
-        };
-      },
-      ['groups', 'children']
-    );
-
-    const getShowablePages = cond([
-      [any(isDefined), find(isDefined)],
-      [T, always(page)]
-    ]);
-
-    return [...acc, getShowablePages(pages)];
-  };
-
-  const filterNotEmptyGroup = useCallback((group): boolean => {
-    if (not(group.children)) {
-      return false;
-    }
-
-    return any<Page>((page) => equals(page.show, true), group.children);
-  }, []);
-
-  const removeEmptyGroups = useCallback((acc, page): Array<Page> => {
-    if (page.children) {
-      return [
-        ...acc,
-        {
-          ...page,
-          children: page.children.reduce(removeEmptyGroups, [])
-        }
-      ];
-    }
-
-    if (page.groups) {
-      return [
-        ...acc,
-        {
-          ...page,
-          groups: page.groups.filter(filterNotEmptyGroup)
-        }
-      ];
-    }
-
-    return [...acc, page];
-  }, []);
-
   const findReactRoutes = useCallback(
     (acc, page: Page): Record<string, string> => {
       const children = mapObjIndexed((value, key) => {
@@ -190,16 +128,6 @@ const useNavigation = (): UseNavigationState => {
     [navigation]
   );
 
-  const menu = useMemo(
-    (): Array<Page> | undefined =>
-      isNil(navigation)
-        ? undefined
-        : (navigation.result || [])
-            .reduce(filterShowableElements, [])
-            .reduce(removeEmptyGroups, []),
-    [navigation]
-  );
-
   const reactRoutes = useMemo(
     (): Record<string, string> | undefined =>
       isNil(navigation)
@@ -211,7 +139,6 @@ const useNavigation = (): UseNavigationState => {
   return {
     allowedPages,
     getNavigation,
-    menu,
     reactRoutes
   };
 };
