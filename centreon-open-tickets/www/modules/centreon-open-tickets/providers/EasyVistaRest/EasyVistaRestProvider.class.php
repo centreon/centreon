@@ -495,7 +495,7 @@ class EasyVistaRestProvider extends AbstractProvider
         $result = ['ticket_id' => null, 'ticket_error_message' => null, 'ticket_is_ok' => 0, 'ticket_time' => time()];
 
         // initiate smarty variables
-        $tpl = SmartyBC::createSmartyTemplate($this->centreon_open_tickets_path, 'providers/Abstract/templates');
+        $tpl = $this->initSmartyTemplate();
 
         $tpl->assign('centreon_open_tickets_path', $this->centreon_open_tickets_path);
         $tpl->assign('user', $contact);
