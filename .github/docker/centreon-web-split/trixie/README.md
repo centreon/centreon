@@ -980,6 +980,11 @@ like the web:
 - Autodiscovery: copied the same way from the centreon-autodisco image of the
   disco-modules branch (`AUTODISCO_TAG`/`AUTODISCO_DIGEST` in
   `dependencies.env`), SourceGuardian-encoded, with the gorgone-less worker;
+- License Manager alone can come from another image (`LM_IMAGE`, CI: the
+  `centreon-lm-trixie` image of `LM_TAG`/`LM_DIGEST` in `dependencies.env`;
+  MON-216369 PoC instance fingerprint, enabled by
+  `CENTREON_LICENSE_FINGERPRINT=instance` on fpm, the autodiscovery worker and
+  cron, all three with the same value);
 - the SourceGuardian loader stays on the public stable suite
   (`apt-standard trixie-26.10-stable`, `8.4-1+deb13u1`, the same version the
   27.01 modules image ships);

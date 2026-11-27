@@ -42,6 +42,11 @@ ARG AUTODISCO_IMAGE=docker.centreon.com/centreon/centreon-autodisco-trixie:devel
 # nightly apt suite drops old builds; a digest stays reproducible). Only the
 # files the three packages own are copied, see modules_source below.
 ARG MODULES_IMAGE=docker.centreon.com/centreon/centreon-modules-trixie:27.01-unstable@sha256:c763b151d6f98d2e1c8f7e392235468b15bc46289625cd979e9958c0affbec98
+# License Manager alone (MON-216369 PoC: instance fingerprint, env-gated by
+# CENTREON_LICENSE_FINGERPRINT) can come from another image holding the
+# centreon-license-manager deb; CI passes the centreon-lm image of the
+# LM_TAG/LM_DIGEST pins in dependencies.env. Default: the modules image.
+ARG LM_IMAGE=${MODULES_IMAGE}
 
 #############################################
 # Stage 1: frontend build (pnpm / rspack)
@@ -185,24 +190,42 @@ EOF
 # world-readable here, as a `dpkg-deb -x` extraction gives (the image's
 # ownership, e.g. centreon-gorgone on cron/centreon-helios.php, has no
 # matching user in this image). amd64-only image; the files are
-# architecture-independent (Architecture: all).
+# architecture-independent (Architecture: all). License Manager comes the
+# same way from LM_IMAGE (lm_source), PP Manager and IT Edition from
+# MODULES_IMAGE (modules_source).
 #############################################
 FROM --platform=linux/amd64 ${MODULES_IMAGE} AS modules_source
 
+ARG PACKAGES="centreon-pp-manager centreon-it-edition-extensions"
 USER root
 RUN bash -eo pipefail <<'EOF'
 mkdir -p /out
-for pkg in centreon-license-manager centreon-pp-manager centreon-it-edition-extensions; do
+for pkg in ${PACKAGES}; do
   dpkg-query -W -f='${Package} ${Version}\n' "$pkg"
   dpkg -L "$pkg" | grep '^/usr/share/centreon/' | while read -r f; do
     [ -f "$f" ] && cp --parents --no-preserve=ownership -p "$f" /out/
   done
+  test -f "/out/usr/share/centreon/www/modules/${pkg}/conf.php" || { echo "missing module ${pkg}" >&2; exit 1; }
 done
 chown -R root:root /out
 chmod -R a+rX,go-w /out
-for module in centreon-license-manager centreon-pp-manager centreon-it-edition-extensions; do
-  test -f "/out/usr/share/centreon/www/modules/${module}/conf.php" || { echo "missing module ${module}" >&2; exit 1; }
+EOF
+
+FROM --platform=linux/amd64 ${LM_IMAGE} AS lm_source
+
+ARG PACKAGES="centreon-license-manager"
+USER root
+RUN bash -eo pipefail <<'EOF'
+mkdir -p /out
+for pkg in ${PACKAGES}; do
+  dpkg-query -W -f='${Package} ${Version}\n' "$pkg"
+  dpkg -L "$pkg" | grep '^/usr/share/centreon/' | while read -r f; do
+    [ -f "$f" ] && cp --parents --no-preserve=ownership -p "$f" /out/
+  done
+  test -f "/out/usr/share/centreon/www/modules/${pkg}/conf.php" || { echo "missing module ${pkg}" >&2; exit 1; }
 done
+chown -R root:root /out
+chmod -R a+rX,go-w /out
 EOF
 
 #############################################
@@ -345,6 +368,7 @@ EOF
 # below already scans, so module static assets reach httpd the same way
 # core www/ files do, no module-specific logic needed there.
 COPY --from=modules_source --link /out/usr/share/centreon/ .
+COPY --from=lm_source --link /out/usr/share/centreon/ .
 COPY --from=autodisco_source --link /out/usr/share/centreon/ .
 
 # Source maps for production JS/CSS — 106MB on their own (confirmed by
