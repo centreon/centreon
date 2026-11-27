@@ -219,38 +219,46 @@ try {
      * @var EngineCommandGenerator $commandGenerator
      */
     $commandGenerator = $container->get(EngineCommandGenerator::class);
-    foreach ($poller as $host) {
-        if ($ret['restart_mode'] == 1) {
-            $reloadCommand = ($commandGenerator !== null)
-                ? $commandGenerator->getEngineCommand('RELOAD')
-                : 'RELOAD';
-            $legacyCommandSender->sendCommand($reloadCommand, (int) $host['id']);
+    $engineCommand = match ((int) $ret['restart_mode']) {
+        1 => $commandGenerator->getEngineCommand('RELOAD'),
+        2 => $commandGenerator->getEngineCommand('RESTART'),
+        default => null,
+    };
 
-            // Manage Error Message
+    // MON-214479: every poller is reloaded (or restarted) at once, not one after the other. A poller which is not
+    // reached (not connected, failure, no confirmation in time) does not stop the others.
+    $deliveries = [];
+    foreach ($poller ?? [] as $host) {
+        $deliveries[(int) $host['id']] = $engineCommand === null
+            ? static fn () => null
+            : static fn () => $legacyCommandSender->sendCommand($engineCommand, (int) $host['id']);
+    }
+    $failures = $legacyCommandSender->deliverToPollers($deliveries);
+
+    foreach ($poller ?? [] as $host) {
+        if (isset($failures[(int) $host['id']])) {
+            continue;
+        }
+        if ($engineCommand !== null) {
             if (! isset($msg_restart[$host['id']])) {
                 $msg_restart[$host['id']] = '';
             }
             $msg_restart[$host['id']] .= _(
-                '<br><b>Centreon : </b>A reload signal has been sent to '
-                . htmlspecialchars(string: $host['name'], encoding: 'UTF-8') . "\n"
-            );
-        } elseif ($ret['restart_mode'] == 2) {
-            $restartCommand = ($commandGenerator !== null)
-                ? $commandGenerator->getEngineCommand('RESTART')
-                : 'RESTART';
-            $legacyCommandSender->sendCommand($restartCommand, (int) $host['id']);
-
-            // Manage error Message
-            if (! isset($msg_restart[$host['id']])) {
-                $msg_restart[$host['id']] = '';
-            }
-            $msg_restart[$host['id']] .= _(
-                '<br><b>Centreon : </b>A restart signal has been sent to '
+                ((int) $ret['restart_mode'] === 1
+                    ? '<br><b>Centreon : </b>A reload signal has been sent to '
+                    : '<br><b>Centreon : </b>A restart signal has been sent to ')
                 . htmlspecialchars(string: $host['name'], encoding: 'UTF-8') . "\n"
             );
         }
-        $DBRESULT = $pearDB->query("UPDATE `nagios_server` SET `last_restart` = '"
-            . time() . "', `updated` = '0' WHERE `id` = '" . $host['id'] . "'");
+        $pearDB->query("UPDATE `nagios_server` SET `last_restart` = '"
+            . time() . "', `updated` = '0' WHERE `id` = '" . (int) $host['id'] . "'");
+    }
+    if ($failures !== []) {
+        throw LegacyCommandSender::combineFailures(
+            $failures,
+            array_column($poller, 'name', 'id'),
+            count($poller)
+        );
     }
 
     foreach ($msg_restart as $key => $str) {
