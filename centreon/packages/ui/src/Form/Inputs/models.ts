@@ -70,6 +70,9 @@ export interface InputProps {
   additionalMemoProps?: Array<unknown>;
   autoFocus?: boolean;
   autocomplete?: {
+    // Shows the clear button, so an optional value can be emptied without
+    // offering a "none" option.
+    clearable?: boolean;
     creatable?: boolean;
     options: Array<SelectEntry>;
     fullWidth?: boolean;

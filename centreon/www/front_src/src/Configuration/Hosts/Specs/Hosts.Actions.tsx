@@ -7,6 +7,7 @@ import userEvent from '@testing-library/user-event';
 
 import { formStateAtom } from '../../ConfigurationBase/atoms';
 import { listingDataTestIds } from '../../ConfigurationBase/Listing/dataTestIds';
+import { panelDataTestIds } from '../../ConfigurationBase/Panel/dataTestIds';
 import {
   labelDelete,
   labelDisable,
@@ -36,6 +37,18 @@ const openMoreActions = async (): Promise<HTMLElement> => {
 
   // The last one opened: a closing menu may still be in the page.
   return (await screen.findAllByRole('menu')).at(-1) as HTMLElement;
+};
+
+// The look of a toggle, by the test id its `@centreon/ui` switch puts on the
+// switch base, next to the track.
+const getTrackStyle = (element: HTMLElement): string => {
+  const { backgroundColor, opacity } = getComputedStyle(
+    element
+      .closest('.MuiSwitch-root')
+      ?.querySelector('.MuiSwitch-track') as HTMLElement
+  );
+
+  return `${backgroundColor} ${opacity}`;
 };
 
 const initializeListing = async (
@@ -226,6 +239,48 @@ export default () => {
       const { request } = await waitForRequest('@patchHost1');
 
       expect(request.body).toEqual({ activated: true });
+    });
+
+    it('sets the host panel off the listing with a shadow, its toggles on as green as the listing ones', async () => {
+      await initializeListing();
+
+      await userEvent.click(screen.getByText('host 0'));
+      await waitForRequest('@getHost');
+
+      const header = await screen.findByTestId(panelDataTestIds.header);
+
+      expect(
+        getComputedStyle(header.closest('.MuiPaper-root') as HTMLElement)
+          .boxShadow
+      ).not.toBe('none');
+
+      // Host 0 is activated: its toggle is on, in its row as in the header.
+      const listingToggle = getTrackStyle(
+        screen.getByTestId(listingDataTestIds.row.enableDisable(0))
+      );
+
+      expect(getTrackStyle(screen.getByTestId(panelDataTestIds.enable))).toBe(
+        listingToggle
+      );
+
+      // Rendered once the host is loaded into the form.
+      const formToggle = await waitFor(() => {
+        const input = screen
+          .getByTestId(panelDataTestIds.content)
+          .querySelector<HTMLInputElement>('.MuiSwitch-root input');
+
+        expect(input).not.toBeNull();
+
+        return input as HTMLInputElement;
+      });
+
+      if (!formToggle.checked) {
+        await userEvent.click(formToggle);
+      }
+
+      await waitFor(() =>
+        expect(getTrackStyle(formToggle)).toBe(listingToggle)
+      );
     });
 
     it('offers deploy services in the More actions menu', async () => {

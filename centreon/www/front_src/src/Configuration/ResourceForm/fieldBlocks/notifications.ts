@@ -22,6 +22,7 @@ import type {
 } from '../models';
 import {
   getIntegerSchema,
+  getNumberInput,
   type OptionalNumber,
   optionalNumberDecoder,
   toApiNumber
@@ -45,6 +46,7 @@ import {
   labelNotifications,
   labelNotifyOn,
   labelRecoveryNotificationDelay,
+  labelTimesSixtySeconds,
   labelYes
 } from '../translatedLabels';
 import {
@@ -519,13 +521,15 @@ export const getNotificationDelaysBlock = ({
     keyMap: { firstDelay: 'first_delay', recoveryDelay: 'recovery_delay' }
   }),
   getInputs: ({ t }) => {
-    const getNumberInput = (fieldName: keyof DelaysValues, label: string) => ({
-      dataTestId: `${idPrefix}-notifications-${fieldName}`,
-      fieldName: `notifications.${fieldName}`,
-      label: t(label),
-      text: { min: 0, type: 'number' },
-      type: InputType.Text
-    });
+    // Counted in intervals of one minute, as legacy words it.
+    const getDelayInput = (fieldName: keyof DelaysValues, label: string) =>
+      getNumberInput({
+        dataTestId: `${idPrefix}-notifications-${fieldName}`,
+        fieldName: `notifications.${fieldName}`,
+        label: t(label),
+        min: 0,
+        unit: t(labelTimesSixtySeconds)
+      });
 
     return {
       // Row by row: interval beside the first delay, period beside recovery.
@@ -533,8 +537,8 @@ export const getNotificationDelaysBlock = ({
         className: twoColumns,
         columnSeparator: true,
         columns: [
-          getNumberInput('interval', labelNotificationInterval),
-          getNumberInput('firstDelay', labelFirstNotificationDelay),
+          getDelayInput('interval', labelNotificationInterval),
+          getDelayInput('firstDelay', labelFirstNotificationDelay),
           {
             connectedAutocomplete: buildSelector({
               baseEndpoint,
@@ -547,7 +551,7 @@ export const getNotificationDelaysBlock = ({
             label: t(labelNotificationPeriod),
             type: InputType.SingleConnectedAutocomplete
           },
-          getNumberInput('recoveryDelay', labelRecoveryNotificationDelay)
+          getDelayInput('recoveryDelay', labelRecoveryNotificationDelay)
         ],
         idPrefix,
         name: 'notifications-delays'

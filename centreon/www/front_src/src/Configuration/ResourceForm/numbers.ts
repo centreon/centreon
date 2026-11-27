@@ -1,5 +1,10 @@
+import { InputType } from '@centreon/ui';
+
+import { createElement } from 'react';
 import { JsonDecoder } from 'ts.data.json';
 import { number } from 'yup';
+
+import type { FormValues } from './models';
 
 // A number field holds `''` until something is typed.
 export type OptionalNumber = number | '';
@@ -28,3 +33,32 @@ export const getIntegerSchema = ({
     .typeError(message)
     .integer(message)
     .min(min, message);
+
+// A number field of at least `min`, with the unit it counts in, such as
+// seconds, shown after the value.
+export const getNumberInput = ({
+  dataTestId,
+  fieldName,
+  getDisabled,
+  label,
+  min,
+  unit
+}: {
+  dataTestId: string;
+  fieldName: string;
+  getDisabled?: (values: FormValues) => boolean;
+  label: string;
+  min: number;
+  unit?: string;
+}) => ({
+  dataTestId,
+  fieldName,
+  ...(getDisabled && { getDisabled }),
+  label,
+  text: {
+    ...(unit && { endAdornment: createElement('span', null, unit) }),
+    min,
+    type: 'number'
+  },
+  type: InputType.Text
+});

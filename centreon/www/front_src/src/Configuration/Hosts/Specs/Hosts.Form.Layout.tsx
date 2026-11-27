@@ -466,11 +466,39 @@ export default () => {
       expect(
         screen.getByRole('spinbutton', { name: labelAcknowledgementTimeout })
       ).toBeVisible();
-      expect(screen.getByText(labelTimesSixtySeconds)).toBeVisible();
+      expect(
+        within(
+          getField('host-form-data-processing-acknowledgmentTimeout')
+        ).getByText(labelTimesSixtySeconds)
+      ).toBeVisible();
       // The title says which handler, the field asks for its command.
       expect(
         screen.getByRole('combobox', { name: labelCommand })
       ).toBeVisible();
+    });
+
+    it('words the check intervals and the notification delays with their unit, as legacy does', async () => {
+      initializeFormLayout({ width: wide });
+
+      await waitForForm();
+
+      [
+        'host-form-scheduling-options-normalCheckInterval',
+        'host-form-scheduling-options-retryCheckInterval',
+        'host-form-notifications-interval',
+        'host-form-notifications-firstDelay',
+        'host-form-notifications-recoveryDelay'
+      ].forEach((field) => {
+        expect(
+          within(getField(field)).getByText(labelTimesSixtySeconds)
+        ).toBeVisible();
+      });
+      // A count, not a duration.
+      expect(
+        within(
+          getField('host-form-scheduling-options-maxCheckAttempts')
+        ).queryByText(labelTimesSixtySeconds)
+      ).toBeNull();
     });
 
     it('draws the dashed separators of the design between the columns only', async () => {

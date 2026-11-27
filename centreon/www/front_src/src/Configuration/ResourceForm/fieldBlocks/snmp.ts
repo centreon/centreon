@@ -1,19 +1,11 @@
-import {
-  type InputPropsWithoutGroup,
-  InputType,
-  type SelectEntry
-} from '@centreon/ui';
+import { type InputPropsWithoutGroup, InputType } from '@centreon/ui';
 
 import { JsonDecoder } from 'ts.data.json';
 import { string } from 'yup';
 
 import { getBlock } from '../grid';
 import type { FieldBlock, ResourceOptions } from '../models';
-import {
-  labelNone,
-  labelSnmpCommunity,
-  labelSnmpVersion
-} from '../translatedLabels';
+import { labelSnmpCommunity, labelSnmpVersion } from '../translatedLabels';
 
 const snmpCommunityMaxLength = 255;
 
@@ -27,9 +19,6 @@ const snmpVersionOptions = snmpVersions.map((version) => ({
 }));
 
 type SnmpVersionOption = (typeof snmpVersionOptions)[number];
-
-// Fallback to empty the field: the select cannot be cleared.
-const noSnmpVersionId = 'none';
 
 interface SnmpDetail {
   snmpCommunity: string;
@@ -63,17 +52,8 @@ export const getSnmpBlock = ({
   },
   getInputs: ({ t }) => {
     const snmpVersion: InputPropsWithoutGroup = {
-      autocomplete: {
-        options: [
-          { id: noSnmpVersionId, name: t(labelNone) },
-          ...snmpVersionOptions
-        ]
-      },
-      change: ({ setFieldValue, value }) =>
-        setFieldValue(
-          'snmpVersion',
-          (value as SelectEntry | null)?.id === noSnmpVersionId ? null : value
-        ),
+      // Emptied with the clear button: no "none" option among the versions.
+      autocomplete: { clearable: true, options: snmpVersionOptions },
       dataTestId: `${idPrefix}-snmp-version`,
       fieldName: 'snmpVersion',
       label: t(labelSnmpVersion),

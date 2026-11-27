@@ -79,10 +79,13 @@ const fillRequiredFields = async (): Promise<void> => {
 
 // The clear indicator only shows on hover or focus: hovering the field first
 // stands in for the Cypress `{ force: true }`.
-const clearAutocomplete = async (testId: string): Promise<void> => {
-  const root = (await screen.findByTestId(testId)).closest(
-    '.MuiAutocomplete-root'
-  ) as HTMLElement;
+// By test id, or by the field itself for a select that renders none.
+const clearAutocomplete = async (
+  field: string | HTMLElement
+): Promise<void> => {
+  const element =
+    typeof field === 'string' ? await screen.findByTestId(field) : field;
+  const root = element.closest('.MuiAutocomplete-root') as HTMLElement;
 
   await userEvent.hover(root);
   await userEvent.click(
@@ -229,14 +232,29 @@ export default () => {
     ).toHaveAttribute('aria-pressed', 'true');
   });
 
-  it('clears the SNMP version, timezone and scheduling settings of a host', async () => {
+  it('offers the SNMP versions alone, without a none option', async () => {
     await openHost();
 
     await waitFor(() =>
       expect(screen.getByLabelText(labelSnmpVersion)).toHaveValue('2c')
     );
     await userEvent.click(screen.getByLabelText(labelSnmpVersion));
-    await pickOption(labelNone);
+    await waitFor(() => expect(getPopper()).not.toBeNull());
+
+    expect(
+      within(getPopper())
+        .getAllByRole('option')
+        .map((option) => option.textContent)
+    ).toEqual(['1', '2c', '3']);
+  });
+
+  it('clears the SNMP version, timezone and scheduling settings of a host', async () => {
+    await openHost();
+
+    await waitFor(() =>
+      expect(screen.getByLabelText(labelSnmpVersion)).toHaveValue('2c')
+    );
+    await clearAutocomplete(screen.getByLabelText(labelSnmpVersion));
     await waitFor(() =>
       expect(screen.getByLabelText(labelSnmpVersion)).toHaveValue('')
     );

@@ -9,18 +9,17 @@ import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
 import { configurationAtom } from '../../../atoms';
+import { enableSwitchClassName } from '../../../enableSwitch';
 import {
   labelDisabled,
   labelEnableDisable,
   labelEnabled
 } from '../../../translatedLabels';
 import { listingDataTestIds } from '../../dataTestIds';
-import useStyles from './Status.styles';
 import useStatus from './useStatus';
 
 const Status = ({ row }: ComponentColumnProps): JSX.Element => {
   const { t } = useTranslation();
-  const { classes } = useStyles();
 
   const { isMutating, change, checked } = useStatus({ row });
 
@@ -44,7 +43,7 @@ const Status = ({ row }: ComponentColumnProps): JSX.Element => {
       <Switch
         aria-label={t(labelEnableDisable)}
         checked={checked}
-        className={classes.switch}
+        className={`ml-4 ${enableSwitchClassName}`}
         color="primary"
         data-testid={listingDataTestIds.row.enableDisable(row.id)}
         disabled={isMutating || !canChange}

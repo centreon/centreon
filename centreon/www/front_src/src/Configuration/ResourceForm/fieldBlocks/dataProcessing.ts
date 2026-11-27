@@ -1,7 +1,6 @@
 import { InputType, type SelectEntry } from '@centreon/ui';
 
 import type { TFunction } from 'i18next';
-import { createElement } from 'react';
 import { JsonDecoder } from 'ts.data.json';
 import { type ObjectShape, object, string } from 'yup';
 
@@ -16,6 +15,7 @@ import type {
 } from '../models';
 import {
   getIntegerSchema,
+  getNumberInput,
   type OptionalNumber,
   optionalNumberDecoder,
   toApiNumber
@@ -116,32 +116,6 @@ const getTriStateInput = ({
   label,
   segmentedButtons: { hideLabel: !isLabelShown, options: triStateOptions },
   type: InputType.SegmentedButtons
-});
-
-const getNumberInput = ({
-  fieldName,
-  getDisabled,
-  idPrefix,
-  label,
-  min,
-  unit
-}: {
-  fieldName: string;
-  getDisabled?: (values: FormValues) => boolean;
-  idPrefix: string;
-  label: string;
-  min: number;
-  unit?: string;
-}) => ({
-  ...getInputIds(idPrefix, fieldName),
-  ...(getDisabled && { getDisabled }),
-  label,
-  text: {
-    ...(unit && { endAdornment: createElement('span', null, unit) }),
-    min,
-    type: 'number'
-  },
-  type: InputType.Text
 });
 
 interface EventHandlerValues {
@@ -331,9 +305,8 @@ export const getFreshnessBlock = ({
         }),
         // 0 leaves the threshold to the engine.
         getNumberInput({
-          fieldName: 'freshnessThreshold',
+          ...getInputIds(idPrefix, 'freshnessThreshold'),
           getDisabled: isForced,
-          idPrefix,
           label: t(labelFreshnessThreshold),
           min: 0,
           unit: t(labelSeconds)
@@ -404,8 +377,7 @@ export const getAcknowledgmentTimeoutBlock = ({
           acknowledgmentTimeout: getBlock({
             columns: [
               getNumberInput({
-                fieldName: 'acknowledgmentTimeout',
-                idPrefix,
+                ...getInputIds(idPrefix, 'acknowledgmentTimeout'),
                 label: t(labelAcknowledgementTimeout),
                 min: 1,
                 unit: t(labelTimesSixtySeconds)
@@ -489,15 +461,13 @@ export const getFlappingBlock = ({
                 label: t(labelFlapDetectionEnabled)
               }),
               getNumberInput({
-                fieldName: 'lowFlapThreshold',
-                idPrefix,
+                ...getInputIds(idPrefix, 'lowFlapThreshold'),
                 label: t(labelLowFlapThreshold),
                 min: 0,
                 unit: '%'
               }),
               getNumberInput({
-                fieldName: 'highFlapThreshold',
-                idPrefix,
+                ...getInputIds(idPrefix, 'highFlapThreshold'),
                 label: t(labelHighFlapThreshold),
                 min: 0,
                 unit: '%'
