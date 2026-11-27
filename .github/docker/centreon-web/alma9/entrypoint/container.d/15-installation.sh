@@ -65,11 +65,16 @@ if [ ! -f /etc/centreon/centreon.conf.php ] && [ -d /usr/share/centreon/www/inst
     fi
 
     echo "Applying database migrations..."
+    # With the checks of a customer platform: a migration leaving orphans or duplicates must fail here.
+    mysql -h"${MYSQL_HOST}" -uroot -e "SET GLOBAL foreign_key_checks=${MYSQL_FK_CHECKS}"
+    mysql -h"${MYSQL_HOST}" -uroot -e "SET GLOBAL unique_checks=${MYSQL_UNIQUE_CHECKS}"
     if ! migrations_result=$(su apache -s /bin/bash -c "php migrateDatabases.php") \
       || ! grep -q '"result":0' <<< "${migrations_result}"; then
       echo "Database migrations failed: ${migrations_result}" >&2
       exit 1
     fi
+    mysql -h"${MYSQL_HOST}" -uroot -e "SET GLOBAL foreign_key_checks=0"
+    mysql -h"${MYSQL_HOST}" -uroot -e "SET GLOBAL unique_checks=0"
 
     mysql -h"${MYSQL_HOST}" -uroot "${MYSQL_DB_CONFIGURATION}" -e "UPDATE cfg_centreonbroker_info SET config_value = '${MYSQL_HOST}' WHERE config_key = 'db_host'"
     mysql -h"${MYSQL_HOST}" -uroot -e "GRANT ALL ON *.* to 'centreon'@'%' WITH GRANT OPTION"
