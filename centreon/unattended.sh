@@ -32,6 +32,45 @@ function on_error() {
 #========= end of function on_error()
 trap 'on_error "$?" "${LINENO}" "${BASH_COMMAND}"' ERR
 
+#========= begin of function run_as_root()
+# Without root, restart this script through sudo so that a sudoer does not have to run it again by hand:
+# everything below then runs as root, exactly like a direct root run. sudo resets the environment, so
+# only the ENV_* settings and the proxy variables are passed through. Runs before any other side effect.
+#
+function run_as_root() {
+	local self var
+	local -a keep_env=() sudo_cmd=(sudo)
+
+	[ "$EUID" -eq 0 ] && return 0
+	# '-h' only prints the usage
+	[ "${1:-}" == "-h" ] && return 0
+
+	if ! command -v sudo >/dev/null 2>&1; then
+		echo "This script must be run as root (sudo is not available to restart it)" >&2
+		exit 1
+	fi
+	# A script read from a pipe (curl ... | bash) or a process substitution cannot be read again.
+	if [ "$0" != "${BASH_SOURCE[0]}" ] || [ ! -f "$0" ]; then
+		echo "This script must be run as root. It cannot restart itself through sudo when it is read from a pipe: use 'curl ... | sudo bash -s -- <options>' or download it first." >&2
+		exit 1
+	fi
+	self=$(readlink -f "$0")
+
+	for var in $(compgen -e); do
+		case "$var" in
+		ENV_* | http_proxy | https_proxy | no_proxy | HTTP_PROXY | HTTPS_PROXY | NO_PROXY) keep_env+=("$var") ;;
+		esac
+	done
+	if [ ${#keep_env[@]} -gt 0 ]; then
+		sudo_cmd+=("--preserve-env=$(IFS=,; echo "${keep_env[*]}")")
+	fi
+
+	echo "Not running as root: restarting through sudo" >&2
+	exec "${sudo_cmd[@]}" bash "$self" "$@"
+}
+#========= end of function run_as_root()
+run_as_root "$@"
+
 ### Define all supported constants
 OPTIONS="hsDt:v:r:l:p:d:V:-:"
 declare -A SUPPORTED_LOG_LEVEL=([DEBUG]=0 [INFO]=1 [WARN]=2 [ERROR]=3)
@@ -135,6 +174,8 @@ function usage() {
 	echo " $script_short_name install --no-logrotate == install without logrotate, when the logs are rotated by another tool"
 	echo
 	echo " $script_short_name install -V vault-example.com;8200;my_storage;my-role-id;my-secret-id == configuring a vault to store your application and database credentials"
+	echo
+	echo "Run it as root, or as a sudoer: the script then restarts itself through sudo (ENV_* and proxy variables are kept)."
 	echo
 	echo "Exit codes:"
 	echo
@@ -2108,10 +2149,6 @@ function display_services_recap() {
 
 #####################################################
 ################ MAIN SCRIPT EXECUTION ##############
-
-if [ $EUID -ne 0 ]; then
-	error_and_exit "This script must be run as root"
-fi
 
 ## Process the provided arguments in line
 case "$1" in
