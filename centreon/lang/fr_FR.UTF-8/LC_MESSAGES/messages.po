@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: Centreon web\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-01-01 00:00+0000\n"
-"PO-Revision-Date: 2026-09-17 09:59+0000\n"
+"PO-Revision-Date: 2026-11-27 10:00+0000\n"
 "Last-Translator: Weblate user 4 <user-4@users.noreply.weblate.prod.centreon.io>\n"
 "Language-Team: French <https://weblate.prod.centreon.io/projects/centreon-infra-monitoring/26-10/web-messages-26-10/fr/>\n"
 "Language: fr_FR\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Weblate 2026.8.1\n"
+"X-Generator: Weblate 2026.11.2\n"
 
 #: centreon/www/install/smarty_translate.php
 msgid " + Add a new entry"
@@ -95,7 +95,7 @@ msgstr "1 minute"
 
 #: centreon/www/install/front_translate.php
 msgid "1,000+"
-msgstr "1 000+"
+msgstr "1,000+"
 
 #: centreon/www/install/front_translate.php
 msgid "12 hours"
@@ -13712,7 +13712,7 @@ msgstr "Réorganisation annulée, la ligne {{position}} a retrouvé sa position 
 
 #: centreon/www/install/front_translate.php
 msgid "Replace"
-msgstr "Remplacer"
+msgstr "Remplacement"
 
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 #: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
@@ -18883,7 +18883,10 @@ msgstr "Hier"
 
 #: centreon/www/include/configuration/configServers/listServers.php
 msgid "You are about to delete one or more pollers.\\nThis action is IRREVERSIBLE.\\nDo you confirm the deletion ?"
-msgstr "Vous êtes sur le point de supprimer un ou plusieurs collecteurs.\\nCette action est IRREVERSIBLE.\\nConfirmez-vous la suppression ?"
+msgstr ""
+"Vous êtes sur le point de supprimer un ou plusieurs collecteurs.\\n"
+"Cette action est IRREVERSIBLE.\\n"
+"Confirmez-vous la suppression ?"
 
 #: centreon/www/install/front_translate.php
 msgid "You are about to delete the <strong>{{tokenName}}</strong> token. This action cannot be undone. Do you want to delete this token anyway ? You must export the configuration for the change to be taken into account."
@@ -20388,13 +20391,13 @@ msgstr "Une erreur est survenue lors de la mise à jour de la platforme"
 msgid "An error occurred when applying post update actions"
 msgstr "Une erreur s'est produite lors de l'application des actions postérieures à la mise à jour"
 
-#, php-format
 #: unknown
+#, php-format
 msgid "An error occurred when applying the update %s (%s)"
 msgstr "Une erreur s'est produite lors de l'application de la mise à jour %s (%s)"
 
-#, php-format
 #: unknown
+#, php-format
 msgid "An error occurred when applying the update (%s)"
 msgstr "Une erreur s'est produite lors de la mise à jour (%s)"
 
@@ -20702,8 +20705,8 @@ msgstr "Information sur Centreon Broker"
 msgid "Centreon Broker socket path"
 msgstr "Chemin d'accès au socket Unix de Centreon Broker"
 
-#, php-format
 #: unknown
+#, php-format
 msgid ""
 "Centreon Broker's configuration directory '%s' does not exist and could not\n"
 "                                             be created for monitoring engine '%s'. Please check it's path or create it"
@@ -20999,8 +21002,8 @@ msgstr "Variable CENTREON_ETC non trouvée. La session a probablement expirée."
 msgid "Could not find configuration database. Session probably expired."
 msgstr "Impossible de trouver la base de données de configuration. La session a probablement expiré."
 
-#, php-format
 #: unknown
+#, php-format
 msgid ""
 "Could not find configuration directory '%s' for monitoring engine '%s'.\n"
 "                                 Please check it's path or create it"
@@ -22348,8 +22351,8 @@ msgstr "Dernière fois dans un état inconnu"
 msgid "Last warning time"
 msgstr "Derniere fois dans un état warning"
 
-#, php-format
 #: unknown
+#, php-format
 msgid "Latency detected on %s; check configuration for better optimisation"
 msgstr "Latence détectée pour %s, contrôler la configuration pour améliorer les performances"
 
@@ -22497,8 +22500,8 @@ msgstr "Map"
 msgid "Map Icon"
 msgstr "Icône pour la carte"
 
-#, php-format
 #: unknown
+#, php-format
 msgid "MariaDB version %s required (%s installed)"
 msgstr "La version %s de MariaDB est requise (%s installée)"
 
@@ -22830,8 +22833,8 @@ msgstr "Vue d'ensemble"
 msgid "PENDING"
 msgstr "EN ATTENTE"
 
-#, php-format
 #: unknown
+#, php-format
 msgid "PHP extension %s not loaded"
 msgstr "L'extension %s de PHP n'est pas chargée"
 
@@ -22839,8 +22842,8 @@ msgstr "L'extension %s de PHP n'est pas chargée"
 msgid "PHP file included"
 msgstr "Fichier PHP inclus"
 
-#, php-format
 #: unknown
+#, php-format
 msgid "PHP version %s required (%s installed)"
 msgstr "La version %s de PHP est requise (%s installée)"
 
@@ -23728,8 +23731,8 @@ msgstr "Couleur du texte"
 msgid "The CSRF * token is invalid, please click"
 msgstr "Le jeton * CSRF est invalide, s'il vous plaît cliquer ici"
 
-#, php-format
 #: unknown
+#, php-format
 msgid "The SQL files are located in %s"
 msgstr "Les fichiers SQL sont situés dans %s"
 
@@ -24283,8 +24286,8 @@ msgstr "Bienvenue"
 msgid "Welcome to Centreon Broker configuration"
 msgstr "Bienvenu dans la configuration de Centreon Broker"
 
-#, php-format
 #: unknown
+#, php-format
 msgid "Welcome to the %s page"
 msgstr "Bienvenue sur la page %s"
 
@@ -24508,8 +24511,8 @@ msgstr "Vous avez des modifications non enregistrées, voulez-vous continuer ?"
 msgid "You have unsaved changes. Are you sure you want to close this panel without saving?"
 msgstr "Vous avez des modifications non enregistrées. Voulez-vous vraiment fermer ce panneau sans enregistrer ?"
 
-#, php-format
 #: unknown
+#, php-format
 msgid "You haven't configured any %s yet. Add your first one below and Centreon will start monitoring it right away."
 msgstr "Vous n'avez pas encore configuré de %s. Ajoutez-en un ci-dessous et Centreon commencera à le superviser immédiatement."
 
@@ -24545,8 +24548,8 @@ msgstr "Votre session a expiré"
 msgid "ZMQ"
 msgstr "ZMQ"
 
-#, php-format
 #: unknown
+#, php-format
 msgid "[%s] The value \"%s\" was expected to be a valid ip address or domain name"
 msgstr "[%s] La valeur \"%s\" n'est pas une adresse IP ou un nom de domaine valide"
 
