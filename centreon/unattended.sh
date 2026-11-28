@@ -39,7 +39,7 @@ trap 'on_error "$?" "${LINENO}" "${BASH_COMMAND}"' ERR
 #
 function run_as_root() {
 	local self var
-	local -a keep_env=() sudo_cmd=(sudo)
+	local -a keep_env=() sudo_cmd=(sudo -u root)
 
 	[ "$EUID" -eq 0 ] && return 0
 	# '-h' only prints the usage
@@ -176,6 +176,7 @@ function usage() {
 	echo " $script_short_name install -V vault-example.com;8200;my_storage;my-role-id;my-secret-id == configuring a vault to store your application and database credentials"
 	echo
 	echo "Run it as root, or as a sudoer: the script then restarts itself through sudo (ENV_* and proxy variables are kept)."
+	echo "sudo logs the command line and the ENV_* values: let the script generate the passwords, or run it as root to keep your own out of the sudo log."
 	echo
 	echo "Exit codes:"
 	echo
