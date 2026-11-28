@@ -49,9 +49,14 @@ dropRootOverride() {
 startSnmptrapdAtBoot() {
   # deb only: snmptrapd is socket-activated, so it only starts on the first trap (el starts it at boot)
   local wants=/etc/systemd/system/multi-user.target.wants/snmptrapd.service
+  local dropin=/etc/systemd/system/snmptrapd.service.d/centreon.conf
   if [ ! -e "$wants" ] && [ ! -L "$wants" ]; then
     mkdir -p /etc/systemd/system/snmptrapd.service.d
-    echo "$WANTS_MARKER" > /etc/systemd/system/snmptrapd.service.d/centreon.conf
+    # an existing drop-in keeps its content: only the marker line is added
+    if ! grep -qxF "$WANTS_MARKER" "$dropin" 2>/dev/null; then
+      [ -s "$dropin" ] && [ -n "$(tail -c1 "$dropin")" ] && echo >> "$dropin"
+      echo "$WANTS_MARKER" >> "$dropin"
+    fi
     systemctl add-wants multi-user.target snmptrapd.service ||:
   fi
 }
