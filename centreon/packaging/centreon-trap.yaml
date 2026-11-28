@@ -61,6 +61,13 @@ contents:
       mode: 0400
     packager: deb
 
+  - src: "./src/sudoersCentreonTrap"
+    dst: "/etc/sudoers.d/centreon-trap"
+    type: config|noreplace
+    file_info:
+      mode: 0440
+    packager: deb
+
   - src: "../logrotate/centreontrapd"
     dst: "/etc/logrotate.d/centreontrapd"
     type: config|noreplace
@@ -91,6 +98,7 @@ overrides:
       - libsnmp-perl
       - snmptrapd
       - snmpd
+      - sudo
     recommends:
       - logrotate
 

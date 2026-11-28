@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# tells postremove that the snmptrapd wants link is ours; one made by an admin is left alone
+WANTS_MARKER="# centreon-trap: added the multi-user.target wants link"
+
 updateConfiguration() {
   if [ -f /etc/snmp/snmptrapd.conf ]; then
     echo "Updating snmptrapd configuration to handle trap by centreontrapdforward ..."
@@ -17,26 +20,45 @@ EOF
   fi
 }
 
-startSnmptrapdAsRoot() {
-  # deb only: snmptrapd runs as Debian-snmp, which cannot "su -l centreon" in the traphandle,
-  # and is socket-activated, so it only starts on the first trap (el runs it as root at boot)
-  local dropin=/etc/systemd/system/snmptrapd.service.d/centreon.conf
-  local wants=/etc/systemd/system/multi-user.target.wants/snmptrapd.service
-  local marker="# centreon-trap: added the multi-user.target wants link"
-  # the marker tells postremove the wants link is ours; one made by an admin is left alone
-  local ours=""
-  if grep -qxF "$marker" "$dropin" 2>/dev/null || { [ ! -e "$wants" ] && [ ! -L "$wants" ]; }; then
-    ours=1
+useSudoTraphandle() {
+  # deb only: snmptrapd runs as Debian-snmp, which cannot "su -l centreon";
+  # /etc/sudoers.d/centreon-trap lets it run the forwarder as centreon instead
+  [ -f /etc/snmp/snmptrapd.conf ] || return 0
+  sed -i -e 's#^traphandle default su -l centreon -c "/usr/share/centreon/bin/centreontrapdforward"$#traphandle default /usr/bin/sudo -n -u centreon /usr/share/centreon/bin/centreontrapdforward#' \
+    /etc/snmp/snmptrapd.conf
+  if grep -qE '^traphandle .*su .*centreontrapdforward' /etc/snmp/snmptrapd.conf; then
+    echo "WARNING: /etc/snmp/snmptrapd.conf was edited and still uses su, which fails for Debian-snmp:" \
+      "use 'traphandle default /usr/bin/sudo -n -u centreon /usr/share/centreon/bin/centreontrapdforward'"
   fi
-  mkdir -p /etc/systemd/system/snmptrapd.service.d
-  cat <<EOF > "$dropin"
-[Service]
-User=root
-EOF
-  [ -n "$ours" ] && echo "$marker" >> "$dropin"
-  systemctl daemon-reload ||:
-  systemctl add-wants multi-user.target snmptrapd.service ||:
-  systemctl restart snmptrapd.service ||:
+}
+
+dropRootOverride() {
+  # deb only: earlier builds ran snmptrapd as root through this drop-in, the sudo traphandle replaces it;
+  # only the exact content they wrote is changed, the marker line is kept for postremove
+  local dropin=/etc/systemd/system/snmptrapd.service.d/centreon.conf
+  [ -f "$dropin" ] || return 0
+  [ "$(grep -vxF "$WANTS_MARKER" "$dropin")" = $'[Service]\nUser=root' ] || return 0
+  if grep -qxF "$WANTS_MARKER" "$dropin"; then
+    echo "$WANTS_MARKER" > "$dropin"
+  else
+    rm -f "$dropin"
+    rmdir /etc/systemd/system/snmptrapd.service.d 2>/dev/null ||:
+  fi
+}
+
+startSnmptrapdAtBoot() {
+  # deb only: snmptrapd is socket-activated, so it only starts on the first trap (el starts it at boot)
+  local wants=/etc/systemd/system/multi-user.target.wants/snmptrapd.service
+  local dropin=/etc/systemd/system/snmptrapd.service.d/centreon.conf
+  if [ ! -e "$wants" ] && [ ! -L "$wants" ]; then
+    mkdir -p /etc/systemd/system/snmptrapd.service.d
+    # an existing drop-in keeps its content: only the marker line is added
+    if ! grep -qxF "$WANTS_MARKER" "$dropin" 2>/dev/null; then
+      [ -s "$dropin" ] && [ -n "$(tail -c1 "$dropin")" ] && echo >> "$dropin"
+      echo "$WANTS_MARKER" >> "$dropin"
+    fi
+    systemctl add-wants multi-user.target snmptrapd.service ||:
+  fi
 }
 
 startCentreonTrap() {
@@ -60,12 +82,22 @@ case "$action" in
   "1" | "install")
     updateConfiguration
     if [ "$1" = "configure" ]; then
-      startSnmptrapdAsRoot
+      useSudoTraphandle
+      dropRootOverride
+      startSnmptrapdAtBoot
+      systemctl daemon-reload ||:
+      systemctl restart snmptrapd.service ||:
     fi
     startCentreonTrap
     ;;
   "2" | "upgrade")
     updateConfiguration
+    if [ "$1" = "configure" ]; then
+      useSudoTraphandle
+      dropRootOverride
+      systemctl daemon-reload ||:
+      systemctl try-restart snmptrapd.service ||:
+    fi
     startCentreonTrap
     ;;
   *)
